@@ -1,0 +1,872 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://www.fleetcontrol/FWAN/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="FWAN" targetNamespace="http://www.fleetcontrol/FWAN/">
+  	
+  <wsdl:types>
+    	    
+    <xsd:schema targetNamespace="http://www.fleetcontrol/FWAN/">
+      	    
+			
+      <xsd:element name="vehiclesListRequest">
+        				
+        <xsd:complexType>
+          					
+          <xsd:sequence>
+            						
+            <xsd:element name="suId" type="xsd:int"/>
+            						
+            <xsd:element name="vgId" type="xsd:int"/>
+            						
+            <xsd:element name="timezone" type="xsd:string"/>
+            						
+            <xsd:element name="degreeCoords" type="xsd:boolean"/>
+            					
+          </xsd:sequence>
+          				
+        </xsd:complexType>
+        			
+      </xsd:element>
+      			
+      <xsd:complexType name="vehiclesListResponseItem">
+        				
+        <xsd:sequence>
+          					
+          <xsd:element name="id" type="xsd:int"/>
+          					
+          <xsd:element name="plate" type="xsd:string"/>
+          					
+          <xsd:element name="model" type="xsd:string"/>
+          					
+          <xsd:element name="lastEvent" nillable="true" type="xsd:dateTime"/>
+          				
+        </xsd:sequence>
+        			
+      </xsd:complexType>
+      			
+			
+      <xsd:element name="vehiclesListResponse">
+        				
+        <xsd:complexType>
+          					
+          <xsd:sequence>
+            						
+            <xsd:element name="vgId" type="xsd:int"/>
+            	           			
+            <xsd:element maxOccurs="unbounded" minOccurs="0" name="list" nillable="true" type="tns:vehiclesListResponseItem"/>
+            					
+          </xsd:sequence>
+          				
+        </xsd:complexType>
+        			
+      </xsd:element>
+      	
+			
+      <xsd:element name="vehiclesListExtendedRequest">
+        				
+        <xsd:complexType>
+          					
+          <xsd:sequence>
+            						
+            <xsd:element name="suId" type="xsd:int"/>
+            						
+            <xsd:element name="vgId" type="xsd:int"/>
+            						
+            <xsd:element name="timezone" type="xsd:string"/>
+            						
+            <xsd:element name="degreeCoords" type="xsd:boolean"/>
+            					
+          </xsd:sequence>
+          				
+        </xsd:complexType>
+        			
+      </xsd:element>
+      			
+      <xsd:complexType name="vehiclesListExtendedResponseItem">
+        				
+        <xsd:sequence>
+          					
+          <xsd:element name="id" type="xsd:int"/>
+          					
+          <xsd:element name="active" type="xsd:boolean"/>
+          					
+          <xsd:element name="plate" type="xsd:string"/>
+          					
+          <xsd:element name="model" type="xsd:string"/>
+          					
+          <xsd:element name="firstEvent" nillable="true" type="xsd:dateTime"/>
+          					
+          <xsd:element name="lastEvent" nillable="true" type="xsd:dateTime"/>
+          					
+          <xsd:element name="lastSessionEvent" nillable="true" type="xsd:dateTime"/>
+          					
+          <xsd:element name="isCan" type="xsd:boolean"/>
+          					
+          <xsd:element name="isRFIDReader" type="xsd:boolean"/>
+          					
+          <xsd:element name="profileId" type="xsd:int"/>
+          					
+          <xsd:element name="profileName" type="xsd:string"/>
+          					
+          <xsd:element name="deviceId" type="xsd:int"/>
+          					
+          <xsd:element name="deviceType" type="xsd:int"/>
+          					
+          <xsd:element name="deviceSN" type="xsd:string"/>
+          					
+          <xsd:element name="deviceBuildDate" nillable="true" type="xsd:date"/>
+          					
+          <xsd:element name="deviceFwUpgradeDisable" type="xsd:boolean"/>
+          					
+          <xsd:element name="deviceFwId" type="xsd:int"/>
+          					
+          <xsd:element name="deviceLastFwUpdate" nillable="true" type="xsd:dateTime"/>
+          					
+          <xsd:element name="deviceFwUpgradeReceived" type="xsd:int"/>
+          					
+          <xsd:element name="deviceRTCBatteryFailure" type="xsd:boolean"/>
+          					
+          <xsd:element name="devicePowerFailureDetected" type="xsd:int"/>
+          					
+          <xsd:element name="devicePowerOnOffDetected" type="xsd:int"/>
+          				
+        </xsd:sequence>
+        			
+      </xsd:complexType>
+      			
+			
+      <xsd:element name="vehiclesListExtendedResponse">
+        				
+        <xsd:complexType>
+          					
+          <xsd:sequence>
+            						
+            <xsd:element name="vgId" type="xsd:int"/>
+            	           			
+            <xsd:element maxOccurs="unbounded" minOccurs="0" name="list" nillable="true" type="tns:vehiclesListExtendedResponseItem"/>
+            					
+          </xsd:sequence>
+          				
+        </xsd:complexType>
+        			
+      </xsd:element>
+      	
+			
+      <xsd:element name="realTimePositionsRequest">
+        				
+        <xsd:complexType>
+          					
+          <xsd:sequence>
+            						
+            <xsd:element name="suId" type="xsd:int"/>
+            						
+            <xsd:element name="vgId" type="xsd:int"/>
+            						
+            <xsd:element name="rowNumber" type="xsd:int"/>
+            						
+            <xsd:element name="timezone" type="xsd:string"/>
+            						
+            <xsd:element name="degreeCoords" type="xsd:boolean"/>
+            					
+          </xsd:sequence>
+          				
+        </xsd:complexType>
+        			
+      </xsd:element>
+      			
+      <xsd:complexType name="realTimePositionsResponsePositionItem">
+        				
+        <xsd:sequence>
+          					
+          <xsd:element name="rowNumber" type="xsd:int">
+					</xsd:element>
+          					
+          <xsd:element name="timestamp" nillable="true" type="xsd:dateTime">
+					</xsd:element>
+          					
+          <xsd:element name="status" type="xsd:int">
+					</xsd:element>
+          					
+          <xsd:element name="latitude" type="xsd:double">
+					</xsd:element>
+          					
+          <xsd:element name="longitude" type="xsd:double">
+					</xsd:element>
+          					
+          <xsd:element name="navMode" type="xsd:int">
+					</xsd:element>
+          					
+          <xsd:element name="speed" type="xsd:float">
+					</xsd:element>
+          					
+          <xsd:element name="direction" type="xsd:float">
+					</xsd:element>
+          				
+        </xsd:sequence>
+        			
+      </xsd:complexType>
+      			
+			
+      <xsd:complexType name="realTimePositionsResponseVehicleItem">
+        				
+        <xsd:sequence>
+          					
+          <xsd:element name="veId" type="xsd:int">
+					</xsd:element>
+          					
+          <xsd:element name="vePlate" type="xsd:string">
+					</xsd:element>
+                     			
+          <xsd:element maxOccurs="unbounded" minOccurs="0" name="list" nillable="true" type="tns:realTimePositionsResponsePositionItem"/>
+          				
+        </xsd:sequence>
+        			
+      </xsd:complexType>
+      			
+      <xsd:element name="realTimePositionsResponse">
+        				
+        <xsd:complexType>
+          					
+          <xsd:sequence maxOccurs="1" minOccurs="0">
+            						
+            <xsd:element name="vgId" type="xsd:int"/>
+            	           			
+            <xsd:element maxOccurs="unbounded" minOccurs="0" name="list" nillable="true" type="tns:realTimePositionsResponseVehicleItem"/>
+            					
+          </xsd:sequence>
+          				
+        </xsd:complexType>
+        			
+      </xsd:element>
+      			
+			
+      <xsd:element name="historyRequest">
+        				
+        <xsd:complexType>
+          					
+          <xsd:sequence>
+            						
+            <xsd:element name="suId" type="xsd:int"/>
+            						
+            <xsd:element name="veId" type="xsd:int"/>
+            						
+            <xsd:element name="timezone" type="xsd:string"/>
+            						
+            <xsd:element name="degreeCoords" type="xsd:boolean"/>
+            						
+            <xsd:element name="dateFrom" type="xsd:dateTime"/>
+            						
+            <xsd:element name="dateTo" type="xsd:dateTime"/>
+            					
+          </xsd:sequence>
+          				
+        </xsd:complexType>
+        			
+      </xsd:element>
+      			
+      <xsd:complexType name="historyResponseItem">
+        				
+        <xsd:sequence>
+          					
+          <xsd:element name="timestamp" type="xsd:dateTime">
+					</xsd:element>
+          					
+          <xsd:element name="status" type="xsd:int">
+					</xsd:element>
+          					
+          <xsd:element name="latitude" type="xsd:double">
+					</xsd:element>
+          					
+          <xsd:element name="longitude" type="xsd:double">
+					</xsd:element>
+          					
+          <xsd:element name="navMode" type="xsd:int">
+					</xsd:element>
+          					
+          <xsd:element name="speed" type="xsd:float">
+					</xsd:element>
+          					
+          <xsd:element name="direction" type="xsd:float">
+					</xsd:element>
+          					
+          <xsd:sequence maxOccurs="1" minOccurs="1">
+            						
+            <xsd:element name="totalDistance" type="xsd:double">
+						</xsd:element>
+            						
+            <xsd:element name="totalConsumption" type="xsd:double">
+						</xsd:element>
+            						
+            <xsd:element name="fuelLevel" type="xsd:float">
+						</xsd:element>
+            						
+            <xsd:element name="brushes" type="xsd:int">
+						</xsd:element>
+            					
+          </xsd:sequence>
+          				
+        </xsd:sequence>
+        			
+      </xsd:complexType>
+      			
+			
+      <xsd:element name="historyResponse">
+        				
+        <xsd:complexType>
+          					
+          <xsd:sequence maxOccurs="unbounded" minOccurs="1">
+            						
+            <xsd:element name="veId" type="xsd:int"/>
+            						
+            <xsd:element name="success" type="xsd:boolean">
+						</xsd:element>
+            						
+            <xsd:element name="dataAvailable" type="xsd:boolean">
+						</xsd:element>
+            						
+            <xsd:element name="vePlate" nillable="true" type="xsd:string">
+						</xsd:element>
+            						
+            <xsd:element name="dataAvailableFrom" nillable="true" type="xsd:dateTime">
+						</xsd:element>
+            						
+            <xsd:element name="dataAvailableTo" nillable="true" type="xsd:dateTime">
+						</xsd:element>
+            						
+            <xsd:element maxOccurs="unbounded" minOccurs="0" name="list" nillable="true" type="tns:historyResponseItem"/>
+            					
+          </xsd:sequence>
+          				
+        </xsd:complexType>
+        			
+      </xsd:element>
+      			
+      <xsd:element name="sessionHistoryRequest">
+        				
+        <xsd:complexType>
+          					
+          <xsd:sequence>
+            						
+            <xsd:element name="suId" type="xsd:int"/>
+            						
+            <xsd:element name="veId" type="xsd:int"/>
+            						
+            <xsd:element name="timezone" type="xsd:string"/>
+            						
+            <xsd:element name="degreeCoords" type="xsd:boolean"/>
+            						
+            <xsd:element name="dateFrom" type="xsd:dateTime"/>
+            						
+            <xsd:element name="dateTo" type="xsd:dateTime"/>
+            					
+          </xsd:sequence>
+          				
+        </xsd:complexType>
+        			
+      </xsd:element>
+      			
+      <xsd:complexType name="sessionHistoryResponseItem">
+        				
+        <xsd:sequence>
+          					
+          <xsd:element name="periodFrom" nillable="false" type="xsd:dateTime"/>
+          					
+          <xsd:element name="periodTo" nillable="false" type="xsd:dateTime"/>
+          					
+          <xsd:element name="queryProgId" type="xsd:int"/>
+          					
+          <xsd:element name="sequenceId" type="xsd:int"/>
+          					
+          <xsd:element name="closed" type="xsd:boolean"/>
+          					
+          <xsd:element name="distance" type="xsd:double"/>
+          					
+          <xsd:element name="engineDriveSec" type="xsd:int"/>
+          					
+          <xsd:element name="engineNoDriveSec" type="xsd:int"/>
+          					
+          <xsd:element maxOccurs="unbounded" minOccurs="0" name="list" nillable="true" type="tns:historyResponseItem"/>
+          				
+        </xsd:sequence>
+        			
+      </xsd:complexType>
+      			
+      <xsd:element name="sessionHistoryResponse">
+        				
+        <xsd:complexType>
+          					
+          <xsd:sequence maxOccurs="1" minOccurs="1">
+            						
+            <xsd:element name="veId" type="xsd:int"/>
+            						
+            <xsd:element name="success" type="xsd:boolean">
+						</xsd:element>
+            						
+            <xsd:element name="dataAvailable" type="xsd:boolean">
+						</xsd:element>
+            						
+            <xsd:element name="vePlate" nillable="true" type="xsd:string">
+						</xsd:element>
+            						
+            <xsd:element name="dataAvailableFrom" nillable="true" type="xsd:dateTime">
+						</xsd:element>
+            						
+            <xsd:element name="dataAvailableTo" nillable="true" type="xsd:dateTime">
+						</xsd:element>
+            						
+            <xsd:element maxOccurs="unbounded" minOccurs="0" name="list" nillable="true" type="tns:sessionHistoryResponseItem"/>
+            					
+          </xsd:sequence>
+          				
+        </xsd:complexType>
+        			
+      </xsd:element>
+      			
+			
+      <xsd:element name="groupListRequest">
+        				
+        <xsd:complexType>
+          					
+          <xsd:sequence>
+            						
+            <xsd:element name="suId" type="xsd:int"/>
+            					
+          </xsd:sequence>
+          				
+        </xsd:complexType>
+        			
+      </xsd:element>
+      			
+      <xsd:complexType name="groupListResponseItem">
+        				
+        <xsd:sequence maxOccurs="1" minOccurs="1">
+          					
+          <xsd:sequence maxOccurs="unbounded" minOccurs="0">
+            						
+            <xsd:element name="vgId" type="xsd:int"/>
+            						
+            <xsd:element name="vgName" type="xsd:string">
+						</xsd:element>
+            					
+          </xsd:sequence>
+          				
+        </xsd:sequence>
+        			
+      </xsd:complexType>
+      		
+			
+      <xsd:element name="groupListResponse">
+            			
+        <xsd:complexType>
+                  			
+          <xsd:sequence>
+            						
+            <xsd:element name="suId" type="xsd:int"/>
+                        			
+            <xsd:element maxOccurs="unbounded" minOccurs="0" name="list" nillable="true" type="tns:groupListResponseItem"/>
+                    			
+          </xsd:sequence>
+              		
+        </xsd:complexType>
+        			
+      </xsd:element>
+      			
+      <xsd:element name="tagHistory">
+        				
+        <xsd:complexType>
+          					
+          <xsd:sequence>
+            						
+            <xsd:element name="suId" type="xsd:int"/>
+            						
+            <xsd:element name="veId" type="xsd:int"/>
+            						
+            <xsd:element name="timezone" type="xsd:string"/>
+            						
+            <xsd:element name="degreeCoords" type="xsd:boolean"/>
+            						
+            <xsd:element name="dateFrom" type="xsd:dateTime"/>
+            						
+            <xsd:element name="dateTo" type="xsd:dateTime"/>
+            					
+          </xsd:sequence>
+          				
+        </xsd:complexType>
+        			
+      </xsd:element>
+      			
+      <xsd:complexType name="tagHistoryResponseSubItem">
+        				
+        <xsd:sequence maxOccurs="unbounded" minOccurs="1">
+          					
+          <xsd:element name="epc" type="xsd:string">
+					</xsd:element>
+          					
+          <xsd:element name="tid" type="xsd:string">
+					</xsd:element>
+          					
+          <xsd:element name="detectionQuality" type="xsd:float">
+					</xsd:element>
+          				
+        </xsd:sequence>
+        			
+      </xsd:complexType>
+      			
+			
+      <xsd:complexType name="tagHistoryResponseItem">
+        				
+        <xsd:sequence>
+          					
+          <xsd:element name="timestamp" type="xsd:dateTime">
+					</xsd:element>
+          					
+          <xsd:element name="latitude" type="xsd:double">
+					</xsd:element>
+          					
+          <xsd:element name="longitude" type="xsd:double">
+					</xsd:element>
+          					
+          <xsd:element name="navMode" type="xsd:int">
+					</xsd:element>
+          					
+          <xsd:element name="geozone" type="xsd:string">
+					</xsd:element>
+          					
+          <xsd:element maxOccurs="unbounded" minOccurs="1" name="list" nillable="true" type="tns:tagHistoryResponseSubItem"/>
+          				
+        </xsd:sequence>
+        			
+      </xsd:complexType>
+      			
+			
+      <xsd:element name="tagHistoryResponse">
+        				
+        <xsd:complexType>
+          					
+          <xsd:sequence maxOccurs="unbounded" minOccurs="1">
+            						
+            <xsd:element name="veId" type="xsd:int"/>
+            						
+            <xsd:element name="success" type="xsd:boolean">
+						</xsd:element>
+            						
+            <xsd:element name="dataAvailable" type="xsd:boolean">
+						</xsd:element>
+            						
+            <xsd:element name="vePlate" nillable="true" type="xsd:string">
+						</xsd:element>
+            						
+            <xsd:element name="dataAvailableFrom" nillable="true" type="xsd:dateTime">
+						</xsd:element>
+            						
+            <xsd:element name="dataAvailableTo" nillable="true" type="xsd:dateTime">
+						</xsd:element>
+            						
+            <xsd:element maxOccurs="unbounded" minOccurs="0" name="list" nillable="true" type="tns:tagHistoryResponseItem"/>
+            					
+          </xsd:sequence>
+          				
+        </xsd:complexType>
+        			
+      </xsd:element>
+      	    
+    </xsd:schema>
+    	
+  </wsdl:types>
+  	
+  <wsdl:message name="VehiclesListRequest">
+    		
+    <wsdl:part element="tns:vehiclesListRequest" name="parameters"/>
+    	
+  </wsdl:message>
+  	
+  <wsdl:message name="VehiclesListResponse">
+    		
+    <wsdl:part element="tns:vehiclesListResponse" name="parameters"/>
+    	
+  </wsdl:message>
+  	
+	
+  <wsdl:message name="VehiclesListExtendedRequest">
+    		
+    <wsdl:part element="tns:vehiclesListExtendedRequest" name="parameters"/>
+    	
+  </wsdl:message>
+  	
+  <wsdl:message name="VehiclesListExtendedResponse">
+    		
+    <wsdl:part element="tns:vehiclesListExtendedResponse" name="parameters"/>
+    	
+  </wsdl:message>
+  	
+	
+	
+  <wsdl:message name="RealTimePositionsRequest">
+    		
+    <wsdl:part element="tns:realTimePositionsRequest" name="parameters"/>
+    	
+  </wsdl:message>
+  	
+  <wsdl:message name="RealTimePositionsResponse">
+    		
+    <wsdl:part element="tns:realTimePositionsResponse" name="parameters"/>
+    	
+  </wsdl:message>
+  	
+  <wsdl:message name="HistoryRequest">
+    		
+    <wsdl:part element="tns:historyRequest" name="parameters"/>
+    	
+  </wsdl:message>
+  	
+  <wsdl:message name="HistoryResponse">
+    		
+    <wsdl:part element="tns:historyResponse" name="parameters"/>
+    	
+  </wsdl:message>
+  	
+  <wsdl:message name="SessionHistoryRequest">
+    		
+    <wsdl:part element="tns:sessionHistoryRequest" name="parameters"/>
+    	
+  </wsdl:message>
+  	
+  <wsdl:message name="SessionHistoryResponse">
+    		
+    <wsdl:part element="tns:sessionHistoryResponse" name="parameters"/>
+    	
+  </wsdl:message>
+  	
+  <wsdl:message name="GroupListRequest">
+    		
+    <wsdl:part element="tns:groupListRequest" name="parameters"/>
+    	
+  </wsdl:message>
+  	
+  <wsdl:message name="GroupListResponse">
+    		
+    <wsdl:part element="tns:groupListResponse" name="parameters"/>
+    	
+  </wsdl:message>
+  	
+  <wsdl:message name="TagHistoryRequest">
+    		
+    <wsdl:part element="tns:tagHistory" name="parameters"/>
+    	
+  </wsdl:message>
+  	
+  <wsdl:message name="TagHistoryResponse">
+    		
+    <wsdl:part element="tns:tagHistoryResponse" name="parameters"/>
+    	
+  </wsdl:message>
+  	
+	
+  <wsdl:portType name="FWAN">
+        
+    <wsdl:operation name="VehiclesList">
+            
+      <wsdl:input message="tns:VehiclesListRequest"/>
+            
+      <wsdl:output message="tns:VehiclesListResponse"/>
+          
+    </wsdl:operation>
+        
+    <wsdl:operation name="VehiclesListExtended">
+            
+      <wsdl:input message="tns:VehiclesListExtendedRequest"/>
+            
+      <wsdl:output message="tns:VehiclesListExtendedResponse"/>
+          
+    </wsdl:operation>
+        
+    <wsdl:operation name="RealTimePositions">
+          	
+      <wsdl:input message="tns:RealTimePositionsRequest"/>
+          	
+      <wsdl:output message="tns:RealTimePositionsResponse"/>
+          
+    </wsdl:operation>
+        
+    <wsdl:operation name="History">
+          	
+      <wsdl:input message="tns:HistoryRequest"/>
+          	
+      <wsdl:output message="tns:HistoryResponse"/>
+          
+    </wsdl:operation>
+        
+    <wsdl:operation name="Session">
+          	
+      <wsdl:input message="tns:SessionHistoryRequest"/>
+          	
+      <wsdl:output message="tns:SessionHistoryResponse"/>
+          
+    </wsdl:operation>
+        
+    <wsdl:operation name="GroupList">
+          	
+      <wsdl:input message="tns:GroupListRequest"/>
+          	
+      <wsdl:output message="tns:GroupListResponse"/>
+          
+    </wsdl:operation>
+        
+    <wsdl:operation name="TagHistory">
+          	
+      <wsdl:input message="tns:TagHistoryRequest"/>
+          	
+      <wsdl:output message="tns:TagHistoryResponse"/>
+          
+    </wsdl:operation>
+    	
+  </wsdl:portType>
+    
+  <wsdl:binding name="FWANSOAP" type="tns:FWAN">
+        
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        
+    
+    <wsdl:operation name="VehiclesList">
+            
+      <soap:operation soapAction="http://www.fleetcontrol/FWAN/VehiclesList"/>
+            
+      <wsdl:input>
+                
+        <soap:body use="literal"/>
+              
+      </wsdl:input>
+            
+      <wsdl:output>
+                
+        <soap:body use="literal"/>
+              
+      </wsdl:output>
+          
+    </wsdl:operation>
+        
+    <wsdl:operation name="VehiclesListExtended">
+            
+      <soap:operation soapAction="http://www.fleetcontrol/FWAN/VehiclesListExtended"/>
+            
+      <wsdl:input>
+                
+        <soap:body use="literal"/>
+              
+      </wsdl:input>
+            
+      <wsdl:output>
+                
+        <soap:body use="literal"/>
+              
+      </wsdl:output>
+          
+    </wsdl:operation>
+        
+    
+    <wsdl:operation name="RealTimePositions">
+            
+      <soap:operation soapAction="http://www.fleetcontrol/FWAN/RealTimePositions"/>
+            
+      <wsdl:input>
+                
+        <soap:body use="literal"/>
+              
+      </wsdl:input>
+            
+      <wsdl:output>
+                
+        <soap:body use="literal"/>
+              
+      </wsdl:output>
+          
+    </wsdl:operation>
+        
+    
+    <wsdl:operation name="History">
+            
+      <soap:operation soapAction="http://www.fleetcontrol/FWAN/History"/>
+            
+      <wsdl:input>
+                
+        <soap:body use="literal"/>
+              
+      </wsdl:input>
+            
+      <wsdl:output>
+                
+        <soap:body use="literal"/>
+              
+      </wsdl:output>
+          
+    </wsdl:operation>
+        
+    
+    <wsdl:operation name="Session">
+            
+      <soap:operation soapAction="http://www.fleetcontrol/FWAN/Session"/>
+            
+      <wsdl:input>
+                
+        <soap:body use="literal"/>
+              
+      </wsdl:input>
+            
+      <wsdl:output>
+                
+        <soap:body use="literal"/>
+              
+      </wsdl:output>
+          
+    </wsdl:operation>
+        
+    
+    <wsdl:operation name="TagHistory">
+            
+      <soap:operation soapAction="http://www.fleetcontrol/FWAN/TagHistory"/>
+            
+      <wsdl:input>
+                
+        <soap:body use="literal"/>
+              
+      </wsdl:input>
+            
+      <wsdl:output>
+                
+        <soap:body use="literal"/>
+              
+      </wsdl:output>
+          
+    </wsdl:operation>
+        
+    
+    <wsdl:operation name="GroupList">
+            
+      <soap:operation soapAction="http://www.fleetcontrol/FWAN/GroupList"/>
+            
+      <wsdl:input>
+                
+        <soap:body use="literal"/>
+              
+      </wsdl:input>
+            
+      <wsdl:output>
+                
+        <soap:body use="literal"/>
+              
+      </wsdl:output>
+          
+    </wsdl:operation>
+        
+  
+  </wsdl:binding>
+    
+  <wsdl:service name="FWAN">
+        
+    <wsdl:port binding="tns:FWANSOAP" name="FWANSOAP">
+            
+      <soap:address location="https://ws.fleetcontrol.it/FWANWs3/services/FWANSOAP"/>
+          
+    </wsdl:port>
+      
+  </wsdl:service>
+  
+</wsdl:definitions>

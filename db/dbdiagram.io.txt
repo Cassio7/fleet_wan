@@ -1,0 +1,96 @@
+
+Table vehicle {
+  veId int [primary key]
+  active boolean
+  plate string
+  model string
+  firstEvent datetime 
+  lastEvent datetime 
+  lastSessionEvent datetime 
+  isCan boolean
+  isRFIDReader boolean
+  profileId int
+  profileName string
+  deviceId int [ref: - device.id]
+  hash string
+}
+
+table device{
+  id int
+  type int
+  serial_number string
+  date_build date
+  fw_upgrade_disable boolean
+  fw_id int
+  fw_update datetime
+  fw_upgrade_received int
+  rtc_battery_fail boolean
+  power_fail_detected int
+  power_on_off_detected int
+}
+
+table group{
+  vgId int [primary key]
+  name string
+}
+
+table vehicle_group {
+  vg_id int [ref: > group.vgId]
+  ve_id int [ref: > vehicle.veId]
+  primary_group boolean
+  primary key (vg_id, ve_id)
+}
+
+
+table realtime_position{
+  id int [primary key]
+  row_number int
+  timestamp timestamp
+  status int
+  latitude double
+  longitude double
+  nav_mode int
+  speed int
+  direction int
+  veId int [ref: > vehicle.veId]
+}
+
+table history{
+  id int [primary key]
+  date_from date
+  date_to date
+  timestamp timestamp
+  status int
+  latitude double
+  longitude double
+  nav_mode int
+  speed int
+  direction int
+  tot_distance double
+  tot_consumption double
+  fuel float
+  brushes int
+  veId int [ref: > vehicle.veId]
+}
+
+table tag{
+  epc string [primary key]
+}
+
+table tag_history{
+  id int [primary key]
+  timestamp timestamp
+  latitude double
+  longitude double
+  nav_mode int
+  geozone string
+  veId int [ref: > vehicle.veId]
+}
+
+table detection_tag{
+  id int [primary key]
+  tid string
+  detection_quality float
+  epc string [ref: > tag.epc]
+  tag_history_id int [ref: > tag_history.id]
+}
