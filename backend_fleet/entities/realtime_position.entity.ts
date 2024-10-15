@@ -9,7 +9,7 @@ export class RealtimePosition {
   @Column()
   row_number: number;
 
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'timestamptz', nullable: true })
   timestamp: Date;
 
   @Column()
@@ -24,12 +24,15 @@ export class RealtimePosition {
   @Column()
   nav_mode: number;
 
-  @Column()
+  @Column('float')
   speed: number;
 
-  @Column()
+  @Column('float')
   direction: number;
 
   @ManyToOne(() => Vehicle)
   veId: Vehicle;
+  
+  @Column({ type: 'varchar', length: 100 })
+  hash: string;
 }
