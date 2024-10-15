@@ -18,6 +18,8 @@ import { VehicleService } from './services/vehicle/vehicle.service';
 import { GroupService } from './services/group/group.service';
 import { GroupController } from './controllers/group/group.controller';
 import { VehicleController } from './controllers/vehicle/vehicle.controller';
+import { RealtimeService } from './services/realtime/realtime.service';
+import { RealtimeController } from './controllers/realtime/realtime.controller';
 
 @Module({
   imports: [
@@ -61,7 +63,7 @@ import { VehicleController } from './controllers/vehicle/vehicle.controller';
       DetectionTag,
     ]),
   ],
-  controllers: [AppController, GroupController, VehicleController],
-  providers: [AppService, VehicleService, GroupService],
+  controllers: [AppController, GroupController, VehicleController, RealtimeController],
+  providers: [AppService, VehicleService, GroupService, RealtimeService],
 })
 export class AppModule {}
