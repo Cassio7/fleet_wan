@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Vehicle } from 'entities/vehicle.entity';
 import { Device } from 'entities/device.entity';
+import { VehicleGroup } from 'entities/vehicle_group.entity';
 import { parseStringPromise } from 'xml2js';
 import { createHash } from 'crypto';
 
@@ -16,6 +17,8 @@ export class VehicleService {
     private readonly vehicleRepository: Repository<Vehicle>,
     @InjectRepository(Device)
     private readonly deviceRepository: Repository<Device>,
+    @InjectRepository(VehicleGroup)
+    private readonly vehicleGroupRepository: Repository<VehicleGroup>,
   ) {}
   // Prepara la richiesta SOAP
   private buildSoapRequest(methodName, id) {
@@ -32,8 +35,6 @@ export class VehicleService {
       </soapenv:Body>
   </soapenv:Envelope>`;
   }
-
-  private hashData() {}
 
   // SOAP
   async getVehicleList(id: number): Promise<any> {
@@ -69,9 +70,14 @@ export class VehicleService {
           active: item['active'] === 'true',
           plate: item['plate'],
           model: item['model'],
-          firstEvent: typeof item['firstEvent'] === 'object' ? null : item['firstEvent'],
-          lastEvent:  typeof item['lastEvent'] === 'object' ? null : item['lastEvent'],
-          lastSessionEvent: typeof item['lastSessionEvent'] === 'object' ? null : item['lastSessionEvent'],
+          firstEvent:
+            typeof item['firstEvent'] === 'object' ? null : item['firstEvent'],
+          lastEvent:
+            typeof item['lastEvent'] === 'object' ? null : item['lastEvent'],
+          lastSessionEvent:
+            typeof item['lastSessionEvent'] === 'object'
+              ? null
+              : item['lastSessionEvent'],
           isCan: item['isCan'] === 'true',
           isRFIDReader: item['isRFIDReader'] === 'true',
           profileId: item['profileId'],
@@ -92,7 +98,10 @@ export class VehicleService {
           deviceBuildDate: item['deviceBuildDate'],
           deviceFwUpgradeDisable: item['deviceFwUpgradeDisable'] === 'true',
           deviceFwId: item['deviceFwId'],
-          deviceLastFwUpdate: typeof item['deviceLastFwUpdate'] === 'object' ? null : item['deviceLastFwUpdate'],
+          deviceLastFwUpdate:
+            typeof item['deviceLastFwUpdate'] === 'object'
+              ? null
+              : item['deviceLastFwUpdate'],
           deviceFwUpgradeReceived: item['deviceFwUpgradeReceived'],
           deviceRTCBatteryFailure: item['deviceRTCBatteryFailure'] === 'true',
           devicePowerFailureDetected: item['devicePowerFailureDetected'],
@@ -153,9 +162,13 @@ export class VehicleService {
 
       // add or update vehicles
       const newVehicles = [];
+      const newGroups = [];
       for (const vehicle of filteredDataVehicles) {
         const exists = await this.vehicleRepository.findOne({
           where: { veId: vehicle.id },
+        });
+        const exists_group = await this.vehicleGroupRepository.findOne({
+          where: { vg_id: id, ve_id: vehicle.id },
         });
         if (!exists) {
           const newVehicle = this.vehicleRepository.create({
@@ -175,10 +188,32 @@ export class VehicleService {
           });
           newVehicles.push(newVehicle);
         }
+        if (!exists_group) {
+          let newGroup: VehicleGroup;
+          if (id == 313) {
+            newGroup = this.vehicleGroupRepository.create({
+              vg_id: id,
+              ve_id: vehicle.id,
+              primary_group: true,
+            });
+          } else {
+            newGroup = this.vehicleGroupRepository.create({
+              vg_id: id,
+              ve_id: vehicle.id,
+              primary_group: false,
+            });
+          }
+          newGroups.push(newGroup);
+        }
       }
       // Salva tutti i nuovi veicoli nel database
       if (newVehicles.length > 0) {
         await this.vehicleRepository.save(newVehicles);
+      }
+
+      // Salva tutti i nuovi gruppi veicolo nel database
+      if (newGroups.length > 0) {
+        await this.vehicleGroupRepository.save(newGroups);
       }
 
       for (const vehicle of filteredDataVehicles) {
@@ -200,14 +235,36 @@ export class VehicleService {
             device: vehicle.deviceId,
             hash: vehicle.hash,
           });
-          console.log(`Veicolo con ID ${vehicle.id} aggiornato`);
         }
       }
 
-      return lists;
+      return newVehicles;
     } catch (error) {
       console.error('Errore nella richiesta SOAP:', error);
       throw new Error('Errore durante la richiesta al servizio SOAP');
     }
+  }
+
+  async getAllVehicles(): Promise<any> {
+    const vehicles = await this.vehicleRepository.find({
+      relations: ['device'],
+    });
+    return vehicles;
+  }
+
+  async getVehicleById(id: number): Promise<any> {
+    const vehicle = await this.vehicleRepository.findOne({
+      where: { veId: id },
+      relations: ['device'],
+    });
+    return vehicle;
+  }
+
+  async getVehiclesByReader(): Promise<any>{
+    const vehicles = await this.vehicleRepository.find({
+      where: { isRFIDReader: true },
+      relations: ['device'],
+    });
+    return vehicles;
   }
 }
