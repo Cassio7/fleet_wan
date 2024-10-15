@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { Vehicle } from './vehicle.entity';
 
 @Entity()
@@ -31,6 +31,7 @@ export class RealtimePosition {
   direction: number;
 
   @ManyToOne(() => Vehicle)
+  @JoinColumn({ name: 'veId' })
   veId: Vehicle;
   
   @Column({ type: 'varchar', length: 100 })
