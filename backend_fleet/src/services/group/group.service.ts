@@ -66,7 +66,6 @@ export class GroupService {
             name: group.vgName,
           });
           newGroups.push(newGroup);
-          console.log(`Nuovo gruppo con ID ${group.vgId} inserito`);
         }
       }
       // Salva tutti i nuovi gruppi nel database
@@ -74,10 +73,22 @@ export class GroupService {
         await this.groupRepository.save(newGroups);
       }
 
-      return filteredData;
+      return newGroups;
     } catch (error) {
       console.error('Errore nella richiesta SOAP:', error);
       throw new Error('Errore durante la richiesta al servizio SOAP');
     }
+  }
+  
+  async getAllGroups(): Promise<any> {
+    const groups = this.groupRepository.find();
+    return groups;
+  }
+
+  async getGroupById(id: number): Promise<any> {
+    const groups = this.groupRepository.findOne({
+      where: { vgId: id },
+    });
+    return groups;
   }
 }
