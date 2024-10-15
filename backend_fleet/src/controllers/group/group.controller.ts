@@ -16,18 +16,7 @@ export class GroupController {
       res.status(500).send('Errore durante il recupero dei gruppi');
     }
   }
-
-  @Get('/:id')
-  async getGroupById(@Res() res: Response,@Param() params: any) {
-    try {
-      const group = await this.groupService.getGroupById(params.id);
-      res.status(200).json(group);
-    } catch (error) {
-      console.error('Errore nel recupero dei gruppi:', error);
-      res.status(500).send('Errore durante il recupero dei gruppi');
-    }
-  }
-
+  
   @Get('update')
   async getGroupList(@Res() res: Response) {
     try {
@@ -45,6 +34,16 @@ export class GroupController {
     } catch (error) {
       console.error('Errore nella richiesta SOAP:', error);
       res.status(500).send('Errore durante la richiesta al servizio SOAP');
+    }
+  }
+  @Get('/:id')
+  async getGroupById(@Res() res: Response, @Param() params: any) {
+    try {
+      const group = await this.groupService.getGroupById(params.id);
+      res.status(200).json(group);
+    } catch (error) {
+      console.error('Errore nel recupero dei gruppi:', error);
+      res.status(500).send('Errore durante il recupero dei gruppi');
     }
   }
 }
