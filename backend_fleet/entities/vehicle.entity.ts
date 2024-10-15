@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn} from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
 import { Device } from './device.entity';
 
 @Entity()
@@ -15,13 +15,13 @@ export class Vehicle {
   @Column({ type: 'varchar', length: 50 })
   model: string;
 
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'timestamptz', nullable: true })
   firstEvent: Date;
 
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'timestamptz', nullable: true })
   lastEvent: Date;
 
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'timestamptz', nullable: true })
   lastSessionEvent: Date;
 
   @Column({ type: 'boolean' })

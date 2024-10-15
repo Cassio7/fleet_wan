@@ -66,6 +66,7 @@ export class GroupService {
             name: group.vgName,
           });
           newGroups.push(newGroup);
+          console.log(`Nuovo gruppo con ID ${group.vgId} inserito`);
         }
       }
       // Salva tutti i nuovi gruppi nel database

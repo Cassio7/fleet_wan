@@ -20,7 +20,7 @@ export class Device {
   @Column()
   fw_id: number;
 
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'timestamptz', nullable: true })
   fw_update: Date;
 
   @Column()
@@ -34,7 +34,7 @@ export class Device {
 
   @Column()
   power_on_off_detected: number;
-  
+
   @Column({ type: 'varchar', length: 100 })
   hash: string;
 }

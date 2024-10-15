@@ -14,6 +14,7 @@ export class VehicleService {
   constructor(
     @InjectRepository(Vehicle)
     private readonly vehicleRepository: Repository<Vehicle>,
+    @InjectRepository(Device)
     private readonly deviceRepository: Repository<Device>,
   ) {}
   // Prepara la richiesta SOAP
@@ -68,9 +69,9 @@ export class VehicleService {
           active: item['active'] === 'true',
           plate: item['plate'],
           model: item['model'],
-          firstEvent: item['firstEvent'],
-          lastEvent: item['lastEvent'],
-          lastSessionEvent: item['lastSessionEvent'],
+          firstEvent: typeof item['firstEvent'] === 'object' ? null : item['firstEvent'],
+          lastEvent:  typeof item['lastEvent'] === 'object' ? null : item['lastEvent'],
+          lastSessionEvent: typeof item['lastSessionEvent'] === 'object' ? null : item['lastSessionEvent'],
           isCan: item['isCan'] === 'true',
           isRFIDReader: item['isRFIDReader'] === 'true',
           profileId: item['profileId'],
@@ -84,7 +85,6 @@ export class VehicleService {
         const dataToHash = `${item['deviceId']}${item['deviceType']}${item['deviceSN']}${item['deviceBuildDate']}${item['deviceFwUpgradeDisable']}${item['deviceFwId']}${item['deviceLastFwUpdate']}${item['deviceFwUpgradeReceived']}${item['deviceRTCBatteryFailure']}${item['devicePowerFailureDetected']}${item['devicePowerOnOffDetected']}`;
 
         const hash = createHash('sha256').update(dataToHash).digest('hex');
-
         return {
           deviceId: item['deviceId'],
           deviceType: item['deviceType'],
@@ -92,7 +92,7 @@ export class VehicleService {
           deviceBuildDate: item['deviceBuildDate'],
           deviceFwUpgradeDisable: item['deviceFwUpgradeDisable'] === 'true',
           deviceFwId: item['deviceFwId'],
-          deviceLastFwUpdate: item['deviceLastFwUpdate'],
+          deviceLastFwUpdate: typeof item['deviceLastFwUpdate'] === 'object' ? null : item['deviceLastFwUpdate'],
           deviceFwUpgradeReceived: item['deviceFwUpgradeReceived'],
           deviceRTCBatteryFailure: item['deviceRTCBatteryFailure'] === 'true',
           devicePowerFailureDetected: item['devicePowerFailureDetected'],
@@ -100,21 +100,17 @@ export class VehicleService {
           hash: hash, // Aggiungi l'hash come nuovo campo
         };
       });
-
-      // add or update device
+      // add device
       const newDevices = [];
       for (const device of filteredDataDevices) {
         const exists = await this.deviceRepository.findOne({
           where: { id: device.deviceId },
         });
-        const update = await this.deviceRepository.findOne({
-          where: { id: device.deviceId, hash: device.hash },
-        });
         if (!exists) {
           const newDevice = this.deviceRepository.create({
             id: device.deviceId,
             type: device.deviceType,
-            serial_number: device.SN,
+            serial_number: device.deviceSN,
             date_build: device.deviceBuildDate,
             fw_upgrade_disable: device.deviceFwUpgradeDisable,
             fw_id: device.deviceFwId,
@@ -127,10 +123,20 @@ export class VehicleService {
           });
           newDevices.push(newDevice);
         }
+      }
+      // save new devices
+      if (newDevices.length > 0) {
+        await this.deviceRepository.save(newDevices);
+      }
+      // update devices
+      for (const device of filteredDataDevices) {
+        const update = await this.deviceRepository.findOne({
+          where: { id: device.deviceId, hash: device.hash },
+        });
         if (!update) {
           await this.deviceRepository.update(device.deviceId, {
             type: device.deviceType,
-            serial_number: device.SN,
+            serial_number: device.deviceSN,
             date_build: device.deviceBuildDate,
             fw_upgrade_disable: device.deviceFwUpgradeDisable,
             fw_id: device.deviceFwId,
@@ -144,19 +150,12 @@ export class VehicleService {
           console.log(`Device con ID ${device.deviceId} aggiornato`);
         }
       }
-      // save new
-      if (newDevices.length > 0) {
-        await this.vehicleRepository.save(newDevices);
-      }
 
       // add or update vehicles
       const newVehicles = [];
       for (const vehicle of filteredDataVehicles) {
         const exists = await this.vehicleRepository.findOne({
           where: { veId: vehicle.id },
-        });
-        const update = await this.vehicleRepository.findOne({
-          where: { veId: vehicle.id, hash: vehicle.hash },
         });
         if (!exists) {
           const newVehicle = this.vehicleRepository.create({
@@ -171,11 +170,21 @@ export class VehicleService {
             isRFIDReader: vehicle.isRFIDReader,
             profileId: vehicle.profileId,
             profileName: vehicle.profileName,
-            //device:,
+            device: vehicle.deviceId,
             hash: vehicle.hash,
           });
           newVehicles.push(newVehicle);
         }
+      }
+      // Salva tutti i nuovi veicoli nel database
+      if (newVehicles.length > 0) {
+        await this.vehicleRepository.save(newVehicles);
+      }
+
+      for (const vehicle of filteredDataVehicles) {
+        const update = await this.vehicleRepository.findOne({
+          where: { veId: vehicle.id, hash: vehicle.hash },
+        });
         if (!update) {
           await this.vehicleRepository.update(vehicle.id, {
             active: vehicle.active,
@@ -188,18 +197,14 @@ export class VehicleService {
             isRFIDReader: vehicle.isRFIDReader,
             profileId: vehicle.profileId,
             profileName: vehicle.profileName,
-            //device:,
+            device: vehicle.deviceId,
             hash: vehicle.hash,
           });
           console.log(`Veicolo con ID ${vehicle.id} aggiornato`);
         }
       }
-      // Salva tutti i nuovi veicoli nel database
-      if (newVehicles.length > 0) {
-        await this.vehicleRepository.save(newVehicles);
-      }
 
-      return filteredDataVehicles;
+      return lists;
     } catch (error) {
       console.error('Errore nella richiesta SOAP:', error);
       throw new Error('Errore durante la richiesta al servizio SOAP');
