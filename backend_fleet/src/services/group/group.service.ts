@@ -79,14 +79,14 @@ export class GroupService {
       throw new Error('Errore durante la richiesta al servizio SOAP');
     }
   }
-  
+
   async getAllGroups(): Promise<any> {
-    const groups = this.groupRepository.find();
+    const groups = await this.groupRepository.find();
     return groups;
   }
 
   async getGroupById(id: number): Promise<any> {
-    const groups = this.groupRepository.findOne({
+    const groups = await this.groupRepository.findOne({
       where: { vgId: id },
     });
     return groups;
