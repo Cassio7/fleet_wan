@@ -17,7 +17,7 @@ Installare tutte le dipendenze necessarie tramite il comando.
 $ npm install
 ```
 
-Per il corretto funzionamento creare il file `.env`, ed inserire i dati per il corretto funzionamento:
+Per il corretto funzionamento creare il file `.env`, ed inserire i seguenti dati, cambiando con i propri:
 
 ```env
 # Connection DB
