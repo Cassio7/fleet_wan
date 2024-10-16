@@ -17,16 +17,16 @@ export class RealtimeController {
     }
   }
 
-  // @Get('/:id')
-  // async getGroupById(@Res() res: Response, @Param() params: any) {
-  //   try {
-  //     const group = await this.realTimeService.getTimesByVeId(params.id);
-  //     res.status(200).json(group);
-  //   } catch (error) {
-  //     console.error('Errore nel recupero dei realtimes:', error);
-  //     res.status(500).send('Errore durante il recupero dei realtimes');
-  //   }
-  // }
+  @Get('/:id')
+  async getTimeByVeId(@Res() res: Response, @Param() params: any) {
+    try {
+      const group = await this.realTimeService.getTimesByVeId(params.id);
+      res.status(200).json(group);
+    } catch (error) {
+      console.error('Errore nel recupero dei realtimes:', error);
+      res.status(500).send('Errore durante il recupero dei realtimes');
+    }
+  }
 
   @Get('update/:id')
   async getRealTimeList(@Res() res: Response, @Param() params: any) {
