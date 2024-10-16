@@ -12,13 +12,7 @@ export class History {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'date' })
-  date_from: Date;
-
-  @Column({ type: 'date' })
-  date_to: Date;
-
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'timestamptz', nullable: true })
   timestamp: Date;
 
   @Column()
@@ -54,4 +48,7 @@ export class History {
   @ManyToOne(() => Vehicle, (vehicle) => vehicle.history)
   @JoinColumn({ name: 'veId' })
   vehicle: Vehicle;
+
+  @Column({ type: 'varchar', length: 100 })
+  hash: string;
 }
