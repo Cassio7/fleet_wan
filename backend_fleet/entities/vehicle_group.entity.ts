@@ -2,22 +2,20 @@ import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 import { Group } from './group.entity';
 import { Vehicle } from './vehicle.entity';
 
+
 @Entity()
 export class VehicleGroup {
   @PrimaryColumn()
-  vg_id: number;
+  vgId: number;
 
   @PrimaryColumn()
-  ve_id: number;
+  veId: number;
 
-  @Column()
-  primary_group: boolean;
-
-  @ManyToOne(() => Group)
-  @JoinColumn({ name: 'vg_id' })
+  @ManyToOne(() => Group, (group) => group.vgId)
+  @JoinColumn({ name: 'vgId' })
   group: Group;
 
-  @ManyToOne(() => Vehicle)
-  @JoinColumn({ name: 've_id' })
+  @ManyToOne(() => Vehicle, (vehicle) => vehicle.veId)
+  @JoinColumn({ name: 'veId' })
   vehicle: Vehicle;
 }
