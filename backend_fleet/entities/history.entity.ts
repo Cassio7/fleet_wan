@@ -1,4 +1,10 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Vehicle } from './vehicle.entity';
 
 @Entity()
@@ -45,6 +51,7 @@ export class History {
   @Column()
   brushes: number;
 
-  @ManyToOne(() => Vehicle)
-  veId: Vehicle;
+  @ManyToOne(() => Vehicle, (vehicle) => vehicle.history)
+  @JoinColumn({ name: 'veId' })
+  vehicle: Vehicle;
 }

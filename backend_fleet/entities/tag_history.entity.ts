@@ -1,4 +1,10 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Vehicle } from './vehicle.entity';
 
 @Entity()
@@ -21,6 +27,7 @@ export class TagHistory {
   @Column()
   geozone: string;
 
-  @ManyToOne(() => Vehicle)
-  veId: Vehicle;
+  @ManyToOne(() => Vehicle, (vehicle) => vehicle.taghistory)
+  @JoinColumn({ name: 'veId' })
+  vehicle: Vehicle;
 }

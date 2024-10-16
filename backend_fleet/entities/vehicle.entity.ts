@@ -1,6 +1,15 @@
-import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn, OneToMany } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  PrimaryColumn,
+  OneToMany,
+} from 'typeorm';
 import { Device } from './device.entity';
 import { RealtimePosition } from './realtime_position.entity';
+import { History } from './history.entity';
+import { TagHistory } from './tag_history.entity';
 
 @Entity()
 export class Vehicle {
@@ -44,6 +53,15 @@ export class Vehicle {
   @Column({ type: 'varchar', length: 100 })
   hash: string;
 
-  @OneToMany(() => RealtimePosition, (realtime_position) => realtime_position.vehicle)
-  realtime_position: RealtimePosition[]
+  @OneToMany(
+    () => RealtimePosition,
+    (realtime_position) => realtime_position.vehicle,
+  )
+  realtime_position: RealtimePosition[];
+
+  @OneToMany(() => History, (history) => history.vehicle)
+  history: History[];
+
+  @OneToMany(() => TagHistory, (taghistory) => taghistory.vehicle)
+  taghistory: TagHistory[];
 }
