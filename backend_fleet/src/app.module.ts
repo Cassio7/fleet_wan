@@ -20,6 +20,8 @@ import { GroupController } from './controllers/group/group.controller';
 import { VehicleController } from './controllers/vehicle/vehicle.controller';
 import { RealtimeService } from './services/realtime/realtime.service';
 import { RealtimeController } from './controllers/realtime/realtime.controller';
+import { HistoryService } from './services/history/history.service';
+import { HistoryController } from './controllers/history/history.controller';
 
 @Module({
   imports: [
@@ -63,7 +65,7 @@ import { RealtimeController } from './controllers/realtime/realtime.controller';
       DetectionTag,
     ]),
   ],
-  controllers: [AppController, GroupController, VehicleController, RealtimeController],
-  providers: [AppService, VehicleService, GroupService, RealtimeService],
+  controllers: [AppController, GroupController, VehicleController, RealtimeController, HistoryController],
+  providers: [AppService, VehicleService, GroupService, RealtimeService, HistoryService],
 })
 export class AppModule {}
