@@ -62,9 +62,6 @@ export class VehicleService {
         return false; // se item.list non esiste, salto elemento
       }
       const filteredDataVehicles = lists.map((item: any) => {
-        if (!item.list) {
-          return []; // se item.list non esiste, salto elemento
-        }
         // hash data
         const dataToHash = `${item['id']}${item['active']}${item['plate']}${item['model']}${item['firstEvent']}${item['lastEvent']}${item['isCan']}${item['isRFIDReader']}${item['profileId']}${item['profileName']}`;
 
