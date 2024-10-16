@@ -247,7 +247,9 @@ export class VehicleService {
 
   async getAllVehicles(): Promise<any> {
     const vehicles = await this.vehicleRepository.find({
-      relations: ['device'],
+      relations: {
+        device: true,
+      },
     });
     return vehicles;
   }
@@ -255,15 +257,29 @@ export class VehicleService {
   async getVehicleById(id: number): Promise<any> {
     const vehicle = await this.vehicleRepository.findOne({
       where: { veId: id },
-      relations: ['device'],
+      relations: {
+        device: true,
+      },
     });
     return vehicle;
   }
 
-  async getVehiclesByReader(): Promise<any>{
+  async getVehiclesByReader(): Promise<any> {
     const vehicles = await this.vehicleRepository.find({
       where: { isRFIDReader: true },
-      relations: ['device'],
+      relations: {
+        device: true,
+      },
+    });
+    return vehicles;
+  }
+
+  async getVehiclesByGroup(id: number): Promise<any> {
+    const vehicles = await this.vehicleGroupRepository.find({
+      where: { vg_id: id },
+      relations: {
+        vehicle: true,
+      },
     });
     return vehicles;
   }
