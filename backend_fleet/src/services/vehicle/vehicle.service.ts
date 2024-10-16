@@ -271,6 +271,7 @@ export class VehicleService {
   async getVehiclesByGroup(id: number): Promise<any> {
     const vehicles = await this.vehicleGroupRepository.find({
       where: { group: { vgId: id } },
+      select: ["veId"],
       relations: {
         vehicle: true,
       },
