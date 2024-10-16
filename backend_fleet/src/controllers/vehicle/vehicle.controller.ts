@@ -56,14 +56,14 @@ export class VehicleController {
       const data = await this.vehicleService.getVehicleList(params.id);
 
       if (data.length > 0) {
-        let resultMessage: string = `Gruppo di aggiornamento id : ${params.id}\n\n`;
+        let resultMessage: string = `Gruppo di aggiornamento id: ${params.id}\n\n`;
         for (const item of data) {
           resultMessage += `Aggiornati Veicolo id: ${item.veId}\n `;
         }
         res.status(200).send(resultMessage);
-      } else {
-        res.status(200).send('Nessun aggiornamento');
-      }
+      } else if (data === false) {
+        res.status(200).send(`Nessun veicolo trovato per gruppo id: ${params.id}\n`);
+      } else res.status(200).send('Nessun aggiornamento');
     } catch (error) {
       console.error('Errore nella richiesta SOAP:', error);
       res.status(500).send('Errore durante la richiesta al servizio SOAP');

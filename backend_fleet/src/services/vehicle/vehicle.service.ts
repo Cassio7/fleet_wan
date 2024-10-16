@@ -58,7 +58,13 @@ export class VehicleService {
           'vehiclesListExtendedResponse'
         ]['list'];
 
+      if (!lists) {
+        return false; // se item.list non esiste, salto elemento
+      }
       const filteredDataVehicles = lists.map((item: any) => {
+        if (!item.list) {
+          return []; // se item.list non esiste, salto elemento
+        }
         // hash data
         const dataToHash = `${item['id']}${item['active']}${item['plate']}${item['model']}${item['firstEvent']}${item['lastEvent']}${item['isCan']}${item['isRFIDReader']}${item['profileId']}${item['profileName']}`;
 
@@ -168,7 +174,7 @@ export class VehicleService {
           where: { veId: vehicle.id },
         });
         const exists_group = await this.vehicleGroupRepository.findOne({
-          where: { vg_id: id, ve_id: vehicle.id },
+          where: { vgId: id, veId: vehicle.id },
         });
         if (!exists) {
           const newVehicle = this.vehicleRepository.create({
@@ -190,19 +196,10 @@ export class VehicleService {
         }
         if (!exists_group) {
           let newGroup: VehicleGroup;
-          if (id == 313) {
-            newGroup = this.vehicleGroupRepository.create({
-              vg_id: id,
-              ve_id: vehicle.id,
-              primary_group: true,
-            });
-          } else {
-            newGroup = this.vehicleGroupRepository.create({
-              vg_id: id,
-              ve_id: vehicle.id,
-              primary_group: false,
-            });
-          }
+          newGroup = this.vehicleGroupRepository.create({
+            group: { vgId: id },
+            vehicle: { veId: vehicle.id },
+          });
           newGroups.push(newGroup);
         }
       }
@@ -276,7 +273,7 @@ export class VehicleService {
 
   async getVehiclesByGroup(id: number): Promise<any> {
     const vehicles = await this.vehicleGroupRepository.find({
-      where: { vg_id: id },
+      where: { group: { vgId: id } },
       relations: {
         vehicle: true,
       },
