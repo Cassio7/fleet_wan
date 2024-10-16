@@ -93,7 +93,7 @@ export class RealtimeService {
             nav_mode: realtime.nav_mode,
             speed: realtime.speed,
             direction: realtime.direction,
-            veId: realtime.veId,
+            vehicle: realtime.veId,
             hash: realtime.hash,
           });
           newTimes.push(newTime);
@@ -110,14 +110,21 @@ export class RealtimeService {
   }
 
   async getAllTimes(): Promise<any> {
-    const times = await this.realtimeRepository.find();
+    const times = await this.realtimeRepository.find({
+      relations: {
+        vehicle: true,
+      },
+    });
     return times;
   }
-
-  // async getTimesByVeId(id: number): Promise<any> {
-  //   const times = await this.realtimeRepository.find({
-  //     where: { veId: id },
-  //   });
-  //   return times;
-  // }
+  // non va
+  async getTimesByVeId(id: number): Promise<any> {
+    const times = await this.realtimeRepository.find({
+      relations: {
+        vehicle: true,
+      },
+      where: { vehicle: { veId: id } },
+    });
+    return times;
+  }
 }

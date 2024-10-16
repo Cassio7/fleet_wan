@@ -39,7 +39,18 @@ export class VehicleController {
     }
   }
 
-  @Get('update/:id')
+  @Get('group/:id')
+  async getVehiclesByGroup(@Res() res: Response, @Param() params: any) {
+    try {
+      const vehicles = await this.vehicleService.getVehiclesByGroup(params.id);
+      res.status(200).json(vehicles);
+    } catch (error) {
+      console.error('Errore nel recupero dei veicoli:', error);
+      res.status(500).send('Errore durante il recupero dei veicoli');
+    }
+  }
+
+  @Get('/update/:id')
   async getVehicleList(@Res() res: Response, @Param() params: any) {
     try {
       const data = await this.vehicleService.getVehicleList(params.id);
