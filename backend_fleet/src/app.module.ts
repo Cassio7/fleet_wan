@@ -65,8 +65,7 @@ import { HistoryController } from './controllers/history/history.controller';
       TagEntity,
       TagHistoryEntity,
       DetectionTagEntity,
-    ]),
-    TypeOrmModule.forFeature([],'mainConnection')
+    ],'mainConnection'),
   ],
 
   controllers: [AppController, GroupController, VehicleController, RealtimeController, HistoryController],

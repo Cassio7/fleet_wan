@@ -11,7 +11,7 @@ export class RealtimeService {
   private serviceUrl = 'https://ws.fleetcontrol.it/FWANWs3/services/FWANSOAP';
 
   constructor(
-    @InjectRepository(RealtimePositionEntity)
+    @InjectRepository(RealtimePositionEntity,'mainConnection')
     private readonly realtimeRepository: Repository<RealtimePositionEntity>,
   ) {}
 

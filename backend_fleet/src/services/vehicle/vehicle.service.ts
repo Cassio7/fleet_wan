@@ -13,11 +13,11 @@ export class VehicleService {
   private serviceUrl = 'https://ws.fleetcontrol.it/FWANWs3/services/FWANSOAP';
 
   constructor(
-    @InjectRepository(VehicleEntity)
+    @InjectRepository(VehicleEntity,'mainConnection')
     private readonly vehicleRepository: Repository<VehicleEntity>,
-    @InjectRepository(DeviceEntity)
+    @InjectRepository(DeviceEntity,'mainConnection')
     private readonly deviceRepository: Repository<DeviceEntity>,
-    @InjectRepository(VehicleGroupEntity)
+    @InjectRepository(VehicleGroupEntity,'mainConnection')
     private readonly vehicleGroupRepository: Repository<VehicleGroupEntity>,
     @InjectDataSource('mainConnection')
     private readonly connection: DataSource,

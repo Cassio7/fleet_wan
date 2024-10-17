@@ -10,7 +10,7 @@ export class GroupService {
   private serviceUrl = 'https://ws.fleetcontrol.it/FWANWs3/services/FWANSOAP';
 
   constructor(
-    @InjectRepository(GroupEntity)
+    @InjectRepository(GroupEntity,'mainConnection')
     private readonly groupRepository: Repository<GroupEntity>,
   ) {}
   // Costruisce la richiesta SOAP
