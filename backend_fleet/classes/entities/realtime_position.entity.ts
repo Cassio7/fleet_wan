@@ -3,13 +3,16 @@ import {
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Index,
 } from 'typeorm';
-import { Vehicle } from './vehicle.entity';
+import { VehicleEntity } from './vehicle.entity';
+import { RealtimePositionInterface } from 'classes/interfaces/realtime_position.interface';
 
-@Entity()
-export class RealtimePosition {
+@Entity('realtime_positions')
+export class RealtimePositionEntity implements RealtimePositionInterface {
+  @Index()
   @PrimaryGeneratedColumn()
-  id: number;
+  id_realtime: number;
 
   @Column()
   row_number: number;
@@ -35,8 +38,9 @@ export class RealtimePosition {
   @Column('float')
   direction: number;
 
-  @ManyToOne(() => Vehicle, (vehicle) => vehicle.veId)
-  vehicle: Vehicle;
+  @Index()
+  @ManyToOne(() => VehicleEntity, (vehicle) => vehicle.veId)
+  vehicle: VehicleEntity;
 
   @Column({ type: 'varchar', length: 100 })
   hash: string;

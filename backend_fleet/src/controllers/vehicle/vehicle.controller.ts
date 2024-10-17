@@ -17,7 +17,7 @@ export class VehicleController {
     }
   }
 
-  @Get('/reader')
+  @Get('reader')
   async getVehiclesByReader(@Res() res: Response) {
     try {
       const groups = await this.vehicleService.getVehiclesByReader();

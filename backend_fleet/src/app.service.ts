@@ -12,7 +12,7 @@ export class AppService implements OnModuleInit {
   // popolo database all'avvio
   async onModuleInit() {
     await this.groupService.getGroupList();
-    await this.vehicleService.getVehicleList(313);
+    //await this.vehicleService.getVehicleList(313);
   }
   getHome(): string {
     return 'Fleet App';

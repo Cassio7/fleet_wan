@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import axios from 'axios';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { RealtimePosition } from 'entities/realtime_position.entity';
+import { RealtimePositionEntity } from 'classes/entities/realtime_position.entity';
 import { parseStringPromise } from 'xml2js';
 import { createHash } from 'crypto';
 
@@ -11,8 +11,8 @@ export class RealtimeService {
   private serviceUrl = 'https://ws.fleetcontrol.it/FWANWs3/services/FWANSOAP';
 
   constructor(
-    @InjectRepository(RealtimePosition)
-    private readonly realtimeRepository: Repository<RealtimePosition>,
+    @InjectRepository(RealtimePositionEntity)
+    private readonly realtimeRepository: Repository<RealtimePositionEntity>,
   ) {}
 
   // Prepara la richiesta SOAP

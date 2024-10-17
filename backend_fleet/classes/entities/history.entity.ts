@@ -4,11 +4,13 @@ import {
   PrimaryGeneratedColumn,
   ManyToOne,
   JoinColumn,
+  Index
 } from 'typeorm';
-import { Vehicle } from './vehicle.entity';
+import { VehicleEntity } from './vehicle.entity';
+import { HistoryInterface } from 'classes/interfaces/history.interface';
 
-@Entity()
-export class History {
+@Entity('history')
+export class HistoryEntity implements HistoryInterface{
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -44,11 +46,13 @@ export class History {
 
   @Column()
   brushes: number;
-
-  @ManyToOne(() => Vehicle, (vehicle) => vehicle.history)
+  
+  @ManyToOne(() => VehicleEntity, (vehicle) => vehicle.history)
   @JoinColumn({ name: 'veId' })
-  vehicle: Vehicle;
+  @Index()
+  vehicle: VehicleEntity;
 
   @Column({ type: 'varchar', length: 100 })
+  @Index()
   hash: string;
 }

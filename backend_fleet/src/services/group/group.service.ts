@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import axios from 'axios';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Group } from 'entities/group.entity';
+import { GroupEntity } from 'classes/entities/group.entity';
 import { parseStringPromise } from 'xml2js';
 
 @Injectable()
@@ -10,8 +10,8 @@ export class GroupService {
   private serviceUrl = 'https://ws.fleetcontrol.it/FWANWs3/services/FWANSOAP';
 
   constructor(
-    @InjectRepository(Group)
-    private readonly groupRepository: Repository<Group>,
+    @InjectRepository(GroupEntity)
+    private readonly groupRepository: Repository<GroupEntity>,
   ) {}
   // Costruisce la richiesta SOAP
   private buildSoapRequest(methodName: string): string {

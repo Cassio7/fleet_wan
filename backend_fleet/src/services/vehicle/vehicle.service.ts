@@ -1,24 +1,26 @@
 import { Injectable } from '@nestjs/common';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import axios from 'axios';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Vehicle } from 'entities/vehicle.entity';
-import { Device } from 'entities/device.entity';
-import { VehicleGroup } from 'entities/vehicle_group.entity';
-import { parseStringPromise } from 'xml2js';
+import { DeviceEntity } from 'classes/entities/device.entity';
+import { VehicleEntity } from 'classes/entities/vehicle.entity';
+import { VehicleGroupEntity } from 'classes/entities/vehicle_group.entity';
 import { createHash } from 'crypto';
+import { DataSource, Repository } from 'typeorm';
+import { parseStringPromise } from 'xml2js';
 
 @Injectable()
 export class VehicleService {
   private serviceUrl = 'https://ws.fleetcontrol.it/FWANWs3/services/FWANSOAP';
 
   constructor(
-    @InjectRepository(Vehicle)
-    private readonly vehicleRepository: Repository<Vehicle>,
-    @InjectRepository(Device)
-    private readonly deviceRepository: Repository<Device>,
-    @InjectRepository(VehicleGroup)
-    private readonly vehicleGroupRepository: Repository<VehicleGroup>,
+    @InjectRepository(VehicleEntity)
+    private readonly vehicleRepository: Repository<VehicleEntity>,
+    @InjectRepository(DeviceEntity)
+    private readonly deviceRepository: Repository<DeviceEntity>,
+    @InjectRepository(VehicleGroupEntity)
+    private readonly vehicleGroupRepository: Repository<VehicleGroupEntity>,
+    @InjectDataSource('mainConnection')
+    private readonly connection: DataSource,
   ) {}
   // Prepara la richiesta SOAP
   private buildSoapRequest(methodName, id) {
@@ -44,8 +46,10 @@ export class VehicleService {
       'Content-Type': 'text/xml; charset=utf-8',
       SOAPAction: `"${methodName}"`,
     };
-
+    const queryRunner = this.connection.createQueryRunner();
     try {
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
       const response = await axios.post(this.serviceUrl, requestXml, {
         headers,
       });
@@ -95,7 +99,7 @@ export class VehicleService {
 
         const hash = createHash('sha256').update(dataToHash).digest('hex');
         return {
-          deviceId: item['deviceId'],
+          device_id: item['deviceId'],
           deviceType: item['deviceType'],
           deviceSN: item['deviceSN'],
           deviceBuildDate: item['deviceBuildDate'],
@@ -115,12 +119,12 @@ export class VehicleService {
       // add device
       const newDevices = [];
       for (const device of filteredDataDevices) {
-        const exists = await this.deviceRepository.findOne({
-          where: { id: device.deviceId },
+        const exists = await queryRunner.manager.getRepository(DeviceEntity).findOne({
+          where: { device_id: device.device_id },
         });
         if (!exists) {
           const newDevice = this.deviceRepository.create({
-            id: device.deviceId,
+            device_id: device.device_id,
             type: device.deviceType,
             serial_number: device.deviceSN,
             date_build: device.deviceBuildDate,
@@ -143,10 +147,10 @@ export class VehicleService {
       // update devices
       for (const device of filteredDataDevices) {
         const update = await this.deviceRepository.findOne({
-          where: { id: device.deviceId, hash: device.hash },
+          where: { device_id: device.device_id, hash: device.hash },
         });
         if (!update) {
-          await this.deviceRepository.update(device.deviceId, {
+          await this.deviceRepository.update(device.id_device, {
             type: device.deviceType,
             serial_number: device.deviceSN,
             date_build: device.deviceBuildDate,
@@ -159,10 +163,11 @@ export class VehicleService {
             power_on_off_detected: device.devicePowerOnOffDetected,
             hash: device.hash,
           });
-          console.log(`Device con ID ${device.deviceId} aggiornato`);
+          console.log(`Device con ID ${device.id_device} aggiornato`);
         }
       }
-
+      const devices = await this.getAllDevice();
+      let flag: number = 0;
       // add or update vehicles
       const newVehicles = [];
       const newGroups = [];
@@ -186,13 +191,14 @@ export class VehicleService {
             isRFIDReader: vehicle.isRFIDReader,
             profileId: vehicle.profileId,
             profileName: vehicle.profileName,
-            device: vehicle.deviceId,
+            device_id: devices[flag],
             hash: vehicle.hash,
           });
+          flag++;
           newVehicles.push(newVehicle);
         }
         if (!exists_group) {
-          let newGroup: VehicleGroup;
+          let newGroup: VehicleGroupEntity;
           newGroup = this.vehicleGroupRepository.create({
             group: { vgId: id },
             vehicle: { veId: vehicle.id },
@@ -200,6 +206,7 @@ export class VehicleService {
           newGroups.push(newGroup);
         }
       }
+
       // Salva tutti i nuovi veicoli nel database
       if (newVehicles.length > 0) {
         await this.vehicleRepository.save(newVehicles);
@@ -271,11 +278,16 @@ export class VehicleService {
   async getVehiclesByGroup(id: number): Promise<any> {
     const vehicles = await this.vehicleGroupRepository.find({
       where: { group: { vgId: id } },
-      select: ["veId"],
+      select: ['veId'],
       relations: {
         vehicle: true,
       },
     });
     return vehicles;
+  }
+
+  async getAllDevice(): Promise<any> {
+    const devices = await this.deviceRepository.find();
+    return devices;
   }
 }

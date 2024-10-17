@@ -1,9 +1,11 @@
-import { Entity, Column, PrimaryColumn } from 'typeorm';
+import { CommonEntity } from 'classes/common/common.entity';
+import { DeviceInterface } from 'classes/interfaces/device.interface';
+import { Entity, Column, PrimaryColumn, Index } from 'typeorm';
 
-@Entity()
-export class Device {
-  @PrimaryColumn()
-  id: number;
+@Entity('devices')
+export class DeviceEntity extends CommonEntity implements DeviceInterface {
+  @Column()
+  device_id: number;
 
   @Column()
   type: number;
@@ -36,5 +38,6 @@ export class Device {
   power_on_off_detected: number;
 
   @Column({ type: 'varchar', length: 100 })
+  @Index()
   hash: string;
 }
