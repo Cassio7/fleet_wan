@@ -1,4 +1,6 @@
-export interface DeviceInterface {
+import { CommonInterface } from "classes/common/common.interface";
+
+export interface DeviceInterface extends CommonInterface{
   device_id: number;
   type: number;
   serial_number: string;
