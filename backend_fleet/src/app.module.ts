@@ -33,7 +33,7 @@ import { HistoryController } from './controllers/history/history.controller';
       imports: [ConfigModule],
       inject: [ConfigService],
       name: 'mainConnection',
-      useFactory: (configService: ConfigService) => ({   
+      useFactory: (configService: ConfigService) => ({
         type: 'postgres',
         host: configService.get<string>('DB_HOST'),
         port: configService.get<number>('DB_PORT'),
@@ -55,20 +55,35 @@ import { HistoryController } from './controllers/history/history.controller';
         dropSchema: true,
       }),
     }),
-    TypeOrmModule.forFeature([
-      VehicleEntity,
-      DeviceEntity,
-      GroupEntity,
-      VehicleGroupEntity,
-      RealtimePositionEntity,
-      HistoryEntity,
-      TagEntity,
-      TagHistoryEntity,
-      DetectionTagEntity,
-    ],'mainConnection'),
+    TypeOrmModule.forFeature(
+      [
+        VehicleEntity,
+        DeviceEntity,
+        GroupEntity,
+        VehicleGroupEntity,
+        RealtimePositionEntity,
+        HistoryEntity,
+        TagEntity,
+        TagHistoryEntity,
+        DetectionTagEntity,
+      ],
+      'mainConnection',
+    ),
   ],
 
-  controllers: [AppController, GroupController, VehicleController, RealtimeController, HistoryController],
-  providers: [AppService, VehicleService, GroupService, RealtimeService, HistoryService],
+  controllers: [
+    AppController,
+    GroupController,
+    VehicleController,
+    RealtimeController,
+    HistoryController,
+  ],
+  providers: [
+    AppService,
+    VehicleService,
+    GroupService,
+    RealtimeService,
+    HistoryService,
+  ],
 })
 export class AppModule {}

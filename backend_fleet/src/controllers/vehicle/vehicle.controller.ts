@@ -62,7 +62,9 @@ export class VehicleController {
         }
         res.status(200).send(resultMessage);
       } else if (data === false) {
-        res.status(200).send(`Nessun veicolo trovato per gruppo id: ${params.id}\n`);
+        res
+          .status(200)
+          .send(`Nessun veicolo trovato per gruppo id: ${params.id}\n`);
       } else res.status(200).send('Nessun aggiornamento');
     } catch (error) {
       console.error('Errore nella richiesta SOAP:', error);

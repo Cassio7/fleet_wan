@@ -43,7 +43,7 @@ export class HistoryController {
 
       if (data.length > 0) {
         res.status(200).send(data);
-      }else if (data === false) {
+      } else if (data === false) {
         res.status(200).send(`No History per veicolo con id: ${params.id}\n`);
       } else {
         res.status(200).send('Nessun aggiornamento');

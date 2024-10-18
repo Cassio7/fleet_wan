@@ -16,7 +16,7 @@ export class GroupController {
       res.status(500).send('Errore durante il recupero dei gruppi');
     }
   }
-  
+
   @Get('update')
   async getGroupList(@Res() res: Response) {
     try {

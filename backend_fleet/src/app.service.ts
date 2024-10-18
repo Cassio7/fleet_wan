@@ -8,7 +8,7 @@ export class AppService implements OnModuleInit {
     private readonly groupService: GroupService,
     private readonly vehicleService: VehicleService,
   ) {}
-  
+
   // popolo database all'avvio
   async onModuleInit() {
     await this.groupService.getGroupList();
