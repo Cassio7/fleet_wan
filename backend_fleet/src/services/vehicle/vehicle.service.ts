@@ -5,6 +5,7 @@ import { DeviceEntity } from 'classes/entities/device.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { VehicleGroupEntity } from 'classes/entities/vehicle_group.entity';
 import { createHash } from 'crypto';
+import { query } from 'express';
 import { DataSource, Repository } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
 
@@ -13,11 +14,11 @@ export class VehicleService {
   private serviceUrl = 'https://ws.fleetcontrol.it/FWANWs3/services/FWANSOAP';
 
   constructor(
-    @InjectRepository(VehicleEntity,'mainConnection')
+    @InjectRepository(VehicleEntity, 'mainConnection')
     private readonly vehicleRepository: Repository<VehicleEntity>,
-    @InjectRepository(DeviceEntity,'mainConnection')
+    @InjectRepository(DeviceEntity, 'mainConnection')
     private readonly deviceRepository: Repository<DeviceEntity>,
-    @InjectRepository(VehicleGroupEntity,'mainConnection')
+    @InjectRepository(VehicleGroupEntity, 'mainConnection')
     private readonly vehicleGroupRepository: Repository<VehicleGroupEntity>,
     @InjectDataSource('mainConnection')
     private readonly connection: DataSource,
@@ -119,30 +120,34 @@ export class VehicleService {
       // add device
       const newDevices = [];
       for (const device of filteredDataDevices) {
-        const exists = await queryRunner.manager.getRepository(DeviceEntity).findOne({
-          where: { device_id: device.device_id },
-        });
-        if (!exists) {
-          const newDevice = this.deviceRepository.create({
-            device_id: device.device_id,
-            type: device.deviceType,
-            serial_number: device.deviceSN,
-            date_build: device.deviceBuildDate,
-            fw_upgrade_disable: device.deviceFwUpgradeDisable,
-            fw_id: device.deviceFwId,
-            fw_update: device.deviceLastFwUpdate,
-            fw_upgrade_received: device.deviceFwUpgradeReceived,
-            rtc_battery_fail: device.deviceRTCBatteryFailure,
-            power_fail_detected: device.devicePowerFailureDetected,
-            power_on_off_detected: device.devicePowerOnOffDetected,
-            hash: device.hash,
+        const exists = await queryRunner.manager
+          .getRepository(DeviceEntity)
+          .findOne({
+            where: { device_id: device.device_id },
           });
+        if (!exists) {
+          const newDevice = await queryRunner.manager
+            .getRepository(DeviceEntity)
+            .create({
+              device_id: device.device_id,
+              type: device.deviceType,
+              serial_number: device.deviceSN,
+              date_build: device.deviceBuildDate,
+              fw_upgrade_disable: device.deviceFwUpgradeDisable,
+              fw_id: device.deviceFwId,
+              fw_update: device.deviceLastFwUpdate,
+              fw_upgrade_received: device.deviceFwUpgradeReceived,
+              rtc_battery_fail: device.deviceRTCBatteryFailure,
+              power_fail_detected: device.devicePowerFailureDetected,
+              power_on_off_detected: device.devicePowerOnOffDetected,
+              hash: device.hash,
+            });
           newDevices.push(newDevice);
         }
       }
       // save new devices
       if (newDevices.length > 0) {
-        await this.deviceRepository.save(newDevices);
+        await queryRunner.manager.getRepository(DeviceEntity).save(newDevices);
       }
       // update devices
       for (const device of filteredDataDevices) {
@@ -150,19 +155,21 @@ export class VehicleService {
           where: { device_id: device.device_id, hash: device.hash },
         });
         if (!update) {
-          await this.deviceRepository.update(device.id_device, {
-            type: device.deviceType,
-            serial_number: device.deviceSN,
-            date_build: device.deviceBuildDate,
-            fw_upgrade_disable: device.deviceFwUpgradeDisable,
-            fw_id: device.deviceFwId,
-            fw_update: device.deviceLastFwUpdate,
-            fw_upgrade_received: device.deviceFwUpgradeReceived,
-            rtc_battery_fail: device.deviceRTCBatteryFailure,
-            power_fail_detected: device.devicePowerFailureDetected,
-            power_on_off_detected: device.devicePowerOnOffDetected,
-            hash: device.hash,
-          });
+          await queryRunner.manager
+            .getRepository(DeviceEntity)
+            .update(device.device_id, {
+              type: device.deviceType,
+              serial_number: device.deviceSN,
+              date_build: device.deviceBuildDate,
+              fw_upgrade_disable: device.deviceFwUpgradeDisable,
+              fw_id: device.deviceFwId,
+              fw_update: device.deviceLastFwUpdate,
+              fw_upgrade_received: device.deviceFwUpgradeReceived,
+              rtc_battery_fail: device.deviceRTCBatteryFailure,
+              power_fail_detected: device.devicePowerFailureDetected,
+              power_on_off_detected: device.devicePowerOnOffDetected,
+              hash: device.hash,
+            });
           console.log(`Device con ID ${device.id_device} aggiornato`);
         }
       }
@@ -179,42 +186,49 @@ export class VehicleService {
           where: { vgId: id, veId: vehicle.id },
         });
         if (!exists) {
-          const newVehicle = this.vehicleRepository.create({
-            veId: vehicle.id,
-            active: vehicle.active,
-            plate: vehicle.plate,
-            model: vehicle.model,
-            firstEvent: vehicle.firstEvent,
-            lastEvent: vehicle.lastEvent,
-            lastSessionEvent: vehicle.lastSessionEvent,
-            isCan: vehicle.isCan,
-            isRFIDReader: vehicle.isRFIDReader,
-            profileId: vehicle.profileId,
-            profileName: vehicle.profileName,
-            device_id: devices[flag],
-            hash: vehicle.hash,
-          });
+          const newVehicle = await queryRunner.manager
+            .getRepository(VehicleEntity)
+            .create({
+              veId: vehicle.id,
+              active: vehicle.active,
+              plate: vehicle.plate,
+              model: vehicle.model,
+              firstEvent: vehicle.firstEvent,
+              lastEvent: vehicle.lastEvent,
+              lastSessionEvent: vehicle.lastSessionEvent,
+              isCan: vehicle.isCan,
+              isRFIDReader: vehicle.isRFIDReader,
+              profileId: vehicle.profileId,
+              profileName: vehicle.profileName,
+              device_id: devices[flag],
+              hash: vehicle.hash,
+            });
           flag++;
           newVehicles.push(newVehicle);
         }
         if (!exists_group) {
-          let newGroup: VehicleGroupEntity;
-          newGroup = this.vehicleGroupRepository.create({
-            group: { vgId: id },
-            vehicle: { veId: vehicle.id },
-          });
+          const newGroup = await queryRunner.manager
+            .getRepository(VehicleGroupEntity)
+            .create({
+              group: { vgId: id },
+              vehicle: { veId: vehicle.id },
+            });
           newGroups.push(newGroup);
         }
       }
 
       // Salva tutti i nuovi veicoli nel database
       if (newVehicles.length > 0) {
-        await this.vehicleRepository.save(newVehicles);
+        await queryRunner.manager
+          .getRepository(VehicleEntity)
+          .save(newVehicles);
       }
 
       // Salva tutti i nuovi gruppi veicolo nel database
       if (newGroups.length > 0) {
-        await this.vehicleGroupRepository.save(newGroups);
+        await queryRunner.manager
+          .getRepository(VehicleGroupEntity)
+          .save(newGroups);
       }
 
       for (const vehicle of filteredDataVehicles) {
@@ -222,25 +236,30 @@ export class VehicleService {
           where: { veId: vehicle.id, hash: vehicle.hash },
         });
         if (!update) {
-          await this.vehicleRepository.update(vehicle.id, {
-            active: vehicle.active,
-            plate: vehicle.plate,
-            model: vehicle.model,
-            firstEvent: vehicle.firstEvent,
-            lastEvent: vehicle.lastEvent,
-            lastSessionEvent: vehicle.lastSessionEvent,
-            isCan: vehicle.isCan,
-            isRFIDReader: vehicle.isRFIDReader,
-            profileId: vehicle.profileId,
-            profileName: vehicle.profileName,
-            device: vehicle.deviceId,
-            hash: vehicle.hash,
-          });
+          await queryRunner.manager
+            .getRepository(VehicleEntity)
+            .update(vehicle.id, {
+              active: vehicle.active,
+              plate: vehicle.plate,
+              model: vehicle.model,
+              firstEvent: vehicle.firstEvent,
+              lastEvent: vehicle.lastEvent,
+              lastSessionEvent: vehicle.lastSessionEvent,
+              isCan: vehicle.isCan,
+              isRFIDReader: vehicle.isRFIDReader,
+              profileId: vehicle.profileId,
+              profileName: vehicle.profileName,
+              device: vehicle.deviceId,
+              hash: vehicle.hash,
+            });
         }
       }
-
+      await queryRunner.commitTransaction();
+      await queryRunner.release();
       return newVehicles;
     } catch (error) {
+      await queryRunner.rollbackTransaction();
+      await queryRunner.release();
       console.error('Errore nella richiesta SOAP:', error);
       throw new Error('Errore durante la richiesta al servizio SOAP');
     }
