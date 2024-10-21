@@ -1,6 +1,7 @@
 import { CommonEntity } from 'classes/common/common.entity';
 import { GroupInterface } from 'classes/interfaces/group.interface';
-import { Column, Entity, Index } from 'typeorm';
+import { Column, Entity, Index, OneToMany } from 'typeorm';
+import { VehicleGroupEntity } from './vehicle_group.entity';
 
 @Entity('groups')
 export class GroupEntity extends CommonEntity implements GroupInterface {
@@ -10,4 +11,7 @@ export class GroupEntity extends CommonEntity implements GroupInterface {
 
   @Column()
   name: string;
+  
+  @OneToMany(() => VehicleGroupEntity, (vehicle_group) => vehicle_group.vehicle)
+  vehicle_group: VehicleGroupEntity[];
 }

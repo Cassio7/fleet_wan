@@ -1,7 +1,6 @@
 import { VehicleInterface } from "./vehicle.interface";
 
 export interface HistoryInterface{
-    id: number;
     timestamp?: Date | null;
     status: number;
     latitude: number;

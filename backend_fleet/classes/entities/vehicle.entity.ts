@@ -1,18 +1,18 @@
+import { CommonEntity } from 'classes/common/common.entity';
+import { VehicleInterface } from 'classes/interfaces/vehicle.interface';
 import {
   Column,
   Entity,
-  JoinColumn,
-  OneToOne,
-  PrimaryColumn,
-  OneToMany,
   Index,
+  JoinColumn,
+  OneToMany,
+  OneToOne
 } from 'typeorm';
 import { DeviceEntity } from './device.entity';
-import { RealtimePositionEntity } from './realtime_position.entity';
 import { HistoryEntity } from './history.entity';
+import { RealtimePositionEntity } from './realtime_position.entity';
 import { TagHistoryEntity } from './tag_history.entity';
-import { CommonEntity } from 'classes/common/common.entity';
-import { VehicleInterface } from 'classes/interfaces/vehicle.interface';
+import { VehicleGroupEntity } from './vehicle_group.entity';
 
 @Entity('vehicles')
 export class VehicleEntity extends CommonEntity implements VehicleInterface {
@@ -51,9 +51,9 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
   @Column({ type: 'varchar', length: 50 })
   profileName: string;
 
-  @Column()  // Aggiungi una colonna per l'ID del device
+  @Column({ nullable: true }) // Aggiungi una colonna per l'ID del device
   device_id: number;
-  
+
   @OneToOne(() => DeviceEntity)
   @JoinColumn({ name: 'device_id' })
   @Index()
@@ -62,7 +62,7 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
   @Column({ type: 'varchar', length: 100 })
   @Index()
   hash: string;
-  
+
   @OneToMany(
     () => RealtimePositionEntity,
     (realtime_position) => realtime_position.vehicle,
@@ -74,4 +74,7 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
 
   @OneToMany(() => TagHistoryEntity, (taghistory) => taghistory.vehicle)
   taghistory: TagHistoryEntity[];
+
+  @OneToMany(() => VehicleGroupEntity, (vehicle_group) => vehicle_group.vehicle)
+  groups: VehicleGroupEntity[];
 }

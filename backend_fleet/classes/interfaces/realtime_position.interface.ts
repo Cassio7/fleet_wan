@@ -1,7 +1,6 @@
 import { VehicleInterface } from "./vehicle.interface";
 
 export interface RealtimePositionInterface{
-    id_realtime: number;
     row_number: number;
     timestamp?: Date | null;
     status: number;
