@@ -1,18 +1,15 @@
+import { CommonEntity } from 'classes/common/common.entity';
+import { RealtimePositionInterface } from 'classes/interfaces/realtime_position.interface';
 import {
   Column,
   Entity,
-  ManyToOne,
-  PrimaryGeneratedColumn,
   Index,
+  ManyToOne
 } from 'typeorm';
 import { VehicleEntity } from './vehicle.entity';
-import { RealtimePositionInterface } from 'classes/interfaces/realtime_position.interface';
 
 @Entity('realtime_positions')
-export class RealtimePositionEntity implements RealtimePositionInterface {
-  @Index()
-  @PrimaryGeneratedColumn()
-  id_realtime: number;
+export class RealtimePositionEntity extends CommonEntity implements RealtimePositionInterface {
 
   @Column()
   row_number: number;
