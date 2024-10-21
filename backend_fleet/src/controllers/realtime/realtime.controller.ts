@@ -36,7 +36,7 @@ export class RealtimeController {
       if (data.length > 0) {
         let resultMessage: string = `Gruppo di aggiornamento id : ${params.id}\n\n`;
         for (const item of data) {
-          resultMessage += `Aggiornato realtime del veicolo id: ${item.veId}, alla posizione  ${item.id}\n `;
+          resultMessage += `Aggiornato realtime del veicolo id: ${item.vehicle.veId}, alla posizione  ${item.id}\n `;
         }
         res.status(200).send(resultMessage);
       } else {

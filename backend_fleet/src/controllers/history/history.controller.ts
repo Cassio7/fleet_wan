@@ -42,7 +42,11 @@ export class HistoryController {
       );
 
       if (data.length > 0) {
-        res.status(200).send(data);
+        let resultMessage: string = `Aggiornata history del veicolo: ${params.id}, dal giorno ${dateFrom} al giorno ${dateTo}.\n\n`;
+        for (const item of data) {
+          resultMessage += `History inserito del: ${item.timestamp}\n `;
+        }
+        res.status(200).send(resultMessage);
       } else if (data === false) {
         res.status(200).send(`No History per veicolo con id: ${params.id}\n`);
       } else {
