@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
-import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { RealtimePositionEntity } from 'classes/entities/realtime_position.entity';
 import { parseStringPromise } from 'xml2js';
 import { createHash } from 'crypto';
+import { VehicleEntity } from 'classes/entities/vehicle.entity';
 
 @Injectable()
 export class RealtimeService {
@@ -13,6 +14,8 @@ export class RealtimeService {
   constructor(
     @InjectRepository(RealtimePositionEntity, 'mainConnection')
     private readonly realtimeRepository: Repository<RealtimePositionEntity>,
+    @InjectDataSource('mainConnection')
+    private readonly connection: DataSource,
   ) {}
 
   // Prepara la richiesta SOAP
@@ -39,7 +42,10 @@ export class RealtimeService {
       'Content-Type': 'text/xml; charset=utf-8',
       SOAPAction: `"${methodName}"`,
     };
+    const queryRunner = this.connection.createQueryRunner();
     try {
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
       const response = await axios.post(this.serviceUrl, requestXml, {
         headers,
       });
@@ -77,33 +83,51 @@ export class RealtimeService {
           };
         });
       });
+      const vehiclequery_list = await queryRunner.manager
+        .getRepository(VehicleEntity)
+        .find();
+      const vehiclequeryMap = new Map(
+        vehiclequery_list.map((vehiclequery) => [
+          vehiclequery.veId,
+          vehiclequery,
+        ]),
+      );
 
       const newTimes = [];
       for (const realtime of filteredData) {
         const exists = await this.realtimeRepository.findOne({
           where: { hash: realtime.hash },
         });
+        const vehiclequery = vehiclequeryMap.get(Number(realtime.veId));
         if (!exists) {
-          const newTime = this.realtimeRepository.create({
-            row_number: realtime.row_number,
-            timestamp: realtime.timestamp,
-            status: realtime.status,
-            latitude: realtime.latitude,
-            longitude: realtime.longitude,
-            nav_mode: realtime.nav_mode,
-            speed: realtime.speed,
-            direction: realtime.direction,
-            vehicle: realtime.veId,
-            hash: realtime.hash,
-          });
+          const newTime = await queryRunner.manager
+            .getRepository(RealtimePositionEntity)
+            .create({
+              row_number: realtime.row_number,
+              timestamp: realtime.timestamp,
+              status: realtime.status,
+              latitude: realtime.latitude,
+              longitude: realtime.longitude,
+              nav_mode: realtime.nav_mode,
+              speed: realtime.speed,
+              direction: realtime.direction,
+              vehicle: vehiclequery,
+              hash: realtime.hash,
+            });
           newTimes.push(newTime);
         }
       }
       if (newTimes.length > 0) {
-        await this.realtimeRepository.save(newTimes);
+        await queryRunner.manager
+          .getRepository(RealtimePositionEntity)
+          .save(newTimes);
       }
+      await queryRunner.commitTransaction();
+      await queryRunner.release();
       return newTimes;
     } catch (error) {
+      await queryRunner.rollbackTransaction();
+      await queryRunner.release();
       console.error('Errore nella richiesta SOAP:', error);
       throw new Error('Errore durante la richiesta al servizio SOAP');
     }
