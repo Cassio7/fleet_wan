@@ -126,7 +126,7 @@ export class HistoryService {
       }
       await queryRunner.commitTransaction();
       await queryRunner.release();
-      return filteredDataHistory;
+      return newHistory;
     } catch (error) {
       await queryRunner.rollbackTransaction();
       await queryRunner.release();
