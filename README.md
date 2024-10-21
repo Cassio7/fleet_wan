@@ -2,6 +2,10 @@
 Applicazione per la gestione e visualizzazione dei dati riguardanti i terminali installati su automezzi.
 
 Le chiamate vengono fatte al webservice di Fleet Control, preposto all'estrazione storica di dati, al seguente link [WSDL](https://ws.fleetcontrol.it/FWANWs3/services/FWANSOAP).
+
+## Obiettivo principale
+Verificare il funzionamento del lettore RFID e antenna, tramite controllo delle sessioni, verifica velocità mezzo e diversificazione posizioni registrate.   
+
 ## Backend
 La parte di backend è stata realizzata con NestJS, sotto la cartella `backend_fleet`
 ## Database
