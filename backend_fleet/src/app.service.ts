@@ -11,7 +11,7 @@ export class AppService implements OnModuleInit {
 
   // popolo database all'avvio
   async onModuleInit() {
-    await this.putDbData();
+    //await this.putDbData();
   }
   getHome(): string {
     return 'Fleet App';

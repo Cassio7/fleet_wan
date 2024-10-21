@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import axios from 'axios';
 import { HistoryEntity } from 'classes/entities/history.entity';
+import { SessionEntity } from 'classes/entities/session.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { createHash } from 'crypto';
 import { query } from 'express';
@@ -15,6 +16,8 @@ export class HistoryService {
   constructor(
     @InjectRepository(HistoryEntity, 'mainConnection')
     private readonly historyRepository: Repository<HistoryEntity>,
+    @InjectRepository(SessionEntity, 'mainConnection')
+    private readonly sessionRepository: Repository<SessionEntity>,
     @InjectDataSource('mainConnection')
     private readonly connection: DataSource,
   ) {}
@@ -46,7 +49,7 @@ export class HistoryService {
     dateFrom: string,
     dateTo: string,
   ): Promise<any> {
-    const methodName = 'History';
+    const methodName = 'Session';
     const requestXml = this.buildSoapRequest(methodName, id, dateFrom, dateTo);
     const headers = {
       'Content-Type': 'text/xml; charset=utf-8',
@@ -62,33 +65,88 @@ export class HistoryService {
       const jsonResult = await parseStringPromise(response.data, {
         explicitArray: false,
       });
-      // Estrarre i dati necessari dall'oggetto JSON risultante
+
       const lists =
-        jsonResult['soapenv:Envelope']['soapenv:Body']['historyResponse'][
-          'list'
-        ];
+        jsonResult['soapenv:Envelope']['soapenv:Body'][
+          'sessionHistoryResponse'
+        ]['list'];
+      if (!lists) {
+        return false;
+      }
+      const filteredDataSession = lists.map((item: any) => {
+        const dataToHash = `${item['periodFrom']}${item['periodTo']}${item['sequenceId']}${item['closed']}${item['distance']}${item['engineDriveSec']}${item['engineNoDriveSec']}`;
+        const hash = createHash('sha256').update(dataToHash).digest('hex');
+        return {
+          period_from: item['periodFrom'],
+          period_to: item['periodTo'],
+          sequence_id: item['sequenceId'],
+          closed: item['closed'],
+          distance: item['distance'],
+          engine_drive: item['engineDriveSec'],
+          engine_stop: item['engineNoDriveSec'],
+          hash: hash,
+        };
+      });
+      const newSession = [];
+      for (const session of filteredDataSession) {
+        const exists = await this.sessionRepository.findOne({
+          where: { hash: session.hash },
+        });
+        if (!exists) {
+          const newSessionOne = await queryRunner.manager
+            .getRepository(SessionEntity)
+            .create({
+              // DA FINIRE
+            });
+        }
+      }
+      //await this.setHistory(id, lists);
+      await queryRunner.commitTransaction();
+      await queryRunner.release();
+      return filteredDataSession;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      await queryRunner.release();
+      console.error('Errore nella richiesta SOAP:', error);
+      throw new Error('Errore durante la richiesta al servizio SOAP');
+    }
+  }
+  private async setHistory(id, lists) {
+    const queryRunner = this.connection.createQueryRunner();
+    try {
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+      // Estrarre i dati necessari dall'oggetto JSON risultante
+
       if (!lists) {
         return false; // se item.list non esiste, salto elemento
       }
-      const filteredDataHistory = lists.map((item: any) => {
-        const dataToHash = `${item['timestamp']}${item['status']}${item['latitude']}${item['longitude']}${item['navMode']}${item['speed']}${item['direction']}${item['totalDistance']}${item['totalConsumption']}${item['fuelLevel']}${item['brushes']}${id}`;
-        const hash = createHash('sha256').update(dataToHash).digest('hex');
-        return {
-          timestamp:
-            typeof item['timestamp'] === 'object' ? null : item['timestamp'],
-          status: item['status'],
-          latitude: item['latitude'],
-          longitude: item['longitude'],
-          nav_mode: item['navMode'],
-          speed: item['speed'],
-          direction: item['direction'],
-          tot_distance: item['totalDistance'],
-          tot_consumption: item['totalConsumption'],
-          fuel: item['fuelLevel'],
-          brushes: item['brushes'],
-          veId: id,
-          hash: hash,
-        };
+      const filteredDataHistory = lists.flatMap((item: any) => {
+        if (!item.list) {
+          return []; // se item.list non esiste, salto elemento
+        }
+        return item.list.map((inside: any) => {
+          const dataToHash = `${inside['timestamp']}${inside['status']}${inside['latitude']}${inside['longitude']}${inside['navMode']}${inside['speed']}${inside['direction']}${inside['totalDistance']}${inside['totalConsumption']}${inside['fuelLevel']}${inside['brushes']}${id}`;
+          const hash = createHash('sha256').update(dataToHash).digest('hex');
+          return {
+            timestamp:
+              typeof inside['timestamp'] === 'object'
+                ? null
+                : item['timestamp'],
+            status: inside['status'],
+            latitude: inside['latitude'],
+            longitude: inside['longitude'],
+            nav_mode: inside['navMode'],
+            speed: inside['speed'],
+            direction: inside['direction'],
+            tot_distance: inside['totalDistance'],
+            tot_consumption: inside['totalConsumption'],
+            fuel: inside['fuelLevel'],
+            brushes: inside['brushes'],
+            veId: id,
+            hash: hash,
+          };
+        });
       });
       const vehiclequery = await queryRunner.manager
         .getRepository(VehicleEntity)

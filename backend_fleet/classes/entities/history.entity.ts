@@ -8,6 +8,7 @@ import {
   ManyToOne
 } from 'typeorm';
 import { VehicleEntity } from './vehicle.entity';
+import { SessionEntity } from './session.entity';
 
 @Entity('history')
 export class HistoryEntity extends CommonEntity implements HistoryInterface{
@@ -49,6 +50,10 @@ export class HistoryEntity extends CommonEntity implements HistoryInterface{
   @JoinColumn({ name: 'veId' })
   @Index()
   vehicle: VehicleEntity;
+
+  @ManyToOne(() => SessionEntity, (session) => session.history)
+  @Index()
+  session: SessionEntity;
 
   @Column({ type: 'varchar', length: 100 })
   @Index()

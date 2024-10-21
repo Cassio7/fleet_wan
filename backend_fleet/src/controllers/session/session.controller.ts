@@ -1,8 +1,8 @@
 import { Controller, Post, Res, Param, Body } from '@nestjs/common';
 import { Response } from 'express';
-import { HistoryService } from 'src/services/history/history.service';
+import { HistoryService } from 'src/services/session/session.service';
 
-@Controller('history')
+@Controller('session')
 export class HistoryController {
   constructor(private readonly historyService: HistoryService) {}
   @Post('update/:id')
@@ -42,11 +42,12 @@ export class HistoryController {
       );
 
       if (data.length > 0) {
-        let resultMessage: string = `Aggiornata history del veicolo: ${params.id}, dal giorno ${dateFrom} al giorno ${dateTo}.\n\n`;
-        for (const item of data) {
-          resultMessage += `History inserito del: ${item.timestamp}\n `;
-        }
-        res.status(200).send(resultMessage);
+        // let resultMessage: string = `Aggiornata history del veicolo: ${params.id}, dal giorno ${dateFrom} al giorno ${dateTo}.\n\n`;
+        // for (const item of data) {
+        //   resultMessage += `History inserito del: ${item.timestamp}\n `;
+        // }
+        // res.status(200).send(resultMessage);
+        res.status(200).send(data);
       } else if (data === false) {
         res.status(200).send(`No History per veicolo con id: ${params.id}\n`);
       } else {

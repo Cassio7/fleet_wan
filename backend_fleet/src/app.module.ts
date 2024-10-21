@@ -20,8 +20,9 @@ import { GroupController } from './controllers/group/group.controller';
 import { VehicleController } from './controllers/vehicle/vehicle.controller';
 import { RealtimeService } from './services/realtime/realtime.service';
 import { RealtimeController } from './controllers/realtime/realtime.controller';
-import { HistoryService } from './services/history/history.service';
-import { HistoryController } from './controllers/history/history.controller';
+import { HistoryService } from './services/session/session.service';
+import { HistoryController } from './controllers/session/session.controller';
+import { SessionEntity } from 'classes/entities/session.entity';
 
 @Global()
 @Module({
@@ -50,9 +51,10 @@ import { HistoryController } from './controllers/history/history.controller';
           TagEntity,
           TagHistoryEntity,
           DetectionTagEntity,
+          SessionEntity
         ],
         synchronize: true, // if true recreate db
-        dropSchema: true,
+        //dropSchema: true,
       }),
     }),
     TypeOrmModule.forFeature(
@@ -66,6 +68,7 @@ import { HistoryController } from './controllers/history/history.controller';
         TagEntity,
         TagHistoryEntity,
         DetectionTagEntity,
+        SessionEntity
       ],
       'mainConnection',
     ),
