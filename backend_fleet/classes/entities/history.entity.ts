@@ -1,18 +1,16 @@
+import { CommonEntity } from 'classes/common/common.entity';
+import { HistoryInterface } from 'classes/interfaces/history.interface';
 import {
-  Entity,
   Column,
-  PrimaryGeneratedColumn,
-  ManyToOne,
+  Entity,
+  Index,
   JoinColumn,
-  Index
+  ManyToOne
 } from 'typeorm';
 import { VehicleEntity } from './vehicle.entity';
-import { HistoryInterface } from 'classes/interfaces/history.interface';
 
 @Entity('history')
-export class HistoryEntity implements HistoryInterface{
-  @PrimaryGeneratedColumn()
-  id: number;
+export class HistoryEntity extends CommonEntity implements HistoryInterface{
 
   @Column({ type: 'timestamptz', nullable: true })
   timestamp: Date;
@@ -29,10 +27,10 @@ export class HistoryEntity implements HistoryInterface{
   @Column()
   nav_mode: number;
 
-  @Column()
+  @Column('float')
   speed: number;
 
-  @Column()
+  @Column('float')
   direction: number;
 
   @Column('double precision')
