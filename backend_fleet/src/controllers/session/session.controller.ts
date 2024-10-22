@@ -5,7 +5,11 @@ import { SessionService } from 'src/services/session/session.service';
 @Controller('session')
 export class SessionController {
   constructor(private readonly sessionService: SessionService) {}
-
+  /**
+   * API per prendere tutte le sessioni in base all'id
+   * @param res
+   * @param params
+   */
   @Get(':id')
   async getAllSessionByVeId(@Res() res: Response, @Param() params: any) {
     const data = await this.sessionService.getAllSessionByVeId(params.id);
@@ -13,7 +17,35 @@ export class SessionController {
       res.status(200).send(data);
     } else res.status(200).send(`No Session per id: ${params.id}`);
   }
-
+  /**
+   * API per prendere l'ultima sessione in base all'id
+   * @param res
+   * @param params
+   */
+  @Get('last/:id')
+  async getLastSession(@Res() res: Response, @Param() params: any) {
+    const data = await this.sessionService.getLastSession(params.id);
+    if (data) res.status(200).send(data);
+    else res.status(200).send(`No Session per id: ${params.id}`);
+  }
+  /**
+   * API per prendere tutte le distanze delle sessioni in base all'id
+   * @param res
+   * @param params
+   */
+  @Get('distance/:id')
+  async getDistanceSession(@Res() res: Response, @Param() params: any) {
+    const data = await this.sessionService.getDistanceSession(params.id);
+    if (data) res.status(200).send(data);
+    else res.status(200).send(`No Session per id: ${params.id}`);
+  }
+  /**
+   * API per prendere tutte le sessioni indicando range temporale in base all'id
+   * @param res
+   * @param params
+   * @param body
+   * @returns
+   */
   @Post('ranged/:id')
   async getAllSessionByVeIdRanged(
     @Res() res: Response,
