@@ -47,7 +47,6 @@ export class HistoryEntity extends CommonEntity implements HistoryInterface{
   brushes: number;
   
   @ManyToOne(() => VehicleEntity, (vehicle) => vehicle.history)
-  @JoinColumn({ name: 'veId' })
   @Index()
   vehicle: VehicleEntity;
 

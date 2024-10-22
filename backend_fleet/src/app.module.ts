@@ -20,8 +20,8 @@ import { GroupController } from './controllers/group/group.controller';
 import { VehicleController } from './controllers/vehicle/vehicle.controller';
 import { RealtimeService } from './services/realtime/realtime.service';
 import { RealtimeController } from './controllers/realtime/realtime.controller';
-import { HistoryService } from './services/session/session.service';
-import { HistoryController } from './controllers/session/session.controller';
+import { SessionService } from './services/session/session.service';
+import { SessionController } from './controllers/session/session.controller';
 import { SessionEntity } from 'classes/entities/session.entity';
 
 @Global()
@@ -79,14 +79,14 @@ import { SessionEntity } from 'classes/entities/session.entity';
     GroupController,
     VehicleController,
     RealtimeController,
-    HistoryController,
+    SessionController,
   ],
   providers: [
     AppService,
     VehicleService,
     GroupService,
     RealtimeService,
-    HistoryService,
+    SessionService,
   ],
 })
 export class AppModule {}
