@@ -51,7 +51,7 @@ import { SessionEntity } from 'classes/entities/session.entity';
           TagEntity,
           TagHistoryEntity,
           DetectionTagEntity,
-          SessionEntity
+          SessionEntity,
         ],
         synchronize: true, // if true recreate db
         //dropSchema: true,
@@ -68,7 +68,7 @@ import { SessionEntity } from 'classes/entities/session.entity';
         TagEntity,
         TagHistoryEntity,
         DetectionTagEntity,
-        SessionEntity
+        SessionEntity,
       ],
       'mainConnection',
     ),
