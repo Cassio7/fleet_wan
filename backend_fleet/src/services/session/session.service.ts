@@ -286,4 +286,33 @@ export class SessionService {
     });
     return session;
   }
+  /**
+   * Ritorna l'ultima sessione registrata di un veicolo in base all'id
+   * @param id VeId identificativo Veicolo
+   * @returns
+   */
+  async getLastSession(id): Promise<any> {
+    const session = await this.sessionRepository.findOne({
+      where: { history: { vehicle: { veId: id } } },
+      relations: {
+        history: true,
+      },
+      order: {
+        period_to: 'DESC',
+      },
+    });
+    return session;
+  }
+  /**
+   * Ritorna tutte le distanze registrate di tutte le sessioni di un veicolo in base all'id
+   * @param id VeId identificativo Veicolo
+   * @returns
+   */
+  async getDistanceSession(id): Promise<any> {
+    const distances = await this.sessionRepository.find({
+      where: { history: { vehicle: { veId: id } } },
+      select: { distance: true, period_from: true, period_to: true },
+    });
+    return distances;
+  }
 }
