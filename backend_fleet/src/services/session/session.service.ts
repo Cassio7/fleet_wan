@@ -5,12 +5,16 @@ import { HistoryEntity } from 'classes/entities/history.entity';
 import { SessionEntity } from 'classes/entities/session.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { createHash } from 'crypto';
-import { query } from 'express';
-import { DataSource, Repository } from 'typeorm';
+import {
+  DataSource,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  Repository,
+} from 'typeorm';
 import { parseStringPromise } from 'xml2js';
 
 @Injectable()
-export class HistoryService {
+export class SessionService {
   private serviceUrl = 'https://ws.fleetcontrol.it/FWANWs3/services/FWANSOAP';
 
   constructor(
@@ -43,8 +47,17 @@ export class HistoryService {
         </soapenv:Body>
       </soapenv:Envelope>`;
   }
-
-  async getHistoryList(
+  /**
+   * Permette l'inserimento nel database di tutte le sessioni ed i relativi history presenti dato un range temporale.
+   * Una sessione viene stabilita dal momento in cui un mezzo si accende fin quando non viene spento.
+   * Il WSDL ritorna un max di 5000 righe
+   *
+   * @param id - VeId identificativo Veicolo
+   * @param dateFrom - Data inizio ricerca sessione
+   * @param dateTo - Data fine ricerca sessione
+   * @returns
+   */
+  async getSessionist(
     id: number,
     dateFrom: string,
     dateTo: string,
@@ -81,9 +94,10 @@ export class HistoryService {
           period_to: item['periodTo'],
           sequence_id: item['sequenceId'],
           closed: item['closed'],
-          distance: item['distance'],
+          distance: item['distance'].split('.').join(''),
           engine_drive: item['engineDriveSec'],
           engine_stop: item['engineNoDriveSec'],
+          lists: item['list'],
           hash: hash,
         };
       });
@@ -96,14 +110,37 @@ export class HistoryService {
           const newSessionOne = await queryRunner.manager
             .getRepository(SessionEntity)
             .create({
-              // DA FINIRE
+              period_from: session.period_from,
+              period_to: session.period_to,
+              sequence_id: session.sequence_id,
+              closed: session.closed,
+              distance: session.distance,
+              engine_drive: session.engine_drive,
+              engine_stop: session.engine_stop,
+              hash: session.hash,
             });
+          newSession.push(newSessionOne);
         }
       }
-      //await this.setHistory(id, lists);
+      if (newSession.length > 0) {
+        await queryRunner.manager.getRepository(SessionEntity).save(newSession);
+      }
       await queryRunner.commitTransaction();
       await queryRunner.release();
-      return filteredDataSession;
+
+      // creo array contenente l'oggetto SessionEnity necessario per relazione database e la lista di history relativa ad esso
+      const sessionArray = [];
+      for (const session of filteredDataSession) {
+        const sessionquery = await this.getSessionByHash(session.hash);
+        if (sessionquery) {
+          sessionArray.push({
+            sessionquery: sessionquery,
+            sessionLists: session.lists,
+          });
+        }
+      }
+      await this.setHistory(id, sessionArray);
+      return sessionArray;
     } catch (error) {
       await queryRunner.rollbackTransaction();
       await queryRunner.release();
@@ -111,85 +148,142 @@ export class HistoryService {
       throw new Error('Errore durante la richiesta al servizio SOAP');
     }
   }
-  private async setHistory(id, lists) {
+  /**
+   * Inserisce tutti gli history presenti associati ad una determinata sessione
+   * @param id
+   * @param sessionArray
+   * @returns
+   */
+  private async setHistory(id, sessionArray) {
     const queryRunner = this.connection.createQueryRunner();
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
       // Estrarre i dati necessari dall'oggetto JSON risultante
 
-      if (!lists) {
+      if (!sessionArray) {
         return false; // se item.list non esiste, salto elemento
       }
-      const filteredDataHistory = lists.flatMap((item: any) => {
-        if (!item.list) {
-          return []; // se item.list non esiste, salto elemento
+      for (const historysession of sessionArray) {
+        const filteredDataHistory = historysession.sessionLists.map(
+          (item: any) => {
+            const dataToHash = `${item['timestamp']}${item['status']}${item['latitude']}${item['longitude']}${item['navMode']}${item['speed']}${item['direction']}${item['totalDistance']}${item['totalConsumption']}${item['fuelLevel']}${item['brushes']}${id}`;
+            const hash = createHash('sha256').update(dataToHash).digest('hex');
+            return {
+              timestamp:
+                typeof item['timestamp'] === 'object'
+                  ? null
+                  : item['timestamp'],
+              status: item['status'],
+              latitude: item['latitude'],
+              longitude: item['longitude'],
+              nav_mode: item['navMode'],
+              speed: item['speed'],
+              direction: item['direction'],
+              tot_distance: item['totalDistance'],
+              tot_consumption: item['totalConsumption'],
+              fuel: item['fuelLevel'],
+              brushes: item['brushes'],
+              veId: id,
+              hash: hash,
+            };
+          },
+        );
+        const vehiclequery = await queryRunner.manager
+          .getRepository(VehicleEntity)
+          .findOne({
+            where: { veId: id },
+          });
+        const newHistory = [];
+        for (const history of filteredDataHistory) {
+          const exists = await this.historyRepository.findOne({
+            where: { hash: history.hash },
+          });
+          if (!exists) {
+            const newHistoryOne = await queryRunner.manager
+              .getRepository(HistoryEntity)
+              .create({
+                timestamp: history.timestamp,
+                status: history.status,
+                latitude: history.latitude,
+                longitude: history.longitude,
+                nav_mode: history.nav_mode,
+                speed: history.speed,
+                direction: history.direction,
+                tot_distance: history.tot_distance,
+                tot_consumption: history.tot_consumption,
+                fuel: history.fuel,
+                brushes: history.brushes,
+                vehicle: vehiclequery,
+                session: historysession.sessionquery,
+                hash: history.hash,
+              });
+            newHistory.push(newHistoryOne);
+          }
         }
-        return item.list.map((inside: any) => {
-          const dataToHash = `${inside['timestamp']}${inside['status']}${inside['latitude']}${inside['longitude']}${inside['navMode']}${inside['speed']}${inside['direction']}${inside['totalDistance']}${inside['totalConsumption']}${inside['fuelLevel']}${inside['brushes']}${id}`;
-          const hash = createHash('sha256').update(dataToHash).digest('hex');
-          return {
-            timestamp:
-              typeof inside['timestamp'] === 'object'
-                ? null
-                : item['timestamp'],
-            status: inside['status'],
-            latitude: inside['latitude'],
-            longitude: inside['longitude'],
-            nav_mode: inside['navMode'],
-            speed: inside['speed'],
-            direction: inside['direction'],
-            tot_distance: inside['totalDistance'],
-            tot_consumption: inside['totalConsumption'],
-            fuel: inside['fuelLevel'],
-            brushes: inside['brushes'],
-            veId: id,
-            hash: hash,
-          };
-        });
-      });
-      const vehiclequery = await queryRunner.manager
-        .getRepository(VehicleEntity)
-        .findOne({
-          where: { veId: id },
-        });
-      const newHistory = [];
-      for (const history of filteredDataHistory) {
-        const exists = await this.historyRepository.findOne({
-          where: { hash: history.hash },
-        });
-        if (!exists) {
-          const newHistoryOne = await queryRunner.manager
+        if (newHistory.length > 0) {
+          await queryRunner.manager
             .getRepository(HistoryEntity)
-            .create({
-              timestamp: history.timestamp,
-              status: history.status,
-              latitude: history.latitude,
-              longitude: history.longitude,
-              nav_mode: history.nav_mode,
-              speed: history.speed,
-              direction: history.direction,
-              tot_distance: history.tot_distance,
-              tot_consumption: history.tot_consumption,
-              fuel: history.fuel,
-              brushes: history.brushes,
-              vehicle: vehiclequery,
-              hash: history.hash,
-            });
-          newHistory.push(newHistoryOne);
+            .save(newHistory);
         }
-      }
-      if (newHistory.length > 0) {
-        await queryRunner.manager.getRepository(HistoryEntity).save(newHistory);
       }
       await queryRunner.commitTransaction();
       await queryRunner.release();
-      return newHistory;
+      return true;
     } catch (error) {
       await queryRunner.rollbackTransaction();
       await queryRunner.release();
       console.error('Errore nella richiesta SOAP:', error);
       throw new Error('Errore durante la richiesta al servizio SOAP');
     }
+  }
+  /**
+   * Ricerca sessione tramite l'hash
+   * @param hash hash della sessione generato in getSessionist
+   * @returns
+   */
+  private async getSessionByHash(hash): Promise<any> {
+    const session = await this.sessionRepository.findOne({
+      where: { hash: hash },
+    });
+    return session;
+  }
+  /**
+   * Ritorna la lista completa delle sessione in base all'id del veicolo
+   * @param id VeId identificativo Veicolo
+   * @returns
+   */
+  async getAllSessionByVeId(id: number): Promise<any> {
+    const session = await this.sessionRepository.find({
+      where: { history: { vehicle: { veId: id } } },
+      relations: {
+        history: true,
+      },
+    });
+    return session;
+  }
+  /**
+   * Restituisce le sessione in base all'id del veicolo e al range temporale inserito
+   * @param id VeId identificativo Veicolo
+   * @param dateFrom Data inizio ricerca sessione
+   * @param dateTo Data fine ricerca sessione
+   * @returns
+   */
+  async getAllSessionByVeIdRanged(
+    id: number,
+    dateFrom: Date,
+    dateTo: Date,
+  ): Promise<any> {
+    const session = await this.sessionRepository.find({
+      where: {
+        history: { vehicle: { veId: id } },
+        period_from: MoreThanOrEqual(dateFrom),
+        period_to: LessThanOrEqual(dateTo),
+      },
+      relations: {
+        history: true,
+      },
+    });
+    return session;
   }
 }
