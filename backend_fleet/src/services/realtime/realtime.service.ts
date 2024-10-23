@@ -6,6 +6,7 @@ import { RealtimePositionEntity } from 'classes/entities/realtime_position.entit
 import { parseStringPromise } from 'xml2js';
 import { createHash } from 'crypto';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
+import { convertHours } from 'src/utils/hoursFix';
 
 @Injectable()
 export class RealtimeService {
@@ -71,7 +72,7 @@ export class RealtimeService {
             timestamp:
               typeof inside['timestamp'] === 'object'
                 ? null
-                : inside['timestamp'],
+                : convertHours(inside['timestamp']),
             status: inside['status'],
             latitude: inside['latitude'],
             longitude: inside['longitude'],
