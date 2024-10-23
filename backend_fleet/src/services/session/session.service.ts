@@ -12,6 +12,7 @@ import {
   Repository,
 } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
+import { convertHours } from 'src/utils/hoursFix';
 
 @Injectable()
 export class SessionService {
@@ -78,20 +79,27 @@ export class SessionService {
       const jsonResult = await parseStringPromise(response.data, {
         explicitArray: false,
       });
-
+      if (!jsonResult) {
+        console.log('vuoto jsonResult');
+      }
       const lists =
         jsonResult['soapenv:Envelope']['soapenv:Body'][
           'sessionHistoryResponse'
         ]['list'];
+
       if (!lists) {
+        await queryRunner.rollbackTransaction();
+        await queryRunner.release();
         return false;
       }
-      const filteredDataSession = lists.map((item: any) => {
+      // evita di inserire un solo oggetto e non un array nel caso session.lists abbia soltanto 1 elemento, evita problemi del .map sotto
+      const sessionLists = Array.isArray(lists) ? lists : [lists];
+      const filteredDataSession = sessionLists.map((item: any) => {
         const dataToHash = `${item['periodFrom']}${item['periodTo']}${item['sequenceId']}${item['closed']}${item['distance']}${item['engineDriveSec']}${item['engineNoDriveSec']}`;
         const hash = createHash('sha256').update(dataToHash).digest('hex');
         return {
-          period_from: item['periodFrom'],
-          period_to: item['periodTo'],
+          period_from: convertHours(item['periodFrom']),
+          period_to: convertHours(item['periodTo']),
           sequence_id: item['sequenceId'],
           closed: item['closed'],
           distance: item['distance'].split('.').join(''),
@@ -133,12 +141,17 @@ export class SessionService {
       for (const session of filteredDataSession) {
         const sessionquery = await this.getSessionByHash(session.hash);
         if (sessionquery) {
+          // evita di inserire un solo oggetto e non un array nel caso session.lists abbia soltanto 1 elemento, evita problemi del .map sotto
+          const sessionHistory = Array.isArray(session.lists)
+            ? session.lists
+            : [session.lists];
           sessionArray.push({
             sessionquery: sessionquery,
-            sessionLists: session.lists,
+            sessionLists: sessionHistory,
           });
         }
       }
+      //console.log(sessionArray);
       await this.setHistory(id, sessionArray);
       return sessionArray;
     } catch (error) {
@@ -162,18 +175,24 @@ export class SessionService {
       // Estrarre i dati necessari dall'oggetto JSON risultante
 
       if (!sessionArray) {
+        await queryRunner.rollbackTransaction();
+        await queryRunner.release();
         return false; // se item.list non esiste, salto elemento
       }
       for (const historysession of sessionArray) {
+        // controllo nel caso ci sia soltanto 1 history per una sessione
         const filteredDataHistory = historysession.sessionLists.map(
           (item: any) => {
+            if (!item) {
+              return []; // se item.list non esiste, salto elemento
+            }
             const dataToHash = `${item['timestamp']}${item['status']}${item['latitude']}${item['longitude']}${item['navMode']}${item['speed']}${item['direction']}${item['totalDistance']}${item['totalConsumption']}${item['fuelLevel']}${item['brushes']}${id}`;
             const hash = createHash('sha256').update(dataToHash).digest('hex');
             return {
               timestamp:
                 typeof item['timestamp'] === 'object'
                   ? null
-                  : item['timestamp'],
+                  : convertHours(item['timestamp']),
               status: item['status'],
               latitude: item['latitude'],
               longitude: item['longitude'],
@@ -189,6 +208,7 @@ export class SessionService {
             };
           },
         );
+
         const vehiclequery = await queryRunner.manager
           .getRepository(VehicleEntity)
           .findOne({
@@ -199,7 +219,8 @@ export class SessionService {
           const exists = await this.historyRepository.findOne({
             where: { hash: history.hash },
           });
-          if (!exists) {
+          // evita che dia errore quando ci sono sessioni senza history 
+          if (!exists && history.length !== 0) {
             const newHistoryOne = await queryRunner.manager
               .getRepository(HistoryEntity)
               .create({
