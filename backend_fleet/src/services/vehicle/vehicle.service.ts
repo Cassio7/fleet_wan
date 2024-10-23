@@ -8,6 +8,7 @@ import { VehicleGroupEntity } from 'classes/entities/vehicle_group.entity';
 import { createHash } from 'crypto';
 import { DataSource, Repository } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
+import { convertHours } from 'src/utils/hoursFix';
 
 @Injectable()
 export class VehicleService {
@@ -64,6 +65,8 @@ export class VehicleService {
         ]['list'];
 
       if (!lists) {
+        await queryRunner.rollbackTransaction();
+        await queryRunner.release();
         return false; // se item.list non esiste, salto elemento
       }
       const newVehicles = await this.putAllVehicle(lists);
@@ -177,7 +180,7 @@ export class VehicleService {
           deviceLastFwUpdate:
             typeof item['deviceLastFwUpdate'] === 'object'
               ? null
-              : item['deviceLastFwUpdate'],
+              : convertHours(item['deviceLastFwUpdate']),
           deviceFwUpgradeReceived: item['deviceFwUpgradeReceived'],
           deviceRTCBatteryFailure: item['deviceRTCBatteryFailure'] === 'true',
           devicePowerFailureDetected: item['devicePowerFailureDetected'],
@@ -262,20 +265,23 @@ export class VehicleService {
 
         // hash creation
         const hash = createHash('sha256').update(dataToHash).digest('hex');
-
         return {
           id: item['id'],
           active: item['active'] === 'true',
           plate: item['plate'],
           model: item['model'],
           firstEvent:
-            typeof item['firstEvent'] === 'object' ? null : item['firstEvent'],
+            typeof item['firstEvent'] === 'object'
+              ? null
+              : convertHours(item['firstEvent']),
           lastEvent:
-            typeof item['lastEvent'] === 'object' ? null : item['lastEvent'],
+            typeof item['lastEvent'] === 'object'
+              ? null
+              : convertHours(item['lastEvent']),
           lastSessionEvent:
             typeof item['lastSessionEvent'] === 'object'
               ? null
-              : item['lastSessionEvent'],
+              : convertHours(item['lastSessionEvent']),
           isCan: item['isCan'] === 'true',
           isRFIDReader: item['isRFIDReader'] === 'true',
           profileId: item['profileId'],
