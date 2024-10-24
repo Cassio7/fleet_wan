@@ -20,19 +20,17 @@ export class AppService implements OnModuleInit {
 
   async putDbData() {
     await this.groupService.getGroupList();
-    // const groups = await this.groupService.getAllGroups()
-    // groups.reverse();
-    // for (const group of groups){
-    //   await this.vehicleService.getVehicleList(group.vgId);
-    // }
-    await this.vehicleService.getVehicleList(313);
+    const groups = await this.groupService.getAllGroups();
+    for (const group of groups) {
+      await this.vehicleService.getVehicleList(group.vgId);
+    }
     const vehicles = await this.vehicleService.getAllVehicles();
     for (const vehicle of vehicles) {
       console.log(`${vehicle.veId} - ${vehicle.id}`);
       await this.sessionService.getSessionist(
         vehicle.veId,
-        '2024-10-21T00:00:00.000Z',
         '2024-10-23T00:00:00.000Z',
+        '2024-10-24T00:00:00.000Z',
       );
     }
   }
