@@ -1,6 +1,6 @@
 import { CommonEntity } from 'classes/common/common.entity';
 import { DeviceInterface } from 'classes/interfaces/device.interface';
-import { Entity, Column, PrimaryColumn, Index } from 'typeorm';
+import { Column, Entity, Index } from 'typeorm';
 
 @Entity('devices')
 export class DeviceEntity extends CommonEntity implements DeviceInterface {

@@ -12,6 +12,6 @@ export class GroupEntity extends CommonEntity implements GroupInterface {
   @Column()
   name: string;
   
-  @OneToMany(() => VehicleGroupEntity, (vehicle_group) => vehicle_group.vehicle)
+  @OneToMany(() => VehicleGroupEntity, (vehicle_group) => vehicle_group.group)
   vehicle_group: VehicleGroupEntity[];
 }

@@ -51,9 +51,6 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
   @Column({ type: 'varchar', length: 50 })
   profileName: string;
 
-  @Column({ nullable: true }) // Aggiungi una colonna per l'ID del device
-  device_id: number;
-
   @OneToOne(() => DeviceEntity)
   @JoinColumn({ name: 'device_id' })
   @Index()
@@ -76,5 +73,5 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
   taghistory: TagHistoryEntity[];
 
   @OneToMany(() => VehicleGroupEntity, (vehicle_group) => vehicle_group.vehicle)
-  groups: VehicleGroupEntity[];
+  vehicle_group: VehicleGroupEntity[];
 }
