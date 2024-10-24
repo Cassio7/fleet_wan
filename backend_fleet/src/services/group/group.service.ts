@@ -62,19 +62,12 @@ export class GroupService {
       // Verifica se il gruppo esiste e salva solo quelli nuovi
       const newGroups = [];
       for (const group of filteredData) {
-        // const exists = await this.groupRepository.findOne({
-        //   where: { vgId: group.vgId },
-        // });
         const exists = await queryRunner.manager
           .getRepository(GroupEntity)
           .findOne({
             where: { vgId: group.vgId },
           });
         if (!exists) {
-          // const newGroup = this.groupRepository.create({
-          //   vgId: group.vgId,
-          //   name: group.vgName,
-          // });
           const newGroup = queryRunner.manager
             .getRepository(GroupEntity)
             .create({
@@ -87,7 +80,6 @@ export class GroupService {
       // Salva tutti i nuovi gruppi nel database
       if (newGroups.length > 0) {
         await queryRunner.manager.getRepository(GroupEntity).save(newGroups);
-        //await this.groupRepository.save(newGroups);
       }
       await queryRunner.commitTransaction();
       await queryRunner.release();
