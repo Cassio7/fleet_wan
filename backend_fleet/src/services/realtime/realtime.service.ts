@@ -47,6 +47,7 @@ export class RealtimeService {
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
+      await queryRunner.manager.getRepository(RealtimePositionEntity).clear();
       const response = await axios.post(this.serviceUrl, requestXml, {
         headers,
       });
@@ -96,27 +97,22 @@ export class RealtimeService {
 
       const newTimes = [];
       for (const realtime of filteredData) {
-        const exists = await this.realtimeRepository.findOne({
-          where: { hash: realtime.hash },
-        });
         const vehiclequery = vehiclequeryMap.get(Number(realtime.veId));
-        if (!exists) {
-          const newTime = await queryRunner.manager
-            .getRepository(RealtimePositionEntity)
-            .create({
-              row_number: realtime.row_number,
-              timestamp: realtime.timestamp,
-              status: realtime.status,
-              latitude: realtime.latitude,
-              longitude: realtime.longitude,
-              nav_mode: realtime.nav_mode,
-              speed: realtime.speed,
-              direction: realtime.direction,
-              vehicle: vehiclequery,
-              hash: realtime.hash,
-            });
-          newTimes.push(newTime);
-        }
+        const newTime = await queryRunner.manager
+          .getRepository(RealtimePositionEntity)
+          .create({
+            row_number: realtime.row_number,
+            timestamp: realtime.timestamp,
+            status: realtime.status,
+            latitude: realtime.latitude,
+            longitude: realtime.longitude,
+            nav_mode: realtime.nav_mode,
+            speed: realtime.speed,
+            direction: realtime.direction,
+            vehicle: vehiclequery,
+            hash: realtime.hash,
+          });
+        newTimes.push(newTime);
       }
       if (newTimes.length > 0) {
         await queryRunner.manager
@@ -142,7 +138,7 @@ export class RealtimeService {
     });
     return times;
   }
-  // non va
+
   async getTimesByVeId(id: number): Promise<any> {
     const times = await this.realtimeRepository.find({
       relations: {
