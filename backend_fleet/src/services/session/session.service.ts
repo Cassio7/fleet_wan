@@ -7,6 +7,7 @@ import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { createHash } from 'crypto';
 import {
   DataSource,
+  In,
   LessThanOrEqual,
   MoreThanOrEqual,
   Repository,
@@ -109,11 +110,23 @@ export class SessionService {
           hash: hash,
         };
       });
+      const sessionHashes = filteredDataSession.map((session) => session.hash);
+
+      // Esegui una query per ottenere tutte le sessioni con hash corrispondenti
+      const sessionQueries = await queryRunner.manager
+        .getRepository(SessionEntity)
+        .find({
+          where: { hash: In(sessionHashes) },
+        });
+      // Crea una mappa per abbinare gli hash alle sessioni restituite dalla query
+      const sessionQueryMap = new Map(
+        sessionQueries.map((query) => [query.hash, query]),
+      );
+
       const newSession = [];
       for (const session of filteredDataSession) {
-        const exists = await this.sessionRepository.findOne({
-          where: { hash: session.hash },
-        });
+        // controllo se esiste hash
+        const exists = sessionQueryMap.get(session.hash);
         if (!exists) {
           const newSessionOne = await queryRunner.manager
             .getRepository(SessionEntity)
@@ -151,7 +164,7 @@ export class SessionService {
           });
         }
       }
-      //console.log(sessionArray);
+
       await this.setHistory(id, sessionArray);
       return sessionArray;
     } catch (error) {
@@ -214,12 +227,27 @@ export class SessionService {
           .findOne({
             where: { veId: id },
           });
+
+        const historyHashes = filteredDataHistory.map(
+          (history) => history.hash,
+        );
+
+        // Esegui una query per ottenere tutte le sessioni con hash corrispondenti
+        const historyQueries = await queryRunner.manager
+          .getRepository(HistoryEntity)
+          .find({
+            where: { hash: In(historyHashes) },
+          });
+        // Crea una mappa per abbinare gli hash alle sessioni restituite dalla query
+        const hisotyrQueryMap = new Map(
+          historyQueries.map((query) => [query.hash, query]),
+        );
+
         const newHistory = [];
         for (const history of filteredDataHistory) {
-          const exists = await this.historyRepository.findOne({
-            where: { hash: history.hash },
-          });
-          // evita che dia errore quando ci sono sessioni senza history 
+          // controllo se esiste hash
+          const exists = hisotyrQueryMap.get(history.hash);
+          // evita che dia errore quando ci sono sessioni senza history
           if (!exists && history.length !== 0) {
             const newHistoryOne = await queryRunner.manager
               .getRepository(HistoryEntity)
