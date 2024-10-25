@@ -53,8 +53,17 @@ export class GroupService {
           'list'
         ];
 
-      // Filtra i dati necessari (vgId e vgName)
-      const filteredData = lists.map((item: any) => ({
+      if (!lists) {
+        await queryRunner.rollbackTransaction();
+        await queryRunner.release();
+        return false; // se item.list non esiste, salto elemento
+      }
+
+      // se lists è un singolo oggetto, lo converto in un array contenente quell'oggetto
+      const normalizedLists = Array.isArray(lists) ? lists : [lists];
+
+      // Filtra i dati necessari
+      const filteredData = normalizedLists.map((item: any) => ({
         vgId: item['vgId'],
         vgName: item['vgName'],
       }));
@@ -68,6 +77,13 @@ export class GroupService {
             where: { vgId: group.vgId },
           });
         if (!exists) {
+          if (group.vgId == 313) {
+            group.vgName = 'Gruppo principale GESENU';
+          } else if (group.vgId == 650) {
+            group.vgName = 'Gruppo principale TSA';
+          } else if(group.vgId == 688){
+            group.vgName = 'Gruppo principale Fiumicino';
+          }
           const newGroup = queryRunner.manager
             .getRepository(GroupEntity)
             .create({
