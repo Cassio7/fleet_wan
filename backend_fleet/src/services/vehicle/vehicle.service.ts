@@ -6,7 +6,7 @@ import { GroupEntity } from 'classes/entities/group.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { VehicleGroupEntity } from 'classes/entities/vehicle_group.entity';
 import { createHash } from 'crypto';
-import { DataSource, In, Repository } from 'typeorm';
+import { DataSource, Entity, In, Repository } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
 import { convertHours } from 'src/utils/hoursFix';
 
@@ -122,16 +122,30 @@ export class VehicleService {
   private async putAllVehicle(lists: any[]): Promise<any> {
     const queryRunner = this.connection.createQueryRunner();
 
+    const hashVehicle = (vehicle: any): string => {
+      const toHash = {
+        id: vehicle.id,
+        active: vehicle.active,
+        plate: vehicle.plate,
+        model: vehicle.model,
+        firstEvent: vehicle.firstEvent,
+        lastEvent: vehicle.lastEvent,
+        isCan: vehicle.isCan,
+        isRFIDReader: vehicle.isRFIDReader,
+        profileId: vehicle.profileId,
+        profileName: vehicle.profileName,
+      };
+      return createHash('sha256').update(JSON.stringify(toHash)).digest('hex');
+    };
+
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
 
       // Filtro i dati dei veicoli
       const filteredDataVehicles = lists.map((item: any) => {
-        // hash data
-        const dataToHash = `${item['id']}${item['active']}${item['plate']}${item['model']}${item['firstEvent']}${item['lastEvent']}${item['isCan']}${item['isRFIDReader']}${item['profileId']}${item['profileName']}`;
         // hash creation
-        const hash = createHash('sha256').update(dataToHash).digest('hex');
+        const hash = hashVehicle(item);
         return {
           id: item['id'],
           active: item['active'] === 'true',
@@ -206,6 +220,7 @@ export class VehicleService {
         } else if (existingVehicle.hash !== vehicle.hash) {
           // Aggiorniamo il veicolo solo se l'hash è cambiato
           updatedVehicles.push({
+            key: existingVehicle.key,
             veId: vehicle.id,
             active: vehicle.active,
             plate: vehicle.plate,
@@ -236,7 +251,7 @@ export class VehicleService {
         for (const vehicle of updatedVehicles) {
           await queryRunner.manager
             .getRepository(VehicleEntity)
-            .update(vehicle.veId, vehicle);
+            .update({ key: vehicle.key }, vehicle);
         }
       }
 
@@ -254,15 +269,30 @@ export class VehicleService {
   private async putAllDevice(lists: any[]): Promise<any> {
     const queryRunner = this.connection.createQueryRunner();
 
+    const hashDevice = (device: any): string => {
+      const toHash = {
+        deviceId: device.deviceId,
+        device_type: device.deviceType,
+        deviceSN: device.deviceSN,
+        deviceBuildDate: device.deviceBuildDate,
+        deviceFwUpgradeDisable: device.deviceFwUpgradeDisable,
+        deviceFwId: device.deviceFwId,
+        deviceLastFwUpdate: device.deviceLastFwUpdate,
+        deviceFwUpgradeReceived: device.deviceFwUpgradeReceived,
+        deviceRTCBatteryFailure: device.deviceRTCBatteryFailure,
+        devicePowerFailureDetected: device.devicePowerFailureDetected,
+        devicePowerOnOffDetected: device.devicePowerOnOffDetected,
+      };
+      return createHash('sha256').update(JSON.stringify(toHash)).digest('hex');
+    };
+
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
 
-      // iltrato
+      // filtrato
       const filteredDataDevices = lists.map((item: any) => {
-        const dataToHash = `${item['deviceId']}${item['deviceType']}${item['deviceSN']}${item['deviceBuildDate']}${item['deviceFwUpgradeDisable']}${item['deviceFwId']}${item['deviceLastFwUpdate']}${item['deviceFwUpgradeReceived']}${item['deviceRTCBatteryFailure']}${item['devicePowerFailureDetected']}${item['devicePowerOnOffDetected']}`;
-
-        const hash = createHash('sha256').update(dataToHash).digest('hex');
+        const hash = hashDevice(item);
         return {
           device_id: item['deviceId'],
           deviceType: item['deviceType'],
@@ -321,23 +351,8 @@ export class VehicleService {
             });
           newDevices.push(newDevice);
         } else if (existingDevice.hash !== device.hash) {
-          // solo se l'hash è cambiato
-          // await queryRunner.manager
-          //   .getRepository(DeviceEntity)
-          //   .update(device.device_id, {
-          //     type: device.deviceType,
-          //     serial_number: device.deviceSN,
-          //     date_build: device.deviceBuildDate,
-          //     fw_upgrade_disable: device.deviceFwUpgradeDisable,
-          //     fw_id: device.deviceFwId,
-          //     fw_update: device.deviceLastFwUpdate,
-          //     fw_upgrade_received: device.deviceFwUpgradeReceived,
-          //     rtc_battery_fail: device.deviceRTCBatteryFailure,
-          //     power_fail_detected: device.devicePowerFailureDetected,
-          //     power_on_off_detected: device.devicePowerOnOffDetected,
-          //     hash: device.hash,
-          //   });
           updatedDevices.push({
+            key: existingDevice.key,
             device_id: device.device_id,
             type: device.deviceType,
             serial_number: device.deviceSN,
@@ -364,7 +379,8 @@ export class VehicleService {
           console.log(`update Device ID ${device.device_id}`);
           await queryRunner.manager
             .getRepository(DeviceEntity)
-            .update(device.device_id, device);
+            .update({ key: device.key }, device);
+          //.update(device.device_id, device);
         }
       }
       await queryRunner.commitTransaction();
