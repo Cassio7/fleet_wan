@@ -23,10 +23,14 @@ import { RealtimeController } from './controllers/realtime/realtime.controller';
 import { SessionService } from './services/session/session.service';
 import { SessionController } from './controllers/session/session.controller';
 import { SessionEntity } from 'classes/entities/session.entity';
+import { ScheduleModule } from '@nestjs/schedule';
+import { TagService } from './services/tag/tag.service';
+import { TagController } from './controllers/tag/tag.controller';
 
 @Global()
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -53,7 +57,7 @@ import { SessionEntity } from 'classes/entities/session.entity';
           DetectionTagEntity,
           SessionEntity,
         ],
-        synchronize: true, 
+        synchronize: true,
         //dropSchema: true, // if true drop db
       }),
     }),
@@ -80,6 +84,7 @@ import { SessionEntity } from 'classes/entities/session.entity';
     VehicleController,
     RealtimeController,
     SessionController,
+    TagController,
   ],
   providers: [
     AppService,
@@ -87,6 +92,7 @@ import { SessionEntity } from 'classes/entities/session.entity';
     GroupService,
     RealtimeService,
     SessionService,
+    TagService,
   ],
 })
 export class AppModule {}
