@@ -1,11 +1,15 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, Index } from 'typeorm';
+import { CommonEntity } from 'classes/common/common.entity';
+import { DetectionTagInterface } from 'classes/interfaces/detection_tag.interface';
+import { Column, Entity, Index, ManyToOne } from 'typeorm';
 import { TagEntity } from './tag.entity';
 import { TagHistoryEntity } from './tag_history.entity';
-import { DetectionTagInterface } from 'classes/interfaces/detection_tag.interface';
 
 @Entity('detection_tag')
-export class DetectionTagEntity implements DetectionTagInterface{
-  @PrimaryGeneratedColumn()
+export class DetectionTagEntity
+  extends CommonEntity
+  implements DetectionTagInterface
+{
+  @Column()
   id: number;
 
   @Column()
@@ -15,13 +19,11 @@ export class DetectionTagEntity implements DetectionTagInterface{
   @Column('float')
   detection_quality: number;
 
-  @ManyToOne(() => TagEntity)
-  @JoinColumn({ name: 'epc' })
+  @ManyToOne(() => TagEntity, (tag) => tag.detectiontag)
   @Index()
   epc: TagEntity;
 
-  @ManyToOne(() => TagHistoryEntity)
-  @JoinColumn({ name: 'tag_history_id' })
+  @ManyToOne(() => TagHistoryEntity, (tag_history) => tag_history.detectiontag)
   @Index()
   tagHistory: TagHistoryEntity;
 }

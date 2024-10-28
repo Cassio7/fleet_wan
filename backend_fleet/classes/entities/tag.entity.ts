@@ -1,9 +1,10 @@
-import { Entity, PrimaryColumn, OneToMany, JoinColumn, Index } from 'typeorm';
+import { CommonEntity } from 'classes/common/common.entity';
+import { Column, Entity, Index, JoinColumn, OneToMany } from 'typeorm';
 import { DetectionTagEntity } from './detection_tag.entity';
 
 @Entity('tags')
-export class TagEntity {
-  @PrimaryColumn()
+export class TagEntity extends CommonEntity implements TagEntity {
+  @Column()
   @Index()
   epc: string;
 
@@ -11,6 +12,5 @@ export class TagEntity {
     () => DetectionTagEntity,
     (detectiontag) => detectiontag.tagHistory,
   )
-  @JoinColumn({ name: 'id' })
   detectiontag: DetectionTagEntity[];
 }

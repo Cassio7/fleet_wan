@@ -1,19 +1,21 @@
-import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  ManyToOne,
-  JoinColumn,
-  OneToMany,
-  Index,
-} from 'typeorm';
-import { VehicleEntity } from './vehicle.entity';
+import { CommonEntity } from 'classes/common/common.entity';
 import { TagHistoryInterface } from 'classes/interfaces/tag_history.interface';
+import {
+  Column,
+  Entity,
+  Index,
+  ManyToOne,
+  OneToMany
+} from 'typeorm';
 import { DetectionTagEntity } from './detection_tag.entity';
+import { VehicleEntity } from './vehicle.entity';
 
 @Entity('tag_history')
-export class TagHistoryEntity implements TagHistoryInterface {
-  @PrimaryGeneratedColumn()
+export class TagHistoryEntity
+  extends CommonEntity
+  implements TagHistoryInterface
+{
+  @Column()
   id_tag_history: number;
 
   @Column({ type: 'timestamp' })
@@ -32,7 +34,6 @@ export class TagHistoryEntity implements TagHistoryInterface {
   geozone: string;
 
   @ManyToOne(() => VehicleEntity, (vehicle) => vehicle.taghistory)
-  @JoinColumn({ name: 'veId' })
   @Index()
   vehicle: VehicleEntity;
 
@@ -40,6 +41,9 @@ export class TagHistoryEntity implements TagHistoryInterface {
     () => DetectionTagEntity,
     (detectiontag) => detectiontag.tagHistory,
   )
-  @JoinColumn({ name: 'id' })
   detectiontag: DetectionTagEntity[];
+
+  @Column({ type: 'varchar', length: 100 })
+  @Index()
+  hash: string;
 }
