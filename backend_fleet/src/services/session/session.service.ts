@@ -231,7 +231,7 @@ export class SessionService {
    */
   private async setHistory(id, sessionArray) {
     // imposta il tempo di recupero dei history, ogni quanti secondi
-    const timeHistory = 10000;
+    const timeHistory = 20000;
     const queryRunner = this.connection.createQueryRunner();
     try {
       await queryRunner.connect();
