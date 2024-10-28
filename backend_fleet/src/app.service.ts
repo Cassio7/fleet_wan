@@ -24,14 +24,14 @@ export class AppService implements OnModuleInit {
     for (const group of groups) {
       await this.vehicleService.getVehicleList(group.vgId);
     }
-    // const vehicles = await this.vehicleService.getAllVehicles();
-    // for (const vehicle of vehicles) {
-    //   console.log(`${vehicle.veId} - ${vehicle.id}`);
-    //   await this.sessionService.getSessionist(
-    //     vehicle.veId,
-    //     '2024-10-22T00:00:00.000Z',
-    //     '2024-10-23T00:00:00.000Z',
-    //   );
-    // }
+    const vehicles = await this.vehicleService.getAllVehicles();
+    for (const vehicle of vehicles) {
+      console.log(`${vehicle.veId} - ${vehicle.id}`);
+      await this.sessionService.getSessionist(
+        vehicle.veId,
+        '2024-10-22T00:00:00.000Z',
+        '2024-10-23T00:00:00.000Z',
+      );
+    }
   }
 }
