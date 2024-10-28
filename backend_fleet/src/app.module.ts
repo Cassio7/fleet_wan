@@ -53,8 +53,8 @@ import { SessionEntity } from 'classes/entities/session.entity';
           DetectionTagEntity,
           SessionEntity,
         ],
-        synchronize: true, // if true recreate db
-        //dropSchema: true,
+        synchronize: true, 
+        //dropSchema: true, // if true drop db
       }),
     }),
     TypeOrmModule.forFeature(
