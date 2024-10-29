@@ -18,7 +18,8 @@ import { convertHours } from 'src/utils/hoursFix';
 @Injectable()
 export class SessionService {
   private serviceUrl = 'https://ws.fleetcontrol.it/FWANWs3/services/FWANSOAP';
-
+  // imposta il tempo di recupero dei history, ogni quanti secondi = 5 min ora
+  private timeHistory = 300000;
   constructor(
     @InjectRepository(HistoryEntity, 'mainConnection')
     private readonly historyRepository: Repository<HistoryEntity>,
@@ -230,8 +231,6 @@ export class SessionService {
    * @returns
    */
   private async setHistory(id, sessionArray) {
-    // imposta il tempo di recupero dei history, ogni quanti secondi
-    const timeHistory = 20000;
     const queryRunner = this.connection.createQueryRunner();
     try {
       await queryRunner.connect();
@@ -287,7 +286,7 @@ export class SessionService {
               }
               // controllo se è il primo elemento oppure se la differenza tra i due è maggiore di quanto specificato
               if (
-                Math.abs(currentMillis - lastSavedTimestamp) >= timeHistory ||
+                Math.abs(currentMillis - lastSavedTimestamp) >= this.timeHistory ||
                 currentMillis === lastSavedTimestamp
               ) {
                 lastSavedTimestamp = currentMillis;
