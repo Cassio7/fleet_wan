@@ -6,9 +6,9 @@ import { GroupEntity } from 'classes/entities/group.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { VehicleGroupEntity } from 'classes/entities/vehicle_group.entity';
 import { createHash } from 'crypto';
-import { DataSource, Entity, In, Repository } from 'typeorm';
-import { parseStringPromise } from 'xml2js';
 import { convertHours } from 'src/utils/hoursFix';
+import { DataSource, In, Repository } from 'typeorm';
+import { parseStringPromise } from 'xml2js';
 
 @Injectable()
 export class VehicleService {
