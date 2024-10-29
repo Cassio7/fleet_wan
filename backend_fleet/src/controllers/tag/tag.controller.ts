@@ -41,7 +41,7 @@ export class TagController {
         dateFrom_new.toISOString(),
         dateTo_new.toISOString(),
       );
-      if (data) {
+      if (data.length > 0) {
         res.status(200).send(data);
       } else res.status(200).send(`No Tag History per id: ${params.id}`);
     } catch (error) {
