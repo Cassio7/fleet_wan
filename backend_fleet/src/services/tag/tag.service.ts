@@ -139,11 +139,11 @@ export class TagService {
           newTagHistory.push(newTagHistoryOne);
         }
       }
+      const tagHistoryArray = [];
       if (newTagHistory.length > 0) {
         await queryRunner.manager
           .getRepository(TagHistoryEntity)
           .save(newTagHistory);
-        const tagHistoryArray = [];
 
         for (const tagHistory of filteredDataTagHistory) {
           const tagHistoryEntity = await queryRunner.manager
@@ -161,12 +161,12 @@ export class TagService {
             });
           }
         }
-        await this.setTag(tagHistoryArray);
       }
 
       await queryRunner.commitTransaction();
       await queryRunner.release();
-      return newTagHistory;
+      await this.setTag(tagHistoryArray);
+      return lists;
     } catch (error) {
       await queryRunner.rollbackTransaction();
       await queryRunner.release();
@@ -199,51 +199,42 @@ export class TagService {
           };
         });
         const epc = filteredTag.map((tag) => tag.epc);
-        const tagQuery = await queryRunner.manager
-          .getRepository(TagEntity)
-          .find({
-            where: { epc: In(epc) },
-          });
-        const tagQueryMap = new Map(
-          tagQuery.map((query) => [query.epc, query]),
-        );
+        let tagQuery = await queryRunner.manager.getRepository(TagEntity).find({
+          where: { epc: In(epc) },
+        });
+        let tagQueryMap = new Map(tagQuery.map((query) => [query.epc, query]));
         const newTags = [];
         const newDetections = [];
-        for (const tagg of filteredTag) {
-          const exists = tagQueryMap.get(tagg.epc);
+        for (const tag of filteredTag) {
+          const exists = tagQueryMap.get(tag.epc);
           if (!exists) {
             const newTag = await queryRunner.manager
               .getRepository(TagEntity)
               .create({
-                epc: tagg.epc,
-              });
-            const newDetection = await queryRunner.manager
-              .getRepository(DetectionTagEntity)
-              .create({
-                tid: tagg.tid,
-                detection_quality: tagg.detection_quality,
-                tag: newTag,
-                tagHistory: tagList.tagHistory,
+                epc: tag.epc,
               });
             newTags.push(newTag);
-            newDetections.push(newDetection);
-          } else {
-            const newDetection = await queryRunner.manager
-              .getRepository(DetectionTagEntity)
-              .create({
-                tid: tagg.tid,
-                detection_quality: tagg.detection_quality,
-                tag: exists,
-                tagHistory: tagList.tagHistory,
-              });
-            newDetections.push(newDetection);
           }
         }
         if (newTags.length > 0) {
           await queryRunner.manager.getRepository(TagEntity).save(newTags);
         }
+        tagQuery = await queryRunner.manager.getRepository(TagEntity).find({
+          where: { epc: In(epc) },
+        });
+        tagQueryMap = new Map(tagQuery.map((query) => [query.epc, query]));
+        for (const tag of filteredTag) {
+          const newDetection = await queryRunner.manager
+            .getRepository(DetectionTagEntity)
+            .create({
+              tid: tag.tid,
+              detection_quality: tag.detection_quality,
+              tag: tagQueryMap.get(tag.epc),
+              tagHistory: tagList.tagHistory,
+            });
+          newDetections.push(newDetection);
+        }
         if (newDetections.length > 0) {
-          console.log(newDetections);
           await queryRunner.manager
             .getRepository(DetectionTagEntity)
             .save(newDetections);
