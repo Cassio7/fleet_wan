@@ -24,20 +24,25 @@ export class AppService implements OnModuleInit {
     for (const group of groups) {
       await this.vehicleService.getVehicleList(group.vgId);
     }
-    // const vehicles = await this.vehicleService.getAllVehicles();
+    const vehicles = await this.vehicleService.getAllVehicles();
+    for (const vehicle of vehicles) {
+      console.log(`${vehicle.veId} con targa: ${vehicle.plate} - ${vehicle.id}`);
+      await this.sessionService.getSessionist(
+        vehicle.veId,
+        '2024-10-21T00:00:00.000Z',
+        '2024-10-28T00:00:00.000Z',
+      );
+    }
     // for (const vehicle of vehicles) {
-    //   console.log(`${vehicle.veId} con targa: ${vehicle.plate} - ${vehicle.id}`);
-    //   await this.sessionService.getSessionist(
+    //   console.log(
+    //     `${vehicle.veId} con targa: ${vehicle.plate} - ${vehicle.id}`,
+    //   );
+    //   await this.tagService.putTagHistory(
     //     vehicle.veId,
+    //     '2024-10-21T00:00:00.000Z',
     //     '2024-10-28T00:00:00.000Z',
-    //     '2024-10-29T00:00:00.000Z',
     //   );
     // }
-    await this.tagService.putTagHistory(
-      3677,
-      '2024-10-20T00:00:00.000Z',
-      '2024-10-27T00:00:00.000Z',
-    );
   }
 
   @Cron('0 0 * * *')
