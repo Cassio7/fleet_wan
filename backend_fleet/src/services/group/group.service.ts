@@ -81,7 +81,7 @@ export class GroupService {
             group.vgName = 'Gruppo principale GESENU';
           } else if (group.vgId == 650) {
             group.vgName = 'Gruppo principale TSA';
-          } else if(group.vgId == 688){
+          } else if (group.vgId == 688) {
             group.vgName = 'Gruppo principale Fiumicino';
           }
           const newGroup = queryRunner.manager
