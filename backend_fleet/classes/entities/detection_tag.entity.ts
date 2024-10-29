@@ -9,11 +9,7 @@ export class DetectionTagEntity
   extends CommonEntity
   implements DetectionTagInterface
 {
-  @Column()
-  id: number;
-
-  @Column()
-  @Index()
+  @Column({ nullable: true })
   tid: string;
 
   @Column('float')
@@ -21,7 +17,7 @@ export class DetectionTagEntity
 
   @ManyToOne(() => TagEntity, (tag) => tag.detectiontag)
   @Index()
-  epc: TagEntity;
+  tag: TagEntity;
 
   @ManyToOne(() => TagHistoryEntity, (tag_history) => tag_history.detectiontag)
   @Index()

@@ -1,12 +1,6 @@
 import { CommonEntity } from 'classes/common/common.entity';
 import { TagHistoryInterface } from 'classes/interfaces/tag_history.interface';
-import {
-  Column,
-  Entity,
-  Index,
-  ManyToOne,
-  OneToMany
-} from 'typeorm';
+import { Column, Entity, Index, ManyToOne, OneToMany } from 'typeorm';
 import { DetectionTagEntity } from './detection_tag.entity';
 import { VehicleEntity } from './vehicle.entity';
 
@@ -15,10 +9,7 @@ export class TagHistoryEntity
   extends CommonEntity
   implements TagHistoryInterface
 {
-  @Column()
-  id_tag_history: number;
-
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'timestamptz', nullable: true })
   timestamp: Date;
 
   @Column('double precision')
@@ -30,7 +21,7 @@ export class TagHistoryEntity
   @Column()
   nav_mode: number;
 
-  @Column()
+  @Column({ nullable: true })
   geozone: string;
 
   @ManyToOne(() => VehicleEntity, (vehicle) => vehicle.taghistory)
