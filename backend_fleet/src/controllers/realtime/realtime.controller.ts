@@ -1,9 +1,11 @@
 import { Controller, Get, Param, Res } from '@nestjs/common';
+import axios from 'axios';
 import { Response } from 'express';
 import { RealtimeService } from 'src/services/realtime/realtime.service';
 
 @Controller('realtimes')
 export class RealtimeController {
+  private readonly nominatimUrl = 'https://nominatim.openstreetmap.org/reverse';
   constructor(private readonly realTimeService: RealtimeService) {}
 
   @Get()
@@ -22,6 +24,32 @@ export class RealtimeController {
     try {
       const group = await this.realTimeService.getTimesByVeId(params.id);
       res.status(200).json(group);
+    } catch (error) {
+      console.error('Errore nel recupero dei realtimes:', error);
+      res.status(500).send('Errore durante il recupero dei realtimes');
+    }
+  }
+  /**
+   * API che restituisce la via posizione in base alle coordinate
+   * @param res VeId del veicolo
+   * @param params
+   */
+  @Get('resolved/:id')
+  async getResolvedByVeId(@Res() res: Response, @Param() params: any) {
+    try {
+      const groups = await this.realTimeService.getTimesByVeId(params.id);
+      const response = [];
+      for (const group of groups) {
+        const pos = await axios.get(this.nominatimUrl, {
+          params: {
+            lat: group.latitude,
+            lon: group.longitude,
+            format: 'json',
+          },
+        });
+        response.push(pos.data.display_name);
+      }
+      res.status(200).json(response);
     } catch (error) {
       console.error('Errore nel recupero dei realtimes:', error);
       res.status(500).send('Errore durante il recupero dei realtimes');
