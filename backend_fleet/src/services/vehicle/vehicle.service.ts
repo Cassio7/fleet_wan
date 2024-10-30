@@ -393,10 +393,14 @@ export class VehicleService {
       await queryRunner.release();
     }
   }
+
   async getAllVehicles(): Promise<any> {
     const vehicles = await this.vehicleRepository.find({
       relations: {
         device: true,
+      },
+      order: {
+        id: 'ASC',
       },
     });
     return vehicles;
