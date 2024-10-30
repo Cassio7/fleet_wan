@@ -20,13 +20,41 @@ export class SessionController {
   /**
    * API per prendere l'ultima sessione in base all'id
    * @param res
-   * @param params
+   * @param params VeId identificativo Veicolo
    */
   @Get('last/:id')
   async getLastSession(@Res() res: Response, @Param() params: any) {
     const data = await this.sessionService.getLastSession(params.id);
     if (data) res.status(200).send(data);
     else res.status(200).send(`No Session per id: ${params.id}`);
+  }
+  /**
+   * API che restituisce la sessione attiva se, la fine è maggiore dell'ultima sessione, quindi veicolo in movimento.
+   * @param res
+   * @param params VeId identificativo Veicolo
+   */
+  @Get('active/:id')
+  async getActiveSession(@Res() res: Response, @Param() params: any) {
+    const active = await this.sessionService.getActiveSession(params.id);
+    const last = await this.sessionService.getLastSession(params.id);
+    if (!active) {
+      res
+        .status(200)
+        .send(`Nessuna sessione attiva registrata per id: ${params.id}`);
+    } else if (!last) {
+      res.status(200).send(`No Session per id: ${params.id}`);
+    } else {
+      const firstDate = new Date(active.period_to);
+      const secondDate = new Date(last.period_to);
+      if (firstDate > secondDate) {
+        res.status(200).send({
+          message: 'Veicolo in movimento, sessione attiva',
+          session: active,
+        });
+      } else {
+        res.status(404).send({ message: 'Non attivo' });
+      }
+    }
   }
   /**
    * API per prendere tutte le distanze delle sessioni in base all'id
@@ -42,8 +70,8 @@ export class SessionController {
   /**
    * API per prendere tutte le sessioni indicando range temporale in base all'id
    * @param res
-   * @param params
-   * @param body
+   * @param params VeId
+   * @param body Data inizio e data fine ricerca
    * @returns
    */
   @Post('ranged/:id')

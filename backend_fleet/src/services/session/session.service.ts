@@ -190,7 +190,7 @@ export class SessionService {
       }
       if (updatedSession.length > 0) {
         for (const session of updatedSession) {
-          console.log(`update Session ID ${session.sequence_id}`);
+          console.log(`update Session sequence ID ${session.sequence_id}`);
           await queryRunner.manager
             .getRepository(SessionEntity)
             .update({ key: session.key }, session);
@@ -286,7 +286,8 @@ export class SessionService {
               }
               // controllo se è il primo elemento oppure se la differenza tra i due è maggiore di quanto specificato
               if (
-                Math.abs(currentMillis - lastSavedTimestamp) >= this.timeHistory ||
+                Math.abs(currentMillis - lastSavedTimestamp) >=
+                  this.timeHistory ||
                 currentMillis === lastSavedTimestamp
               ) {
                 lastSavedTimestamp = currentMillis;
@@ -445,7 +446,21 @@ export class SessionService {
         history: true,
       },
       order: {
-        period_to: 'DESC',
+        sequence_id: 'DESC',
+      },
+    });
+    return session;
+  }
+  /**
+   * Ritorna l'ultima sessione attiva, quella con sequence_id = 0
+   * @param id VeId identificativo Veicolo
+   * @returns
+   */
+  async getActiveSession(id): Promise<any> {
+    const session = await this.sessionRepository.findOne({
+      where: { history: { vehicle: { veId: id } }, sequence_id: 0 },
+      relations: {
+        history: true,
       },
     });
     return session;
