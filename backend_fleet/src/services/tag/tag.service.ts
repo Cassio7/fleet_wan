@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import axios from 'axios';
 import { DetectionTagEntity } from 'classes/entities/detection_tag.entity';
 import { TagEntity } from 'classes/entities/tag.entity';
@@ -7,13 +7,21 @@ import { TagHistoryEntity } from 'classes/entities/tag_history.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { createHash } from 'crypto';
 import { convertHours } from 'src/utils/hoursFix';
-import { DataSource, In } from 'typeorm';
+import {
+  DataSource,
+  In,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  Repository,
+} from 'typeorm';
 import { parseStringPromise } from 'xml2js';
 
 @Injectable()
 export class TagService {
   private serviceUrl = 'https://ws.fleetcontrol.it/FWANWs3/services/FWANSOAP';
   constructor(
+    @InjectRepository(TagHistoryEntity, 'mainConnection')
+    private readonly tagHistoryRepository: Repository<TagHistoryEntity>,
     @InjectDataSource('mainConnection')
     private readonly connection: DataSource,
   ) {}
@@ -249,5 +257,68 @@ export class TagService {
       console.error('Errore nella richiesta SOAP:', error);
       throw new Error('Errore durante la richiesta al servizio SOAP');
     }
+  }
+
+  /**
+   * Ritorna i tag history in base all VeId
+   */
+  async getTagHistoryByVeId(id: number): Promise<any> {
+    const tags = await this.tagHistoryRepository.find({
+      where: { vehicle: { veId: id } },
+      relations: {
+        detectiontag: {
+          tag: true,
+        },
+      },
+    });
+    return tags;
+  }
+
+  /**
+   * Ritorna i tag history in base all VeId e al range di date specificato
+   * @param id VeId Veicolo
+   * @param dateFrom Data inizio ricerca tag history
+   * @param dateTo  Data fine ricerca tag history
+   * @returns
+   */
+  async getTagHistoryByVeIdRanged(
+    id: number,
+    dateFrom: Date,
+    dateTo: Date,
+  ): Promise<any> {
+    const tags = await this.tagHistoryRepository.find({
+      where: {
+        vehicle: { veId: id },
+        timestamp: MoreThanOrEqual(dateFrom) && LessThanOrEqual(dateTo),
+      },
+      relations: {
+        detectiontag: {
+          tag: true,
+        },
+      },
+    });
+    return tags;
+  }
+
+  /**
+   * Ritorna soltanto l'ultimo tag history registrato in base al timestamp e all'VeId
+   * @param id VeId
+   * @returns
+   */
+  async getLastTagHistoryByVeId(id: number): Promise<any> {
+    const tags = await this.tagHistoryRepository.findOne({
+      where: {
+        vehicle: { veId: id },
+      },
+      relations: {
+        detectiontag: {
+          tag: true,
+        },
+      },
+      order: {
+        timestamp: 'DESC',
+      },
+    });
+    return tags;
   }
 }
