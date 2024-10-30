@@ -15,10 +15,12 @@ export class AppService implements OnModuleInit {
 
   // popolo database all'avvio
   async onModuleInit() {
-    await this.putDbData();
+    //await this.putDbData();
   }
 
   async putDbData() {
+    const startDate = '2024-10-28T00:00:00.000Z';
+    const endDate = new Date().toISOString();
     await this.groupService.getGroupList();
     const groups = await this.groupService.getAllGroups();
     for (const group of groups) {
@@ -26,29 +28,42 @@ export class AppService implements OnModuleInit {
     }
     const vehicles = await this.vehicleService.getAllVehicles();
     for (const vehicle of vehicles) {
-      console.log(`${vehicle.veId} con targa: ${vehicle.plate} - ${vehicle.id}`);
-      await this.sessionService.getSessionist(
-        vehicle.veId,
-        '2024-10-21T00:00:00.000Z',
-        '2024-10-28T00:00:00.000Z',
+      console.log(
+        `${vehicle.veId} con targa: ${vehicle.plate} - ${vehicle.id}`,
       );
+      await this.sessionService.getSessionist(vehicle.veId, startDate, endDate);
     }
-    // for (const vehicle of vehicles) {
-    //   console.log(
-    //     `${vehicle.veId} con targa: ${vehicle.plate} - ${vehicle.id}`,
-    //   );
-    //   await this.tagService.putTagHistory(
-    //     vehicle.veId,
-    //     '2024-10-21T00:00:00.000Z',
-    //     '2024-10-28T00:00:00.000Z',
-    //   );
-    // }
+    for (const vehicle of vehicles) {
+      console.log(
+        `${vehicle.veId} con targa: ${vehicle.plate} - ${vehicle.id}`,
+      );
+      await this.tagService.putTagHistory(vehicle.veId, startDate, endDate);
+    }
   }
 
-  @Cron('0 0 * * *')
-  async putDbDataDaily() {
+  // @Cron('0 0 * * *')
+  // async putDbDataDaily() {
+  //   const startDate = new Date(
+  //     new Date().getTime() - 24 * 60 * 60 * 1000,
+  //   ).toISOString();
+  //   const endDate = new Date().toISOString();
+
+  //   await this.groupService.getGroupList();
+  //   const groups = await this.groupService.getAllGroups();
+  //   for (const group of groups) {
+  //     await this.vehicleService.getVehicleList(group.vgId);
+  //   }
+  //   const vehicles = await this.vehicleService.getAllVehicles();
+  //   for (const vehicle of vehicles) {
+  //     console.log(`${vehicle.veId} - ${vehicle.id}`);
+  //     await this.sessionService.getSessionist(vehicle.veId, startDate, endDate);
+  //   }
+  // }
+
+  //@Cron('*/5 * * * *')
+  async putDbData5min() {
     const startDate = new Date(
-      new Date().getTime() - 24 * 60 * 60 * 1000,
+      new Date().getTime() - 5 * 60 * 1000, // 5 minuti
     ).toISOString();
     const endDate = new Date().toISOString();
 
@@ -59,8 +74,16 @@ export class AppService implements OnModuleInit {
     }
     const vehicles = await this.vehicleService.getAllVehicles();
     for (const vehicle of vehicles) {
-      console.log(`${vehicle.veId} - ${vehicle.id}`);
+      console.log(
+        `${vehicle.veId} con targa: ${vehicle.plate} - ${vehicle.id}`,
+      );
       await this.sessionService.getSessionist(vehicle.veId, startDate, endDate);
+    }
+    for (const vehicle of vehicles) {
+      console.log(
+        `${vehicle.veId} con targa: ${vehicle.plate} - ${vehicle.id}`,
+      );
+      await this.tagService.putTagHistory(vehicle.veId, startDate, endDate);
     }
   }
 }
