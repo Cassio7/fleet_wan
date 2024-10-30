@@ -129,7 +129,10 @@ export class RealtimeService {
       throw new Error('Errore durante la richiesta al servizio SOAP');
     }
   }
-
+  /**
+   * Ritorna tutti i realtimes di tutti i veicoli
+   * @returns
+   */
   async getAllTimes(): Promise<any> {
     const times = await this.realtimeRepository.find({
       relations: {
@@ -138,7 +141,11 @@ export class RealtimeService {
     });
     return times;
   }
-
+  /**
+   * Ritorna tutti i realtimes in base al id inserito
+   * @param id VeId identificatico del veicolo
+   * @returns
+   */
   async getTimesByVeId(id: number): Promise<any> {
     const times = await this.realtimeRepository.find({
       relations: {
