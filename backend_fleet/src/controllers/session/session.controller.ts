@@ -1,10 +1,46 @@
 import { Controller, Post, Res, Param, Body, Get } from '@nestjs/common';
 import { Response } from 'express';
 import { SessionService } from 'src/services/session/session.service';
+import { TagService } from 'src/services/tag/tag.service';
 
 @Controller('session')
 export class SessionController {
-  constructor(private readonly sessionService: SessionService) {}
+  constructor(
+    private readonly sessionService: SessionService,
+    private readonly tagService: TagService,
+  ) {}
+
+  /**
+   * API che restituisce tutte le sessioni attive se la fine è maggiore dell'ultima sessione, quindi veicolo in movimento.
+   * @param res
+   */
+  @Get('active')
+  async getAllActiveSession(@Res() res: Response) {
+    const actives = await this.sessionService.getAllActiveSession();
+    if (actives) {
+      const realActive = [];
+      for (const active of actives) {
+        const last = await this.sessionService.getLastSession(
+          active.vehicle_veId,
+        );
+        if (last) {
+          const firstDate = new Date(active.session_period_to);
+          const secondDate = new Date(last.period_to);
+          if (firstDate >= secondDate) {
+            realActive.push(active);
+          } else {
+            console.log(active.session_id);
+          }
+        }
+      }
+      res.status(200).send({
+        message: 'Veicoli in movimento con sessione attiva',
+        session: realActive,
+      });
+    } else {
+      res.status(404).send({ message: 'No sessioni attive' });
+    }
+  }
   /**
    * API per prendere tutte le sessioni in base all'id
    * @param res
@@ -28,14 +64,15 @@ export class SessionController {
     if (data) res.status(200).send(data);
     else res.status(200).send(`No Session per id: ${params.id}`);
   }
+
   /**
    * API che restituisce la sessione attiva se, la fine è maggiore dell'ultima sessione, quindi veicolo in movimento.
    * @param res
    * @param params VeId identificativo Veicolo
    */
   @Get('active/:id')
-  async getActiveSession(@Res() res: Response, @Param() params: any) {
-    const active = await this.sessionService.getActiveSession(params.id);
+  async getActiveSessionByVeId(@Res() res: Response, @Param() params: any) {
+    const active = await this.sessionService.getActiveSessionByVeId(params.id);
     const last = await this.sessionService.getLastSession(params.id);
     if (!active) {
       res
@@ -56,6 +93,7 @@ export class SessionController {
       }
     }
   }
+
   /**
    * API per prendere tutte le distanze delle sessioni in base all'id
    * @param res
@@ -113,6 +151,36 @@ export class SessionController {
     } else res.status(200).send(`No Session per id: ${params.id}`);
   }
 
+  @Get('tagcomparison/:id')
+  async getTagComparison(@Res() res: Response, @Param() params: any) {
+    try {
+      const last_session = await this.sessionService.getLastSession(params.id);
+      const last_tag = await this.tagService.getLastTagHistoryByVeId(params.id);
+      if (last_session && last_tag) {
+        const time_session = new Date(last_session.period_to);
+        time_session.setHours(0, 0, 0, 0);
+        const time_tag = new Date(last_tag.timestamp);
+        time_tag.setHours(0, 0, 0, 0);
+        const diff =
+          (time_session.getTime() - time_tag.getTime()) / (1000 * 60 * 60 * 24);
+        if (diff === 0 || diff === 1 || diff === -1) {
+          res.status(200).send({ message: 'Tag presente ultima sessione' });
+        } else {
+          res
+            .status(200)
+            .send({ message: 'Tag non presente nel ultima sessione' });
+        }
+      } else if (!last_session) {
+        res.status(404).send({ message: 'Ultima sessione non trovata' });
+      } else {
+        res.status(404).send({ message: 'Ultimo tag non trovato' });
+      }
+    } catch (error) {
+      console.error('Errore nella richiesta al db:', error);
+      res.status(500).send('Errore durante la richiesta al db');
+    }
+  }
+
   @Post('update/:id')
   async getHistoryList(
     @Res() res: Response,
@@ -162,8 +230,8 @@ export class SessionController {
         res.status(200).send('Nessun aggiornamento');
       }
     } catch (error) {
-      console.error('Errore nella richiesta SOAP:', error);
-      res.status(500).send('Errore durante la richiesta al servizio SOAP');
+      console.error('Errore nella richiesta al db:', error);
+      res.status(500).send('Errore durante la richiesta al db');
     }
   }
 }
