@@ -18,11 +18,9 @@ import { convertHours } from 'src/utils/hoursFix';
 @Injectable()
 export class SessionService {
   private serviceUrl = 'https://ws.fleetcontrol.it/FWANWs3/services/FWANSOAP';
-  // imposta il tempo di recupero dei history, ogni quanti secondi = 5 min ora
+  // imposta il tempo di recupero dei history, ogni quanti secondi = 5 min
   private timeHistory = 300000;
   constructor(
-    @InjectRepository(HistoryEntity, 'mainConnection')
-    private readonly historyRepository: Repository<HistoryEntity>,
     @InjectRepository(SessionEntity, 'mainConnection')
     private readonly sessionRepository: Repository<SessionEntity>,
     @InjectDataSource('mainConnection')
@@ -226,7 +224,7 @@ export class SessionService {
   }
   /**
    * Inserisce tutti gli history presenti associati ad una determinata sessione
-   * @param id
+   * @param id VeId identificativo Veicolo
    * @param sessionArray
    * @returns
    */
@@ -341,7 +339,31 @@ export class SessionService {
         const hisotyrQueryMap = new Map(
           historyQueries.map((query) => [query.hash, query]),
         );
-
+        // pulisce la sessione attiva da timestamp precedenti, evita duplicati e timestamp arretrati
+        if (historysession.sessionquery.sequence_id === 0) {
+          const keys = await queryRunner.manager
+            .getRepository(HistoryEntity)
+            .find({
+              select: {
+                key: true,
+              },
+              where: {
+                session: {
+                  sequence_id: 0,
+                },
+                vehicle: {
+                  veId: id,
+                },
+              },
+            });
+          if (keys && keys.length > 0) {
+            const keyValues = keys.map((item) => item.key);
+            console.log('Pulisco history sequence 0');
+            await queryRunner.manager.getRepository(HistoryEntity).delete({
+              key: In(keyValues),
+            });
+          }
+        }
         const newHistory = [];
         for (const history of cleanedDataHistory) {
           // controllo se esiste hash
@@ -407,6 +429,9 @@ export class SessionService {
       relations: {
         history: true,
       },
+      order: {
+        period_to: 'DESC',
+      },
     });
     return session;
   }
@@ -456,7 +481,7 @@ export class SessionService {
    * @param id VeId identificativo Veicolo
    * @returns
    */
-  async getActiveSession(id): Promise<any> {
+  async getActiveSessionByVeId(id): Promise<any> {
     const session = await this.sessionRepository.findOne({
       where: { history: { vehicle: { veId: id } }, sequence_id: 0 },
       relations: {
@@ -465,6 +490,27 @@ export class SessionService {
     });
     return session;
   }
+/**
+ * Ritorna tutte le sessioni attive, quelle con sequence_id = 0
+ * @returns 
+ */
+  async getAllActiveSession(): Promise<any> {
+    const sessions = await this.sessionRepository
+      .createQueryBuilder('session')
+      .distinctOn(['session.id']) // Distinct ON per session.id
+      .innerJoin('session.history', 'history')
+      .innerJoin('history.vehicle', 'vehicle')
+      .where('session.sequence_id = :sequenceId', { sequenceId: 0 })
+      .select([
+        'session', // tutti i campi di session
+        'vehicle.id', // campo id di vehicle
+        'vehicle.veId', // campo veId di vehicle
+      ])
+      .getRawMany();
+
+    return sessions;
+  }
+
   /**
    * Ritorna tutte le distanze registrate di tutte le sessioni di un veicolo in base all'id
    * @param id VeId identificativo Veicolo
