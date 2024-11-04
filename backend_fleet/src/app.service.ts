@@ -15,8 +15,8 @@ export class AppService implements OnModuleInit {
 
   // popolo database all'avvio
   async onModuleInit() {
-    await this.putDbData();
-    await this.putDbData5min();
+    //await this.putDbData();
+    //await this.putDbData5min();
     //await this.testTagComparison();
   }
 
@@ -103,7 +103,7 @@ export class AppService implements OnModuleInit {
   //   }
   // }
 
-  @Cron('*/5 * * * *')
+  //@Cron('*/5 * * * *')
   async putDbData5min() {
     const startDate = new Date(
       new Date().getTime() - 5 * 60 * 1000, // 5 minuti
