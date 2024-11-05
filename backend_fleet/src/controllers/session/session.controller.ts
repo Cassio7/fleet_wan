@@ -201,27 +201,55 @@ export class SessionController {
 
   @Get('tagcomparison/:id')
   async getTagComparison(@Res() res: Response, @Param() params: any) {
+    const dayInMilliseconds = (1000 * 60 * 60 * 24);
     try {
-      const last_session = await this.sessionService.getLastSession(params.id);
+      const veihcleId = params.id;
+      //Ottieni ultima sessione
+      const last_session = await this.sessionService.getLastValidSession(veihcleId);
+
+      //controlla se la sessione è stata trovata
+      if(!last_session){
+        console.log("sessione non trovata.");
+        return null;
+      }
+
+      //calcolo della differenza tra il tempo di inizio e di fine del periodo
+      const periodToMills = last_session.period_to.getTime();
+      const periodFromMills = last_session.period_from.getTime();
+      console.log("period to mills: ", periodToMills);
+      console.log("period from mills: ", periodFromMills);
+
+      const minutesDiff = (periodToMills - periodFromMills) / 1000 / 60; //calculate diff in minutes
+
+      console.log("period minutes diff: ", minutesDiff);
+
+      //controllo durata
+      if(minutesDiff < 2){
+        console.log("minutes<2");
+        return null;
+      }else{
+        console.log("minutes>2");
+      }
+
+      //Ottieni ultimo tag
       const last_tag = await this.tagService.getLastTagHistoryByVeId(params.id);
-      if (last_session && last_tag) {
-        const time_session = new Date(last_session.period_to);
-        time_session.setHours(0, 0, 0, 0);
-        const time_tag = new Date(last_tag.timestamp);
-        time_tag.setHours(0, 0, 0, 0);
-        const diff =
-          (time_session.getTime() - time_tag.getTime()) / (1000 * 60 * 60 * 24);
-        if (diff === 0 || diff === 1 || diff === -1) {
-          res.status(200).send({ message: 'Tag presente ultima sessione' });
-        } else {
-          res
-            .status(200)
-            .send({ message: 'Tag non presente nel ultima sessione' });
-        }
-      } else if (!last_session) {
-        res.status(404).send({ message: 'Ultima sessione non trovata' });
-      } else {
-        res.status(404).send({ message: 'Ultimo tag non trovato' });
+
+      //Controllo esistenza dell'ultima sessione o tag
+      if(!last_session || !last_tag){
+        return res.status(400).send("Ultima sessione o ultimo tag non trovati.");
+      }
+
+      //Calcolo differenza di giorni
+      const dayDiff = (new Date(last_session.period_to).setHours(0,0,0,0) - new Date(last_tag.timestamp).setHours(0,0,0,0)) / dayInMilliseconds;
+      console.log(`day diff: ${dayDiff}`);
+      console.log("tag id: ", last_tag.id);
+      //Mostra risultato
+      if(dayDiff>0){
+        res.status(200).send("Il tag è stato letto prima della fine della sessione");
+      }else if(dayDiff==0){
+        res.status(200).send("Il tag è stato letto lo stesso giorno della fine della sessione")
+      }else{
+        res.status(400).send("Il tag è stato letto prima della fine dell'ultima sessione.")
       }
     } catch (error) {
       console.error('Errore nella richiesta al db:', error);
@@ -282,4 +310,5 @@ export class SessionController {
       res.status(500).send('Errore durante la richiesta al db');
     }
   }
+
 }
