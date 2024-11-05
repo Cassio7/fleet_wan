@@ -2,12 +2,14 @@ import { Controller, Post, Res, Param, Body, Get } from '@nestjs/common';
 import { Response } from 'express';
 import { SessionService } from 'src/services/session/session.service';
 import { TagService } from 'src/services/tag/tag.service';
+import { VehicleService } from 'src/services/vehicle/vehicle.service';
 
 @Controller('session')
 export class SessionController {
   constructor(
     private readonly sessionService: SessionService,
     private readonly tagService: TagService,
+    private readonly vehicleService: VehicleService,
   ) {}
 
   /**
@@ -150,6 +152,91 @@ export class SessionController {
       res.status(200).send(data);
     } else res.status(200).send(`No Session per id: ${params.id}`);
   }
+/**
+ * Controllo sessioni registrate per ogni veicolo per funzionamento effettivo GPS, lat e log deve differire e la distanza deve essere variabile
+ * @param res 
+ * @param body Data inizio e data fine ricerca
+ * @returns 
+ */
+  @Post('checkgps/all')
+  async checkSessionGPSAll(@Res() res: Response, @Body() body: any) {
+    const dateFrom = body.dateFrom;
+    const dateTo = body.dateTo;
+    // Controlla se dateFrom e dateTo sono forniti
+    if (!dateFrom || !dateTo) {
+      return res.status(400).send('Date non fornite.');
+    }
+
+    // Crea un oggetto Date dalla stringa fornita
+    const dateFrom_new = new Date(dateFrom);
+    const dateTo_new = new Date(dateTo);
+
+    // Controlla se la data è valida
+    if (isNaN(dateFrom_new.getTime()) || isNaN(dateTo_new.getTime())) {
+      return res.status(400).send('Formato della data non valido.');
+    }
+    if (dateFrom_new.getTime() >= dateTo_new.getTime()) {
+      // Restituisci un errore se la condizione è vera
+      return res
+        .status(400)
+        .send(
+          'La data iniziale deve essere indietro di almeno 1 giorno dalla finale',
+        );
+    }
+    const vehicles = await this.vehicleService.getVehiclesByReader();
+    for (const vehicle of vehicles) {
+      const datas = await this.sessionService.getAllSessionByVeIdRanged(
+        vehicle.veId,
+        dateFrom_new,
+        dateTo_new,
+      );
+      if (datas.length > 1) {
+        let flag_distance: boolean = false;
+        let flag_coordinates: boolean = false;
+        const distanceMap = datas.map((data) => data.distance);
+        const coordinates = datas.flatMap((data) =>
+          data.history.map((entry) => ({
+            latitude: entry.latitude,
+            longitude: entry.longitude,
+          })),
+        );
+        // Verifica se tutti i valori in `distanceMap` sono uguali tra loro o a zero
+        if (
+          distanceMap.every((distance) => distance === distanceMap[0]) ||
+          distanceMap.every((distance) => distance === 0)
+        ) {
+          flag_distance = true;
+        }
+        // Verifica se tutte le coordinate sono identiche tra loro o a (0, 0)
+        if (
+          coordinates.every(
+            (coord) =>
+              coord.latitude === coordinates[0].latitude &&
+              coord.longitude === coordinates[0].longitude,
+          ) ||
+          coordinates.every(
+            (coord) => coord.latitude === 0 && coord.longitude === 0,
+          )
+        ) {
+          flag_coordinates = true;
+        }
+        if (flag_distance && flag_coordinates) {
+          console.log(
+            `Anomalia nel GPS veicolo: ${vehicle.veId}`,
+          );
+        }
+      }
+    }
+    res.status(200).send({ message: 'OK' });
+  }
+
+  /**
+   * Controllo sessioni registrate per funzionamento effettivo GPS, lat e log deve differire e la distanza deve essere variabile
+   * @param res
+   * @param params VeId
+   * @param body Data inizio e data fine ricerca
+   * @returns
+   */
   @Post('checkgps/:id')
   async checkSessionGPS(
     @Res() res: Response,
@@ -184,18 +271,51 @@ export class SessionController {
       dateFrom_new,
       dateTo_new,
     );
-    if (datas.length > 0) {
-      let flag: boolean = true;
+    if (datas.length > 1) {
+      let flag_distance: boolean = false;
+      let flag_coordinates: boolean = false;
       const distanceMap = datas.map((data) => data.distance);
-      const dataMap = datas.flatMap((data) => data.history);
-      const coordinates = dataMap.map((entry) => ({
-        latitude: entry.latitude,
-        longitude: entry.longitude,
-      }));
-      if (distanceMap.every((distance) => distance === 0)) {
-        flag = true;
+      const coordinates = datas.flatMap((data) =>
+        data.history.map((entry) => ({
+          latitude: entry.latitude,
+          longitude: entry.longitude,
+        })),
+      );
+      // Verifica se tutti i valori in `distanceMap` sono uguali tra loro o a zero
+      if (
+        distanceMap.every((distance) => distance === distanceMap[0]) ||
+        distanceMap.every((distance) => distance === 0)
+      ) {
+        flag_distance = true;
       }
-      res.status(200).send(coordinates);
+      // Verifica se tutte le coordinate sono identiche tra loro o a (0, 0)
+      if (
+        coordinates.every(
+          (coord) =>
+            coord.latitude === coordinates[0].latitude &&
+            coord.longitude === coordinates[0].longitude,
+        ) ||
+        coordinates.every(
+          (coord) => coord.latitude === 0 && coord.longitude === 0,
+        )
+      ) {
+        flag_coordinates = true;
+      }
+      if (flag_distance && flag_coordinates) {
+        res.status(200).send({
+          message: 'Anomalia nel GPS',
+          distance: distanceMap,
+          coordinates: coordinates,
+        });
+      } else {
+        res.status(200).send('Il GPS non presenta anomalie');
+      }
+    } else if (datas.length === 1) {
+      res
+        .status(200)
+        .send(
+          `Soltanto 1 sessione per il controllo, selezionare un'altra data`,
+        );
     } else res.status(200).send(`No Session per id: ${params.id}`);
   }
 
