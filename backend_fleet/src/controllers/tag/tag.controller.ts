@@ -34,14 +34,15 @@ export class TagController {
         params.id,
       );
       if (tagHistory) {
-        const pos = await axios.get(this.nominatimUrl, {
-          params: {
-            lat: tagHistory.latitude,
-            lon: tagHistory.longitude,
-            format: 'json',
-          },
-        });
-        res.status(200).json({ tagHistory, posizione: pos.data.address });
+        // const pos = await axios.get(this.nominatimUrl, {
+        //   params: {
+        //     lat: tagHistory.latitude,
+        //     lon: tagHistory.longitude,
+        //     format: 'json',
+        //   },
+        // });
+        //res.status(200).json({ tagHistory, posizione: pos.data.address });
+        res.status(200).json(tagHistory);
       } else {
         res.status(200).json({
           message: 'Nessun Tag History trovato per VeId: ' + params.id,
