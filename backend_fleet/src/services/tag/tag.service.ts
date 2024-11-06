@@ -301,7 +301,7 @@ export class TagService {
   }
 
   /**
-   * Ritorna soltanto l'ultimo tag history registrato in base al timestamp e all'VeId
+   * Ritorna soltanto l'ultimo tag history registrato in base al timestamp e al VeId
    * @param id VeId
    * @returns
    */

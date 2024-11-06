@@ -107,12 +107,23 @@ export class GroupService {
       throw new Error('Errore durante la richiesta al servizio SOAP');
     }
   }
-
+  /**
+   * Recupera tutti i gruppi salvati
+   * @returns
+   */
   async getAllGroups(): Promise<any> {
-    const groups = await this.groupRepository.find();
+    const groups = await this.groupRepository.find({
+      order: {
+        id: 'ASC',
+      },
+    });
     return groups;
   }
-
+  /**
+   * Recupera il gruppo in base al VgId
+   * @param id VgId identificativo del gruppo
+   * @returns
+   */
   async getGroupById(id: number): Promise<any> {
     const groups = await this.groupRepository.findOne({
       where: { vgId: id },

@@ -420,7 +420,7 @@ export class SessionService {
     return session;
   }
   /**
-   * Ritorna la lista completa delle sessione in base all'id del veicolo
+   * Ritorna la lista completa delle sessione in base al VeId del veicolo
    * @param id VeId identificativo Veicolo
    * @returns
    */
@@ -437,7 +437,7 @@ export class SessionService {
     return session;
   }
   /**
-   * Restituisce le sessione in base all'id del veicolo e al range temporale inserito
+   * Restituisce le sessione in base al VeId del veicolo e al range temporale inserito
    * @param id VeId identificativo Veicolo
    * @param dateFrom Data inizio ricerca sessione
    * @param dateTo Data fine ricerca sessione
@@ -461,7 +461,7 @@ export class SessionService {
     return session;
   }
   /**
-   * Ritorna l'ultima sessione registrata di un veicolo in base all'id
+   * Ritorna l'ultima sessione registrata di un veicolo in base al VeId
    * @param id VeId identificativo Veicolo
    * @returns
    */
@@ -485,25 +485,25 @@ export class SessionService {
    * @param id VeId identificativo Veicolo
    * @returns
    */
-  async getLastValidSession(id: number){
+  async getLastValidSession(id: number) {
     const session = await this.sessionRepository.findOne({
-      where: { 
-        history: { 
+      where: {
+        history: {
           vehicle: {
-            veId: id
-          }
+            veId: id,
+          },
         },
         distance: MoreThan(0), //controllo distanza maggiore di 0
       },
       relations: {
-        history: true
+        history: true,
       },
       order: {
-        sequence_id: 'DESC'
-      }
+        sequence_id: 'DESC',
+      },
     });
-    console.log("veid: ", id);
-    console.log("session id: ",session.id);
+    console.log('veid: ', id);
+    console.log('session id: ', session.id);
 
     return session;
   }
@@ -521,10 +521,10 @@ export class SessionService {
     });
     return session;
   }
-/**
- * Ritorna tutte le sessioni attive, quelle con sequence_id = 0
- * @returns 
- */
+  /**
+   * Ritorna tutte le sessioni attive, quelle con sequence_id = 0
+   * @returns
+   */
   async getAllActiveSession(): Promise<any> {
     const sessions = await this.sessionRepository
       .createQueryBuilder('session')
@@ -543,7 +543,7 @@ export class SessionService {
   }
 
   /**
-   * Ritorna tutte le distanze registrate di tutte le sessioni di un veicolo in base all'id
+   * Ritorna tutte le distanze registrate di tutte le sessioni di un veicolo in base al VeId
    * @param id VeId identificativo Veicolo
    * @returns
    */
