@@ -392,21 +392,26 @@ export class SessionController {
   @Get('lastevent/:id')
   async lastEventComparisonById(@Res() Res: Response, @Param() param: any) {
     const vehicleId = param.id;
-    try{
+    try {
       const lastVehicle = await this.vehicleService.getVehicleById(vehicleId);
       const lastVehicleEvent = lastVehicle.lastEvent;
 
       const lastSession = await this.sessionService.getLastSession(vehicleId);
       const sessionEnd = lastSession.period_to;
-      
 
-      if(new Date(lastVehicleEvent).getTime() == new Date(sessionEnd).getTime()){
-        console.log("L'ultimo evento del veicolo corrisponde con la fine della sua ultima sessione.");
-      }else{
-        console.error("L'ultimo evento del veicolo NON corrisponde con la fine della sua ultima sessione.")
+      if (
+        new Date(lastVehicleEvent).getTime() == new Date(sessionEnd).getTime()
+      ) {
+        console.log(
+          "L'ultimo evento del veicolo corrisponde con la fine della sua ultima sessione.",
+        );
+      } else {
+        console.error(
+          "L'ultimo evento del veicolo NON corrisponde con la fine della sua ultima sessione.",
+        );
       }
-    }catch(error){
-      console.error("Error getting last event: ", error);
+    } catch (error) {
+      console.error('Error getting last event: ', error);
     }
   }
 
