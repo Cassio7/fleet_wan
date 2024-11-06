@@ -17,7 +17,6 @@ export class AppService implements OnModuleInit {
   async onModuleInit() {
     //await this.putDbData();
     //await this.putDbData5min();
-    //await this.testTagComparison();
   }
 
   async putDbData() {
@@ -43,46 +42,6 @@ export class AppService implements OnModuleInit {
       await this.tagService.putTagHistory(vehicle.veId, startDate, endDate);
     }
   }
-
-  // async testTagComparison() {
-  //   console.log('test comparison');
-  //   const vehicles = await this.vehicleService.getVehiclesByReader();
-  //   for (const vehicle of vehicles) {
-  //     console.log(
-  //       `\n${vehicle.veId} con targa: ${vehicle.plate} - ${vehicle.id}`,
-  //     );
-  //     try {
-  //       const last_session = await this.sessionService.getLastSession(
-  //         vehicle.veId,
-  //       );
-  //       const last_tag = await this.tagService.getLastTagHistoryByVeId(
-  //         vehicle.veId,
-  //       );
-  //       if (last_session && last_tag) {
-  //         const time_session = new Date(last_session.period_to);
-  //         time_session.setHours(0, 0, 0, 0);
-  //         const time_tag = new Date(last_tag.timestamp);
-  //         time_tag.setHours(0, 0, 0, 0);
-  //         const diff =
-  //           (time_session.getTime() - time_tag.getTime()) /
-  //           (1000 * 60 * 60 * 24);
-  //         if (diff === 0 || diff === 1 || diff === -1) {
-  //           console.log('Tag presente ultima sessione');
-  //         } else {
-  //           console.log(
-  //             'Tag non presente nel ultima sessione!!!!!!!!!!!!!!!!!!!!',
-  //           );
-  //         }
-  //       } else if (!last_session) {
-  //         console.log('Ultima sessione non trovata');
-  //       } else {
-  //         console.log('Ultimo tag non trovato');
-  //       }
-  //     } catch (error) {
-  //       console.error('Errore nella richiesta al db:', error);
-  //     }
-  //   }
-  // }
 
   // @Cron('0 0 * * *')
   // async putDbDataDaily() {
