@@ -1,3 +1,8 @@
+/**
+ * Funzione che converte un orario del timestamp in base al fuso orario
+ * @param timestamp timestamp di partenza
+ * @returns timestamp corretto
+ */
 export function convertHours(timestamp: string): string {
   // Crea un oggetto Date a partire dal timestamp
   const date = new Date(timestamp);
@@ -14,6 +19,4 @@ export function convertHours(timestamp: string): string {
   updatedTimestamp = updatedTimestamp.replace('Z', '+00');
 
   return updatedTimestamp;
-  //test
-  //TEST #2
 }

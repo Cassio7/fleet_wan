@@ -40,7 +40,11 @@ export class VehicleService {
   </soapenv:Envelope>`;
   }
 
-  // SOAP
+  /**
+   * Crea richiesta SOAP e inserisce nel database i veicoli e dispositivi con le funzioni sotto
+   * @param id
+   * @returns
+   */
   async getVehicleList(id: number): Promise<any> {
     const methodName = 'VehiclesListExtended';
     const requestXml = this.buildSoapRequest(methodName, id);
@@ -118,10 +122,13 @@ export class VehicleService {
       throw new Error('Errore durante la richiesta al servizio SOAP');
     }
   }
-
+  /**
+   * Inserisce tutti i veicoli nuovi nel database ed aggiorna quelli esistenti
+   * @param lists lista dei veicoli
+   * @returns
+   */
   private async putAllVehicle(lists: any[]): Promise<any> {
     const queryRunner = this.connection.createQueryRunner();
-
     const hashVehicle = (vehicle: any): string => {
       const toHash = {
         id: vehicle.id,
@@ -265,10 +272,13 @@ export class VehicleService {
       await queryRunner.release();
     }
   }
-
+  /**
+   * Inserisce nel database tutti i Device nuovi e aggiorna quelli già esistenti
+   * @param lists lista dei device
+   * @returns
+   */
   private async putAllDevice(lists: any[]): Promise<any> {
     const queryRunner = this.connection.createQueryRunner();
-
     const hashDevice = (device: any): string => {
       const toHash = {
         deviceId: device.deviceId,
@@ -393,7 +403,10 @@ export class VehicleService {
       await queryRunner.release();
     }
   }
-
+  /**
+   * Recupera tutti i veicoli dal database in ordine
+   * @returns
+   */
   async getAllVehicles(): Promise<any> {
     const vehicles = await this.vehicleRepository.find({
       relations: {
@@ -405,7 +418,11 @@ export class VehicleService {
     });
     return vehicles;
   }
-
+  /**
+   * Recupera un veicolo in base all VeId passato
+   * @param id VeId
+   * @returns
+   */
   async getVehicleById(id: number): Promise<any> {
     const vehicle = await this.vehicleRepository.findOne({
       where: { veId: id },
@@ -415,32 +432,56 @@ export class VehicleService {
     });
     return vehicle;
   }
-
+  /**
+   * Recupera tutti i veicoli che sono RFID Reader in ordine
+   * @returns
+   */
   async getVehiclesByReader(): Promise<any> {
     const vehicles = await this.vehicleRepository.find({
       where: { isRFIDReader: true },
       relations: {
         device: true,
       },
+      order: {
+        id: 'ASC',
+      },
     });
     return vehicles;
   }
-
+  /**
+   * Recupera tutti i veicoli appartenenti allo stesso gruppo in base VgId
+   * @param id VgId
+   * @returns
+   */
   async getVehiclesByGroup(id: number): Promise<any> {
     const vehicles = await this.vehicleGroupRepository.find({
       where: { group: { vgId: id } },
       relations: {
         vehicle: true,
       },
+      order: {
+        id: 'ASC',
+      },
     });
     return vehicles;
   }
-
+  /**
+   * Recupera tutti i dispositivi
+   * @returns
+   */
   async getAllDevice(): Promise<any> {
-    const devices = await this.deviceRepository.find();
+    const devices = await this.deviceRepository.find({
+      order: {
+        id: 'ASC',
+      },
+    });
     return devices;
   }
-
+  /**
+   * Recupera il dispositivo in base al device_id
+   * @param id device_id
+   * @returns
+   */
   async getDeviceById(id): Promise<any> {
     const devices = await this.deviceRepository.findOne({
       where: { device_id: id },

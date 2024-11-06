@@ -1,18 +1,11 @@
 import { CommonEntity } from 'classes/common/common.entity';
 import { HistoryInterface } from 'classes/interfaces/history.interface';
-import {
-  Column,
-  Entity,
-  Index,
-  JoinColumn,
-  ManyToOne
-} from 'typeorm';
-import { VehicleEntity } from './vehicle.entity';
+import { Column, Entity, Index, ManyToOne } from 'typeorm';
 import { SessionEntity } from './session.entity';
+import { VehicleEntity } from './vehicle.entity';
 
 @Entity('history')
-export class HistoryEntity extends CommonEntity implements HistoryInterface{
-
+export class HistoryEntity extends CommonEntity implements HistoryInterface {
   @Column({ type: 'timestamptz', nullable: true })
   timestamp: Date;
 
@@ -45,7 +38,7 @@ export class HistoryEntity extends CommonEntity implements HistoryInterface{
 
   @Column()
   brushes: number;
-  
+
   @ManyToOne(() => VehicleEntity, (vehicle) => vehicle.history)
   @Index()
   vehicle: VehicleEntity;

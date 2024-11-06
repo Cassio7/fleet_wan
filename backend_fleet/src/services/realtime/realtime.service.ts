@@ -142,7 +142,7 @@ export class RealtimeService {
     return times;
   }
   /**
-   * Ritorna tutti i realtimes in base al id inserito
+   * Ritorna tutti i realtimes in base al VeId inserito
    * @param id VeId identificatico del veicolo
    * @returns
    */
