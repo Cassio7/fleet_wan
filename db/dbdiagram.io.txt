@@ -1,6 +1,6 @@
-
 Table vehicle {
-  veId int [primary key]
+  id int [primary key]
+  veId int 
   active boolean
   plate string
   model string
@@ -11,12 +11,13 @@ Table vehicle {
   isRFIDReader boolean
   profileId int
   profileName string
-  deviceId int [ref: - device.id]
   hash string
+  deviceId int [ref: - device.id]
 }
 
 table device{
-  id int
+  id int [primary key]
+  device_id int
   type int
   serial_number string
   date_build date
@@ -27,20 +28,20 @@ table device{
   rtc_battery_fail boolean
   power_fail_detected int
   power_on_off_detected int
+  hash string
 }
 
 table group{
-  vgId int [primary key]
+  id int [primary key]
+  vgId int
   name string
 }
 
 table vehicle_group {
-  vg_id int [ref: > group.vgId]
-  ve_id int [ref: > vehicle.veId]
-  primary_group boolean
-  primary key (vg_id, ve_id)
+  id int [primary key]
+  groupId int [ref: > group.id]
+  vehicleId int [ref: > vehicle.id]
 }
-
 
 table realtime_position{
   id int [primary key]
@@ -52,13 +53,12 @@ table realtime_position{
   nav_mode int
   speed int
   direction int
-  veId int [ref: > vehicle.veId]
+  hash string
+  vehicleId int [ref: > vehicle.id]
 }
 
 table history{
   id int [primary key]
-  date_from date
-  date_to date
   timestamp timestamp
   status int
   latitude double
@@ -70,11 +70,14 @@ table history{
   tot_consumption double
   fuel float
   brushes int
-  veId int [ref: > vehicle.veId]
+  hash string
+  vehicleId int [ref: > vehicle.id]
+  sessionId int [ref: > session.id]
 }
 
 table tag{
-  epc string [primary key]
+  id int [primary key]
+  epc string
 }
 
 table tag_history{
@@ -84,13 +87,26 @@ table tag_history{
   longitude double
   nav_mode int
   geozone string
-  veId int [ref: > vehicle.veId]
+  hash string
+  vehicleId int [ref: > vehicle.id]
 }
 
 table detection_tag{
   id int [primary key]
   tid string
   detection_quality float
-  epc string [ref: > tag.epc]
-  tag_history_id int [ref: > tag_history.id]
+  tagId string [ref: > tag.id]
+  tagHistoryId int [ref: > tag_history.id]
+}
+
+table session{
+  id int [primary key]
+  period_from date
+  period_to date
+  sequence_id int
+  closed boolean
+  distance int
+  engine_drive int
+  engine_stop int
+  hash string
 }

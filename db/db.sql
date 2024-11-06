@@ -1,5 +1,6 @@
 CREATE TABLE "vehicle" (
-  "veId" int PRIMARY KEY,
+  "id" int PRIMARY KEY,
+  "veId" int,
   "active" boolean,
   "plate" string,
   "model" string,
@@ -10,12 +11,13 @@ CREATE TABLE "vehicle" (
   "isRFIDReader" boolean,
   "profileId" int,
   "profileName" string,
-  "deviceId" int,
-  "hash" string
+  "hash" string,
+  "deviceId" int
 );
 
 CREATE TABLE "device" (
   "id" int PRIMARY KEY,
+  "device_id" int,
   "type" int,
   "serial_number" string,
   "date_build" date,
@@ -25,19 +27,20 @@ CREATE TABLE "device" (
   "fw_upgrade_received" int,
   "rtc_battery_fail" boolean,
   "power_fail_detected" int,
-  "power_on_off_detected" int
+  "power_on_off_detected" int,
+  "hash" string
 );
 
 CREATE TABLE "group" (
-  "vgId" int PRIMARY KEY,
+  "id" int PRIMARY KEY,
+  "vgId" int,
   "name" string
 );
 
 CREATE TABLE "vehicle_group" (
-  "vg_id" int,
-  "ve_id" int,
-  "primary_group" boolean,
-  "primary" key(vg_id,ve_id)
+  "id" int PRIMARY KEY,
+  "groupId" int,
+  "vehicleId" int
 );
 
 CREATE TABLE "realtime_position" (
@@ -50,13 +53,12 @@ CREATE TABLE "realtime_position" (
   "nav_mode" int,
   "speed" int,
   "direction" int,
-  "veId" int
+  "hash" string,
+  "vehicleId" int
 );
 
 CREATE TABLE "history" (
   "id" int PRIMARY KEY,
-  "date_from" date,
-  "date_to" date,
   "timestamp" timestamp,
   "status" int,
   "latitude" double,
@@ -68,11 +70,14 @@ CREATE TABLE "history" (
   "tot_consumption" double,
   "fuel" float,
   "brushes" int,
-  "veId" int
+  "hash" string,
+  "vehicleId" int,
+  "sessionId" int
 );
 
 CREATE TABLE "tag" (
-  "epc" string PRIMARY KEY
+  "id" int PRIMARY KEY,
+  "epc" string
 );
 
 CREATE TABLE "tag_history" (
@@ -82,29 +87,44 @@ CREATE TABLE "tag_history" (
   "longitude" double,
   "nav_mode" int,
   "geozone" string,
-  "veId" int
+  "hash" string,
+  "vehicleId" int
 );
 
 CREATE TABLE "detection_tag" (
   "id" int PRIMARY KEY,
   "tid" string,
   "detection_quality" float,
-  "epc" string,
-  "tag_history_id" int
+  "tagId" string,
+  "tagHistoryId" int
+);
+
+CREATE TABLE "session" (
+  "id" int PRIMARY KEY,
+  "period_from" date,
+  "period_to" date,
+  "sequence_id" int,
+  "closed" boolean,
+  "distance" int,
+  "engine_drive" int,
+  "engine_stop" int,
+  "hash" string
 );
 
 ALTER TABLE "vehicle" ADD FOREIGN KEY ("deviceId") REFERENCES "device" ("id");
 
-ALTER TABLE "vehicle_group" ADD FOREIGN KEY ("vg_id") REFERENCES "group" ("vgId");
+ALTER TABLE "vehicle_group" ADD FOREIGN KEY ("groupId") REFERENCES "group" ("id");
 
-ALTER TABLE "vehicle_group" ADD FOREIGN KEY ("ve_id") REFERENCES "vehicle" ("veId");
+ALTER TABLE "vehicle_group" ADD FOREIGN KEY ("vehicleId") REFERENCES "vehicle" ("id");
 
-ALTER TABLE "realtime_position" ADD FOREIGN KEY ("veId") REFERENCES "vehicle" ("veId");
+ALTER TABLE "realtime_position" ADD FOREIGN KEY ("vehicleId") REFERENCES "vehicle" ("id");
 
-ALTER TABLE "history" ADD FOREIGN KEY ("veId") REFERENCES "vehicle" ("veId");
+ALTER TABLE "history" ADD FOREIGN KEY ("vehicleId") REFERENCES "vehicle" ("id");
 
-ALTER TABLE "tag_history" ADD FOREIGN KEY ("veId") REFERENCES "vehicle" ("veId");
+ALTER TABLE "history" ADD FOREIGN KEY ("sessionId") REFERENCES "session" ("id");
 
-ALTER TABLE "detection_tag" ADD FOREIGN KEY ("epc") REFERENCES "tag" ("epc");
+ALTER TABLE "tag_history" ADD FOREIGN KEY ("vehicleId") REFERENCES "vehicle" ("id");
 
-ALTER TABLE "detection_tag" ADD FOREIGN KEY ("tag_history_id") REFERENCES "tag_history" ("id");
+ALTER TABLE "detection_tag" ADD FOREIGN KEY ("tagId") REFERENCES "tag" ("id");
+
+ALTER TABLE "detection_tag" ADD FOREIGN KEY ("tagHistoryId") REFERENCES "tag_history" ("id");
