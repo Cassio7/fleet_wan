@@ -14,5 +14,6 @@ export function convertHours(timestamp: string): string {
   updatedTimestamp = updatedTimestamp.replace('Z', '+00');
 
   return updatedTimestamp;
+  //test
   //TEST #2
 }
