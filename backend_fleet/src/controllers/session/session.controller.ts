@@ -388,30 +388,82 @@ export class SessionController {
       res.status(500).send('Errore durante la richiesta al db');
     }
   }
-
-  @Get('lastevent/:id')
-  async lastEventComparisonById(@Res() Res: Response, @Param() params: any) {
-    const vehicleId = params.id;
+/**
+ * Ritorna tutti i veicoli dove la data dell'ultima sessione non corrisponde all ultimo tag registrato
+ * @param res 
+ */
+  @Get('lastevent/all')
+  async lastEventComparisonAll(@Res() res: Response) {
     try {
-      const lastVehicle = await this.vehicleService.getVehicleById(vehicleId);
-      const lastVehicleEvent = lastVehicle.lastEvent;
-
-      const lastSession = await this.sessionService.getLastSession(vehicleId);
-      const sessionEnd = lastSession.period_to;
-
-      if (
-        new Date(lastVehicleEvent).getTime() == new Date(sessionEnd).getTime()
-      ) {
-        console.log(
-          "L'ultimo evento del veicolo corrisponde con la fine della sua ultima sessione.",
+      const outputErrors = [];
+      const vehicles = await this.vehicleService.getVehiclesByReader();
+      for (const vehicle of vehicles) {
+        const lastSession = await this.sessionService.getLastSession(
+          vehicle.veId,
         );
+        if (lastSession) {
+          const lastVehicleEvent = vehicle.lastEvent;
+          const sessionEnd = lastSession.period_to;
+          if (
+            new Date(lastVehicleEvent).getTime() !=
+            new Date(sessionEnd).getTime()
+          ) {
+            outputErrors.push(vehicle);
+            // console.log({
+            //   message:
+            //     "L'ultimo evento del veicolo NON corrisponde con la fine della sua ultima sessione.",
+            //   lastVehicleEvent,
+            //   sessionEnd,
+            // });
+          }
+        }
+      }
+      if (outputErrors.length > 0) {
+        res.status(200).send({
+          message:
+            "Veicoli dove l'ultima sessione non corrisponde all'ultimo evento registrato",
+          outputErrors,
+        });
       } else {
-        console.error(
-          "L'ultimo evento del veicolo NON corrisponde con la fine della sua ultima sessione.",
-        );
+        res.status(200).send({
+          message: 'Nessun veicolo presenta incongruenze',
+        });
       }
     } catch (error) {
       console.error('Error getting last event: ', error);
+      res.status(500).send('Errore durante la richiesta al db');
+    }
+  }
+
+  @Get('lastevent/:id')
+  async lastEventComparisonById(@Res() res: Response, @Param() params: any) {
+    try {
+      const lastVehicle = await this.vehicleService.getVehicleById(params.id);
+      const lastSession = await this.sessionService.getLastSession(params.id);
+      if (lastVehicle && lastSession) {
+        const lastVehicleEvent = lastVehicle.lastEvent;
+        const sessionEnd = lastSession.period_to;
+        if (
+          new Date(lastVehicleEvent).getTime() == new Date(sessionEnd).getTime()
+        ) {
+          res.status(200).send({
+            message:
+              "L'ultimo evento del veicolo corrisponde con la fine della sua ultima sessione.",
+          });
+        } else {
+          res.status(200).send({
+            message:
+              "L'ultimo evento del veicolo NON corrisponde con la fine della sua ultima sessione.",
+            lastVehicleEvent,
+            sessionEnd,
+          });
+        }
+      } else {
+        res.status(404).send('Veicolo non trovato id:' + params.id);
+      }
+    } catch (error) {
+      console.error('Error getting last event: ', error);
+      res.status(500).send('Errore durante la richiesta al db');
     }
   }
 
