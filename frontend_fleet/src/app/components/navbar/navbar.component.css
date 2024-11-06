@@ -1,0 +1,10 @@
+.logo{
+  height: 50px;
+  width: 50px;
+  border-radius: 50%;
+  background-image: url("/assets/logo-gesenu.jpg");
+  background-size: cover;
+}
+.left-side{
+  display: flex;
+}

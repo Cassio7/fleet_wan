@@ -1,0 +1,46 @@
+.cards-container{
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 100px;
+}
+.workingVehicles-card, .brokenVehicles-card {
+  height: 500px;
+  width: 500px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.workingVehicles-card:hover, .brokenVehicles-card:hover {
+  transform: translate(-20px, -20px);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.5);
+}
+
+.workingVehicle-img {
+  background-image: url("https://c8.alamy.com/compit/2j7jg37/la-vettura-e-rotta-auto-dopo-un-incidente-scarico-dei-veicoli-rotti-incidente-stradale-metallo-deformato-2j7jg37.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  height: 80%;
+  width: 100%;
+}
+
+.brokenVehicle-img{
+  background-image: url("https://i.redd.it/amateur-car-edit-v0-44cupemqy7pb1.jpg?width=1440&format=pjpg&auto=webp&s=e19057eb7ae03afecff7a76d13723064b833ed74");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  height: 80%;
+  width: 100%;
+}
+
+.workingVehicle-img, .brokenVehicle-img{
+  cursor: pointer;
+}
+
+.logo{
+  background-image: url("/assets/logo-gesenu.jpg");
+  background-size: cover;
+}
