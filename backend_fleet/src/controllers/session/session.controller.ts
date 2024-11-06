@@ -390,8 +390,8 @@ export class SessionController {
   }
 
   @Get('lastevent/:id')
-  async lastEventComparisonById(@Res() Res: Response, @Param() param: any) {
-    const vehicleId = param.id;
+  async lastEventComparisonById(@Res() Res: Response, @Param() params: any) {
+    const vehicleId = params.id;
     try{
       const lastVehicle = await this.vehicleService.getVehicleById(vehicleId);
       const lastVehicleEvent = lastVehicle.lastEvent;
