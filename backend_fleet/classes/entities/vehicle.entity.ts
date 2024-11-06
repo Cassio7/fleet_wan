@@ -6,7 +6,7 @@ import {
   Index,
   JoinColumn,
   OneToMany,
-  OneToOne
+  OneToOne,
 } from 'typeorm';
 import { DeviceEntity } from './device.entity';
 import { HistoryEntity } from './history.entity';
@@ -51,14 +51,17 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
   @Column({ type: 'varchar', length: 50 })
   profileName: string;
 
+  @Column({ type: 'varchar', length: 100 })
+  @Index()
+  hash: string;
+
+  // @Column({ type: 'varchar', nullable: true })
+  // note: string;
+
   @OneToOne(() => DeviceEntity)
   @JoinColumn({ name: 'device_id' })
   @Index()
   device: DeviceEntity;
-
-  @Column({ type: 'varchar', length: 100 })
-  @Index()
-  hash: string;
 
   @OneToMany(
     () => RealtimePositionEntity,
