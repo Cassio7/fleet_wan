@@ -5,12 +5,17 @@
   align-items: center;
   justify-content: center;
   gap: 100px;
+  cursor: pointer;
 }
 .workingVehicles-card, .brokenVehicles-card {
   height: 500px;
   width: 500px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 1s ease;
+  box-shadow: 0 8px 10px rgba(0, 0, 0, 0.1);
+}
+
+.working-card-title, .broken-card-title{
+  margin-top: 5px;
 }
 
 .workingVehicles-card:hover, .brokenVehicles-card:hover {
@@ -34,10 +39,6 @@
   background-position: center;
   height: 80%;
   width: 100%;
-}
-
-.workingVehicle-img, .brokenVehicle-img{
-  cursor: pointer;
 }
 
 .logo{

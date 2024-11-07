@@ -1,3 +1,8 @@
+.navbar{
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
 .logo{
   height: 50px;
   width: 50px;
@@ -5,6 +10,23 @@
   background-image: url("/assets/logo-gesenu.jpg");
   background-size: cover;
 }
+.account-circle{
+  height: 50px;
+  width: 50px;
+  background-image: url("/assets/account_circle.png");
+  background-size: cover;
+}
+.account-circle-btn{
+  height: 50px;
+  width: 50px;
+}
 .left-side{
   display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.right-side{
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
