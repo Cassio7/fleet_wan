@@ -1,0 +1,44 @@
+.content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 20px;
+  padding: 10px;
+  box-sizing: border-box;
+  margin-top: 20px;
+}
+
+.filter-form {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}
+
+.send-button{
+  margin-top: 1vh;
+}
+
+.table {
+  width: 100%;
+  min-height: 100vh;
+  overflow-y: auto;
+}
+
+table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+th, td {
+  text-align: center;
+  border: 1px solid rgb(201, 199, 199);
+  padding: 2vh;
+  font-size: 1.5vw;
+  word-wrap: break-word;
+}

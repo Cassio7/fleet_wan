@@ -1,10 +1,86 @@
-.logo{
+.navbar {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.logo {
   height: 50px;
   width: 50px;
   border-radius: 50%;
   background-image: url("/assets/logo-gesenu.jpg");
   background-size: cover;
 }
-.left-side{
+
+.account-circle {
+  height: 50px;
+  width: 50px;
+  background-image: url("/assets/account_circle.png");
+  background-size: cover;
+}
+
+.account-circle-btn {
+  height: 50px;
+  width: 50px;
+}
+
+.left-side {
   display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.right-side {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+@media (max-width: 1024px) {
+  .navbar {
+    padding: 8px;
+  }
+
+  .left-side,
+  .right-side {
+    gap: 8px;
+  }
+
+  .logo {
+    height: 40px;
+    width: 40px;
+  }
+
+  .account-circle {
+    height: 40px;
+    width: 40px;
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .left-side,
+  .right-side {
+    gap: 12px;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .logo {
+    height: 30px;
+    width: 30px;
+  }
+
+  .account-circle {
+    height: 30px;
+    width: 30px;
+  }
 }

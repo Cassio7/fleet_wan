@@ -1,9 +1,13 @@
 <mat-toolbar class="navbar">
   <div class="left-side">
-    <div mat-card-avatar class="logo"></div>
-    <p>GESENU VEHICLES DASHBOARD</p>
+    <div mat-card-avatar class="logo" routerLink="home"></div>
+    <h4>GESENU VEHICLES MANAGER</h4>
   </div>
   <div class="right-side">
-
+    <h5 class="username">account name</h5>
+    <button mat-button [matMenuTriggerFor]="menu" class="account-circle-btn"><div mat-card-avatar class="account-circle"></div></button>
+    <mat-menu #menu="matMenu">
+      <button mat-menu-item>Esci</button>
+    </mat-menu>
   </div>
 </mat-toolbar>

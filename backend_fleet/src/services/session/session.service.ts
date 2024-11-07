@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Get, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import axios from 'axios';
 import { HistoryEntity } from 'classes/entities/history.entity';
@@ -419,6 +419,26 @@ export class SessionService {
     });
     return session;
   }
+
+  /**
+   * Ritorna la sessione, se esiste, in un range di tempo specificato
+   * @param from_time data di inizio ricerca
+   * @param to_time data di fine ricerca
+   * @returns 
+   */
+  async getSessionInTimeRange(from_time: Date, to_time: Date){
+    const session = await this.sessionRepository.findOne({
+      where: {
+        period_from: LessThanOrEqual(to_time),
+        period_to: MoreThanOrEqual(from_time)
+      },
+      relations: {
+        history: true
+      }
+    });
+    return session;
+  }
+
   /**
    * Ritorna la lista completa delle sessione in base al VeId del veicolo
    * @param id VeId identificativo Veicolo
@@ -437,7 +457,7 @@ export class SessionService {
     return session;
   }
   /**
-   * Restituisce le sessione in base al VeId del veicolo e al range temporale inserito
+   * Restituisce le sessioni in base al VeId del veicolo e al range temporale inserito
    * @param id VeId identificativo Veicolo
    * @param dateFrom Data inizio ricerca sessione
    * @param dateTo Data fine ricerca sessione
@@ -460,6 +480,35 @@ export class SessionService {
     });
     return session;
   }
+
+  /**
+   * Restituisce l'ultima sessione in base al veId del veicolo e al range temporale inserito
+   * @param id VeId identificativo Veicolo
+   * @param dateFrom Data inizio ricerca sessione
+   * @param dateTo Data fine ricerca sessione
+   * @returns
+   */
+  async getLastSessionByVeIdRanged(
+    id: number,
+    dateFrom: Date,
+    dateTo: Date,
+  ): Promise<any> {
+    const session = await this.sessionRepository.findOne({
+      where: {
+        history: { vehicle: { veId: id } },
+        period_from: MoreThanOrEqual(dateFrom),
+        period_to: LessThanOrEqual(dateTo),
+      },
+      relations: {
+        history: true
+      },
+      order:{
+        sequence_id: 'DESC'
+      }
+    });
+    return session;
+  }
+
   /**
    * Ritorna l'ultima sessione registrata di un veicolo in base al VeId
    * @param id VeId identificativo Veicolo
