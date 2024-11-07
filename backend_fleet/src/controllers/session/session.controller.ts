@@ -388,6 +388,36 @@ export class SessionController {
       res.status(500).send('Errore durante la richiesta al db');
     }
   }
+
+  /**
+   * Ritorna se almeno un tag è stato letto in un determinato arco di tempo
+   * @param period_from data di inizio ricerca
+   * @param period_to data di fine ricerca
+   * @param params 
+   * @param res 
+   */
+  @Post('tagcomparisonwtime/:id')
+  async tagComparisonWithTimeRange(
+    @Res() res: Response,
+    @Param() params: any,
+    @Body('period_from') period_from: Date,
+    @Body('period_to') period_to: Date
+  ){
+    const vehicleId = params.id;
+    const session = await this.sessionService.getSessionInTimeRange(period_from, period_to);
+    const lastTag = await this.tagService.getLastTagInTimeRange(period_from, period_to, vehicleId);
+    console.log(lastTag);
+    if(!session){
+      res.status(400).send(`Nel range di tempo ${period_from} - ${period_to} non è stata è stata effettuata alcuna sessione.`);
+    }
+    if(!lastTag){
+      res.status(400).send(`Nel range di tempo ${period_from} - ${period_to} non è stato letto alcun tag.`);
+    }
+    if(session && lastTag){
+      res.status(200).send(`Nel range di tempo ${period_from} - ${period_to} l'ultimo tag è stato ${JSON.stringify(lastTag)} ed è stato letto nella sessione ${JSON.stringify(session)}`);
+    }
+  }
+
 /**
  * Ritorna tutti i veicoli dove la data dell'ultima sessione non corrisponde all ultimo tag registrato
  * @param res 

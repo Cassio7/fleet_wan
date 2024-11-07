@@ -6,6 +6,7 @@ import { TagEntity } from 'classes/entities/tag.entity';
 import { TagHistoryEntity } from 'classes/entities/tag_history.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { createHash } from 'crypto';
+import { timestamp } from 'rxjs';
 import { convertHours } from 'src/utils/hoursFix';
 import {
   DataSource,
@@ -299,6 +300,60 @@ export class TagService {
     });
     return tags;
   }
+
+  /**
+   * @param id VeId Veicolo
+   * @param dateFrom Data inizio ricerca tag history
+   * @param dateTo Data fine ricerca tag history
+   * @returns 
+   */
+  async getLastTagHistoryByVeIdRanged(
+    id: number,
+    dateFrom: Date,
+    dateTo: Date
+  ): Promise<any> {
+    const tags = await this.tagHistoryRepository.findOne({
+      where: {
+        vehicle: { veId: id },
+        timestamp: MoreThanOrEqual(dateFrom) && LessThanOrEqual(dateTo),
+      },
+      relations: {
+        detectiontag: {
+          tag: true
+        },
+      },
+      order:{
+        timestamp: 'DESC'
+      }
+    });
+    return tags;
+  }
+  /**
+   * Ritorna l'ultimo tag letto, se esiste, in un determinato range di tempo
+   * @param period_from periodo di inizio ricerca
+   * @param period_to periodo di fine ricerca 
+   * @returns 
+   */
+  async getLastTagInTimeRange(period_from: Date, period_to: Date, vehicleId: number){
+    const tags = await this.tagHistoryRepository.findOne({
+      where: {
+        vehicle: {
+          veId: vehicleId
+        },
+        timestamp: LessThanOrEqual(period_to) && MoreThanOrEqual(period_from)
+      },
+      relations: {
+        detectiontag: {
+          tag: true
+        }
+      },
+      order: {
+        timestamp: 'DESC'
+      }
+    });
+    return tags;
+  }
+
 
   /**
    * Ritorna soltanto l'ultimo tag history registrato in base al timestamp e al VeId
