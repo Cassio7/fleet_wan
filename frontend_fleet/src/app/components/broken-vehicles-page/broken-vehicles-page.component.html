@@ -1,1 +1,90 @@
-<p>broken-vehicles-page works!</p>
+<div class="content">
+  <h2>Filters:</h2>
+  <form class="filter-form">
+    <mat-form-field class="cantiere-field">
+      <mat-label>Cantiere</mat-label>
+      <mat-select [formControl]="toppings">
+        @for (topping of toppingList; track topping) {
+          <mat-option [value]="topping">{{topping}}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field class="fromData-field">
+      <mat-label>From data</mat-label>
+      <input matInput [matDatepicker]="fromDatePicker" />
+      <mat-datepicker-toggle matSuffix [for]="fromDatePicker"></mat-datepicker-toggle>
+      <mat-datepicker #fromDatePicker></mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field class="toData-field">
+      <mat-label>To data</mat-label>
+      <input matInput [matDatepicker]="toDatePicker" />
+      <mat-datepicker-toggle matSuffix [for]="toDatePicker"></mat-datepicker-toggle>
+      <mat-datepicker #toDatePicker></mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field class="targa-field">
+      <mat-label>Targa</mat-label>
+      <mat-select [formControl]="toppings">
+        @for (topping of toppingList; track topping) {
+          <mat-option [value]="topping">{{topping}}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <button mat-raised-button class="send-button">Send</button>
+  </form>
+
+  <div class="table">
+    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+
+      <ng-container matColumnDef="comune">
+        <th mat-header-cell *matHeaderCellDef>Comune</th>
+        <td mat-cell *matCellDef="let element"> {{element.position}} </td>
+      </ng-container>
+
+
+      <ng-container matColumnDef="targa">
+        <th mat-header-cell *matHeaderCellDef>Targa</th>
+        <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+      </ng-container>
+
+
+      <ng-container matColumnDef="data">
+        <th mat-header-cell *matHeaderCellDef>Data</th>
+        <td mat-cell *matCellDef="let element"> {{element.weight}} </td>
+      </ng-container>
+
+
+      <ng-container matColumnDef="allestimento">
+        <th mat-header-cell *matHeaderCellDef>Allestimento</th>
+        <td mat-cell *matCellDef="let element"> {{element.symbol}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="GPS">
+        <th mat-header-cell *matHeaderCellDef>GPS</th>
+        <td mat-cell *matCellDef="let element"> {{element.symbol}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="antenna">
+        <th mat-header-cell *matHeaderCellDef>antenna</th>
+        <td mat-cell *matCellDef="let element"> {{element.symbol}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="sessione">
+        <th mat-header-cell *matHeaderCellDef>sessione</th>
+        <td mat-cell *matCellDef="let element"> {{element.symbol}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="notes">
+        <th mat-header-cell *matHeaderCellDef>notes</th>
+        <td mat-cell *matCellDef="let element"> {{element.symbol}} </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  </div>
+
+</div>

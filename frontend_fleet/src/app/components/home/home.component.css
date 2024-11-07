@@ -1,47 +1,51 @@
-.cards-container{
-  height: 100%;
-  width: 100%;
+.cards-container {
+  height: 100vh;
+  width: 100vw;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 100px;
+  gap: 10vw; /* Il gap tra le carte è dinamico e dipende dalla larghezza del viewport */
   cursor: pointer;
 }
+
 .workingVehicles-card, .brokenVehicles-card {
-  height: 500px;
-  width: 500px;
+  height: 80vh; /* Altezza dinamica in base all'altezza del viewport */
+  width: 40vw;  /* Larghezza dinamica in base alla larghezza del viewport */
   transition: transform 0.3s ease, box-shadow 1s ease;
   box-shadow: 0 8px 10px rgba(0, 0, 0, 0.1);
 }
 
-.working-card-title, .broken-card-title{
-  margin-top: 5px;
+.working-card-title, .broken-card-title {
+  margin-top: .3vh; /* Spazio tra il titolo e la parte superiore della carta */
+  font-size: 2vw;  /* Font dinamico in base alla larghezza del viewport */
 }
 
 .workingVehicles-card:hover, .brokenVehicles-card:hover {
-  transform: translate(-20px, -20px);
+  transform: translate(-2vw, -2vh); /* Effetto hover dinamico in base al viewport */
   box-shadow: 0 8px 12px rgba(0, 0, 0, 0.5);
+}
+
+.workingVehicle-img, .brokenVehicle-img {
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  height: 80%; /* L'immagine occupa il 80% della carta */
+  width: 100%;
 }
 
 .workingVehicle-img {
   background-image: url("https://c8.alamy.com/compit/2j7jg37/la-vettura-e-rotta-auto-dopo-un-incidente-scarico-dei-veicoli-rotti-incidente-stradale-metallo-deformato-2j7jg37.jpg");
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center;
-  height: 80%;
-  width: 100%;
 }
 
-.brokenVehicle-img{
+.brokenVehicle-img {
   background-image: url("https://i.redd.it/amateur-car-edit-v0-44cupemqy7pb1.jpg?width=1440&format=pjpg&auto=webp&s=e19057eb7ae03afecff7a76d13723064b833ed74");
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center;
-  height: 80%;
-  width: 100%;
 }
 
-.logo{
+.working-card-header{
+  width: 100%;
+  display: flex;
+}
+.logo {
   background-image: url("/assets/logo-gesenu.jpg");
   background-size: cover;
 }

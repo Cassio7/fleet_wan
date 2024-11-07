@@ -7,7 +7,11 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [MatCardModule, MatButtonModule, NavbarComponent],
+  imports: [
+    MatCardModule,
+    MatButtonModule,
+    NavbarComponent
+  ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -20,9 +24,9 @@ export class HomeComponent {
   ){}
 
   workingCardClick(){
-    this.router.navigate(['../working-vehicles']);
+    this.router.navigate(['working-vehicles']);
   }
   brokenCardClick(){
-    this.router.navigate(['../broken-vehicles']);
+    this.router.navigate(['broken-vehicles']);
   }
 }
