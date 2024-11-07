@@ -5,7 +5,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatNativeDateModule } from '@angular/material/core';
 import { CommonModule } from '@angular/common';
 import { MatSelectModule } from '@angular/material/select';
@@ -53,6 +53,10 @@ export class BrokenVehiclesPageComponent {
 
   constructor(){
     this.filterForm = new FormGroup({
+      cantiere: new FormControl('', Validators.required),
+      dateFrom: new FormControl('', Validators.required),
+      dateTo: new FormControl('', Validators.required),
+      targa: new FormControl('', Validators.required)
     });
   }
   displayedColumns: string[] = ['comune', 'targa', 'data', 'allestimento', 'GPS', 'antenna', 'sessione', 'notes'];
@@ -62,4 +66,10 @@ export class BrokenVehiclesPageComponent {
   toppings = new FormControl('');
 
   toppingList: string[] = ['Extra cheese', 'Mushroom', 'Onion', 'Pepperoni', 'Sausage', 'Tomato'];
+
+
+
+  filterFormSubmit(){
+    console.log(this.filterForm.value);
+  }
 }

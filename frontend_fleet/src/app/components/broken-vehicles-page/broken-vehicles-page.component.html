@@ -1,40 +1,38 @@
 <div class="content">
   <h2>Filters:</h2>
-  <form class="filter-form">
+  <form class="filter-form" [formGroup]="filterForm" (ngSubmit)="filterFormSubmit()">
     <mat-form-field class="cantiere-field">
       <mat-label>Cantiere</mat-label>
-      <mat-select [formControl]="toppings">
-        @for (topping of toppingList; track topping) {
-          <mat-option [value]="topping">{{topping}}</mat-option>
-        }
+      <mat-select formControlName="cantiere">
+        <mat-option *ngFor="let topping of toppingList" [value]="topping">{{topping}}</mat-option>
       </mat-select>
     </mat-form-field>
 
-    <mat-form-field class="fromData-field">
-      <mat-label>From data</mat-label>
-      <input matInput [matDatepicker]="fromDatePicker" />
+    <mat-form-field class="dateFrom-field">
+      <mat-label>From</mat-label>
+      <input matInput [matDatepicker]="fromDatePicker" formControlName="dateFrom" />
       <mat-datepicker-toggle matSuffix [for]="fromDatePicker"></mat-datepicker-toggle>
       <mat-datepicker #fromDatePicker></mat-datepicker>
     </mat-form-field>
 
-    <mat-form-field class="toData-field">
-      <mat-label>To data</mat-label>
-      <input matInput [matDatepicker]="toDatePicker" />
+    <mat-form-field class="dateTo-field">
+      <mat-label>To</mat-label>
+      <input matInput [matDatepicker]="toDatePicker" formControlName="dateTo" />
       <mat-datepicker-toggle matSuffix [for]="toDatePicker"></mat-datepicker-toggle>
       <mat-datepicker #toDatePicker></mat-datepicker>
     </mat-form-field>
 
     <mat-form-field class="targa-field">
       <mat-label>Targa</mat-label>
-      <mat-select [formControl]="toppings">
-        @for (topping of toppingList; track topping) {
-          <mat-option [value]="topping">{{topping}}</mat-option>
-        }
+      <mat-select formControlName="targa">
+        <mat-option *ngFor="let topping of toppingList" [value]="topping">{{topping}}</mat-option>
       </mat-select>
     </mat-form-field>
 
     <button mat-raised-button class="send-button">Send</button>
   </form>
+
+
 
   <div class="table">
     <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
