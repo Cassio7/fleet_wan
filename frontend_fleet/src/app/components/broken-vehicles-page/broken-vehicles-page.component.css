@@ -47,3 +47,8 @@ th, td {
   font-size: 1.5vw;
   word-wrap: break-word;
 }
+
+.comune-col{
+  height: 100%;
+  overflow-y: auto;
+}

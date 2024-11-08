@@ -40,8 +40,10 @@
     <table mat-table [dataSource]="vehicles" class="mat-elevation-z8">
 
       <ng-container matColumnDef="comune">
-        <th mat-header-cell *matHeaderCellDef>Comune</th>
-        <td mat-cell *matCellDef="let vehicle"> {{vehicle.veId}} </td>
+        <div class="comune-col">
+          <th mat-header-cell *matHeaderCellDef>Comune</th>
+          <td mat-cell *matCellDef="let vehicle"> {{vehicle.veId}} </td>
+        </div>
       </ng-container>
 
 

@@ -18,7 +18,6 @@ export class VehiclesApiService {
   }
 
   public getVehicleByPlate(plate: string): Observable<Vehicle>{
-    // return this.http.get<Vehicle>(`http://10.1.0.102:3001/fetchplate/${plate}`);
     return this.http.get<Vehicle>(`http://10.1.0.102:3001/vehicles/fetchplate/${plate}`);
   }
 }
