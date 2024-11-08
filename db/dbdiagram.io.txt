@@ -1,4 +1,48 @@
-Table vehicle {
+table roles{
+  id int [primary key]
+  name string
+  description text
+}
+
+table users{
+  id int [primary key]
+  name string
+  email string
+  password string
+}
+
+table user_roles{
+  id int [primary key]
+  userId int [ref: > users.id]
+  roleId int [ref: > roles.id]
+}
+
+table companies{
+  id int [primary key]
+  suId int
+  name string
+}
+
+table role_companies{
+  id int [primary key]
+  companyId int [ref: > companies.id]
+  roleId int [ref: > roles.id]
+}
+
+table role_groups{
+  id int [primary key]
+  groupId int [ref: > groups.id]
+  roleId int [ref: > roles.id]
+}
+
+table groups{
+  id int [primary key]
+  vgId int
+  name string
+  companyId it [ref: > companies.id]
+}
+
+Table vehicles {
   id int [primary key]
   veId int 
   active boolean
@@ -12,10 +56,10 @@ Table vehicle {
   profileId int
   profileName string
   hash string
-  deviceId int [ref: - device.id]
+  deviceId int [ref: - devices.id]
 }
 
-table device{
+table devices{
   id int [primary key]
   device_id int
   type int
@@ -31,19 +75,14 @@ table device{
   hash string
 }
 
-table group{
-  id int [primary key]
-  vgId int
-  name string
-}
 
 table vehicle_group {
   id int [primary key]
-  groupId int [ref: > group.id]
-  vehicleId int [ref: > vehicle.id]
+  groupId int [ref: > groups.id]
+  vehicleId int [ref: > vehicles.id]
 }
 
-table realtime_position{
+table realtime_positions{
   id int [primary key]
   row_number int
   timestamp timestamp
@@ -54,7 +93,7 @@ table realtime_position{
   speed int
   direction int
   hash string
-  vehicleId int [ref: > vehicle.id]
+  vehicleId int [ref: > vehicles.id]
 }
 
 table history{
@@ -71,11 +110,11 @@ table history{
   fuel float
   brushes int
   hash string
-  vehicleId int [ref: > vehicle.id]
+  vehicleId int [ref: > vehicles.id]
   sessionId int [ref: > session.id]
 }
 
-table tag{
+table tags{
   id int [primary key]
   epc string
 }
@@ -88,14 +127,14 @@ table tag_history{
   nav_mode int
   geozone string
   hash string
-  vehicleId int [ref: > vehicle.id]
+  vehicleId int [ref: > vehicles.id]
 }
 
 table detection_tag{
   id int [primary key]
   tid string
   detection_quality float
-  tagId string [ref: > tag.id]
+  tagId string [ref: > tags.id]
   tagHistoryId int [ref: > tag_history.id]
 }
 

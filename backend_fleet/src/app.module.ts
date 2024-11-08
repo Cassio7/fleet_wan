@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { ScheduleModule } from '@nestjs/schedule';
 
 // Importa le entità
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
@@ -14,17 +15,20 @@ import { HistoryEntity } from 'classes/entities/history.entity';
 import { TagEntity } from 'classes/entities/tag.entity';
 import { TagHistoryEntity } from 'classes/entities/tag_history.entity';
 import { DetectionTagEntity } from 'classes/entities/detection_tag.entity';
+import { SessionEntity } from 'classes/entities/session.entity';
+
+// importo i servizi
 import { VehicleService } from './services/vehicle/vehicle.service';
 import { GroupService } from './services/group/group.service';
+import { RealtimeService } from './services/realtime/realtime.service';
+import { SessionService } from './services/session/session.service';
+import { TagService } from './services/tag/tag.service';
+
+// importo i controller
 import { GroupController } from './controllers/group/group.controller';
 import { VehicleController } from './controllers/vehicle/vehicle.controller';
-import { RealtimeService } from './services/realtime/realtime.service';
 import { RealtimeController } from './controllers/realtime/realtime.controller';
-import { SessionService } from './services/session/session.service';
 import { SessionController } from './controllers/session/session.controller';
-import { SessionEntity } from 'classes/entities/session.entity';
-import { ScheduleModule } from '@nestjs/schedule';
-import { TagService } from './services/tag/tag.service';
 import { TagController } from './controllers/tag/tag.controller';
 
 @Global()
