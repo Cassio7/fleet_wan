@@ -24,6 +24,7 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
   active: boolean;
 
   @Column({ type: 'varchar', length: 20 })
+  //@Index()
   plate: string;
 
   @Column({ type: 'varchar', length: 50 })
