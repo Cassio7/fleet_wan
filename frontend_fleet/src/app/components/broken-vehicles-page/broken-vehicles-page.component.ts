@@ -12,6 +12,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { VehiclesApiService } from '../../services/vehicles service/vehicles-api.service';
 import { Subject, takeUntil } from 'rxjs';
 import { Vehicle } from '../../models/Vehicle';
+import { Session } from '../../models/Session';
+import { SessionApiService } from '../../services/session service/session-api.service';
 
 export interface PeriodicElement {
   name: string;
@@ -45,15 +47,15 @@ export class BrokenVehiclesPageComponent implements OnDestroy, AfterViewInit{
   filterForm!: FormGroup;
   startDate!: Date;
   endDate!: Date;
+  sessions!: Session[];
 
-  vehicles: Vehicle[] = [];
   cantieri: string[] = [];
   plates: string[] = [];
 
   constructor(
-    private vehiclesApiService: VehiclesApiService,
+    private sessionApiService: SessionApiService,
     private cd: ChangeDetectorRef
-  ){
+  ) {
     this.filterForm = new FormGroup({
       cantiere: new FormControl(''),
       targa: new FormControl(''),
@@ -62,21 +64,12 @@ export class BrokenVehiclesPageComponent implements OnDestroy, AfterViewInit{
         end: new FormControl(new Date())
       })
     });
-
   }
 
   ngAfterViewInit(): void {
-    //Get all vehicles data from API
-    this.vehiclesApiService.getAllVehicles().pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: (vehicles: Vehicle[]) => {
-        this.vehicles = vehicles;
-        this.fillPlatesArray();
-      },
-      error: error => console.error(`Errore nel recupero di tutti i veicoli: ${error}`)
-    });
 
   }
+
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -97,28 +90,34 @@ export class BrokenVehiclesPageComponent implements OnDestroy, AfterViewInit{
 
 
   filterFormSubmit(){
-    this.vehiclesApiService.getVehicleByPlate("ALR 191").pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: (vehicle: Vehicle) => {
-        console.log(vehicle);
-      },
-      error: error => console.error(`Error fetching the vehicle: ${error}`)
-    })
+    const start_date = this.filterForm.get('range.start')?.value;
+    const end_date = this.filterForm.get('range.end')?.value;
+
+    if (start_date && end_date) {
+      this.sessionApiService.getAllSessionsRanged(start_date, end_date).pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (sessions: Session[]) => {
+          console.log(`SESSIONI TRA ${start_date} A ${end_date}`);
+          console.log(sessions);
+        },
+        error: error => console.error(error)
+      });
+    }
   }
 
-  //Riempi array di cantieri
-  fillCantieriArray(){
-    this.vehicles.forEach(vehicle => {
-      this.cantieri.push();
-    });
-    this.cd.detectChanges();
-  }
+  // //Riempi array di cantieri
+  // fillCantieriArray(){
+  //   this.vehicles.forEach(vehicle => {
+  //     this.cantieri.push();
+  //   });
+  //   this.cd.detectChanges();
+  // }
 
-  //Riempi array di targhe
-  fillPlatesArray(){
-    this.vehicles.forEach(vehicle => {
-      this.plates.push(vehicle.plate);
-    });
-    this.cd.detectChanges();
-  }
+  // //Riempi array di targhe
+  // fillPlatesArray(){
+  //   this.vehicles.forEach(vehicle => {
+  //     this.plates.push(vehicle.plate);
+  //   });
+  //   this.cd.detectChanges();
+  // }
 }

@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, Subject, switchMap, takeUntil } from 'rxjs';
+import { catchError, Observable, Subject, switchMap, takeUntil } from 'rxjs';
 import { Session } from '../../models/Session';
 import { VehiclesApiService } from '../vehicles service/vehicles-api.service';
 
@@ -10,8 +10,7 @@ import { VehiclesApiService } from '../vehicles service/vehicles-api.service';
 export class SessionApiService {
   private readonly destroy$: Subject<void> = new Subject<void>();
   constructor(
-    private http: HttpClient,
-    private vehicleApiService: VehiclesApiService
+    private http: HttpClient
   ) { }
 
 
@@ -19,7 +18,27 @@ export class SessionApiService {
     return this.http.get<Session[]>("http://10.1.0.102:3001/sessions");
   }
 
-  public getAllSessionsRangedByVeid(start_date: Date, end_date: Date, plate: string){
+  public getAllSessionsRanged(start_date: Date, end_date: Date) {
+    const dateFrom = start_date.toISOString();
+    const dateTo = end_date.toISOString();
 
+    console.log("Inviata la richiesta: " + dateFrom + " to: " + dateTo);
+
+    // Parametri nel corpo della richiesta
+    const body = {
+      dateFrom: dateFrom,
+      dateTo: dateTo
+    };
+
+    // Send the POST request
+    return this.http.post<Session[]>('http://10.1.0.102:3001/session/ranged/all', body)
+      .pipe(
+        catchError(error => {
+          console.error('Errore durante la richiesta:', error);
+          throw error;
+        })
+      );
   }
+
+
 }
