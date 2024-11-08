@@ -421,20 +421,22 @@ export class SessionService {
   }
 
   /**
-   * Ritorna la sessione, se esiste, in un range di tempo specificato
+   * Ritorna le sessioni, se esiste, in un range di tempo specificato
    * @param from_time data di inizio ricerca
    * @param to_time data di fine ricerca
-   * @returns 
+   * @returns
    */
-  async getSessionInTimeRange(from_time: Date, to_time: Date){
-    const session = await this.sessionRepository.findOne({
+  async getSessionInTimeRange(from_time: Date, to_time: Date) {
+    const session = await this.sessionRepository.find({
       where: {
         period_from: LessThanOrEqual(to_time),
-        period_to: MoreThanOrEqual(from_time)
+        period_to: MoreThanOrEqual(from_time),
       },
       relations: {
-        history: true
-      }
+        history: {
+          vehicle: true,
+        },
+      },
     });
     return session;
   }
@@ -500,11 +502,11 @@ export class SessionService {
         period_to: LessThanOrEqual(dateTo),
       },
       relations: {
-        history: true
+        history: true,
       },
-      order:{
-        sequence_id: 'DESC'
-      }
+      order: {
+        sequence_id: 'DESC',
+      },
     });
     return session;
   }

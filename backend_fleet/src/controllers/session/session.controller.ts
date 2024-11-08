@@ -107,6 +107,47 @@ export class SessionController {
     if (data) res.status(200).send(data);
     else res.status(200).send(`No Session per id: ${params.id}`);
   }
+
+  /**
+   * API per prendere tutte le sessioni indicando range temporale
+   * @param params VeId
+   * @param body Data inizio e data fine ricerca
+   * @returns
+   */
+  @Post('ranged/all')
+  async getAllSessionRanged(@Res() res: Response, @Body() body: any) {
+    const dateFrom = body.dateFrom;
+    const dateTo = body.dateTo;
+    // Controlla se dateFrom e dateTo sono forniti
+    if (!dateFrom || !dateTo) {
+      return res.status(400).send('Date non fornite.');
+    }
+
+    // Crea un oggetto Date dalla stringa fornita
+    const dateFrom_new = new Date(dateFrom);
+    const dateTo_new = new Date(dateTo);
+
+    // Controlla se la data è valida
+    if (isNaN(dateFrom_new.getTime()) || isNaN(dateTo_new.getTime())) {
+      return res.status(400).send('Formato della data non valido.');
+    }
+    if (dateFrom_new.getTime() >= dateTo_new.getTime()) {
+      // Restituisci un errore se la condizione è vera
+      return res
+        .status(400)
+        .send(
+          'La data iniziale deve essere indietro di almeno 1 giorno dalla finale',
+        );
+    }
+    const data = await this.sessionService.getSessionInTimeRange(
+      dateFrom_new,
+      dateTo_new,
+    );
+    if (data.length > 0) {
+      res.status(200).send(data);
+    } else res.status(200).send(`No Session per id:`);
+  }
+
   /**
    * API per prendere tutte le sessioni indicando range temporale in base all'id
    * @param res
@@ -153,12 +194,11 @@ export class SessionController {
     } else res.status(200).send(`No Session per id: ${params.id}`);
   }
 
-
   // /**
   //  * API che restituisce il controllo del tipo di guasto di un veicolo nel caso ci sia
-  //  * @param res 
+  //  * @param res
   //  * @param params id del veicolo da controllare
-  //  * @param body 
+  //  * @param body
   //  */
   // @Post("checkVehicle/:id")
   // async checkVehicle(@Res() res: Response, @Param() params: any, @Body() body: any){
@@ -167,7 +207,6 @@ export class SessionController {
   //   //check GPS guasto
   //   this.checkSessionGPS()
   // }
-
 
   /**
    * Controllo sessioni registrate per ogni veicolo per funzionamento effettivo GPS, lat e log deve differire e la distanza deve essere variabile
@@ -410,35 +449,54 @@ export class SessionController {
    * Ritorna se almeno un tag è stato letto in un determinato arco di tempo
    * @param period_from data di inizio ricerca
    * @param period_to data di fine ricerca
-   * @param params 
-   * @param res 
+   * @param params
+   * @param res
    */
   @Post('tagcomparisonwtime/:id')
   async tagComparisonWithTimeRange(
     @Res() res: Response,
     @Param() params: any,
     @Body('period_from') period_from: Date,
-    @Body('period_to') period_to: Date
-  ){
+    @Body('period_to') period_to: Date,
+  ) {
     const vehicleId = params.id;
-    const session = await this.sessionService.getSessionInTimeRange(period_from, period_to);
-    const lastTag = await this.tagService.getLastTagInTimeRange(period_from, period_to, vehicleId);
+    const sessions = await this.sessionService.getSessionInTimeRange(
+      period_from,
+      period_to,
+    );
+    const lastTag = await this.tagService.getLastTagInTimeRange(
+      period_from,
+      period_to,
+      vehicleId,
+    );
     console.log(lastTag);
-    if(!session){
-      res.status(400).send(`Nel range di tempo ${period_from} - ${period_to} non è stata è stata effettuata alcuna sessione.`);
+    if (!sessions) {
+      res
+        .status(400)
+        .send(
+          `Nel range di tempo ${period_from} - ${period_to} non è stata è stata effettuata alcuna sessione.`,
+        );
     }
-    if(!lastTag){
-      res.status(400).send(`Nel range di tempo ${period_from} - ${period_to} non è stato letto alcun tag.`);
+    if (!lastTag) {
+      res
+        .status(400)
+        .send(
+          `Nel range di tempo ${period_from} - ${period_to} non è stato letto alcun tag.`,
+        );
     }
-    if(session && lastTag){
-      res.status(200).send(`Nel range di tempo ${period_from} - ${period_to} l'ultimo tag è stato ${JSON.stringify(lastTag)} ed è stato letto nella sessione ${JSON.stringify(session)}`);
+    if (sessions && lastTag) {
+      res
+        .status(200)
+        .send(
+          `Nel range di tempo ${period_from} - ${period_to} l'ultimo tag è stato ${JSON.stringify(lastTag)} ed è stato letto nella sessione ${JSON.stringify(sessions)}`,
+        );
     }
   }
 
-/**
- * Ritorna tutti i veicoli dove la data dell'ultima sessione non corrisponde all ultimo tag registrato
- * @param res 
- */
+  /**
+   * Ritorna tutti i veicoli dove la data dell'ultima sessione non corrisponde all ultimo tag registrato
+   * @param res
+   */
   @Get('lastevent/all')
   async lastEventComparisonAll(@Res() res: Response) {
     try {
