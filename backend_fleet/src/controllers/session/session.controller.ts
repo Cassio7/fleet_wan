@@ -152,6 +152,23 @@ export class SessionController {
       res.status(200).send(data);
     } else res.status(200).send(`No Session per id: ${params.id}`);
   }
+
+
+  // /**
+  //  * API che restituisce il controllo del tipo di guasto di un veicolo nel caso ci sia
+  //  * @param res 
+  //  * @param params id del veicolo da controllare
+  //  * @param body 
+  //  */
+  // @Post("checkVehicle/:id")
+  // async checkVehicle(@Res() res: Response, @Param() params: any, @Body() body: any){
+  //   let guasti = [];
+  //   const veichleId = params.id;
+  //   //check GPS guasto
+  //   this.checkSessionGPS()
+  // }
+
+
   /**
    * Controllo sessioni registrate per ogni veicolo per funzionamento effettivo GPS, lat e log deve differire e la distanza deve essere variabile
    * @param res

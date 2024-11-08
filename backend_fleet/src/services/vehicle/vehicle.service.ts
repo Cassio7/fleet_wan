@@ -418,6 +418,19 @@ export class VehicleService {
     });
     return vehicles;
   }
+
+  async getVehicleByPlate(plateNumber: string){
+    const vehicle = await this.vehicleRepository.findOne({
+      where: {
+        plate: plateNumber
+      },
+      relations: {
+        device: true
+      }
+    });
+    return vehicle;
+  }
+
   /**
    * Recupera un veicolo in base all VeId passato
    * @param id VeId

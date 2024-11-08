@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Res } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { VehicleService } from 'src/services/vehicle/vehicle.service';
 
@@ -71,4 +71,22 @@ export class VehicleController {
       res.status(500).send('Errore durante la richiesta al servizio SOAP');
     }
   }
+
+  /**
+   * API che restituisce il veicolo che ha la targa presa in input 
+   * @param res 
+   * @param params plate number
+   */
+  @Get("fetchplate/:plate")
+  async getVehicleByPlate(@Res() res: Response, @Param() params: any) {
+    const plateNumber = params.plate;
+    const vehicle = await this.vehicleService.getVehicleByPlate(plateNumber);
+
+    if(vehicle){
+      res.status(200).send(vehicle);
+    }else{
+      res.status(404).send(`Vehicle with plate number: ${plateNumber} not found.`)
+    }
+  }
+  
 }

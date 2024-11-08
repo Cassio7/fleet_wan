@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { NavbarComponent } from "../navbar/navbar.component";
 import { MatTableModule } from '@angular/material/table';
 import { MatInputModule } from '@angular/material/input';
@@ -9,6 +9,9 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { MatNativeDateModule } from '@angular/material/core';
 import { CommonModule } from '@angular/common';
 import { MatSelectModule } from '@angular/material/select';
+import { HttpClient } from '@angular/common/http';
+import { VehiclesApiService } from '../../services/vehicles-api.service';
+import { Subject, takeUntil } from 'rxjs';
 
 export interface PeriodicElement {
   name: string;
@@ -48,25 +51,40 @@ const ELEMENT_DATA: PeriodicElement[] = [
   styleUrl: './broken-vehicles-page.component.css',
   encapsulation: ViewEncapsulation.None
 })
-export class BrokenVehiclesPageComponent {
+export class BrokenVehiclesPageComponent implements OnDestroy{
+  private readonly destroy$: Subject<void> = new Subject<void>();
   filterForm!: FormGroup;
 
-  constructor(){
+  constructor(
+    private vehiclesApiService: VehiclesApiService
+  ){
     this.filterForm = new FormGroup({
-      cantiere: new FormControl('', Validators.required),
-      dateFrom: new FormControl('', Validators.required),
-      dateTo: new FormControl('', Validators.required),
-      targa: new FormControl('', Validators.required)
+      cantiere: new FormControl(''),
+      targa: new FormControl(''),
+      range: new FormGroup({
+        start: new FormControl(null),
+        end: new FormControl(null)
+      })
     });
+
   }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   displayedColumns: string[] = ['comune', 'targa', 'data', 'allestimento', 'GPS', 'antenna', 'sessione', 'notes'];
   dataSource = ELEMENT_DATA;
-
 
   toppings = new FormControl('');
 
   toppingList: string[] = ['Extra cheese', 'Mushroom', 'Onion', 'Pepperoni', 'Sausage', 'Tomato'];
 
+  readonly range = new FormGroup({
+    start: new FormControl<Date | null>(null),
+    end: new FormControl<Date | null>(null),
+  });
 
 
   filterFormSubmit(){

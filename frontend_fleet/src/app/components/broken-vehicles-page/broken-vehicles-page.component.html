@@ -1,5 +1,5 @@
 <div class="content">
-  <h2>Filters:</h2>
+  <h2>Filtri:</h2>
   <form class="filter-form" [formGroup]="filterForm" (ngSubmit)="filterFormSubmit()">
     <mat-form-field class="cantiere-field">
       <mat-label>Cantiere</mat-label>
@@ -8,18 +8,18 @@
       </mat-select>
     </mat-form-field>
 
-    <mat-form-field class="dateFrom-field">
-      <mat-label>From</mat-label>
-      <input matInput [matDatepicker]="fromDatePicker" formControlName="dateFrom" />
-      <mat-datepicker-toggle matSuffix [for]="fromDatePicker"></mat-datepicker-toggle>
-      <mat-datepicker #fromDatePicker></mat-datepicker>
-    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Enter a date range</mat-label>
+      <mat-date-range-input formGroupName="range" [rangePicker]="picker">
+        <input matStartDate formControlName="start" placeholder="Start date">
+        <input matEndDate formControlName="end" placeholder="End date">
+      </mat-date-range-input>
+      <mat-hint>MM/DD/YYYY – MM/DD/YYYY</mat-hint>
+      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-date-range-picker #picker></mat-date-range-picker>
 
-    <mat-form-field class="dateTo-field">
-      <mat-label>To</mat-label>
-      <input matInput [matDatepicker]="toDatePicker" formControlName="dateTo" />
-      <mat-datepicker-toggle matSuffix [for]="toDatePicker"></mat-datepicker-toggle>
-      <mat-datepicker #toDatePicker></mat-datepicker>
+      <mat-error *ngIf="filterForm.get('range.start')?.hasError('matStartDateInvalid')">Invalid start date</mat-error>
+      <mat-error *ngIf="filterForm.get('range.end')?.hasError('matEndDateInvalid')">Invalid end date</mat-error>
     </mat-form-field>
 
     <mat-form-field class="targa-field">
@@ -29,8 +29,9 @@
       </mat-select>
     </mat-form-field>
 
-    <button mat-raised-button class="send-button">Send</button>
+    <button mat-raised-button class="send-button" [disabled]="filterForm.invalid">Send</button>
   </form>
+
 
 
 
