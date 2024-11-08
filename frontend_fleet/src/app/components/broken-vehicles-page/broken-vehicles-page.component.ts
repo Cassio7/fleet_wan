@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { NavbarComponent } from "../navbar/navbar.component";
 import { MatTableModule } from '@angular/material/table';
 import { MatInputModule } from '@angular/material/input';
@@ -9,9 +9,9 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { MatNativeDateModule } from '@angular/material/core';
 import { CommonModule } from '@angular/common';
 import { MatSelectModule } from '@angular/material/select';
-import { HttpClient } from '@angular/common/http';
-import { VehiclesApiService } from '../../services/vehicles-api.service';
+import { VehiclesApiService } from '../../services/vehicles service/vehicles-api.service';
 import { Subject, takeUntil } from 'rxjs';
+import { Vehicle } from '../../models/Vehicle';
 
 export interface PeriodicElement {
   name: string;
@@ -20,24 +20,12 @@ export interface PeriodicElement {
   symbol: string;
 }
 
-const ELEMENT_DATA: PeriodicElement[] = [
-  {position: 1, name: 'Hydrogen', weight: 1.0079, symbol: 'H'},
-  {position: 2, name: 'Helium', weight: 4.0026, symbol: 'He'},
-  {position: 3, name: 'Lithium', weight: 6.941, symbol: 'Li'},
-  {position: 4, name: 'Beryllium', weight: 9.0122, symbol: 'Be'},
-  {position: 5, name: 'Boron', weight: 10.811, symbol: 'B'},
-  {position: 6, name: 'Carbon', weight: 12.0107, symbol: 'C'},
-  {position: 7, name: 'Nitrogen', weight: 14.0067, symbol: 'N'},
-  {position: 8, name: 'Oxygen', weight: 15.9994, symbol: 'O'},
-  {position: 9, name: 'Fluorine', weight: 18.9984, symbol: 'F'},
-  {position: 10, name: 'Neon', weight: 20.1797, symbol: 'Ne'},
-];
+
 @Component({
   selector: 'app-broken-vehicles-page',
   standalone: true,
   imports: [
     CommonModule,
-    NavbarComponent,
     MatTableModule,
     MatInputModule,
     MatButtonModule,
@@ -51,20 +39,41 @@ const ELEMENT_DATA: PeriodicElement[] = [
   styleUrl: './broken-vehicles-page.component.css',
   encapsulation: ViewEncapsulation.None
 })
-export class BrokenVehiclesPageComponent implements OnDestroy{
+export class BrokenVehiclesPageComponent implements OnDestroy, AfterViewInit{
   private readonly destroy$: Subject<void> = new Subject<void>();
+
   filterForm!: FormGroup;
+  startDate!: Date;
+  endDate!: Date;
+
+  vehicles: Vehicle[] = [];
+  cantieri: string[] = [];
+  plates: string[] = [];
 
   constructor(
-    private vehiclesApiService: VehiclesApiService
+    private vehiclesApiService: VehiclesApiService,
+    private cd: ChangeDetectorRef
   ){
     this.filterForm = new FormGroup({
       cantiere: new FormControl(''),
       targa: new FormControl(''),
       range: new FormGroup({
-        start: new FormControl(null),
-        end: new FormControl(null)
+        start: new FormControl(new Date()),
+        end: new FormControl(new Date())
       })
+    });
+
+  }
+
+  ngAfterViewInit(): void {
+    //Get all vehicles data from API
+    this.vehiclesApiService.getAllVehicles().pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (vehicles: Vehicle[]) => {
+        this.vehicles = vehicles;
+        this.fillPlatesArray();
+      },
+      error: error => console.error(`Errore nel recupero di tutti i veicoli: ${error}`)
     });
 
   }
@@ -75,7 +84,7 @@ export class BrokenVehiclesPageComponent implements OnDestroy{
   }
 
   displayedColumns: string[] = ['comune', 'targa', 'data', 'allestimento', 'GPS', 'antenna', 'sessione', 'notes'];
-  dataSource = ELEMENT_DATA;
+
 
   toppings = new FormControl('');
 
@@ -88,6 +97,28 @@ export class BrokenVehiclesPageComponent implements OnDestroy{
 
 
   filterFormSubmit(){
-    console.log(this.filterForm.value);
+    this.vehiclesApiService.getVehicleByPlate("ALR 191").pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (vehicle: Vehicle) => {
+        console.log(vehicle);
+      },
+      error: error => console.error(`Error fetching the vehicle: ${error}`)
+    })
+  }
+
+  //Riempi array di cantieri
+  fillCantieriArray(){
+    this.vehicles.forEach(vehicle => {
+      this.cantieri.push();
+    });
+    this.cd.detectChanges();
+  }
+
+  //Riempi array di targhe
+  fillPlatesArray(){
+    this.vehicles.forEach(vehicle => {
+      this.plates.push(vehicle.plate);
+    });
+    this.cd.detectChanges();
   }
 }
