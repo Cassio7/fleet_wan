@@ -16,6 +16,9 @@ import { TagEntity } from 'classes/entities/tag.entity';
 import { TagHistoryEntity } from 'classes/entities/tag_history.entity';
 import { DetectionTagEntity } from 'classes/entities/detection_tag.entity';
 import { SessionEntity } from 'classes/entities/session.entity';
+import { UserEntity } from 'classes/entities/user.entity';
+import { RoleEntity } from 'classes/entities/role.entity';
+import { UserRoleEntity } from 'classes/entities/userrole.entity';
 
 // importo i servizi
 import { VehicleService } from './services/vehicle/vehicle.service';
@@ -30,6 +33,7 @@ import { VehicleController } from './controllers/vehicle/vehicle.controller';
 import { RealtimeController } from './controllers/realtime/realtime.controller';
 import { SessionController } from './controllers/session/session.controller';
 import { TagController } from './controllers/tag/tag.controller';
+import { UserFactoryService } from './factory/user.factory';
 
 @Global()
 @Module({
@@ -60,6 +64,9 @@ import { TagController } from './controllers/tag/tag.controller';
           TagHistoryEntity,
           DetectionTagEntity,
           SessionEntity,
+          UserEntity,
+          RoleEntity,
+          UserRoleEntity,
         ],
         synchronize: true,
         //dropSchema: true, // if true drop db
@@ -77,6 +84,9 @@ import { TagController } from './controllers/tag/tag.controller';
         TagHistoryEntity,
         DetectionTagEntity,
         SessionEntity,
+        UserEntity,
+        RoleEntity,
+        UserRoleEntity,
       ],
       'mainConnection',
     ),
@@ -97,6 +107,7 @@ import { TagController } from './controllers/tag/tag.controller';
     RealtimeService,
     SessionService,
     TagService,
+    UserFactoryService,
   ],
 })
 export class AppModule {}
