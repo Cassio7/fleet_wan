@@ -4,6 +4,8 @@ import { VehicleService } from './services/vehicle/vehicle.service';
 import { SessionService } from './services/session/session.service';
 import { Cron } from '@nestjs/schedule';
 import { TagService } from './services/tag/tag.service';
+import { UserFactoryService } from './factory/user.factory';
+
 @Injectable()
 export class AppService implements OnModuleInit {
   constructor(
@@ -11,16 +13,20 @@ export class AppService implements OnModuleInit {
     private readonly vehicleService: VehicleService,
     private readonly sessionService: SessionService,
     private readonly tagService: TagService,
+    private readonly userFactoryService: UserFactoryService,
   ) {}
 
   // popolo database all'avvio
   async onModuleInit() {
+    // await this.userFactoryService.createDefaultUser();
+    // await this.userFactoryService.createDefaultRole();
+    // await this.userFactoryService.createDefaultUserRole();
     //await this.putDbData();
     //await this.putDbData5min();
   }
 
   async putDbData() {
-    const startDate = '2024-10-28T00:00:00.000Z';
+    const startDate = '2024-11-09T00:00:00.000Z';
     //const endDate = '2024-10-31T00:00:00.000Z';
     const endDate = new Date().toISOString();
     await this.groupService.getGroupList();
