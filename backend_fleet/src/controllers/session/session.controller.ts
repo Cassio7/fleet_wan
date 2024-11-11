@@ -149,6 +149,26 @@ export class SessionController {
   }
 
   /**
+   * Ritorna un array con l'ultima sessione di tutti i veicoli
+   * @param res 
+   */
+  @Get('lastsessions/all')
+  async getAllVehiclesLastSession(@Res() res: Response) {
+    try {
+      const vehicles = await this.vehicleService.getAllVehicles(); // Prendere tutti i veicoli
+      const lastSessions = await Promise.all(
+        vehicles.map(async (vehicle) => {
+          return this.sessionService.getLastSession(vehicle.veId); // Per ogni veicolo, cercare l'ultima sessione
+        })
+      );
+      res.status(200).json(lastSessions); // Restituire l'array di sessioni come JSON
+    } catch (error) {
+      res.status(500).send("Errore nella ricerca dell'ultima sessione del veicolo.");
+    }
+  }
+  
+
+  /**
    * API per prendere tutte le sessioni indicando range temporale in base all'id
    * @param res
    * @param params VeId
@@ -193,6 +213,17 @@ export class SessionController {
       res.status(200).send(data);
     } else res.status(200).send(`No Session per id: ${params.id}`);
   }
+
+  // @Get("lastSessions/all")
+  // async getVehiclesLastSession(@Res() res) {
+  //   try {
+  //     const sessions = await this.sessionService.getAllVehiclesLastSessions();
+  //     return res.status(200).send(sessions);
+  //   } catch (error) {
+  //     return res.status(500).send("Errore nel recupero delle ultime sessioni dei veicoli.");
+  //   }
+  // }
+  
 
   // /**
   //  * API che restituisce il controllo del tipo di guasto di un veicolo nel caso ci sia
@@ -372,6 +403,8 @@ export class SessionController {
         );
     } else res.status(200).send(`No Session per id: ${params.id}`);
   }
+
+
 
   @Get('tagcomparison/:id')
   async getTagComparison(@Res() res: Response, @Param() params: any) {

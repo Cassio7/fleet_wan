@@ -1,4 +1,4 @@
-import { Get, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import axios from 'axios';
 import { HistoryEntity } from 'classes/entities/history.entity';
@@ -223,6 +223,30 @@ export class SessionService {
       throw new Error('Errore durante la richiesta al servizio SOAP');
     }
   }
+  
+  // /**
+  //  * Ritorna l'ultima sessione di ciascun veicolo
+  //  * @returns 
+  //  */
+  // async getAllVehiclesLastSessions() {
+  //   try {
+  //     const sessions = await this.sessionRepository.find({
+  //       relations: {
+  //         history: {
+  //           vehicle: true,
+  //         } 
+  //       },
+  //       order: {
+  //         createdAt: "DESC" 
+  //       },
+  //     });
+  //     return sessions;
+  //   } catch (error) {
+  //     console.error("Errore nel recupero delle ultime sessioni per i veicoli:", error);
+  //     throw new Error("Non è stato possibile recuperare le ultime sessioni per i veicoli.");
+  //   }
+  // }
+  
   /**
    * Inserisce tutti gli history presenti associati ad una determinata sessione
    * @param id VeId identificativo Veicolo
@@ -458,6 +482,7 @@ export class SessionService {
     });
     return session;
   }
+
   /**
    * Restituisce le sessioni in base al VeId del veicolo e al range temporale inserito
    * @param id VeId identificativo Veicolo
@@ -520,7 +545,9 @@ export class SessionService {
     const session = await this.sessionRepository.findOne({
       where: { history: { vehicle: { veId: id } } },
       relations: {
-        history: true,
+        history: {
+          vehicle: true
+        },
       },
       order: {
         sequence_id: 'DESC',

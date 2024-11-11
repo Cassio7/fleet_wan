@@ -1,56 +1,54 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
-import { NavbarComponent } from "../navbar/navbar.component";
-import { MatTableModule } from '@angular/material/table';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatNativeDateModule } from '@angular/material/core';
-import { CommonModule } from '@angular/common';
-import { MatSelectModule } from '@angular/material/select';
-import { VehiclesApiService } from '../../services/vehicles service/vehicles-api.service';
-import { Subject, takeUntil } from 'rxjs';
-import { Vehicle } from '../../models/Vehicle';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
+import { FormGroup, FormControl, ReactiveFormsModule } from '@angular/forms';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { Session } from '../../models/Session';
 import { SessionApiService } from '../../services/session service/session-api.service';
-
-export interface PeriodicElement {
-  name: string;
-  position: number;
-  weight: number;
-  symbol: string;
-}
-
+import { CommonModule } from '@angular/common';
+import { MatSelectModule } from '@angular/material/select';
+import { MatDatepickerModule, MatDateRangePicker } from '@angular/material/datepicker';
+import { DateAdapter, MatNativeDateModule } from '@angular/material/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-broken-vehicles-page',
-  standalone: true,
   imports: [
     CommonModule,
-    MatTableModule,
-    MatInputModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     ReactiveFormsModule,
-    MatSelectModule
+    MatButtonModule,
+    MatInputModule,
+    MatSelectModule,
+    MatTableModule,
+    MatNativeDateModule,
+    MatDatepickerModule
   ],
+  standalone: true,
   templateUrl: './broken-vehicles-page.component.html',
-  styleUrl: './broken-vehicles-page.component.css',
-  encapsulation: ViewEncapsulation.None
+  styleUrls: ['./broken-vehicles-page.component.css']
 })
-export class BrokenVehiclesPageComponent implements OnDestroy, AfterViewInit{
+export class BrokenVehiclesPageComponent implements OnDestroy, AfterViewInit {
   private readonly destroy$: Subject<void> = new Subject<void>();
 
   filterForm!: FormGroup;
   startDate!: Date;
   endDate!: Date;
-  sessions!: Session[];
+  sessions: Session[] = [];
+  dataSource = new MatTableDataSource<Session>();  // Use MatTableDataSource for the table
 
   cantieri: string[] = [];
   plates: string[] = [];
+
+  displayedColumns: string[] = ['comune', 'targa', 'data', 'allestimento', 'GPS', 'antenna', 'sessione'];
+
+  toppings = new FormControl('');
+  toppingList: string[] = ['Extra cheese', 'Mushroom', 'Onion', 'Pepperoni', 'Sausage', 'Tomato'];
+
+  readonly range = new FormGroup({
+    start: new FormControl<Date | null>(null),
+    end: new FormControl<Date | null>(null),
+  });
 
   constructor(
     private sessionApiService: SessionApiService,
@@ -67,57 +65,42 @@ export class BrokenVehiclesPageComponent implements OnDestroy, AfterViewInit{
   }
 
   ngAfterViewInit(): void {
-
+    this.getAllVehiclesLastSession();
   }
-
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
-  displayedColumns: string[] = ['comune', 'targa', 'data', 'allestimento', 'GPS', 'antenna', 'sessione', 'notes'];
-
-
-  toppings = new FormControl('');
-
-  toppingList: string[] = ['Extra cheese', 'Mushroom', 'Onion', 'Pepperoni', 'Sausage', 'Tomato'];
-
-  readonly range = new FormGroup({
-    start: new FormControl<Date | null>(null),
-    end: new FormControl<Date | null>(null),
-  });
-
-
-  filterFormSubmit(){
+  filterFormSubmit() {
     const start_date = this.filterForm.get('range.start')?.value;
     const end_date = this.filterForm.get('range.end')?.value;
 
     if (start_date && end_date) {
-      this.sessionApiService.getAllSessionsRanged(start_date, end_date).pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (sessions: Session[]) => {
-          console.log(`SESSIONI TRA ${start_date} A ${end_date}`);
-          console.log(sessions);
-        },
-        error: error => console.error(error)
-      });
+      this.sessionApiService.getAllSessionsRanged(start_date, end_date)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (sessions: Session[]) => {
+            this.sessions = sessions;
+            this.dataSource.data = this.sessions;
+            console.log(`SESSIONI TRA ${start_date} A ${end_date}`);
+            console.log(this.sessions);
+          },
+          error: error => console.error(error)
+        });
     }
   }
 
-  // //Riempi array di cantieri
-  // fillCantieriArray(){
-  //   this.vehicles.forEach(vehicle => {
-  //     this.cantieri.push();
-  //   });
-  //   this.cd.detectChanges();
-  // }
+  getAllVehiclesLastSession() {
+    this.sessionApiService.getAllVehiclesLastSessions()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((lastSessions: Session[]) => {
+        // Filtra gli elementi nulli
+        this.sessions = lastSessions.filter(id => id !== null);
+        this.dataSource.data = this.sessions;
+        this.cd.detectChanges();
+      });
+  }
 
-  // //Riempi array di targhe
-  // fillPlatesArray(){
-  //   this.vehicles.forEach(vehicle => {
-  //     this.plates.push(vehicle.plate);
-  //   });
-  //   this.cd.detectChanges();
-  // }
 }

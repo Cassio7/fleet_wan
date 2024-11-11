@@ -13,11 +13,20 @@ export class SessionApiService {
     private http: HttpClient
   ) { }
 
-
+  /**
+   * Prende i dati di tutte le sessioni dall'api gestita nel backend
+   * @returns
+   */
   public getAllSessions(): Observable<Session[]>{
     return this.http.get<Session[]>("http://10.1.0.102:3001/sessions");
   }
 
+  /**
+   * Prende i dati di tutte le sessioni che sono avvenute nel range di tempo preso come parametri
+   * @param start_date data di inizio del periodo
+   * @param end_date data di fine del periodo
+   * @returns
+   */
   public getAllSessionsRanged(start_date: Date, end_date: Date) {
     const dateFrom = start_date.toISOString();
     const dateTo = end_date.toISOString();
@@ -38,6 +47,14 @@ export class SessionApiService {
           throw error;
         })
       );
+  }
+
+  /**
+   * Prende l'ultima sessione di ciascun veicolo
+   * @returns
+   */
+  public getAllVehiclesLastSessions(): Observable<Session[]>{
+    return this.http.get<Session[]>(`http://10.1.0.102:3001/session/lastsessions/all`);
   }
 
 

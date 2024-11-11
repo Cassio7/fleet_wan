@@ -37,56 +37,57 @@
 
 
   <div class="table">
-    <table mat-table [dataSource]="sessions" class="mat-elevation-z8">
+    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
 
+      <!-- Comune Column -->
       <ng-container matColumnDef="comune">
-        <div class="comune-col">
-          <th mat-header-cell *matHeaderCellDef>Comune</th>
-          <td mat-cell *matCellDef="let vehicle"> {{vehicle.veId}} </td>
-        </div>
+        <th mat-header-cell *matHeaderCellDef> Comune </th>
+        <td mat-cell *matCellDef="let element"> {{ element.distance }} </td>
       </ng-container>
 
-
+      <!-- Targa Column -->
       <ng-container matColumnDef="targa">
-        <th mat-header-cell *matHeaderCellDef>Targa</th>
-        <td mat-cell *matCellDef="let vehicle"> {{vehicle.plate}} </td>
+        <th mat-header-cell *matHeaderCellDef> Targa </th>
+        <td mat-cell *matCellDef="let element">{{element.history[0].vehicle.plate}}</td>
       </ng-container>
 
-
+      <!-- Data Column -->
       <ng-container matColumnDef="data">
-        <th mat-header-cell *matHeaderCellDef>Data</th>
-        <td mat-cell *matCellDef="let element"> {{element.weight}} </td>
+        <th mat-header-cell *matHeaderCellDef> Data </th>
+        <td mat-cell *matCellDef="let element"> {{ element.period_to | date: 'short' }} </td>
       </ng-container>
 
-
+      <!-- Allestimento Column -->
       <ng-container matColumnDef="allestimento">
-        <th mat-header-cell *matHeaderCellDef>Allestimento</th>
-        <td mat-cell *matCellDef="let element"> {{element.symbol}} </td>
+        <th mat-header-cell *matHeaderCellDef> Allestimento </th>
+        <td mat-cell *matCellDef="let element"> Allestimento </td>
       </ng-container>
 
+      <!-- GPS Column -->
       <ng-container matColumnDef="GPS">
-        <th mat-header-cell *matHeaderCellDef>GPS</th>
-        <td mat-cell *matCellDef="let element"> {{element.symbol}} </td>
+        <th mat-header-cell *matHeaderCellDef> GPS </th>
+        <td mat-cell *matCellDef="let element"> GPS </td>
       </ng-container>
 
+      <!-- Antenna Column -->
       <ng-container matColumnDef="antenna">
-        <th mat-header-cell *matHeaderCellDef>antenna</th>
-        <td mat-cell *matCellDef="let element"> {{element.symbol}} </td>
+        <th mat-header-cell *matHeaderCellDef> Antenna </th>
+        <td mat-cell *matCellDef="let element"> antenna </td>
       </ng-container>
 
+      <!-- Sessione Column -->
       <ng-container matColumnDef="sessione">
-        <th mat-header-cell *matHeaderCellDef>sessione</th>
-        <td mat-cell *matCellDef="let element"> {{element.symbol}} </td>
+        <th mat-header-cell *matHeaderCellDef> Sessione </th>
+        <td mat-cell *matCellDef="let element"> sessione </td>
       </ng-container>
 
-      <ng-container matColumnDef="notes">
-        <th mat-header-cell *matHeaderCellDef>notes</th>
-        <td mat-cell *matCellDef="let element"> {{element.symbol}} </td>
-      </ng-container>
-
+      <!-- Header and Row Definitions -->
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
   </div>
+
+
+
 
 </div>

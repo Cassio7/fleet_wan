@@ -42,6 +42,10 @@ export class VehicleController {
     }
   }  
 
+  /**
+   * Ritorna tutti i veicoli "can", ovvero con l'antenna collegata al contachilometri
+   * @param res 
+   */
   @Get("can")
   async getCanVehicles(@Res() res: Response){
     try{
@@ -52,6 +56,10 @@ export class VehicleController {
     }
   }
 
+  /**
+ * Ritorna tutti i veicoli non "can", ovvero con l'antenna non collegata al contachilometri
+ * @param res 
+  */
   @Get("nocan")
   async getNonCanVehicles(@Res() res: Response){
     try{
