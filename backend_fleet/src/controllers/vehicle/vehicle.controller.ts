@@ -28,6 +28,40 @@ export class VehicleController {
     }
   }
 
+  /**
+   * Ritorna tutti i veicoli dove l'RFID reader non è stato montato
+   * @param res 
+   */
+  @Get('noreader')
+  async getVehiclesWithNoReader(@Res() res: Response){
+    try {
+      const vehicles = await this.vehicleService.getVehiclesWithNoReader();
+      res.status(200).json(vehicles);
+    } catch(error) {
+      res.status(500).send("Errore durante il recupero dei veicoli");
+    }
+  }  
+
+  @Get("can")
+  async getCanVehicles(@Res() res: Response){
+    try{
+      const vehicles = await this.vehicleService.getCanVehicles();
+      vehicles.length > 0 ? res.status(200).send(vehicles) : res.status(404).send("Nessun veicolo 'can' trovato.");
+    }catch(error){
+      res.status(500).send("Errore durante il recupero dei veicoli");
+    }
+  }
+
+  @Get("nocan")
+  async getNonCanVehicles(@Res() res: Response){
+    try{
+      const vehicles = await this.vehicleService.getNonCanVehicles();
+      vehicles.length > 0 ? res.status(200).send(vehicles) : res.status(404).send("Nessun veicolo non 'can' trovato.");
+    }catch(error){
+      res.status(500).send("Errore durante il recupero dei veicoli");
+    }
+  }
+
   @Get('/:id')
   async getVehicleById(@Res() res: Response, @Param() params: any) {
     try {

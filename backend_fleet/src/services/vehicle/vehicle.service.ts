@@ -445,6 +445,45 @@ export class VehicleService {
     });
     return vehicle;
   }
+
+  /**
+   * Ritorna tutti i veicoli "can", ovvero con l'antenna collegata al contachilometri
+   * @returns
+   */
+  async getCanVehicles(): Promise<any>{
+    const vehicles = await this.vehicleRepository.find({
+      where: {
+        isCan: true
+      },
+      relations: {
+        device: true
+      },
+      order:{
+        id: 'ASC'
+      }
+    });
+    return vehicles;
+  }
+
+  /**
+   * Ritorna tutti i veicoli non "can", ovverocon l'antenna non collegata al contachilometri
+   * @returns
+   */
+  async getNonCanVehicles(): Promise<any>{
+    const vehicles = await this.vehicleRepository.find({
+      where: {
+        isCan: false
+      },
+      relations: {
+        device: true
+      },
+      order:{
+        id: 'ASC'
+      }
+    });
+    return vehicles;
+  }
+
   /**
    * Recupera tutti i veicoli che sono RFID Reader in ordine
    * @returns
@@ -458,6 +497,25 @@ export class VehicleService {
       order: {
         id: 'ASC',
       },
+    });
+    return vehicles;
+  }
+
+  /**
+   * Recupera tutti i veicoli nei quali l'RFID reader è mancante
+   * @returns 
+   */
+  async getVehiclesWithNoReader(): Promise<any>{
+    const vehicles = await this.vehicleRepository.find({
+      where: {
+        isRFIDReader: false
+      },
+      relations: {
+        device: true
+      },
+      order: {
+        id: 'ASC'
+      }
     });
     return vehicles;
   }
