@@ -34,6 +34,10 @@ import { RealtimeController } from './controllers/realtime/realtime.controller';
 import { SessionController } from './controllers/session/session.controller';
 import { TagController } from './controllers/tag/tag.controller';
 import { UserFactoryService } from './factory/user.factory';
+import { JwtModule } from '@nestjs/jwt';
+import { AuthService } from './services/auth/auth.service';
+import { UserService } from './services/user/user.service';
+import { AuthController } from './controllers/auth/auth.controller';
 
 @Global()
 @Module({
@@ -90,6 +94,14 @@ import { UserFactoryService } from './factory/user.factory';
       ],
       'mainConnection',
     ),
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('SECRET_TOKEN'),
+        signOptions: { expiresIn: '1h' },
+      }),
+    }),
   ],
 
   controllers: [
@@ -99,6 +111,7 @@ import { UserFactoryService } from './factory/user.factory';
     RealtimeController,
     SessionController,
     TagController,
+    AuthController,
   ],
   providers: [
     AppService,
@@ -108,6 +121,8 @@ import { UserFactoryService } from './factory/user.factory';
     SessionService,
     TagService,
     UserFactoryService,
+    AuthService,
+    UserService,
   ],
 })
 export class AppModule {}
