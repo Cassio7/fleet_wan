@@ -27,6 +27,7 @@
     "@nestjs/schedule": "^4.1.1",
     "@nestjs/typeorm": "^10.0.2",
     "axios": "^1.7.7",
+    "bcrypt": "^5.1.1",
     "dotenv": "^16.4.5",
     "pg": "^8.13.0",
     "reflect-metadata": "^0.2.0",
