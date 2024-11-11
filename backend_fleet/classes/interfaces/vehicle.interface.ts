@@ -17,7 +17,7 @@ export interface VehicleInterface extends CommonInterface {
   profileId: number;
   profileName: string;
   device: DeviceInterface;
-  //note: string;
+  note: string;
   hash: string;
   realtime_position: RealtimePositionInterface[];
   history: HistoryInterface[];

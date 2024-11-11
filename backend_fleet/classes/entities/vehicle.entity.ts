@@ -24,7 +24,7 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
   active: boolean;
 
   @Column({ type: 'varchar', length: 20 })
-  //@Index()
+  @Index()
   plate: string;
 
   @Column({ type: 'varchar', length: 50 })
@@ -56,8 +56,8 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
   @Index()
   hash: string;
 
-  // @Column({ type: 'varchar', nullable: true })
-  // note: string;
+  @Column({ type: 'varchar', nullable: true })
+  note: string;
 
   @OneToOne(() => DeviceEntity)
   @JoinColumn({ name: 'device_id' })
