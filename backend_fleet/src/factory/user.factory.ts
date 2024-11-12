@@ -24,22 +24,41 @@ export class UserFactoryService {
     return this.userRepository.save(user);
   }
 
-  async createDefaultRole(): Promise<RoleEntity> {
-    const role = new RoleEntity();
-    role.name = 'Admin';
-    role.description = 'Administrator of application, all CRUD operations';
-    return this.roleRepository.save(role);
+  async createDefaultRoles(): Promise<RoleEntity[]> {
+    const roles = [
+      {
+        name: 'Admin',
+        description: 'Administrator of application, all CRUD operations',
+      },
+      { name: 'User', description: 'Basic user with only reading access' },
+    ];
+    const roleEntities = roles.map((roleData) => {
+      const role = new RoleEntity();
+      role.name = roleData.name;
+      role.description = roleData.description;
+      return role;
+    });
+    return this.roleRepository.save(roleEntities);
   }
 
-  async createDefaultUserRole(): Promise<UserRoleEntity> {
-    const user_role = new UserRoleEntity();
-    let user = await this.userRepository.findOne({
+  async createDefaultUserRoles(): Promise<UserRoleEntity[]> {
+    const user = await this.userRepository.findOne({
       where: { username: 'Kevin' },
     });
-    let role = await this.roleRepository.findOne({ where: { name: 'Admin' } });
-    user_role.user = user;
-    user_role.role = role;
 
-    return this.userRoleRepository.save(user_role);
+    if (!user) throw new Error('User "Kevin" not found');
+
+    const roles = await this.roleRepository.find({
+      where: [{ name: 'Admin' }, { name: 'User' }],
+    });
+
+    const userRoles = roles.map((role) => {
+      const userRole = new UserRoleEntity();
+      userRole.user = user;
+      userRole.role = role;
+      return userRole;
+    });
+
+    return this.userRoleRepository.save(userRoles);
   }
 }
