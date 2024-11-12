@@ -4,7 +4,7 @@ import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} fr
 import { MatButtonModule } from '@angular/material/button';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -24,7 +24,7 @@ import { RouterModule } from '@angular/router';
 export class LoginComponent {
   loginForm!: FormGroup;
 
-  constructor() {
+  constructor(private router: Router) {
     this.loginForm = new FormGroup({
       usernameOremail: new FormControl('', [Validators.required, Validators.maxLength(12)]), // aggiungi il controllo username
       password: new FormControl('', [Validators.required]) // aggiungi il controllo password
@@ -32,6 +32,6 @@ export class LoginComponent {
   }
 
   login(){
-
+    this.router.navigate(['dashboard']);
   }
 }

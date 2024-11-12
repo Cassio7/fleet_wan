@@ -50,6 +50,14 @@ export class SessionApiService {
   }
 
   /**
+   * Prende le sessioni avvenute oggi (+ commento con modifica da apportare a prodotto completo)
+   * @returns
+   */
+  public getTodaySessions(){
+    return this.getAllSessionsRanged(new Date('2024-10-31'), new Date('2024-11-01')); //da cambiare a data attuale
+  }
+
+  /**
    * Prende l'ultima sessione di ciascun veicolo
    * @returns
    */

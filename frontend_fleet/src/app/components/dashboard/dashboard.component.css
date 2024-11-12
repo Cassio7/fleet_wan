@@ -3,6 +3,7 @@
   height: 100%;
 }
 
+/*sidebar css*/
 .sidebar{
   padding: 20px;
   width: 20%;
@@ -22,15 +23,6 @@
 hr{
   width: 100%;
 }
-
-/* page css */
-.drawer-content {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-}
-
 .main-actions {
   margin-top: 20px;
   width: 100%;
@@ -58,8 +50,37 @@ hr{
   text-align: flex-start;
 }
 
-/* Ensure mat-drawer does not overflow and takes full height */
 mat-drawer {
-  height: 100vh; /* Set the drawer height to the full viewport height */
-  overflow: hidden; /* Prevent overflow */
+  height: 100vh;
+  overflow: hidden;
 }
+
+/* page css */
+
+.drawer-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.table {
+  width: 60%;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+th.mat-header-cell, td.mat-cell {
+  text-align: center;
+}
+
+.warning-icon{
+  color: rgb(255, 208, 0);
+}
+.error-icon{
+  color: red;
+}
+.check-icon{
+  color: rgb(3, 184, 3);
+}
+

@@ -130,14 +130,16 @@ export class SessionController {
     if (isNaN(dateFrom_new.getTime()) || isNaN(dateTo_new.getTime())) {
       return res.status(400).send('Formato della data non valido.');
     }
-    
+
     const data = await this.sessionService.getSessionInTimeRange(
       dateFrom_new,
       dateTo_new,
     );
     if (data.length > 0) {
       res.status(200).send(data);
-    } else res.status(200).send(`No Session per id:`);
+    } else{
+      res.status(200).send(`No Session per id:`);
+    } 
   }
 
   /**
