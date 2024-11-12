@@ -18,15 +18,15 @@ export class AppService implements OnModuleInit {
 
   // popolo database all'avvio
   async onModuleInit() {
-    // await this.userFactoryService.createDefaultUser();
-    // await this.userFactoryService.createDefaultRole();
-    // await this.userFactoryService.createDefaultUserRole();
+    //await this.userFactoryService.createDefaultUser();
+    //await this.userFactoryService.createDefaultRoles();
+    //await this.userFactoryService.createDefaultUserRoles();
     //await this.putDbData();
     //await this.putDbData5min();
   }
 
   async putDbData() {
-    const startDate = '2024-11-09T00:00:00.000Z';
+    const startDate = '2024-11-12T00:00:00.000Z';
     //const endDate = '2024-10-31T00:00:00.000Z';
     const endDate = new Date().toISOString();
     await this.groupService.getGroupList();
