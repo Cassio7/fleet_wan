@@ -1,11 +1,17 @@
-import { Body, Controller, Get, Param, Post, Res } from '@nestjs/common';
+import { Controller, Get, Param, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
+import { AuthGuard } from 'src/guard/auth.guard';
 import { VehicleService } from 'src/services/vehicle/vehicle.service';
 
 @Controller('vehicles')
 export class VehicleController {
   constructor(private readonly vehicleService: VehicleService) {}
 
+  /**
+   * Recupera tutti i veicoli listati
+   * @param res
+   */
+  //@UseGuards(AuthGuard)
   @Get()
   async getAllVehicles(@Res() res: Response) {
     try {
@@ -17,6 +23,10 @@ export class VehicleController {
     }
   }
 
+  /**
+   * Ritorna tutti i veicoli dove l'RFID reader è stato montato
+   * @param res
+   */
   @Get('reader')
   async getVehiclesByReader(@Res() res: Response) {
     try {
@@ -29,44 +39,48 @@ export class VehicleController {
   }
 
   /**
-   * Ritorna tutti i veicoli dove l'RFID reader non è stato montato
-   * @param res 
+   * Ritorna tutti i veicoli dove l'RFID reader NON è stato montato
+   * @param res
    */
   @Get('noreader')
-  async getVehiclesWithNoReader(@Res() res: Response){
+  async getVehiclesWithNoReader(@Res() res: Response) {
     try {
       const vehicles = await this.vehicleService.getVehiclesWithNoReader();
       res.status(200).json(vehicles);
-    } catch(error) {
-      res.status(500).send("Errore durante il recupero dei veicoli");
-    }
-  }  
-
-  /**
-   * Ritorna tutti i veicoli "can", ovvero con l'antenna collegata al contachilometri
-   * @param res 
-   */
-  @Get("can")
-  async getCanVehicles(@Res() res: Response){
-    try{
-      const vehicles = await this.vehicleService.getCanVehicles();
-      vehicles.length > 0 ? res.status(200).send(vehicles) : res.status(404).send("Nessun veicolo 'can' trovato.");
-    }catch(error){
-      res.status(500).send("Errore durante il recupero dei veicoli");
+    } catch (error) {
+      res.status(500).send('Errore durante il recupero dei veicoli');
     }
   }
 
   /**
- * Ritorna tutti i veicoli non "can", ovvero con l'antenna non collegata al contachilometri
- * @param res 
-  */
-  @Get("nocan")
-  async getNonCanVehicles(@Res() res: Response){
-    try{
+   * Ritorna tutti i veicoli "can", ovvero con l'antenna collegata al contachilometri
+   * @param res
+   */
+  @Get('can')
+  async getCanVehicles(@Res() res: Response) {
+    try {
+      const vehicles = await this.vehicleService.getCanVehicles();
+      vehicles.length > 0
+        ? res.status(200).send(vehicles)
+        : res.status(404).send("Nessun veicolo 'can' trovato.");
+    } catch (error) {
+      res.status(500).send('Errore durante il recupero dei veicoli');
+    }
+  }
+
+  /**
+   * Ritorna tutti i veicoli non "can", ovvero con l'antenna non collegata al contachilometri
+   * @param res
+   */
+  @Get('nocan')
+  async getNonCanVehicles(@Res() res: Response) {
+    try {
       const vehicles = await this.vehicleService.getNonCanVehicles();
-      vehicles.length > 0 ? res.status(200).send(vehicles) : res.status(404).send("Nessun veicolo non 'can' trovato.");
-    }catch(error){
-      res.status(500).send("Errore durante il recupero dei veicoli");
+      vehicles.length > 0
+        ? res.status(200).send(vehicles)
+        : res.status(404).send("Nessun veicolo non 'can' trovato.");
+    } catch (error) {
+      res.status(500).send('Errore durante il recupero dei veicoli');
     }
   }
 
@@ -115,20 +129,21 @@ export class VehicleController {
   }
 
   /**
-   * API che restituisce il veicolo che ha la targa presa in input 
-   * @param res 
+   * API che restituisce il veicolo che ha la targa presa in input
+   * @param res
    * @param params plate number
    */
-  @Get("fetchplate/:plate")
+  @Get('fetchplate/:plate')
   async getVehicleByPlate(@Res() res: Response, @Param() params: any) {
     const plateNumber = params.plate;
     const vehicle = await this.vehicleService.getVehicleByPlate(plateNumber);
 
-    if(vehicle){
+    if (vehicle) {
       res.status(200).send(vehicle);
-    }else{
-      res.status(404).send(`Vehicle with plate number: ${plateNumber} not found.`)
+    } else {
+      res
+        .status(404)
+        .send(`Vehicle with plate number: ${plateNumber} not found.`);
     }
   }
-  
 }
