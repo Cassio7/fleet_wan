@@ -99,7 +99,7 @@ import { AuthController } from './controllers/auth/auth.controller';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('SECRET_TOKEN'),
-        signOptions: { expiresIn: '1h' },
+        signOptions: { expiresIn: '10h' },
       }),
     }),
   ],
