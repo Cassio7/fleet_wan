@@ -1,18 +1,20 @@
-<div class="cards-container">
-  <!-- working vehicles card -->
-  <mat-card class="workingVehicles-card" appearance="outlined" (click)="workingCardClick()">
-    <mat-card-header class="working-card-header">
-      <div mat-card-avatar class="logo"></div>
-      <mat-card-title class="working-card-title">Working vehicles</mat-card-title>
-    </mat-card-header>
-    <img mat-card-image class="workingVehicle-img">
-  </mat-card>
-  <!-- broken vehicles card -->
-  <mat-card class="brokenVehicles-card" appearance="outlined" (click)="brokenCardClick()">
-    <mat-card-header>
-      <div mat-card-avatar class="logo"></div>
-      <mat-card-title class="broken-card-title">Broken vehicles</mat-card-title>
-    </mat-card-header>
-    <img mat-card-image class="brokenVehicle-img">
-  </mat-card>
-</div>
+<mat-drawer-container class="drawer-container" autosize>
+
+  <app-navbar></app-navbar>
+  <mat-drawer #drawer class="sidebar" mode="side">
+    <div class="drawer-content">
+      <img class="sidebar-logo" src="assets/logo.png" alt="">
+      <hr>
+      <div class="main-actions">
+        <button mat-raised-button class="dashboard-btn button"><mat-icon>dashboard</mat-icon>Dashboard</button>
+        <button mat-raised-button class="mezzi-btn button"><mat-icon>local_shipping</mat-icon>Mezzi</button>
+        <button mat-raised-button class="dettaglio-mezzi-btn button"><mat-icon>search</mat-icon><mat-icon>local_shipping</mat-icon>Dettaglio mezzi</button>
+      </div>
+      <div class="settings">
+        <button mat-raised-button class="gestione-btn button"><mat-icon>manage_accounts</mat-icon>Gestione utente</button>
+        <button mat-raised-button class="settings-btn button"><mat-icon>settings</mat-icon>Impostazioni</button>
+      </div>
+    </div>
+  </mat-drawer>
+
+</mat-drawer-container>

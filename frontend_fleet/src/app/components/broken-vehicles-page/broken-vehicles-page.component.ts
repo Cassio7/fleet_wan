@@ -1,4 +1,5 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
+import { DetectionTag } from './../../models/DetectionTag';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Subject } from 'rxjs';
@@ -11,6 +12,7 @@ import { MatDatepickerModule, MatDateRangePicker } from '@angular/material/datep
 import { DateAdapter, MatNativeDateModule } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-broken-vehicles-page',
@@ -21,6 +23,7 @@ import { MatInputModule } from '@angular/material/input';
     MatInputModule,
     MatSelectModule,
     MatTableModule,
+    MatIconModule,
     MatNativeDateModule,
     MatDatepickerModule
   ],
@@ -28,17 +31,21 @@ import { MatInputModule } from '@angular/material/input';
   templateUrl: './broken-vehicles-page.component.html',
   styleUrls: ['./broken-vehicles-page.component.css']
 })
-export class BrokenVehiclesPageComponent implements OnDestroy, AfterViewInit {
+export class BrokenVehiclesPageComponent implements OnDestroy, OnInit {
   private readonly destroy$: Subject<void> = new Subject<void>();
 
   filterForm!: FormGroup;
   startDate!: Date;
   endDate!: Date;
-  sessions: Session[] = [];
+  gpsError: boolean = false;
+
   dataSource = new MatTableDataSource<Session>();  // Use MatTableDataSource for the table
 
+  sessions: Session[] = [];
   cantieri: string[] = [];
   plates: string[] = [];
+
+
 
   displayedColumns: string[] = ['comune', 'targa', 'data', 'allestimento', 'GPS', 'antenna', 'sessione'];
 
@@ -64,7 +71,7 @@ export class BrokenVehiclesPageComponent implements OnDestroy, AfterViewInit {
     });
   }
 
-  ngAfterViewInit(): void {
+  ngOnInit(): void {
     this.getAllVehiclesLastSession();
   }
 
@@ -73,6 +80,9 @@ export class BrokenVehiclesPageComponent implements OnDestroy, AfterViewInit {
     this.destroy$.complete();
   }
 
+  /**
+   * Recupera
+   */
   filterFormSubmit() {
     const start_date = this.filterForm.get('range.start')?.value;
     const end_date = this.filterForm.get('range.end')?.value;
@@ -84,20 +94,21 @@ export class BrokenVehiclesPageComponent implements OnDestroy, AfterViewInit {
           next: (sessions: Session[]) => {
             this.sessions = sessions;
             this.dataSource.data = this.sessions;
-            console.log(`SESSIONI TRA ${start_date} A ${end_date}`);
-            console.log(this.sessions);
+            this.cd.detectChanges();
           },
           error: error => console.error(error)
         });
     }
   }
 
+  /**
+   * Prende l'ultima sessione di ogni veicolo
+   */
   getAllVehiclesLastSession() {
     this.sessionApiService.getAllVehiclesLastSessions()
       .pipe(takeUntil(this.destroy$))
       .subscribe((lastSessions: Session[]) => {
-        // Filtra gli elementi nulli
-        this.sessions = lastSessions.filter(id => id !== null);
+        this.sessions = lastSessions.filter(session => session !== null && session.sequence_id !== 0); // Filtra gli elementi nulli e le sessioni attive
         this.dataSource.data = this.sessions;
         this.cd.detectChanges();
       });

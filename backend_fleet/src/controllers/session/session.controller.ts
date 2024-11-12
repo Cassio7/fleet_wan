@@ -118,12 +118,11 @@ export class SessionController {
   async getAllSessionRanged(@Res() res: Response, @Body() body: any) {
     const dateFrom = body.dateFrom;
     const dateTo = body.dateTo;
-    // Controlla se dateFrom e dateTo sono forniti
+    // Controlla se dateFrom e dateTo esistono
     if (!dateFrom || !dateTo) {
       return res.status(400).send('Date non fornite.');
     }
 
-    // Crea un oggetto Date dalla stringa fornita
     const dateFrom_new = new Date(dateFrom);
     const dateTo_new = new Date(dateTo);
 
@@ -131,14 +130,7 @@ export class SessionController {
     if (isNaN(dateFrom_new.getTime()) || isNaN(dateTo_new.getTime())) {
       return res.status(400).send('Formato della data non valido.');
     }
-    if (dateFrom_new.getTime() >= dateTo_new.getTime()) {
-      // Restituisci un errore se la condizione è vera
-      return res
-        .status(400)
-        .send(
-          'La data iniziale deve essere indietro di almeno 1 giorno dalla finale',
-        );
-    }
+    
     const data = await this.sessionService.getSessionInTimeRange(
       dateFrom_new,
       dateTo_new,

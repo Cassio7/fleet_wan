@@ -40,10 +40,14 @@
     <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
 
       <!-- Comune Column -->
+
       <ng-container matColumnDef="comune">
-        <th mat-header-cell *matHeaderCellDef> Comune </th>
-        <td mat-cell *matCellDef="let element"> {{ element.distance }} </td>
+        <div class="comune-col">
+          <th mat-header-cell *matHeaderCellDef> Comune <button mat-button class="arrow-btn"><mat-icon class="arrow-icon">arrow_upward</mat-icon></button> <button class="arrow-btn" mat-button><mat-icon class="arrow-icon">arrow_downward</mat-icon></button></th>
+          <td mat-cell *matCellDef="let element"> {{ element.sequence_id }} </td>
+        </div>
       </ng-container>
+
 
       <!-- Targa Column -->
       <ng-container matColumnDef="targa">
@@ -54,19 +58,19 @@
       <!-- Data Column -->
       <ng-container matColumnDef="data">
         <th mat-header-cell *matHeaderCellDef> Data </th>
-        <td mat-cell *matCellDef="let element"> {{ element.period_to | date: 'short' }} </td>
+        <td mat-cell *matCellDef="let element" class="data-cell"> {{ element.period_to | date: 'short' }} </td>
       </ng-container>
 
       <!-- Allestimento Column -->
       <ng-container matColumnDef="allestimento">
-        <th mat-header-cell *matHeaderCellDef> Allestimento </th>
-        <td mat-cell *matCellDef="let element"> Allestimento </td>
+        <th mat-header-cell *matHeaderCellDef> Allestimento</th>
+        <td mat-cell *matCellDef="let element"> Allestimento</td>
       </ng-container>
 
       <!-- GPS Column -->
       <ng-container matColumnDef="GPS">
         <th mat-header-cell *matHeaderCellDef> GPS </th>
-        <td mat-cell *matCellDef="let element"> GPS </td>
+        <td mat-cell *matCellDef="let element"> GPS <mat-icon class="error-icon" *ngIf="!gpsError">error</mat-icon> </td>
       </ng-container>
 
       <!-- Antenna Column -->

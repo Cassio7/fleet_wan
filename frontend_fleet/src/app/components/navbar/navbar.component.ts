@@ -4,6 +4,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterModule } from '@angular/router';
+import { Subject } from 'rxjs';
+import { CommonService } from '../../services/common service/common.service';
 
 @Component({
   selector: 'app-navbar',
@@ -21,4 +23,9 @@ import { RouterModule } from '@angular/router';
 })
 export class NavbarComponent {
 
+  constructor(private commonService: CommonService){}
+
+  notifySidebar(){
+    this.commonService.notifySidebar$.next();
+  }
 }

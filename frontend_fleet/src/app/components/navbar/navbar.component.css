@@ -9,11 +9,12 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
+
 .logo {
   height: 50px;
   width: 50px;
   border-radius: 50%;
-  background-image: url("/assets/logo-gesenu.jpg");
+  background-image: url("/assets/logo-noname.png");
   background-size: cover;
 }
 
