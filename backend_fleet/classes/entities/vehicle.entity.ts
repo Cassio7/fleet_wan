@@ -59,6 +59,9 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
   @Column({ type: 'varchar', nullable: true })
   note: string;
 
+  // @Column({ type: 'timestamptz', nullable: true })
+  // retiredEvent: Date;
+
   @OneToOne(() => DeviceEntity)
   @JoinColumn({ name: 'device_id' })
   @Index()
