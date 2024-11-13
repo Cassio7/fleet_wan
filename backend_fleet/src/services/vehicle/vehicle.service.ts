@@ -6,7 +6,7 @@ import { GroupEntity } from 'classes/entities/group.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { VehicleGroupEntity } from 'classes/entities/vehicle_group.entity';
 import { createHash } from 'crypto';
-import { convertHours } from 'src/utils/hoursFix';
+import { convertHours } from 'src/utils/utils';
 import { DataSource, In, Repository } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
 

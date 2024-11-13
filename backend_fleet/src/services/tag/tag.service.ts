@@ -7,7 +7,7 @@ import { TagHistoryEntity } from 'classes/entities/tag_history.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { createHash } from 'crypto';
 import { timestamp } from 'rxjs';
-import { convertHours } from 'src/utils/hoursFix';
+import { convertHours } from 'src/utils/utils';
 import {
   DataSource,
   In,
