@@ -137,6 +137,7 @@ export class DashboardComponent implements AfterViewInit, OnDestroy{
         this.sessions = sessions;
         //Inserire nella tabella soltanto i dati dei veicoli
         this.sessions.forEach(session => {
+          console.log("RUNNING...");
           if(!this.vehicleIds.includes(session.history[0].vehicle.veId) && !this.vehicleTableData.data.includes(session)){
             this.vehicleIds.push(session.history[0].vehicle.veId);
             this.vehicleTableData.data.push(session);

@@ -3,33 +3,34 @@
   height: 100%;
 }
 
-/*sidebar css*/
-.sidebar{
-  padding: 20px;
-  width: 20%;
+/* Sidebar CSS */
+.sidebar {
+  padding: clamp(10px, 2vw, 20px);
+  width: clamp(15%, 20vw, 20%);
   background-color: rgb(0, 201, 77);
 }
 
-.drawer-content{
+.drawer-content {
   height: 100%;
   width: 100%;
 }
 
-.sidebar-logo{
-  width: 70%;
-  padding: 5px;
+.sidebar-logo {
+  width: clamp(50%, 70%, 70%);
+  padding: clamp(2px, 1vw, 5px);
 }
 
-hr{
+hr {
   width: 100%;
 }
+
 .main-actions {
-  margin-top: 20px;
+  margin-top: clamp(10px, 2vh, 20px);
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 10px;
+  gap: clamp(5px, 1vh, 10px);
 }
 
 .settings {
@@ -39,14 +40,14 @@ hr{
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-end;
-  gap: 10px;
+  gap: clamp(5px, 1vh, 10px);
   flex-grow: 1;
   overflow: hidden;
 }
 
 .button {
   color: rgb(0, 0, 0) !important;
-  font-size: 20px;
+  font-size: clamp(16px, 2vw, 20px);
   text-align: flex-start;
 }
 
@@ -55,17 +56,20 @@ mat-drawer {
   overflow: hidden;
 }
 
-/* page css */
+/* Page CSS */
 
 .content {
   width: 100%;
   height: 100%;
   display: grid;
-  padding: 50px;
-  grid-template-columns: 50% 50%;
+  padding: clamp(0.5%, 1vw, 1%);
+  grid-template-columns: clamp(30%, 40%, 40%) clamp(50%, 60%, 60%);
   grid-template-rows: auto;
-  grid-gap: 10px;
+  grid-gap: clamp(5px, 1vw, 10px);
+  max-width: 100%; /* Limita la larghezza del contenitore */
+  box-sizing: border-box; /* Considera il padding nel calcolo della larghezza totale */
 }
+
 
 .drawer-content {
   display: flex;
@@ -74,67 +78,88 @@ mat-drawer {
   overflow: hidden;
 }
 
-.filter-container{
-  padding-top: 4%;
-  padding-left: 3%;
-}
-
-.table {
-  width: 100%;
-  height: 100vh;
-  overflow-y: auto;
-  display: block;
-}
-.table-el{
-  border: 1px solid black;
-}
-
-th.mat-header-cell, td.mat-cell {
-  text-align: center;
-}
-
-.warning-icon{
+.warning-icon {
   color: rgb(255, 208, 0);
 }
-.error-icon{
+
+.error-icon {
   color: red;
 }
-.check-icon{
+
+.check-icon {
   color: rgb(3, 184, 3);
 }
 
-.second-column{
+/* first column css */
+.first-column {
   width: 100%;
-}
-
-.graphs{
+  height: 100vh;
   display: flex;
+  flex-direction: column;
 }
 
-.error-graph{
+.filter-container {
+  flex-grow: 1;
+}
+
+.table-container {
   width: 100%;
-  height: 100%;
-  margin: 0px;
-  padding: 0px;
-  float: left;
+  overflow-y: auto;
+  flex-grow: 9;
 }
-::ng-deep app-error-graph{
-  width: 800px;
+
+th, td, tr {
+  text-align: center;
+  border: 1px solid black;
 }
-.blackbox-graph {
+
+/* second column css */
+.second-column {
   width: 100%;
-  height: 100%;
-  margin: 0px;
-  padding: 0px;
-  margin-right: 10%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(5vh, 10vh, 10vh);
 }
-::ng-deep app-blackbox-graph{
-  width: 800px;
-}
-.map{
+
+.map {
   width: 100%;
   height: 33.3%;
   background-image: url('https://developers.google.com/static/maps/images/landing/hero_maps_static_api.png');
   background-size: cover;
-  margin-top: 20px;
+  flex-grow: 5;
+  border: 1px solid black;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+
+.graphs {
+  display: flex;
+  gap: 20px;
+  flex-grow: 5;
+}
+
+.error-graph {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  float: left;
+}
+
+::ng-deep app-error-graph {
+  width: clamp(400px, 50vw, 800px);
+}
+
+.blackbox-graph {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  margin-right: clamp(5%, 10vw, 10%);
+}
+
+::ng-deep app-blackbox-graph {
+  width: clamp(400px, 50vw, 800px);
 }
