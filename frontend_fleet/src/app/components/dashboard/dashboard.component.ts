@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
-import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
+import { ChangeDetectorRef, Component, inject, ViewChild } from '@angular/core';
+import { ReactiveFormsModule, FormGroup, FormControl, FormBuilder } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatNativeDateModule } from '@angular/material/core';
@@ -18,6 +18,7 @@ import { CommonService } from '../../services/common service/common.service';
 import { SessionApiService } from '../../services/session service/session-api.service';
 import { VehiclesApiService } from '../../services/vehicles service/vehicles-api.service';
 import { NavbarComponent } from '../navbar/navbar.component';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-dashboard',
@@ -37,6 +38,7 @@ import { NavbarComponent } from '../navbar/navbar.component';
     MatIconModule,
     MatNativeDateModule,
     MatDatepickerModule,
+    MatCheckboxModule,
     RouterModule
   ],
   templateUrl: './dashboard.component.html',
@@ -50,15 +52,21 @@ export class DashboardComponent {
   filterForm!: FormGroup;
   startDate!: Date;
   endDate!: Date;
+
   gpsError: boolean = false;
+  antennaError: boolean = false;
+  sessionError: boolean = false;
 
   vehicleTableData = new MatTableDataSource<Session>();  // Use MatTableDataSource for the table
+  private readonly _formBuilder = inject(FormBuilder);
 
   sessions: Session[] = [];
-  cantieri: string[] = [];
-  plates: string[] = [];
 
-
+  readonly cantieri = this._formBuilder.group({
+    Bastia: false,
+    Todi: false,
+    Torgiano: false,
+  });
 
   displayedColumns: string[] = ['comune', 'targa', 'GPS', 'antenna', 'sessione'];
 
@@ -105,6 +113,7 @@ export class DashboardComponent {
     .subscribe({
       next: (sessions: Session[]) => {
         this.sessions = sessions;
+        //aggiungere proprietà a session.history.vehicle per errori (così da poter controllare questi in html)
         this.vehicleTableData.data = this.sessions;
         this.cd.detectChanges();
       }

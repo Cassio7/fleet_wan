@@ -57,6 +57,16 @@ mat-drawer {
 
 /* page css */
 
+.content {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  padding: 50px;
+  grid-template-columns: 65% 35%;
+  grid-template-rows: auto;
+  grid-gap: 10px;
+}
+
 .drawer-content {
   display: flex;
   flex-direction: column;
@@ -64,10 +74,22 @@ mat-drawer {
   overflow: hidden;
 }
 
+.filters{
+  padding-top: 4%;
+  padding-left: 3%;
+}
+.cantieri-section{
+  display: flex;
+}
+
 .table {
-  width: 60%;
-  max-height: 60vh;
+  width: 100%;
+  height: 100vh;
   overflow-y: auto;
+  display: block;
+}
+.table-el{
+  border: 1px solid black;
 }
 
 th.mat-header-cell, td.mat-cell {
@@ -84,3 +106,14 @@ th.mat-header-cell, td.mat-cell {
   color: rgb(3, 184, 3);
 }
 
+.second-column{
+  width: 100%;
+}
+
+
+.error-graph, .blackbox-graph, .map{
+  width: 100%;
+  height: 33.3%;
+  background-color: lightblue;
+  margin-top: 20px;
+}

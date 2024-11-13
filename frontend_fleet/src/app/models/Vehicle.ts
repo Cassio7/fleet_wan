@@ -21,6 +21,7 @@ export class Vehicle {
     public realtime_position: RealtimePosition[],
     public history: History[],
     public taghistory: TagHistory[],
-    public vehicle_group: VehicleGroup[]
+    public vehicle_group: VehicleGroup[],
+    public gpsError: boolean
   ) {}
 }

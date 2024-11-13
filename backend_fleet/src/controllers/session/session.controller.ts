@@ -309,6 +309,7 @@ export class SessionController {
     res.status(200).send({ message: 'OK' });
   }
 
+
   /**
    * Controllo sessioni registrate per funzionamento effettivo GPS, lat e log deve differire e la distanza deve essere variabile
    * @param res
