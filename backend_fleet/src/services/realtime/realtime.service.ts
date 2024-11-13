@@ -6,7 +6,7 @@ import { RealtimePositionEntity } from 'classes/entities/realtime_position.entit
 import { parseStringPromise } from 'xml2js';
 import { createHash } from 'crypto';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
-import { convertHours } from 'src/utils/hoursFix';
+import { convertHours } from 'src/utils/utils';
 
 @Injectable()
 export class RealtimeService {
