@@ -20,3 +20,14 @@ export function convertHours(timestamp: string): string {
 
   return updatedTimestamp;
 }
+
+export function getDaysInRange(startDate, endDate) {
+  let currentDate = new Date(startDate);
+  const dates = [];
+
+  while (currentDate <= endDate) {
+    dates.push(new Date(currentDate));
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+  return dates;
+}
