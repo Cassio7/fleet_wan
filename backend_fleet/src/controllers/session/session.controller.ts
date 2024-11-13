@@ -460,7 +460,7 @@ export class SessionController {
           coordinates: coordinates,
         });
       } else {
-        res.status(200).send('Il GPS non presenta anomalie');
+        res.status(200).send(true);
       }
     } else if (datas.length === 1) {
       res
