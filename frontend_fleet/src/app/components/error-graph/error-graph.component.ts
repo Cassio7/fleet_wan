@@ -1,3 +1,4 @@
+import { MatCardModule } from '@angular/material/card';
 import { Component, ViewChild, ViewEncapsulation } from '@angular/core';
 import { ApexChart, ApexNonAxisChartSeries, ApexResponsive, ChartComponent, NgApexchartsModule } from "ng-apexcharts";
 
@@ -14,7 +15,8 @@ export type ChartOptions = {
   selector: 'app-error-graph',
   standalone: true,
   imports: [
-    NgApexchartsModule
+    NgApexchartsModule,
+    MatCardModule
   ],
   templateUrl: './error-graph.component.html',
   styleUrl: './error-graph.component.css',

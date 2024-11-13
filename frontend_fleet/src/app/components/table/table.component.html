@@ -1,1 +1,50 @@
-<p>table works!</p>
+<div class="filter-container">
+  <h4>Cantieri:</h4>
+  <mat-form-field class="filter-form">
+    <mat-select [formControl]="cantieri" placeholder="Seleziona cantieri" multiple>
+      <mat-option [value]="cantiere" (click)="selectCantiere(cantiere)" *ngFor="let cantiere of listaCantieri">
+        {{cantiere}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+</div><!--Filter container end-->
+<div class="table-container">
+  <table *ngIf="vehicleTableData" #vehicleTable mat-table [dataSource]="vehicleTableData" class="mat-elevation-z8 table-el">
+    <!-- Comune Column -->
+    <ng-container matColumnDef="comune">
+      <div class="comune-col">
+        <th mat-header-cell *matHeaderCellDef> Veicoli</th>
+        <td mat-cell *matCellDef="let session"> {{ session.history[0].vehicle.veId }} </td>
+      </div>
+    </ng-container>
+
+
+    <!-- Targa Column -->
+    <ng-container matColumnDef="targa">
+      <th mat-header-cell *matHeaderCellDef> Targa </th>
+      <td mat-cell *matCellDef="let session">{{session.history[0].vehicle.plate}}</td>
+    </ng-container>
+
+    <!-- GPS Column -->
+    <ng-container matColumnDef="GPS">
+      <th mat-header-cell *matHeaderCellDef> GPS </th>
+      <td mat-cell *matCellDef="let session"><mat-icon class="warning-icon" *ngIf="session.history[0].vehicle.gpsError">warning</mat-icon><mat-icon class="check-icon" *ngIf="!session.history[0].vehicle.gpsError">check_circle</mat-icon></td>
+    </ng-container>
+
+    <!-- Antenna Column -->
+    <ng-container matColumnDef="antenna">
+      <th mat-header-cell *matHeaderCellDef> Antenna</th>
+      <td mat-cell *matCellDef="let session"><mat-icon class="error-icon" *ngIf="antennaError">error</mat-icon><mat-icon class="check-icon" *ngIf="!antennaError">check_circle</mat-icon></td>
+    </ng-container>
+
+    <!-- Sessione Column -->
+    <ng-container matColumnDef="sessione">
+      <th mat-header-cell *matHeaderCellDef> Sessione </th>
+      <td mat-cell *matCellDef="let session"><mat-icon class="error-icon" *ngIf="sessionError">error</mat-icon><mat-icon class="check-icon" *ngIf="!sessionError">check_circle</mat-icon></td>
+    </ng-container>
+
+    <!-- Header and Row Definitions -->
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+</div><!--Table end-->

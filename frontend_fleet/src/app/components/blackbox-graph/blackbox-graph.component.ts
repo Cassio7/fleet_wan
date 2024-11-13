@@ -1,4 +1,5 @@
 import { Component, ViewChild, ViewEncapsulation } from '@angular/core';
+import { MatCardModule } from '@angular/material/card';
 import { ApexChart, ApexNonAxisChartSeries, ApexResponsive, ApexTheme, ApexTitleSubtitle, ChartComponent, NgApexchartsModule } from 'ng-apexcharts';
 
 export type ChartOptions = {
@@ -13,7 +14,10 @@ export type ChartOptions = {
 @Component({
   selector: 'app-blackbox-graph',
   standalone: true,
-  imports: [NgApexchartsModule],
+  imports: [
+    NgApexchartsModule,
+    MatCardModule
+  ],
   templateUrl: './blackbox-graph.component.html',
   styleUrl: './blackbox-graph.component.css',
   encapsulation: ViewEncapsulation.None

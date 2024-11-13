@@ -78,17 +78,7 @@ mat-drawer {
   overflow: hidden;
 }
 
-.warning-icon {
-  color: rgb(255, 208, 0);
-}
 
-.error-icon {
-  color: red;
-}
-
-.check-icon {
-  color: rgb(3, 184, 3);
-}
 
 /* first column css */
 .first-column {
@@ -98,20 +88,6 @@ mat-drawer {
   flex-direction: column;
 }
 
-.filter-container {
-  flex-grow: 1;
-}
-
-.table-container {
-  width: 100%;
-  overflow-y: auto;
-  flex-grow: 9;
-}
-
-th, td, tr {
-  text-align: center;
-  border: 1px solid black;
-}
 
 /* second column css */
 .second-column {
@@ -119,7 +95,7 @@ th, td, tr {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  gap: clamp(5vh, 10vh, 10vh);
+  gap: 1vh;
 }
 
 .map {
@@ -131,13 +107,16 @@ th, td, tr {
   border: 1px solid black;
   max-width: 100%;
   box-sizing: border-box;
+  border-radius: 10px;
 }
 
 
 .graphs {
   display: flex;
+  width: 100%;
   gap: 20px;
   flex-grow: 5;
+  float: right;
 }
 
 .error-graph {
@@ -145,11 +124,6 @@ th, td, tr {
   height: 100%;
   margin: 0;
   padding: 0;
-  float: left;
-}
-
-::ng-deep app-error-graph {
-  width: clamp(400px, 50vw, 800px);
 }
 
 .blackbox-graph {
@@ -158,8 +132,4 @@ th, td, tr {
   margin: 0;
   padding: 0;
   margin-right: clamp(5%, 10vw, 10%);
-}
-
-::ng-deep app-blackbox-graph {
-  width: clamp(400px, 50vw, 800px);
 }
