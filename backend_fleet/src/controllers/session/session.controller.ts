@@ -3,6 +3,7 @@ import { Response } from 'express';
 import { SessionService } from 'src/services/session/session.service';
 import { TagService } from 'src/services/tag/tag.service';
 import { VehicleService } from 'src/services/vehicle/vehicle.service';
+import { getDaysInRange } from 'src/utils/utils';
 
 @Controller('session')
 export class SessionController {
@@ -137,14 +138,14 @@ export class SessionController {
     );
     if (data.length > 0) {
       res.status(200).send(data);
-    } else{
+    } else {
       res.status(200).send(`No Session per id:`);
-    } 
+    }
   }
 
   /**
    * Ritorna un array con l'ultima sessione di tutti i veicoli
-   * @param res 
+   * @param res
    */
   @Get('lastsessions/all')
   async getAllVehiclesLastSession(@Res() res: Response) {
@@ -153,14 +154,15 @@ export class SessionController {
       const lastSessions = await Promise.all(
         vehicles.map(async (vehicle) => {
           return this.sessionService.getLastSession(vehicle.veId); // Per ogni veicolo, cercare l'ultima sessione
-        })
+        }),
       );
       res.status(200).json(lastSessions); // Restituire l'array di sessioni come JSON
     } catch (error) {
-      res.status(500).send("Errore nella ricerca dell'ultima sessione del veicolo.");
+      res
+        .status(500)
+        .send("Errore nella ricerca dell'ultima sessione del veicolo.");
     }
   }
-  
 
   /**
    * API per prendere tutte le sessioni indicando range temporale in base all'id
@@ -217,7 +219,6 @@ export class SessionController {
   //     return res.status(500).send("Errore nel recupero delle ultime sessioni dei veicoli.");
   //   }
   // }
-  
 
   // /**
   //  * API che restituisce il controllo del tipo di guasto di un veicolo nel caso ci sia
@@ -264,51 +265,122 @@ export class SessionController {
           'La data iniziale deve essere indietro di almeno 1 giorno dalla finale',
         );
     }
-    const vehicles = await this.vehicleService.getVehiclesByReader();
-    for (const vehicle of vehicles) {
-      const datas = await this.sessionService.getAllSessionByVeIdRanged(
-        vehicle.veId,
-        dateFrom_new,
-        dateTo_new,
-      );
-      if (datas.length > 1) {
-        let flag_distance: boolean = false;
-        let flag_coordinates: boolean = false;
-        const distanceMap = datas.map((data) => data.distance);
-        const coordinates = datas.flatMap((data) =>
-          data.history.map((entry) => ({
-            latitude: entry.latitude,
-            longitude: entry.longitude,
-          })),
-        );
-        // Verifica se tutti i valori in `distanceMap` sono uguali tra loro o a zero
-        if (
-          distanceMap.every((distance) => distance === distanceMap[0]) ||
-          distanceMap.every((distance) => distance === 0)
-        ) {
-          flag_distance = true;
-        }
-        // Verifica se tutte le coordinate sono identiche tra loro o a (0, 0)
-        if (
-          coordinates.every(
-            (coord) =>
-              coord.latitude === coordinates[0].latitude &&
-              coord.longitude === coordinates[0].longitude,
-          ) ||
-          coordinates.every(
-            (coord) => coord.latitude === 0 && coord.longitude === 0,
-          )
-        ) {
-          flag_coordinates = true;
-        }
-        if (flag_distance && flag_coordinates) {
-          console.log(`Anomalia nel GPS veicolo: ${vehicle.veId}`);
-        }
-      }
-    }
-    res.status(200).send({ message: 'OK' });
-  }
+    const daysInRange = getDaysInRange(dateFrom_new, dateTo_new);
+    const vehicles = await this.vehicleService.getAllVehicles();
+    const anomaliesForAllVehicles = await Promise.all(
+      vehicles.map(async (vehicle) => {
+        const vehicleCheck = {
+          plate: vehicle.plate,
+          veId: vehicle.veId,
+          isCan: vehicle.isCan,
+          sessions: [],
+        };
+        // Raccogli le anomalie per ogni veicolo
+        const anomaliesForVehicle = await Promise.all(
+          daysInRange.map(async (day) => {
+            const datefrom = day;
+            const dateto = new Date(datefrom);
+            dateto.setHours(23, 59, 59, 0);
 
+            const datas = await this.sessionService.getAllSessionByVeIdRanged(
+              vehicle.veId,
+              datefrom,
+              dateto,
+            );
+            if (datas.length > 1) {
+              let flag_distance_can = false;
+              let flag_distance = false;
+              let flag_coordinates = false;
+              let flag_coordinates_zero = false;
+
+              const sessions = {
+                date: day,
+                anomalies: [],
+              };
+
+              const distanceMap = datas.map((data) => data.distance);
+              // le coordinate riguardano il numero di history in tutte le sessioni di quella giornata 
+              const coordinates = datas.flatMap((data) =>
+                data.history.map((entry) => ({
+                  latitude: entry.latitude,
+                  longitude: entry.longitude,
+                })),
+              );
+              console.log(vehicle.veId + ' ' + datefrom.toISOString());
+              console.log(coordinates.length);
+              if (vehicle.isCan) {
+                if (distanceMap.every((distance) => distance === 0)) {
+                  flag_distance_can = true;
+                }
+              } else {
+                if (
+                  distanceMap.every(
+                    (distance) => distance === distanceMap[0],
+                  ) ||
+                  distanceMap.every((distance) => distance === 0)
+                ) {
+                  flag_distance = true;
+                }
+
+                if (
+                  coordinates.every(
+                    (coord) =>
+                      coord.latitude === coordinates[0].latitude &&
+                      coord.longitude === coordinates[0].longitude,
+                  )
+                ) {
+                  flag_coordinates = true;
+                }
+
+                if (
+                  coordinates.some(
+                    (coord) => coord.latitude === 0 && coord.longitude === 0,
+                  )
+                ) {
+                  flag_coordinates_zero = true;
+                }
+              }
+
+              if (flag_distance) {
+                sessions.anomalies.push(
+                  `Anomalia GPS per la distanza, sempre uguale a ${distanceMap[0]}`,
+                );
+              }
+              if (flag_distance_can) {
+                sessions.anomalies.push(
+                  `Anomalia GPS per la distanza problema con il tachimetro, sempre uguale a ${distanceMap[0]}`,
+                );
+              }
+              if (flag_coordinates) {
+                sessions.anomalies.push(
+                  `Anomalia nelle coordinate, sempre uguali a lat: ${coordinates[0].latitude} e lon: ${coordinates[0].longitude}`,
+                );
+              }
+              if (flag_coordinates_zero) {
+                sessions.anomalies.push(
+                  `Anomalia nelle coordinate, almeno 1 con lat: 0 e lon: 0`,
+                );
+              }
+
+              return sessions; // ritorna il risultato per questo giorno
+            }
+            return null; // Se non ci sono dati, ritorna null
+          }),
+        );
+        const validSessions = anomaliesForVehicle.filter(
+          (session) => session !== null,
+        );
+        vehicleCheck.sessions = validSessions;
+        // Filtra i risultati nulli
+        return vehicleCheck;
+      }),
+    );
+
+    // Appiattisce l'array
+    const allAnomalies = anomaliesForAllVehicles.flat();
+
+    res.status(200).send({ vehicles: allAnomalies });
+  }
 
   /**
    * Controllo sessioni registrate per funzionamento effettivo GPS, lat e log deve differire e la distanza deve essere variabile
@@ -398,8 +470,6 @@ export class SessionController {
         );
     } else res.status(200).send(`No Session per id: ${params.id}`);
   }
-
-
 
   @Get('tagcomparison/:id')
   async getTagComparison(@Res() res: Response, @Param() params: any) {
