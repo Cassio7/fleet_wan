@@ -14,13 +14,13 @@ import {
   Repository,
 } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
-import { convertHours } from 'src/utils/hoursFix';
+import { convertHours } from 'src/utils/utils';
 
 @Injectable()
 export class SessionService {
   private serviceUrl = 'https://ws.fleetcontrol.it/FWANWs3/services/FWANSOAP';
-  // imposta il tempo di recupero dei history, ogni quanti secondi = 5 min
-  private timeHistory = 300000;
+  // imposta il tempo di recupero dei history, ogni quanti secondi = 3 min
+  private timeHistory = 180000;
   constructor(
     @InjectRepository(SessionEntity, 'mainConnection')
     private readonly sessionRepository: Repository<SessionEntity>,
