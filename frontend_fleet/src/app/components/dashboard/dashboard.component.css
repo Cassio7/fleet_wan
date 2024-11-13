@@ -62,7 +62,7 @@ mat-drawer {
   height: 100%;
   display: grid;
   padding: 50px;
-  grid-template-columns: 65% 35%;
+  grid-template-columns: 50% 50%;
   grid-template-rows: auto;
   grid-gap: 10px;
 }
@@ -74,12 +74,9 @@ mat-drawer {
   overflow: hidden;
 }
 
-.filters{
+.filter-container{
   padding-top: 4%;
   padding-left: 3%;
-}
-.cantieri-section{
-  display: flex;
 }
 
 .table {
@@ -110,10 +107,34 @@ th.mat-header-cell, td.mat-cell {
   width: 100%;
 }
 
+.graphs{
+  display: flex;
+}
 
-.error-graph, .blackbox-graph, .map{
+.error-graph{
+  width: 100%;
+  height: 100%;
+  margin: 0px;
+  padding: 0px;
+  float: left;
+}
+::ng-deep app-error-graph{
+  width: 800px;
+}
+.blackbox-graph {
+  width: 100%;
+  height: 100%;
+  margin: 0px;
+  padding: 0px;
+  margin-right: 10%;
+}
+::ng-deep app-blackbox-graph{
+  width: 800px;
+}
+.map{
   width: 100%;
   height: 33.3%;
-  background-color: lightblue;
+  background-image: url('https://developers.google.com/static/maps/images/landing/hero_maps_static_api.png');
+  background-size: cover;
   margin-top: 20px;
 }

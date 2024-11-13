@@ -1,3 +1,4 @@
+import { History } from "./History";
 export class Session {
   constructor(
     public sequence_id: number,

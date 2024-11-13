@@ -30,6 +30,11 @@
   width: 50px;
 }
 
+.notification-btn{
+  height: 40px;
+  width: 40px;
+}
+
 .left-side {
   display: flex;
   align-items: center;

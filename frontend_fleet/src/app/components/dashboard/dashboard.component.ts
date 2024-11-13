@@ -1,24 +1,26 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, inject, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, inject, OnDestroy, ViewChild } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormControl, FormBuilder } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDrawer, MatDrawerContainer } from '@angular/material/sidenav';
-import { MatTableModule, MatTableDataSource } from '@angular/material/table';
+import { MatTableModule, MatTableDataSource, MatTable } from '@angular/material/table';
 import { Router, RouterModule } from '@angular/router';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, timestamp } from 'rxjs';
+import { History } from '../../models/History';
 import { Session } from '../../models/Session';
-import { Vehicle } from '../../models/Vehicle';
 import { CommonService } from '../../services/common service/common.service';
 import { SessionApiService } from '../../services/session service/session-api.service';
 import { VehiclesApiService } from '../../services/vehicles service/vehicles-api.service';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { Vehicle } from '../../models/Vehicle';
+import { ErrorGraphComponent } from "../error-graph/error-graph.component";
+import { BlackboxGraphComponent } from "../blackbox-graph/blackbox-graph.component";
 
 @Component({
   selector: 'app-dashboard',
@@ -39,13 +41,16 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     MatNativeDateModule,
     MatDatepickerModule,
     MatCheckboxModule,
-    RouterModule
-  ],
+    RouterModule,
+    ErrorGraphComponent,
+    BlackboxGraphComponent
+],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
-export class DashboardComponent {
+export class DashboardComponent implements AfterViewInit, OnDestroy{
   @ViewChild('drawer') sidebar!: MatDrawer;
+  @ViewChild('vehicleTable') vehicleTable!: MatTable<Session[]>;
   showFiller: boolean = false;
   private readonly destroy$: Subject<void> = new Subject<void>();
 
@@ -53,7 +58,7 @@ export class DashboardComponent {
   startDate!: Date;
   endDate!: Date;
 
-  gpsError: boolean = false;
+  /*da rimuovere*/
   antennaError: boolean = false;
   sessionError: boolean = false;
 
@@ -61,17 +66,12 @@ export class DashboardComponent {
   private readonly _formBuilder = inject(FormBuilder);
 
   sessions: Session[] = [];
-
-  readonly cantieri = this._formBuilder.group({
-    Bastia: false,
-    Todi: false,
-    Torgiano: false,
-  });
+  vehicleIds: Number[] = [];
 
   displayedColumns: string[] = ['comune', 'targa', 'GPS', 'antenna', 'sessione'];
 
-  toppings = new FormControl('');
-  toppingList: string[] = ['Extra cheese', 'Mushroom', 'Onion', 'Pepperoni', 'Sausage', 'Tomato'];
+  cantieri = new FormControl<string[]>([]);
+  listaCantieri: string[] = ['Seleziona tutto', 'Deseleziona tutto', 'Extra cheese', 'Mushroom', 'Onion', 'Pepperoni', 'Sausage', 'Tomato'];
 
   readonly range = new FormGroup({
     start: new FormControl<Date | null>(null),
@@ -95,6 +95,11 @@ export class DashboardComponent {
     });
   }
 
+  ngOnDestroy(): void {
+   this.destroy$.next();
+   this.destroy$.complete();
+  }
+
   ngAfterViewInit(): void {
     this.commonService.notifySidebar$.pipe(takeUntil(this.destroy$))
     .subscribe({
@@ -108,15 +113,65 @@ export class DashboardComponent {
     this.fillTable();
   }
 
+  /**
+   * Viene chiamata alla premuta di un qualsiasi checkbox dentro il select per il filtro
+   * @param option
+   */
+  selectCantiere(option: string){
+    if(option === "Seleziona tutto"){
+      this.cantieri.setValue(this.listaCantieri);
+    }else if(option == "Deseleziona tutto"){
+      this.cantieri.setValue([]);
+    }
+    //Applica filtro sulla tabella
+    // this.cantieri.value()
+  }
+
+  /**
+   * Riempe la tabella con i dati dei veicoli nelle sessioni
+   */
   fillTable(){
     this.sessionApiService.getTodaySessions().pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (sessions: Session[]) => {
         this.sessions = sessions;
-        //aggiungere proprietà a session.history.vehicle per errori (così da poter controllare questi in html)
-        this.vehicleTableData.data = this.sessions;
+        //Inserire nella tabella soltanto i dati dei veicoli
+        this.sessions.forEach(session => {
+          if(!this.vehicleIds.includes(session.history[0].vehicle.veId) && !this.vehicleTableData.data.includes(session)){
+            this.vehicleIds.push(session.history[0].vehicle.veId);
+            this.vehicleTableData.data.push(session);
+          }
+        });
+        this.vehicleTable.renderRows();
+        this.checkErrors(this.vehicleTableData.data);//controllo errori
+
         this.cd.detectChanges();
       }
     });
+  }
+
+  filter(){
+
+  }
+
+  /**
+   * Controlla anomalie dei veicoli nelle sessioni
+   * @param sessions
+   */
+  checkErrors(sessions: Session[]) {
+      //controlla errore di GPS
+      sessions.forEach(session => {
+        console.log(session.history[0].vehicle.veId);
+        this.vehicleApiService.checkGPSessionByVeid(session.history[0].vehicle.veId).pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (response: boolean) => {
+            response ? session.history[0].vehicle.gpsError = false : session.history[0].vehicle.gpsError = true;
+          },
+          error: error => console.error("Errore nella visualizzazione del controllo sui GPS: ", error)
+        });
+      });
+      //controlla errore antenna
+
+      //controlla errore inizio e fine sessione (last event)
   }
 }

@@ -1,14 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { catchError, Observable, Subject, switchMap, takeUntil } from 'rxjs';
+import { catchError, Observable} from 'rxjs';
 import { Session } from '../../models/Session';
-import { VehiclesApiService } from '../vehicles service/vehicles-api.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SessionApiService {
-  private readonly destroy$: Subject<void> = new Subject<void>();
   constructor(
     private http: HttpClient
   ) { }
