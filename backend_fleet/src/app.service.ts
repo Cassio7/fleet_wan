@@ -26,9 +26,9 @@ export class AppService implements OnModuleInit {
   }
 
   async putDbData() {
-    const startDate = '2024-11-12T00:00:00.000Z';
-    //const endDate = '2024-10-31T00:00:00.000Z';
-    const endDate = new Date().toISOString();
+    const startDate = '2024-10-28T00:00:00.000Z';
+    const endDate = '2024-10-31T00:00:00.000Z';
+    //const endDate = new Date().toISOString();
     await this.groupService.getGroupList();
     const groups = await this.groupService.getAllGroups();
     for (const group of groups) {
