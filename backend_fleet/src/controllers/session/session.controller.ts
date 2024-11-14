@@ -620,6 +620,12 @@ export class SessionController {
     } else res.status(200).send(`No Session per id: ${params.id}`);
   }
 
+  /**
+   * Controlla che l'ultimo tag rientri nell'ultima sessione di un veicolo 
+   * @param res 
+   * @param params veId
+   * @returns 
+   */
   @Get('tagcomparison/:id')
   async getTagComparison(@Res() res: Response, @Param() params: any) {
     const dayInMilliseconds = 1000 * 60 * 60 * 24;
@@ -691,13 +697,106 @@ export class SessionController {
       res.status(500).send('Errore durante la richiesta al db');
     }
   }
+  
+  /**
+   * Ritorna per ogni veicolo se almeno un tag è stato letto in un determinato arco di tempo
+   * @param res 
+   * @param period_from data di inizio periodo
+   * @param period_to data di fine periodo
+   * @returns 
+   */
+  @Post('tagcomparisonwtime/all')
+  async tagComparisonAllWithTimeRange(
+    @Res() res: Response,
+    @Body('period_from') period_from: Date,
+    @Body('period_to') period_to: Date
+  ) {
+    const sessions = await this.sessionService.getSessionInTimeRange(
+      period_from,
+      period_to,
+    );
+    // const lastTag = await this.tagService.getLastTagInTimeRange(
+    //   period_from,
+    //   period_to,
+    //   vehicleId,
+    // );
+    const allVehicles = await this.vehicleService.getAllVehicles(); //prendi tutti i veicoli
+    let vehicles: any[] = [];
 
+    // Get the latest tag read for all vehicles
+    await Promise.all(
+      allVehicles.map(async vehicle => {
+        const lastTag = await this.tagService.getLastTagHistoryByVeId(vehicle.veId);
+
+        vehicles.push({
+          veId: vehicle.veId,
+          lastTag: lastTag
+        });
+      })
+    );
+    //controllo se esistono sessioni
+    if (sessions) {
+      return res.status(200).send(vehicles);
+    }else{
+      res
+      .status(404)
+      .send(
+        {
+          sessionFound: false
+        }
+      );
+    }
+  }
+
+  /**
+   * Ritorna per ogni veicolo se almeno un tag è stato letto in un determinato arco di tempo, senza API
+   * @param period_to data di inizio periodo
+   * @param period_from data di fine periodo
+   * @returns 
+   */
+  async tagComparisonAllWithTimeRangeNoApi(period_to: Date, period_from: Date) {
+    const sessions = await this.sessionService.getSessionInTimeRange(
+      period_from,
+      period_to,
+    );
+  
+    const allVehicles = await this.vehicleService.getAllVehicles(); // prendi tutti i veicoli
+    let vehicles: any[] = [];
+  
+    // Get the latest tag read for all vehicles
+    await Promise.all(
+      allVehicles.map(async vehicle => {
+        const lastTag = await this.tagService.getLastTagHistoryByVeId(vehicle.veId);
+  
+        vehicles.push({
+          veId: vehicle.veId,
+          lastTag: lastTag
+        });
+      })
+    );
+  
+    // Controllo se esistono sessioni
+    if (sessions) {
+      return {
+        status: 200,
+        data: vehicles,
+      };
+    } else {
+      return {
+        status: 404,
+        data: {
+          sessionFound: false,
+        },
+      };
+    }
+  }
+  
   /**
    * Ritorna se almeno un tag è stato letto in un determinato arco di tempo
    * @param period_from data di inizio ricerca
    * @param period_to data di fine ricerca
-   * @param params
-   * @param res
+   * @param params id del veicolo
+   * @param res {veId: vehicleId, lastTag: lastTag}
    */
   @Post('tagcomparisonwtime/:id')
   async tagComparisonWithTimeRange(
@@ -721,24 +820,33 @@ export class SessionController {
       res
         .status(400)
         .send(
-          `Nel range di tempo ${period_from} - ${period_to} non è stata è stata effettuata alcuna sessione.`,
+          {
+            sessionFound: false
+          }
         );
     }
     if (!lastTag) {
       res
         .status(400)
         .send(
-          `Nel range di tempo ${period_from} - ${period_to} non è stato letto alcun tag.`,
+          {
+            veId: vehicleId,
+            lastTag: false
+          },
         );
     }
     if (sessions && lastTag) {
       res
         .status(200)
         .send(
-          `Nel range di tempo ${period_from} - ${period_to} l'ultimo tag è stato ${JSON.stringify(lastTag)} ed è stato letto nella sessione ${JSON.stringify(sessions)}`,
+          {
+            veId: vehicleId,
+            lastTag: lastTag
+          }
         );
     }
   }
+
 
   /**
    * Ritorna tutti i veicoli dove la data dell'ultima sessione non corrisponde all ultimo tag registrato
@@ -815,7 +923,7 @@ export class SessionController {
     }
   }
   
-
+  
   @Get('lastevent/:id')
   async lastEventComparisonById(@Res() res: Response, @Param() params: any) {
     try {
@@ -916,9 +1024,9 @@ export class SessionController {
 
     //controlla errore antenna
     try{
-      
+      const vehiclesTagComparison = await this.tagComparisonAllWithTimeRangeNoApi(dateFrom, dateTo);
     }catch(error){
-
+      console.error("Errore nella comparazione dei tag per controllare gli errori delle antenne.");
     }
 
     //controlla errore inizio e fine sessione (last event)
