@@ -24,4 +24,31 @@ export class UserService {
     });
     return user;
   }
+
+  /**
+   * Ritorna tutti gli utenti
+   * @returns Utenti no password
+   */
+  async getAllUsers(): Promise<any> {
+    const users = await this.userEntity.find({
+      select: {
+        username: true,
+        email: true,
+        user_role: {
+          id: true,
+          role: {
+            id: true,
+            name: true,
+            description: true,
+          },
+        },
+      },
+      relations: {
+        user_role: {
+          role: true,
+        },
+      },
+    });
+    return users;
+  }
 }

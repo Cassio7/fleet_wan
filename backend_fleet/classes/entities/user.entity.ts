@@ -1,7 +1,7 @@
 import { CommonEntity } from 'classes/common/common.entity';
 import { UserInterface } from 'classes/interfaces/user.interface';
 import { BeforeInsert, Column, Entity, OneToMany } from 'typeorm';
-import { UserRoleEntity } from './userrole.entity';
+import { UserRoleEntity } from './user_role.entity';
 @Entity('users')
 export class UserEntity extends CommonEntity implements UserInterface {
   @Column({ nullable: true })

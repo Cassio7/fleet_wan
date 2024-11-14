@@ -19,7 +19,7 @@ import { DetectionTagEntity } from 'classes/entities/detection_tag.entity';
 import { SessionEntity } from 'classes/entities/session.entity';
 import { UserEntity } from 'classes/entities/user.entity';
 import { RoleEntity } from 'classes/entities/role.entity';
-import { UserRoleEntity } from 'classes/entities/userrole.entity';
+import { UserRoleEntity } from 'classes/entities/user_role.entity';
 import { CompanyEntity } from 'classes/entities/company.entity';
 
 // importo i servizi
@@ -44,6 +44,7 @@ import { AuthController } from './controllers/auth/auth.controller';
 // importo i factory
 import { UserFactoryService } from './factory/user.factory';
 import { CompanyFactoryService } from './factory/company.factory';
+import { UserController } from './controllers/user/user.controller';
 
 @Global()
 @Module({
@@ -120,6 +121,7 @@ import { CompanyFactoryService } from './factory/company.factory';
     SessionController,
     TagController,
     AuthController,
+    UserController,
   ],
   providers: [
     AppService,

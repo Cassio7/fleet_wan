@@ -26,13 +26,7 @@ table companies{
 table role_companies{
   id int [primary key]
   companyId int [ref: > companies.id]
-  roleId int [ref: > roles.id]
-}
-
-table role_groups{
-  id int [primary key]
-  groupId int [ref: > groups.id]
-  roleId int [ref: > roles.id]
+  roleId int [ref: > user_roles.id]
 }
 
 table groups{
