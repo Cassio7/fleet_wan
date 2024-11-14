@@ -16,22 +16,26 @@ export class GroupService {
     private readonly connection: DataSource,
   ) {}
   // Costruisce la richiesta SOAP
-  private buildSoapRequest(methodName: string): string {
+  private buildSoapRequest(methodName: string, suId: number): string {
     return `<?xml version="1.0" encoding="UTF-8"?>
       <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:fwan="http://www.fleetcontrol/FWAN/">
         <soapenv:Header/>
         <soapenv:Body>
           <fwan:${methodName}>
-            <suId>${process.env.SUID}</suId>
+            <suId>${suId}</suId>
           </fwan:${methodName}>
         </soapenv:Body>
       </soapenv:Envelope>`;
   }
 
-  // Effettua la richiesta SOAP
-  async getGroupList(): Promise<any> {
+  /**
+   * Inserisci la lista dei gruppi nel database
+   * @param suId identificativo del società
+   * @returns
+   */
+  async setGroupList(suId: number): Promise<any> {
     const methodName = 'groupList';
-    const requestXml = this.buildSoapRequest(methodName);
+    const requestXml = this.buildSoapRequest(methodName, suId);
     const headers = {
       'Content-Type': 'text/xml; charset=utf-8',
       SOAPAction: `"${methodName}"`,
@@ -52,7 +56,6 @@ export class GroupService {
         jsonResult['soapenv:Envelope']['soapenv:Body']['groupListResponse'][
           'list'
         ];
-
       if (!lists) {
         await queryRunner.rollbackTransaction();
         await queryRunner.release();
@@ -107,6 +110,7 @@ export class GroupService {
       throw new Error('Errore durante la richiesta al servizio SOAP');
     }
   }
+
   /**
    * Recupera tutti i gruppi salvati
    * @returns
@@ -119,6 +123,7 @@ export class GroupService {
     });
     return groups;
   }
+
   /**
    * Recupera il gruppo in base al VgId
    * @param id VgId identificativo del gruppo
