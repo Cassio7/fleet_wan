@@ -8,6 +8,7 @@ export class Session {
     public engine_stop: number,
     public history: History[],
     public hash: string,
+    public anomalies: any[],
     public period_from?: Date | null,
     public period_to?: Date | null,
   ) {}

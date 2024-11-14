@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable} from 'rxjs';
 import { Session } from '../../models/Session';
+import { Vehicle } from '../../models/Vehicle';
 
 @Injectable({
   providedIn: 'root'
@@ -52,7 +53,7 @@ export class SessionApiService {
    * @returns
    */
   public getTodaySessions(){
-    return this.getAllSessionsRanged(new Date('2024-10-31'), new Date('2024-11-01')); //da cambiare a data attuale
+    return this.getAllSessionsRanged(new Date('2024-10-31'), new Date('2024-11-01')); //da cambiare in data di ieri e attuale
   }
 
   /**
@@ -62,7 +63,6 @@ export class SessionApiService {
   public getAllVehiclesLastSessions(): Observable<Session[]>{
     return this.http.get<Session[]>(`http://10.1.0.102:3001/session/lastsessions/all`);
   }
-
 
 
 }

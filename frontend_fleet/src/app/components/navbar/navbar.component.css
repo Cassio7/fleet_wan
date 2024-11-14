@@ -30,10 +30,7 @@
   width: 50px;
 }
 
-.notifications-btn{
-  height: 40px;
-  width: 50px;
-}
+
 
 .left-side {
   display: flex;
@@ -46,6 +43,39 @@
   align-items: center;
   gap: 10px;
 }
+
+.menu-btn{
+  width: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50px;
+}
+.menu-btn mat-icon{
+  width: 70px;
+  height: 50px;
+  line-height: 50px;
+  font-size: 50px;
+}
+.notifications-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notifications-btn mat-icon {
+  font-size: 30px;
+  line-height: 1;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
 
 @media (max-width: 1024px) {
   .navbar {

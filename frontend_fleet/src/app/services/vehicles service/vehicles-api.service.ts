@@ -46,4 +46,22 @@ export class VehiclesApiService {
 
     return this.http.post(`http://10.1.0.102:3001/session/checkgps/${veId}`, body);
   }
+
+
+  public checkGPSAllRanged(dateFrom: Date, dateTo: Date){
+    const body = {
+      dateFrom: dateFrom,
+      dateTo: dateTo
+    }
+    return this.http.post<Vehicle[]>("http://10.1.0.102:3001/session/checkgps/all", body);
+  }
+
+  public checkGPSAllToday(){
+    const body = {
+      dateFrom: new Date('2024-10-31'),
+      dateTo: new Date('2024-11-01')
+      // dateTo: new Date(new Date().setDate(new Date().getDate() + 1))
+    };
+    return this.checkGPSAllRanged(body.dateFrom, body.dateTo); //da cambiare in data di ieri e attuale
+  }
 }

@@ -9,6 +9,7 @@ import { Session } from '../../models/Session';
 import { Subject, takeUntil } from 'rxjs';
 import { SessionApiService } from '../../services/session service/session-api.service';
 import { VehiclesApiService } from '../../services/vehicles service/vehicles-api.service';
+import { Vehicle } from '../../models/Vehicle';
 
 @Component({
   selector: 'app-table',
@@ -34,7 +35,6 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   sessionError: boolean = false;
 
   vehicleTableData = new MatTableDataSource<Session>();  // Use MatTableDataSource for the table
-  private readonly _formBuilder = inject(FormBuilder);
 
   sessions: Session[] = [];
   vehicleIds: Number[] = [];
@@ -66,7 +66,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   }
 
   ngAfterViewInit(): void {
-    this.fillTable();
+    this.fillTable(); //Riempi la tabella
   }
 
     /**
@@ -91,7 +91,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     .subscribe({
       next: (sessions: Session[]) => {
         this.sessions = sessions;
-        //Inserire nella tabella soltanto i dati dei veicoli
+        //Inserire nella tabella soltanto i dati di una sessione di ciascun veicolo
         this.sessions.forEach(session => {
           if(!this.vehicleIds.includes(session.history[0].vehicle.veId) && !this.vehicleTableData.data.includes(session)){
             this.vehicleIds.push(session.history[0].vehicle.veId);
@@ -99,28 +99,47 @@ export class TableComponent implements OnDestroy, AfterViewInit{
           }
         });
         this.vehicleTable.renderRows();
-        this.checkErrors(this.vehicleTableData.data);//controllo errori
-
-        this.cd.detectChanges();
+        this.checkErrors();
       }
     });
   }
+  // fillTable(){
+  //   this.vehicleApiService.checkGPSAllToday().pipe(takeUntil(this.destroy$))
+  //   .subscribe({
+  //     next: (vehicles: Vehicle[]) => {
+  //     }
+  //   })
+  // }
+
 
   /**
  * Controlla anomalie dei veicoli nelle sessioni
  * @param sessions
  */
-  checkErrors(sessions: Session[]) {
+  // checkErrors(sessions: Session[]) {
+  //   //controlla errore di GPS
+  //   sessions.forEach(session => {
+  //     console.log(session.history[0].vehicle.veId);
+  //     this.vehicleApiService.checkGPSessionByVeid(session.history[0].vehicle.veId).pipe(takeUntil(this.destroy$))
+  //     .subscribe({
+  //       next: (response: any) => {
+  //         response ? session.history[0].vehicle.gpsError = false : session.history[0].vehicle.gpsError = true;
+  //       },
+  //       error: error => console.error("Errore nella visualizzazione del controllo sui GPS: ", error)
+  //     });
+  //   });
+  //   //controlla errore antenna
+
+  //   //controlla errore inizio e fine sessione (last event)
+  // }
+  checkErrors() {
     //controlla errore di GPS
-    sessions.forEach(session => {
-      console.log(session.history[0].vehicle.veId);
-      this.vehicleApiService.checkGPSessionByVeid(session.history[0].vehicle.veId).pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response: any) => {
-          response ? session.history[0].vehicle.gpsError = false : session.history[0].vehicle.gpsError = true;
-        },
-        error: error => console.error("Errore nella visualizzazione del controllo sui GPS: ", error)
-      });
+    this.vehicleApiService.checkGPSAllToday().pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (vehicles: Vehicle[]) => {
+
+      },
+      error: error => console.error("Errore nella visualizzazione del controllo del GPS.")
     });
     //controlla errore antenna
 

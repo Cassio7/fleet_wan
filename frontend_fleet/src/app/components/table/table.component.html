@@ -1,5 +1,4 @@
 <div class="filter-container">
-  <h4>Cantieri:</h4>
   <mat-form-field class="filter-form">
     <mat-select [formControl]="cantieri" placeholder="Seleziona cantieri" multiple>
       <mat-option [value]="cantiere" (click)="selectCantiere(cantiere)" *ngFor="let cantiere of listaCantieri">
