@@ -382,6 +382,143 @@ export class SessionController {
     res.status(200).send({ vehicles: allAnomalies });
   }
 
+  async checkSessionGPSAllNoApi(dateFrom: Date, dateTo: Date) {
+    // Controlla se dateFrom e dateTo sono forniti
+    if (!dateFrom || !dateTo) {
+      return 'Date non fornite.';
+    }
+  
+    // Crea un oggetto Date dalla stringa fornita
+    const dateFrom_new = new Date(dateFrom);
+    const dateTo_new = new Date(dateTo);
+  
+    // Controlla se la data è valida
+    if (isNaN(dateFrom_new.getTime()) || isNaN(dateTo_new.getTime())) {
+      return 'Formato della data non valido.';
+    }
+    if (dateFrom_new.getTime() >= dateTo_new.getTime()) {
+      // Restituisci un errore se la condizione è vera
+      return 'La data iniziale deve essere indietro di almeno 1 giorno dalla finale.';
+    }
+  
+    const daysInRange = getDaysInRange(dateFrom_new, dateTo_new);
+    const vehicles = await this.vehicleService.getAllVehicles();
+    const anomaliesForAllVehicles = await Promise.all(
+      vehicles.map(async (vehicle) => {
+        const vehicleCheck = {
+          plate: vehicle.plate,
+          veId: vehicle.veId,
+          isCan: vehicle.isCan,
+          sessions: [],
+        };
+        // Raccogli le anomalie per ogni veicolo
+        const anomaliesForVehicle = await Promise.all(
+          daysInRange.map(async (day) => {
+            const datefrom = day;
+            const dateto = new Date(datefrom);
+            dateto.setHours(23, 59, 59, 0);
+  
+            const datas = await this.sessionService.getAllSessionByVeIdRanged(
+              vehicle.veId,
+              datefrom,
+              dateto,
+            );
+            if (datas.length > 1) {
+              let flag_distance_can = false;
+              let flag_distance = false;
+              let flag_coordinates = false;
+              let flag_coordinates_zero = false;
+  
+              const sessions = {
+                date: day,
+                anomalies: [],
+              };
+  
+              const distanceMap = datas.map((data) => data.distance);
+              // le coordinate riguardano il numero di history in tutte le sessioni di quella giornata 
+              const coordinates = datas.flatMap((data) =>
+                data.history.map((entry) => ({
+                  latitude: entry.latitude,
+                  longitude: entry.longitude,
+                })),
+              );
+              console.log(vehicle.veId + ' ' + datefrom.toISOString());
+              console.log(coordinates.length);
+              if (vehicle.isCan) {
+                if (distanceMap.every((distance) => distance === 0)) {
+                  flag_distance_can = true;
+                }
+              } else {
+                if (
+                  distanceMap.every(
+                    (distance) => distance === distanceMap[0],
+                  ) ||
+                  distanceMap.every((distance) => distance === 0)
+                ) {
+                  flag_distance = true;
+                }
+  
+                if (
+                  coordinates.every(
+                    (coord) =>
+                      coord.latitude === coordinates[0].latitude &&
+                      coord.longitude === coordinates[0].longitude,
+                  )
+                ) {
+                  flag_coordinates = true;
+                }
+  
+                if (
+                  coordinates.some(
+                    (coord) => coord.latitude === 0 && coord.longitude === 0,
+                  )
+                ) {
+                  flag_coordinates_zero = true;
+                }
+              }
+  
+              if (flag_distance) {
+                sessions.anomalies.push(
+                  `Anomalia GPS per la distanza, sempre uguale a ${distanceMap[0]}`,
+                );
+              }
+              if (flag_distance_can) {
+                sessions.anomalies.push(
+                  `Anomalia GPS per la distanza problema con il tachimetro, sempre uguale a ${distanceMap[0]}`,
+                );
+              }
+              if (flag_coordinates) {
+                sessions.anomalies.push(
+                  `Anomalia nelle coordinate, sempre uguali a lat: ${coordinates[0].latitude} e lon: ${coordinates[0].longitude}`,
+                );
+              }
+              if (flag_coordinates_zero) {
+                sessions.anomalies.push(
+                  `Anomalia nelle coordinate, almeno 1 con lat: 0 e lon: 0`,
+                );
+              }
+  
+              return sessions; // ritorna il risultato per questo giorno
+            }
+            return null; // Se non ci sono dati, ritorna null
+          }),
+        );
+        const validSessions = anomaliesForVehicle.filter(
+          (session) => session !== null,
+        );
+        vehicleCheck.sessions = validSessions;
+        // Filtra i risultati nulli
+        return vehicleCheck;
+      }),
+    );
+  
+    // Appiattisce l'array
+    const allAnomalies = anomaliesForAllVehicles.flat();
+  
+    return allAnomalies; // Restituisce il risultato senza res.send
+  }
+  
+
   /**
    * Controllo sessioni registrate per funzionamento effettivo GPS, lat e log deve differire e la distanza deve essere variabile
    * @param res
@@ -637,6 +774,35 @@ export class SessionController {
       res.status(500).send('Errore durante la richiesta al db');
     }
   }
+  async lastEventComparisonAllNoApi() {
+    try {
+      const outputErrors = [];
+      const vehicles = await this.vehicleService.getVehiclesByReader();
+      for (const vehicle of vehicles) {
+        const lastSession = await this.sessionService.getLastSession(vehicle.veId);
+        if (lastSession) {
+          const lastVehicleEvent = vehicle.lastEvent;
+          const sessionEnd = lastSession.period_to;
+          if (new Date(lastVehicleEvent).getTime() != new Date(sessionEnd).getTime()) {
+            outputErrors.push(vehicle);
+          }
+        }
+      }
+  
+      if (outputErrors.length > 0) {
+        return {
+          message: "Veicoli dove l'ultima sessione non corrisponde all'ultimo evento registrato",
+          errors: outputErrors,
+        };
+      } else {
+        return { message: 'Nessun veicolo presenta incongruenze' };
+      }
+    } catch (error) {
+      console.error('Error getting last event: ', error);
+      return 'Errore durante la richiesta al db';  // Return error message as string
+    }
+  }
+  
 
   @Get('lastevent/:id')
   async lastEventComparisonById(@Res() res: Response, @Param() params: any) {
@@ -722,5 +888,40 @@ export class SessionController {
       console.error('Errore nella richiesta al db:', error);
       res.status(500).send('Errore durante la richiesta al db');
     }
+  }
+
+  @Post("checkerrors/all")
+  async checkErrorsAll(@Res() res: Response, @Body() body) {
+    const dateFrom = body.dateFrom;
+    const dateTo = body.dateTo;
+    let vehicles: any;
+    //controlla errore di GPS
+    try{
+      vehicles = await this.checkSessionGPSAllNoApi(dateFrom, dateTo);
+    }catch(error){
+      console.error("Errore nel controllo errori del GPS");
+    }
+
+    //controlla errore antenna
+    try{
+      
+    }catch(error){
+
+    }
+
+    //controlla errore inizio e fine sessione (last event)
+    try{
+      let brokenVehicles: any;
+      let comparison = await this.lastEventComparisonAllNoApi();
+      typeof comparison !== 'string' ? brokenVehicles=comparison.errors : brokenVehicles = [];
+    }catch(error){
+      console.log("Errore nel controllo del last event");
+    }
+
+    //metti insieme in un unico array di veicoli tutte le anomalie per il corretto veicolo e sessione
+    vehicles.forEach(v => {
+      //accorpa errori di antenna
+      //accorpa errori di sessione
+    });
   }
 }
