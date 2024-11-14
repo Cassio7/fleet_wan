@@ -1,4 +1,42 @@
-CREATE TABLE "vehicle" (
+CREATE TABLE "roles" (
+  "id" int PRIMARY KEY,
+  "name" string,
+  "description" text
+);
+
+CREATE TABLE "users" (
+  "id" int PRIMARY KEY,
+  "name" string,
+  "email" string,
+  "password" string
+);
+
+CREATE TABLE "user_roles" (
+  "id" int PRIMARY KEY,
+  "userId" int,
+  "roleId" int
+);
+
+CREATE TABLE "companies" (
+  "id" int PRIMARY KEY,
+  "suId" int,
+  "name" string
+);
+
+CREATE TABLE "role_companies" (
+  "id" int PRIMARY KEY,
+  "companyId" int,
+  "roleId" int
+);
+
+CREATE TABLE "groups" (
+  "id" int PRIMARY KEY,
+  "vgId" int,
+  "name" string,
+  "companyId" it
+);
+
+CREATE TABLE "vehicles" (
   "id" int PRIMARY KEY,
   "veId" int,
   "active" boolean,
@@ -15,7 +53,7 @@ CREATE TABLE "vehicle" (
   "deviceId" int
 );
 
-CREATE TABLE "device" (
+CREATE TABLE "devices" (
   "id" int PRIMARY KEY,
   "device_id" int,
   "type" int,
@@ -31,19 +69,13 @@ CREATE TABLE "device" (
   "hash" string
 );
 
-CREATE TABLE "group" (
-  "id" int PRIMARY KEY,
-  "vgId" int,
-  "name" string
-);
-
 CREATE TABLE "vehicle_group" (
   "id" int PRIMARY KEY,
   "groupId" int,
   "vehicleId" int
 );
 
-CREATE TABLE "realtime_position" (
+CREATE TABLE "realtime_positions" (
   "id" int PRIMARY KEY,
   "row_number" int,
   "timestamp" timestamp,
@@ -75,7 +107,7 @@ CREATE TABLE "history" (
   "sessionId" int
 );
 
-CREATE TABLE "tag" (
+CREATE TABLE "tags" (
   "id" int PRIMARY KEY,
   "epc" string
 );
@@ -111,20 +143,30 @@ CREATE TABLE "session" (
   "hash" string
 );
 
-ALTER TABLE "vehicle" ADD FOREIGN KEY ("deviceId") REFERENCES "device" ("id");
+ALTER TABLE "user_roles" ADD FOREIGN KEY ("userId") REFERENCES "users" ("id");
 
-ALTER TABLE "vehicle_group" ADD FOREIGN KEY ("groupId") REFERENCES "group" ("id");
+ALTER TABLE "user_roles" ADD FOREIGN KEY ("roleId") REFERENCES "roles" ("id");
 
-ALTER TABLE "vehicle_group" ADD FOREIGN KEY ("vehicleId") REFERENCES "vehicle" ("id");
+ALTER TABLE "role_companies" ADD FOREIGN KEY ("companyId") REFERENCES "companies" ("id");
 
-ALTER TABLE "realtime_position" ADD FOREIGN KEY ("vehicleId") REFERENCES "vehicle" ("id");
+ALTER TABLE "role_companies" ADD FOREIGN KEY ("roleId") REFERENCES "user_roles" ("id");
 
-ALTER TABLE "history" ADD FOREIGN KEY ("vehicleId") REFERENCES "vehicle" ("id");
+ALTER TABLE "groups" ADD FOREIGN KEY ("companyId") REFERENCES "companies" ("id");
+
+ALTER TABLE "vehicles" ADD FOREIGN KEY ("deviceId") REFERENCES "devices" ("id");
+
+ALTER TABLE "vehicle_group" ADD FOREIGN KEY ("groupId") REFERENCES "groups" ("id");
+
+ALTER TABLE "vehicle_group" ADD FOREIGN KEY ("vehicleId") REFERENCES "vehicles" ("id");
+
+ALTER TABLE "realtime_positions" ADD FOREIGN KEY ("vehicleId") REFERENCES "vehicles" ("id");
+
+ALTER TABLE "history" ADD FOREIGN KEY ("vehicleId") REFERENCES "vehicles" ("id");
 
 ALTER TABLE "history" ADD FOREIGN KEY ("sessionId") REFERENCES "session" ("id");
 
-ALTER TABLE "tag_history" ADD FOREIGN KEY ("vehicleId") REFERENCES "vehicle" ("id");
+ALTER TABLE "tag_history" ADD FOREIGN KEY ("vehicleId") REFERENCES "vehicles" ("id");
 
-ALTER TABLE "detection_tag" ADD FOREIGN KEY ("tagId") REFERENCES "tag" ("id");
+ALTER TABLE "detection_tag" ADD FOREIGN KEY ("tagId") REFERENCES "tags" ("id");
 
 ALTER TABLE "detection_tag" ADD FOREIGN KEY ("tagHistoryId") REFERENCES "tag_history" ("id");
