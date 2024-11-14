@@ -235,8 +235,8 @@ export class SessionController {
   // }
 
   /**
-   * Controllo sessioni registrate per ogni veicolo per funzionamento effettivo GPS, lat e log deve differire e la distanza deve essere variabile
-   * @param res
+   * Controllo tutte le sessioni di tutti i veicoli, per marcare quelle con dei malfunzionamenti al GPS
+   * @param res Ritorno tutti i veicoli con almeno 1 sessione nel range temporale
    * @param body Data inizio e data fine ricerca
    * @returns
    */
@@ -277,7 +277,7 @@ export class SessionController {
         };
         // Raccogli le anomalie per ogni veicolo
         const anomaliesForVehicle = await Promise.all(
-          daysInRange.map(async (day) => {
+          daysInRange.slice(0, -1).map(async (day) => {
             const datefrom = day;
             const dateto = new Date(datefrom);
             dateto.setHours(23, 59, 59, 0);
@@ -299,18 +299,31 @@ export class SessionController {
               };
 
               const distanceMap = datas.map((data) => data.distance);
-              // le coordinate riguardano il numero di history in tutte le sessioni di quella giornata 
+              // le coordinate riguardano il numero di history in tutte le sessioni di quella giornata
               const coordinates = datas.flatMap((data) =>
                 data.history.map((entry) => ({
                   latitude: entry.latitude,
                   longitude: entry.longitude,
                 })),
               );
-              console.log(vehicle.veId + ' ' + datefrom.toISOString());
-              console.log(coordinates.length);
               if (vehicle.isCan) {
                 if (distanceMap.every((distance) => distance === 0)) {
                   flag_distance_can = true;
+                }
+                if (
+                  coordinates.every(
+                    (coord) =>
+                      coord.latitude === coordinates[0].latitude &&
+                      coord.longitude === coordinates[0].longitude,
+                  )
+                ) {
+                  flag_coordinates = true;
+                }
+                const zeroCoordinatesCount = coordinates.filter(
+                  (coord) => coord.latitude === 0 && coord.longitude === 0,
+                ).length;
+                if (zeroCoordinatesCount > coordinates.length * 0.2) {
+                  flag_coordinates_zero = true;
                 }
               } else {
                 if (
@@ -321,7 +334,6 @@ export class SessionController {
                 ) {
                   flag_distance = true;
                 }
-
                 if (
                   coordinates.every(
                     (coord) =>
@@ -331,19 +343,17 @@ export class SessionController {
                 ) {
                   flag_coordinates = true;
                 }
-
-                if (
-                  coordinates.some(
-                    (coord) => coord.latitude === 0 && coord.longitude === 0,
-                  )
-                ) {
+                const zeroCoordinatesCount = coordinates.filter(
+                  (coord) => coord.latitude === 0 && coord.longitude === 0,
+                ).length;
+                if (zeroCoordinatesCount > coordinates.length * 0.2) {
                   flag_coordinates_zero = true;
                 }
               }
 
-              if (flag_distance) {
+              if (flag_coordinates && flag_distance) {
                 sessions.anomalies.push(
-                  `Anomalia GPS per la distanza, sempre uguale a ${distanceMap[0]}`,
+                  `Anomalia GPS totale, distanza: ${distanceMap[0]}`,
                 );
               }
               if (flag_distance_can) {
@@ -358,10 +368,9 @@ export class SessionController {
               }
               if (flag_coordinates_zero) {
                 sessions.anomalies.push(
-                  `Anomalia nelle coordinate, almeno 1 con lat: 0 e lon: 0`,
+                  `Anomalia nelle coordinate con lat: 0 e lon: 0 sopra al 20%`,
                 );
               }
-
               return sessions; // ritorna il risultato per questo giorno
             }
             return null; // Se non ci sono dati, ritorna null
@@ -371,7 +380,6 @@ export class SessionController {
           (session) => session !== null,
         );
         vehicleCheck.sessions = validSessions;
-        // Filtra i risultati nulli
         return vehicleCheck;
       }),
     );
@@ -379,7 +387,11 @@ export class SessionController {
     // Appiattisce l'array
     const allAnomalies = anomaliesForAllVehicles.flat();
 
-    res.status(200).send({ vehicles: allAnomalies });
+    const filteredData = allAnomalies.filter(
+      (item) => Array.isArray(item.sessions) && item.sessions.length > 0,
+    );
+
+    res.status(200).send({ vehicles: filteredData });
   }
 
   async checkSessionGPSAllNoApi(dateFrom: Date, dateTo: Date) {

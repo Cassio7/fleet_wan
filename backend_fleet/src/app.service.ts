@@ -1,3 +1,4 @@
+import { CompanyFactoryService } from './factory/company.factory';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { GroupService } from './services/group/group.service';
 import { VehicleService } from './services/vehicle/vehicle.service';
@@ -14,22 +15,28 @@ export class AppService implements OnModuleInit {
     private readonly sessionService: SessionService,
     private readonly tagService: TagService,
     private readonly userFactoryService: UserFactoryService,
+    private readonly companyFactoryService: CompanyFactoryService,
   ) {}
 
   // popolo database all'avvio
   async onModuleInit() {
-    //await this.userFactoryService.createDefaultUser();
-    //await this.userFactoryService.createDefaultRoles();
-    //await this.userFactoryService.createDefaultUserRoles();
+    //await this.putDefaultData();
     //await this.putDbData();
     //await this.putDbData5min();
+  }
+
+  async putDefaultData() {
+    await this.userFactoryService.createDefaultUser();
+    await this.userFactoryService.createDefaultRoles();
+    await this.userFactoryService.createDefaultUserRoles();
+    await this.companyFactoryService.createDefaultCompanies();
   }
 
   async putDbData() {
     const startDate = '2024-10-28T00:00:00.000Z';
     const endDate = '2024-10-31T00:00:00.000Z';
     //const endDate = new Date().toISOString();
-    await this.groupService.getGroupList();
+    await this.groupService.setGroupList(254);
     const groups = await this.groupService.getAllGroups();
     for (const group of groups) {
       await this.vehicleService.getVehicleList(group.vgId);
@@ -75,7 +82,7 @@ export class AppService implements OnModuleInit {
     ).toISOString();
     const endDate = new Date().toISOString();
 
-    await this.groupService.getGroupList();
+    await this.groupService.setGroupList(254);
     const groups = await this.groupService.getAllGroups();
     for (const group of groups) {
       await this.vehicleService.getVehicleList(group.vgId);

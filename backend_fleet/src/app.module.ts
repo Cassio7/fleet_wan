@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ScheduleModule } from '@nestjs/schedule';
+import { JwtModule } from '@nestjs/jwt';
 
 // Importa le entità
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
@@ -19,6 +20,7 @@ import { SessionEntity } from 'classes/entities/session.entity';
 import { UserEntity } from 'classes/entities/user.entity';
 import { RoleEntity } from 'classes/entities/role.entity';
 import { UserRoleEntity } from 'classes/entities/userrole.entity';
+import { CompanyEntity } from 'classes/entities/company.entity';
 
 // importo i servizi
 import { VehicleService } from './services/vehicle/vehicle.service';
@@ -26,6 +28,9 @@ import { GroupService } from './services/group/group.service';
 import { RealtimeService } from './services/realtime/realtime.service';
 import { SessionService } from './services/session/session.service';
 import { TagService } from './services/tag/tag.service';
+import { AuthService } from './services/auth/auth.service';
+import { UserService } from './services/user/user.service';
+import { CompanyService } from './services/company/company.service';
 
 // importo i controller
 import { GroupController } from './controllers/group/group.controller';
@@ -33,11 +38,12 @@ import { VehicleController } from './controllers/vehicle/vehicle.controller';
 import { RealtimeController } from './controllers/realtime/realtime.controller';
 import { SessionController } from './controllers/session/session.controller';
 import { TagController } from './controllers/tag/tag.controller';
-import { UserFactoryService } from './factory/user.factory';
-import { JwtModule } from '@nestjs/jwt';
-import { AuthService } from './services/auth/auth.service';
-import { UserService } from './services/user/user.service';
+
 import { AuthController } from './controllers/auth/auth.controller';
+
+// importo i factory
+import { UserFactoryService } from './factory/user.factory';
+import { CompanyFactoryService } from './factory/company.factory';
 
 @Global()
 @Module({
@@ -71,6 +77,7 @@ import { AuthController } from './controllers/auth/auth.controller';
           UserEntity,
           RoleEntity,
           UserRoleEntity,
+          CompanyEntity,
         ],
         synchronize: true,
         //dropSchema: true, // if true drop db
@@ -91,6 +98,7 @@ import { AuthController } from './controllers/auth/auth.controller';
         UserEntity,
         RoleEntity,
         UserRoleEntity,
+        CompanyEntity,
       ],
       'mainConnection',
     ),
@@ -120,9 +128,11 @@ import { AuthController } from './controllers/auth/auth.controller';
     RealtimeService,
     SessionService,
     TagService,
-    UserFactoryService,
     AuthService,
     UserService,
+    CompanyService,
+    CompanyFactoryService,
+    UserFactoryService,
   ],
 })
 export class AppModule {}

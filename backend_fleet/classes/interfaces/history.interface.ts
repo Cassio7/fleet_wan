@@ -1,7 +1,8 @@
+import { CommonInterface } from 'classes/common/common.interface';
 import { SessionInterface } from './session.interface';
 import { VehicleInterface } from './vehicle.interface';
 
-export interface HistoryInterface {
+export interface HistoryInterface extends CommonInterface{
   timestamp?: Date | null;
   status: number;
   latitude: number;

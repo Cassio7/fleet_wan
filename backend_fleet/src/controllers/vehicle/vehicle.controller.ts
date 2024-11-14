@@ -106,6 +106,11 @@ export class VehicleController {
     }
   }
 
+  /**
+   * API per aggiornare lista veicoli tramite
+   * @param res 
+   * @param params vgId del gruppo
+   */
   @Get('/update/:id')
   async getVehicleList(@Res() res: Response, @Param() params: any) {
     try {
