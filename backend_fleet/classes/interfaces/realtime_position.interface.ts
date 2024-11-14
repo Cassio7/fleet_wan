@@ -1,6 +1,7 @@
+import { CommonInterface } from "classes/common/common.interface";
 import { VehicleInterface } from "./vehicle.interface";
 
-export interface RealtimePositionInterface{
+export interface RealtimePositionInterface extends CommonInterface{
     row_number: number;
     timestamp?: Date | null;
     status: number;
