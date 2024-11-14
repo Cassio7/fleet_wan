@@ -1,7 +1,7 @@
 import { CommonEntity } from 'classes/common/common.entity';
 import { RoleInterface } from 'classes/interfaces/role.interface';
 import { Column, Entity, OneToMany } from 'typeorm';
-import { UserRoleEntity } from './userrole.entity';
+import { UserRoleEntity } from './user_role.entity';
 
 @Entity('roles')
 export class RoleEntity extends CommonEntity implements RoleInterface {
