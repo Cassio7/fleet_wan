@@ -4,7 +4,6 @@ import axios from 'axios';
 import { DeviceEntity } from 'classes/entities/device.entity';
 import { GroupEntity } from 'classes/entities/group.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
-import { VehicleGroupEntity } from 'classes/entities/vehicle_group.entity';
 import { createHash } from 'crypto';
 import { convertHours } from 'src/utils/utils';
 import { DataSource, In, Repository } from 'typeorm';
@@ -19,20 +18,18 @@ export class VehicleService {
     private readonly vehicleRepository: Repository<VehicleEntity>,
     @InjectRepository(DeviceEntity, 'mainConnection')
     private readonly deviceRepository: Repository<DeviceEntity>,
-    @InjectRepository(VehicleGroupEntity, 'mainConnection')
-    private readonly vehicleGroupRepository: Repository<VehicleGroupEntity>,
     @InjectDataSource('mainConnection')
     private readonly connection: DataSource,
   ) {}
   // Prepara la richiesta SOAP
-  private buildSoapRequest(methodName, id) {
+  private buildSoapRequest(methodName, suId, vgId) {
     return `<?xml version="1.0" encoding="UTF-8"?>
   <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:fwan="http://www.fleetcontrol/FWAN/">
       <soapenv:Header/>
       <soapenv:Body>
           <fwan:${methodName}>
-          <suId>${process.env.SUID}</suId>
-          <vgId>${id}</vgId>
+          <suId>${suId}</suId>
+          <vgId>${vgId}</vgId>
           <timezone>Europe/Rome</timezone>
           <degreeCoords>true</degreeCoords>
           </fwan:${methodName}>
@@ -42,12 +39,13 @@ export class VehicleService {
 
   /**
    * Crea richiesta SOAP e inserisce nel database i veicoli e dispositivi con le funzioni sotto
-   * @param id
+   * @param suId Identificativo società
+   * @param vgId Identificativo gruppo
    * @returns
    */
-  async getVehicleList(id: number): Promise<any> {
+  async getVehicleList(suId: number, vgId: number): Promise<any> {
     const methodName = 'VehiclesListExtended';
-    const requestXml = this.buildSoapRequest(methodName, id);
+    const requestXml = this.buildSoapRequest(methodName, suId, vgId);
     const headers = {
       'Content-Type': 'text/xml; charset=utf-8',
       SOAPAction: `"${methodName}"`,
@@ -74,44 +72,24 @@ export class VehicleService {
         return false; // se item.list non esiste, salto elemento
       }
       const newVehicles = await this.putAllVehicle(lists);
-      const newGroups = [];
-      const groupquery = await queryRunner.manager
-        .getRepository(GroupEntity)
-        .findOne({
-          where: { vgId: id },
-        });
-      // if null
-      if (!groupquery) {
-        await queryRunner.rollbackTransaction();
-        await queryRunner.release();
-        throw new Error(`Gruppo con id ${id} non trovato`);
-      }
+      // const newGroups = [];
+      // const groupquery = await queryRunner.manager
+      //   .getRepository(GroupEntity)
+      //   .findOne({
+      //     where: { vgId: vgId },
+      //   });
+      // // if null
+      // if (!groupquery) {
+      //   await queryRunner.rollbackTransaction();
+      //   await queryRunner.release();
+      //   throw new Error(`Gruppo con id ${vgId} non trovato`);
+      // }
 
-      const vehicleIds = lists.map((vehicle) => vehicle.id);
-      const vehicles = await this.vehicleRepository.findBy({
-        veId: In(vehicleIds),
-      });
+      // const vehicleIds = lists.map((vehicle) => vehicle.id);
+      // const vehicles = await this.vehicleRepository.findBy({
+      //   veId: In(vehicleIds),
+      // });
 
-      for (const vehicle of vehicles) {
-        const exists_group = await this.vehicleGroupRepository.findOne({
-          where: { group: { vgId: id }, vehicle: { veId: vehicle.veId } },
-        });
-        if (!exists_group) {
-          const newGroup = await queryRunner.manager
-            .getRepository(VehicleGroupEntity)
-            .create({
-              group: groupquery,
-              vehicle: vehicle,
-            });
-          newGroups.push(newGroup);
-        }
-      }
-      // Salva tutti i nuovi gruppi veicolo nel database
-      if (newGroups.length > 0) {
-        await queryRunner.manager
-          .getRepository(VehicleGroupEntity)
-          .save(newGroups);
-      }
       await queryRunner.commitTransaction();
       await queryRunner.release();
       return newVehicles;
@@ -419,14 +397,14 @@ export class VehicleService {
     return vehicles;
   }
 
-  async getVehicleByPlate(plateNumber: string){
+  async getVehicleByPlate(plateNumber: string) {
     const vehicle = await this.vehicleRepository.findOne({
       where: {
-        plate: plateNumber
+        plate: plateNumber,
       },
       relations: {
-        device: true
-      }
+        device: true,
+      },
     });
     return vehicle;
   }
@@ -450,17 +428,17 @@ export class VehicleService {
    * Ritorna tutti i veicoli "can", ovvero con l'antenna collegata al contachilometri
    * @returns
    */
-  async getCanVehicles(): Promise<any>{
+  async getCanVehicles(): Promise<any> {
     const vehicles = await this.vehicleRepository.find({
       where: {
-        isCan: true
+        isCan: true,
       },
       relations: {
-        device: true
+        device: true,
       },
-      order:{
-        id: 'ASC'
-      }
+      order: {
+        id: 'ASC',
+      },
     });
     return vehicles;
   }
@@ -469,17 +447,17 @@ export class VehicleService {
    * Ritorna tutti i veicoli non "can", ovverocon l'antenna non collegata al contachilometri
    * @returns
    */
-  async getNonCanVehicles(): Promise<any>{
+  async getNonCanVehicles(): Promise<any> {
     const vehicles = await this.vehicleRepository.find({
       where: {
-        isCan: false
+        isCan: false,
       },
       relations: {
-        device: true
+        device: true,
       },
-      order:{
-        id: 'ASC'
-      }
+      order: {
+        id: 'ASC',
+      },
     });
     return vehicles;
   }
@@ -503,19 +481,19 @@ export class VehicleService {
 
   /**
    * Recupera tutti i veicoli nei quali l'RFID reader è mancante
-   * @returns 
+   * @returns
    */
-  async getVehiclesWithNoReader(): Promise<any>{
+  async getVehiclesWithNoReader(): Promise<any> {
     const vehicles = await this.vehicleRepository.find({
       where: {
-        isRFIDReader: false
+        isRFIDReader: false,
       },
       relations: {
-        device: true
+        device: true,
       },
       order: {
-        id: 'ASC'
-      }
+        id: 'ASC',
+      },
     });
     return vehicles;
   }
@@ -524,18 +502,18 @@ export class VehicleService {
    * @param id VgId
    * @returns
    */
-  async getVehiclesByGroup(id: number): Promise<any> {
-    const vehicles = await this.vehicleGroupRepository.find({
-      where: { group: { vgId: id } },
-      relations: {
-        vehicle: true,
-      },
-      order: {
-        id: 'ASC',
-      },
-    });
-    return vehicles;
-  }
+  // async getVehiclesByGroup(id: number): Promise<any> {
+  //   const vehicles = await this.vehicleGroupRepository.find({
+  //     where: { group: { vgId: id } },
+  //     relations: {
+  //       vehicle: true,
+  //     },
+  //     order: {
+  //       id: 'ASC',
+  //     },
+  //   });
+  //   return vehicles;
+  // }
   /**
    * Recupera tutti i dispositivi
    * @returns
