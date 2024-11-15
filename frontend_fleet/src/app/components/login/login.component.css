@@ -5,8 +5,16 @@
   align-items: center;
   justify-content: center;
 }
+.border-container{
+  background-color: white;
+  padding: 50px;
+  border-radius: 10px;
+}
 .login-form{
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+.login-p{
+  margin-top: 1.5vh;
 }

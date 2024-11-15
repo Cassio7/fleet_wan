@@ -1,25 +1,27 @@
 <div class="loginForm-container">
-  <form [formGroup]="loginForm" class="login-form" (submit)="login()">
-    <h1 class="form-title">ACCEDI</h1>
+  <div class="border-container">
+    <form [formGroup]="loginForm" class="login-form" (submit)="login()">
+      <h1 class="form-title">ACCEDI</h1>
 
-    <mat-form-field>
-      <mat-label>Username or email</mat-label>
-      <input matInput class="usernameOremail" formControlName="usernameOremail" placeholder="Username or email">
-      <mat-error *ngIf="loginForm.controls['usernameOremail'].errors?.['required']">
-        L'username è obbligatorio.
-      </mat-error>
-    </mat-form-field>
+      <mat-form-field>
+        <mat-label>Username or email</mat-label>
+        <input matInput class="usernameOremail" formControlName="usernameOremail" placeholder="Username or email">
+        <mat-error *ngIf="loginForm.controls['usernameOremail'].errors?.['required']">
+          L'username è obbligatorio.
+        </mat-error>
+      </mat-form-field>
 
-    <mat-form-field>
-      <mat-label>Password</mat-label>
-      <input matInput type="password" class="password" formControlName="password" placeholder="Password">
-      <mat-error *ngIf="loginForm.controls['password'].errors?.['required']">
-        La password è obbligatoria.
-      </mat-error>
-    </mat-form-field>
+      <mat-form-field>
+        <mat-label>Password</mat-label>
+        <input matInput type="password" class="password" formControlName="password" placeholder="Password">
+        <mat-error *ngIf="loginForm.controls['password'].errors?.['required']">
+          La password è obbligatoria.
+        </mat-error>
+      </mat-form-field>
 
-    <button mat-raised-button color="primary" type="submit" [disabled]="loginForm.invalid">Invia</button>
+      <button mat-raised-button color="primary" type="submit" [disabled]="loginForm.invalid">Invia</button>
 
-    <p class="login-p">Non hai un account? Registrati <a class="login-link" routerLink="/sign-up">qui</a></p>
-  </form>
+      <p class="login-p">Non hai un account? Registrati <a class="login-link" routerLink="/sign-up">qui</a></p>
+    </form>
+  </div>
 </div>
