@@ -36,6 +36,8 @@ table groups{
   companyId it [ref: > companies.id]
 }
 
+
+
 Table vehicles {
   id int [primary key]
   veId int 
@@ -51,6 +53,14 @@ Table vehicles {
   profileName string
   hash string
   deviceId int [ref: - devices.id]
+  worksiteId int [ref: > worksite.id]
+}
+
+table notes{
+  id int [primary key]
+  text text
+  userId int [ref: > users.id]
+  vehicleId int [ref: > vehicles.id]
 }
 
 table devices{
@@ -69,11 +79,16 @@ table devices{
   hash string
 }
 
+table worksite{
+  id int [primary key]
+  name string
+
+}
 
 table vehicle_group {
   id int [primary key]
   groupId int [ref: > groups.id]
-  vehicleId int [ref: > vehicles.id]
+  worksiteId int [ref: > worksite.id]
 }
 
 table realtime_positions{
