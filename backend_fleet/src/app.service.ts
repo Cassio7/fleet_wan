@@ -6,6 +6,9 @@ import { SessionService } from './services/session/session.service';
 import { Cron } from '@nestjs/schedule';
 import { TagService } from './services/tag/tag.service';
 import { UserFactoryService } from './factory/user.factory';
+import { WorksiteFactoryService } from './factory/worksite.factory';
+import { GroupFactoryService } from './factory/group.factory';
+import { WorksiteGroupFactoryService } from './factory/worksite_group.factory';
 
 @Injectable()
 export class AppService implements OnModuleInit {
@@ -16,6 +19,9 @@ export class AppService implements OnModuleInit {
     private readonly tagService: TagService,
     private readonly userFactoryService: UserFactoryService,
     private readonly companyFactoryService: CompanyFactoryService,
+    private readonly worksiteFactoryService: WorksiteFactoryService,
+    private readonly groupFactoryService: GroupFactoryService,
+    private readonly worksiteGroupFactoryService: WorksiteGroupFactoryService,
   ) {}
 
   // popolo database all'avvio
@@ -30,30 +36,34 @@ export class AppService implements OnModuleInit {
     await this.userFactoryService.createDefaultRoles();
     await this.userFactoryService.createDefaultUserRoles();
     await this.companyFactoryService.createDefaultCompanies();
+    await this.groupFactoryService.createDefaultGroup();
+    await this.worksiteFactoryService.createDefaultWorksite();
+    await this.worksiteGroupFactoryService.createDefaultWorksiteGroup();
   }
 
   async putDbData() {
     const startDate = '2024-10-28T00:00:00.000Z';
     const endDate = '2024-10-31T00:00:00.000Z';
     //const endDate = new Date().toISOString();
-    await this.groupService.setGroupList(254);
-    const groups = await this.groupService.getAllGroups();
-    for (const group of groups) {
-      await this.vehicleService.getVehicleList(group.vgId);
-    }
+    //await this.groupService.setGroupList(254);
+    await this.vehicleService.getVehicleList(254, 313);
+    await this.vehicleService.getVehicleList(305, 650);
+    await this.vehicleService.getVehicleList(324, 688);
+
     const vehicles = await this.vehicleService.getAllVehicles();
+    await this.worksiteFactoryService.createDefaultVehicleWorksite();
     for (const vehicle of vehicles) {
       console.log(
         `${vehicle.veId} con targa: ${vehicle.plate} - ${vehicle.id}`,
       );
-      await this.sessionService.getSessionist(vehicle.veId, startDate, endDate);
+      //await this.sessionService.getSessionist(vehicle.veId, startDate, endDate);
     }
-    for (const vehicle of vehicles) {
-      console.log(
-        `${vehicle.veId} con targa: ${vehicle.plate} - ${vehicle.id}`,
-      );
-      await this.tagService.putTagHistory(vehicle.veId, startDate, endDate);
-    }
+    // for (const vehicle of vehicles) {
+    //   console.log(
+    //     `${vehicle.veId} con targa: ${vehicle.plate} - ${vehicle.id}`,
+    //   );
+    //   await this.tagService.putTagHistory(vehicle.veId, startDate, endDate);
+    // }
   }
 
   // @Cron('0 0 * * *')
@@ -81,12 +91,10 @@ export class AppService implements OnModuleInit {
       new Date().getTime() - 5 * 60 * 1000, // 5 minuti
     ).toISOString();
     const endDate = new Date().toISOString();
+    await this.vehicleService.getVehicleList(254, 313);
+    await this.vehicleService.getVehicleList(305, 650);
+    await this.vehicleService.getVehicleList(324, 688);
 
-    await this.groupService.setGroupList(254);
-    const groups = await this.groupService.getAllGroups();
-    for (const group of groups) {
-      await this.vehicleService.getVehicleList(group.vgId);
-    }
     const vehicles = await this.vehicleService.getAllVehicles();
     for (const vehicle of vehicles) {
       console.log(
