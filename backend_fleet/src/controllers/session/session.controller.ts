@@ -1,5 +1,9 @@
 import { Controller, Post, Res, Param, Body, Get } from '@nestjs/common';
+import { TagEntity } from 'classes/entities/tag.entity';
+import { TagHistoryEntity } from 'classes/entities/tag_history.entity';
+import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { Response } from 'express';
+import { rmSync } from 'fs';
 import { SessionService } from 'src/services/session/session.service';
 import { TagService } from 'src/services/tag/tag.service';
 import { VehicleService } from 'src/services/vehicle/vehicle.service';
@@ -55,6 +59,17 @@ export class SessionController {
     if (data.length > 0) {
       res.status(200).send(data);
     } else res.status(200).send(`No Session per id: ${params.id}`);
+  }
+
+  /**
+   * Restituisce l'ultima sessione di ogni veicolo in un range di tempo
+   */
+  @Post('last/all')
+  async getAllVehiclesLastSessionByVeIdRanged(@Res() res: Response, @Body() body: any){
+    const dateFrom = body.dateFrom;
+    const dateTo = body.dateTo;
+    const sessions = await this.sessionService.getAllVehiclesLastSessionByVeIdRanged(dateFrom, dateTo);
+    sessions ? res.status(200).send(sessions) : res.send(404).send("No last session found");
   }
   /**
    * API per prendere l'ultima sessione in base all'id
@@ -491,22 +506,22 @@ export class SessionController {
   
               if (flag_distance) {
                 sessions.anomalies.push(
-                  `Anomalia GPS per la distanza, sempre uguale a ${distanceMap[0]}`,
+                  {GPS: `Anomalia GPS per la distanza, sempre uguale a ${distanceMap[0]}`},
                 );
               }
               if (flag_distance_can) {
                 sessions.anomalies.push(
-                  `Anomalia GPS per la distanza problema con il tachimetro, sempre uguale a ${distanceMap[0]}`,
+                  {GPS: `Anomalia GPS per la distanza problema con il tachimetro, sempre uguale a ${distanceMap[0]}`},
                 );
               }
               if (flag_coordinates) {
                 sessions.anomalies.push(
-                  `Anomalia nelle coordinate, sempre uguali a lat: ${coordinates[0].latitude} e lon: ${coordinates[0].longitude}`,
+                  {GPS: `Anomalia nelle coordinate, sempre uguali a lat: ${coordinates[0].latitude} e lon: ${coordinates[0].longitude}`},
                 );
               }
               if (flag_coordinates_zero) {
                 sessions.anomalies.push(
-                  `Anomalia nelle coordinate, almeno 1 con lat: 0 e lon: 0`,
+                  {GPS: `Anomalia nelle coordinate, almeno 1 con lat: 0 e lon: 0`},
                 );
               }
   
@@ -726,8 +741,8 @@ export class SessionController {
     // Get the latest tag read for all vehicles
     await Promise.all(
       allVehicles.map(async vehicle => {
-        const lastTag = await this.tagService.getLastTagHistoryByVeId(vehicle.veId);
-
+        const lastTag: TagHistoryEntity = await this.tagService.getLastTagHistoryByVeId(vehicle.veId);
+        console.log(lastTag);
         vehicles.push({
           veId: vehicle.veId,
           lastTag: lastTag
@@ -855,7 +870,7 @@ export class SessionController {
   @Get('lastevent/all')
   async lastEventComparisonAll(@Res() res: Response) {
     try {
-      const outputErrors = [];
+      const brokenVehicles = [];
       const vehicles = await this.vehicleService.getVehiclesByReader();
       for (const vehicle of vehicles) {
         const lastSession = await this.sessionService.getLastSession(
@@ -868,7 +883,7 @@ export class SessionController {
             new Date(lastVehicleEvent).getTime() !=
             new Date(sessionEnd).getTime()
           ) {
-            outputErrors.push(vehicle);
+            brokenVehicles.push(vehicle);
             // console.log({
             //   message:
             //     "L'ultimo evento del veicolo NON corrisponde con la fine della sua ultima sessione.",
@@ -878,11 +893,11 @@ export class SessionController {
           }
         }
       }
-      if (outputErrors.length > 0) {
+      if (brokenVehicles.length > 0) {
         res.status(200).send({
           message:
             "Veicoli dove l'ultima sessione non corrisponde all'ultimo evento registrato",
-          outputErrors,
+            brokenVehicles,
         });
       } else {
         res.status(200).send({
@@ -896,7 +911,7 @@ export class SessionController {
   }
   async lastEventComparisonAllNoApi() {
     try {
-      const outputErrors = [];
+      const brokenVehicles = [];
       const vehicles = await this.vehicleService.getVehiclesByReader();
       for (const vehicle of vehicles) {
         const lastSession = await this.sessionService.getLastSession(vehicle.veId);
@@ -904,15 +919,15 @@ export class SessionController {
           const lastVehicleEvent = vehicle.lastEvent;
           const sessionEnd = lastSession.period_to;
           if (new Date(lastVehicleEvent).getTime() != new Date(sessionEnd).getTime()) {
-            outputErrors.push(vehicle);
+            brokenVehicles.push(vehicle);
           }
         }
       }
   
-      if (outputErrors.length > 0) {
+      if (brokenVehicles.length > 0) {
         return {
           message: "Veicoli dove l'ultima sessione non corrisponde all'ultimo evento registrato",
-          errors: outputErrors,
+          errors: brokenVehicles as any[],
         };
       } else {
         return { message: 'Nessun veicolo presenta incongruenze' };
@@ -1014,34 +1029,102 @@ export class SessionController {
   async checkErrorsAll(@Res() res: Response, @Body() body) {
     const dateFrom = body.dateFrom;
     const dateTo = body.dateTo;
-    let vehicles: any;
+    
+    let gpsErrors: any; //risultati controllo gps 
+    let vehiclesTagComparison: any; //risultati comparazione tag x controllo errori antenna
+    let lastEventErrors: any; //controllo errori lastEvent
+
+    let customVehicles: any;
     //controlla errore di GPS
     try{
-      vehicles = await this.checkSessionGPSAllNoApi(dateFrom, dateTo);
+      gpsErrors = await this.checkSessionGPSAllNoApi(dateFrom, dateTo); //restituisce dei veicoli custom con alcuni dati e un array di anomalie, in cui ci mette quelle di GPS se presenti
+      customVehicles = gpsErrors;
     }catch(error){
       console.error("Errore nel controllo errori del GPS");
     }
 
     //controlla errore antenna
     try{
-      const vehiclesTagComparison = await this.tagComparisonAllWithTimeRangeNoApi(dateFrom, dateTo);
+      vehiclesTagComparison = await this.tagComparisonAllWithTimeRangeNoApi(dateFrom, dateTo); 
     }catch(error){
       console.error("Errore nella comparazione dei tag per controllare gli errori delle antenne.");
     }
 
     //controlla errore inizio e fine sessione (last event)
     try{
-      let brokenVehicles: any;
       let comparison = await this.lastEventComparisonAllNoApi();
-      typeof comparison !== 'string' ? brokenVehicles=comparison.errors : brokenVehicles = [];
+      typeof comparison !== 'string' ? lastEventErrors=comparison.errors : lastEventErrors = [];
     }catch(error){
       console.log("Errore nel controllo del last event");
     }
 
-    //metti insieme in un unico array di veicoli tutte le anomalie per il corretto veicolo e sessione
-    vehicles.forEach(v => {
-      //accorpa errori di antenna
-      //accorpa errori di sessione
+    /*metti insieme in un unico array di veicoli tutte le anomalie per il corretto veicolo e sessione*/
+    //accorpa errori di antenna
+    vehiclesTagComparison.data.forEach((el: any)=> {
+      customVehicles.forEach((v: any) => {
+        if (v.veId == el.veId && v.sessions?.length > 0) {
+          v.sessions[0].anomalies.push({ antenna: true });
+        }        
+      });
     });
+    
+
+    //accorpa errori di fine sessione
+
+    (lastEventErrors as any[]).forEach((el: VehicleEntity) => {
+      customVehicles.forEach((v: any) => {
+        if (v.veId == el.veId && v.sessions?.length > 0){
+          v.sessions[0].anomalies.push({ sessionEnd: true });
+        }
+      });
+    });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    //GPS custom obj = template obj
+    // (fine sessione)last event custom obj: {
+    //   "message": "Veicoli dove l'ultima sessione non corrisponde all'ultimo evento registrato",
+    //   "brokenVehicles": [
+    //       {
+    //           "id": 19,
+    //           "key": "a8b9f5e0-14ec-4447-8501-579b6b4e3ce3",
+    //           "createdAt": "2024-11-13T12:53:40.320Z",
+    //           "updatedAt": "2024-11-13T12:53:40.320Z",
+    //           "version": 1,
+    //           "veId": 3677,
+    //           "active": true,
+    //           "plate": "CA 615 VC" ...
+
+  //  (antenna)tag comparison custom obj:    
+    // "data": [
+    //     {
+    //       "veId": 3845,
+    //       "lastTag": null
+    //   },
+
+  // vehicles custom obj:  [{
+  //     "plate": "GH 578 GR",
+  //     "veId": 3381,
+  //     "isCan": false,
+  //     "sessions": [
+  //         {
+  //             "date": "2024-10-31T00:00:00.000Z",
+  //             "anomalies": []
+  //         }
+  //     ]
+  // },
+    res.status(200).send(customVehicles);
+
   }
 }
