@@ -10,7 +10,6 @@ import { JwtModule } from '@nestjs/jwt';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { DeviceEntity } from 'classes/entities/device.entity';
 import { GroupEntity } from 'classes/entities/group.entity';
-import { VehicleGroupEntity } from 'classes/entities/vehicle_group.entity';
 import { RealtimePositionEntity } from 'classes/entities/realtime_position.entity';
 import { HistoryEntity } from 'classes/entities/history.entity';
 import { TagEntity } from 'classes/entities/tag.entity';
@@ -21,6 +20,7 @@ import { UserEntity } from 'classes/entities/user.entity';
 import { RoleEntity } from 'classes/entities/role.entity';
 import { UserRoleEntity } from 'classes/entities/user_role.entity';
 import { CompanyEntity } from 'classes/entities/company.entity';
+import { WorksiteEntity } from 'classes/entities/worksite.entity';
 
 // importo i servizi
 import { VehicleService } from './services/vehicle/vehicle.service';
@@ -45,6 +45,10 @@ import { AuthController } from './controllers/auth/auth.controller';
 import { UserFactoryService } from './factory/user.factory';
 import { CompanyFactoryService } from './factory/company.factory';
 import { UserController } from './controllers/user/user.controller';
+import { WorksiteFactoryService } from './factory/worksite.factory';
+import { GroupFactoryService } from './factory/group.factory';
+import { WorksiteGroupEntity } from 'classes/entities/worksite_group.entity';
+import { WorksiteGroupFactoryService } from './factory/worksite_group.factory';
 
 @Global()
 @Module({
@@ -68,7 +72,6 @@ import { UserController } from './controllers/user/user.controller';
           VehicleEntity,
           DeviceEntity,
           GroupEntity,
-          VehicleGroupEntity,
           RealtimePositionEntity,
           HistoryEntity,
           TagEntity,
@@ -79,6 +82,8 @@ import { UserController } from './controllers/user/user.controller';
           RoleEntity,
           UserRoleEntity,
           CompanyEntity,
+          WorksiteEntity,
+          WorksiteGroupEntity,
         ],
         synchronize: true,
         //dropSchema: true, // if true drop db
@@ -89,7 +94,6 @@ import { UserController } from './controllers/user/user.controller';
         VehicleEntity,
         DeviceEntity,
         GroupEntity,
-        VehicleGroupEntity,
         RealtimePositionEntity,
         HistoryEntity,
         TagEntity,
@@ -100,6 +104,8 @@ import { UserController } from './controllers/user/user.controller';
         RoleEntity,
         UserRoleEntity,
         CompanyEntity,
+        WorksiteEntity,
+        WorksiteGroupEntity,
       ],
       'mainConnection',
     ),
@@ -135,6 +141,9 @@ import { UserController } from './controllers/user/user.controller';
     CompanyService,
     CompanyFactoryService,
     UserFactoryService,
+    WorksiteFactoryService,
+    GroupFactoryService,
+    WorksiteGroupFactoryService,
   ],
 })
 export class AppModule {}
