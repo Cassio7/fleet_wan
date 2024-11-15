@@ -536,6 +536,32 @@ export class SessionService {
     return session;
   }
 
+    /**
+   * Restituisce l'ultima sessione di ogni veicolo in base al range temporale inserito
+   * @param id VeId identificativo Veicolo
+   * @param dateFrom Data inizio ricerca sessione
+   * @param dateTo Data fine ricerca sessione
+   * @returns
+   */
+    async getAllVehiclesLastSessionByVeIdRanged(
+      dateFrom: Date,
+      dateTo: Date,
+    ): Promise<any> {
+      const session = await this.sessionRepository.findOne({
+        where: {
+          period_from: MoreThanOrEqual(dateFrom),
+          period_to: LessThanOrEqual(dateTo),
+        },
+        relations: {
+          history: true,
+        },
+        order: {
+          sequence_id: 'DESC',
+        },
+      });
+      return session;
+    }
+
   /**
    * Ritorna l'ultima sessione registrata di un veicolo in base al VeId
    * @param id VeId identificativo Veicolo
