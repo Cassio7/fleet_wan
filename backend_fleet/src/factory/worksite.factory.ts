@@ -32,24 +32,21 @@ export class WorksiteFactoryService {
 
   async createDefaultVehicleWorksite() {
     const vehicleWorksiteData = await parseCsvFile(this.cvsPathV);
-
-    vehicleWorksiteData.map(async (data) => {
-      const vehicle = await this.vehicleRepository.findOne({
-        where: {
-          veId: data.veId,
-        },
-      });
-      vehicle.worksite = await this.worksiteRepository.findOne({
-        where: {
-          id: data.worksiteId,
-        },
-      });
-      await this.vehicleRepository.update(
-        {
-          key: vehicle.key,
-        },
-        vehicle,
-      );
-    });
+    await Promise.all(
+      vehicleWorksiteData.map(async (data) => {
+        const vehicle = await this.vehicleRepository.findOne({
+          where: {
+            veId: data.veId,
+          },
+        });
+        vehicle.worksite = await this.worksiteRepository.findOne({
+          where: {
+            id: data.worksiteId,
+          },
+        });
+        // uso save invece di update così si aggiorna la variabile di version
+        await this.vehicleRepository.save(vehicle);
+      }),
+    );
   }
 }
