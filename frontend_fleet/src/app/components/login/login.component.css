@@ -6,7 +6,7 @@
   justify-content: center;
 }
 .border-container{
-  background-color: white;
+  background-color: rgba(255, 255, 255, 0.842);
   padding: 50px;
   border-radius: 10px;
 }

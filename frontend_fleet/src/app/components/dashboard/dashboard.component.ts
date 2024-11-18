@@ -19,9 +19,10 @@ import { VehiclesApiService } from '../../services/vehicles service/vehicles-api
 import { NavbarComponent } from '../navbar/navbar.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { Vehicle } from '../../models/Vehicle';
-import { ErrorGraphComponent } from "../error-graph/error-graph.component";
-import { BlackboxGraphComponent } from "../blackbox-graph/blackbox-graph.component";
+import { BlackboxGraphComponent } from "../blackbox-graphs/sefwe/blackbox-pie-graph.component";
 import { TableComponent } from "../table/table.component";
+import { ErrorGraphCardComponent } from "../error graphs/error-graph-card/error-graph-card.component";
+import { BlackboxGraphCardComponent } from "../blackbox-graphs/blackbox-graph-card/blackbox-graph-card.component";
 
 @Component({
   selector: 'app-dashboard',
@@ -39,9 +40,9 @@ import { TableComponent } from "../table/table.component";
     MatNativeDateModule,
     MatDatepickerModule,
     RouterModule,
-    ErrorGraphComponent,
-    BlackboxGraphComponent,
-    TableComponent
+    TableComponent,
+    ErrorGraphCardComponent,
+    BlackboxGraphCardComponent
 ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'

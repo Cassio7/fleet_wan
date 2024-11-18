@@ -1,3 +1,4 @@
+import { BlackboxGraphsService } from '../../../services/blackbox-graphs/blackbox-graphs.service';
 import { Component, ViewChild, ViewEncapsulation } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { ApexChart, ApexNonAxisChartSeries, ApexResponsive, ApexTheme, ApexTitleSubtitle, ChartComponent, NgApexchartsModule } from 'ng-apexcharts';
@@ -18,8 +19,8 @@ export type ChartOptions = {
     NgApexchartsModule,
     MatCardModule
   ],
-  templateUrl: './blackbox-graph.component.html',
-  styleUrl: './blackbox-graph.component.css',
+  templateUrl: './blackbox-pie-graph.component.html',
+  styleUrl: './blackbox-pie-graph.component.css',
   encapsulation: ViewEncapsulation.None
 })
 
@@ -27,11 +28,15 @@ export class BlackboxGraphComponent {
   @ViewChild("chart") chart!: ChartComponent;
   public chartOptions: Partial<ChartOptions>;
 
-  constructor() {
+  constructor(
+    private blackboxGraphsService: BlackboxGraphsService
+  ) {
     this.chartOptions = {
-      series: [60, 40],
+      series: this.blackboxGraphsService.values,
       chart: {
-        type: "pie"
+        type: "pie",
+        height: "400", // Increase this value as needed to make the chart larger
+        width: "100%"  // Set to 100% to take full width of the parent container
       },
       labels: ["Blackbox", "BlackBox+antenna"],
       theme: {
@@ -45,10 +50,14 @@ export class BlackboxGraphComponent {
           options: {
             legend: {
               position: "top"
+            },
+            chart: {
+              height: "300" // Adjust the height for smaller screens if necessary
             }
           }
         }
       ]
     };
+
   }
 }

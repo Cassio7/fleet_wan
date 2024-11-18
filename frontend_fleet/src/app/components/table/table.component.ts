@@ -31,7 +31,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   private readonly destroy$: Subject<void> = new Subject<void>();
 
   /*da rimuovere*/
-  antennaError: boolean = false;
+  antennaError: boolean = true;
   sessionError: boolean = false;
 
   vehicleTableData = new MatTableDataSource<Session>();  // Use MatTableDataSource for the table
@@ -42,7 +42,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   displayedColumns: string[] = ['comune', 'targa', 'GPS', 'antenna', 'sessione'];
 
   cantieri = new FormControl<string[]>([]);
-  listaCantieri: string[] = ['Seleziona tutto', 'Deseleziona tutto', 'Extra cheese', 'Mushroom', 'Onion', 'Pepperoni', 'Sausage', 'Tomato'];
+  listaCantieri: string[] = ['Seleziona tutto', 'Deseleziona tutto', 'Bastia Umbra', 'Todi', 'Umbertide', 'Capranica', 'Perugia', 'Ronciglione', 'Monserrato', 'Sorso', 'Sennori'];
 
 
   ngOnDestroy(): void {

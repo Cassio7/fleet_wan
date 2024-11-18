@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { BlackboxGraphComponent } from './blackbox-graph.component';
+import { BlackboxGraphComponent } from './blackbox-pie-graph.component';
 
 describe('BlackboxGraphComponent', () => {
   let component: BlackboxGraphComponent;

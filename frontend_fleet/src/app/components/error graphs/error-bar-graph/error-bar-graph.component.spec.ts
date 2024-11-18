@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ErrorGraphComponent } from './error-graph.component';
+import { ErrorBarGraphComponent } from './error-bar-graph.component';
 
-describe('ErrorGraphComponent', () => {
-  let component: ErrorGraphComponent;
-  let fixture: ComponentFixture<ErrorGraphComponent>;
+describe('ErrorBarGraphComponent', () => {
+  let component: ErrorBarGraphComponent;
+  let fixture: ComponentFixture<ErrorBarGraphComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ErrorGraphComponent]
+      imports: [ErrorBarGraphComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(ErrorGraphComponent);
+    fixture = TestBed.createComponent(ErrorBarGraphComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

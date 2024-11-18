@@ -1,6 +1,16 @@
 .graph-card {
+  width: 100%;
   cursor: pointer;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-sizing: border-box;
+}
+
+.graph-card mat-card-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 3%;
+  justify-content: flex-start;
 }
 
 .graph-card:hover {

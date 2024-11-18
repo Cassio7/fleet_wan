@@ -1,0 +1,16 @@
+<mat-card class="graph-card" appearance="outlined">
+  <mat-card-header>
+    <mat-card-title class="graph-title">Riassunto presenza black box</mat-card-title>
+    <mat-form-field appearance="fill" class="select-formField">
+      <mat-label class="select-title">Scegli un grafico</mat-label>
+      <mat-select (selectionChange)="changeGraph($event.value)" #graphSelect class="graph-select">
+        <mat-option value="pie">Pie</mat-option>
+        <mat-option value="bar">Bar</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </mat-card-header>
+  <mat-card-content>
+    <app-blackbox-pie-graph *ngIf="pieGraph"></app-blackbox-pie-graph>
+    <app-blackbox-bar-graph *ngIf="barGraph"></app-blackbox-bar-graph>
+  </mat-card-content>
+</mat-card>

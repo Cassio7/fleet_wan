@@ -116,7 +116,6 @@ mat-drawer {
   width: 100%;
   gap: 20px;
   flex-grow: 5;
-  float: right;
 }
 
 .error-graph {
@@ -131,5 +130,4 @@ mat-drawer {
   height: 100%;
   margin: 0;
   padding: 0;
-  margin-right: clamp(5%, 10vw, 10%);
 }
