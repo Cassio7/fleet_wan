@@ -389,6 +389,7 @@ export class VehicleService {
     const vehicles = await this.vehicleRepository.find({
       relations: {
         device: true,
+        worksite: true,
       },
       order: {
         id: 'ASC',
