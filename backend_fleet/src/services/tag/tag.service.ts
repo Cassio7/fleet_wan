@@ -29,7 +29,8 @@ export class TagService {
   // Costruisce la richiesta SOAP
   private buildSoapRequest(
     methodName: string,
-    id: number,
+    suId: number,
+    veId: number,
     dateFrom: string,
     dateTo: string,
   ): string {
@@ -38,8 +39,8 @@ export class TagService {
         <soapenv:Header/>
         <soapenv:Body>
           <fwan:${methodName}>
-            <suId>${process.env.SUID}</suId>
-            <veId>${id}</veId>
+            <suId>${suId}</suId>
+            <veId>${veId}</veId>
             <timezone>Europe/Rome</timezone>
             <degreeCoords>true</degreeCoords>
             <dateFrom>${dateFrom}</dateFrom>
@@ -49,12 +50,13 @@ export class TagService {
       </soapenv:Envelope>`;
   }
   async putTagHistory(
-    id: number,
+    suId: number,
+    veId: number,
     dateFrom: string,
     dateTo: string,
   ): Promise<any> {
     const methodName = 'TagHistory';
-    const requestXml = this.buildSoapRequest(methodName, id, dateFrom, dateTo);
+    const requestXml = this.buildSoapRequest(methodName, suId,veId, dateFrom, dateTo);
     const headers = {
       'Content-Type': 'text/xml; charset=utf-8',
       SOAPAction: `"${methodName}"`,
@@ -69,7 +71,7 @@ export class TagService {
         longitude: tag_history.longitude,
         nav_mode: tag_history.navMode,
         geozone: tag_history.geozone,
-        vehicle: id,
+        vehicle: veId,
       };
       return createHash('sha256').update(JSON.stringify(toHash)).digest('hex');
     };
@@ -108,7 +110,7 @@ export class TagService {
           longitude: item['longitude'],
           nav_mode: item['navMode'],
           geozone: item['geozone'],
-          vehicle: id,
+          vehicle: veId,
           list: item['list'],
           hash: hash,
         };
@@ -128,7 +130,7 @@ export class TagService {
       const vehicle = await queryRunner.manager
         .getRepository(VehicleEntity)
         .findOne({
-          where: { veId: id },
+          where: { veId: veId },
         });
       const newTagHistory = [];
       for (const tagHistory of filteredDataTagHistory) {
