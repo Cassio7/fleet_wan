@@ -44,7 +44,7 @@ export class ErrorBarGraphComponent {
     this.chartOptions = {
       series: [
         {
-          name: "distributed",
+          name: "Data",
           data: this.errorGraphsService.values
         }
       ],

@@ -32,6 +32,7 @@ export class ErrorGraphCardComponent implements AfterViewInit{
 
   ngAfterViewInit(): void {
     this.graphSelect.value = 'pie';
+    this.cd.detectChanges();
   }
 
   changeGraph(graph: string): void {

@@ -26,12 +26,16 @@ export class LoginComponent {
 
   constructor(private router: Router) {
     this.loginForm = new FormGroup({
-      usernameOremail: new FormControl('', [Validators.required, Validators.maxLength(12)]), // aggiungi il controllo username
-      password: new FormControl('', [Validators.required]) // aggiungi il controllo password
+      usernameOremail: new FormControl('', [Validators.required, Validators.maxLength(12)]), //  controllo username
+      password: new FormControl('', [Validators.required]) // controllo password
     });
   }
 
   login(){
-    this.router.navigate(['dashboard']);
+    if(this.loginForm.valid){
+      localStorage.setItem("user", this.loginForm.get('usernameOremail')?.value);
+      this.router.navigate(['dashboard']);
+    }
+
   }
 }

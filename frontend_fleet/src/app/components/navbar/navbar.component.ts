@@ -3,7 +3,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { Subject } from 'rxjs';
 import { CommonService } from '../../services/common service/common.service';
 
@@ -23,9 +23,17 @@ import { CommonService } from '../../services/common service/common.service';
 })
 export class NavbarComponent {
 
-  constructor(private commonService: CommonService){}
+  constructor(
+    private commonService: CommonService,
+    private router: Router
+  ){}
 
   notifySidebar(){
     this.commonService.notifySidebar$.next();
+  }
+
+  logout(){
+    localStorage.removeItem("user");
+    this.router.navigate(['/login']);
   }
 }

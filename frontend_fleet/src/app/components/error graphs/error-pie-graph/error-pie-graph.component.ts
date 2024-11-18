@@ -35,8 +35,8 @@ export class ErrorPieGraphComponent {
       series: this.errorGraphsService.values,
       chart: {
         type: "pie",
-        height: "400", // Set the height for the chart
-        width: "100%"  // Set the width to 100% to take full container width
+        height: "400",
+        width: "100%"
       },
       labels: ["Funzionante", "Warning", "Error"],
       colors: this.errorGraphsService.colors,
@@ -48,7 +48,7 @@ export class ErrorPieGraphComponent {
               position: "top"
             },
             chart: {
-              height: "300" // Adjust the height for smaller screens if necessary
+              height: "300"
             }
           }
         }

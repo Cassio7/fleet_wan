@@ -8,7 +8,7 @@
     <button mat-button class="notifications-btn"><mat-icon>notifications</mat-icon></button>
     <button mat-button [matMenuTriggerFor]="menu" class="account-circle-btn"><div mat-card-avatar class="account-circle"></div></button>
     <mat-menu #menu="matMenu">
-      <button mat-menu-item>Esci</button>
+      <button mat-menu-item (click)="logout()">Esci</button>
     </mat-menu>
   </div>
 </mat-toolbar>

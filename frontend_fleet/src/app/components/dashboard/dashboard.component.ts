@@ -6,23 +6,14 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { MatDrawer, MatDrawerContainer } from '@angular/material/sidenav';
-import { MatTableModule, MatTableDataSource, MatTable } from '@angular/material/table';
-import { Router, RouterModule } from '@angular/router';
-import { Subject, takeUntil, timestamp } from 'rxjs';
-import { History } from '../../models/History';
-import { Session } from '../../models/Session';
+import { RouterModule } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
 import { CommonService } from '../../services/common service/common.service';
-import { SessionApiService } from '../../services/session service/session-api.service';
-import { VehiclesApiService } from '../../services/vehicles service/vehicles-api.service';
+import { BlackboxGraphCardComponent } from '../blackbox-graphs/blackbox-graph-card/blackbox-graph-card.component';
+import { ErrorGraphCardComponent } from '../error graphs/error-graph-card/error-graph-card.component';
 import { NavbarComponent } from '../navbar/navbar.component';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { Vehicle } from '../../models/Vehicle';
-import { BlackboxGraphComponent } from "../blackbox-graphs/sefwe/blackbox-pie-graph.component";
-import { TableComponent } from "../table/table.component";
-import { ErrorGraphCardComponent } from "../error graphs/error-graph-card/error-graph-card.component";
-import { BlackboxGraphCardComponent } from "../blackbox-graphs/blackbox-graph-card/blackbox-graph-card.component";
+import { TableComponent } from '../table/table.component';
 
 @Component({
   selector: 'app-dashboard',

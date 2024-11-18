@@ -15,3 +15,7 @@ tr,td, th{
 .check-icon {
   color: rgb(3, 184, 3);
 }
+
+.error-icon, .check-icon, .warning-icon{
+  cursor: pointer;
+}

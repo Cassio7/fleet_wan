@@ -1,4 +1,4 @@
-import { BlackboxGraphsService } from './../../../services/blackbox-graphs/blackbox-graphs.service';
+import { BlackboxGraphsService } from '../../../services/blackbox-graphs/blackbox-graphs.service';
 import { Component, ViewChild } from '@angular/core';
 import { ApexAxisChartSeries, ApexChart, ApexDataLabels, ApexGrid, ApexLegend, ApexPlotOptions, ApexYAxis, ChartComponent, NgApexchartsModule } from 'ng-apexcharts';
 
@@ -42,7 +42,7 @@ export class BlackboxBarGraphComponent {
     this.chartOptions = {
       series: [
         {
-          name: "distributed",
+          name: "Data",
           data: this.blackboxGraphsService.values
         }
       ],

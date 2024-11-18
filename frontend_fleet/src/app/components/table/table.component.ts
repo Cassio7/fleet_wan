@@ -10,6 +10,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { SessionApiService } from '../../services/session service/session-api.service';
 import { VehiclesApiService } from '../../services/vehicles service/vehicles-api.service';
 import { Vehicle } from '../../models/Vehicle';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-table',
@@ -20,6 +21,7 @@ import { Vehicle } from '../../models/Vehicle';
     MatIconModule,
     MatTableModule,
     MatSelectModule,
+    MatTooltipModule,
     MatCheckboxModule,
   ],
   templateUrl: './table.component.html',
@@ -44,7 +46,6 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   cantieri = new FormControl<string[]>([]);
   listaCantieri: string[] = ['Seleziona tutto', 'Deseleziona tutto', 'Bastia Umbra', 'Todi', 'Umbertide', 'Capranica', 'Perugia', 'Ronciglione', 'Monserrato', 'Sorso', 'Sennori'];
 
-
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -66,8 +67,9 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   }
 
   ngAfterViewInit(): void {
-    this.fillTable(); //Riempi la tabella
+    this.fillTable();
   }
+
 
     /**
    * Viene chiamata alla premuta di un qualsiasi checkbox dentro il select per il filtro
@@ -99,7 +101,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
           }
         });
         this.vehicleTable.renderRows();
-        this.checkErrors();
+        this.cd.markForCheck();
       }
     });
   }
