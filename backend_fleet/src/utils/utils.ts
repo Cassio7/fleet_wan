@@ -25,6 +25,12 @@ export function convertHours(timestamp: string): string {
   return updatedTimestamp;
 }
 
+/**
+ * Ritorna il range di date diviso giorno per giorno
+ * @param startDate data di inizio
+ * @param endDate data di fine
+ * @returns 
+ */
 export function getDaysInRange(startDate, endDate) {
   let currentDate = new Date(startDate);
   const dates = [];
