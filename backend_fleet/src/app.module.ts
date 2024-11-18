@@ -49,6 +49,8 @@ import { WorksiteFactoryService } from './factory/worksite.factory';
 import { GroupFactoryService } from './factory/group.factory';
 import { WorksiteGroupEntity } from 'classes/entities/worksite_group.entity';
 import { WorksiteGroupFactoryService } from './factory/worksite_group.factory';
+import { NoteEntity } from 'classes/entities/note.entity';
+import { CompanyController } from './controllers/company/company.controller';
 
 @Global()
 @Module({
@@ -84,6 +86,7 @@ import { WorksiteGroupFactoryService } from './factory/worksite_group.factory';
           CompanyEntity,
           WorksiteEntity,
           WorksiteGroupEntity,
+          NoteEntity,
         ],
         synchronize: true,
         //dropSchema: true, // if true drop db
@@ -106,6 +109,7 @@ import { WorksiteGroupFactoryService } from './factory/worksite_group.factory';
         CompanyEntity,
         WorksiteEntity,
         WorksiteGroupEntity,
+        NoteEntity,
       ],
       'mainConnection',
     ),
@@ -128,6 +132,7 @@ import { WorksiteGroupFactoryService } from './factory/worksite_group.factory';
     TagController,
     AuthController,
     UserController,
+    CompanyController,
   ],
   providers: [
     AppService,
