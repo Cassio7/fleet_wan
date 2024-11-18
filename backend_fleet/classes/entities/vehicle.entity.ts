@@ -11,6 +11,7 @@ import {
 } from 'typeorm';
 import { DeviceEntity } from './device.entity';
 import { HistoryEntity } from './history.entity';
+import { NoteEntity } from './note.entity';
 import { RealtimePositionEntity } from './realtime_position.entity';
 import { TagHistoryEntity } from './tag_history.entity';
 import { WorksiteEntity } from './worksite.entity';
@@ -53,9 +54,6 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
   @Column({ type: 'varchar', length: 50 })
   profileName: string;
 
-  @Column({ type: 'varchar', nullable: true })
-  note: string;
-
   @Column({ type: 'timestamptz', nullable: true })
   retiredEvent: Date;
 
@@ -76,11 +74,14 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
   @OneToMany(() => TagHistoryEntity, (taghistory) => taghistory.vehicle)
   taghistory: TagHistoryEntity[];
 
+  @OneToMany(() => NoteEntity, (note) => note.vehicle)
+  note: NoteEntity[];
+
   @ManyToOne(() => WorksiteEntity, (worksite) => worksite.vehicle, {
     nullable: true,
   })
   worksite: WorksiteEntity | null;
-  
+
   @Column({ type: 'varchar', length: 100 })
   @Index()
   hash: string;
