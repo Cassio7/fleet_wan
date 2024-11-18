@@ -13,5 +13,5 @@ export class UserRoleEntity extends CommonEntity implements UserRoleInterface {
 
   @ManyToOne(() => RoleEntity, (role) => role.user_role)
   role: RoleInterface;
-  user_role: Promise<RoleEntity>;
+  //user_role: Promise<RoleEntity>;
 }
