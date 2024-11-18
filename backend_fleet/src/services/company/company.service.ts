@@ -17,4 +17,26 @@ export class CompanyService {
     const companies = await this.companyEntity.find();
     return companies;
   }
+
+  /**
+   * Ritorna l'oggetto società 
+   * @param veId Ricerca in base all veId del veicolo
+   * @returns 
+   */
+  async getCompanyByVeId(veId): Promise<any> {
+    const company = await this.companyEntity.findOne({
+      where: {
+        group: {
+          worksite_group: {
+            worksite: {
+              vehicle: {
+                veId: veId,
+              },
+            },
+          },
+        },
+      },
+    });
+    return company
+  }
 }
