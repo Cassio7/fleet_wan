@@ -7,8 +7,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Session } from '../../../Models/Session';
 import { Subject, takeUntil } from 'rxjs';
-import { SessionApiService } from '../../Services/session service/session-api.service';
-import { VehiclesApiService } from '../../Services/vehicles service/vehicles-api.service';
+import { SessionApiService } from '../../Services/session/session-api.service';
+import { VehiclesApiService } from '../../Services/vehicles/vehicles-api.service';
 import { Vehicle } from '../../../Models/Vehicle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 

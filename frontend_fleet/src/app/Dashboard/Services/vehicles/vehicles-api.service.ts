@@ -12,9 +12,6 @@ export class VehiclesApiService {
     private http: HttpClient
   ) { }
 
-  public getAllTodaysVehicles(){
-
-  }
   /**
    * Prende tutti i dati dei veicoli dall'api gestita nel backend
    * @returns

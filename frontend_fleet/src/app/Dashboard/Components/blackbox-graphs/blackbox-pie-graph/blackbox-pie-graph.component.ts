@@ -1,7 +1,8 @@
-import { Component, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ViewChild, OnInit } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { ApexNonAxisChartSeries, ApexChart, ApexResponsive, ApexTheme, ApexTitleSubtitle, NgApexchartsModule, ChartComponent } from 'ng-apexcharts';
 import { BlackboxGraphsService } from '../../../Services/blackbox-graphs/blackbox-graphs.service';
+import { Subject } from 'rxjs';
 
 export type ChartOptions = {
   series: ApexNonAxisChartSeries;
@@ -20,42 +21,59 @@ export type ChartOptions = {
     MatCardModule
   ],
   templateUrl: './blackbox-pie-graph.component.html',
-  styleUrl: './blackbox-pie-graph.component.css'
+  styleUrls: ['./blackbox-pie-graph.component.css']
 })
-export class BlackboxPieGraphComponent {
+export class BlackboxPieGraphComponent implements OnInit {
   @ViewChild("chart") chart!: ChartComponent;
-  public chartOptions: Partial<ChartOptions>;
-
-  constructor(
-    private blackboxGraphsService: BlackboxGraphsService
-  ) {
-    this.chartOptions = {
-      series: this.blackboxGraphsService.values,
-      chart: {
-        type: "pie",
-        height: "400",
-        width: "100%"
-      },
-      labels: ["Blackbox", "BlackBox+antenna"],
-      theme: {
-        monochrome: {
-          enabled: true
-        }
-      },
-      responsive: [
-        {
-          breakpoint: 480,
-          options: {
-            legend: {
-              position: "top"
-            },
-            chart: {
-              height: "300"
-            }
+  private series: number[] = [];
+  public chartOptions: Partial<ChartOptions> = {
+    chart: {
+      type: "pie",
+      height: "400",
+      width: "100%"
+    },
+    labels: ["Blackbox", "BlackBox+antenna"],
+    theme: {
+      monochrome: {
+        enabled: true
+      }
+    },
+    responsive: [
+      {
+        breakpoint: 480,
+        options: {
+          legend: {
+            position: "top"
+          },
+          chart: {
+            height: "300"
           }
         }
-      ]
-    };
+      }
+    ]
+  };
 
+  constructor(private blackboxGraphsService: BlackboxGraphsService) {}
+
+  ngOnInit(): void {
+    this.loadChartData();
+  }
+
+  async loadChartData(): Promise<void> {
+    try {
+      const categorizedVehicles = await this.blackboxGraphsService.getAllRFIDVehicles();
+      this.series = [
+        categorizedVehicles.blackboxOnly.length,
+        categorizedVehicles.blackboxWithAntenna.length
+      ];
+
+      // Update chart options
+      this.chartOptions = {
+        ...this.chartOptions,
+        series: this.series
+      };
+    } catch (error) {
+      console.error("Error loading chart data: ", error);
+    }
   }
 }

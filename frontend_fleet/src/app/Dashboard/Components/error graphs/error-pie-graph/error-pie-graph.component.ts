@@ -1,4 +1,4 @@
-import { ErrorGraphsService } from '../../../Services/error-graphs-service/error-graphs.service';
+import { ErrorGraphsService } from '../../../Services/error-graphs/error-graphs.service';
 import { MatCardModule } from '@angular/material/card';
 import { Component, ViewChild, ViewEncapsulation } from '@angular/core';
 import { ApexChart, ApexNonAxisChartSeries, ApexResponsive, ChartComponent, NgApexchartsModule } from "ng-apexcharts";
