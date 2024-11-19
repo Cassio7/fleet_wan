@@ -733,20 +733,20 @@ export class SessionController {
     //   period_to,
     //   vehicleId,
     // );
-    const allVehicles = await this.vehicleService.getAllVehicles(); //prendi tutti i veicoli
+    const allVehicles = await this.vehicleService.getVehiclesByReader(); //prendi tutti i veicoli
     let vehicles: any[] = [];
 
     // Get the latest tag read for all vehicles
     await Promise.all(
       allVehicles.map(async vehicle => {
         const lastTag: TagHistoryEntity = await this.tagService.getLastTagHistoryByVeId(vehicle.veId);
-        console.log(lastTag);
         vehicles.push({
           veId: vehicle.veId,
           lastTag: lastTag
         });
       })
     );
+
     //controllo se esistono sessioni
     if (sessions) {
       return res.status(200).send(vehicles);
@@ -906,6 +906,8 @@ export class SessionController {
       res.status(500).send('Errore durante la richiesta al db');
     }
   }
+
+  
   async lastEventComparisonAllNoApi() {
     try {
       const brokenVehicles = [];
@@ -1081,9 +1083,7 @@ export class SessionController {
                   
                   //comparazione date
                   if (sessionDate >= fromDate && sessionDate <= toDate) {
-                      if (v.sessions?.length > 0) {
-                          session.anomalies.push({ antenna: true }); //inserisci anomalia di antenna nella sessione
-                      }
+                    session.anomalies.push({ antenna: true }); //inserisci anomalia di antenna nella sessione
                   }
                   
                 }
@@ -1092,17 +1092,14 @@ export class SessionController {
       }
     });
 
-  
-    
-
     //accorpa errori di fine sessione
-    // (lastEventErrors as any[]).forEach((el: VehicleEntity) => {
-    //   customVehicles.forEach((v: any) => {
-    //     if (v.veId == el.veId && v.sessions?.length > 0){
-    //       v.sessions[0].anomalies.push({ sessionEnd: true });
-    //     }
-    //   });
-    // });
+    (lastEventErrors as any[]).forEach((el: VehicleEntity) => {
+      customVehicles.forEach((v: any) => {
+        if (v.veId == el.veId && v.sessions?.length > 0){
+          v.sessions[0].anomalies.push({ sessionEnd: true });
+        }
+      });
+    });
 
 
 
