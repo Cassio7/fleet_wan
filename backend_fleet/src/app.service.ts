@@ -30,9 +30,11 @@ export class AppService implements OnModuleInit {
 
   // popolo database all'avvio
   async onModuleInit() {
-    //await this.putDefaultData();
+    await this.putDefaultData();
     //await this.putDbData();
-    //await this.putDbDataNew();
+    await this.putDbDataBasicFor();
+    //await this.putDbDataNewReverse();
+    //await this.putDbDataLast();
     //await this.putDbData5min();
   }
 
@@ -47,8 +49,8 @@ export class AppService implements OnModuleInit {
   }
 
   async putDbData() {
-    const startDate = '2024-10-20T00:00:00.000Z';
-    const endDate = '2024-10-30T00:00:00.000Z';
+    const startDate = '2024-10-01T00:00:00.000Z';
+    const endDate = '2024-10-31T00:00:00.000Z';
 
     // Parallel vehicle list retrievals
     const vehicleListPromises = [
@@ -120,10 +122,12 @@ export class AppService implements OnModuleInit {
       await processBatch(batch);
     }
   }
-
-  async putDbDataNew() {
-    const startDate = '2024-10-20T00:00:00.000Z';
-    const endDate = '2024-10-30T00:00:00.000Z';
+  /**
+   * al momento la migliore nel complesso, semplice ciclo for
+   */
+  async putDbDataBasicFor() {
+    const startDate = '2024-10-01T00:00:00.000Z';
+    const endDate = '2024-10-31T00:00:00.000Z';
     //const endDate = new Date().toISOString();
     //await this.groupService.setGroupList(254);
     await this.vehicleService.getVehicleList(254, 313);
@@ -136,11 +140,20 @@ export class AppService implements OnModuleInit {
     const vehicles = await this.vehicleService.getAllVehicles();
     await this.worksiteFactoryService.createDefaultVehicleWorksite();
 
+    // mappo per ridurre il numero di chiamate interne
+    const companyMap = new Map();
+    for (const vehicle of vehicles) {
+      const company = await this.companyService.getCompanyByVeId(vehicle.veId);
+      if (company) {
+        companyMap.set(vehicle.veId, company);
+      }
+    }
+
     for (const vehicle of vehicles) {
       console.log(
         `${vehicle.veId} con targa: ${vehicle.plate} - ${vehicle.id}`,
       );
-      const company = await this.companyService.getCompanyByVeId(vehicle.veId);
+      const company = companyMap.get(vehicle.veId);
       if (company) {
         const requests = daysInRange.slice(0, -1).map((day) => {
           const datefrom = day;
@@ -166,6 +179,134 @@ export class AppService implements OnModuleInit {
       } else {
         console.log(company);
       }
+    }
+  }
+
+  async putDbDataNewReverse() {
+    const startDate = '2024-10-01T00:00:00.000Z';
+    const endDate = '2024-10-31T00:00:00.000Z';
+
+    await this.vehicleService.getVehicleList(254, 313);
+    await this.vehicleService.getVehicleList(305, 650);
+    await this.vehicleService.getVehicleList(324, 688);
+
+    const dateFrom_new = new Date(startDate);
+    const dateTo_new = new Date(endDate);
+    const daysInRange = getDaysInRange(dateFrom_new, dateTo_new);
+    const vehicles = await this.vehicleService.getAllVehicles();
+    await this.worksiteFactoryService.createDefaultVehicleWorksite();
+
+    // Mappo per ridurre il numero di chiamate interne
+    const companyMap = new Map();
+    for (const vehicle of vehicles) {
+      const company = await this.companyService.getCompanyByVeId(vehicle.veId);
+      if (company) {
+        companyMap.set(vehicle.veId, company);
+      }
+    }
+
+    const processVehicleBatch = async (vehicleBatch) => {
+      await Promise.all(
+        vehicleBatch.map(async (vehicle) => {
+          console.log(
+            `${vehicle.veId} con targa: ${vehicle.plate} - ${vehicle.id}`,
+          );
+          const company = companyMap.get(vehicle.veId);
+          if (company) {
+            const requests = daysInRange.slice(0, -1).map((day) => {
+              const datefrom = day;
+              const dateto = new Date(datefrom);
+              dateto.setHours(23, 59, 59, 0);
+
+              return Promise.all([
+                this.sessionService.getSessionist(
+                  company.suId,
+                  vehicle.veId,
+                  datefrom.toISOString(),
+                  dateto.toISOString(),
+                ),
+                this.tagService.putTagHistory(
+                  company.suId,
+                  vehicle.veId,
+                  datefrom.toISOString(),
+                  dateto.toISOString(),
+                ),
+              ]);
+            });
+            await Promise.all(requests); // Concorrenza per tutti i giorni
+          }
+        }),
+      );
+    };
+
+    const vehicleBatchSize = 10; // Batch di veicoli
+    for (let i = 0; i < vehicles.length; i += vehicleBatchSize) {
+      const vehicleBatch = vehicles.slice(i, i + vehicleBatchSize);
+      await processVehicleBatch(vehicleBatch);
+    }
+  }
+
+  async putDbDataLast() {
+    const startDate = '2024-10-01T00:00:00.000Z';
+    const endDate = '2024-10-31T00:00:00.000Z';
+
+    await this.vehicleService.getVehicleList(254, 313);
+    await this.vehicleService.getVehicleList(305, 650);
+    await this.vehicleService.getVehicleList(324, 688);
+
+    const dateFrom_new = new Date(startDate);
+    const dateTo_new = new Date(endDate);
+    const daysInRange = getDaysInRange(dateFrom_new, dateTo_new);
+    const vehicles = await this.vehicleService.getAllVehicles();
+    await this.worksiteFactoryService.createDefaultVehicleWorksite();
+
+    // Mappo per ridurre il numero di chiamate interne
+    const companyMap = new Map();
+    for (const vehicle of vehicles) {
+      const company = await this.companyService.getCompanyByVeId(vehicle.veId);
+      if (company) {
+        companyMap.set(vehicle.veId, company);
+      }
+    }
+
+    const processVehicleBatch = async (vehicleBatch) => {
+      await Promise.all(
+        vehicleBatch.map(async (vehicle) => {
+          console.log(
+            `${vehicle.veId} con targa: ${vehicle.plate} - ${vehicle.id}`,
+          );
+          const company = companyMap.get(vehicle.veId);
+          if (company) {
+            const requests = daysInRange.slice(0, -1).map((day) => {
+              const datefrom = day;
+              const dateto = new Date(datefrom);
+              dateto.setHours(23, 59, 59, 0);
+
+              return Promise.all([
+                this.sessionService.getSessionist(
+                  company.suId,
+                  vehicle.veId,
+                  datefrom.toISOString(),
+                  dateto.toISOString(),
+                ),
+                this.tagService.putTagHistory(
+                  company.suId,
+                  vehicle.veId,
+                  datefrom.toISOString(),
+                  dateto.toISOString(),
+                ),
+              ]);
+            });
+            await Promise.all(requests); // Concorrenza per tutti i giorni
+          }
+        }),
+      );
+    };
+
+    const vehicleBatchSize = 20; // Batch di veicoli
+    for (let i = 0; i < vehicles.length; i += vehicleBatchSize) {
+      const vehicleBatch = vehicles.slice(i, i + vehicleBatchSize);
+      await processVehicleBatch(vehicleBatch);
     }
   }
   // @Cron('0 0 * * *')
