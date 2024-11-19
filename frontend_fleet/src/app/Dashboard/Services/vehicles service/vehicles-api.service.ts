@@ -64,4 +64,21 @@ export class VehiclesApiService {
     };
     return this.checkGPSAllRanged(body.dateFrom, body.dateTo); //da cambiare in data di ieri e attuale
   }
+
+  public checkErrorsAllRanged(dateFrom: Date, dateTo: Date): Observable<any>{
+    const body = {
+      dateFrom: dateFrom,
+      dateTo: dateTo
+    }
+    return this.http.post(`http://10.1.0.102:3001/session/checkerrors/all`, body);
+  }
+
+  public checkErrorsAllToday(): Observable<any>{
+    //*DA CAMBIARE A DATA ATTUALE*
+    const body = {
+      dateFrom: new Date('2024-10-04'),
+      dateTo: new Date('2024-10-05')
+    }
+    return this.http.post(`http://10.1.0.102:3001/session/checkerrors/all`, body);
+  }
 }

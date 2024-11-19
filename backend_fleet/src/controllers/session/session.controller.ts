@@ -1043,7 +1043,6 @@ export class SessionController {
     //controlla errore antenna
     try{
       let fetchedTagComparisons = await this.tagComparisonAllWithTimeRangeNoApi(dateFrom, dateTo); 
-      res.status(200).send(fetchedTagComparisons);
 
       //filter comparisons
       if (Array.isArray(fetchedTagComparisons.data)) {
@@ -1154,7 +1153,6 @@ export class SessionController {
     //       "veId": 3845,
     //       "lastTag": null
     //   },
-    console.log(vehicleTagComparisonErrors);
     res.status(200).send(customVehicles);
 
   }

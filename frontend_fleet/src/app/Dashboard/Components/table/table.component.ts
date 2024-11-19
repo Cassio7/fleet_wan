@@ -33,7 +33,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   private readonly destroy$: Subject<void> = new Subject<void>();
 
   /*da rimuovere*/
-  antennaError: boolean = true;
+  antennaError: boolean = false;
   sessionError: boolean = false;
 
   vehicleTableData = new MatTableDataSource<Session>();  // Use MatTableDataSource for the table
@@ -67,7 +67,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   }
 
   ngAfterViewInit(): void {
-    this.fillTable();
+    this.fillTable(); //Riempi la tabella
   }
 
 
@@ -89,63 +89,40 @@ export class TableComponent implements OnDestroy, AfterViewInit{
  * Riempe la tabella con i dati dei veicoli nelle sessioni
  */
   fillTable(){
-    this.sessionApiService.getTodaySessions().pipe(takeUntil(this.destroy$))
+    this.vehicleApiService.checkErrorsAllToday().pipe(takeUntil(this.destroy$))
     .subscribe({
-      next: (sessions: Session[]) => {
-        this.sessions = sessions;
-        //Inserire nella tabella soltanto i dati di una sessione di ciascun veicolo
-        this.sessions.forEach(session => {
-          if(!this.vehicleIds.includes(session.history[0].vehicle.veId) && !this.vehicleTableData.data.includes(session)){
-            this.vehicleIds.push(session.history[0].vehicle.veId);
-            this.vehicleTableData.data.push(session);
-            console.log(session);
+      next: (vehicles: any) => {
+        console.log(vehicles);
+        const newVehicles = []; // Array per raccogliere i nuovi veicoli
+
+        // Filtro e accumulo i veicoli che hanno sessioni
+        for (const v of vehicles) {
+          if (v.sessions?.length > 0) {
+            newVehicles.push(v); // Aggiungi il veicolo valido all'array
           }
-        });
-        this.vehicleTable.renderRows();
-        this.cd.markForCheck();
-      }
-    });
-  }
-  // fillTable(){
-  //   this.vehicleApiService.checkGPSAllToday().pipe(takeUntil(this.destroy$))
-  //   .subscribe({
-  //     next: (vehicles: Vehicle[]) => {
-  //     }
-  //   })
-  // }
+        }
 
-
-  /**
- * Controlla anomalie dei veicoli nelle sessioni
- * @param sessions
- */
-  // checkErrors(sessions: Session[]) {
-  //   //controlla errore di GPS
-  //   sessions.forEach(session => {
-  //     console.log(session.history[0].vehicle.veId);
-  //     this.vehicleApiService.checkGPSessionByVeid(session.history[0].vehicle.veId).pipe(takeUntil(this.destroy$))
-  //     .subscribe({
-  //       next: (response: any) => {
-  //         response ? session.history[0].vehicle.gpsError = false : session.history[0].vehicle.gpsError = true;
-  //       },
-  //       error: error => console.error("Errore nella visualizzazione del controllo sui GPS: ", error)
-  //     });
-  //   });
-  //   //controlla errore antenna
-
-  //   //controlla errore inizio e fine sessione (last event)
-  // }
-  checkErrors() {
-    //controlla errore di GPS
-    this.vehicleApiService.checkGPSAllToday().pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: (vehicles: Vehicle[]) => {
-
+        // Se ci sono nuovi veicoli, aggiorna la tabella
+        if (newVehicles.length > 0) {
+          this.vehicleTableData.data = [...this.vehicleTableData.data, ...newVehicles]; // Aggiungi i nuovi veicoli
+          this.vehicleTable.renderRows(); // Esegui il rendering una sola volta
+          this.cd.markForCheck(); // Assicurati che Angular aggiorni il DOM
+        }
       },
-      error: error => console.error("Errore nella visualizzazione del controllo del GPS.")
+      error: error => console.error(error),
     });
-    //controlla errore antenna
 
-    //controlla errore inizio e fine sessione (last event)
   }
+
+  checkGpsError(vehicle: any): boolean {
+    // Verifica se esiste un'anomalia GPS
+    const gpsAnomaly = vehicle.sessions?.[0]?.anomalies?.find((anomaly: any) => 'GPS' in anomaly);
+
+    if(gpsAnomaly){
+      return true;
+    }
+    return false;
+  }
+
+
 }

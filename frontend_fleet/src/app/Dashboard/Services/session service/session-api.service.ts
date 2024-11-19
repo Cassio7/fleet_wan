@@ -64,5 +64,4 @@ export class SessionApiService {
     return this.http.get<Session[]>(`http://10.1.0.102:3001/session/lastsessions/all`);
   }
 
-
 }
