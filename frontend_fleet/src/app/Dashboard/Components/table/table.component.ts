@@ -119,7 +119,6 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     const gpsAnomaly = vehicle.sessions?.[0]?.anomalies?.find((anomaly: any) => 'GPS' in anomaly);
 
     if (gpsAnomaly) {
-      console.log(gpsAnomaly.GPS)
       // Return the GPS value or a fallback message
       return gpsAnomaly.GPS || 'Errore GPS';
     }
@@ -127,6 +126,8 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     return null; // Return null if no GPS anomaly is found
   }
 
-
-
+  checkAntennaError(vehicle: any){
+    // Find the GPS anomaly
+    return vehicle.sessions?.[0]?.anomalies?.find((anomaly: any) => 'antenna' in anomaly);
+  }
 }
