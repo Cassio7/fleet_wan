@@ -469,8 +469,6 @@ export class SessionController {
                   longitude: entry.longitude,
                 })),
               );
-              console.log(vehicle.veId + ' ' + datefrom.toISOString());
-              console.log(coordinates.length);
               if (vehicle.isCan) {
                 if (distanceMap.every((distance) => distance === 0)) {
                   flag_distance_can = true;
@@ -1030,7 +1028,7 @@ export class SessionController {
     const dateTo = body.dateTo;
     
     let gpsErrors: any; //risultati controllo gps 
-    let vehiclesTagComparison: any; //risultati comparazione tag x controllo errori antenna
+    let vehicleTagComparisonErrors: any[] = []; //risultati comparazione tag x controllo errori antenna
     let lastEventErrors: any; //controllo errori lastEvent
 
     let customVehicles: any;
@@ -1044,7 +1042,19 @@ export class SessionController {
 
     //controlla errore antenna
     try{
-      vehiclesTagComparison = await this.tagComparisonAllWithTimeRangeNoApi(dateFrom, dateTo); 
+      let fetchedTagComparisons = await this.tagComparisonAllWithTimeRangeNoApi(dateFrom, dateTo); 
+      res.status(200).send(fetchedTagComparisons);
+
+      //filter comparisons
+      if (Array.isArray(fetchedTagComparisons.data)) {
+        for (const item of fetchedTagComparisons.data) {
+          if(item.lastTag == null){
+            vehicleTagComparisonErrors.push(item);
+          }
+        }
+      } else {
+          console.error(fetchedTagComparisons.data.sessionFound); //nel caso non fosse trovata sessione
+      }
     }catch(error){
       console.error("Errore nella comparazione dei tag per controllare gli errori delle antenne.");
     }
@@ -1054,28 +1064,46 @@ export class SessionController {
       let comparison = await this.lastEventComparisonAllNoApi();
       typeof comparison !== 'string' ? lastEventErrors=comparison.errors : lastEventErrors = [];
     }catch(error){
-      console.log("Errore nel controllo del last event");
+      console.error("Errore nel controllo del last event");
     }
 
     /*metti insieme in un unico array di veicoli tutte le anomalie per il corretto veicolo e sessione*/
     //accorpa errori di antenna
-    vehiclesTagComparison.data.forEach((el: any)=> {
-      customVehicles.forEach((v: any) => {
-        if (v.veId == el.veId && v.sessions?.length > 0) {
-          v.sessions[0].anomalies.push({ antenna: true });
-        }        
-      });
+    customVehicles.forEach((v: any) => {
+      // Verifica che il veicolo abbia sessioni
+      if (Array.isArray(v.sessions)) {
+          for (const el of vehicleTagComparisonErrors) {
+              if (v.veId === el.veId) { 
+                for (const session of v.sessions) {      
+                  //Crea delle variabili "date" trasformando i dati salvati
+                  const sessionDate = new Date(session.date);
+                  const fromDate = new Date(dateFrom);
+                  const toDate = new Date(dateTo);
+                  
+                  //comparazione date
+                  if (sessionDate >= fromDate && sessionDate <= toDate) {
+                      if (v.sessions?.length > 0) {
+                          session.anomalies.push({ antenna: true }); //inserisci anomalia di antenna nella sessione
+                      }
+                  }
+                  
+                }
+              }
+          }
+      }
     });
+
+  
     
 
     //accorpa errori di fine sessione
-    (lastEventErrors as any[]).forEach((el: VehicleEntity) => {
-      customVehicles.forEach((v: any) => {
-        if (v.veId == el.veId && v.sessions?.length > 0){
-          v.sessions[0].anomalies.push({ sessionEnd: true });
-        }
-      });
-    });
+    // (lastEventErrors as any[]).forEach((el: VehicleEntity) => {
+    //   customVehicles.forEach((v: any) => {
+    //     if (v.veId == el.veId && v.sessions?.length > 0){
+    //       v.sessions[0].anomalies.push({ sessionEnd: true });
+    //     }
+    //   });
+    // });
 
 
 
@@ -1090,7 +1118,23 @@ export class SessionController {
 
 
 
-    //GPS custom obj = template obj
+    //GPS custom obj = template obj:    {
+    //     "plate": "AEE 212",
+    //     "veId": 3517,
+    //     "isCan": false,
+    //     "sessions": [
+    //         {
+    //             "date": "2024-10-04T00:00:00.000Z",
+    //             "anomalies": []
+    //         },
+    //         {
+    //             "date": "2024-10-05T00:00:00.000Z",
+    //             "anomalies": []
+    //         }
+    //     ]
+    // }
+
+
     // (fine sessione)last event custom obj: {
     //   "message": "Veicoli dove l'ultima sessione non corrisponde all'ultimo evento registrato",
     //   "brokenVehicles": [
@@ -1110,18 +1154,7 @@ export class SessionController {
     //       "veId": 3845,
     //       "lastTag": null
     //   },
-
-  // vehicles custom obj:  [{
-  //     "plate": "GH 578 GR",
-  //     "veId": 3381,
-  //     "isCan": false,
-  //     "sessions": [
-  //         {
-  //             "date": "2024-10-31T00:00:00.000Z",
-  //             "anomalies": []
-  //         }
-  //     ]
-  // },
+    console.log(vehicleTagComparisonErrors);
     res.status(200).send(customVehicles);
 
   }
