@@ -30,7 +30,7 @@
       <td mat-cell *matCellDef="let vehicle">
         <mat-icon
           class="warning-icon"
-          matTooltip="Errore GPS"
+          [matTooltip]="checkGpsError(vehicle)"
           *ngIf="checkGpsError(vehicle)"
           [matTooltipClass]="'gps-tooltip'"
         >

@@ -1,11 +1,12 @@
 tr,td, th{
   text-align: center;
 }
-.table-container{
+.table-container {
   border-radius: 10px;
-  max-height: 500px;
+  height: 80vh;
   overflow-y: auto;
 }
+
 .table-container table{
   max-height: 300px;
   overflow-y: auto;

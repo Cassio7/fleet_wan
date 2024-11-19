@@ -103,7 +103,7 @@ mat-drawer {
   height: 33.3%;
   background-image: url('https://developers.google.com/static/maps/images/landing/hero_maps_static_api.png');
   background-size: cover;
-  flex-grow: 5;
+  flex-grow: 7;
   border: 1px solid black;
   max-width: 100%;
   box-sizing: border-box;
@@ -115,7 +115,7 @@ mat-drawer {
   display: flex;
   width: 100%;
   gap: 20px;
-  flex-grow: 5;
+  flex-grow: 3;
 }
 
 .error-graph {

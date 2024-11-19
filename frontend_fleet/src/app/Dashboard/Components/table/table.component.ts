@@ -114,15 +114,19 @@ export class TableComponent implements OnDestroy, AfterViewInit{
 
   }
 
-  checkGpsError(vehicle: any): boolean {
-    // Verifica se esiste un'anomalia GPS
+  checkGpsError(vehicle: any): string | null {
+    // Find the GPS anomaly
     const gpsAnomaly = vehicle.sessions?.[0]?.anomalies?.find((anomaly: any) => 'GPS' in anomaly);
 
-    if(gpsAnomaly){
-      return true;
+    if (gpsAnomaly) {
+      console.log(gpsAnomaly.GPS)
+      // Return the GPS value or a fallback message
+      return gpsAnomaly.GPS || 'Errore GPS';
     }
-    return false;
+
+    return null; // Return null if no GPS anomaly is found
   }
+
 
 
 }
