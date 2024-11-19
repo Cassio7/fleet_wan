@@ -130,4 +130,8 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     // Find the GPS anomaly
     return vehicle.sessions?.[0]?.anomalies?.find((anomaly: any) => 'antenna' in anomaly);
   }
+
+  checkSessionError(vehicle: any){
+    return vehicle.sessions?.[0]?.anomalies?.find((anomaly: any) => 'sessionEnd' in anomaly);
+  }
 }
