@@ -1,4 +1,4 @@
-import { BlackboxGraphsService } from '../../../services/blackbox-graphs/blackbox-graphs.service';
+import { BlackboxGraphsService } from '../../../Services/blackbox-graphs/blackbox-graphs.service';
 import { Component, ViewChild } from '@angular/core';
 import { ApexAxisChartSeries, ApexChart, ApexDataLabels, ApexGrid, ApexLegend, ApexPlotOptions, ApexYAxis, ChartComponent, NgApexchartsModule } from 'ng-apexcharts';
 

@@ -5,11 +5,11 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { Session } from '../../models/Session';
+import { Session } from '../../../Models/Session';
 import { Subject, takeUntil } from 'rxjs';
-import { SessionApiService } from '../../services/session service/session-api.service';
-import { VehiclesApiService } from '../../services/vehicles service/vehicles-api.service';
-import { Vehicle } from '../../models/Vehicle';
+import { SessionApiService } from '../../Services/session service/session-api.service';
+import { VehiclesApiService } from '../../Services/vehicles service/vehicles-api.service';
+import { Vehicle } from '../../../Models/Vehicle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
@@ -98,6 +98,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
           if(!this.vehicleIds.includes(session.history[0].vehicle.veId) && !this.vehicleTableData.data.includes(session)){
             this.vehicleIds.push(session.history[0].vehicle.veId);
             this.vehicleTableData.data.push(session);
+            console.log(session);
           }
         });
         this.vehicleTable.renderRows();

@@ -27,7 +27,10 @@
     <!-- GPS Column -->
     <ng-container matColumnDef="GPS">
       <th mat-header-cell *matHeaderCellDef> GPS </th>
-      <td mat-cell *matCellDef="let session"><mat-icon class="warning-icon" matTooltip="Errore GPS" *ngIf="session.history[0].vehicle.gpsError" [matTooltipClass]="'custom-tooltip'">warning</mat-icon><mat-icon class="check-icon" *ngIf="!session.history[0].vehicle.gpsError">check_circle</mat-icon></td>
+      <td mat-cell *matCellDef="let session">
+        <mat-icon class="warning-icon" matTooltip="Errore GPS" *ngIf="session.history[0].vehicle.gpsError" [matTooltipClass]="'custom-tooltip'">warning</mat-icon>
+        <mat-icon class="check-icon" *ngIf="!session.history[0].vehicle.gpsError">check_circle</mat-icon>
+      </td>
     </ng-container>
 
     <!-- Antenna Column -->
@@ -42,7 +45,10 @@
     <!-- Sessione Column -->
     <ng-container matColumnDef="sessione">
       <th mat-header-cell *matHeaderCellDef> Sessione </th>
-      <td mat-cell *matCellDef="let session"><mat-icon class="error-icon" matTooltip="Errore di sessione" *ngIf="sessionError">error</mat-icon><mat-icon class="check-icon" *ngIf="!sessionError">check_circle</mat-icon></td>
+      <td mat-cell *matCellDef="let session">
+        <mat-icon class="error-icon" matTooltip="Errore di sessione" *ngIf="sessionError">error</mat-icon>
+        <mat-icon class="check-icon" *ngIf="!sessionError">check_circle</mat-icon>
+      </td>
     </ng-container>
 
     <!-- Header and Row Definitions -->

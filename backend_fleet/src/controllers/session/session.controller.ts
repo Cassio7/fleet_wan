@@ -830,7 +830,6 @@ export class SessionController {
       period_to,
       vehicleId,
     );
-    console.log(lastTag);
     if (!sessions) {
       res
         .status(400)
@@ -1070,7 +1069,6 @@ export class SessionController {
     
 
     //accorpa errori di fine sessione
-
     (lastEventErrors as any[]).forEach((el: VehicleEntity) => {
       customVehicles.forEach((v: any) => {
         if (v.veId == el.veId && v.sessions?.length > 0){

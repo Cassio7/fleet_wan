@@ -1,6 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import { ApexAxisChartSeries, ApexChart, ApexDataLabels, ApexGrid, ApexLegend, ApexPlotOptions, ApexYAxis, ChartComponent, NgApexchartsModule } from "ng-apexcharts";
-import { ErrorGraphsService } from '../../../services/error-graphs-service/error-graphs.service';
+import { ErrorGraphsService } from '../../../Services/error-graphs-service/error-graphs.service';
 
 type ApexXAxis = {
   type?: "category" | "datetime" | "numeric";

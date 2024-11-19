@@ -9,7 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatDrawer, MatDrawerContainer } from '@angular/material/sidenav';
 import { RouterModule } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
-import { CommonService } from '../../services/common service/common.service';
+import { CommonService } from '../../Services/common service/common.service';
 import { BlackboxGraphCardComponent } from '../blackbox-graphs/blackbox-graph-card/blackbox-graph-card.component';
 import { ErrorGraphCardComponent } from '../error graphs/error-graph-card/error-graph-card.component';
 import { NavbarComponent } from '../navbar/navbar.component';

@@ -1,7 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { ApexNonAxisChartSeries, ApexChart, ApexResponsive, ApexTheme, ApexTitleSubtitle, NgApexchartsModule, ChartComponent } from 'ng-apexcharts';
-import { BlackboxGraphsService } from '../../../services/blackbox-graphs/blackbox-graphs.service';
+import { BlackboxGraphsService } from '../../../Services/blackbox-graphs/blackbox-graphs.service';
 
 export type ChartOptions = {
   series: ApexNonAxisChartSeries;
