@@ -25,55 +25,45 @@ export type ChartOptions = {
 })
 export class BlackboxPieGraphComponent implements OnInit {
   @ViewChild("chart") chart!: ChartComponent;
-  private series: number[] = [];
+
   public chartOptions: Partial<ChartOptions> = {
     chart: {
       type: "pie",
       height: "400",
-      width: "100%"
+      width: "100%",
     },
     labels: ["Blackbox", "BlackBox+antenna"],
     theme: {
       monochrome: {
-        enabled: true
-      }
+        enabled: true,
+      },
     },
     responsive: [
       {
         breakpoint: 480,
         options: {
           legend: {
-            position: "top"
+            position: "top",
           },
           chart: {
-            height: "300"
-          }
-        }
-      }
-    ]
+            height: "300",
+          },
+        },
+      },
+    ],
+    series: [],
   };
 
   constructor(private blackboxGraphsService: BlackboxGraphsService) {}
 
-  ngOnInit(): void {
-    this.loadChartData();
-  }
+  async ngOnInit(): Promise<void> {
 
-  async loadChartData(): Promise<void> {
     try {
-      const categorizedVehicles = await this.blackboxGraphsService.getAllRFIDVehicles();
-      this.series = [
-        categorizedVehicles.blackboxOnly.length,
-        categorizedVehicles.blackboxWithAntenna.length
-      ];
-
-      // Update chart options
-      this.chartOptions = {
-        ...this.chartOptions,
-        series: this.series
-      };
+      // Carica dati presi dal servizio nel grafico
+      const series = await this.blackboxGraphsService.loadChartData();
+      this.chartOptions.series = series;
     } catch (error) {
-      console.error("Error loading chart data: ", error);
+      console.error("Error initializing chart data: ", error);
     }
   }
 }

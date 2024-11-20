@@ -50,4 +50,20 @@ export class BlackboxGraphsService{
   }
 
 
+  async loadChartData(): Promise<number[]> {
+    let series: number[] = [];
+    try {
+      const categorizedVehicles = await this.getAllRFIDVehicles();
+      series = [
+        categorizedVehicles.blackboxOnly.length,
+        categorizedVehicles.blackboxWithAntenna.length,
+      ];
+    } catch (error) {
+      console.error("Error loading chart data: ", error);
+    }
+    return series;
+  }
+
+
+
 }

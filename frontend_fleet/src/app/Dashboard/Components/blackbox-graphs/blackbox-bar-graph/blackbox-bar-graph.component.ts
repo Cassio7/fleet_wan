@@ -1,5 +1,5 @@
 import { BlackboxGraphsService } from '../../../Services/blackbox-graphs/blackbox-graphs.service';
-import { Component, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ApexAxisChartSeries, ApexChart, ApexDataLabels, ApexGrid, ApexLegend, ApexPlotOptions, ApexYAxis, ChartComponent, NgApexchartsModule } from 'ng-apexcharts';
 
 type ApexXAxis = {
@@ -32,54 +32,66 @@ export type ChartOptions = {
   templateUrl: './blackbox-bar-graph.component.html',
   styleUrl: './blackbox-bar-graph.component.css'
 })
-export class BlackboxBarGraphComponent {
+export class BlackboxBarGraphComponent implements OnInit{
   @ViewChild("chart") chart!: ChartComponent;
   public chartOptions: Partial<ChartOptions>;
 
-  constructor(
-    private blackboxGraphsService: BlackboxGraphsService
-  ) {
+  constructor(private blackboxGraphsService: BlackboxGraphsService) {
     this.chartOptions = {
       series: [
         {
           name: "Data",
-          data: this.blackboxGraphsService.values
-        }
+          data: [],
+        },
       ],
       chart: {
         type: "bar",
         events: {
-          click: function(chart, w, e) {
-            // column click
-          }
-        }
+          click: function (chart, w, e) {
+            // Per gestione click su colonne
+          },
+        },
       },
       colors: this.blackboxGraphsService.colors,
       plotOptions: {
         bar: {
           columnWidth: "45%",
-          distributed: true
-        }
+          distributed: true,
+        },
       },
       dataLabels: {
-        enabled: false
+        enabled: false,
       },
       legend: {
-        show: false
+        show: false,
       },
       grid: {
-        show: false
+        show: false,
       },
       xaxis: {
         categories: ["Blackbox", "Blackbox + antenna"],
         labels: {
           style: {
             colors: this.blackboxGraphsService.colors,
-            fontSize: "12px"
-          }
-        }
-      }
+            fontSize: "12px",
+          },
+        },
+      },
     };
+  }
 
+  async ngOnInit(): Promise<void> {
+    //carica i dati nel grafico
+    try {
+      const seriesData = await this.blackboxGraphsService.loadChartData();
+      this.chartOptions.series = [
+        {
+          name: "Data",
+          data: seriesData,
+        },
+      ];
+    } catch (error) {
+      console.error("Errore durante il caricamento dei dati del grafico: ", error);
+    }
   }
 }
