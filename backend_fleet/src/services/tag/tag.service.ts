@@ -21,7 +21,7 @@ import { parseStringPromise } from 'xml2js';
 export class TagService {
   private serviceUrl = 'https://ws.fleetcontrol.it/FWANWs3/services/FWANSOAP';
   constructor(
-    @InjectRepository(TagHistoryEntity, 'mainConnection')
+    @InjectRepository(TagHistoryEntity, 'readOnlyConnection')
     private readonly tagHistoryRepository: Repository<TagHistoryEntity>,
     @InjectDataSource('mainConnection')
     private readonly connection: DataSource,
