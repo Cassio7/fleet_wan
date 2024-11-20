@@ -736,7 +736,7 @@ export class SessionController {
     // Get the latest tag read for all vehicles
     await Promise.all(
       allVehicles.map(async vehicle => {
-        const lastTag: TagHistoryEntity = await this.tagService.getLastTagHistoryByVeId(vehicle.veId);
+        const lastTag: TagHistoryEntity = await this.tagService.getLastTagHistoryByVeIdRanged(vehicle.veId, period_from, period_to);
         vehicles.push({
           veId: vehicle.veId,
           lastTag: lastTag
@@ -770,22 +770,22 @@ export class SessionController {
       period_to,
     );
   
-    const allVehicles = await this.vehicleService.getAllVehicles(); // prendi tutti i veicoli
-    let vehicles: any[] = [];
+    const allVehicles = await this.vehicleService.getVehiclesByReader();
   
-    // Get the latest tag read for all vehicles
-    await Promise.all(
-      allVehicles.map(async vehicle => {
-        const lastTag = await this.tagService.getLastTagHistoryByVeId(vehicle.veId);
-  
-        vehicles.push({
+    const vehicles = await Promise.all(
+      allVehicles.map(async (vehicle) => {
+        const lastTag = await this.tagService.getLastTagHistoryByVeIdRanged(
+          vehicle.veId,
+          period_from,
+          period_to
+        );
+        return {
           veId: vehicle.veId,
-          lastTag: lastTag
-        });
+          lastTag: lastTag || null,
+        };
       })
     );
-  
-    // Controllo se esistono sessioni
+    
     if (sessions) {
       return {
         status: 200,
@@ -800,6 +800,8 @@ export class SessionController {
       };
     }
   }
+  
+  
   
   /**
    * Ritorna se almeno un tag è stato letto in un determinato arco di tempo
@@ -1023,15 +1025,15 @@ export class SessionController {
 
   @Post("checkerrors/all")
   async checkErrorsAll(@Res() res: Response, @Body() body) {
-    const dateFrom = body.dateFrom;
-    const dateTo = body.dateTo;
+    const dateFrom = new Date(body.dateFrom);
+    const dateTo = new Date(body.dateTo);
     
     let gpsErrors: any; //risultati controllo gps 
     let vehicleTagComparisonErrors: any[] = []; //risultati comparazione tag x controllo errori antenna
     let lastEventErrors: any; //controllo errori lastEvent
 
     let customVehicles: any;
-    //controlla errore di GPS
+    /*controlla errore di GPS*/
     try{
       gpsErrors = await this.checkSessionGPSAllNoApi(dateFrom, dateTo); //restituisce dei veicoli custom con alcuni dati e un array di anomalie, in cui ci mette quelle di GPS se presenti
       customVehicles = gpsErrors;
@@ -1039,14 +1041,13 @@ export class SessionController {
       console.error("Errore nel controllo errori del GPS");
     }
 
-    //controlla errore antenna
+    /*controlla errore antenna*/
     try{
       let fetchedTagComparisons = await this.tagComparisonAllWithTimeRangeNoApi(dateFrom, dateTo); 
-
       //filter comparisons
       if (Array.isArray(fetchedTagComparisons.data)) {
         for (const item of fetchedTagComparisons.data) {
-          if(item.lastTag == null){
+          if(!item.lastTag){
             vehicleTagComparisonErrors.push(item);
           }
         }
@@ -1097,19 +1098,6 @@ export class SessionController {
         }
       });
     });
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     //GPS custom obj = template obj:    {
     //     "plate": "AEE 212",
