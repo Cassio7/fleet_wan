@@ -283,11 +283,12 @@ export class SessionController {
     const daysInRange = getDaysInRange(dateFrom_new, dateTo_new);
     const vehicles = await this.vehicleService.getAllVehicles();
     const anomaliesForAllVehicles = await Promise.all(
-      vehicles.map(async (vehicle) => {
+      vehicles.map(async (vehicle: VehicleEntity) => {
         const vehicleCheck = {
           plate: vehicle.plate,
           veId: vehicle.veId,
           isCan: vehicle.isCan,
+          isRFIDReader: vehicle.isRFIDReader,
           sessions: [],
         };
         // Raccogli le anomalie per ogni veicolo
@@ -436,6 +437,7 @@ export class SessionController {
           plate: vehicle.plate,
           veId: vehicle.veId,
           isCan: vehicle.isCan,
+          isRFIDReader: vehicle.isRFIDReader,
           sessions: [],
         };
         // Raccogli le anomalie per ogni veicolo
