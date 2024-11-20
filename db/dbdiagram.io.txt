@@ -26,7 +26,7 @@ table companies{
 table role_companies{
   id int [primary key]
   companyId int [ref: > companies.id]
-  roleId int [ref: > user_roles.id]
+  roleId int [ref: > roles.id]
 }
 
 table groups{
@@ -35,8 +35,6 @@ table groups{
   name string
   companyId it [ref: > companies.id]
 }
-
-
 
 Table vehicles {
   id int [primary key]
