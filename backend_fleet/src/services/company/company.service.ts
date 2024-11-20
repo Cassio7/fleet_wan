@@ -6,7 +6,7 @@ import { Repository } from 'typeorm';
 @Injectable()
 export class CompanyService {
   constructor(
-    @InjectRepository(CompanyEntity, 'mainConnection')
+    @InjectRepository(CompanyEntity, 'readOnlyConnection')
     private readonly companyEntity: Repository<CompanyEntity>,
   ) {}
   /**
