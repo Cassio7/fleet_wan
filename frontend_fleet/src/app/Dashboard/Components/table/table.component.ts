@@ -11,6 +11,8 @@ import { SessionApiService } from '../../Services/session/session-api.service';
 import { VehiclesApiService } from '../../Services/vehicles/vehicles-api.service';
 import { Vehicle } from '../../../Models/Vehicle';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { ErrorGraphsService } from '../../Services/error-graphs/error-graphs.service';
+import { BlackboxGraphsService } from '../../Services/blackbox-graphs/blackbox-graphs.service';
 
 @Component({
   selector: 'app-table',
@@ -52,7 +54,8 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   }
 
   constructor(
-    private sessionApiService: SessionApiService,
+    private errorGraphService: ErrorGraphsService,
+    private blackboxGraphService: BlackboxGraphsService,
     private vehicleApiService: VehiclesApiService,
     private cd: ChangeDetectorRef
   ){
@@ -88,31 +91,46 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   /**
  * Riempe la tabella con i dati dei veicoli nelle sessioni
  */
-  fillTable(){
+  fillTable() {
+    // Aggiungi un flag per indicare quando tutti i dati sono stati caricati
+    let loadingComplete = false;
+
     this.vehicleApiService.checkErrorsAllToday().pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: (vehicles: any) => {
-        console.log(vehicles);
-        const newVehicles = []; // Array per raccogliere i nuovi veicoli
+      .subscribe({
+        next: (vehicles: any) => {
+          const newVehicles = []; // Array per raccogliere i nuovi veicoli
 
-        // Filtro e accumulo i veicoli che hanno sessioni
-        for (const v of vehicles) {
-          if (v.sessions?.length > 0) {
-            newVehicles.push(v); // Aggiungi il veicolo valido all'array
+          // Filtro e accumulo i veicoli che hanno sessioni
+          for (const v of vehicles) {
+            if (v.sessions?.length > 0) {
+              newVehicles.push(v); // Aggiungi il veicolo valido all'array
+            }
           }
-        }
 
-        // Se ci sono nuovi veicoli, aggiorna la tabella
-        if (newVehicles.length > 0) {
-          this.vehicleTableData.data = [...this.vehicleTableData.data, ...newVehicles]; // Aggiungi i nuovi veicoli
-          this.vehicleTable.renderRows(); // Esegui il rendering una sola volta
-          this.cd.markForCheck(); // Assicurati che Angular aggiorni il DOM
-        }
-      },
-      error: error => console.error(error),
-    });
+          // Se ci sono nuovi veicoli, aggiorna la tabella
+          if (newVehicles.length > 0) {
+            this.vehicleTableData.data = [...this.vehicleTableData.data, ...newVehicles]; // Aggiungi i nuovi veicoli
+            this.vehicleTable.renderRows(); // Esegui il rendering una sola volta
+            this.cd.markForCheck();
+          }
 
+          loadingComplete = true; //imposta il completamento del caricamento
+
+          if (loadingComplete) {
+            this.errorGraphService.loadChartData(newVehicles);
+            this.blackboxGraphService.loadChartData(newVehicles);
+          }
+        },
+        error: error => console.error(error),
+      });
   }
+
+  // Funzione da chiamare quando i dati sono completamente caricati
+  onDataLoaded() {
+    console.log('Dati caricati completamente!');
+    // Aggiungi qui la logica per la funzione che deve essere chiamata
+  }
+
 
   checkGpsError(vehicle: any): string | null {
     // Find the GPS anomaly

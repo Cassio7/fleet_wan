@@ -1,6 +1,7 @@
-import { Component, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ViewChild } from '@angular/core';
 import { ApexAxisChartSeries, ApexChart, ApexDataLabels, ApexGrid, ApexLegend, ApexPlotOptions, ApexYAxis, ChartComponent, NgApexchartsModule } from "ng-apexcharts";
 import { ErrorGraphsService } from '../../../Services/error-graphs/error-graphs.service';
+import { Subject, takeUntil } from 'rxjs';
 
 type ApexXAxis = {
   type?: "category" | "datetime" | "numeric";
@@ -34,8 +35,9 @@ export type ChartOptions = {
   templateUrl: './error-bar-graph.component.html',
   styleUrl: './error-bar-graph.component.css'
 })
-export class ErrorBarGraphComponent {
+export class ErrorBarGraphComponent implements AfterViewInit{
   @ViewChild("chart") chart!: ChartComponent;
+  private readonly destroy$: Subject<void> = new Subject<void>();
   public chartOptions: Partial<ChartOptions>;
 
   constructor(
@@ -83,5 +85,19 @@ export class ErrorBarGraphComponent {
       }
     };
 
+  }
+  ngAfterViewInit(): void {
+    this.chartOptions.series = this.errorGraphsService.loadGraphData$.value;
+    this.errorGraphsService.loadGraphData$.pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (series: number[]) => {
+        console.log("BAR RECEIVED: ", series);
+        this.chartOptions.series = [{
+          name: "Data",
+          data: series
+        }];
+      },
+      error: error => console.error(error)
+    });
   }
 }

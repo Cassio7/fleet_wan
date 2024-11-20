@@ -1,7 +1,8 @@
 import { ErrorGraphsService } from '../../../Services/error-graphs/error-graphs.service';
 import { MatCardModule } from '@angular/material/card';
-import { Component, ViewChild, ViewEncapsulation } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, ViewChild, ViewEncapsulation } from '@angular/core';
 import { ApexChart, ApexNonAxisChartSeries, ApexResponsive, ChartComponent, NgApexchartsModule } from "ng-apexcharts";
+import { skip, Subject, takeUntil } from 'rxjs';
 
 export type ChartOptions = {
   series: ApexNonAxisChartSeries;
@@ -24,15 +25,17 @@ export type ChartOptions = {
   encapsulation: ViewEncapsulation.None
 })
 
-export class ErrorPieGraphComponent {
+export class ErrorPieGraphComponent implements AfterViewInit, OnDestroy{
   @ViewChild("chart") chart!: ChartComponent;
+  private readonly destroy$: Subject<void> = new Subject<void>();
   public chartOptions: Partial<ChartOptions>;
 
   constructor(
-    private errorGraphsService: ErrorGraphsService
+    private errorGraphsService: ErrorGraphsService,
+    private cd: ChangeDetectorRef
   ) {
     this.chartOptions = {
-      series: this.errorGraphsService.values,
+      series: [],
       chart: {
         type: "pie",
         height: "400",
@@ -54,5 +57,23 @@ export class ErrorPieGraphComponent {
         }
       ]
     };
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  ngAfterViewInit(): void {
+    this.chartOptions.series = this.errorGraphsService.loadGraphData$.value;
+    this.errorGraphsService.loadGraphData$.pipe(skip(1),takeUntil(this.destroy$))
+    .subscribe({
+      next: (series: any[]) => {
+        console.log("PIE RECEIVED: ", series);
+        this.chartOptions.series = series;
+        this.cd.detectChanges();
+      },
+      error: error => console.error(error)
+    });
   }
 }
