@@ -21,6 +21,8 @@ import { RoleEntity } from 'classes/entities/role.entity';
 import { UserRoleEntity } from 'classes/entities/user_role.entity';
 import { CompanyEntity } from 'classes/entities/company.entity';
 import { WorksiteEntity } from 'classes/entities/worksite.entity';
+import { NoteEntity } from 'classes/entities/note.entity';
+import { RoleCompanyEntity } from 'classes/entities/role_company.entity';
 
 // importo i servizi
 import { VehicleService } from './services/vehicle/vehicle.service';
@@ -38,7 +40,7 @@ import { VehicleController } from './controllers/vehicle/vehicle.controller';
 import { RealtimeController } from './controllers/realtime/realtime.controller';
 import { SessionController } from './controllers/session/session.controller';
 import { TagController } from './controllers/tag/tag.controller';
-
+import { CompanyController } from './controllers/company/company.controller';
 import { AuthController } from './controllers/auth/auth.controller';
 
 // importo i factory
@@ -49,8 +51,7 @@ import { WorksiteFactoryService } from './factory/worksite.factory';
 import { GroupFactoryService } from './factory/group.factory';
 import { WorksiteGroupEntity } from 'classes/entities/worksite_group.entity';
 import { WorksiteGroupFactoryService } from './factory/worksite_group.factory';
-import { NoteEntity } from 'classes/entities/note.entity';
-import { CompanyController } from './controllers/company/company.controller';
+import { RoleCompanyFactoryService } from './factory/role_company.factory';
 
 @Global()
 @Module({
@@ -87,6 +88,7 @@ import { CompanyController } from './controllers/company/company.controller';
           WorksiteEntity,
           WorksiteGroupEntity,
           NoteEntity,
+          RoleCompanyEntity,
         ],
         synchronize: true,
         dropSchema: true, // if true drop db
@@ -110,8 +112,64 @@ import { CompanyController } from './controllers/company/company.controller';
         WorksiteEntity,
         WorksiteGroupEntity,
         NoteEntity,
+        RoleCompanyEntity,
       ],
       'mainConnection',
+    ),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      name: 'readOnlyConnection',
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get<string>('DB_HOST'),
+        port: configService.get<number>('DB_PORT'),
+        username: configService.get<string>('DB_USERNAME'),
+        password: configService.get<string>('DB_PASSWORD'),
+        database: configService.get<string>('DB_DATABASE'),
+        entities: [
+          VehicleEntity,
+          DeviceEntity,
+          GroupEntity,
+          RealtimePositionEntity,
+          HistoryEntity,
+          TagEntity,
+          TagHistoryEntity,
+          DetectionTagEntity,
+          SessionEntity,
+          UserEntity,
+          RoleEntity,
+          UserRoleEntity,
+          CompanyEntity,
+          WorksiteEntity,
+          WorksiteGroupEntity,
+          NoteEntity,
+          RoleCompanyEntity,
+        ],
+        synchronize: false,
+      }),
+    }),
+    TypeOrmModule.forFeature(
+      [
+        VehicleEntity,
+        DeviceEntity,
+        GroupEntity,
+        RealtimePositionEntity,
+        HistoryEntity,
+        TagEntity,
+        TagHistoryEntity,
+        DetectionTagEntity,
+        SessionEntity,
+        UserEntity,
+        RoleEntity,
+        UserRoleEntity,
+        CompanyEntity,
+        WorksiteEntity,
+        WorksiteGroupEntity,
+        NoteEntity,
+        RoleCompanyEntity,
+      ],
+      'readOnlyConnection',
     ),
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -149,6 +207,7 @@ import { CompanyController } from './controllers/company/company.controller';
     WorksiteFactoryService,
     GroupFactoryService,
     WorksiteGroupFactoryService,
+    RoleCompanyFactoryService,
   ],
 })
 export class AppModule {}
