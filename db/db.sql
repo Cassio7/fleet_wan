@@ -162,7 +162,7 @@ ALTER TABLE "user_roles" ADD FOREIGN KEY ("roleId") REFERENCES "roles" ("id");
 
 ALTER TABLE "role_companies" ADD FOREIGN KEY ("companyId") REFERENCES "companies" ("id");
 
-ALTER TABLE "role_companies" ADD FOREIGN KEY ("roleId") REFERENCES "user_roles" ("id");
+ALTER TABLE "role_companies" ADD FOREIGN KEY ("roleId") REFERENCES "roles" ("id");
 
 ALTER TABLE "groups" ADD FOREIGN KEY ("companyId") REFERENCES "companies" ("id");
 
