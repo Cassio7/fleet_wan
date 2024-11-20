@@ -38,7 +38,7 @@
         <mat-icon
           class="check-icon"
           *ngIf="vehicle.sessions?.length > 0 && !checkGpsError(vehicle)"
-        >
+          matTooltip="Possiede un GPS funzionante">
           check_circle
         </mat-icon>
       </td>
@@ -54,8 +54,11 @@
         *ngIf="checkAntennaError(vehicle)">
           error
         </mat-icon>
-        <mat-icon class="check-icon" *ngIf="!checkAntennaError(vehicle)">
-          check_circle
+        <mat-icon
+        *ngIf="!checkAntennaError(vehicle)"
+        [ngClass]="vehicle.isRFIDReader ? 'check-icon' : 'check-noReader'"
+        [matTooltip]="vehicle.isRFIDReader ? 'Possiede un\' antenna RFID funzionante' : 'Non ha un\' antenna RFID'">
+        check_circle
         </mat-icon>
       </td>
     </ng-container>
@@ -70,7 +73,10 @@
         *ngIf="checkSessionError(vehicle)">
           error
         </mat-icon>
-        <mat-icon class="check-icon" *ngIf="!checkSessionError(vehicle)">check_circle</mat-icon>
+        <mat-icon
+        class="check-icon"
+        *ngIf="!checkSessionError(vehicle)"
+        matTooltip="L'ultimo tag letto rientra nell'ultima sessione">check_circle</mat-icon>
       </td>
     </ng-container>
 
