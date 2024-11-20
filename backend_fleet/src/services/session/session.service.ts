@@ -22,7 +22,7 @@ export class SessionService {
   // imposta il tempo di recupero dei history, ogni quanti secondi = 3 min
   private timeHistory = 180000;
   constructor(
-    @InjectRepository(SessionEntity, 'mainConnection')
+    @InjectRepository(SessionEntity, 'readOnlyConnection')
     private readonly sessionRepository: Repository<SessionEntity>,
     @InjectDataSource('mainConnection')
     private readonly connection: DataSource,
