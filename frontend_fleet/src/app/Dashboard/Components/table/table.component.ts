@@ -117,8 +117,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
           loadingComplete = true; //imposta il completamento del caricamento
 
           if (loadingComplete) {
-            this.errorGraphService.loadChartData(newVehicles);
-            this.blackboxGraphService.loadChartData(newVehicles);
+            this.loadGraphs(newVehicles);
           }
         },
         error: error => console.error(error),
@@ -126,9 +125,9 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   }
 
   // Funzione da chiamare quando i dati sono completamente caricati
-  onDataLoaded() {
-    console.log('Dati caricati completamente!');
-    // Aggiungi qui la logica per la funzione che deve essere chiamata
+  loadGraphs(newVehicles: any[]) {
+    this.errorGraphService.loadChartData(newVehicles);
+    this.blackboxGraphService.loadChartData(newVehicles);
   }
 
 

@@ -1,5 +1,5 @@
 import { BlackboxGraphsService } from '../../../Services/blackbox-graphs/blackbox-graphs.service';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { ApexAxisChartSeries, ApexChart, ApexDataLabels, ApexGrid, ApexLegend, ApexPlotOptions, ApexYAxis, ChartComponent, NgApexchartsModule } from 'ng-apexcharts';
 
 type ApexXAxis = {
@@ -32,7 +32,7 @@ export type ChartOptions = {
   templateUrl: './blackbox-bar-graph.component.html',
   styleUrl: './blackbox-bar-graph.component.css'
 })
-export class BlackboxBarGraphComponent implements OnInit{
+export class BlackboxBarGraphComponent implements AfterViewInit{
   @ViewChild("chart") chart!: ChartComponent;
   public chartOptions: Partial<ChartOptions>;
 
@@ -80,18 +80,24 @@ export class BlackboxBarGraphComponent implements OnInit{
     };
   }
 
-  async ngOnInit(): Promise<void> {
+  async ngAfterViewInit(): Promise<void> {
+    this.chartOptions.series = [
+      {
+        name: "Data",
+        data: this.blackboxGraphsService.loadGraphData$.value,
+      }
+    ];
     //carica i dati nel grafico
-    try {
-      const seriesData = await this.blackboxGraphsService.loadChartData();
-      this.chartOptions.series = [
-        {
-          name: "Data",
-          data: seriesData,
-        },
-      ];
-    } catch (error) {
-      console.error("Errore durante il caricamento dei dati del grafico: ", error);
-    }
+    this.blackboxGraphsService.loadGraphData$.pipe()
+    .subscribe({
+      next: (seriesData: number[]) => {
+        this.chartOptions.series = [
+          {
+            name: "Data",
+            data: seriesData,
+          },
+        ];
+      }
+    });
   }
 }

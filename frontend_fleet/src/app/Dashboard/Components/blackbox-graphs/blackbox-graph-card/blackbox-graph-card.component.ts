@@ -1,6 +1,5 @@
 import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
-import { BlackboxGraphComponent } from "../sefwe/blackbox-pie-graph.component";
 import { MatSelect, MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { CommonModule } from '@angular/common';

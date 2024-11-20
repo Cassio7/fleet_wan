@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Injectable, OnInit } from '@angular/core';
 import { VehiclesApiService } from '../vehicles/vehicles-api.service';
-import { lastValueFrom, Subject, takeUntil } from 'rxjs';
+import { BehaviorSubject, lastValueFrom, Subject, takeUntil } from 'rxjs';
 import { Vehicle } from '../../../Models/Vehicle';
 
 @Injectable({
@@ -9,51 +9,34 @@ import { Vehicle } from '../../../Models/Vehicle';
 
 
 export class BlackboxGraphsService{
-  private readonly destroy$: Subject<void> = new Subject<void>();
-  private _values = [60, 40];
+  private _loadGraphData$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
+
+  private _series: number[] = [];
   private _colors = ["#0061ff", "#009bff"];
 
-  constructor(
-    private vehicleApiService: VehiclesApiService
-  ) { }
+  constructor() { }
 
 
-  public get colors(): string[] {
-    return this._colors;
-  }
 
-  public get values() {
-    return this._values;
-  }
 
-  public async getAllRFIDVehicles() {
+  private getAllRFIDVehicles(vehicles: any[]) {
     const categorizedVehicles = {
       blackboxOnly: [] as Vehicle[],
       blackboxWithAntenna: [] as Vehicle[],
     };
 
-    try {
-      const vehicles: Vehicle[] = await lastValueFrom(
-        this.vehicleApiService.getAllVehicles().pipe(takeUntil(this.destroy$))
-      );
-
-      for (const vehicle of vehicles) {
-        vehicle.isRFIDReader
-          ? categorizedVehicles.blackboxWithAntenna.push(vehicle)
-          : categorizedVehicles.blackboxOnly.push(vehicle);
-      }
-    } catch (error) {
-      console.error('Error getting all vehicles for RFID checking:', error);
+    for(const v of vehicles){
+      v.isRFIDReader == true ? categorizedVehicles.blackboxWithAntenna.push(v) : categorizedVehicles.blackboxOnly.push(v);
     }
 
     return categorizedVehicles;
   }
 
 
-  async loadChartData(): Promise<number[]> {
+  public loadChartData(vehicles: any[]){
     let series: number[] = [];
     try {
-      const categorizedVehicles = await this.getAllRFIDVehicles();
+      const categorizedVehicles = this.getAllRFIDVehicles(vehicles);
       series = [
         categorizedVehicles.blackboxOnly.length,
         categorizedVehicles.blackboxWithAntenna.length,
@@ -61,9 +44,20 @@ export class BlackboxGraphsService{
     } catch (error) {
       console.error("Error loading chart data: ", error);
     }
-    return series;
+    this._series = series;
+    this._loadGraphData$.next(series);
   }
 
+  public get loadGraphData$(): BehaviorSubject<any[]> {
+    return this._loadGraphData$;
+  }
 
+  public get colors(): string[] {
+    return this._colors;
+  }
+
+  public get series() {
+    return this._series;
+  }
 
 }

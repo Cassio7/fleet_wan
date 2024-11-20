@@ -1,8 +1,8 @@
-import { AfterViewInit, Component, ViewChild, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ViewChild, OnInit, ChangeDetectorRef } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { ApexNonAxisChartSeries, ApexChart, ApexResponsive, ApexTheme, ApexTitleSubtitle, NgApexchartsModule, ChartComponent } from 'ng-apexcharts';
 import { BlackboxGraphsService } from '../../../Services/blackbox-graphs/blackbox-graphs.service';
-import { Subject } from 'rxjs';
+import { skip, Subject, takeUntil } from 'rxjs';
 
 export type ChartOptions = {
   series: ApexNonAxisChartSeries;
@@ -23,10 +23,12 @@ export type ChartOptions = {
   templateUrl: './blackbox-pie-graph.component.html',
   styleUrls: ['./blackbox-pie-graph.component.css']
 })
-export class BlackboxPieGraphComponent implements OnInit {
+export class BlackboxPieGraphComponent implements AfterViewInit {
+  private readonly destroy$: Subject<void> = new Subject<void>();
   @ViewChild("chart") chart!: ChartComponent;
 
   public chartOptions: Partial<ChartOptions> = {
+    series: [],
     chart: {
       type: "pie",
       height: "400",
@@ -51,19 +53,22 @@ export class BlackboxPieGraphComponent implements OnInit {
         },
       },
     ],
-    series: [],
   };
 
-  constructor(private blackboxGraphsService: BlackboxGraphsService) {}
+  constructor(
+    private blackboxGraphsService: BlackboxGraphsService,
+    private cd: ChangeDetectorRef
+  ) {}
 
-  async ngOnInit(): Promise<void> {
-
-    try {
-      // Carica dati presi dal servizio nel grafico
-      const series = await this.blackboxGraphsService.loadChartData();
-      this.chartOptions.series = series;
-    } catch (error) {
-      console.error("Error initializing chart data: ", error);
-    }
+  ngAfterViewInit() {
+    this.chartOptions.series = this.blackboxGraphsService.loadGraphData$.value;
+    this.blackboxGraphsService.loadGraphData$.pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next: (series: number[]) => {
+        this.chartOptions.series = series;
+        this.cd.detectChanges();
+      },
+      error: error => console.error("Errore nel caricamento del grafico blacbox: ", error)
+    });
   }
 }
