@@ -18,7 +18,11 @@ export class BlackboxGraphsService{
 
 
 
-
+  /**
+   * Prende tutti i veicoli su cui è stata montata un antenna per leggere i tag
+   * @param vehicles oggetto custom di veicoli
+   * @returns un oggetto che contiene i veicoli con solo blackbox e con blackbox + antenna
+   */
   private getAllRFIDVehicles(vehicles: any[]) {
     const categorizedVehicles = {
       blackboxOnly: [] as Vehicle[],
@@ -32,7 +36,11 @@ export class BlackboxGraphsService{
     return categorizedVehicles;
   }
 
-
+  /**
+   * Permette di preparare l'array per riempire il grafico dei blackbox
+   * e notifica e manda i dati al grafico tramite un subject
+   * @param vehicles oggetto custom di veicoli
+   */
   public loadChartData(vehicles: any[]){
     let series: number[] = [];
     try {

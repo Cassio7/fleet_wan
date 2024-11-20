@@ -53,6 +53,8 @@ export class TagController {
       res.status(500).send('Errore durante il recupero dei realtimes');
     }
   }
+
+  
   /**
    * API per prendere tutti i tag history indicando range temporale in base all'id
    * @param res

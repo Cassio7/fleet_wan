@@ -14,7 +14,7 @@ export class VehiclesApiService {
 
   /**
    * Prende tutti i dati dei veicoli dall'api gestita nel backend
-   * @returns
+   * @returns observable http
    */
   public getAllVehicles(): Observable<Vehicle[]>{
     return this.http.get<Vehicle[]>("http://10.1.0.102:3001/vehicles");
@@ -23,13 +23,17 @@ export class VehiclesApiService {
   /**
    * Ricerca i dati del veicolo con una specifica targa
    * @param plate targa del veicolo da ricercare
-   * @returns
+   * @returns observable http
    */
   public getVehicleByPlate(plate: string): Observable<Vehicle>{
     return this.http.get<Vehicle>(`http://10.1.0.102:3001/vehicles/fetchplate/${plate}`);
   }
 
-
+  /**
+   * Controlla il GPS di un veicolo
+   * @param veId identificativo del veicolo
+   * @returns observable http
+   */
   public checkGPSessionByVeid(veId: number): Observable<any>{
     const dateFrom = new Date();
     const dateTo = new Date();
@@ -44,7 +48,12 @@ export class VehiclesApiService {
     return this.http.post(`http://10.1.0.102:3001/session/checkgps/${veId}`, body);
   }
 
-
+  /**
+   * Controlla i GPS di tutti i veicoli in un determinato arco di tempo
+   * @param dateFrom data di inizio ricerca
+   * @param dateTo data di fine ricerca
+   * @returns observable http
+   */
   public checkGPSAllRanged(dateFrom: Date, dateTo: Date){
     const body = {
       dateFrom: dateFrom,
@@ -53,6 +62,10 @@ export class VehiclesApiService {
     return this.http.post<Vehicle[]>("http://10.1.0.102:3001/session/checkgps/all", body);
   }
 
+  /**
+   * Controlla tutti i GPS nella giornata di oggi
+   * @returns observable http
+   */
   public checkGPSAllToday(){
     const body = {
       dateFrom: new Date('2024-10-31'),
@@ -62,6 +75,12 @@ export class VehiclesApiService {
     return this.checkGPSAllRanged(body.dateFrom, body.dateTo); //da cambiare in data di ieri e attuale
   }
 
+  /**
+   * Controlla gli errori di tutti i veicoli con sessioni in un determinato arco di tempo
+   * @param dateFrom data di inizio ricerca
+   * @param dateTo data di fine ricerca
+   * @returns observable http
+   */
   public checkErrorsAllRanged(dateFrom: Date, dateTo: Date): Observable<any>{
     const body = {
       dateFrom: dateFrom,
@@ -70,6 +89,12 @@ export class VehiclesApiService {
     return this.http.post(`http://10.1.0.102:3001/session/checkerrors/all`, body);
   }
 
+  /**
+   * Controlla gli errori di tutti i veicoli con sessioni nella giornata di oggi
+   * @param dateFrom data di inizio ricerca
+   * @param dateTo data di fine ricerca
+   * @returns observable http
+  */
   public checkErrorsAllToday(): Observable<any>{
     //*DA CAMBIARE A DATA ATTUALE*
     const body = {

@@ -730,12 +730,7 @@ export class SessionController {
       period_from,
       period_to,
     );
-    // const lastTag = await this.tagService.getLastTagInTimeRange(
-    //   period_from,
-    //   period_to,
-    //   vehicleId,
-    // );
-    const allVehicles = await this.vehicleService.getVehiclesByReader(); //prendi tutti i veicoli
+    const allVehicles = await this.vehicleService.getVehiclesByReader(); //prendi tutti i veicoli che hanno un antenna RFID
     let vehicles: any[] = [];
 
     // Get the latest tag read for all vehicles

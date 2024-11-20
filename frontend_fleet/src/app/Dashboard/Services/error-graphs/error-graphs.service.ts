@@ -12,7 +12,11 @@ export class ErrorGraphsService{
 
   constructor() { }
 
-
+  /**
+  * Permette di preparare l'array per riempire il grafico degli errori
+  * e notifica e manda i dati al grafico tramite un subject
+  * @param vehicles oggetto custom di veicoli
+  */
   public loadChartData(vehicles: any[]) {
     let series: number[] = [];
     try {
