@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { CommonService } from '../common service/common.service';
 
 @Injectable({
   providedIn: 'root'
@@ -8,7 +9,8 @@ import { Observable } from 'rxjs';
 export class CheckErrorsService {
 
   constructor(
-    private http: HttpClient
+    private http: HttpClient,
+    private commonService: CommonService
   ) { }
 
     /**
@@ -17,11 +19,8 @@ export class CheckErrorsService {
    * @returns
    */
   checkGpsError(vehicle: any): string | null {
-    // const dateFrom = new Date();
-    // dateFrom.setDate(dateFrom.getDate() - 1);
-    // const dateTo = new Date();
-    const dateFrom = new Date("2024/10/04");
-    const dateTo = new Date("2024/10/05");
+    const dateFrom = this.commonService.dateFrom;
+    const dateTo = this.commonService.dateTo;
     let gpsAnomaly: any;
 
     for(const s of vehicle.sessions){
@@ -44,11 +43,8 @@ export class CheckErrorsService {
    * @returns
    */
   checkAntennaError(vehicle: any): string | null {
-    // const dateFrom = new Date();
-    // dateFrom.setDate(dateFrom.getDate() - 1);
-    // const dateTo = new Date();
-    const dateFrom = new Date("2024/10/04");
-    const dateTo = new Date("2024/10/05");
+    const dateFrom = this.commonService.dateFrom;
+    const dateTo = this.commonService.dateTo;
 
     let antennaAnomaly: any;
 
@@ -73,11 +69,8 @@ export class CheckErrorsService {
    * @returns
    */
   checkSessionError(vehicle: any): string | null {
-    // const dateFrom = new Date();
-    // dateFrom.setDate(dateFrom.getDate() - 1);
-    // const dateTo = new Date();
-    const dateFrom = new Date("2024/10/04");
-    const dateTo = new Date("2024/10/05");
+    const dateFrom = this.commonService.dateFrom;
+    const dateTo = this.commonService.dateTo;
 
     let sessionAnomaly: any;
 
@@ -118,8 +111,8 @@ export class CheckErrorsService {
   public checkErrorsAllToday(): Observable<any>{
     //*DA CAMBIARE A DATA ATTUALE*
     const body = {
-      dateFrom: new Date('2024-10-04'),
-      dateTo: new Date('2024-10-05')
+      dateFrom: this.commonService.dateFrom,
+      dateTo: this.commonService.dateTo
     }
     return this.http.post(`http://10.1.0.102:3001/session/checkerrors/all`, body);
   }
