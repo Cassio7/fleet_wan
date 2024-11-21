@@ -48,29 +48,38 @@
     <ng-container matColumnDef="antenna">
       <th mat-header-cell *matHeaderCellDef> Antenna </th>
       <td mat-cell *matCellDef="let vehicle">
-        <!-- Icona per errore antenna RFID -->
-        <mat-icon
-          class="error-icon"
-          matTooltip="Anomalia antenna RFID"
-          *ngIf="checkAntennaError(vehicle) && vehicle.isRFIDReader">
-          error
-        </mat-icon>
-        <!-- Icona per antenna RFID funzionante -->
-        <mat-icon
-          *ngIf="!checkAntennaError(vehicle) && vehicle.isRFIDReader"
-          class="check-icon"
-          matTooltip="Possiede un'antenna RFID funzionante">
-          check_circle
-        </mat-icon>
-        <!-- Icona per assenza di antenna RFID -->
-        <mat-icon
-          *ngIf="!checkAntennaError(vehicle) && !vehicle.isRFIDReader"
-          class="close-icon"
-          matTooltip="Non ha un'antenna RFID">
-          close
-        </mat-icon>
+        <div class="icon-container">
+          <!-- Icona Check Circle per RFID Reader funzionante -->
+          <mat-icon
+            *ngIf="vehicle.isRFIDReader && !checkAntennaError(vehicle)"
+            class="check-icon"
+            matTooltip="Possiede un'antenna RFID funzionante">
+            check_circle
+          </mat-icon>
+          <!-- Icona Errore per RFID Reader con problemi -->
+          <mat-icon
+            *ngIf="vehicle.isRFIDReader && checkAntennaError(vehicle)"
+            class="error-icon"
+            matTooltip="Anomalia antenna RFID">
+            error
+          </mat-icon>
+          <!-- Icone Antenna e Close per veicoli senza RFID Reader -->
+          <mat-icon
+            *ngIf="!vehicle.isRFIDReader && !checkAntennaError(vehicle)"
+            class="antenna-icon"
+            matTooltip="Non ha un'antenna RFID">
+            settings_input_antenna
+          </mat-icon>
+          <mat-icon
+            *ngIf="!vehicle.isRFIDReader && !checkAntennaError(vehicle)"
+            class="close-icon"
+            matTooltip="Non ha un'antenna RFID">
+            close
+          </mat-icon>
+        </div>
       </td>
     </ng-container>
+
 
 
 

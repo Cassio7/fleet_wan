@@ -24,8 +24,37 @@ tr,td, th{
   color: rgb(3, 184, 3);
 }
 
-.close-icon{
+.mat-cell {
+  display: flex;
+  justify-content: center; /* Allinea al centro orizzontalmente */
+  align-items: center; /* Allinea al centro verticalmente */
+  padding: 0; /* Rimuove eventuale padding extra */
+  height: 100%; /* Assicura che la cella occupi l'intera altezza */
+  box-sizing: border-box; /* Mantiene le dimensioni corrette */
+}
+
+.icon-container {
+  position: relative;
+  display: inline-block; /* Adatta la dimensione al contenuto */
+  width: 24px; /* Larghezza del contenitore, adattabile alla dimensione delle icone */
+  height: 24px; /* Altezza del contenitore */
+}
+
+.antenna-icon,
+.close-icon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-size: 24px; /* Dimensione delle icone */
+  line-height: 24px; /* Per uniformare altezza e dimensione */
+}
+
+.antenna-icon{
   color: #0061ff;
+}
+
+.close-icon {
+  color: red; /* Colore rosso per l'icona "close" */
 }
 
 .check-noReader, .error-icon, .close-icon, .check-icon, .warning-icon{
