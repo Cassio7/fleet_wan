@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { CheckErrorsService } from '../check-errors/check-errors.service';
 
 @Injectable({
   providedIn: 'root'
@@ -7,10 +8,12 @@ import { BehaviorSubject } from 'rxjs';
 export class ErrorGraphsService{
   private _loadGraphData$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
 
-  private _values = [44, 55, 13];
+  private _series = [0,0,0];//[funzionante, warning, error]
   private _colors = ["#46ff00", "#ffd607", "#ff0000"];
 
-  constructor() { }
+  constructor(
+    private checkErrorsService: CheckErrorsService
+  ) { }
 
   /**
   * Permette di preparare l'array per riempire il grafico degli errori
@@ -18,41 +21,38 @@ export class ErrorGraphsService{
   * @param vehicles oggetto custom di veicoli
   */
   public loadChartData(vehicles: any[]) {
-    let series: number[] = [];
-    try {
-      // Inizializza i contatori
-      let working = 0;
-      let warning = 0;
-      let error = 0;
+    for (const vehicle of vehicles) {
+      const hasGpsError = this.checkErrorsService.checkGpsError(vehicle);
+      const hasSessionError = this.checkErrorsService.checkSessionError(vehicle);
+      const hasAntennaError = this.checkErrorsService.checkAntennaError(vehicle);
 
-      // Itera sui veicoli
-      for (const v of vehicles) {
-        const anomalies = v.sessions?.[0]?.anomalies || [];
-
-        //ricerca anomalie
-        const gpsAnomalies = anomalies.some((anomaly: any) => 'GPS' in anomaly);
-        const antennaAnomalies = anomalies.some((anomaly: any) => 'antenna' in anomaly);
-        const sessionAnomalies = anomalies.some((anomaly: any) => 'sessionEnd' in anomaly);
-
-        //controllo anomalie
-        if (antennaAnomalies || sessionAnomalies) {
-          error += 1;
-        } else if (gpsAnomalies && !antennaAnomalies && !sessionAnomalies) {
-          warning += 1;
-        } else {
-          working += 1;
-        }
+      // Controllo errore GPS (warning) - solo se non ci sono altri errori
+      if (hasGpsError && !hasSessionError && !hasAntennaError) {
+        this._series[1] += 1;
       }
-
-      series = [working, warning, error];
-      console.log("SERIES IN SERVICE: ", series);
-
-
-      this._loadGraphData$.next(series);//carica dati nel grafico
-    } catch (error) {
-      console.error("Error loading chart data: ", error);
+      // Controllo errore antenna (Errore) - solo se non ci sono altri errori
+      else if (hasAntennaError && !hasSessionError && !hasGpsError) {
+        this._series[2] += 1;
+      }
+      // Controllo errore sessione (Errore) - solo se non ci sono altri errori
+      else if (hasSessionError && !hasGpsError && !hasAntennaError) {
+        this._series[2] += 1;
+      }
+      else if (hasAntennaError && hasSessionError){ //Controllo errori di sessione e antenna (Errore)
+        this.series[2] += 1;
+      }
+      // Controllo nessun errore (funzionante)
+      else if (!hasGpsError && !hasSessionError && !hasAntennaError) {
+        this._series[0] += 1;
+      }
     }
+
+    console.log(this._series);
+    this._loadGraphData$.next(this._series);
   }
+
+
+
 
   public get loadGraphData$(): BehaviorSubject<any> {
     return this._loadGraphData$;
@@ -60,7 +60,7 @@ export class ErrorGraphsService{
   public get colors() {
     return this._colors;
   }
-  public get values() {
-    return this._values;
+  public get series() {
+    return this._series;
   }
 }

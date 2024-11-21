@@ -24,10 +24,10 @@ tr,td, th{
   color: rgb(3, 184, 3);
 }
 
-.check-noReader{
+.close-icon{
   color: #0061ff;
 }
 
-.check-noReader, .error-icon, .check-icon, .warning-icon{
+.check-noReader, .error-icon, .close-icon, .check-icon, .warning-icon{
   cursor: pointer;
 }

@@ -13,6 +13,7 @@ import { Vehicle } from '../../../Models/Vehicle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ErrorGraphsService } from '../../Services/error-graphs/error-graphs.service';
 import { BlackboxGraphsService } from '../../Services/blackbox-graphs/blackbox-graphs.service';
+import { CheckErrorsService } from '../../Services/check-errors/check-errors.service';
 
 @Component({
   selector: 'app-table',
@@ -34,10 +35,6 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   filterForm!: FormGroup;
   private readonly destroy$: Subject<void> = new Subject<void>();
 
-  /*da rimuovere*/
-  antennaError: boolean = false;
-  sessionError: boolean = false;
-
   vehicleTableData = new MatTableDataSource<Session>();  // Use MatTableDataSource for the table
 
   sessions: Session[] = [];
@@ -57,6 +54,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     private errorGraphService: ErrorGraphsService,
     private blackboxGraphService: BlackboxGraphsService,
     private vehicleApiService: VehiclesApiService,
+    private checkErrorsService: CheckErrorsService,
     private cd: ChangeDetectorRef
   ){
     this.filterForm = new FormGroup({
@@ -95,7 +93,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     // Aggiungi un flag per indicare quando tutti i dati sono stati caricati
     let loadingComplete = false;
 
-    this.vehicleApiService.checkErrorsAllToday().pipe(takeUntil(this.destroy$))
+    this.checkErrorsService.checkErrorsAllToday().pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (vehicles: any) => {
           const newVehicles = []; // Array per raccogliere i nuovi veicoli
@@ -107,17 +105,17 @@ export class TableComponent implements OnDestroy, AfterViewInit{
             }
           }
 
-          // Se ci sono nuovi veicoli, aggiorna la tabella
+          // Se ci sono veicoli, aggiorna la tabella
           if (newVehicles.length > 0) {
             this.vehicleTableData.data = [...this.vehicleTableData.data, ...newVehicles]; // Aggiungi i nuovi veicoli
-            this.vehicleTable.renderRows(); // Esegui il rendering una sola volta
+            this.vehicleTable.renderRows();
             this.cd.markForCheck();
           }
 
           loadingComplete = true; //imposta il completamento del caricamento
-
+          //controllo fine caricamento tabella
           if (loadingComplete) {
-            this.loadGraphs(newVehicles);
+            this.loadGraphs(newVehicles); //caricamento grafici solo dopo la fine del caricamento della tabella
           }
         },
         error: error => console.error(error),
@@ -132,22 +130,15 @@ export class TableComponent implements OnDestroy, AfterViewInit{
 
 
   checkGpsError(vehicle: any): string | null {
-    // Find the GPS anomaly
-    const gpsAnomaly = vehicle.sessions?.[0]?.anomalies?.find((anomaly: any) => 'GPS' in anomaly);
-
-    if (gpsAnomaly) {
-      // Return the GPS value or a fallback message
-      return gpsAnomaly.GPS || 'Errore GPS';
-    }
-
-    return null; // Return null if no GPS anomaly is found
+    return this.checkErrorsService.checkGpsError(vehicle);
   }
 
-  checkAntennaError(vehicle: any){
-    return vehicle.sessions?.[0]?.anomalies?.find((anomaly: any) => 'antenna' in anomaly);
+  checkAntennaError(vehicle: any): string | null {
+    return this.checkErrorsService.checkAntennaError(vehicle);
   }
 
-  checkSessionError(vehicle: any){
-    return vehicle.sessions?.[0]?.anomalies?.find((anomaly: any) => 'sessionEnd' in anomaly);
+  checkSessionError(vehicle: any): string | null {
+    return this.checkErrorsService.checkSessionError(vehicle);
   }
+
 }

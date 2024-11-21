@@ -46,22 +46,34 @@
 
     <!-- Antenna Column -->
     <ng-container matColumnDef="antenna">
-      <th mat-header-cell *matHeaderCellDef> Antenna</th>
+      <th mat-header-cell *matHeaderCellDef> Antenna </th>
       <td mat-cell *matCellDef="let vehicle">
+        <!-- Icona per errore antenna RFID -->
         <mat-icon
-        class="error-icon"
-        matTooltip="Anomalia antenna"
-        *ngIf="checkAntennaError(vehicle)">
+          class="error-icon"
+          matTooltip="Anomalia antenna RFID"
+          *ngIf="checkAntennaError(vehicle) && vehicle.isRFIDReader">
           error
         </mat-icon>
+        <!-- Icona per antenna RFID funzionante -->
         <mat-icon
-        *ngIf="!checkAntennaError(vehicle)"
-        [ngClass]="vehicle.isRFIDReader ? 'check-icon' : 'check-noReader'"
-        [matTooltip]="vehicle.isRFIDReader ? 'Possiede un\' antenna RFID funzionante' : 'Non ha un\' antenna RFID'">
-        check_circle
+          *ngIf="!checkAntennaError(vehicle) && vehicle.isRFIDReader"
+          class="check-icon"
+          matTooltip="Possiede un'antenna RFID funzionante">
+          check_circle
+        </mat-icon>
+        <!-- Icona per assenza di antenna RFID -->
+        <mat-icon
+          *ngIf="!checkAntennaError(vehicle) && !vehicle.isRFIDReader"
+          class="close-icon"
+          matTooltip="Non ha un'antenna RFID">
+          close
         </mat-icon>
       </td>
     </ng-container>
+
+
+
 
     <!-- Sessione Column -->
     <ng-container matColumnDef="sessione">

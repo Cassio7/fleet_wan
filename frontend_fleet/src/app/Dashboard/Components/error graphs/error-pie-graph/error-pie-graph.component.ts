@@ -69,7 +69,6 @@ export class ErrorPieGraphComponent implements AfterViewInit, OnDestroy{
     this.errorGraphsService.loadGraphData$.pipe(skip(1),takeUntil(this.destroy$))
     .subscribe({
       next: (series: any[]) => {
-        console.log("PIE RECEIVED: ", series);
         this.chartOptions.series = series;
         this.cd.detectChanges();
       },

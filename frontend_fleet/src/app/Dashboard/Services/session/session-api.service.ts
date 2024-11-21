@@ -53,7 +53,7 @@ export class SessionApiService {
    * @returns
    */
   public getTodaySessions(){
-    return this.getAllSessionsRanged(new Date('2024-10-31'), new Date('2024-11-01')); //da cambiare in data di ieri e attuale
+    return this.getAllSessionsRanged(new Date('2024-10-04'), new Date('2024-10-05')); //da cambiare in data di ieri e attuale
   }
 
   /**

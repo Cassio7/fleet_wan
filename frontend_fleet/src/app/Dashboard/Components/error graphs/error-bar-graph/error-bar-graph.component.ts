@@ -47,7 +47,7 @@ export class ErrorBarGraphComponent implements AfterViewInit, OnDestroy{
       series: [
         {
           name: "Data",
-          data: this.errorGraphsService.values
+          data: this.errorGraphsService.series
         }
       ],
       chart: {
