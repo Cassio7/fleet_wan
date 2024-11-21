@@ -91,7 +91,7 @@ import { RoleCompanyFactoryService } from './factory/role_company.factory';
           RoleCompanyEntity,
         ],
         synchronize: true,
-        dropSchema: true, // if true drop db
+        //dropSchema: true, // if true drop db
       }),
     }),
     TypeOrmModule.forFeature(
