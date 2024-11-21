@@ -40,7 +40,7 @@ export class SessionService {
         <soapenv:Header/>
         <soapenv:Body>
           <fwan:${methodName}>
-            <suId>${process.env.SUID}</suId>
+            <suId>${suId}</suId>
             <veId>${veId}</veId>
             <timezone>Europe/Rome</timezone>
             <degreeCoords>true</degreeCoords>
