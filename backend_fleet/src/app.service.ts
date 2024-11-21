@@ -32,13 +32,10 @@ export class AppService implements OnModuleInit {
 
   // popolo database all'avvio
   async onModuleInit() {
-    await this.putDefaultData();
-    //await this.putDbData();
+    //await this.putDefaultData();
     //await this.putDbDataBasicFor();
     //await this.putDbDataBasicForEach();
-    await this.putDbDataBasicForAdvance();
-    //await this.putDbDataNewReverse();
-    //await this.putDbDataLast();
+    //await this.putDbDataBasicForAdvance();
     //await this.putDbData5min();
   }
 
@@ -53,82 +50,8 @@ export class AppService implements OnModuleInit {
     await this.worksiteGroupFactoryService.createDefaultWorksiteGroup();
   }
 
-  async putDbData() {
-    const startDate = '2024-10-01T00:00:00.000Z';
-    const endDate = '2024-10-31T00:00:00.000Z';
-
-    // Parallel vehicle list retrievals
-    const vehicleListPromises = [
-      this.vehicleService.getVehicleList(254, 313),
-      this.vehicleService.getVehicleList(305, 650),
-      this.vehicleService.getVehicleList(324, 688),
-    ];
-    await Promise.all(vehicleListPromises);
-
-    const dateFrom_new = new Date(startDate);
-    const dateTo_new = new Date(endDate);
-    const daysInRange = getDaysInRange(dateFrom_new, dateTo_new);
-
-    // Fetch vehicles and default worksite in parallel
-    const [vehicles] = await Promise.all([
-      this.vehicleService.getAllVehicles(),
-      this.worksiteFactoryService.createDefaultVehicleWorksite(),
-    ]);
-
-    // Batch process companies to reduce database calls
-    const companyMap = new Map();
-    for (const vehicle of vehicles) {
-      const company = await this.companyService.getCompanyByVeId(vehicle.veId);
-      if (company) {
-        companyMap.set(vehicle.veId, company);
-      }
-    }
-
-    // Use batch processing with concurrency limit
-    const processBatch = async (batch) => {
-      const batchPromises = batch.map(async (vehicle) => {
-        const company = companyMap.get(vehicle.veId);
-        console.log(
-          `${vehicle.veId} con targa: ${vehicle.plate} - ${vehicle.id}`,
-        );
-        if (company) {
-          const dayRequests = daysInRange.slice(0, -1).map((day) => {
-            const datefrom = day;
-            const dateto = new Date(datefrom);
-            dateto.setHours(23, 59, 59, 0);
-
-            return Promise.all([
-              this.sessionService.getSessionist(
-                company.suId,
-                vehicle.veId,
-                datefrom.toISOString(),
-                dateto.toISOString(),
-              ),
-              this.tagService.putTagHistory(
-                company.suId,
-                vehicle.veId,
-                datefrom.toISOString(),
-                dateto.toISOString(),
-              ),
-            ]);
-          });
-
-          return Promise.all(dayRequests);
-        }
-      });
-
-      return Promise.all(batchPromises);
-    };
-
-    // Process vehicles in batches to control concurrency
-    const batchSize = 10;
-    for (let i = 0; i < vehicles.length; i += batchSize) {
-      const batch = vehicles.slice(i, i + batchSize);
-      await processBatch(batch);
-    }
-  }
   /**
-   * al momento la migliore nel complesso, semplice ciclo for ma non funziona con range temporali alti
+   * ciclo for ma non funziona con range temporali alti
    */
   async putDbDataBasicFor() {
     const startDate = '2024-10-20T00:00:00.000Z';
@@ -193,7 +116,9 @@ export class AppService implements OnModuleInit {
       }
     }
   }
-
+  /**
+   * il for each non aspetta le await
+   */
   async putDbDataBasicForEach() {
     const startDate = '2024-10-20T00:00:00.000Z';
     const endDate = '2024-10-30T00:00:00.000Z';
@@ -252,9 +177,14 @@ export class AppService implements OnModuleInit {
     });
   }
 
+  /**
+   * IL PRESCELTO
+   */
   async putDbDataBasicForAdvance() {
-    const startDate = '2024-01-01T00:00:00.000Z';
-    const endDate = '2024-10-31T00:00:00.000Z';
+    const startDate = '2024-11-11T00:00:00.000Z';
+    //const endDate = '2024-04-10T00:00:00.000Z';
+    const endDate = new Date().toISOString();
+
     const batchSize = 100;
 
     await this.vehicleService.getVehicleList(254, 313);
@@ -323,133 +253,6 @@ export class AppService implements OnModuleInit {
     }
   }
 
-  async putDbDataNewReverse() {
-    const startDate = '2024-10-01T00:00:00.000Z';
-    const endDate = '2024-10-31T00:00:00.000Z';
-
-    await this.vehicleService.getVehicleList(254, 313);
-    await this.vehicleService.getVehicleList(305, 650);
-    await this.vehicleService.getVehicleList(324, 688);
-
-    const dateFrom_new = new Date(startDate);
-    const dateTo_new = new Date(endDate);
-    const daysInRange = getDaysInRange(dateFrom_new, dateTo_new);
-    const vehicles = await this.vehicleService.getAllVehicles();
-    await this.worksiteFactoryService.createDefaultVehicleWorksite();
-
-    // Mappo per ridurre il numero di chiamate interne
-    const companyMap = new Map();
-    for (const vehicle of vehicles) {
-      const company = await this.companyService.getCompanyByVeId(vehicle.veId);
-      if (company) {
-        companyMap.set(vehicle.veId, company);
-      }
-    }
-
-    const processVehicleBatch = async (vehicleBatch) => {
-      await Promise.all(
-        vehicleBatch.map(async (vehicle) => {
-          console.log(
-            `${vehicle.veId} con targa: ${vehicle.plate} - ${vehicle.id}`,
-          );
-          const company = companyMap.get(vehicle.veId);
-          if (company) {
-            const requests = daysInRange.slice(0, -1).map((day) => {
-              const datefrom = day;
-              const dateto = new Date(datefrom);
-              dateto.setHours(23, 59, 59, 0);
-
-              return Promise.all([
-                this.sessionService.getSessionist(
-                  company.suId,
-                  vehicle.veId,
-                  datefrom.toISOString(),
-                  dateto.toISOString(),
-                ),
-                this.tagService.putTagHistory(
-                  company.suId,
-                  vehicle.veId,
-                  datefrom.toISOString(),
-                  dateto.toISOString(),
-                ),
-              ]);
-            });
-            await Promise.all(requests); // Concorrenza per tutti i giorni
-          }
-        }),
-      );
-    };
-
-    const vehicleBatchSize = 10; // Batch di veicoli
-    for (let i = 0; i < vehicles.length; i += vehicleBatchSize) {
-      const vehicleBatch = vehicles.slice(i, i + vehicleBatchSize);
-      await processVehicleBatch(vehicleBatch);
-    }
-  }
-
-  async putDbDataLast() {
-    const startDate = '2024-10-01T00:00:00.000Z';
-    const endDate = '2024-10-31T00:00:00.000Z';
-
-    await this.vehicleService.getVehicleList(254, 313);
-    await this.vehicleService.getVehicleList(305, 650);
-    await this.vehicleService.getVehicleList(324, 688);
-
-    const dateFrom_new = new Date(startDate);
-    const dateTo_new = new Date(endDate);
-    const daysInRange = getDaysInRange(dateFrom_new, dateTo_new);
-    const vehicles = await this.vehicleService.getAllVehicles();
-    await this.worksiteFactoryService.createDefaultVehicleWorksite();
-
-    // Mappo per ridurre il numero di chiamate interne
-    const companyMap = new Map();
-    for (const vehicle of vehicles) {
-      const company = await this.companyService.getCompanyByVeId(vehicle.veId);
-      if (company) {
-        companyMap.set(vehicle.veId, company);
-      }
-    }
-
-    const processVehicleBatch = async (vehicleBatch) => {
-      await Promise.all(
-        vehicleBatch.map(async (vehicle) => {
-          console.log(
-            `${vehicle.veId} con targa: ${vehicle.plate} - ${vehicle.id}`,
-          );
-          const company = companyMap.get(vehicle.veId);
-          if (company) {
-            const requests = daysInRange.slice(0, -1).map((day) => {
-              const datefrom = day;
-              const dateto = new Date(datefrom);
-              dateto.setHours(23, 59, 59, 0);
-
-              return Promise.all([
-                this.sessionService.getSessionist(
-                  company.suId,
-                  vehicle.veId,
-                  datefrom.toISOString(),
-                  dateto.toISOString(),
-                ),
-                this.tagService.putTagHistory(
-                  company.suId,
-                  vehicle.veId,
-                  datefrom.toISOString(),
-                  dateto.toISOString(),
-                ),
-              ]);
-            });
-            await Promise.all(requests); // Concorrenza per tutti i giorni
-          }
-        }),
-      );
-    };
-
-    const vehicleBatchSize = 20; // Batch di veicoli
-    for (let i = 0; i < vehicles.length; i += vehicleBatchSize) {
-      const vehicleBatch = vehicles.slice(i, i + vehicleBatchSize);
-      await processVehicleBatch(vehicleBatch);
-    }
-  }
   // @Cron('0 0 * * *')
   // async putDbDataDaily() {
   //   const startDate = new Date(
@@ -469,10 +272,10 @@ export class AppService implements OnModuleInit {
   //   }
   // }
 
-  //@Cron('*/5 * * * *')
+  //@Cron('*/3 * * * *')
   async putDbData5min() {
     const startDate = new Date(
-      new Date().getTime() - 5 * 60 * 1000, // 5 minuti
+      new Date().getTime() - 3 * 60 * 1000, // 3 minuti
     ).toISOString();
     const endDate = new Date().toISOString();
     await this.vehicleService.getVehicleList(254, 313);
@@ -480,11 +283,21 @@ export class AppService implements OnModuleInit {
     await this.vehicleService.getVehicleList(324, 688);
 
     const vehicles = await this.vehicleService.getAllVehicles();
+
+    // Creazione della mappa delle compagnie
+    const companyMap = new Map();
+    for (const vehicle of vehicles) {
+      const company = await this.companyService.getCompanyByVeId(vehicle.veId);
+      if (company) {
+        companyMap.set(vehicle.veId, company);
+      }
+    }
+
     for (const vehicle of vehicles) {
       console.log(
         `${vehicle.veId} con targa: ${vehicle.plate} - ${vehicle.id}`,
       );
-      const company = await this.companyService.getCompanyByVeId(vehicle.veId);
+      const company = companyMap.get(vehicle.veId);
       if (company) {
         await this.sessionService.getSessionist(
           company.suId,
@@ -492,7 +305,6 @@ export class AppService implements OnModuleInit {
           startDate,
           endDate,
         );
-        console.log(`Tag`);
         await this.tagService.putTagHistory(
           company.suId,
           vehicle.veId,
