@@ -26,7 +26,7 @@ table companies{
 table role_companies{
   id int [primary key]
   companyId int [ref: > companies.id]
-  roleId int [ref: > user_roles.id]
+  roleId int [ref: > roles.id]
 }
 
 table groups{
@@ -51,6 +51,14 @@ Table vehicles {
   profileName string
   hash string
   deviceId int [ref: - devices.id]
+  worksiteId int [ref: > worksite.id]
+}
+
+table notes{
+  id int [primary key]
+  text text
+  userId int [ref: > users.id]
+  vehicleId int [ref: > vehicles.id]
 }
 
 table devices{
@@ -69,11 +77,16 @@ table devices{
   hash string
 }
 
+table worksite{
+  id int [primary key]
+  name string
+
+}
 
 table vehicle_group {
   id int [primary key]
   groupId int [ref: > groups.id]
-  vehicleId int [ref: > vehicles.id]
+  worksiteId int [ref: > worksite.id]
 }
 
 table realtime_positions{

@@ -1,8 +1,8 @@
-import { UserRoleInterface } from 'classes/interfaces/user_role.interface';
 import { CommonInterface } from 'classes/common/common.interface';
 import { CompanyInterface } from './company.interface';
+import { RoleInterface } from './role.interface';
 
 export interface RoleCompanyInterface extends CommonInterface {
-  user_role: UserRoleInterface;
+  role: RoleInterface;
   company: CompanyInterface;
 }

@@ -50,7 +50,15 @@ CREATE TABLE "vehicles" (
   "profileId" int,
   "profileName" string,
   "hash" string,
-  "deviceId" int
+  "deviceId" int,
+  "worksiteId" int
+);
+
+CREATE TABLE "notes" (
+  "id" int PRIMARY KEY,
+  "text" text,
+  "userId" int,
+  "vehicleId" int
 );
 
 CREATE TABLE "devices" (
@@ -69,10 +77,15 @@ CREATE TABLE "devices" (
   "hash" string
 );
 
+CREATE TABLE "worksite" (
+  "id" int PRIMARY KEY,
+  "name" string
+);
+
 CREATE TABLE "vehicle_group" (
   "id" int PRIMARY KEY,
   "groupId" int,
-  "vehicleId" int
+  "worksiteId" int
 );
 
 CREATE TABLE "realtime_positions" (
@@ -149,15 +162,21 @@ ALTER TABLE "user_roles" ADD FOREIGN KEY ("roleId") REFERENCES "roles" ("id");
 
 ALTER TABLE "role_companies" ADD FOREIGN KEY ("companyId") REFERENCES "companies" ("id");
 
-ALTER TABLE "role_companies" ADD FOREIGN KEY ("roleId") REFERENCES "user_roles" ("id");
+ALTER TABLE "role_companies" ADD FOREIGN KEY ("roleId") REFERENCES "roles" ("id");
 
 ALTER TABLE "groups" ADD FOREIGN KEY ("companyId") REFERENCES "companies" ("id");
 
 ALTER TABLE "vehicles" ADD FOREIGN KEY ("deviceId") REFERENCES "devices" ("id");
 
+ALTER TABLE "vehicles" ADD FOREIGN KEY ("worksiteId") REFERENCES "worksite" ("id");
+
+ALTER TABLE "notes" ADD FOREIGN KEY ("userId") REFERENCES "users" ("id");
+
+ALTER TABLE "notes" ADD FOREIGN KEY ("vehicleId") REFERENCES "vehicles" ("id");
+
 ALTER TABLE "vehicle_group" ADD FOREIGN KEY ("groupId") REFERENCES "groups" ("id");
 
-ALTER TABLE "vehicle_group" ADD FOREIGN KEY ("vehicleId") REFERENCES "vehicles" ("id");
+ALTER TABLE "vehicle_group" ADD FOREIGN KEY ("worksiteId") REFERENCES "worksite" ("id");
 
 ALTER TABLE "realtime_positions" ADD FOREIGN KEY ("vehicleId") REFERENCES "vehicles" ("id");
 
