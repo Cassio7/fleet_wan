@@ -47,10 +47,17 @@ export class BlackboxBarGraphComponent implements AfterViewInit{
       chart: {
         type: "bar",
         events: {
-          click: function (chart, w, e) {
-            // Per gestione click su colonne
-          },
-        },
+          dataPointSelection: (event, chartContext, config) => {
+            switch (config.dataPointIndex) {
+              case 0:
+                this.blackbox();
+                break;
+              case 1:
+                this.blackboxEantenna();
+                break;
+            }
+          }
+        }
       },
       colors: this.blackboxGraphsService.colors,
       plotOptions: {
@@ -78,6 +85,14 @@ export class BlackboxBarGraphComponent implements AfterViewInit{
         },
       },
     };
+  }
+
+  blackbox(){
+    console.log("Premuto blackbox");
+  }
+
+  blackboxEantenna(){
+    console.log("Premuto blackbox + antenna");
   }
 
   async ngAfterViewInit(): Promise<void> {

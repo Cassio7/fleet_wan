@@ -33,6 +33,18 @@ export class BlackboxPieGraphComponent implements AfterViewInit {
       type: "pie",
       height: "400",
       width: "100%",
+      events: {
+        dataPointSelection: (event, chartContext, config) => {
+          switch (config.dataPointIndex) {
+            case 0:
+              this.blackbox();
+              break;
+            case 1:
+              this.blackboxEantenna();
+              break;
+          }
+        }
+      }
     },
     labels: ["Blackbox", "BlackBox+antenna"],
     theme: {
@@ -54,6 +66,14 @@ export class BlackboxPieGraphComponent implements AfterViewInit {
       },
     ],
   };
+
+  blackbox(){
+    console.log("Premuto blackbox");
+  }
+
+  blackboxEantenna(){
+    console.log("Premuto blackbox + antenna");
+  }
 
   constructor(
     private blackboxGraphsService: BlackboxGraphsService,

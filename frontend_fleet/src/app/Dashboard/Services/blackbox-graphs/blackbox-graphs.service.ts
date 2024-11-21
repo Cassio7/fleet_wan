@@ -11,7 +11,7 @@ import { Vehicle } from '../../../Models/Vehicle';
 export class BlackboxGraphsService{
   private _loadGraphData$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
 
-  private _series: number[] = [];
+  private _series: number[] = []; //[blackbox, blackbox + antenna]
   private _colors = ["#0061ff", "#009bff"];
 
   constructor() { }

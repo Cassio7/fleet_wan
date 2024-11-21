@@ -98,14 +98,12 @@ export class TableComponent implements OnDestroy, AfterViewInit{
         next: (vehicles: any) => {
           const newVehicles = []; // Array per raccogliere i nuovi veicoli
 
-          // Filtro e accumulo i veicoli che hanno sessioni
+          // Filtro e accumulo veicoli che hanno sessioni
           for (const v of vehicles) {
             if (v.sessions?.length > 0) {
-              newVehicles.push(v); // Aggiungi il veicolo valido all'array
+              newVehicles.push(v); // Aggiunta del veicolo valido all'array
             }
           }
-          console.log(newVehicles);
-
           // Se ci sono veicoli, aggiorna la tabella
           if (newVehicles.length > 0) {
             this.vehicleTableData.data = [...this.vehicleTableData.data, ...newVehicles]; // Aggiungi i nuovi veicoli

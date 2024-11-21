@@ -39,7 +39,22 @@ export class ErrorPieGraphComponent implements AfterViewInit, OnDestroy{
       chart: {
         type: "pie",
         height: "400",
-        width: "100%"
+        width: "100%",
+        events: {
+          dataPointSelection: (event, chartContext, config) => {
+            switch (config.dataPointIndex) {
+              case 0:
+                this.workingClick();
+                break;
+              case 1:
+                this.warningClick();
+                break;
+              case 2:
+                this.errorClick();
+                break;
+            }
+          }
+        }
       },
       labels: ["Funzionante", "Warning", "Error"],
       colors: this.errorGraphsService.colors,
@@ -57,6 +72,18 @@ export class ErrorPieGraphComponent implements AfterViewInit, OnDestroy{
         }
       ]
     };
+  }
+
+  workingClick() {
+    console.log("Funzionante clicked");
+  }
+
+  warningClick(){
+    console.log("Warning clicked");
+  }
+
+  errorClick(){
+    console.log("Errore clicked");
   }
 
   ngOnDestroy(): void {

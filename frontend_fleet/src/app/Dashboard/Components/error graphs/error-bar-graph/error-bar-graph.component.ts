@@ -53,8 +53,18 @@ export class ErrorBarGraphComponent implements AfterViewInit, OnDestroy{
       chart: {
         type: "bar",
         events: {
-          click: function(chart, w, e) {
-            // column click
+          dataPointSelection: (event, chartContext, config) => {
+            switch (config.dataPointIndex) {
+              case 0:
+                this.workingClick();
+                break;
+              case 1:
+                this.warningClick();
+                break;
+              case 2:
+                this.errorClick();
+                break;
+            }
           }
         }
       },
@@ -84,7 +94,18 @@ export class ErrorBarGraphComponent implements AfterViewInit, OnDestroy{
         }
       }
     };
+  }
 
+  workingClick() {
+    console.log("Funzionante clicked");
+  }
+
+  warningClick(){
+    console.log("Warning clicked");
+  }
+
+  errorClick(){
+    console.log("Errore clicked");
   }
 
   ngOnDestroy(): void {
