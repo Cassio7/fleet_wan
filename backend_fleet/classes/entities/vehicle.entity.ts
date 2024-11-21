@@ -5,14 +5,16 @@ import {
   Entity,
   Index,
   JoinColumn,
+  ManyToOne,
   OneToMany,
   OneToOne,
 } from 'typeorm';
 import { DeviceEntity } from './device.entity';
 import { HistoryEntity } from './history.entity';
+import { NoteEntity } from './note.entity';
 import { RealtimePositionEntity } from './realtime_position.entity';
 import { TagHistoryEntity } from './tag_history.entity';
-import { VehicleGroupEntity } from './vehicle_group.entity';
+import { WorksiteEntity } from './worksite.entity';
 
 @Entity('vehicles')
 export class VehicleEntity extends CommonEntity implements VehicleInterface {
@@ -52,15 +54,8 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
   @Column({ type: 'varchar', length: 50 })
   profileName: string;
 
-  @Column({ type: 'varchar', length: 100 })
-  @Index()
-  hash: string;
-
-  @Column({ type: 'varchar', nullable: true })
-  note: string;
-
-  // @Column({ type: 'timestamptz', nullable: true })
-  // retiredEvent: Date;
+  @Column({ type: 'timestamptz', nullable: true })
+  retiredEvent: Date;
 
   @OneToOne(() => DeviceEntity)
   @JoinColumn({ name: 'device_id' })
@@ -79,6 +74,15 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
   @OneToMany(() => TagHistoryEntity, (taghistory) => taghistory.vehicle)
   taghistory: TagHistoryEntity[];
 
-  @OneToMany(() => VehicleGroupEntity, (vehicle_group) => vehicle_group.vehicle)
-  vehicle_group: VehicleGroupEntity[];
+  @OneToMany(() => NoteEntity, (note) => note.vehicle)
+  note: NoteEntity[];
+
+  @ManyToOne(() => WorksiteEntity, (worksite) => worksite.vehicle, {
+    nullable: true,
+  })
+  worksite: WorksiteEntity | null;
+
+  @Column({ type: 'varchar', length: 100 })
+  @Index()
+  hash: string;
 }

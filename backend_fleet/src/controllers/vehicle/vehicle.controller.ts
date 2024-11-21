@@ -95,43 +95,43 @@ export class VehicleController {
     }
   }
 
-  @Get('group/:id')
-  async getVehiclesByGroup(@Res() res: Response, @Param() params: any) {
-    try {
-      const vehicles = await this.vehicleService.getVehiclesByGroup(params.id);
-      res.status(200).json(vehicles);
-    } catch (error) {
-      console.error('Errore nel recupero dei veicoli:', error);
-      res.status(500).send('Errore durante il recupero dei veicoli');
-    }
-  }
+  // @Get('group/:id')
+  // async getVehiclesByGroup(@Res() res: Response, @Param() params: any) {
+  //   try {
+  //     const vehicles = await this.vehicleService.getVehiclesByGroup(params.id);
+  //     res.status(200).json(vehicles);
+  //   } catch (error) {
+  //     console.error('Errore nel recupero dei veicoli:', error);
+  //     res.status(500).send('Errore durante il recupero dei veicoli');
+  //   }
+  // }
 
   /**
    * API per aggiornare lista veicoli tramite
    * @param res 
    * @param params vgId del gruppo
    */
-  @Get('/update/:id')
-  async getVehicleList(@Res() res: Response, @Param() params: any) {
-    try {
-      const data = await this.vehicleService.getVehicleList(params.id);
+  // @Get('/update/:id')
+  // async getVehicleList(@Res() res: Response, @Param() params: any) {
+  //   try {
+  //     const data = await this.vehicleService.getVehicleList(params.id);
 
-      if (data.length > 0) {
-        let resultMessage: string = `Gruppo di aggiornamento id: ${params.id}\n\n`;
-        for (const item of data) {
-          resultMessage += `Aggiornati Veicolo id: ${item.veId}\n `;
-        }
-        res.status(200).send(resultMessage);
-      } else if (data === false) {
-        res
-          .status(200)
-          .send(`Nessun veicolo trovato per gruppo id: ${params.id}\n`);
-      } else res.status(200).send('Nessun aggiornamento');
-    } catch (error) {
-      console.error('Errore nella richiesta SOAP:', error);
-      res.status(500).send('Errore durante la richiesta al servizio SOAP');
-    }
-  }
+  //     if (data.length > 0) {
+  //       let resultMessage: string = `Gruppo di aggiornamento id: ${params.id}\n\n`;
+  //       for (const item of data) {
+  //         resultMessage += `Aggiornati Veicolo id: ${item.veId}\n `;
+  //       }
+  //       res.status(200).send(resultMessage);
+  //     } else if (data === false) {
+  //       res
+  //         .status(200)
+  //         .send(`Nessun veicolo trovato per gruppo id: ${params.id}\n`);
+  //     } else res.status(200).send('Nessun aggiornamento');
+  //   } catch (error) {
+  //     console.error('Errore nella richiesta SOAP:', error);
+  //     res.status(500).send('Errore durante la richiesta al servizio SOAP');
+  //   }
+  // }
 
   /**
    * API che restituisce il veicolo che ha la targa presa in input

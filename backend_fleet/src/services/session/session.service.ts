@@ -22,7 +22,7 @@ export class SessionService {
   // imposta il tempo di recupero dei history, ogni quanti secondi = 3 min
   private timeHistory = 180000;
   constructor(
-    @InjectRepository(SessionEntity, 'mainConnection')
+    @InjectRepository(SessionEntity, 'readOnlyConnection')
     private readonly sessionRepository: Repository<SessionEntity>,
     @InjectDataSource('mainConnection')
     private readonly connection: DataSource,
@@ -30,7 +30,8 @@ export class SessionService {
   // Costruisce la richiesta SOAP
   private buildSoapRequest(
     methodName: string,
-    id: number,
+    suId: number,
+    veId: number,
     dateFrom: string,
     dateTo: string,
   ): string {
@@ -39,8 +40,8 @@ export class SessionService {
         <soapenv:Header/>
         <soapenv:Body>
           <fwan:${methodName}>
-            <suId>${process.env.SUID}</suId>
-            <veId>${id}</veId>
+            <suId>${suId}</suId>
+            <veId>${veId}</veId>
             <timezone>Europe/Rome</timezone>
             <degreeCoords>true</degreeCoords>
             <dateFrom>${dateFrom}</dateFrom>
@@ -54,18 +55,20 @@ export class SessionService {
    * Una sessione viene stabilita dal momento in cui un mezzo si accende fin quando non viene spento.
    * Il WSDL ritorna un max di 5000 righe
    *
-   * @param id - VeId identificativo Veicolo
+   * @param suId - suId identificativo società
+   * @param veId - VeId identificativo Veicolo
    * @param dateFrom - Data inizio ricerca sessione
    * @param dateTo - Data fine ricerca sessione
    * @returns
    */
   async getSessionist(
-    id: number,
+    suId: number,
+    veId: number,
     dateFrom: string,
     dateTo: string,
   ): Promise<any> {
     const methodName = 'Session';
-    const requestXml = this.buildSoapRequest(methodName, id, dateFrom, dateTo);
+    const requestXml = this.buildSoapRequest(methodName,suId, veId, dateFrom, dateTo);
     const headers = {
       'Content-Type': 'text/xml; charset=utf-8',
       SOAPAction: `"${methodName}"`,
@@ -144,7 +147,7 @@ export class SessionService {
           },
           where: {
             sequence_id: In(sessionSequenceId),
-            history: { vehicle: { veId: id } },
+            history: { vehicle: { veId: veId } },
           },
         });
       // Crea una mappa per abbinare gli hash alle sessioni restituite dalla query
@@ -214,7 +217,7 @@ export class SessionService {
         }
       }
 
-      await this.setHistory(id, sessionArray);
+      await this.setHistory(veId, sessionArray);
       return sessionArray;
     } catch (error) {
       await queryRunner.rollbackTransaction();

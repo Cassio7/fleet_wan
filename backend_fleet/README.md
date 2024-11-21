@@ -27,12 +27,12 @@ DB_USERNAME=user
 DB_PASSWORD=password
 DB_DATABASE=database
 
-# Connection ID
-SUID=0
 
 #JWT
 SECRET_TOKEN = insane_password_fleet_baited
 ```
+
+Inserire anche la cartella `files` con dentro i file CVS per popolare il database.
 
 ## Compile and run the project
 

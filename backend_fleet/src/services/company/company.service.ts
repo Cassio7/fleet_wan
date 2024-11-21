@@ -6,7 +6,7 @@ import { Repository } from 'typeorm';
 @Injectable()
 export class CompanyService {
   constructor(
-    @InjectRepository(CompanyEntity, 'mainConnection')
+    @InjectRepository(CompanyEntity, 'readOnlyConnection')
     private readonly companyEntity: Repository<CompanyEntity>,
   ) {}
   /**
@@ -16,5 +16,46 @@ export class CompanyService {
   async getAllCompany(): Promise<any> {
     const companies = await this.companyEntity.find();
     return companies;
+  }
+
+  /**
+   * Ritorna l'oggetto società
+   * @param veId Ricerca in base all veId del veicolo
+   * @returns
+   */
+  async getCompanyByVeId(veId): Promise<any> {
+    const company = await this.companyEntity.findOne({
+      where: {
+        group: {
+          worksite_group: {
+            worksite: {
+              vehicle: {
+                veId: veId,
+              },
+            },
+          },
+        },
+      },
+    });
+    return company;
+  }
+
+  /**
+   * Ritorna l'oggetto società
+   * @param veId Ricerca in base all vgId del gruppo
+   * @returns
+   */
+  async getCompanyByVgId(vgId): Promise<any> {
+    const company = await this.companyEntity.findOne({
+      where: {
+        group: {
+          vgId: vgId,
+        },
+      },
+      relations: {
+        group: true,
+      },
+    });
+    return company;
   }
 }

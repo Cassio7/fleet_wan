@@ -13,21 +13,21 @@ export class RealtimeService {
   private serviceUrl = 'https://ws.fleetcontrol.it/FWANWs3/services/FWANSOAP';
 
   constructor(
-    @InjectRepository(RealtimePositionEntity, 'mainConnection')
+    @InjectRepository(RealtimePositionEntity, 'readOnlyConnection')
     private readonly realtimeRepository: Repository<RealtimePositionEntity>,
     @InjectDataSource('mainConnection')
     private readonly connection: DataSource,
   ) {}
 
   // Prepara la richiesta SOAP
-  private buildSoapRequest(methodName, id) {
+  private buildSoapRequest(methodName, suId, vgId) {
     return `<?xml version="1.0" encoding="UTF-8"?>
       <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:fwan="http://www.fleetcontrol/FWAN/">
           <soapenv:Header/>
           <soapenv:Body>
               <fwan:${methodName}>
-              <suId>${process.env.SUID}</suId>
-              <vgId>${id}</vgId>
+              <suId>${suId}</suId>
+              <vgId>${vgId}</vgId>
               <rowNumber>0</rowNumber>
               <timezone>Europe/Rome</timezone>
               <degreeCoords>true</degreeCoords>
@@ -36,9 +36,9 @@ export class RealtimeService {
       </soapenv:Envelope>`;
   }
 
-  async getRealTimeList(id: number): Promise<any> {
+  async getRealTimeList(suId: number, vgId: number): Promise<any> {
     const methodName = 'realTimePositions';
-    const requestXml = this.buildSoapRequest(methodName, id);
+    const requestXml = this.buildSoapRequest(methodName, suId, vgId);
     const headers = {
       'Content-Type': 'text/xml; charset=utf-8',
       SOAPAction: `"${methodName}"`,

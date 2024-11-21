@@ -1,12 +1,16 @@
 import { Controller, Get, Param, Res } from '@nestjs/common';
 import axios from 'axios';
 import { Response } from 'express';
+import { CompanyService } from 'src/services/company/company.service';
 import { RealtimeService } from 'src/services/realtime/realtime.service';
 
 @Controller('realtimes')
 export class RealtimeController {
   private readonly nominatimUrl = 'https://nominatim.openstreetmap.org/reverse';
-  constructor(private readonly realTimeService: RealtimeService) {}
+  constructor(
+    private readonly realTimeService: RealtimeService,
+    private readonly companyService: CompanyService,
+  ) {}
 
   @Get()
   async getAllTimes(@Res() res: Response) {
@@ -59,14 +63,15 @@ export class RealtimeController {
   @Get('update/:id')
   async getRealTimeList(@Res() res: Response, @Param() params: any) {
     try {
-      const data = await this.realTimeService.getRealTimeList(params.id);
-
+      const company = await this.companyService.getCompanyByVgId(params.id);
+      const data = await this.realTimeService.getRealTimeList(
+        company.suId,
+        params.id,
+      );
       if (data.length > 0) {
-        let resultMessage: string = `Gruppo di aggiornamento id : ${params.id}\n\n`;
-        for (const item of data) {
-          resultMessage += `Aggiornato realtime del veicolo id: ${item.vehicle.veId}, alla posizione  ${item.id}\n `;
-        }
-        res.status(200).send(resultMessage);
+        res
+          .status(200)
+          .send({ message: `Aggiornato il gruppo: ${company.group[0].name}` });
       } else {
         res.status(200).send('Nessun aggiornamento');
       }
