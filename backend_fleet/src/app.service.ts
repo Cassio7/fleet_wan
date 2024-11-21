@@ -32,10 +32,10 @@ export class AppService implements OnModuleInit {
 
   // popolo database all'avvio
   async onModuleInit() {
-    //await this.putDefaultData();
+    // await this.putDefaultData();
     //await this.putDbDataBasicFor();
     //await this.putDbDataBasicForEach();
-    //await this.putDbDataBasicForAdvance();
+    // await this.putDbDataBasicForAdvance();
     //await this.putDbData5min();
   }
 
@@ -181,8 +181,8 @@ export class AppService implements OnModuleInit {
    * IL PRESCELTO
    */
   async putDbDataBasicForAdvance() {
-    const startDate = '2024-11-11T00:00:00.000Z';
-    //const endDate = '2024-04-10T00:00:00.000Z';
+    const startDate = '2024-10-01T00:00:00.000Z';
+    //const endDate = '2024-10-31T00:00:00.000Z';
     const endDate = new Date().toISOString();
 
     const batchSize = 100;
