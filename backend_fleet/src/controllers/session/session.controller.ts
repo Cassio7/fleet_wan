@@ -442,7 +442,7 @@ export class SessionController {
         };
         // Raccogli le anomalie per ogni veicolo
         const anomaliesForVehicle = await Promise.all(
-          daysInRange.map(async (day) => {
+          daysInRange.slice(0, -1).map(async (day) => {
             const datefrom = day;
             const dateto = new Date(datefrom);
             dateto.setHours(23, 59, 59, 0);
@@ -1171,7 +1171,6 @@ export class SessionController {
       }
     });
 
-    console.log(lastEventErrors);
     //accorpa errori di fine sessione
     (lastEventErrors as any[]).forEach((el: VehicleEntity) => {
       customVehicles.forEach((v: any) => {
