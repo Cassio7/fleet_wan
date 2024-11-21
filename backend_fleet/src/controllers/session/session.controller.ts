@@ -65,11 +65,20 @@ export class SessionController {
    * Restituisce l'ultima sessione di ogni veicolo in un range di tempo
    */
   @Post('last/all')
-  async getAllVehiclesLastSessionByVeIdRanged(@Res() res: Response, @Body() body: any){
+  async getAllVehiclesLastSessionByVeIdRanged(
+    @Res() res: Response,
+    @Body() body: any,
+  ) {
     const dateFrom = body.dateFrom;
     const dateTo = body.dateTo;
-    const sessions = await this.sessionService.getAllVehiclesLastSessionByVeIdRanged(dateFrom, dateTo);
-    sessions ? res.status(200).send(sessions) : res.send(404).send("No last session found");
+    const sessions =
+      await this.sessionService.getAllVehiclesLastSessionByVeIdRanged(
+        dateFrom,
+        dateTo,
+      );
+    sessions
+      ? res.status(200).send(sessions)
+      : res.send(404).send('No last session found');
   }
   /**
    * API per prendere l'ultima sessione in base all'id
@@ -415,11 +424,11 @@ export class SessionController {
     if (!dateFrom || !dateTo) {
       return 'Date non fornite.';
     }
-  
+
     // Crea un oggetto Date dalla stringa fornita
     const dateFrom_new = new Date(dateFrom);
     const dateTo_new = new Date(dateTo);
-  
+
     // Controlla se la data è valida
     if (isNaN(dateFrom_new.getTime()) || isNaN(dateTo_new.getTime())) {
       return 'Formato della data non valido.';
@@ -428,7 +437,7 @@ export class SessionController {
       // Restituisci un errore se la condizione è vera
       return 'La data iniziale deve essere indietro di almeno 1 giorno dalla finale.';
     }
-  
+
     const daysInRange = getDaysInRange(dateFrom_new, dateTo_new);
     const vehicles = await this.vehicleService.getAllVehicles();
     const anomaliesForAllVehicles = await Promise.all(
@@ -446,7 +455,7 @@ export class SessionController {
             const datefrom = day;
             const dateto = new Date(datefrom);
             dateto.setHours(23, 59, 59, 0);
-  
+
             const datas = await this.sessionService.getAllSessionByVeIdRanged(
               vehicle.veId,
               datefrom,
@@ -457,14 +466,14 @@ export class SessionController {
               let flag_distance = false;
               let flag_coordinates = false;
               let flag_coordinates_zero = false;
-  
+
               const sessions = {
                 date: day,
                 anomalies: [],
               };
-  
+
               const distanceMap = datas.map((data) => data.distance);
-              // le coordinate riguardano il numero di history in tutte le sessioni di quella giornata 
+              // le coordinate riguardano il numero di history in tutte le sessioni di quella giornata
               const coordinates = datas.flatMap((data) =>
                 data.history.map((entry) => ({
                   latitude: entry.latitude,
@@ -475,16 +484,6 @@ export class SessionController {
                 if (distanceMap.every((distance) => distance === 0)) {
                   flag_distance_can = true;
                 }
-              } else {
-                if (
-                  distanceMap.every(
-                    (distance) => distance === distanceMap[0],
-                  ) ||
-                  distanceMap.every((distance) => distance === 0)
-                ) {
-                  flag_distance = true;
-                }
-  
                 if (
                   coordinates.every(
                     (coord) =>
@@ -494,37 +493,59 @@ export class SessionController {
                 ) {
                   flag_coordinates = true;
                 }
-  
+                const zeroCoordinatesCount = coordinates.filter(
+                  (coord) => coord.latitude === 0 && coord.longitude === 0,
+                ).length;
+                if (zeroCoordinatesCount > coordinates.length * 0.2) {
+                  flag_coordinates_zero = true;
+                }
+              } else {
                 if (
-                  coordinates.some(
-                    (coord) => coord.latitude === 0 && coord.longitude === 0,
+                  distanceMap.every(
+                    (distance) => distance === distanceMap[0],
+                  ) ||
+                  distanceMap.every((distance) => distance === 0)
+                ) {
+                  flag_distance = true;
+                }
+                if (
+                  coordinates.every(
+                    (coord) =>
+                      coord.latitude === coordinates[0].latitude &&
+                      coord.longitude === coordinates[0].longitude,
                   )
                 ) {
+                  flag_coordinates = true;
+                }
+                const zeroCoordinatesCount = coordinates.filter(
+                  (coord) => coord.latitude === 0 && coord.longitude === 0,
+                ).length;
+                if (zeroCoordinatesCount > coordinates.length * 0.2) {
                   flag_coordinates_zero = true;
                 }
               }
-  
-              if (flag_distance) {
-                sessions.anomalies.push(
-                  {GPS: `Anomalia GPS per la distanza, sempre uguale a ${distanceMap[0]}`},
-                );
+
+              if (flag_coordinates && flag_distance) {
+                sessions.anomalies.push({
+                  GPS: `Anomalia GPS totale, distanza ${distanceMap[0]}`,
+                });
               }
               if (flag_distance_can) {
-                sessions.anomalies.push(
-                  {GPS: `Anomalia GPS per la distanza problema con il tachimetro, sempre uguale a ${distanceMap[0]}`},
-                );
+                sessions.anomalies.push({
+                  GPS: `Anomalia GPS per la distanza problema con il tachimetro, sempre uguale a ${distanceMap[0]}`,
+                });
               }
               if (flag_coordinates) {
-                sessions.anomalies.push(
-                  {GPS: `Anomalia nelle coordinate, sempre uguali a lat: ${coordinates[0].latitude} e lon: ${coordinates[0].longitude}`},
-                );
+                sessions.anomalies.push({
+                  GPS: `Anomalia nelle coordinate, sempre uguali a lat: ${coordinates[0].latitude} e lon: ${coordinates[0].longitude}`,
+                });
               }
               if (flag_coordinates_zero) {
-                sessions.anomalies.push(
-                  {GPS: `Anomalia nelle coordinate, almeno 1 con lat: 0 e lon: 0`},
-                );
+                sessions.anomalies.push({
+                  GPS: `Anomalia nelle coordinate con lat: 0 e lon: 0 sopra al 20%`,
+                });
               }
-  
+
               return sessions; // ritorna il risultato per questo giorno
             }
             return null; // Se non ci sono dati, ritorna null
@@ -538,13 +559,14 @@ export class SessionController {
         return vehicleCheck;
       }),
     );
-  
+
     // Appiattisce l'array
     const allAnomalies = anomaliesForAllVehicles.flat();
-  
-    return allAnomalies; // Restituisce il risultato senza res.send
+    const filteredData = allAnomalies.filter(
+      (item) => Array.isArray(item.sessions) && item.sessions.length > 0,
+    );
+    return filteredData; // Restituisce il risultato senza res.send
   }
-  
 
   /**
    * Controllo sessioni registrate per funzionamento effettivo GPS, lat e log deve differire e la distanza deve essere variabile
@@ -636,10 +658,10 @@ export class SessionController {
   }
 
   /**
-   * Controlla che l'ultimo tag rientri nell'ultima sessione di un veicolo 
-   * @param res 
+   * Controlla che l'ultimo tag rientri nell'ultima sessione di un veicolo
+   * @param res
    * @param params veId
-   * @returns 
+   * @returns
    */
   @Get('tagcomparison/:id')
   async getTagComparison(@Res() res: Response, @Param() params: any) {
@@ -712,19 +734,19 @@ export class SessionController {
       res.status(500).send('Errore durante la richiesta al db');
     }
   }
-  
+
   /**
    * Ritorna per ogni veicolo se almeno un tag è stato letto in un determinato arco di tempo
-   * @param res 
+   * @param res
    * @param period_from data di inizio periodo
    * @param period_to data di fine periodo
-   * @returns 
+   * @returns
    */
   @Post('tagcomparisonwtime/all')
   async tagComparisonAllWithTimeRange(
     @Res() res: Response,
     @Body('period_from') period_from: Date,
-    @Body('period_to') period_to: Date
+    @Body('period_to') period_to: Date,
   ) {
     const sessions = await this.sessionService.getSessionInTimeRange(
       period_from,
@@ -735,26 +757,27 @@ export class SessionController {
 
     // Get the latest tag read for all vehicles
     await Promise.all(
-      allVehicles.map(async vehicle => {
-        const lastTag: TagHistoryEntity = await this.tagService.getLastTagHistoryByVeIdRanged(vehicle.veId, period_from, period_to);
+      allVehicles.map(async (vehicle) => {
+        const lastTag: TagHistoryEntity =
+          await this.tagService.getLastTagHistoryByVeIdRanged(
+            vehicle.veId,
+            period_from,
+            period_to,
+          );
         vehicles.push({
           veId: vehicle.veId,
-          lastTag: lastTag
+          lastTag: lastTag,
         });
-      })
+      }),
     );
 
     //controllo se esistono sessioni
     if (sessions) {
       return res.status(200).send(vehicles);
-    }else{
-      res
-      .status(404)
-      .send(
-        {
-          sessionFound: false
-        }
-      );
+    } else {
+      res.status(404).send({
+        sessionFound: false,
+      });
     }
   }
 
@@ -762,30 +785,30 @@ export class SessionController {
    * Ritorna per ogni veicolo se almeno un tag è stato letto in un determinato arco di tempo, senza API
    * @param period_to data di inizio periodo
    * @param period_from data di fine periodo
-   * @returns 
+   * @returns
    */
   async tagComparisonAllWithTimeRangeNoApi(period_to: Date, period_from: Date) {
     const sessions = await this.sessionService.getSessionInTimeRange(
       period_from,
       period_to,
     );
-  
+
     const allVehicles = await this.vehicleService.getVehiclesByReader();
-  
+
     const vehicles = await Promise.all(
       allVehicles.map(async (vehicle) => {
         const lastTag = await this.tagService.getLastTagHistoryByVeIdRanged(
           vehicle.veId,
           period_from,
-          period_to
+          period_to,
         );
         return {
           veId: vehicle.veId,
           lastTag: lastTag || null,
         };
-      })
+      }),
     );
-    
+
     if (sessions) {
       return {
         status: 200,
@@ -800,9 +823,7 @@ export class SessionController {
       };
     }
   }
-  
-  
-  
+
   /**
    * Ritorna se almeno un tag è stato letto in un determinato arco di tempo
    * @param period_from data di inizio ricerca
@@ -828,36 +849,23 @@ export class SessionController {
       vehicleId,
     );
     if (!sessions) {
-      res
-        .status(400)
-        .send(
-          {
-            sessionFound: false
-          }
-        );
+      res.status(400).send({
+        sessionFound: false,
+      });
     }
     if (!lastTag) {
-      res
-        .status(400)
-        .send(
-          {
-            veId: vehicleId,
-            lastTag: false
-          },
-        );
+      res.status(400).send({
+        veId: vehicleId,
+        lastTag: false,
+      });
     }
     if (sessions && lastTag) {
-      res
-        .status(200)
-        .send(
-          {
-            veId: vehicleId,
-            lastTag: lastTag
-          }
-        );
+      res.status(200).send({
+        veId: vehicleId,
+        lastTag: lastTag,
+      });
     }
   }
-
 
   /**
    * Ritorna tutti i veicoli dove la data dell'ultima sessione non corrisponde all ultimo evento registrato
@@ -893,7 +901,7 @@ export class SessionController {
         res.status(200).send({
           message:
             "Veicoli dove l'ultima sessione non corrisponde all'ultimo evento registrato",
-            brokenVehicles,
+          brokenVehicles,
         });
       } else {
         res.status(200).send({
@@ -911,19 +919,25 @@ export class SessionController {
       const brokenVehicles = [];
       const vehicles = await this.vehicleService.getVehiclesByReader();
       for (const vehicle of vehicles) {
-        const lastSession = await this.sessionService.getLastSession(vehicle.veId);
+        const lastSession = await this.sessionService.getLastSession(
+          vehicle.veId,
+        );
         if (lastSession) {
           const lastVehicleEvent = vehicle.lastEvent;
           const sessionEnd = lastSession.period_to;
-          if (new Date(lastVehicleEvent).getTime() != new Date(sessionEnd).getTime()) {
+          if (
+            new Date(lastVehicleEvent).getTime() !=
+            new Date(sessionEnd).getTime()
+          ) {
             brokenVehicles.push(vehicle);
           }
         }
       }
-  
+
       if (brokenVehicles.length > 0) {
         return {
-          message: "Veicoli dove l'ultima sessione non corrisponde all'ultimo evento registrato",
+          message:
+            "Veicoli dove l'ultima sessione non corrisponde all'ultimo evento registrato",
           errors: brokenVehicles as any[],
         };
       } else {
@@ -931,7 +945,7 @@ export class SessionController {
       }
     } catch (error) {
       console.error('Error getting last event: ', error);
-      return 'Errore durante la richiesta al db';  // Return error message as string
+      return 'Errore durante la richiesta al db'; // Return error message as string
     }
   }
 
@@ -941,19 +955,20 @@ export class SessionController {
    */
   @Post('lasteventall/ranged')
   async lastEventComparisonAllRanged(
-    @Res() res: Response, 
+    @Res() res: Response,
     @Body('dateFrom') dateFrom,
-    @Body('dateTo') dateTo
+    @Body('dateTo') dateTo,
   ) {
     try {
       const brokenVehicles = [];
       const vehicles = await this.vehicleService.getVehiclesByReader();
       for (const vehicle of vehicles) {
-        const lastSession = await this.sessionService.getLastSessionByVeIdRanged(
-          vehicle.veId,
-          new Date(dateFrom),
-          new Date(dateTo)
-        );
+        const lastSession =
+          await this.sessionService.getLastSessionByVeIdRanged(
+            vehicle.veId,
+            new Date(dateFrom),
+            new Date(dateTo),
+          );
         if (lastSession) {
           const lastVehicleEvent = vehicle.lastEvent;
           const sessionEnd = lastSession.period_to;
@@ -975,7 +990,7 @@ export class SessionController {
         res.status(200).send({
           message:
             "Veicoli dove l'ultima sessione non corrisponde all'ultimo evento registrato",
-            brokenVehicles,
+          brokenVehicles,
         });
       } else {
         res.status(200).send({
@@ -993,19 +1008,28 @@ export class SessionController {
       const brokenVehicles = [];
       const vehicles = await this.vehicleService.getVehiclesByReader();
       for (const vehicle of vehicles) {
-        const lastSession = await this.sessionService.getLastSessionByVeIdRanged(vehicle.veId, dateFrom, dateTo);
+        const lastSession =
+          await this.sessionService.getLastSessionByVeIdRanged(
+            vehicle.veId,
+            dateFrom,
+            dateTo,
+          );
         if (lastSession) {
           const lastVehicleEvent = vehicle.lastEvent;
           const sessionEnd = lastSession.period_to;
-          if (new Date(lastVehicleEvent).getTime() != new Date(sessionEnd).getTime()) {
+          if (
+            new Date(lastVehicleEvent).getTime() !=
+            new Date(sessionEnd).getTime()
+          ) {
             brokenVehicles.push(vehicle);
           }
         }
       }
-  
+
       if (brokenVehicles.length > 0) {
         return {
-          message: "Veicoli dove l'ultima sessione non corrisponde all'ultimo evento registrato",
+          message:
+            "Veicoli dove l'ultima sessione non corrisponde all'ultimo evento registrato",
           errors: brokenVehicles as any[],
         };
       } else {
@@ -1013,12 +1037,10 @@ export class SessionController {
       }
     } catch (error) {
       console.error('Error getting last event: ', error);
-      return 'Errore durante la richiesta al db';  // Return error message as string
+      return 'Errore durante la richiesta al db'; // Return error message as string
     }
   }
-  
-  
-  
+
   @Get('lastevent/:id')
   async lastEventComparisonById(@Res() res: Response, @Param() params: any) {
     try {
@@ -1105,80 +1127,89 @@ export class SessionController {
   //   }
   // }
 
-  @Post("checkerrors/all")
+  @Post('checkerrors/all')
   async checkErrorsAll(@Res() res: Response, @Body() body) {
     const dateFrom = new Date(body.dateFrom);
     const dateTo = new Date(body.dateTo);
-    
-    let gpsErrors: any; //risultati controllo gps 
+
+    let gpsErrors: any; //risultati controllo gps
     let vehicleTagComparisonErrors: any[] = []; //risultati comparazione tag x controllo errori antenna
     let lastEventErrors: any; //controllo errori lastEvent
 
     let customVehicles: any;
     /*controlla errore di GPS*/
-    try{
+    try {
       gpsErrors = await this.checkSessionGPSAllNoApi(dateFrom, dateTo); //restituisce dei veicoli custom con alcuni dati e un array di anomalie, in cui ci mette quelle di GPS se presenti
       customVehicles = gpsErrors;
-    }catch(error){
-      console.error("Errore nel controllo errori del GPS");
+    } catch (error) {
+      console.error('Errore nel controllo errori del GPS');
     }
 
     /*controlla errore antenna*/
-    try{
-      let fetchedTagComparisons = await this.tagComparisonAllWithTimeRangeNoApi(dateFrom, dateTo); 
+    try {
+      let fetchedTagComparisons = await this.tagComparisonAllWithTimeRangeNoApi(
+        dateFrom,
+        dateTo,
+      );
       //filter comparisons
       if (Array.isArray(fetchedTagComparisons.data)) {
         for (const item of fetchedTagComparisons.data) {
-          if(!item.lastTag){
+          if (!item.lastTag) {
             vehicleTagComparisonErrors.push(item);
           }
         }
       } else {
-          console.error(fetchedTagComparisons.data.sessionFound); //nel caso non fosse trovata sessione
+        console.error(fetchedTagComparisons.data.sessionFound); //nel caso non fosse trovata sessione
       }
-    }catch(error){
-      console.error("Errore nella comparazione dei tag per controllare gli errori delle antenne.");
+    } catch (error) {
+      console.error(
+        'Errore nella comparazione dei tag per controllare gli errori delle antenne.',
+      );
     }
 
     //controlla errore inizio e fine sessione (last event)
-    try{
-      let comparison = await this.lastEventComparisonAllRangedNoApi(dateFrom, dateTo);
-      typeof comparison !== 'string' ? lastEventErrors=comparison.errors : lastEventErrors = [];
-    }catch(error){
-      console.error("Errore nel controllo del last event");
+    try {
+      let comparison = await this.lastEventComparisonAllRangedNoApi(
+        dateFrom,
+        dateTo,
+      );
+      typeof comparison !== 'string'
+        ? (lastEventErrors = comparison.errors)
+        : (lastEventErrors = []);
+    } catch (error) {
+      console.error('Errore nel controllo del last event');
     }
 
     /*mettere insieme in un unico array di veicoli tutte le anomalie per il corretto veicolo e sessione*/
-    
+
     //accorpa errori di antenna
     customVehicles.forEach((v: any) => {
       // Verifica che il veicolo abbia sessioni
       if (Array.isArray(v.sessions)) {
-          for (const el of vehicleTagComparisonErrors) {
-              if (v.veId === el.veId) { 
-                for (const session of v.sessions) {      
-                  //Crea delle variabili "date" trasformando i dati salvati
-                  const sessionDate = new Date(session.date);
-                  
-                  //comparazione date
-                  if (sessionDate >= dateFrom && sessionDate <= dateTo) {
-                    session.anomalies.push({ antenna: true }); //inserisci anomalia di antenna nella sessione
-                  }
-                  
-                }
+        for (const el of vehicleTagComparisonErrors) {
+          if (v.veId === el.veId) {
+            for (const session of v.sessions) {
+              //Crea delle variabili "date" trasformando i dati salvati
+              const sessionDate = new Date(session.date);
+
+              //comparazione date
+              if (sessionDate >= dateFrom && sessionDate <= dateTo) {
+                session.anomalies.push({ antenna: true }); //inserisci anomalia di antenna nella sessione
               }
+            }
           }
+        }
       }
     });
 
     //accorpa errori di fine sessione
     (lastEventErrors as any[]).forEach((el: VehicleEntity) => {
       customVehicles.forEach((v: any) => {
-        if(Array.isArray(v.sessions)){
-          if (v.veId == el.veId && v.sessions?.length > 0){
-            for(const session of v.sessions){
+        if (Array.isArray(v.sessions)) {
+          if (v.veId == el.veId && v.sessions?.length > 0) {
+            for (const session of v.sessions) {
               const sessionDate = new Date(session.date);
-              if(sessionDate >= dateFrom && sessionDate <= dateTo){
+              if (sessionDate >= dateFrom && sessionDate <= dateTo) {
                 session.anomalies.push({ sessionEnd: true });
               }
             }
@@ -1203,7 +1234,6 @@ export class SessionController {
     //     ]
     // }
 
-
     // (fine sessione)last event custom obj: {
     //   "message": "Veicoli dove l'ultima sessione non corrisponde all'ultimo evento registrato",
     //   "brokenVehicles": [
@@ -1217,13 +1247,12 @@ export class SessionController {
     //           "active": true,
     //           "plate": "CA 615 VC" ...
 
-  //  (antenna)tag comparison custom obj:    
+    //  (antenna)tag comparison custom obj:
     // "data": [
     //     {
     //       "veId": 3845,
     //       "lastTag": null
     //   },
     res.status(200).send(customVehicles);
-
   }
 }
