@@ -860,7 +860,7 @@ export class SessionController {
 
 
   /**
-   * Ritorna tutti i veicoli dove la data dell'ultima sessione non corrisponde all ultimo tag registrato
+   * Ritorna tutti i veicoli dove la data dell'ultima sessione non corrisponde all ultimo evento registrato
    * @param res
    */
   @Get('lastevent/all')
@@ -906,7 +906,6 @@ export class SessionController {
     }
   }
 
-  
   async lastEventComparisonAllNoApi() {
     try {
       const brokenVehicles = [];
@@ -935,6 +934,89 @@ export class SessionController {
       return 'Errore durante la richiesta al db';  // Return error message as string
     }
   }
+
+  /**
+   * Ritorna tutti i veicoli dove la data dell'ultima sessione non corrisponde all ultimo evento registrato in un arco di tempo
+   * @param res
+   */
+  @Post('lasteventall/ranged')
+  async lastEventComparisonAllRanged(
+    @Res() res: Response, 
+    @Body('dateFrom') dateFrom,
+    @Body('dateTo') dateTo
+  ) {
+    try {
+      const brokenVehicles = [];
+      const vehicles = await this.vehicleService.getVehiclesByReader();
+      for (const vehicle of vehicles) {
+        const lastSession = await this.sessionService.getLastSessionByVeIdRanged(
+          vehicle.veId,
+          new Date(dateFrom),
+          new Date(dateTo)
+        );
+        if (lastSession) {
+          const lastVehicleEvent = vehicle.lastEvent;
+          const sessionEnd = lastSession.period_to;
+          if (
+            new Date(lastVehicleEvent).getTime() !=
+            new Date(sessionEnd).getTime()
+          ) {
+            brokenVehicles.push(vehicle);
+            // console.log({
+            //   message:
+            //     "L'ultimo evento del veicolo NON corrisponde con la fine della sua ultima sessione.",
+            //   lastVehicleEvent,
+            //   sessionEnd,
+            // });
+          }
+        }
+      }
+      if (brokenVehicles.length > 0) {
+        res.status(200).send({
+          message:
+            "Veicoli dove l'ultima sessione non corrisponde all'ultimo evento registrato",
+            brokenVehicles,
+        });
+      } else {
+        res.status(200).send({
+          message: 'Nessun veicolo presenta incongruenze',
+        });
+      }
+    } catch (error) {
+      console.error('Error getting last event: ', error);
+      res.status(500).send('Errore durante la richiesta al db');
+    }
+  }
+
+  async lastEventComparisonAllRangedNoApi(dateFrom: Date, dateTo: Date) {
+    try {
+      const brokenVehicles = [];
+      const vehicles = await this.vehicleService.getVehiclesByReader();
+      for (const vehicle of vehicles) {
+        const lastSession = await this.sessionService.getLastSessionByVeIdRanged(vehicle.veId, dateFrom, dateTo);
+        if (lastSession) {
+          const lastVehicleEvent = vehicle.lastEvent;
+          const sessionEnd = lastSession.period_to;
+          if (new Date(lastVehicleEvent).getTime() != new Date(sessionEnd).getTime()) {
+            brokenVehicles.push(vehicle);
+          }
+        }
+      }
+  
+      if (brokenVehicles.length > 0) {
+        return {
+          message: "Veicoli dove l'ultima sessione non corrisponde all'ultimo evento registrato",
+          errors: brokenVehicles as any[],
+        };
+      } else {
+        return { message: 'Nessun veicolo presenta incongruenze' };
+      }
+    } catch (error) {
+      console.error('Error getting last event: ', error);
+      return 'Errore durante la richiesta al db';  // Return error message as string
+    }
+  }
+  
   
   
   @Get('lastevent/:id')
@@ -1060,13 +1142,14 @@ export class SessionController {
 
     //controlla errore inizio e fine sessione (last event)
     try{
-      let comparison = await this.lastEventComparisonAllNoApi();
+      let comparison = await this.lastEventComparisonAllRangedNoApi(dateFrom, dateTo);
       typeof comparison !== 'string' ? lastEventErrors=comparison.errors : lastEventErrors = [];
     }catch(error){
       console.error("Errore nel controllo del last event");
     }
 
-    /*metti insieme in un unico array di veicoli tutte le anomalie per il corretto veicolo e sessione*/
+    /*mettere insieme in un unico array di veicoli tutte le anomalie per il corretto veicolo e sessione*/
+    
     //accorpa errori di antenna
     customVehicles.forEach((v: any) => {
       // Verifica che il veicolo abbia sessioni
@@ -1076,11 +1159,9 @@ export class SessionController {
                 for (const session of v.sessions) {      
                   //Crea delle variabili "date" trasformando i dati salvati
                   const sessionDate = new Date(session.date);
-                  const fromDate = new Date(dateFrom);
-                  const toDate = new Date(dateTo);
                   
                   //comparazione date
-                  if (sessionDate >= fromDate && sessionDate <= toDate) {
+                  if (sessionDate >= dateFrom && sessionDate <= dateTo) {
                     session.anomalies.push({ antenna: true }); //inserisci anomalia di antenna nella sessione
                   }
                   
@@ -1090,11 +1171,19 @@ export class SessionController {
       }
     });
 
+    console.log(lastEventErrors);
     //accorpa errori di fine sessione
     (lastEventErrors as any[]).forEach((el: VehicleEntity) => {
       customVehicles.forEach((v: any) => {
-        if (v.veId == el.veId && v.sessions?.length > 0){
-          v.sessions[0].anomalies.push({ sessionEnd: true });
+        if(Array.isArray(v.sessions)){
+          if (v.veId == el.veId && v.sessions?.length > 0){
+            for(const session of v.sessions){
+              const sessionDate = new Date(session.date);
+              if(sessionDate >= dateFrom && sessionDate <= dateTo){
+                session.anomalies.push({ sessionEnd: true });
+              }
+            }
+          }
         }
       });
     });
