@@ -19,9 +19,9 @@ export class CompanyService {
   }
 
   /**
-   * Ritorna l'oggetto società 
+   * Ritorna l'oggetto società
    * @param veId Ricerca in base all veId del veicolo
-   * @returns 
+   * @returns
    */
   async getCompanyByVeId(veId): Promise<any> {
     const company = await this.companyEntity.findOne({
@@ -37,6 +37,25 @@ export class CompanyService {
         },
       },
     });
-    return company
+    return company;
+  }
+
+  /**
+   * Ritorna l'oggetto società
+   * @param veId Ricerca in base all vgId del gruppo
+   * @returns
+   */
+  async getCompanyByVgId(vgId): Promise<any> {
+    const company = await this.companyEntity.findOne({
+      where: {
+        group: {
+          vgId: vgId,
+        },
+      },
+      relations: {
+        group: true,
+      },
+    });
+    return company;
   }
 }
