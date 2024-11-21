@@ -22,11 +22,11 @@ export class CheckErrorsService {
     // const dateTo = new Date();
     const dateFrom = new Date("2024/10/04");
     const dateTo = new Date("2024/10/05");
-
     let gpsAnomaly: any;
 
     for(const s of vehicle.sessions){
-      if(s.date >= dateFrom && s.date <= dateTo){
+      const sessionDate = new Date(s.date);
+      if(sessionDate >= dateFrom && sessionDate <= dateTo){
         gpsAnomaly = s.anomalies?.find((anomaly: any) => 'GPS' in anomaly);
       }
     }
@@ -118,8 +118,8 @@ export class CheckErrorsService {
   public checkErrorsAllToday(): Observable<any>{
     //*DA CAMBIARE A DATA ATTUALE*
     const body = {
-      dateFrom: new Date('2024-10-10'),
-      dateTo: new Date('2024-10-12')
+      dateFrom: new Date('2024-10-04'),
+      dateTo: new Date('2024-10-05')
     }
     return this.http.post(`http://10.1.0.102:3001/session/checkerrors/all`, body);
   }

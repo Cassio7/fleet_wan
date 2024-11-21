@@ -44,7 +44,6 @@ export class ErrorGraphCardComponent implements AfterViewInit, OnDestroy{
     this.errorGraphsService.loadGraphData$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (series: number[]) => {
-        console.log("SERIES DA CARTA: ",series);
         this._series = series;
       },
       error: error => console.error("Errore nella presa dei dati dalla carta del grafico degli errori: ", error)

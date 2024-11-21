@@ -47,7 +47,6 @@ export class ErrorGraphsService{
       }
     }
 
-    console.log(this._series);
     this._loadGraphData$.next(this._series);
   }
 

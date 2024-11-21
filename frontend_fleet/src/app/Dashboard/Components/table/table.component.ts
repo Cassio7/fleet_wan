@@ -104,6 +104,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
               newVehicles.push(v); // Aggiungi il veicolo valido all'array
             }
           }
+          console.log(newVehicles);
 
           // Se ci sono veicoli, aggiorna la tabella
           if (newVehicles.length > 0) {
