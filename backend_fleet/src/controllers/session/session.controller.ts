@@ -888,12 +888,12 @@ export class SessionController {
             new Date(sessionEnd).getTime()
           ) {
             brokenVehicles.push(vehicle);
-            // console.log({
-            //   message:
-            //     "L'ultimo evento del veicolo NON corrisponde con la fine della sua ultima sessione.",
-            //   lastVehicleEvent,
-            //   sessionEnd,
-            // });
+            console.log({
+              message:
+                "L'ultimo evento del veicolo NON corrisponde con la fine della sua ultima sessione.",
+              lastVehicleEvent,
+              sessionEnd,
+            });
           }
         }
       }
