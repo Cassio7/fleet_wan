@@ -121,7 +121,7 @@ export class BlackboxPieGraphComponent implements AfterViewInit {
       },
       error: error => console.error("Errore nell'aggiornamento del grafico dei blackbox in base ai veicoli funzionanti: ", error)
     });
-    this.errorGraphService.loadFunzionanteData$.pipe(takeUntil(this.destroy$), skip(1))
+    this.errorGraphService.loadErrorData$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (errorVehicles: any[]) => {
         this.blackboxGraphsService.loadChartData(errorVehicles);
