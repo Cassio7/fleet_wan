@@ -3,6 +3,7 @@ import { RealtimePosition } from "./RealtimePosition";
 import { Session } from "./Session";
 import { TagHistory } from "./TagHistory";
 import { VehicleGroup } from "./VehicleGroup";
+import { WorkSite } from "./Worksite";
 
 export class Vehicle {
   constructor(
@@ -24,6 +25,7 @@ export class Vehicle {
     public taghistory: TagHistory[],
     public vehicle_group: VehicleGroup[],
     public sessions: Session[],
-    public gpsError: boolean
+    public gpsError: boolean,
+    public workSite: WorkSite
   ) {}
 }
