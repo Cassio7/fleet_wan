@@ -1,6 +1,6 @@
 <div class="filter-container">
   <mat-form-field class="filter-form">
-    <mat-select [formControl]="cantieri" placeholder="Seleziona cantieri" multiple>
+    <mat-select [formControl]="cantieri" placeholder="Cantiere" multiple>
       <mat-option [value]="cantiere" (click)="selectCantiere(cantiere)" *ngFor="let cantiere of listaCantieri">
         {{cantiere}}
       </mat-option>
@@ -21,7 +21,10 @@
     <!-- Targa Column -->
     <ng-container matColumnDef="targa">
       <th mat-header-cell *matHeaderCellDef> Targa </th>
-      <td mat-cell *matCellDef="let vehicle">{{vehicle.plate}}</td>
+
+      <td mat-cell *matCellDef="let vehicle">
+        <mat-icon>local_shipping</mat-icon>
+        {{vehicle.plate}}</td>
     </ng-container>
 
     <!-- GPS Column -->
@@ -61,7 +64,7 @@
             *ngIf="vehicle.isRFIDReader && checkAntennaError(vehicle)"
             class="error-icon"
             matTooltip="Anomalia antenna RFID">
-            error
+            settings_input_antenna
           </mat-icon>
           <!-- Icone Antenna e Close per veicoli senza RFID Reader -->
           <mat-icon
@@ -88,16 +91,18 @@
     <ng-container matColumnDef="sessione">
       <th mat-header-cell *matHeaderCellDef> Sessione </th>
       <td mat-cell *matCellDef="let vehicle">
+
         <mat-icon
         class="error-icon"
-        matTooltip="Anomali di sessione"
+        matTooltip="Anomalia di sessione"
         *ngIf="checkSessionError(vehicle)">
           error
         </mat-icon>
         <mat-icon
         class="check-icon"
         *ngIf="!checkSessionError(vehicle)"
-        matTooltip="L'ultimo tag letto rientra nell'ultima sessione">check_circle</mat-icon>
+        matTooltip="Sessione corretta">check_circle</mat-icon>
+        10/10/2024
       </td>
     </ng-container>
 

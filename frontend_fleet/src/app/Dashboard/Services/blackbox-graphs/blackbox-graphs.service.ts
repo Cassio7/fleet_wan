@@ -2,6 +2,7 @@ import { ChangeDetectorRef, Injectable, OnInit } from '@angular/core';
 import { VehiclesApiService } from '../vehicles/vehicles-api.service';
 import { BehaviorSubject, lastValueFrom, Subject, takeUntil } from 'rxjs';
 import { Vehicle } from '../../../Models/Vehicle';
+import { CheckErrorsService } from '../check-errors/check-errors.service';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +15,11 @@ export class BlackboxGraphsService{
   private _series: number[] = []; //[blackbox, blackbox + antenna]
   private _colors = ["#0061ff", "#009bff"];
 
-  constructor() { }
+  private errorSliceSelected: string = "";
+
+  constructor(
+    private checkErrorsService: CheckErrorsService
+  ) { }
 
 
 
@@ -54,6 +59,69 @@ export class BlackboxGraphsService{
     }
     this._series = series;
     this._loadGraphData$.next(series);
+  }
+
+  workingClick() {
+    if (this.errorSliceSelected === "working") {
+      let allVehicles: any[] = [];
+
+      if (typeof sessionStorage !== "undefined") {
+        const storedVehicles = sessionStorage.getItem("allVehicles");
+        allVehicles = storedVehicles ? JSON.parse(storedVehicles) : [];
+      }
+
+      this.errorSliceSelected = "";
+      this.checkErrorsService.fillTable$.next(allVehicles);
+    } else {
+      if (typeof sessionStorage !== "undefined") {
+        sessionStorage.setItem("errorSlice", "working"); // Salvataggio scelta attuale in sessionStorage
+      }
+
+      this.errorSliceSelected = "working";
+      // this.loadFunzionanteData$.next(this.workingVehicles);
+    }
+  }
+
+  warningClick() {
+    if (this.errorSliceSelected === "warning") {
+      let allVehicles: any[] = [];
+
+      if (typeof sessionStorage !== "undefined") {
+        const storedVehicles = sessionStorage.getItem("allVehicles");
+        allVehicles = storedVehicles ? JSON.parse(storedVehicles) : [];
+      }
+
+      this.errorSliceSelected = "";
+      this.checkErrorsService.fillTable$.next(allVehicles);
+    } else {
+      if (typeof sessionStorage !== "undefined") {
+        sessionStorage.setItem("errorSlice", "warning"); // Salvataggio scelta attuale in sessionStorage
+      }
+
+      this.errorSliceSelected = "warning";
+      // this.loadWarningData$.next(this.warningVehicles);
+    }
+  }
+
+  errorClick() {
+    if (this.errorSliceSelected === "error") {
+      let allVehicles: any[] = [];
+
+      if (typeof sessionStorage !== "undefined") {
+        const storedVehicles = sessionStorage.getItem("allVehicles");
+        allVehicles = storedVehicles ? JSON.parse(storedVehicles) : [];
+      }
+
+      this.errorSliceSelected = "";
+      this.checkErrorsService.fillTable$.next(allVehicles);
+    } else {
+      if (typeof sessionStorage !== "undefined") {
+        sessionStorage.setItem("errorSlice", "error"); // Salvataggio scelta attuale in sessionStorage
+      }
+
+      this.errorSliceSelected = "error";
+      // this.loadErrorData$.next(this.errorVehicles);
+    }
   }
 
   public get loadGraphData$(): BehaviorSubject<any[]> {

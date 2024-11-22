@@ -3,6 +3,8 @@ import { MatCardModule } from '@angular/material/card';
 import { ApexNonAxisChartSeries, ApexChart, ApexResponsive, ApexTheme, ApexTitleSubtitle, NgApexchartsModule, ChartComponent } from 'ng-apexcharts';
 import { BlackboxGraphsService } from '../../../Services/blackbox-graphs/blackbox-graphs.service';
 import { skip, Subject, takeUntil } from 'rxjs';
+import { ErrorGraphsService } from '../../../Services/error-graphs/error-graphs.service';
+import { CheckErrorsService } from '../../../Services/check-errors/check-errors.service';
 
 export type ChartOptions = {
   series: ApexNonAxisChartSeries;
@@ -77,11 +79,14 @@ export class BlackboxPieGraphComponent implements AfterViewInit {
 
   constructor(
     private blackboxGraphsService: BlackboxGraphsService,
+    private checkErrorsService: CheckErrorsService,
+    private errorGraphService: ErrorGraphsService,
     private cd: ChangeDetectorRef
   ) {}
 
   ngAfterViewInit() {
     this.chartOptions.series = this.blackboxGraphsService.loadGraphData$.value;
+    //Carica i dati la prima volta
     this.blackboxGraphsService.loadGraphData$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (series: number[]) => {
@@ -89,6 +94,39 @@ export class BlackboxPieGraphComponent implements AfterViewInit {
         this.cd.detectChanges();
       },
       error: error => console.error("Errore nel caricamento del grafico blacbox: ", error)
+    });
+
+    this.handleErrorGraphClick(); //Cambia dati visualizzati in base a click del grafico degli errori
+  }
+
+  handleErrorGraphClick(){
+    this.errorGraphService.loadFunzionanteData$.pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next: (workingVehicles: any[]) => {
+        this.blackboxGraphsService.loadChartData(workingVehicles);
+      },
+      error: error => console.error("Errore nell'aggiornamento del grafico dei blackbox in base ai veicoli funzionanti: ", error)
+    });
+    this.errorGraphService.loadFunzionanteData$.pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next: (workingVehicles: any[]) => {
+        this.blackboxGraphsService.loadChartData(workingVehicles);
+      },
+      error: error => console.error("Errore nell'aggiornamento del grafico dei blackbox in base ai veicoli funzionanti: ", error)
+    });
+    this.errorGraphService.loadWarningData$.pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next: (warningVehicles: any[]) => {
+        this.blackboxGraphsService.loadChartData(warningVehicles);
+      },
+      error: error => console.error("Errore nell'aggiornamento del grafico dei blackbox in base ai veicoli funzionanti: ", error)
+    });
+    this.errorGraphService.loadFunzionanteData$.pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next: (errorVehicles: any[]) => {
+        this.blackboxGraphsService.loadChartData(errorVehicles);
+      },
+      error: error => console.error("Errore nell'aggiornamento del grafico dei blackbox in base ai veicoli funzionanti: ", error)
     });
   }
 }

@@ -6,7 +6,6 @@ import { CheckErrorsService } from '../check-errors/check-errors.service';
   providedIn: 'root'
 })
 export class ErrorGraphsService{
-  public fillTable$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
   private _loadGraphData$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
   private _loadFunzionanteData$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
   private _loadWarningData$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
@@ -76,7 +75,7 @@ export class ErrorGraphsService{
       }
 
       this.errorSliceSelected = "";
-      this.fillTable$.next(allVehicles);
+      this.checkErrorsService.fillTable$.next(allVehicles);
     } else {
       if (typeof sessionStorage !== "undefined") {
         sessionStorage.setItem("errorSlice", "working"); // Salvataggio scelta attuale in sessionStorage
@@ -97,7 +96,7 @@ export class ErrorGraphsService{
       }
 
       this.errorSliceSelected = "";
-      this.fillTable$.next(allVehicles);
+      this.checkErrorsService.fillTable$.next(allVehicles);
     } else {
       if (typeof sessionStorage !== "undefined") {
         sessionStorage.setItem("errorSlice", "warning"); // Salvataggio scelta attuale in sessionStorage
@@ -118,7 +117,7 @@ export class ErrorGraphsService{
       }
 
       this.errorSliceSelected = "";
-      this.fillTable$.next(allVehicles);
+      this.checkErrorsService.fillTable$.next(allVehicles);
     } else {
       if (typeof sessionStorage !== "undefined") {
         sessionStorage.setItem("errorSlice", "error"); // Salvataggio scelta attuale in sessionStorage

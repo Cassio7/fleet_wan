@@ -1,6 +1,7 @@
 tr,td, th{
   text-align: center;
 }
+
 .table-container {
   border-radius: 10px;
   height: 80vh;

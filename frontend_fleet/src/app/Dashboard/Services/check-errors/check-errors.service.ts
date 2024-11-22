@@ -1,12 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { CommonService } from '../common service/common.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CheckErrorsService {
+  private _fillTable$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
 
   constructor(
     private http: HttpClient,
@@ -117,4 +118,8 @@ export class CheckErrorsService {
     return this.http.post(`http://10.1.0.102:3001/session/checkerrors/all`, body);
   }
 
+
+  public get fillTable$(): BehaviorSubject<any[]> {
+    return this._fillTable$;
+  }
 }
