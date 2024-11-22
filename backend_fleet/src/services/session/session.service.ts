@@ -68,7 +68,13 @@ export class SessionService {
     dateTo: string,
   ): Promise<any> {
     const methodName = 'Session';
-    const requestXml = this.buildSoapRequest(methodName,suId, veId, dateFrom, dateTo);
+    const requestXml = this.buildSoapRequest(
+      methodName,
+      suId,
+      veId,
+      dateFrom,
+      dateTo,
+    );
     const headers = {
       'Content-Type': 'text/xml; charset=utf-8',
       SOAPAction: `"${methodName}"`,
@@ -226,10 +232,10 @@ export class SessionService {
       throw new Error('Errore durante la richiesta al servizio SOAP');
     }
   }
-  
+
   // /**
   //  * Ritorna l'ultima sessione di ciascun veicolo
-  //  * @returns 
+  //  * @returns
   //  */
   // async getAllVehiclesLastSessions() {
   //   try {
@@ -237,10 +243,10 @@ export class SessionService {
   //       relations: {
   //         history: {
   //           vehicle: true,
-  //         } 
+  //         }
   //       },
   //       order: {
-  //         createdAt: "DESC" 
+  //         createdAt: "DESC"
   //       },
   //     });
   //     return sessions;
@@ -249,7 +255,7 @@ export class SessionService {
   //     throw new Error("Non è stato possibile recuperare le ultime sessioni per i veicoli.");
   //   }
   // }
-  
+
   /**
    * Inserisce tutti gli history presenti associati ad una determinata sessione
    * @param id VeId identificativo Veicolo
@@ -539,31 +545,31 @@ export class SessionService {
     return session;
   }
 
-    /**
+  /**
    * Restituisce l'ultima sessione di ogni veicolo in base al range temporale inserito
    * @param id VeId identificativo Veicolo
    * @param dateFrom Data inizio ricerca sessione
    * @param dateTo Data fine ricerca sessione
    * @returns
    */
-    async getAllVehiclesLastSessionByVeIdRanged(
-      dateFrom: Date,
-      dateTo: Date,
-    ): Promise<any> {
-      const session = await this.sessionRepository.findOne({
-        where: {
-          period_from: MoreThanOrEqual(dateFrom),
-          period_to: LessThanOrEqual(dateTo),
-        },
-        relations: {
-          history: true,
-        },
-        order: {
-          sequence_id: 'DESC',
-        },
-      });
-      return session;
-    }
+  async getAllVehiclesLastSessionByVeIdRanged(
+    dateFrom: Date,
+    dateTo: Date,
+  ): Promise<any> {
+    const session = await this.sessionRepository.findOne({
+      where: {
+        period_from: MoreThanOrEqual(dateFrom),
+        period_to: LessThanOrEqual(dateTo),
+      },
+      relations: {
+        history: true,
+      },
+      order: {
+        sequence_id: 'DESC',
+      },
+    });
+    return session;
+  }
 
   /**
    * Ritorna l'ultima sessione registrata di un veicolo in base al VeId
@@ -575,7 +581,7 @@ export class SessionService {
       where: { history: { vehicle: { veId: id } } },
       relations: {
         history: {
-          vehicle: true
+          vehicle: true,
         },
       },
       order: {
