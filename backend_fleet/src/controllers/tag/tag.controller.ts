@@ -54,7 +54,6 @@ export class TagController {
     }
   }
 
-  
   /**
    * API per prendere tutti i tag history indicando range temporale in base all'id
    * @param res

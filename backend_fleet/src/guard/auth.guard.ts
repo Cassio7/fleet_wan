@@ -11,7 +11,7 @@ import { AuthService } from 'src/services/auth/auth.service';
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(private readonly authService: AuthService) {}
-  
+
   /**
    * Funzione Guard che serve come middleware per validare la sessione utente
    * @param context

@@ -22,7 +22,7 @@ export class CompanyController {
 
   /**
    * Ritorna la società dove è presente il Veicolo cercato
-   * @param res 
+   * @param res
    * @param params VeId identificativo veicolo
    */
   @Get('vehicle/:veId')
@@ -37,7 +37,7 @@ export class CompanyController {
   }
   /**
    * Ritorna la società dove è presente il gruppo cercato
-   * @param res 
+   * @param res
    * @param params VgId identificativo del gruppo
    */
   @Get('group/:vgId')

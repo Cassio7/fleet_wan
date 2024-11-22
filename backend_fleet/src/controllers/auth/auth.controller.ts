@@ -4,7 +4,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
-  Res
+  Res,
 } from '@nestjs/common';
 import { AuthService } from 'src/services/auth/auth.service';
 
