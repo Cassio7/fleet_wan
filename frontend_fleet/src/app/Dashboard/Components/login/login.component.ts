@@ -33,7 +33,7 @@ export class LoginComponent {
 
   login(){
     if(this.loginForm.valid){
-      localStorage.setItem("user", this.loginForm.get('usernameOremail')?.value);
+      sessionStorage.setItem("user", this.loginForm.get('usernameOremail')?.value);
       this.router.navigate(['dashboard']);
     }
 

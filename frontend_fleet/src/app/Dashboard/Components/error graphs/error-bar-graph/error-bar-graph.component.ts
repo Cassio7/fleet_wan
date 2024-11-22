@@ -97,15 +97,15 @@ export class ErrorBarGraphComponent implements AfterViewInit, OnDestroy{
   }
 
   workingClick() {
-    console.log("Funzionante clicked");
+    this.errorGraphsService.workingClick();
   }
 
   warningClick(){
-    console.log("Warning clicked");
+    this.errorGraphsService.warningClick();
   }
 
   errorClick(){
-    console.log("Errore clicked");
+    this.errorGraphsService.errorClick();
   }
 
   ngOnDestroy(): void {

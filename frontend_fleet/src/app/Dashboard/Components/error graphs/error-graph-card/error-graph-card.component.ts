@@ -41,6 +41,7 @@ export class ErrorGraphCardComponent implements AfterViewInit, OnDestroy{
   }
 
   ngAfterViewInit(): void {
+    this._series = this.errorGraphsService.loadGraphData$.value;
     this.errorGraphsService.loadGraphData$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (series: number[]) => {
@@ -56,10 +57,12 @@ export class ErrorGraphCardComponent implements AfterViewInit, OnDestroy{
   changeGraph(graph: string): void {
     switch (graph) {
       case 'pie':
+        this.graphSelect.value = 'pie';
         this.barGraph = false;
         this.pieGraph = true;
         break;
       case 'bar':
+        this.graphSelect.value = 'bar';
         this.pieGraph = false;
         this.barGraph = true;
         break;

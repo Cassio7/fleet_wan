@@ -74,6 +74,4 @@ export class VehiclesApiService {
     };
     return this.checkGPSAllRanged(body.dateFrom, body.dateTo); //da cambiare in data di ieri e attuale
   }
-
-
 }

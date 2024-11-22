@@ -6,13 +6,21 @@ import { CheckErrorsService } from '../check-errors/check-errors.service';
   providedIn: 'root'
 })
 export class ErrorGraphsService{
+  public fillTable$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
   private _loadGraphData$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
+  private _loadFunzionanteData$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
+  private _loadWarningData$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
+  private _loadErrorData$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
 
   private _series = [0,0,0];//[funzionante, warning, error]
   private _colors = ["#46ff00", "#ffd607", "#ff0000"];
+
   private _workingVehicles: any[] = [];
   private _warningVehicles: any[] = [];
   private _errorVehicles: any[] = [];
+
+  private errorSliceSelected: string = "";
+
 
   constructor(
     private checkErrorsService: CheckErrorsService
@@ -58,29 +66,111 @@ export class ErrorGraphsService{
     this._loadGraphData$.next(this._series);
   }
 
+  workingClick() {
+    if (this.errorSliceSelected === "working") {
+      let allVehicles: any[] = [];
+
+      if (typeof sessionStorage !== "undefined") {
+        const storedVehicles = sessionStorage.getItem("allVehicles");
+        allVehicles = storedVehicles ? JSON.parse(storedVehicles) : [];
+      }
+
+      this.errorSliceSelected = "";
+      this.fillTable$.next(allVehicles);
+    } else {
+      if (typeof sessionStorage !== "undefined") {
+        sessionStorage.setItem("errorSlice", "working"); // Salvataggio scelta attuale in sessionStorage
+      }
+
+      this.errorSliceSelected = "working";
+      this.loadFunzionanteData$.next(this.workingVehicles);
+    }
+  }
+
+  warningClick() {
+    if (this.errorSliceSelected === "warning") {
+      let allVehicles: any[] = [];
+
+      if (typeof sessionStorage !== "undefined") {
+        const storedVehicles = sessionStorage.getItem("allVehicles");
+        allVehicles = storedVehicles ? JSON.parse(storedVehicles) : [];
+      }
+
+      this.errorSliceSelected = "";
+      this.fillTable$.next(allVehicles);
+    } else {
+      if (typeof sessionStorage !== "undefined") {
+        sessionStorage.setItem("errorSlice", "warning"); // Salvataggio scelta attuale in sessionStorage
+      }
+
+      this.errorSliceSelected = "warning";
+      this.loadWarningData$.next(this.warningVehicles);
+    }
+  }
+
+  errorClick() {
+    if (this.errorSliceSelected === "error") {
+      let allVehicles: any[] = [];
+
+      if (typeof sessionStorage !== "undefined") {
+        const storedVehicles = sessionStorage.getItem("allVehicles");
+        allVehicles = storedVehicles ? JSON.parse(storedVehicles) : [];
+      }
+
+      this.errorSliceSelected = "";
+      this.fillTable$.next(allVehicles);
+    } else {
+      if (typeof sessionStorage !== "undefined") {
+        sessionStorage.setItem("errorSlice", "error"); // Salvataggio scelta attuale in sessionStorage
+      }
+
+      this.errorSliceSelected = "error";
+      this.loadErrorData$.next(this.errorVehicles);
+    }
+  }
+
+
+
 
   /*getters & setters*/
+
   public get workingVehicles(): any[] {
     return this._workingVehicles;
   }
   public set workingVehicles(value: any[]) {
     this._workingVehicles = value;
   }
+
   public get warningVehicles(): any[] {
     return this._warningVehicles;
   }
   public set warningVehicles(value: any[]) {
     this._warningVehicles = value;
   }
+
   public get errorVehicles(): any[] {
     return this._errorVehicles;
   }
   public set errorVehicles(value: any[]) {
     this._errorVehicles = value;
   }
+
   public get loadGraphData$(): BehaviorSubject<any> {
     return this._loadGraphData$;
   }
+
+  public get loadFunzionanteData$(): BehaviorSubject<any[]> {
+    return this._loadFunzionanteData$;
+  }
+
+  public get loadWarningData$(): BehaviorSubject<any[]> {
+    return this._loadWarningData$;
+  }
+
+  public get loadErrorData$(): BehaviorSubject<any[]> {
+    return this._loadErrorData$;
+  }
+
   public get colors() {
     return this._colors;
   }

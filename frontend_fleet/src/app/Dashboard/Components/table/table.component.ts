@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Session } from '../../../Models/Session';
-import { Subject, takeUntil } from 'rxjs';
+import { skip, Subject, takeUntil } from 'rxjs';
 import { SessionApiService } from '../../Services/session/session-api.service';
 import { VehiclesApiService } from '../../Services/vehicles/vehicles-api.service';
 import { Vehicle } from '../../../Models/Vehicle';
@@ -68,22 +68,58 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   }
 
   ngAfterViewInit(): void {
-    this.fillTable(); //Riempi la tabella
+    /*Subscribe a click nel grafico*/
+    this.errorGraphService.fillTable$.pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next: (vehicles: any[]) => {
+        this.fillTableWithGraph(vehicles);
+      },
+      error: error => console.error("Errore nel caricamento dei dati dal grafico: ", error)
+    });
+    this.errorGraphService.loadFunzionanteData$.pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next: (workingVehicles: any[]) => {
+        this.fillTableWithGraph(workingVehicles);
+      },
+      error: error => console.error("Errore nel caricamento dei dati dal grafico: ", error)
+    });
+    this.errorGraphService.loadWarningData$.pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next: (warningVehicles: any[]) => {
+        this.fillTableWithGraph(warningVehicles);
+      },
+      error: error => console.error("Errore nel caricamento dei dati dal grafico: ", error)
+    });
+    this.errorGraphService.loadErrorData$.pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next: (errorVehicles: any[]) => {
+        this.fillTableWithGraph(errorVehicles);
+      },
+      error: error => console.error("Errore nel caricamento dei dati dal grafico: ", error)
+    });
+
+    /*Prendi dati dal database solo la prima volta che si apre la pagina*/
+    const allVehicles = sessionStorage.getItem("allVehicles");
+    if (allVehicles) {
+      this.vehicleTableData.data = JSON.parse(allVehicles);
+      this.loadGraphs(JSON.parse(allVehicles));
+    } else {
+      this.fillTable(); // Riempi la tabella
+    }
+
   }
 
 
-    /**
-   * Viene chiamata alla premuta di un qualsiasi checkbox dentro il select per il filtro
-   * @param option
-   */
+  /**
+ * Viene chiamata alla premuta di un qualsiasi checkbox dentro il select per il filtro
+ * @param option
+ */
   selectCantiere(option: string){
     if(option === "Seleziona tutto"){
       this.cantieri.setValue(this.listaCantieri);
     }else if(option == "Deseleziona tutto"){
       this.cantieri.setValue([]);
     }
-    //Applica filtro sulla tabella
-    // this.cantieri.value()
   }
 
   /**
@@ -95,18 +131,12 @@ export class TableComponent implements OnDestroy, AfterViewInit{
 
     this.checkErrorsService.checkErrorsAllToday().pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (vehicles: any) => {
-          const newVehicles = []; // Array per raccogliere i nuovi veicoli
+        next: (vehicles: any[]) => {
 
-          // Filtro e accumulo veicoli che hanno sessioni
-          for (const v of vehicles) {
-            if (v.sessions?.length > 0) {
-              newVehicles.push(v); // Aggiunta del veicolo valido all'array
-            }
-          }
           // Se ci sono veicoli, aggiorna la tabella
-          if (newVehicles.length > 0) {
-            this.vehicleTableData.data = [...this.vehicleTableData.data, ...newVehicles]; // Aggiungi i nuovi veicoli
+          if (vehicles.length > 0) {
+            sessionStorage.setItem("allVehicles", JSON.stringify(vehicles));
+            this.vehicleTableData.data = [...this.vehicleTableData.data, ...vehicles]; // Aggiungi i nuovi veicoli
             this.vehicleTable.renderRows();
             this.cd.markForCheck();
           }
@@ -114,11 +144,20 @@ export class TableComponent implements OnDestroy, AfterViewInit{
           loadingComplete = true; //imposta il completamento del caricamento
           //controllo fine caricamento tabella
           if (loadingComplete) {
-            this.loadGraphs(newVehicles); //caricamento grafici solo dopo la fine del caricamento della tabella
+            this.loadGraphs(vehicles); //caricamento grafici solo dopo la fine del caricamento della tabella
           }
         },
         error: error => console.error(error),
       });
+  }
+
+  fillTableWithGraph(vehicles: any){
+    // Se ci sono veicoli, aggiorna la tabella
+    if (vehicles.length > 0) {
+      this.vehicleTableData.data = vehicles; // Modifica la tabella
+      this.vehicleTable.renderRows();
+      this.cd.markForCheck();
+    }
   }
 
   // Funzione da chiamare quando i dati sono completamente caricati

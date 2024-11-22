@@ -33,13 +33,13 @@
           [matTooltip]="checkGpsError(vehicle)"
           *ngIf="checkGpsError(vehicle)"
           [matTooltipClass]="'gps-tooltip'">
-          warning
+          share_location
         </mat-icon>
         <mat-icon
           class="check-icon"
           *ngIf="vehicle.sessions?.length > 0 && !checkGpsError(vehicle)"
           matTooltip="Possiede un GPS funzionante">
-          check_circle
+          share_location
         </mat-icon>
       </td>
     </ng-container>
@@ -54,7 +54,7 @@
             *ngIf="vehicle.isRFIDReader && !checkAntennaError(vehicle)"
             class="check-icon"
             matTooltip="Possiede un'antenna RFID funzionante">
-            check_circle
+            settings_input_antenna
           </mat-icon>
           <!-- Icona Errore per RFID Reader con problemi -->
           <mat-icon

@@ -3,6 +3,7 @@ import { MatCardModule } from '@angular/material/card';
 import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, ViewChild, ViewEncapsulation } from '@angular/core';
 import { ApexChart, ApexNonAxisChartSeries, ApexResponsive, ChartComponent, NgApexchartsModule } from "ng-apexcharts";
 import { skip, Subject, takeUntil } from 'rxjs';
+import { VehiclesApiService } from '../../../Services/vehicles/vehicles-api.service';
 
 export type ChartOptions = {
   series: ApexNonAxisChartSeries;
@@ -75,16 +76,18 @@ export class ErrorPieGraphComponent implements AfterViewInit, OnDestroy{
   }
 
   workingClick() {
-    console.log("Funzionante clicked");
+    this.errorGraphsService.workingClick();
   }
 
-  warningClick(){
-    console.log("Warning clicked");
+  warningClick() {
+    this.errorGraphsService.warningClick();
   }
 
-  errorClick(){
-    console.log("Errore clicked");
+  errorClick() {
+    this.errorGraphsService.errorClick();
   }
+
+
 
   ngOnDestroy(): void {
     this.destroy$.next();
