@@ -32,11 +32,11 @@ export class AppService implements OnModuleInit {
 
   // popolo database all'avvio
   async onModuleInit() {
-    // await this.putDefaultData();
+    await this.putDefaultData();
     //await this.putDbDataBasicFor();
     //await this.putDbDataBasicForEach();
-    // await this.putDbDataBasicForAdvance();
-    //await this.putDbData5min();
+    await this.putDbDataBasicForAdvance();
+    await this.putDbData3min();
   }
 
   async putDefaultData() {
@@ -181,10 +181,12 @@ export class AppService implements OnModuleInit {
    * IL PRESCELTO
    */
   async putDbDataBasicForAdvance() {
-    const startDate = '2024-10-01T00:00:00.000Z';
+    const startDate = '2024-11-18T00:00:00.000Z';
     //const endDate = '2024-10-31T00:00:00.000Z';
-    const endDate = new Date().toISOString();
-
+    const endDate = new Date(
+      new Date().getTime() + 2 * 60 * 60 * 1000,
+    ).toISOString();
+    console.log('Data inizio: ' + startDate + ' Data fine: ' + endDate);
     const batchSize = 100;
 
     await this.vehicleService.getVehicleList(254, 313);
@@ -226,8 +228,8 @@ export class AppService implements OnModuleInit {
           const requests = batch.map((day) => {
             const datefrom = day;
             const dateto = new Date(datefrom);
-            dateto.setHours(23, 59, 59, 0);
-            console.log(datefrom.toISOString());
+            dateto.setHours(24, 59, 59, 0);
+            //console.log(datefrom.toISOString());
             return Promise.all([
               this.sessionService.getSessionist(
                 company.suId,
@@ -273,11 +275,14 @@ export class AppService implements OnModuleInit {
   // }
 
   //@Cron('*/3 * * * *')
-  async putDbData5min() {
+  async putDbData3min() {
     const startDate = new Date(
       new Date().getTime() - 3 * 60 * 1000, // 3 minuti
     ).toISOString();
-    const endDate = new Date().toISOString();
+    const endDate = new Date(
+      new Date().getTime() + 2 * 60 * 60 * 1000,
+    ).toISOString();
+    console.log('Data inizio: ' + startDate + ' Data fine: ' + endDate);
     await this.vehicleService.getVehicleList(254, 313);
     await this.vehicleService.getVehicleList(305, 650);
     await this.vehicleService.getVehicleList(324, 688);
