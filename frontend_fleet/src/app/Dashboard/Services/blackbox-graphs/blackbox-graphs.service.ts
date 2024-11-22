@@ -11,11 +11,14 @@ import { CheckErrorsService } from '../check-errors/check-errors.service';
 
 export class BlackboxGraphsService{
   private _loadGraphData$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
+  private _loadBlackBoxData$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
+  private _loadBlackBoxAntennaData$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
+
 
   private _series: number[] = []; //[blackbox, blackbox + antenna]
   private _colors = ["#0061ff", "#009bff"];
 
-  private errorSliceSelected: string = "";
+  private blackBoxSliceSelected: string = "";
 
   constructor(
     private checkErrorsService: CheckErrorsService
@@ -61,8 +64,8 @@ export class BlackboxGraphsService{
     this._loadGraphData$.next(series);
   }
 
-  workingClick() {
-    if (this.errorSliceSelected === "working") {
+  blackBoxClick() {
+    if (this.blackBoxSliceSelected === "blackbox") {
       let allVehicles: any[] = [];
 
       if (typeof sessionStorage !== "undefined") {
@@ -70,20 +73,24 @@ export class BlackboxGraphsService{
         allVehicles = storedVehicles ? JSON.parse(storedVehicles) : [];
       }
 
-      this.errorSliceSelected = "";
-      this.checkErrorsService.fillTable$.next(allVehicles);
+      this.blackBoxSliceSelected = "";
+      this.checkErrorsService.fillTable$.next(allVehicles); //Riempi la tabella senza filtri
     } else {
+      let allVehicles: any[] = [];
+
       if (typeof sessionStorage !== "undefined") {
-        sessionStorage.setItem("errorSlice", "working"); // Salvataggio scelta attuale in sessionStorage
+        const storedVehicles = sessionStorage.getItem("allVehicles");
+        allVehicles = storedVehicles ? JSON.parse(storedVehicles) : [];
+        sessionStorage.setItem("blackboxSlice", "blackbox"); // Salvataggio scelta attuale in sessionStorage
       }
 
-      this.errorSliceSelected = "working";
-      // this.loadFunzionanteData$.next(this.workingVehicles);
+      this.blackBoxSliceSelected = "blackbox";
+      this.loadBlackBoxData$.next(this.getAllRFIDVehicles(allVehicles).blackboxOnly);
     }
   }
 
-  warningClick() {
-    if (this.errorSliceSelected === "warning") {
+  blackBoxAntennaClick() {
+    if (this.blackBoxSliceSelected === "blackbox+antenna") {
       let allVehicles: any[] = [];
 
       if (typeof sessionStorage !== "undefined") {
@@ -91,37 +98,28 @@ export class BlackboxGraphsService{
         allVehicles = storedVehicles ? JSON.parse(storedVehicles) : [];
       }
 
-      this.errorSliceSelected = "";
+      this.blackBoxSliceSelected = "";
       this.checkErrorsService.fillTable$.next(allVehicles);
     } else {
+      let allVehicles: any[] = [];
+
       if (typeof sessionStorage !== "undefined") {
-        sessionStorage.setItem("errorSlice", "warning"); // Salvataggio scelta attuale in sessionStorage
+        const storedVehicles = sessionStorage.getItem("allVehicles");
+        allVehicles = storedVehicles ? JSON.parse(storedVehicles) : [];
+        sessionStorage.setItem("blackboxSlice", "blackboxAntenna"); // Salvataggio scelta attuale in sessionStorage
       }
 
-      this.errorSliceSelected = "warning";
-      // this.loadWarningData$.next(this.warningVehicles);
+      this.blackBoxSliceSelected = "blackbox+antenna";
+      this.loadBlackBoxData$.next(this.getAllRFIDVehicles(allVehicles).blackboxWithAntenna);
     }
   }
 
-  errorClick() {
-    if (this.errorSliceSelected === "error") {
-      let allVehicles: any[] = [];
+  public get loadBlackBoxData$(): BehaviorSubject<any[]> {
+    return this._loadBlackBoxData$;
+  }
 
-      if (typeof sessionStorage !== "undefined") {
-        const storedVehicles = sessionStorage.getItem("allVehicles");
-        allVehicles = storedVehicles ? JSON.parse(storedVehicles) : [];
-      }
-
-      this.errorSliceSelected = "";
-      this.checkErrorsService.fillTable$.next(allVehicles);
-    } else {
-      if (typeof sessionStorage !== "undefined") {
-        sessionStorage.setItem("errorSlice", "error"); // Salvataggio scelta attuale in sessionStorage
-      }
-
-      this.errorSliceSelected = "error";
-      // this.loadErrorData$.next(this.errorVehicles);
-    }
+  public get loadBlackBoxAntennaData$(): BehaviorSubject<any[]> {
+    return this._loadBlackBoxAntennaData$;
   }
 
   public get loadGraphData$(): BehaviorSubject<any[]> {

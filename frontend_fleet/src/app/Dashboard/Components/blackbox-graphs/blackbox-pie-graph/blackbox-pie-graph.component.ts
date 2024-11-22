@@ -70,11 +70,11 @@ export class BlackboxPieGraphComponent implements AfterViewInit {
   };
 
   blackbox(){
-    console.log("Premuto blackbox");
+    this.blackboxGraphsService.blackBoxClick();
   }
 
   blackboxEantenna(){
-    console.log("Premuto blackbox + antenna");
+    this.blackboxGraphsService.blackBoxAntennaClick();
   }
 
   constructor(

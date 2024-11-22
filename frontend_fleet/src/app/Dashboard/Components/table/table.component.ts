@@ -68,9 +68,9 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   }
 
   ngAfterViewInit(): void {
-    /*Subscribe a click nel grafico degli errori*/
-    this.handlErrorGraphClick();
 
+    this.handlErrorGraphClick(); //Subscribe a click nel grafico degli errori
+    this.handleBlackBoxGraphClick(); //Subscribe a click nel grafico dei blackbox
 
     /*Prendi dati dal database solo la prima volta che si apre la pagina*/
     const allVehicles = sessionStorage.getItem("allVehicles");
@@ -83,14 +83,14 @@ export class TableComponent implements OnDestroy, AfterViewInit{
 
   }
 
-  handlErrorGraphClick(){
+  private handlErrorGraphClick(){
     //riempe tabella con i dati senza filtri
     this.checkErrorsService.fillTable$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (vehicles: any[]) => {
         this.fillTableWithGraph(vehicles);
       },
-      error: error => console.error("Errore nel caricamento dei dati dal grafico: ", error)
+      error: error => console.error("Errore nel caricamento dei dati dal grafico degli errori: ", error)
     });
 
     //riempre la tabella con solo veicoli funzionanti
@@ -99,7 +99,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
       next: (workingVehicles: any[]) => {
         this.fillTableWithGraph(workingVehicles);
       },
-      error: error => console.error("Errore nel caricamento dei dati dal grafico: ", error)
+      error: error => console.error("Errore nel caricamento dei dati dal grafico degli errori: ", error)
     });
 
     //riempre la tabella con solo veicoli che presentano warning
@@ -108,7 +108,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
       next: (warningVehicles: any[]) => {
         this.fillTableWithGraph(warningVehicles);
       },
-      error: error => console.error("Errore nel caricamento dei dati dal grafico: ", error)
+      error: error => console.error("Errore nel caricamento dei dati dal grafico degli errori: ", error)
     });
 
     //riempre la tabella con solo veicoli che presentano errori
@@ -117,7 +117,24 @@ export class TableComponent implements OnDestroy, AfterViewInit{
       next: (errorVehicles: any[]) => {
         this.fillTableWithGraph(errorVehicles);
       },
-      error: error => console.error("Errore nel caricamento dei dati dal grafico: ", error)
+      error: error => console.error("Errore nel caricamento dei dati dal grafico degli errori: ", error)
+    });
+  }
+
+  private handleBlackBoxGraphClick(){
+    this.blackboxGraphService.loadBlackBoxData$.pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next: (blackBoxVehicles: any[]) => {
+        this.fillTableWithGraph(blackBoxVehicles);
+      },
+      error: error => console.error("Errore nel caricamento dei dati dal grafico dei blackbox: ", error)
+    });
+    this.blackboxGraphService.loadBlackBoxAntennaData$.pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next: (blackBoxAntennaVehicles: any[]) => {
+        this.fillTableWithGraph(blackBoxAntennaVehicles);
+      },
+      error: error => console.error("Errore nel caricamento dei dati dal grafico dei blackbox: ", error)
     });
   }
 
