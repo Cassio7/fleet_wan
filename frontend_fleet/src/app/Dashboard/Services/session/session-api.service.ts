@@ -3,13 +3,15 @@ import { Injectable } from '@angular/core';
 import { catchError, Observable} from 'rxjs';
 import { Session } from '../../../Models/Session';
 import { Vehicle } from '../../../Models/Vehicle';
+import { CommonService } from '../common service/common.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SessionApiService {
   constructor(
-    private http: HttpClient
+    private http: HttpClient,
+    private commonService: CommonService
   ) { }
 
   /**
@@ -61,7 +63,15 @@ export class SessionApiService {
    * @returns
    */
   public getAllVehiclesLastSessions(): Observable<Session[]>{
-    return this.http.get<Session[]>(`http://10.1.0.102:3001/session/lastsessions/all`);
+    return this.http.get<Session[]>(`${this.commonService.url}/session/lastsessions/all`);
+  }
+
+  public getLastValidSession(veId: number){
+    return this.http.get<Session>(``)
+  }
+
+  public getAllVehiclesLastValidSession(): Observable<any[]>{
+    return this.http.get<any[]>(`${this.commonService.url}/session/lastvalidnohistory/all`);
   }
 
 }
