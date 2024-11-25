@@ -32,11 +32,11 @@ export class AppService implements OnModuleInit {
 
   // popolo database all'avvio
   async onModuleInit() {
-    await this.putDefaultData();
+    //await this.putDefaultData();
     //await this.putDbDataBasicFor();
     //await this.putDbDataBasicForEach();
-    await this.putDbDataBasicForAdvance();
-    await this.putDbData3min();
+    //await this.putDbDataBasicForAdvance();
+    //await this.putDbData3min();
   }
 
   async putDefaultData() {
@@ -181,17 +181,18 @@ export class AppService implements OnModuleInit {
    * IL PRESCELTO
    */
   async putDbDataBasicForAdvance() {
-    const startDate = '2024-11-18T00:00:00.000Z';
-    //const endDate = '2024-10-31T00:00:00.000Z';
+    const startDate = '2024-11-20T00:00:00.000Z';
+    // const endDate = '2024-11-25T00:00:00.000Z';
     const endDate = new Date(
       new Date().getTime() + 2 * 60 * 60 * 1000,
     ).toISOString();
     console.log('Data inizio: ' + startDate + ' Data fine: ' + endDate);
     const batchSize = 100;
 
-    await this.vehicleService.getVehicleList(254, 313);
-    await this.vehicleService.getVehicleList(305, 650);
-    await this.vehicleService.getVehicleList(324, 688);
+    await this.vehicleService.getVehicleList(254, 313); //Gesenu principale
+    await this.vehicleService.getVehicleList(254, 683); //Gesenu dismessi
+    await this.vehicleService.getVehicleList(305, 650); //TSA principale
+    await this.vehicleService.getVehicleList(324, 688); //Fiumicino principale
 
     const dateFrom_new = new Date(startDate);
     const dateTo_new = new Date(endDate);
@@ -203,8 +204,10 @@ export class AppService implements OnModuleInit {
     // vehicles.push(vehicle1);
     // const vehicle2 = await this.vehicleService.getVehicleById(3517);
     // vehicles.push(vehicle2);
-
     await this.worksiteFactoryService.createDefaultVehicleWorksite();
+
+    // await this.sessionService.getSessionist(324, 3779, startDate, endDate);
+    // return true;
 
     // Creazione della mappa delle compagnie
     const companyMap = new Map();
@@ -228,8 +231,8 @@ export class AppService implements OnModuleInit {
           const requests = batch.map((day) => {
             const datefrom = day;
             const dateto = new Date(datefrom);
-            dateto.setHours(24, 59, 59, 0);
-            //console.log(datefrom.toISOString());
+            dateto.setHours(23, 59, 59, 0);
+            //console.log(dateto);
             return Promise.all([
               this.sessionService.getSessionist(
                 company.suId,
