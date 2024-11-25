@@ -1,3 +1,5 @@
+import { WorkSite } from './../../../Models/Worksite';
+import { SessionApiService } from './../../Services/session/session-api.service';
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectorRef, Component, inject, OnDestroy, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -6,44 +8,44 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Session } from '../../../Models/Session';
-import { skip, Subject, takeUntil } from 'rxjs';
-import { SessionApiService } from '../../Services/session/session-api.service';
+import { first, forkJoin, skip, Subject, switchMap, takeUntil } from 'rxjs';
 import { VehiclesApiService } from '../../Services/vehicles/vehicles-api.service';
 import { Vehicle } from '../../../Models/Vehicle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ErrorGraphsService } from '../../Services/error-graphs/error-graphs.service';
 import { BlackboxGraphsService } from '../../Services/blackbox-graphs/blackbox-graphs.service';
 import { CheckErrorsService } from '../../Services/check-errors/check-errors.service';
+import { CommonService } from '../../Services/common service/common.service';
+import { RowFilterComponent } from "../row-filter/row-filter.component";
+import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 
 @Component({
   selector: 'app-table',
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
     MatIconModule,
     MatTableModule,
-    MatSelectModule,
     MatTooltipModule,
-    MatCheckboxModule,
-  ],
+    MatSortModule,
+    RowFilterComponent
+],
   templateUrl: './table.component.html',
   styleUrl: './table.component.css'
 })
 export class TableComponent implements OnDestroy, AfterViewInit{
   @ViewChild('vehicleTable') vehicleTable!: MatTable<Session[]>;
-  filterForm!: FormGroup;
+
   private readonly destroy$: Subject<void> = new Subject<void>();
 
-  vehicleTableData = new MatTableDataSource<Session>();  // Use MatTableDataSource for the table
+  vehicleTableData = new MatTableDataSource<Vehicle>();  // Use MatTableDataSource for the table
 
   sessions: Session[] = [];
   vehicleIds: Number[] = [];
 
   displayedColumns: string[] = ['comune', 'targa', 'GPS', 'antenna', 'sessione'];
 
-  cantieri = new FormControl<string[]>([]);
-  listaCantieri: string[] = ['Seleziona tutto', 'Deseleziona tutto', 'Bastia Umbra', 'Todi', 'Umbertide', 'Capranica', 'Perugia', 'Ronciglione', 'Monserrato', 'Sorso', 'Sennori'];
+
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -54,33 +56,28 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     private errorGraphService: ErrorGraphsService,
     private blackboxGraphService: BlackboxGraphsService,
     private vehicleApiService: VehiclesApiService,
+    private sessionApiService: SessionApiService,
     private checkErrorsService: CheckErrorsService,
     private cd: ChangeDetectorRef
   ){
-    this.filterForm = new FormGroup({
-      cantiere: new FormControl(''),
-      targa: new FormControl(''),
-      range: new FormGroup({
-        start: new FormControl(new Date()),
-        end: new FormControl(new Date())
-      })
-    });
   }
 
   ngAfterViewInit(): void {
+    this.handlErrorGraphClick(); // Subscribe a click nel grafico degli errori
+    this.handleBlackBoxGraphClick(); // Subscribe a click nel grafico dei blackbox
 
-    this.handlErrorGraphClick(); //Subscribe a click nel grafico degli errori
-    this.handleBlackBoxGraphClick(); //Subscribe a click nel grafico dei blackbox
+    const storedData = sessionStorage.getItem("allVehicles");
 
-    /*Prendi dati dal database solo la prima volta che si apre la pagina*/
-    const allVehicles = sessionStorage.getItem("allVehicles");
+    const allVehicles = storedData ? JSON.parse(storedData) : [];
+
     if (allVehicles) {
-      this.vehicleTableData.data = JSON.parse(allVehicles);
-      this.loadGraphs(JSON.parse(allVehicles));
-    } else {
-      this.fillTable(); // Riempi la tabella
-    }
+      this.vehicleTableData.data = allVehicles;
+      console.log(allVehicles);
+      this.loadGraphs(allVehicles);
 
+    } else {
+      this.fillTable(); // Riempi la tabella con i dati se non ci sono nel sessionStorage
+    }
   }
 
   private handlErrorGraphClick(){
@@ -89,6 +86,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     .subscribe({
       next: (vehicles: any[]) => {
         this.fillTableWithGraph(vehicles);
+        this.blackboxGraphService.loadChartData(vehicles);
       },
       error: error => console.error("Errore nel caricamento dei dati dal grafico degli errori: ", error)
     });
@@ -98,6 +96,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     .subscribe({
       next: (workingVehicles: any[]) => {
         this.fillTableWithGraph(workingVehicles);
+        this.blackboxGraphService.loadChartData(workingVehicles);
       },
       error: error => console.error("Errore nel caricamento dei dati dal grafico degli errori: ", error)
     });
@@ -107,6 +106,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     .subscribe({
       next: (warningVehicles: any[]) => {
         this.fillTableWithGraph(warningVehicles);
+        this.blackboxGraphService.loadChartData(warningVehicles);
       },
       error: error => console.error("Errore nel caricamento dei dati dal grafico degli errori: ", error)
     });
@@ -116,6 +116,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     .subscribe({
       next: (errorVehicles: any[]) => {
         this.fillTableWithGraph(errorVehicles);
+        this.blackboxGraphService.loadChartData(errorVehicles);
       },
       error: error => console.error("Errore nel caricamento dei dati dal grafico degli errori: ", error)
     });
@@ -126,6 +127,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     .subscribe({
       next: (blackBoxVehicles: any[]) => {
         this.fillTableWithGraph(blackBoxVehicles);
+        this.errorGraphService.loadChartData(blackBoxVehicles);
       },
       error: error => console.error("Errore nel caricamento dei dati dal grafico dei blackbox: ", error)
     });
@@ -133,53 +135,83 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     .subscribe({
       next: (blackBoxAntennaVehicles: any[]) => {
         this.fillTableWithGraph(blackBoxAntennaVehicles);
+        this.errorGraphService.loadChartData(blackBoxAntennaVehicles);
       },
       error: error => console.error("Errore nel caricamento dei dati dal grafico dei blackbox: ", error)
     });
   }
 
 
-  /**
- * Viene chiamata alla premuta di un qualsiasi checkbox dentro il select per il filtro
- * @param option
- */
-  selectCantiere(option: string){
-    if(option === "Seleziona tutto"){
-      this.cantieri.setValue(this.listaCantieri);
-    }else if(option == "Deseleziona tutto"){
-      this.cantieri.setValue([]);
-    }
+  onSortChange(event: Sort){
+    console.log("Nome colonna: ", event.active);
+    console.log("Direzione: ", event.direction);
   }
 
   /**
- * Riempe la tabella con i dati dei veicoli nelle sessioni
+ * Riempe la tabella con i dati dei veicoli
  */
   fillTable() {
-    // Aggiungi un flag per indicare quando tutti i dati sono stati caricati
-    let loadingComplete = false;
+    console.log("CHIAMATO FILL TABLE!");
 
-    this.checkErrorsService.checkErrorsAllToday().pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (vehicles: any[]) => {
+    forkJoin({
+      vehicles: this.vehicleApiService.getAllVehicles(),
+      anomaliesVehicles: this.checkErrorsService.checkErrorsAllToday(),
+      lastValidSessions: this.sessionApiService.getAllVehiclesLastValidSession()
+    })
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: ({
+        vehicles,
+        anomaliesVehicles,
+        lastValidSessions
+      }: {
+        vehicles: Vehicle[],
+        anomaliesVehicles: any[],
+        lastValidSessions: any[]
+      }) => {
+        try {
+          if (vehicles && vehicles.length > 0) {
 
-          // Se ci sono veicoli, aggiorna la tabella
-          if (vehicles.length > 0) {
-            sessionStorage.setItem("allVehicles", JSON.stringify(vehicles));
-            this.vehicleTableData.data = [...this.vehicleTableData.data, ...vehicles]; // Aggiungi i nuovi veicoli
+            //Accorpamento anomalie di sessione
+            vehicles.forEach(v => {
+              v.anomalySessions = anomaliesVehicles
+                .filter(anomalyVehicle => anomalyVehicle.veId === v.veId && anomalyVehicle.sessions?.length > 0)
+                .flatMap(anomalyVehicle => anomalyVehicle.sessions);
+
+              //Accorpamento ultima sessione valida
+              v.lastValidSession = lastValidSessions
+                .find(lastSession => lastSession.veId === v.veId).lastValidSession || null; // Assign `null` if no session is found.
+            });
+
+            // Aggiornamento tabella
+            this.vehicleTableData.data = [...this.vehicleTableData.data, ...vehicles];
             this.vehicleTable.renderRows();
             this.cd.markForCheck();
           }
 
-          loadingComplete = true; //imposta il completamento del caricamento
-          //controllo fine caricamento tabella
-          if (loadingComplete) {
-            this.loadGraphs(vehicles); //caricamento grafici solo dopo la fine del caricamento della tabella
-          }
-        },
-        error: error => console.error(error),
-      });
+
+          sessionStorage.setItem("allVehicles", JSON.stringify(vehicles));// Inserimento veicoli in sessionstorage
+          this.loadGraphs(vehicles);// Carica i grafici dopo il caricamento della tabella
+          console.log(vehicles);
+        } catch (error) {
+          console.error("Error processing vehicles:", error);
+        }
+      },
+      error: (error) => {
+        console.error("Error loading data:", error);
+      }
+    });
   }
 
+
+
+
+
+
+  /**
+   * Carica la tabella con i dati dei veicoli inclusi dal grafico (quando viene premuto su uno spicchio)
+   * @param vehicles dati dei veicoli
+   */
   fillTableWithGraph(vehicles: any){
     // Se ci sono veicoli, aggiorna la tabella
     if (vehicles.length > 0) {
@@ -189,21 +221,54 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     }
   }
 
-  // Funzione da chiamare quando i dati sono completamente caricati
+  /**
+   * Funzione da chiamare quando i dati sono completamente caricati
+   * @param newVehicles da questi veicoli come input ai grafici per il caricamento
+   */
   loadGraphs(newVehicles: any[]) {
     this.errorGraphService.loadChartData(newVehicles);
     this.blackboxGraphService.loadChartData(newVehicles);
   }
 
+  /*DA MODIFICARE*/
+  hasLastSession(vehicle: any){
 
+  }
+
+  /**
+   * Controlla se si conosce l'appartenenza di un veicolo ad un cantiere
+   * @param vehicle veicolo da controllare
+   * @returns il nome del cantiere o la non assegnazione a nessuno
+   */
+  checkWorksite(vehicle: any) {
+    if (vehicle?.worksite && vehicle.worksite.name) {
+      return vehicle.worksite.name;
+    } else {
+      return "Non assegnato.";
+    }
+  }
+
+  /**
+   * Richiama controllo errore GPS
+   * @param vehicle veicolo da controllare
+   * @returns risultato del controllo sul GPS
+   */
   checkGpsError(vehicle: any): string | null {
     return this.checkErrorsService.checkGpsError(vehicle);
   }
-
+  /**
+   * Richiama controllo errore antenna
+   * @param vehicle veicolo da controllare
+   * @returns risultato del controllo sul GPS
+   */
   checkAntennaError(vehicle: any): string | null {
     return this.checkErrorsService.checkAntennaError(vehicle);
   }
-
+  /**
+   * Richiama controllo errore sessione
+   * @param vehicle veicolo da controllare
+   * @returns risultato del controllo sul GPS
+   */
   checkSessionError(vehicle: any): string | null {
     return this.checkErrorsService.checkSessionError(vehicle);
   }
