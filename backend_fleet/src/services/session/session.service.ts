@@ -96,7 +96,15 @@ export class SessionService {
         jsonResult['soapenv:Envelope']['soapenv:Body'][
           'sessionHistoryResponse'
         ]['list'];
-
+      // per controllo sessione nulla
+      const success =
+        jsonResult['soapenv:Envelope']['soapenv:Body'][
+          'sessionHistoryResponse'
+        ]['success']._;
+      // console.log(success);
+      //  console.log(jsonResult['soapenv:Envelope']['soapenv:Body'][
+      //   'sessionHistoryResponse'
+      // ]);
       if (!lists) {
         await queryRunner.rollbackTransaction();
         await queryRunner.release();
@@ -615,8 +623,6 @@ export class SessionService {
         sequence_id: 'DESC',
       },
     });
-    console.log('veid: ', id);
-    console.log('session id: ', session.id);
 
     return session;
   }
