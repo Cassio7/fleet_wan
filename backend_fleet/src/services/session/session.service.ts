@@ -586,29 +586,6 @@ export class SessionService {
   }
 
   /**
-   * Ritorna l'ultima sessione di tutti i veicoli registrata in base all'id
-   * che ha percorso più di 0 metri di distanza
-   * la session è durata almeno 2 minuti (quindi valida)
-   * @param id VeId identificativo Veicolo
-   * @returns
-   */
-  async getLastValidSessionAll() {
-    const session = await this.sessionRepository.find({
-      where: {
-        distance: MoreThan(0), //controllo distanza maggiore di 0
-      },
-      relations: {
-        history: true,
-      },
-      order: {
-        sequence_id: 'DESC',
-      },
-    });
-
-    return session;
-  }
-
-  /**
    * Ritorna l'ultima sessione di un veicolo registrata in base all'id
    * che ha percorso più di 0 metri di distanza
    * la session è durata almeno 2 minuti (quindi valida)
@@ -635,6 +612,32 @@ export class SessionService {
 
     return session;
   }
+
+    /**
+   * Ritorna l'ultima sessione di un veicolo registrata in base all'id
+   * che ha percorso più di 0 metri di distanza. 
+   * Non include lo storico delle posizioni.
+   * la session è durata almeno 2 minuti (quindi valida)
+   * @param id VeId identificativo Veicolo
+   * @returns
+   */
+    async getLastValidSessionNoHistory(id: number) {
+      const session = await this.sessionRepository.findOne({
+        where: {
+          history: {
+            vehicle: {
+              veId: id,
+            },
+          },
+          distance: MoreThan(0), //controllo distanza maggiore di 0
+        },
+        order: {
+          sequence_id: 'DESC',
+        },
+      });
+  
+      return session;
+    }
   /**
    * Ritorna l'ultima sessione attiva, quella con sequence_id = 0
    * @param id VeId identificativo Veicolo
