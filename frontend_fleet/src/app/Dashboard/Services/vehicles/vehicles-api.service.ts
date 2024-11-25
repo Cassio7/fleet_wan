@@ -1,7 +1,9 @@
+import { CommonService } from './../common service/common.service';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Vehicle } from '../../../Models/Vehicle';
+import { Session } from '../../../Models/Session';
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +11,8 @@ import { Vehicle } from '../../../Models/Vehicle';
 export class VehiclesApiService {
 
   constructor(
-    private http: HttpClient
+    private http: HttpClient,
+    private commonService: CommonService
   ) { }
 
   /**
@@ -35,8 +38,8 @@ export class VehiclesApiService {
    * @returns observable http
    */
   public checkGPSessionByVeid(veId: number): Observable<any>{
-    const dateFrom = new Date();
-    const dateTo = new Date();
+    const dateFrom = this.commonService.dateFrom;
+    const dateTo = this.commonService.dateTo;
     dateTo.setDate(dateTo.getDate() + 1); //Aumento di un giorno
 
     //da modificare
@@ -68,8 +71,8 @@ export class VehiclesApiService {
    */
   public checkGPSAllToday(){
     const body = {
-      dateFrom: new Date('2024-10-31'),
-      dateTo: new Date('2024-11-01')
+      dateFrom: new Date(this.commonService.dateFrom),
+      dateTo: new Date(this.commonService.dateTo)
       // dateTo: new Date(new Date().setDate(new Date().getDate() + 1))
     };
     return this.checkGPSAllRanged(body.dateFrom, body.dateTo); //da cambiare in data di ieri e attuale
