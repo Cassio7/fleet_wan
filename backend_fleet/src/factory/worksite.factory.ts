@@ -39,13 +39,15 @@ export class WorksiteFactoryService {
             veId: data.veId,
           },
         });
-        vehicle.worksite = await this.worksiteRepository.findOne({
-          where: {
-            id: data.worksiteId,
-          },
-        });
-        // uso save invece di update così si aggiorna la variabile di version
-        await this.vehicleRepository.save(vehicle);
+        if (vehicle) {
+          vehicle.worksite = await this.worksiteRepository.findOne({
+            where: {
+              id: data.worksiteId,
+            },
+          });
+          // uso save invece di update così si aggiorna la variabile di version
+          await this.vehicleRepository.save(vehicle);
+        }
       }),
     );
   }
