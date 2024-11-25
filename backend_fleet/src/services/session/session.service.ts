@@ -592,14 +592,9 @@ export class SessionService {
    * @param id VeId identificativo Veicolo
    * @returns
    */
-  async getLastValidSessionAll(id: number) {
+  async getLastValidSessionAll() {
     const session = await this.sessionRepository.find({
       where: {
-        history: {
-          vehicle: {
-            veId: id,
-          },
-        },
         distance: MoreThan(0), //controllo distanza maggiore di 0
       },
       relations: {
