@@ -658,6 +658,52 @@ export class SessionController {
   }
 
   /**
+   * Prende l'ultima sessione valida di ogni veicolo
+   * @param res 
+   */
+  @Get('lastvalidnohistory/all')
+  async getAllVehiclesValidSession(@Res() res: Response){
+    try {
+      const vehicles = await this.vehicleService.getAllVehicles();
+      let lastSessions: { veId: string; lastValidSession: any }[] = [];
+    
+      for (const vehicle of vehicles) {
+        // Recupera l'ultima sessione per ogni veicolo
+        const lastValidSession = await this.sessionService.getLastValidSession(vehicle.veId); 
+      console.log(lastValidSession);
+        lastSessions.push({ veId: vehicle.veId, lastValidSession: lastValidSession });
+      }
+    
+      res.status(200).send(lastSessions);
+    } catch (error) {
+      res.status(400).send("Errore nella ricerca dell'ultima sessione di ogni veicolo.");
+    }    
+  }
+
+  /**
+   * Prende l'ultima sessione valida di ogni veicolo
+   * senza ritornare la cronologia delle posizioni
+   * @param res 
+   */
+  @Get('lastvalid/all')
+  async getAllVehiclesValidSessionNoHistory(@Res() res: Response){
+    try {
+      const vehicles = await this.vehicleService.getAllVehicles();
+      let lastSessions: { veId: string; lastValidSession: any }[] = [];
+    
+      for (const vehicle of vehicles) {
+        // Recupera l'ultima sessione per ogni veicolo
+        const lastValidSession = await this.sessionService.getLastValidSessionNoHistory(vehicle.veId); 
+      console.log(lastValidSession);
+        lastSessions.push({ veId: vehicle.veId, lastValidSession: lastValidSession });
+      }
+    
+      res.status(200).send(lastSessions);
+    } catch (error) {
+      res.status(400).send("Errore nella ricerca dell'ultima sessione di ogni veicolo.");
+    }    
+  }
+  /**
    * Controlla che l'ultimo tag rientri nell'ultima sessione di un veicolo
    * @param res
    * @param params veId
@@ -866,6 +912,7 @@ export class SessionController {
       });
     }
   }
+  
 
   /**
    * Ritorna tutti i veicoli dove la data dell'ultima sessione non corrisponde all ultimo evento registrato
