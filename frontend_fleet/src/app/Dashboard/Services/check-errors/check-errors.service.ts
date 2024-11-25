@@ -19,35 +19,40 @@ export class CheckErrorsService {
    * @param vehicle
    * @returns
    */
-  checkGpsError(vehicle: any): string | null {
-    const dateFrom = this.commonService.dateFrom;
-    const dateTo = this.commonService.dateTo;
-    let gpsAnomaly: any;
+    checkGpsError(vehicle: any): string | null {
+      const dateFrom = this.commonService.dateFrom;
+      const dateTo = this.commonService.dateTo;
+      let gpsAnomaly: any = null;
 
-    if(vehicle.sessions?.length > 0){
-      for(const s of vehicle.sessions){
-        const sessionDate = new Date(s.date);
-        if(sessionDate >= dateFrom && sessionDate <= dateTo){
-          gpsAnomaly = s.anomalies?.find((anomaly: any) => 'GPS' in anomaly);
+      if (vehicle.anomalySessions?.length > 0) {
+        // Loop through vehicle sessions
+        for (const session of vehicle.anomalySessions) {
+          const sessionDate = new Date(session.date);
+
+          // Check if the session is within the given date range
+          if (sessionDate >= dateFrom && sessionDate <= dateTo) {
+            // Check if there are any GPS anomalies in the session
+            gpsAnomaly = session.anomalies?.find((anomaly: any) => anomaly.GPS);
+
+            // If GPS anomaly is found, return the error message or description
+            if (gpsAnomaly) {
+              return gpsAnomaly.GPS || 'Errore GPS';
+            }
+          }
         }
       }
+
+      // If no GPS anomalies are found, return null
+      return null;
     }
 
-    if (gpsAnomaly) {
-      console.log(gpsAnomaly);
-      console.log(vehicle);
-      return gpsAnomaly.GPS || 'Errore GPS';
-    }
-
-    return null;
-  }
 
   /**
    * Controlla se è presente un errore di antenna nella sessione di oggi del veicolo preso in input
    * @param vehicle
    * @returns se viene riscontrata l'anomalia di antenna in una sessione nel range di tempo, altrimenti "null"
    */
-  checkAntennaError(vehicle: { anomalySessions?: { date: string; anomalies?: { antenna?: string }[] }[] }): string | boolean {
+  checkAntennaError(vehicle: { anomalySessions?: { date: string; anomalies?: { antenna?: string }[] }[] }): string | null {
     const dateFrom = this.commonService.dateFrom;
     const dateTo = this.commonService.dateTo;
 
@@ -67,7 +72,7 @@ export class CheckErrorsService {
       }
     }
 
-    return false;
+    return null;
   }
 
 
