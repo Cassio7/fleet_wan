@@ -11,6 +11,7 @@ import {
   LessThanOrEqual,
   MoreThan,
   MoreThanOrEqual,
+  Not,
   Repository,
 } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
@@ -600,7 +601,7 @@ export class SessionService {
             veId: id,
           },
         },
-        distance: MoreThan(0), //controllo distanza maggiore di 0
+        distance: Not(0), //controllo distanza maggiore di 0
       },
       relations: {
         history: true,
@@ -629,7 +630,7 @@ export class SessionService {
               veId: id,
             },
           },
-          distance: MoreThan(0), //controllo distanza maggiore di 0
+          distance: Not(0), //controllo distanza maggiore di 0
         },
         order: {
           sequence_id: 'DESC',
