@@ -331,54 +331,64 @@ export class SessionController {
                   longitude: entry.longitude,
                 })),
               );
-              if (vehicle.isCan) {
-                if (distanceMap.every((distance) => distance === 0)) {
-                  flag_distance_can = true;
-                }
-                if (
-                  coordinates.every(
-                    (coord) =>
-                      coord.latitude === coordinates[0].latitude &&
-                      coord.longitude === coordinates[0].longitude,
-                  )
-                ) {
-                  flag_coordinates = true;
-                }
-                const zeroCoordinatesCount = coordinates.filter(
-                  (coord) => coord.latitude === 0 && coord.longitude === 0,
-                ).length;
-                if (zeroCoordinatesCount > coordinates.length * 0.2) {
-                  flag_coordinates_zero = true;
-                }
-              } else {
-                if (
-                  distanceMap.every(
-                    (distance) => distance === distanceMap[0],
-                  ) ||
-                  distanceMap.every((distance) => distance === 0)
-                ) {
-                  flag_distance = true;
-                }
-                if (
-                  coordinates.every(
-                    (coord) =>
-                      coord.latitude === coordinates[0].latitude &&
-                      coord.longitude === coordinates[0].longitude,
-                  )
-                ) {
-                  flag_coordinates = true;
-                }
-                const zeroCoordinatesCount = coordinates.filter(
-                  (coord) => coord.latitude === 0 && coord.longitude === 0,
-                ).length;
-                if (zeroCoordinatesCount > coordinates.length * 0.2) {
-                  flag_coordinates_zero = true;
+              if (coordinates.length > 15 && distanceMap.length > 1) {
+                if (vehicle.isCan) {
+                  if (distanceMap.every((distance) => distance === 0)) {
+                    flag_distance_can = true;
+                  }
+                  if (
+                    coordinates.every(
+                      (coord) =>
+                        coord.latitude === coordinates[0].latitude &&
+                        coord.longitude === coordinates[0].longitude,
+                    )
+                  ) {
+                    flag_coordinates = true;
+                  }
+                  const zeroCoordinatesCount = coordinates.filter(
+                    (coord) => coord.latitude === 0 && coord.longitude === 0,
+                  ).length;
+                  if (zeroCoordinatesCount > coordinates.length * 0.2) {
+                    flag_coordinates_zero = true;
+                  }
+                } else {
+                  if (
+                    distanceMap.every(
+                      (distance) => distance === distanceMap[0],
+                    ) ||
+                    distanceMap.every((distance) => distance === 0)
+                  ) {
+                    flag_distance = true;
+                  }
+                  if (
+                    coordinates.every(
+                      (coord) =>
+                        coord.latitude === coordinates[0].latitude &&
+                        coord.longitude === coordinates[0].longitude,
+                    )
+                  ) {
+                    flag_coordinates = true;
+                  }
+                  const zeroCoordinatesCount = coordinates.filter(
+                    (coord) => coord.latitude === 0 && coord.longitude === 0,
+                  ).length;
+                  if (zeroCoordinatesCount > coordinates.length * 0.2) {
+                    flag_coordinates_zero = true;
+                  }
                 }
               }
 
               if (flag_coordinates && flag_distance) {
                 sessions.anomalies.push(
-                  `Anomalia GPS totale, distanza: ${distanceMap[0]}`,
+                  `Anomalia GPS totale, distanza: ${distanceMap[0]} e lat: ${coordinates[0].latitude} e lon: ${coordinates[0].longitude}`,
+                );
+              } else if (flag_coordinates) {
+                sessions.anomalies.push(
+                  `Anomalia nelle coordinate, sempre uguali a lat: ${coordinates[0].latitude} e lon: ${coordinates[0].longitude}`,
+                );
+              } else if (flag_coordinates_zero) {
+                sessions.anomalies.push(
+                  `Anomalia nelle coordinate con lat: 0 e lon: 0 sopra al 20%`,
                 );
               }
               if (flag_distance_can) {
@@ -386,16 +396,7 @@ export class SessionController {
                   `Anomalia GPS per la distanza problema con il tachimetro, sempre uguale a ${distanceMap[0]}`,
                 );
               }
-              if (flag_coordinates) {
-                sessions.anomalies.push(
-                  `Anomalia nelle coordinate, sempre uguali a lat: ${coordinates[0].latitude} e lon: ${coordinates[0].longitude}`,
-                );
-              }
-              if (flag_coordinates_zero) {
-                sessions.anomalies.push(
-                  `Anomalia nelle coordinate con lat: 0 e lon: 0 sopra al 20%`,
-                );
-              }
+
               return sessions; // ritorna il risultato per questo giorno
             }
             return null; // Se non ci sono dati, ritorna null
@@ -405,17 +406,16 @@ export class SessionController {
           (session) => session !== null,
         );
         vehicleCheck.sessions = validSessions;
+        // Filtra i risultati nulli
         return vehicleCheck;
       }),
     );
 
     // Appiattisce l'array
     const allAnomalies = anomaliesForAllVehicles.flat();
-
     const filteredData = allAnomalies.filter(
       (item) => Array.isArray(item.sessions) && item.sessions.length > 0,
     );
-
     res.status(200).send({ vehicles: filteredData });
   }
 
@@ -480,70 +480,70 @@ export class SessionController {
                   longitude: entry.longitude,
                 })),
               );
-              if (vehicle.isCan) {
-                if (distanceMap.every((distance) => distance === 0)) {
-                  flag_distance_can = true;
-                }
-                if (
-                  coordinates.every(
-                    (coord) =>
-                      coord.latitude === coordinates[0].latitude &&
-                      coord.longitude === coordinates[0].longitude,
-                  )
-                ) {
-                  flag_coordinates = true;
-                }
-                const zeroCoordinatesCount = coordinates.filter(
-                  (coord) => coord.latitude === 0 && coord.longitude === 0,
-                ).length;
-                if (zeroCoordinatesCount > coordinates.length * 0.2) {
-                  flag_coordinates_zero = true;
-                }
-              } else {
-                if (
-                  distanceMap.every(
-                    (distance) => distance === distanceMap[0],
-                  ) ||
-                  distanceMap.every((distance) => distance === 0)
-                ) {
-                  flag_distance = true;
-                }
-                if (
-                  coordinates.every(
-                    (coord) =>
-                      coord.latitude === coordinates[0].latitude &&
-                      coord.longitude === coordinates[0].longitude,
-                  )
-                ) {
-                  flag_coordinates = true;
-                }
-                const zeroCoordinatesCount = coordinates.filter(
-                  (coord) => coord.latitude === 0 && coord.longitude === 0,
-                ).length;
-                if (zeroCoordinatesCount > coordinates.length * 0.2) {
-                  flag_coordinates_zero = true;
+              if (coordinates.length > 15 && distanceMap.length > 1) {
+                if (vehicle.isCan) {
+                  if (distanceMap.every((distance) => distance === 0)) {
+                    flag_distance_can = true;
+                  }
+                  if (
+                    coordinates.every(
+                      (coord) =>
+                        coord.latitude === coordinates[0].latitude &&
+                        coord.longitude === coordinates[0].longitude,
+                    )
+                  ) {
+                    flag_coordinates = true;
+                  }
+                  const zeroCoordinatesCount = coordinates.filter(
+                    (coord) => coord.latitude === 0 && coord.longitude === 0,
+                  ).length;
+                  if (zeroCoordinatesCount > coordinates.length * 0.2) {
+                    flag_coordinates_zero = true;
+                  }
+                } else {
+                  if (
+                    distanceMap.every(
+                      (distance) => distance === distanceMap[0],
+                    ) ||
+                    distanceMap.every((distance) => distance === 0)
+                  ) {
+                    flag_distance = true;
+                  }
+                  if (
+                    coordinates.every(
+                      (coord) =>
+                        coord.latitude === coordinates[0].latitude &&
+                        coord.longitude === coordinates[0].longitude,
+                    )
+                  ) {
+                    flag_coordinates = true;
+                  }
+                  const zeroCoordinatesCount = coordinates.filter(
+                    (coord) => coord.latitude === 0 && coord.longitude === 0,
+                  ).length;
+                  if (zeroCoordinatesCount > coordinates.length * 0.2) {
+                    flag_coordinates_zero = true;
+                  }
                 }
               }
 
               if (flag_coordinates && flag_distance) {
-                sessions.anomalies.push({
-                  GPS: `Anomalia GPS totale, distanza ${distanceMap[0]}`,
-                });
+                sessions.anomalies.push(
+                  `Anomalia GPS totale, distanza: ${distanceMap[0]} e lat: ${coordinates[0].latitude} e lon: ${coordinates[0].longitude}`,
+                );
+              } else if (flag_coordinates) {
+                sessions.anomalies.push(
+                  `Anomalia nelle coordinate, sempre uguali a lat: ${coordinates[0].latitude} e lon: ${coordinates[0].longitude}`,
+                );
+              } else if (flag_coordinates_zero) {
+                sessions.anomalies.push(
+                  `Anomalia nelle coordinate con lat: 0 e lon: 0 sopra al 20%`,
+                );
               }
               if (flag_distance_can) {
-                sessions.anomalies.push({
-                  GPS: `Anomalia GPS per la distanza problema con il tachimetro, sempre uguale a ${distanceMap[0]}`,
-                });
-              }
-              if (flag_coordinates) {
-                sessions.anomalies.push({
-                  GPS: `Anomalia nelle coordinate, sempre uguali a lat: ${coordinates[0].latitude} e lon: ${coordinates[0].longitude}`,
-                });
-              }
-              if (flag_coordinates_zero) {
-                sessions.anomalies.push({
-                  GPS: `Anomalia nelle coordinate con lat: 0 e lon: 0 sopra al 20%`,
-                });
+                sessions.anomalies.push(
+                  `Anomalia GPS per la distanza problema con il tachimetro, sempre uguale a ${distanceMap[0]}`,
+                );
               }
 
               return sessions; // ritorna il risultato per questo giorno
@@ -874,35 +874,48 @@ export class SessionController {
   @Get('lastevent/all')
   async lastEventComparisonAll(@Res() res: Response) {
     try {
-      const brokenVehicles = [];
-      const vehicles = await this.vehicleService.getVehiclesByReader();
-      for (const vehicle of vehicles) {
-        const lastSession = await this.sessionService.getLastSession(
-          vehicle.veId,
-        );
+      const vehicles = await this.vehicleService.getAllVehicles();
+
+      // Recupero le ultime sessioni per tutti i veicoli in parallelo
+      const sessions = await Promise.all(
+        vehicles.map((vehicle) =>
+          this.sessionService.getLastSession(vehicle.veId),
+        ),
+      );
+      // reduce accumulare gli elementi con anomalie
+      const brokenVehicles = vehicles.reduce((acc, vehicle, index) => {
+        const lastSession = sessions[index]; // Associo la sessione al veicolo corrente
         if (lastSession) {
-          const lastVehicleEvent = vehicle.lastEvent;
-          const sessionEnd = lastSession.period_to;
-          if (
-            new Date(lastVehicleEvent).getTime() !=
-            new Date(sessionEnd).getTime()
-          ) {
-            brokenVehicles.push(vehicle);
-            console.log({
-              message:
-                "L'ultimo evento del veicolo NON corrisponde con la fine della sua ultima sessione.",
-              lastVehicleEvent,
-              sessionEnd,
+          const lastVehicleEventTime = new Date(vehicle.lastEvent).getTime();
+          const sessionEndTime = new Date(lastSession.period_to).getTime();
+          // Calcola la differenza in giorni tra lastVehicleEvent e sessionEnd
+          const diffInDays = Math.floor(
+            (sessionEndTime - lastVehicleEventTime) / (1000 * 60 * 60 * 24),
+          );
+          if (diffInDays >= 1) {
+            acc.push({
+              veId: vehicle.veId,
+              plate: vehicle.plate,
+              lastEvent: vehicle.lastEvent,
+              lastSession: lastSession.period_to,
+              anomalie:
+                'Anomalia: ultima sessione non è stata chiusa correttamente',
+            });
+          } else if (lastVehicleEventTime > sessionEndTime) {
+            acc.push({
+              veId: vehicle.veId,
+              plate: vehicle.plate,
+              lastEvent: vehicle.lastEvent,
+              lastSession: lastSession.period_to,
+              anomalie: 'Anomalia: è presente una sessione nulla',
             });
           }
         }
-      }
+        return acc;
+      }, []);
+
       if (brokenVehicles.length > 0) {
-        res.status(200).send({
-          message:
-            "Veicoli dove l'ultima sessione non corrisponde all'ultimo evento registrato",
-          brokenVehicles,
-        });
+        res.status(200).send({ brokenVehicles });
       } else {
         res.status(200).send({
           message: 'Nessun veicolo presenta incongruenze',
@@ -916,28 +929,48 @@ export class SessionController {
 
   async lastEventComparisonAllNoApi() {
     try {
-      const brokenVehicles = [];
-      const vehicles = await this.vehicleService.getVehiclesByReader();
-      for (const vehicle of vehicles) {
-        const lastSession = await this.sessionService.getLastSession(
-          vehicle.veId,
-        );
+      const vehicles = await this.vehicleService.getAllVehicles();
+
+      // Recupero le ultime sessioni per tutti i veicoli in parallelo
+      const sessions = await Promise.all(
+        vehicles.map((vehicle) =>
+          this.sessionService.getLastSession(vehicle.veId),
+        ),
+      );
+      // reduce accumulare gli elementi con anomalie
+      const brokenVehicles = vehicles.reduce((acc, vehicle, index) => {
+        const lastSession = sessions[index]; // Associo la sessione al veicolo corrente
         if (lastSession) {
-          const lastVehicleEvent = vehicle.lastEvent;
-          const sessionEnd = lastSession.period_to;
-          if (
-            new Date(lastVehicleEvent).getTime() !=
-            new Date(sessionEnd).getTime()
-          ) {
-            brokenVehicles.push(vehicle);
+          const lastVehicleEventTime = new Date(vehicle.lastEvent).getTime();
+          const sessionEndTime = new Date(lastSession.period_to).getTime();
+          // Calcola la differenza in giorni tra lastVehicleEvent e sessionEnd
+          const diffInDays = Math.floor(
+            (sessionEndTime - lastVehicleEventTime) / (1000 * 60 * 60 * 24),
+          );
+          if (diffInDays >= 1) {
+            acc.push({
+              veId: vehicle.veId,
+              plate: vehicle.plate,
+              lastEvent: vehicle.lastEvent,
+              lastSession: lastSession.period_to,
+              anomalie:
+                'Anomalia: ultima sessione non è stata chiusa correttamente',
+            });
+          } else if (lastVehicleEventTime > sessionEndTime) {
+            acc.push({
+              veId: vehicle.veId,
+              plate: vehicle.plate,
+              lastEvent: vehicle.lastEvent,
+              lastSession: lastSession.period_to,
+              anomalie: 'Anomalia: è presente una sessione nulla',
+            });
           }
         }
-      }
+        return acc;
+      }, []);
 
       if (brokenVehicles.length > 0) {
         return {
-          message:
-            "Veicoli dove l'ultima sessione non corrisponde all'ultimo evento registrato",
           errors: brokenVehicles as any[],
         };
       } else {
@@ -1169,10 +1202,7 @@ export class SessionController {
 
     //controlla errore inizio e fine sessione (last event)
     try {
-      let comparison = await this.lastEventComparisonAllRangedNoApi(
-        dateFrom,
-        dateTo,
-      );
+      let comparison = await this.lastEventComparisonAllNoApi()
       typeof comparison !== 'string'
         ? (lastEventErrors = comparison.errors)
         : (lastEventErrors = []);
