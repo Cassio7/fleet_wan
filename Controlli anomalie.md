@@ -19,13 +19,15 @@ Vengono fatti i seguenti controlli per determinare anomalia:
 1. Se tutte le distanze di tutte le sessioni in quella giornata hanno come valore 0;
 2. Se tutte le lat e long presentano sempre lo stesso valore ripetuto;
 3. Se più del 20% del totale delle coordinate presentano come lat e long il valore 0;
+
 ### Veicolo non Can
 Vengono fatti i seguenti controlli per determinare anomalia:
 1. Se tutte le distanze di tutte le sessioni in quella giornata hanno come valore 0 oppure se tutte le distanze hanno sempre lo stesso valore costante;
 2. Se tutte le lat e long presentano sempre lo stesso valore ripetuto;
 3. Se più del 20% del totale delle coordinate presentano come lat e long il valore 0;
-## Antenna
 
+## Antenna
+L'anomalia dell'antenna viene definita...
 ## Sessione
 Il controllo della sessione va a verificare se l'ultimo evento registrato e salvato all'interno del veicolo corrisponde alla chiusura effettiva della sua ultima sessione. 
 L'anomalia si ha quando questi dati non coincidono. 
