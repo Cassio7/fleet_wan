@@ -21,7 +21,7 @@
       <th mat-header-cell *matHeaderCellDef mat-sort-header> GPS </th>
       <td mat-cell *matCellDef="let vehicle">
         <mat-icon class="warning-icon" [matTooltip]="checkGpsError(vehicle)" *ngIf="checkGpsError(vehicle)" [matTooltipClass]="'gps-tooltip'">share_location</mat-icon>
-        <mat-icon class="check-icon" *ngIf="vehicle.sessions?.length > 0 && !checkGpsError(vehicle)" matTooltip="Possiede un GPS funzionante">share_location</mat-icon>
+        <mat-icon class="check-icon" *ngIf="!checkGpsError(vehicle)" matTooltip="Possiede un GPS funzionante">share_location</mat-icon>
       </td>
     </ng-container>
 
