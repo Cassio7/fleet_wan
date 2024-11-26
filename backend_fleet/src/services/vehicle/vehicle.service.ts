@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import axios from 'axios';
 import { DeviceEntity } from 'classes/entities/device.entity';
-import { GroupEntity } from 'classes/entities/group.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { createHash } from 'crypto';
 import { convertHours } from 'src/utils/utils';
@@ -412,12 +411,12 @@ export class VehicleService {
 
   /**
    * Recupera un veicolo in base all VeId passato
-   * @param id VeId
+   * @param veId VeId
    * @returns
    */
-  async getVehicleById(id: number): Promise<any> {
+  async getVehicleById(veId: number): Promise<any> {
     const vehicle = await this.vehicleRepository.findOne({
-      where: { veId: id },
+      where: { veId: veId },
       relations: {
         device: true,
       },
