@@ -1,3 +1,4 @@
+import { TableService } from './../../Services/table/table.service';
 import { WorkSite } from './../../../Models/Worksite';
 import { SessionApiService } from './../../Services/session/session-api.service';
 import { CommonModule } from '@angular/common';
@@ -8,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Session } from '../../../Models/Session';
-import { first, forkJoin, skip, Subject, switchMap, takeUntil } from 'rxjs';
+import { first, forkJoin, skip, Subject, switchMap, takeUntil, filter } from 'rxjs';
 import { VehiclesApiService } from '../../Services/vehicles/vehicles-api.service';
 import { Vehicle } from '../../../Models/Vehicle';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -38,7 +39,8 @@ export class TableComponent implements OnDestroy, AfterViewInit{
 
   private readonly destroy$: Subject<void> = new Subject<void>();
 
-  vehicleTableData = new MatTableDataSource<Vehicle>();  // Use MatTableDataSource for the table
+  allVehicles: any[] = [];
+  vehicleTableData = new MatTableDataSource<Vehicle>();
 
   sessions: Session[] = [];
   vehicleIds: Number[] = [];
@@ -56,6 +58,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     private errorGraphService: ErrorGraphsService,
     private blackboxGraphService: BlackboxGraphsService,
     private vehicleApiService: VehiclesApiService,
+    private tableService: TableService,
     private sessionApiService: SessionApiService,
     private checkErrorsService: CheckErrorsService,
     private cd: ChangeDetectorRef
@@ -65,19 +68,27 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   ngAfterViewInit(): void {
     this.handlErrorGraphClick(); // Subscribe a click nel grafico degli errori
     this.handleBlackBoxGraphClick(); // Subscribe a click nel grafico dei blackbox
+    this.handleCantiereFilter(); //Subscribe a scelta nel filtro dei cantieri
 
-    const storedData = sessionStorage.getItem("allVehicles");
+    const storedData = sessionStorage.getItem("allVehicles"); //Inserimento di tutti i veicoli nel sessionStorage
+    this.allVehicles = storedData ? JSON.parse(storedData) : []; //Parse da sessionStorage di tutti i veicoli
 
-    const allVehicles = storedData ? JSON.parse(storedData) : [];
-
-    if (allVehicles) {
-      this.vehicleTableData.data = allVehicles;
-      console.log(allVehicles);
-      this.loadGraphs(allVehicles);
-
+    if (this.allVehicles) {
+      this.vehicleTableData.data = this.allVehicles;
+      this.loadGraphs(this.allVehicles);
     } else {
       this.fillTable(); // Riempi la tabella con i dati se non ci sono nel sessionStorage
     }
+  }
+
+  private handleCantiereFilter(){
+    this.tableService.filterTableByCantiere$.pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next: (cantieri: string[])=>{
+        this.vehicleTableData.data = this.tableService.filterTableByCantieri(this.allVehicles, cantieri) as any;
+      },
+      error: error => console.error("Errore nella ricezione del filtro per la tabella: ", error)
+    });
   }
 
   private handlErrorGraphClick(){
@@ -190,7 +201,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
           }
 
 
-          sessionStorage.setItem("allVehicles", JSON.stringify(vehicles));// Inserimento veicoli in sessionstorage
+          sessionStorage.setItem("tallVehicles", JSON.stringify(vehicles));// Inserimento veicoli in sessionstorage
           this.loadGraphs(vehicles);// Carica i grafici dopo il caricamento della tabella
           console.log(vehicles);
         } catch (error) {
@@ -221,6 +232,10 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     }
   }
 
+
+
+
+
   /**
    * Funzione da chiamare quando i dati sono completamente caricati
    * @param newVehicles da questi veicoli come input ai grafici per il caricamento
@@ -228,11 +243,6 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   loadGraphs(newVehicles: any[]) {
     this.errorGraphService.loadChartData(newVehicles);
     this.blackboxGraphService.loadChartData(newVehicles);
-  }
-
-  /*DA MODIFICARE*/
-  hasLastSession(vehicle: any){
-
   }
 
   /**
