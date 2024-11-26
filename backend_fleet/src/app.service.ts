@@ -1,6 +1,5 @@
 import { CompanyFactoryService } from './factory/company.factory';
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { GroupService } from './services/group/group.service';
 import { VehicleService } from './services/vehicle/vehicle.service';
 import { SessionService } from './services/session/session.service';
 import { Cron } from '@nestjs/schedule';
@@ -17,7 +16,6 @@ import { RoleCompanyFactoryService } from './factory/role_company.factory';
 @Injectable()
 export class AppService implements OnModuleInit {
   constructor(
-    private readonly groupService: GroupService,
     private readonly vehicleService: VehicleService,
     private readonly sessionService: SessionService,
     private readonly tagService: TagService,
@@ -181,7 +179,7 @@ export class AppService implements OnModuleInit {
    * IL PRESCELTO
    */
   async putDbDataBasicForAdvance() {
-    const startDate = '2024-11-20T00:00:00.000Z';
+    const startDate = '2024-11-22T00:00:00.000Z';
     // const endDate = '2024-11-25T00:00:00.000Z';
     const endDate = new Date(
       new Date().getTime() + 2 * 60 * 60 * 1000,
@@ -257,25 +255,6 @@ export class AppService implements OnModuleInit {
       }
     }
   }
-
-  // @Cron('0 0 * * *')
-  // async putDbDataDaily() {
-  //   const startDate = new Date(
-  //     new Date().getTime() - 24 * 60 * 60 * 1000,
-  //   ).toISOString();
-  //   const endDate = new Date().toISOString();
-
-  //   await this.groupService.getGroupList();
-  //   const groups = await this.groupService.getAllGroups();
-  //   for (const group of groups) {
-  //     await this.vehicleService.getVehicleList(group.vgId);
-  //   }
-  //   const vehicles = await this.vehicleService.getAllVehicles();
-  //   for (const vehicle of vehicles) {
-  //     console.log(`${vehicle.veId} - ${vehicle.id}`);
-  //     await this.sessionService.getSessionist(vehicle.veId, startDate, endDate);
-  //   }
-  // }
 
   //@Cron('*/3 * * * *')
   async putDbData3min() {
