@@ -32,7 +32,7 @@ export function convertHours(timestamp: string): string {
  * @returns
  */
 export function getDaysInRange(startDate, endDate) {
-  let currentDate = new Date(startDate);
+  const currentDate = new Date(startDate);
   const dates = [];
 
   while (currentDate <= endDate) {
@@ -59,4 +59,41 @@ export async function parseCsvFile(cvsPath: string): Promise<any[]> {
       .on('end', () => resolve(results))
       .on('error', (error) => reject(error));
   });
+}
+
+export type ValidationResult = {
+  isValid: boolean;
+  message?: string;
+};
+
+/**
+ * Funzione per validare un range di date.
+ * @param dateFrom Data iniziale (stringa).
+ * @param dateTo Data finale (stringa).
+ * @returns Oggetto con esito della validazione.
+ */
+export function validateDateRange(
+  dateFrom: string,
+  dateTo: string,
+): ValidationResult {
+  // Controlla se dateFrom e dateTo sono forniti
+  if (!dateFrom || !dateTo) {
+    return { isValid: false, message: 'Date non fornite.' };
+  }
+  // Crea un oggetto Date dalla stringa fornita
+  const dateFrom_new = new Date(dateFrom);
+  const dateTo_new = new Date(dateTo);
+  // Controlla se la data è valida
+  if (isNaN(dateFrom_new.getTime()) || isNaN(dateTo_new.getTime())) {
+    return { isValid: false, message: 'Formato della data non valido.' };
+  }
+  if (dateFrom_new.getTime() >= dateTo_new.getTime()) {
+    // Restituisci un errore se la condizione è vera
+    return {
+      isValid: false,
+      message:
+        'La data iniziale deve essere indietro di almeno 1 giorno dalla finale.',
+    };
+  }
+  return { isValid: true };
 }
