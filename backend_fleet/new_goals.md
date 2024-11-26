@@ -14,6 +14,6 @@
 - [x] ottimizzazione inserimento dati
 - [x] altra connessione al database per gli inserimenti per evitare attese e peso aggiuntivo.
 - [x] entità per role_company
-- [ ] i veicoli che hanno salvato bene l'ultima sessione e lettura ma smette di funzionare di botto non viene gestito, fare un controllo incrociato tra lastEvent e lastSessionEvent e controllore la differenza di giorni tra i 2, creare una pagina dove viene stampata sta differenza.
 - [ ] restituire i detection quality in base al veicolo per creare una futuro grafico con media
 - [ ] assegnare tutti i cantieri ai nuovi veicoli
+- [x] accorpare su utils il controllo inserimento date
