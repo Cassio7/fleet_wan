@@ -39,9 +39,8 @@ export class RowFilterComponent implements AfterViewInit{
   }
 
   ngAfterViewInit(): void {
-    // Use setTimeout to defer the change to the next cycle and prevent ExpressionChangedAfterItHasBeenCheckedError
     setTimeout(() => {
-      this.selectCantiere('Seleziona tutto');
+      this.selectAll();
     });
   }
 
@@ -49,17 +48,14 @@ export class RowFilterComponent implements AfterViewInit{
  * Viene chiamata alla premuta di un qualsiasi checkbox dentro il select per il filtro
  * @param option
  */
-  selectCantiere(option: string) {
+  selectCantiere(option: string, event: any) {
     if (option === 'Seleziona tutto') {
-      if (!this.allSelected) { //Non era già tutto selezionato
-        this.cantieri.setValue(this.listaCantieri);
-        this.allSelected = true;
-      } else { //Era già tutto selezionato
-        this.cantieri.setValue([]);
-        this.allSelected = false;
-      }
+      this.selectAll();
     }else{
-      this.cantieri.value?.splice(0, 1); //Rimozione "Seleziona tutto" dall'array in caso di selezione di un'altra opzione
+      if(this.cantieri.value && this.allSelected){
+        const index = this.cantieri.value?.indexOf("Seleziona tutto");
+        this.cantieri.value?.splice(index, 1); //Rimozione "Seleziona tutto" dall'array in caso di selezione di un'altra opzione
+      }
     }
 
     const selectedCantieri = this.cantieri.value; //Opzioni selezionate
@@ -67,6 +63,16 @@ export class RowFilterComponent implements AfterViewInit{
     //Se sono stati selezionati cantieri invia dati
     if (selectedCantieri) {
       this.tableService.filterTableByCantiere$.next(selectedCantieri);
+    }
+  }
+
+  selectAll() {
+    if (!this.allSelected) { //Non era già tutto selezionato
+      this.cantieri.setValue(this.listaCantieri);
+      this.allSelected = true;
+    } else { //Era già tutto selezionato
+      this.cantieri.setValue([]);
+      this.allSelected = false;
     }
   }
 

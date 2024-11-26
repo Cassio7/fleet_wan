@@ -86,6 +86,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     .subscribe({
       next: (cantieri: string[])=>{
         this.vehicleTableData.data = this.tableService.filterTableByCantieri(this.allVehicles, cantieri) as any;
+        this.loadGraphs(this.vehicleTableData.data);
       },
       error: error => console.error("Errore nella ricezione del filtro per la tabella: ", error)
     });
@@ -201,7 +202,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
           }
 
 
-          sessionStorage.setItem("tallVehicles", JSON.stringify(vehicles));// Inserimento veicoli in sessionstorage
+          sessionStorage.setItem("allVehicles", JSON.stringify(vehicles));// Inserimento veicoli in sessionstorage
           this.loadGraphs(vehicles);// Carica i grafici dopo il caricamento della tabella
           console.log(vehicles);
         } catch (error) {
