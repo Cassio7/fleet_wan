@@ -1,7 +1,7 @@
-import { Body, Controller, Param, Post, Res, Get } from '@nestjs/common';
-import axios from 'axios';
+import { Body, Controller, Get, Param, Post, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { TagService } from 'src/services/tag/tag.service';
+import { validateDateRange } from 'src/utils/utils';
 
 @Controller('tag')
 export class TagController {
@@ -69,27 +69,14 @@ export class TagController {
   ) {
     const dateFrom = body.dateFrom;
     const dateTo = body.dateTo;
-    // Controlla se dateFrom e dateTo sono forniti
-    if (!dateFrom || !dateTo) {
-      return res.status(400).send('Date non fornite.');
-    }
 
-    // Crea un oggetto Date dalla stringa fornita
+    // controllo data valida
+    const validation = validateDateRange(dateFrom, dateTo);
+    if (!validation.isValid) {
+      return res.status(400).send(validation.message);
+    }
     const dateFrom_new = new Date(dateFrom);
     const dateTo_new = new Date(dateTo);
-
-    // Controlla se la data è valida
-    if (isNaN(dateFrom_new.getTime()) || isNaN(dateTo_new.getTime())) {
-      return res.status(400).send('Formato della data non valido.');
-    }
-    if (dateFrom_new.getTime() >= dateTo_new.getTime()) {
-      // Restituisci un errore se la condizione è vera
-      return res
-        .status(400)
-        .send(
-          'La data iniziale deve essere indietro di almeno 1 giorno dalla finale',
-        );
-    }
     const data = await this.tagService.getTagHistoryByVeIdRanged(
       params.id,
       dateFrom_new,
