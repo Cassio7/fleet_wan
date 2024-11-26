@@ -97,10 +97,10 @@ export class SessionService {
           'sessionHistoryResponse'
         ]['list'];
       // per controllo sessione nulla
-      const success =
-        jsonResult['soapenv:Envelope']['soapenv:Body'][
-          'sessionHistoryResponse'
-        ]['success']._;
+      // const success =
+      //   jsonResult['soapenv:Envelope']['soapenv:Body'][
+      //     'sessionHistoryResponse'
+      //   ]['success']._;
       // console.log(success);
       //  console.log(jsonResult['soapenv:Envelope']['soapenv:Body'][
       //   'sessionHistoryResponse'
@@ -626,6 +626,35 @@ export class SessionService {
 
     return session;
   }
+
+  /**
+   * Ritorna l'ultima sessione di un veicolo registrata in base all'id
+   * che ha percorso più di 0 metri di distanza
+   * @param id veId identificativo veicolo
+   * @param dateFrom Data inizio ricerca sessione
+   * @param dateTo Data fine ricerca sessione
+   * @returns
+   */
+  async getLastValidSessionRanged(id: number, dateFrom: Date, dateTo: Date) {
+    const session = await this.sessionRepository.findOne({
+      where: {
+        period_from: MoreThanOrEqual(dateFrom),
+        period_to: LessThanOrEqual(dateTo),
+        history: {
+          vehicle: {
+            veId: id,
+          },
+        },
+        distance: MoreThan(0), //controllo distanza maggiore di 0
+      },
+      order: {
+        sequence_id: 'DESC',
+      },
+    });
+
+    return session;
+  }
+
   /**
    * Ritorna l'ultima sessione attiva, quella con sequence_id = 0
    * @param id VeId identificativo Veicolo
