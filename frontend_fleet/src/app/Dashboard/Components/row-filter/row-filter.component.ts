@@ -24,7 +24,7 @@ import { FilterService } from '../../Services/filter/filter.service';
 })
 export class RowFilterComponent implements AfterViewInit{
   filterForm!: FormGroup;
-  listaCantieri: string[] = ['Seleziona tutto'];
+  listaCantieri: string[] = ["Seleziona tutto"];
   cantieri = new FormControl<string[]>([]);
   allSelected: boolean = false;
 
@@ -48,7 +48,7 @@ export class RowFilterComponent implements AfterViewInit{
       this.selectAll();
     });
 
-    this.listaCantieri = [this.listaCantieri, ...this.fillSelect()];
+    this.listaCantieri = [this.listaCantieri[0], ...this.fillSelect()];
     this.cd.detectChanges();
   }
 
@@ -56,16 +56,17 @@ export class RowFilterComponent implements AfterViewInit{
  * Viene chiamata alla premuta di un qualsiasi checkbox dentro il select per il filtro
  * @param option opzione selezionata
  */
-  selectCantiere(option: string, event: any) {
-    console.log("option: ", typeof option);
-    console.log("lista cantieri: ", this.listaCantieri);
-    if (option[0] === 'Seleziona tutto') {
-      console.log("DOVREI SELEZIONA TUTTO.");
-      this.selectAll();
+  selectCantiere(option: string) {
+    if (option === "Seleziona tutto") {
+      this.selectAll();  // Seleziona tutti i cantieri
+    } else if (this.allSelected) {
+      const updatedCantieri = this.cantieri.value?.filter(cantiere => cantiere !== "Seleziona tutto");
+      this.cantieri.setValue(updatedCantieri || null);
+      this.allSelected = false;
     }
 
-    const selectedCantieri = this.cantieri.value; // Opzioni selezionate
 
+    const selectedCantieri = this.cantieri.value; // Opzioni selezionate
     // Se sono stati selezionati cantieri, invia dati
     if (selectedCantieri) {
       this.filterService.filterTableByCantiere$.next(selectedCantieri);

@@ -45,6 +45,8 @@ export class FilterService {
 
     allVehicles = this.sessionStorageService.getItem("allVehicles");
 
+    console.log("filter by cantiere all vehicles: ", allVehicles);
+    console.log("filter by cantieri cantieri: ", cantieri);
     if (cantieri.includes("Seleziona tutto")) {
       return allVehicles; // Ritorna tutti i veicoli
     }

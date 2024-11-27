@@ -21,6 +21,7 @@ import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatButtonModule } from '@angular/material/button';
 import { SessionStorageService } from '../../../Common services/sessionStorage/session-storage.service';
 import { FilterService } from '../../Services/filter/filter.service';
+import { SortService } from '../../Services/sort/sort.service';
 
 @Component({
   selector: 'app-table',
@@ -48,7 +49,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   sessions: Session[] = [];
   vehicleIds: Number[] = [];
 
-  displayedColumns: string[] = ['comune', 'targa', 'GPS', 'antenna', 'sessione'];
+  displayedColumns: string[] = ['cantiere', 'targa', 'GPS', 'antenna', 'sessione'];
 
 
 
@@ -65,6 +66,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     private sessionStorageService: SessionStorageService,
     private sessionApiService: SessionApiService,
     private checkErrorsService: CheckErrorsService,
+    private sortService: SortService,
     private cd: ChangeDetectorRef
   ){
   }
@@ -94,6 +96,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     .subscribe({
       next: (cantieri: string[])=>{
         this.vehicleTableData.data = this.filterService.filterTableByCantieri(this.allVehicles, cantieri) as any;
+        this.cd.detectChanges();
         this.loadGraphs(this.vehicleTableData.data);
       },
       error: error => console.error("Errore nella ricezione del filtro per la tabella: ", error)
@@ -176,8 +179,32 @@ export class TableComponent implements OnDestroy, AfterViewInit{
 
 
   onSortChange(event: Sort){
-    console.log("Nome colonna: ", event.active);
-    console.log("Direzione: ", event.direction);
+    const column = event.active;
+    const sortDirection = event.direction;
+    const vehicles = this.vehicleTableData.data;
+
+    console.log(column);
+    switch (column) {
+      case 'cantiere':
+        if (sortDirection == "asc") {
+          this.vehicleTableData.data = this.sortService.sortByCantiereAsc(vehicles);
+        } else {
+          this.vehicleTableData.data = this.sortService.sortByCantiereDesc(vehicles);
+        }
+        this.vehicleTable.renderRows();
+        break;
+
+      case 'targa':
+        if (sortDirection == "asc") {
+          this.vehicleTableData.data = this.sortService.sortVehiclesByPlateAsc(vehicles);
+        } else {
+          this.vehicleTableData.data = this.sortService.sortVehiclesByPlateDesc(vehicles);
+        }
+        this.vehicleTable.renderRows();
+        break;
+      case 'sessione':
+        break;
+    }
   }
 
   /**
