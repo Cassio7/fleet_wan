@@ -13,10 +13,11 @@ export class CompanyController {
   async getAllCompany(@Res() res: Response) {
     try {
       const company = await this.companyService.getAllCompany();
-      res.status(200).json(company);
+      if (company) res.status(200).json(company);
+      else res.status(404).json({ message: 'Nessuna società trovata' });
     } catch (error) {
-      console.error('Errore nel recupero dei veicoli:', error);
-      res.status(500).send('Errore durante il recupero dei veicoli');
+      console.error('Errore nel recupero delle società: ', error);
+      res.status(500).json({ message: 'Errore nel recupero delle società.' });
     }
   }
 
@@ -29,10 +30,14 @@ export class CompanyController {
   async getCompanyByVeId(@Res() res: Response, @Param() params: any) {
     try {
       const company = await this.companyService.getCompanyByVeId(params.veId);
-      res.status(200).json(company);
+      if (company) res.status(200).json(company);
+      else
+        res.status(404).json({
+          message: 'Nessuna società trovata con veId veicolo: ' + params.veId,
+        });
     } catch (error) {
-      console.error('Errore nel recupero dei veicoli:', error);
-      res.status(500).send('Errore durante il recupero dei veicoli');
+      console.error('Errore nel recupero della società:', error);
+      res.status(500).json({ message: 'Errore nel recupero della società.' });
     }
   }
   /**
@@ -44,10 +49,14 @@ export class CompanyController {
   async getCompanyByVgId(@Res() res: Response, @Param() params: any) {
     try {
       const company = await this.companyService.getCompanyByVgId(params.vgId);
-      res.status(200).json(company);
+      if (company) res.status(200).json(company);
+      else
+        res.status(404).json({
+          message: 'Nessuna società trovata con vgId comune: ' + params.vgId,
+        });
     } catch (error) {
-      console.error('Errore nel recupero dei veicoli:', error);
-      res.status(500).send('Errore durante il recupero dei veicoli');
+      console.error('Errore nel recupero della società:', error);
+      res.status(500).json({ message: 'Errore nel recupero della società.' });
     }
   }
 }
