@@ -8,6 +8,7 @@ import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { createHash } from 'crypto';
 import { convertHours } from 'src/utils/utils';
 import {
+  Between,
   DataSource,
   In,
   LessThanOrEqual,
@@ -322,7 +323,7 @@ export class TagService {
     const tags = await this.tagHistoryRepository.findOne({
       where: {
         vehicle: { veId: id },
-        timestamp: MoreThanOrEqual(dateFrom) && LessThanOrEqual(dateTo),
+        timestamp: Between(dateFrom, dateTo),
       },
       relations: {
         detectiontag: {
