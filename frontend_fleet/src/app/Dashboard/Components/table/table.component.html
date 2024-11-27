@@ -1,4 +1,8 @@
-<app-row-filter></app-row-filter>
+<div class="table-over">
+  <app-row-filter></app-row-filter>
+  <p>Numero di veicoli: {{vehicleTableData.data.length || '-'}}</p>
+  <button mat-raised-button (click)="fillTable()">Ricarica dati</button>
+</div>
 <div class="table-container">
   <table *ngIf="vehicleTableData" #vehicleTable mat-table [dataSource]="vehicleTableData" matSort (matSortChange)="onSortChange($event)" class="mat-elevation-z8 table-el">
     <!-- Comune Column -->
@@ -43,7 +47,7 @@
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Sessione </th>
       <td mat-cell *matCellDef="let vehicle">
         <mat-icon class="check-icon" *ngIf="!checkSessionError(vehicle) && vehicle.lastValidSession.period_from" matTooltip="Sessione corretta">check_circle</mat-icon>
-        <mat-icon class="warning-icon" matTooltip="Nessuna sessione trovata" *ngIf="checkSessionError(vehicle)">warning</mat-icon>
+        <mat-icon class="error-icon" matTooltip="Nessuna sessione trovata" *ngIf="checkSessionError(vehicle)">error</mat-icon>
         {{ vehicle.lastValidSession?.period_from ? (vehicle.lastValidSession.period_from | date: 'dd/MM/yy hh:mm') : 'Nessuna sessione' }}
       </td>
     </ng-container>

@@ -25,16 +25,12 @@ export class CheckErrorsService {
       let gpsAnomaly: any = null;
 
       if (vehicle.anomalySessions?.length > 0) {
-        // Loop through vehicle sessions
         for (const session of vehicle.anomalySessions) {
           const sessionDate = new Date(session.date);
 
-          // Check if the session is within the given date range
           if (sessionDate >= dateFrom && sessionDate <= dateTo) {
-            // Check if there are any GPS anomalies in the session
             gpsAnomaly = session.anomalies?.find((anomaly: any) => anomaly.GPS);
 
-            // If GPS anomaly is found, return the error message or description
             if (gpsAnomaly) {
               return gpsAnomaly.GPS || 'Errore GPS';
             }
@@ -42,8 +38,7 @@ export class CheckErrorsService {
         }
       }
 
-      // If no GPS anomalies are found, return null
-      return null;
+      return null; //se non viene trovata alcuna anomalia
     }
 
 
@@ -128,7 +123,6 @@ export class CheckErrorsService {
  * @returns observable http
 */
   public checkErrorsAllToday(): Observable<any>{
-    //*DA CAMBIARE A DATA ATTUALE*
     const body = {
       dateFrom: this.commonService.dateFrom,
       dateTo: this.commonService.dateTo

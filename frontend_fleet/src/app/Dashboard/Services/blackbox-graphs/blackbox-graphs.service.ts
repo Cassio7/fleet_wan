@@ -65,50 +65,33 @@ export class BlackboxGraphsService{
   }
 
   blackBoxClick() {
+    let allVehicles: any[] = [];
+    if (typeof sessionStorage !== "undefined") {
+      const storedVehicles = sessionStorage.getItem("allVehicles");
+      allVehicles = storedVehicles ? JSON.parse(storedVehicles) : [];
+    }
+
     if (this.blackBoxSliceSelected === "blackbox") {
-      let allVehicles: any[] = [];
-
-      if (typeof sessionStorage !== "undefined") {
-        const storedVehicles = sessionStorage.getItem("allVehicles");
-        allVehicles = storedVehicles ? JSON.parse(storedVehicles) : [];
-      }
-
       this.blackBoxSliceSelected = "";
       this.checkErrorsService.fillTable$.next(allVehicles); //Riempi la tabella senza filtri
     } else {
-      let allVehicles: any[] = [];
-
-      if (typeof sessionStorage !== "undefined") {
-        const storedVehicles = sessionStorage.getItem("allVehicles");
-        allVehicles = storedVehicles ? JSON.parse(storedVehicles) : [];
-        sessionStorage.setItem("blackboxSlice", "blackbox"); // Salvataggio scelta attuale in sessionStorage
-      }
-
+      // sessionStorage.setItem("blackboxSlice", "blackbox"); // Salvataggio scelta attuale in sessionStorage
       this.blackBoxSliceSelected = "blackbox";
       this.loadBlackBoxData$.next(this.getAllRFIDVehicles(allVehicles).blackboxOnly);
     }
   }
 
   blackBoxAntennaClick() {
+    let allVehicles: any[] = [];
+    if (typeof sessionStorage !== "undefined") {
+      const storedVehicles = sessionStorage.getItem("allVehicles");
+      allVehicles = storedVehicles ? JSON.parse(storedVehicles) : [];
+    }
+
     if (this.blackBoxSliceSelected === "blackbox+antenna") {
-      let allVehicles: any[] = [];
-
-      if (typeof sessionStorage !== "undefined") {
-        const storedVehicles = sessionStorage.getItem("allVehicles");
-        allVehicles = storedVehicles ? JSON.parse(storedVehicles) : [];
-      }
-
       this.blackBoxSliceSelected = "";
       this.checkErrorsService.fillTable$.next(allVehicles);
     } else {
-      let allVehicles: any[] = [];
-
-      if (typeof sessionStorage !== "undefined") {
-        const storedVehicles = sessionStorage.getItem("allVehicles");
-        allVehicles = storedVehicles ? JSON.parse(storedVehicles) : [];
-        sessionStorage.setItem("blackboxSlice", "blackboxAntenna"); // Salvataggio scelta attuale in sessionStorage
-      }
-
       this.blackBoxSliceSelected = "blackbox+antenna";
       this.loadBlackBoxData$.next(this.getAllRFIDVehicles(allVehicles).blackboxWithAntenna);
     }

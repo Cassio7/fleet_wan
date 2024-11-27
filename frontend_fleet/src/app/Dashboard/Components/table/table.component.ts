@@ -19,6 +19,7 @@ import { CheckErrorsService } from '../../Services/check-errors/check-errors.ser
 import { CommonService } from '../../Services/common service/common.service';
 import { RowFilterComponent } from "../row-filter/row-filter.component";
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-table',
@@ -27,6 +28,7 @@ import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
     CommonModule,
     MatIconModule,
     MatTableModule,
+    MatButtonModule,
     MatTooltipModule,
     MatSortModule,
     RowFilterComponent
@@ -82,6 +84,9 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     }
   }
 
+  /**
+   * Gestisce l'aggiunta di un filtro aggiungendo i dati dei veicoli filtrati alla tabella
+   */
   private handleCantiereFilter(){
     this.tableService.filterTableByCantiere$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
@@ -93,13 +98,16 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     });
   }
 
+  /**
+   * Gestisce il click sul grafico degli errori, riempendo la tabella e caricando il grafico dei blackbox di conseguenza
+   */
   private handlErrorGraphClick(){
     //riempe tabella con i dati senza filtri
     this.checkErrorsService.fillTable$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
-      next: (vehicles: any[]) => {
-        this.fillTableWithGraph(vehicles);
-        this.blackboxGraphService.loadChartData(vehicles);
+      next: (allVehicles: any[]) => {
+        this.fillTableWithGraph(allVehicles);
+        this.blackboxGraphService.loadChartData(allVehicles);
       },
       error: error => console.error("Errore nel caricamento dei dati dal grafico degli errori: ", error)
     });
@@ -134,8 +142,18 @@ export class TableComponent implements OnDestroy, AfterViewInit{
       error: error => console.error("Errore nel caricamento dei dati dal grafico degli errori: ", error)
     });
   }
-
+  /**
+   * Gestisce il click sul grafico dei blackbox, riempendo la tabella e caricando il grafico degli errori di conseguenza
+   */
   private handleBlackBoxGraphClick(){
+    this.checkErrorsService.fillTable$.pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next: (allVehicles: any[]) => {
+        this.fillTableWithGraph(allVehicles);
+        this.errorGraphService.loadChartData(allVehicles);
+      },
+      error: error => console.error("Errore nel caricamento dei dati dal grafico dei blackbox: ", error)
+    });
     this.blackboxGraphService.loadBlackBoxData$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (blackBoxVehicles: any[]) => {
@@ -164,8 +182,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
  * Riempe la tabella con i dati dei veicoli
  */
   fillTable() {
-    console.log("CHIAMATO FILL TABLE!");
-
+    this.vehicleTableData.data = [];
     forkJoin({
       vehicles: this.vehicleApiService.getAllVehicles(),
       anomaliesVehicles: this.checkErrorsService.checkErrorsAllToday(),
@@ -205,6 +222,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
 
           sessionStorage.setItem("allVehicles", JSON.stringify(vehicles));// Inserimento veicoli in sessionstorage
           this.loadGraphs(vehicles);// Carica i grafici dopo il caricamento della tabella
+          this.cd.detectChanges();
           console.log(vehicles);
         } catch (error) {
           console.error("Error processing vehicles:", error);

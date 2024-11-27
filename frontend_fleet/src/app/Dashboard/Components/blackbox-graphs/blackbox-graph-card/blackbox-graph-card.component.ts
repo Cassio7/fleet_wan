@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ViewChild } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatSelect, MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -20,7 +20,7 @@ import { BlackboxPieGraphComponent } from "../blackbox-pie-graph/blackbox-pie-gr
   templateUrl: './blackbox-graph-card.component.html',
   styleUrl: './blackbox-graph-card.component.css'
 })
-export class BlackboxGraphCardComponent {
+export class BlackboxGraphCardComponent implements AfterViewInit{
   @ViewChild('graphSelect') graphSelect!: MatSelect;
   pieGraph: boolean = true;
   barGraph: boolean = false;
@@ -29,8 +29,12 @@ export class BlackboxGraphCardComponent {
     private cd: ChangeDetectorRef
   ){}
 
+  ngAfterViewInit(): void {
+    this.graphSelect.value = 'pie';
+    this.cd.detectChanges();
+  }
+
   changeGraph(graph: string): void {
-    console.log(graph);
     switch (graph) {
       case 'pie':
         this.barGraph = false;

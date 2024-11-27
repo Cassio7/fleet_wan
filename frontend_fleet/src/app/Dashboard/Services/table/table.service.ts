@@ -9,6 +9,11 @@ export class TableService {
 
   constructor() { }
 
+  /**
+   * Inizializza il select per i filtri con i nomi di cantieri a cui i veicoli sono assegnati presi una sola volta
+   * @param vehicles veicoli da cui prendere i nomi dei cantieri assegnati
+   * @returns array di nomi di cantieri
+   */
   fillSelect(vehicles: any[]) {
     let seen = new Set<string>();
     let listaCantieri = vehicles
@@ -26,7 +31,12 @@ export class TableService {
 
 
 
-
+  /**
+   * Permette di riempire la tabella in base al filtro applicato
+   * @param vehicles veicoli sui quali applicare il filtro
+   * @param cantieri nomi di cantieri presenti nel filtro
+   * @returns array di veicoli filtrati
+   */
   filterTableByCantieri(vehicles: any[], cantieri: string[]) {
     let allVehicles: any[] = [];
 

@@ -1,3 +1,9 @@
+.table-over{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 tr,td, th{
   text-align: center;
 }

@@ -18,7 +18,7 @@ export class ErrorGraphsService{
   private _warningVehicles: any[] = [];
   private _errorVehicles: any[] = [];
 
-  private errorSliceSelected: string = "";
+  private _errorSliceSelected: string = "";
 
 
   constructor(
@@ -31,7 +31,13 @@ export class ErrorGraphsService{
   * @param vehicles oggetto custom di veicoli
   */
   public loadChartData(vehicles: any[]) {
+    this.workingVehicles = [];
+    this.warningVehicles = [];
+    this.errorVehicles = [];
+
+    this._series = [0,0,0];
     for (const vehicle of vehicles) {
+      //controllo errori sul veicolo corrente
       const hasGpsError = this.checkErrorsService.checkGpsError(vehicle);
       const hasSessionError = this.checkErrorsService.checkSessionError(vehicle);
       const hasAntennaError = this.checkErrorsService.checkAntennaError(vehicle);
@@ -53,7 +59,7 @@ export class ErrorGraphsService{
       }
       else if (hasAntennaError && hasSessionError){ //Controllo errori di sessione e antenna (Errore)
         this.errorVehicles.push(vehicle);
-        this.series[2] += 1; //Aggiunta errore
+        this._series[2] += 1; //Aggiunta errore
       }
       // Controllo nessun errore (funzionante)
       else if (!hasGpsError && !hasSessionError && !hasAntennaError) {
@@ -77,9 +83,9 @@ export class ErrorGraphsService{
       this.errorSliceSelected = "";
       this.checkErrorsService.fillTable$.next(allVehicles);
     } else {
-      if (typeof sessionStorage !== "undefined") {
-        sessionStorage.setItem("errorSlice", "working"); // Salvataggio scelta attuale in sessionStorage
-      }
+      // if (typeof sessionStorage !== "undefined") {
+      //   sessionStorage.setItem("errorSlice", "working"); // Salvataggio scelta attuale in sessionStorage
+      // }
 
       this.errorSliceSelected = "working";
       this.loadFunzionanteData$.next(this.workingVehicles);
@@ -98,9 +104,9 @@ export class ErrorGraphsService{
       this.errorSliceSelected = "";
       this.checkErrorsService.fillTable$.next(allVehicles);
     } else {
-      if (typeof sessionStorage !== "undefined") {
-        sessionStorage.setItem("errorSlice", "warning"); // Salvataggio scelta attuale in sessionStorage
-      }
+      // if (typeof sessionStorage !== "undefined") {
+      //   sessionStorage.setItem("errorSlice", "warning"); // Salvataggio scelta attuale in sessionStorage
+      // }
 
       this.errorSliceSelected = "warning";
       this.loadWarningData$.next(this.warningVehicles);
@@ -119,9 +125,9 @@ export class ErrorGraphsService{
       this.errorSliceSelected = "";
       this.checkErrorsService.fillTable$.next(allVehicles);
     } else {
-      if (typeof sessionStorage !== "undefined") {
-        sessionStorage.setItem("errorSlice", "error"); // Salvataggio scelta attuale in sessionStorage
-      }
+      // if (typeof sessionStorage !== "undefined") {
+      //   sessionStorage.setItem("errorSlice", "error"); // Salvataggio scelta attuale in sessionStorage
+      // }
 
       this.errorSliceSelected = "error";
       this.loadErrorData$.next(this.errorVehicles);
@@ -129,10 +135,14 @@ export class ErrorGraphsService{
   }
 
 
-
-
   /*getters & setters*/
 
+  public get errorSliceSelected(): string {
+    return this._errorSliceSelected;
+  }
+  public set errorSliceSelected(value: string) {
+    this._errorSliceSelected = value;
+  }
   public get workingVehicles(): any[] {
     return this._workingVehicles;
   }
@@ -173,6 +183,7 @@ export class ErrorGraphsService{
   public get colors() {
     return this._colors;
   }
+
   public get series() {
     return this._series;
   }

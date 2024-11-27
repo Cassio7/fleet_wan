@@ -68,7 +68,9 @@ export class RowFilterComponent implements AfterViewInit{
     }
   }
 
-
+  /**
+   * Seleziona tutti i filtri del select
+   */
   selectAll() {
     if (!this.allSelected) { //Non era già tutto selezionato
       this.cantieri.setValue(this.listaCantieri);
@@ -79,6 +81,10 @@ export class RowFilterComponent implements AfterViewInit{
     }
   }
 
+  /**
+   * Inizializza il select per i filtri con i nomi di cantieri a cui i veicoli sono assegnati presi una sola volta
+   * @returns array di nomi di cantieri
+   */
   fillSelect(){
     let allVehicles;
     if(typeof sessionStorage !== "undefined"){
