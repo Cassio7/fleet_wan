@@ -1,6 +1,6 @@
 import { TableService } from './../../Services/table/table.service';
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component } from '@angular/core';
 import { FormGroup, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatOptionModule } from '@angular/material/core';
@@ -23,11 +23,11 @@ import { MatSelectModule } from '@angular/material/select';
 })
 export class RowFilterComponent implements AfterViewInit{
   filterForm!: FormGroup;
-  listaCantieri: string[] = ['Seleziona tutto', 'Bastia Umbra', 'Todi', 'Umbertide', 'Capranica', 'Perugia', 'Ronciglione', 'Monserrato', 'Sorso', 'Sennori'];
+  listaCantieri: string[] = ['Seleziona tutto'];
   cantieri = new FormControl<string[]>([]);
   allSelected: boolean = false;
 
-  constructor(private tableService: TableService) {
+  constructor(private tableService: TableService, private cd: ChangeDetectorRef) {
     this.filterForm = new FormGroup({
       cantiere: new FormControl(''),
       targa: new FormControl(''),
@@ -39,32 +39,35 @@ export class RowFilterComponent implements AfterViewInit{
   }
 
   ngAfterViewInit(): void {
+
     setTimeout(() => {
       this.selectAll();
     });
+
+    this.listaCantieri = [this.listaCantieri, ...this.fillSelect()];
+    this.cd.detectChanges();
   }
 
   /**
  * Viene chiamata alla premuta di un qualsiasi checkbox dentro il select per il filtro
- * @param option
+ * @param option opzione selezionata
  */
   selectCantiere(option: string, event: any) {
-    if (option === 'Seleziona tutto') {
+    console.log("option: ", typeof option);
+    console.log("lista cantieri: ", this.listaCantieri);
+    if (option[0] === 'Seleziona tutto') {
+      console.log("DOVREI SELEZIONA TUTTO.");
       this.selectAll();
-    }else{
-      if(this.cantieri.value && this.allSelected){
-        const index = this.cantieri.value?.indexOf("Seleziona tutto");
-        this.cantieri.value?.splice(index, 1); //Rimozione "Seleziona tutto" dall'array in caso di selezione di un'altra opzione
-      }
     }
 
-    const selectedCantieri = this.cantieri.value; //Opzioni selezionate
+    const selectedCantieri = this.cantieri.value; // Opzioni selezionate
 
-    //Se sono stati selezionati cantieri invia dati
+    // Se sono stati selezionati cantieri, invia dati
     if (selectedCantieri) {
       this.tableService.filterTableByCantiere$.next(selectedCantieri);
     }
   }
+
 
   selectAll() {
     if (!this.allSelected) { //Non era già tutto selezionato
@@ -76,6 +79,12 @@ export class RowFilterComponent implements AfterViewInit{
     }
   }
 
-
+  fillSelect(){
+    let allVehicles;
+    if(typeof sessionStorage !== "undefined"){
+      allVehicles = JSON.parse(sessionStorage.getItem("allVehicles") || "");
+    }
+    return this.tableService.fillSelect(allVehicles);
+  }
 
 }

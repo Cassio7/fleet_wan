@@ -75,6 +75,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
 
     if (this.allVehicles) {
       this.vehicleTableData.data = this.allVehicles;
+      this.vehicleTable.renderRows();
       this.loadGraphs(this.allVehicles);
     } else {
       this.fillTable(); // Riempi la tabella con i dati se non ci sono nel sessionStorage
@@ -198,7 +199,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
             // Aggiornamento tabella
             this.vehicleTableData.data = [...this.vehicleTableData.data, ...vehicles];
             this.vehicleTable.renderRows();
-            this.cd.markForCheck();
+
           }
 
 
@@ -229,7 +230,6 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     if (vehicles.length > 0) {
       this.vehicleTableData.data = vehicles; // Modifica la tabella
       this.vehicleTable.renderRows();
-      this.cd.markForCheck();
     }
   }
 
