@@ -1,4 +1,3 @@
-import { TableService } from './../../Services/table/table.service';
 import { WorkSite } from './../../../Models/Worksite';
 import { SessionApiService } from './../../Services/session/session-api.service';
 import { CommonModule } from '@angular/common';
@@ -21,6 +20,7 @@ import { RowFilterComponent } from "../row-filter/row-filter.component";
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatButtonModule } from '@angular/material/button';
 import { SessionStorageService } from '../../../Common services/sessionStorage/session-storage.service';
+import { FilterService } from '../../Services/filter/filter.service';
 
 @Component({
   selector: 'app-table',
@@ -61,7 +61,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     private errorGraphService: ErrorGraphsService,
     private blackboxGraphService: BlackboxGraphsService,
     private vehicleApiService: VehiclesApiService,
-    private tableService: TableService,
+    private filterService: FilterService,
     private sessionStorageService: SessionStorageService,
     private sessionApiService: SessionApiService,
     private checkErrorsService: CheckErrorsService,
@@ -90,10 +90,10 @@ export class TableComponent implements OnDestroy, AfterViewInit{
    * Gestisce l'aggiunta di un filtro aggiungendo i dati dei veicoli filtrati alla tabella
    */
   private handleCantiereFilter(){
-    this.tableService.filterTableByCantiere$.pipe(takeUntil(this.destroy$), skip(1))
+    this.filterService.filterTableByCantiere$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (cantieri: string[])=>{
-        this.vehicleTableData.data = this.tableService.filterTableByCantieri(this.allVehicles, cantieri) as any;
+        this.vehicleTableData.data = this.filterService.filterTableByCantieri(this.allVehicles, cantieri) as any;
         this.loadGraphs(this.vehicleTableData.data);
       },
       error: error => console.error("Errore nella ricezione del filtro per la tabella: ", error)

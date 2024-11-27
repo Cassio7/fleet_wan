@@ -5,7 +5,7 @@ import { SessionStorageService } from '../../../Common services/sessionStorage/s
 @Injectable({
   providedIn: 'root'
 })
-export class TableService {
+export class FilterService {
   private _filterTableByCantiere$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
   constructor(
@@ -73,5 +73,4 @@ export class TableService {
   public get filterTableByCantiere$(): BehaviorSubject<string[]> {
     return this._filterTableByCantiere$;
   }
-
 }

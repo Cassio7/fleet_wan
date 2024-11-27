@@ -65,7 +65,9 @@ export class BlackboxGraphsService{
     this._series = series;
     this._loadGraphData$.next(series);
   }
-
+  /**
+   * Gestisce la logica del click sulla fetta "blackbox" del grafico dei blackbox
+   */
   blackBoxClick() {
     let allVehicles: any[] = [];
     allVehicles = this.sessionStorageService.getItem("allVehicles");
@@ -79,7 +81,9 @@ export class BlackboxGraphsService{
       this.loadBlackBoxData$.next(this.getAllRFIDVehicles(allVehicles).blackboxOnly);
     }
   }
-
+  /**
+   * Gestisce la logica del click sulla fetta "blaxbox+antenna" del grafico dei blackbox
+   */
   blackBoxAntennaClick() {
     let allVehicles: any[] = [];
     allVehicles = this.sessionStorageService.getItem("allVehicles");

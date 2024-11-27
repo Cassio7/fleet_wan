@@ -73,6 +73,9 @@ export class ErrorGraphsService{
     this._loadGraphData$.next(this._series);
   }
 
+  /**
+   * Gestisce la logica del click sulla fetta "funzionante" del grafico degli errori
+   */
   workingClick() {
     if (this.errorSliceSelected === "working") {
       let allVehicles: any[] = [];
@@ -90,7 +93,9 @@ export class ErrorGraphsService{
       this.loadFunzionanteData$.next(this.workingVehicles);
     }
   }
-
+  /**
+   * Gestisce la logica del click sulla fetta "warning" del grafico degli errori
+   */
   warningClick() {
     if (this.errorSliceSelected === "warning") {
       let allVehicles: any[] = [];
@@ -108,7 +113,9 @@ export class ErrorGraphsService{
       this.loadWarningData$.next(this.warningVehicles);
     }
   }
-
+  /**
+   * Gestisce la logica del click sulla fetta "error" del grafico degli errori
+   */
   errorClick() {
     if (this.errorSliceSelected === "error") {
       let allVehicles: any[] = [];

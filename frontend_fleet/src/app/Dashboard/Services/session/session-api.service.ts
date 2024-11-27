@@ -2,7 +2,6 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable} from 'rxjs';
 import { Session } from '../../../Models/Session';
-import { Vehicle } from '../../../Models/Vehicle';
 import { CommonService } from '../../../Common services/common service/common.service';
 
 @Injectable({
@@ -16,17 +15,17 @@ export class SessionApiService {
 
   /**
    * Prende i dati di tutte le sessioni dall'api gestita nel backend
-   * @returns
+   * @returns observable get http
    */
   public getAllSessions(): Observable<Session[]>{
-    return this.http.get<Session[]>("http://10.1.0.102:3001/sessions");
+    return this.http.get<Session[]>(`${this.commonService.url}/sessions`);
   }
 
   /**
    * Prende i dati di tutte le sessioni che sono avvenute nel range di tempo preso come parametri
    * @param start_date data di inizio del periodo
    * @param end_date data di fine del periodo
-   * @returns
+   * @returns observable post http
    */
   public getAllSessionsRanged(start_date: Date, end_date: Date) {
     const dateFrom = start_date.toISOString();
@@ -41,7 +40,7 @@ export class SessionApiService {
     };
 
     // Send the POST request
-    return this.http.post<Session[]>('http://10.1.0.102:3001/session/ranged/all', body)
+    return this.http.post<Session[]>(`${this.commonService.url}/session/ranged/all`, body)
       .pipe(
         catchError(error => {
           console.error('Errore durante la richiesta:', error);
@@ -52,24 +51,33 @@ export class SessionApiService {
 
   /**
    * Prende le sessioni avvenute oggi (+ commento con modifica da apportare a prodotto completo)
-   * @returns
+   * @returns observable post http
    */
   public getTodaySessions(){
-    return this.getAllSessionsRanged(new Date('2024-10-04'), new Date('2024-10-05')); //da cambiare in data di ieri e attuale
+    return this.getAllSessionsRanged(this.commonService.dateFrom, this.commonService.dateTo); //da cambiare in data di ieri e attuale
   }
 
   /**
    * Prende l'ultima sessione di ciascun veicolo
-   * @returns
+   * @returns observable get http
    */
   public getAllVehiclesLastSessions(): Observable<Session[]>{
     return this.http.get<Session[]>(`${this.commonService.url}/session/lastsessions/all`);
   }
 
-  public getLastValidSession(veId: number){
-    return this.http.get<Session>(``)
-  }
+  // /**
+  //  * Prende l'ultima sessione di un veicolo
+  //  * @param veId veicolo da cui prendere l'ultima sessione
+  //  * @returns Observable con
+  //  */
+  // public getLastValidSession(veId: number){
+  //   return this.http.get<Session>(``)
+  // }
 
+  /**
+   * Prende l'ultima sessione valida di ogni veicolo
+   * @returns observable get http
+   */
   public getAllVehiclesLastValidSession(): Observable<any[]>{
     return this.http.get<any[]>(`${this.commonService.url}/session/lastvalidnohistory/all`);
   }

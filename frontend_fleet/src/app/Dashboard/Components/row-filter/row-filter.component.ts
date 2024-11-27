@@ -1,4 +1,3 @@
-import { TableService } from './../../Services/table/table.service';
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectorRef, Component } from '@angular/core';
 import { FormGroup, FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -7,6 +6,7 @@ import { MatOptionModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { SessionStorageService } from '../../../Common services/sessionStorage/session-storage.service';
+import { FilterService } from '../../Services/filter/filter.service';
 
 @Component({
   selector: 'app-row-filter',
@@ -29,7 +29,7 @@ export class RowFilterComponent implements AfterViewInit{
   allSelected: boolean = false;
 
   constructor(
-    private tableService: TableService,
+    private filterService: FilterService,
     private sessionStorageService: SessionStorageService,
      private cd: ChangeDetectorRef) {
     this.filterForm = new FormGroup({
@@ -68,7 +68,7 @@ export class RowFilterComponent implements AfterViewInit{
 
     // Se sono stati selezionati cantieri, invia dati
     if (selectedCantieri) {
-      this.tableService.filterTableByCantiere$.next(selectedCantieri);
+      this.filterService.filterTableByCantiere$.next(selectedCantieri);
     }
   }
 
@@ -92,7 +92,7 @@ export class RowFilterComponent implements AfterViewInit{
   fillSelect(){
     let allVehicles;
     allVehicles = this.sessionStorageService.getItem("allVehicles");
-    return this.tableService.fillSelect(allVehicles);
+    return this.filterService.fillSelect(allVehicles);
   }
 
 }
