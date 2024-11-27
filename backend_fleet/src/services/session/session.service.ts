@@ -513,11 +513,21 @@ export class SessionService {
     dateTo: Date,
   ): Promise<any> {
     const session = await this.sessionRepository.find({
-      where: {
-        history: { vehicle: { veId: id } },
-        period_from: MoreThanOrEqual(dateFrom),
-        period_to: LessThanOrEqual(dateTo),
-      },
+      where: [
+        // nel mezzo
+        {
+          history: { vehicle: { veId: id } },
+          period_from: MoreThanOrEqual(dateFrom),
+          period_to: LessThanOrEqual(dateTo),
+        },
+        // sessione inizia prima del controllo e finisce dopo lo stesso giorno
+        {
+          history: { vehicle: { veId: id } },
+          period_from: LessThanOrEqual(dateFrom), // La sessione può iniziare prima di dateTo
+          period_to: MoreThanOrEqual(dateFrom), // La sessione può finire dopo dateFrom
+        },
+      ],
+
       relations: {
         history: true,
       },
