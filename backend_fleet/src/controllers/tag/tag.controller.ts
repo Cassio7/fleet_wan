@@ -62,7 +62,7 @@ export class TagController {
    * @returns
    */
   @Post('ranged/:id')
-  async getAllSessionByVeIdRanged(
+  async getTagHistoryByVeIdRanged(
     @Res() res: Response,
     @Param() params: any,
     @Body() body: any,
