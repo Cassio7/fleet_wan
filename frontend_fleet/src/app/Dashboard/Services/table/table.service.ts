@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { SessionStorageService } from '../../../Common services/sessionStorage/session-storage.service';
 
 @Injectable({
   providedIn: 'root'
@@ -7,7 +8,9 @@ import { BehaviorSubject } from 'rxjs';
 export class TableService {
   private _filterTableByCantiere$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
-  constructor() { }
+  constructor(
+    private sessionStorageService: SessionStorageService
+  ) { }
 
   /**
    * Inizializza il select per i filtri con i nomi di cantieri a cui i veicoli sono assegnati presi una sola volta
@@ -40,9 +43,7 @@ export class TableService {
   filterTableByCantieri(vehicles: any[], cantieri: string[]) {
     let allVehicles: any[] = [];
 
-    if (typeof sessionStorage !== "undefined") {
-      allVehicles = JSON.parse(sessionStorage.getItem("allVehicles") || "[]"); // Usa un array vuoto come fallback
-    }
+    allVehicles = this.sessionStorageService.getItem("allVehicles");
 
     if (cantieri.includes("Seleziona tutto")) {
       return allVehicles; // Ritorna tutti i veicoli

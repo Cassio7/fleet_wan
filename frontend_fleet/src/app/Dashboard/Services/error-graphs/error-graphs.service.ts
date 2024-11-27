@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { CheckErrorsService } from '../check-errors/check-errors.service';
+import { SessionStorageService } from '../../../Common services/sessionStorage/session-storage.service';
 
 @Injectable({
   providedIn: 'root'
@@ -22,7 +23,8 @@ export class ErrorGraphsService{
 
 
   constructor(
-    private checkErrorsService: CheckErrorsService
+    private checkErrorsService: CheckErrorsService,
+    private sessionStorageService: SessionStorageService
   ) { }
 
   /**
@@ -75,10 +77,7 @@ export class ErrorGraphsService{
     if (this.errorSliceSelected === "working") {
       let allVehicles: any[] = [];
 
-      if (typeof sessionStorage !== "undefined") {
-        const storedVehicles = sessionStorage.getItem("allVehicles");
-        allVehicles = storedVehicles ? JSON.parse(storedVehicles) : [];
-      }
+      allVehicles = this.sessionStorageService.getItem("allVehicles");
 
       this.errorSliceSelected = "";
       this.checkErrorsService.fillTable$.next(allVehicles);
@@ -96,10 +95,7 @@ export class ErrorGraphsService{
     if (this.errorSliceSelected === "warning") {
       let allVehicles: any[] = [];
 
-      if (typeof sessionStorage !== "undefined") {
-        const storedVehicles = sessionStorage.getItem("allVehicles");
-        allVehicles = storedVehicles ? JSON.parse(storedVehicles) : [];
-      }
+      allVehicles = this.sessionStorageService.getItem("allVehicles");
 
       this.errorSliceSelected = "";
       this.checkErrorsService.fillTable$.next(allVehicles);
@@ -117,10 +113,7 @@ export class ErrorGraphsService{
     if (this.errorSliceSelected === "error") {
       let allVehicles: any[] = [];
 
-      if (typeof sessionStorage !== "undefined") {
-        const storedVehicles = sessionStorage.getItem("allVehicles");
-        allVehicles = storedVehicles ? JSON.parse(storedVehicles) : [];
-      }
+      allVehicles = this.sessionStorageService.getItem("allVehicles");
 
       this.errorSliceSelected = "";
       this.checkErrorsService.fillTable$.next(allVehicles);

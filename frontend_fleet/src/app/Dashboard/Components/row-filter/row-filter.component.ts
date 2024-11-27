@@ -6,6 +6,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatOptionModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
+import { SessionStorageService } from '../../../Common services/sessionStorage/session-storage.service';
 
 @Component({
   selector: 'app-row-filter',
@@ -27,7 +28,10 @@ export class RowFilterComponent implements AfterViewInit{
   cantieri = new FormControl<string[]>([]);
   allSelected: boolean = false;
 
-  constructor(private tableService: TableService, private cd: ChangeDetectorRef) {
+  constructor(
+    private tableService: TableService,
+    private sessionStorageService: SessionStorageService,
+     private cd: ChangeDetectorRef) {
     this.filterForm = new FormGroup({
       cantiere: new FormControl(''),
       targa: new FormControl(''),
@@ -87,9 +91,7 @@ export class RowFilterComponent implements AfterViewInit{
    */
   fillSelect(){
     let allVehicles;
-    if(typeof sessionStorage !== "undefined"){
-      allVehicles = JSON.parse(sessionStorage.getItem("allVehicles") || "");
-    }
+    allVehicles = this.sessionStorageService.getItem("allVehicles");
     return this.tableService.fillSelect(allVehicles);
   }
 

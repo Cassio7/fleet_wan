@@ -16,10 +16,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ErrorGraphsService } from '../../Services/error-graphs/error-graphs.service';
 import { BlackboxGraphsService } from '../../Services/blackbox-graphs/blackbox-graphs.service';
 import { CheckErrorsService } from '../../Services/check-errors/check-errors.service';
-import { CommonService } from '../../Services/common service/common.service';
+import { CommonService } from '../../../Common services/common service/common.service';
 import { RowFilterComponent } from "../row-filter/row-filter.component";
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatButtonModule } from '@angular/material/button';
+import { SessionStorageService } from '../../../Common services/sessionStorage/session-storage.service';
 
 @Component({
   selector: 'app-table',
@@ -61,6 +62,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     private blackboxGraphService: BlackboxGraphsService,
     private vehicleApiService: VehiclesApiService,
     private tableService: TableService,
+    private sessionStorageService: SessionStorageService,
     private sessionApiService: SessionApiService,
     private checkErrorsService: CheckErrorsService,
     private cd: ChangeDetectorRef
@@ -72,11 +74,11 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     this.handleBlackBoxGraphClick(); // Subscribe a click nel grafico dei blackbox
     this.handleCantiereFilter(); //Subscribe a scelta nel filtro dei cantieri
 
-    const storedData = sessionStorage.getItem("allVehicles"); //Inserimento di tutti i veicoli nel sessionStorage
-    this.allVehicles = storedData ? JSON.parse(storedData) : []; //Parse da sessionStorage di tutti i veicoli
+    this.allVehicles = this.sessionStorageService.getItem("allVehicles");
 
     if (this.allVehicles) {
       this.vehicleTableData.data = this.allVehicles;
+      this.cd.detectChanges();
       this.vehicleTable.renderRows();
       this.loadGraphs(this.allVehicles);
     } else {
@@ -220,7 +222,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
           }
 
 
-          sessionStorage.setItem("allVehicles", JSON.stringify(vehicles));// Inserimento veicoli in sessionstorage
+          this.sessionStorageService.setItem("allVehicles", JSON.stringify(vehicles));// Inserimento veicoli in sessionstorage
           this.loadGraphs(vehicles);// Carica i grafici dopo il caricamento della tabella
           this.cd.detectChanges();
           console.log(vehicles);

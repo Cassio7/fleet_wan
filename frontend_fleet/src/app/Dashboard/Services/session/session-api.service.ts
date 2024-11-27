@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { catchError, Observable} from 'rxjs';
 import { Session } from '../../../Models/Session';
 import { Vehicle } from '../../../Models/Vehicle';
-import { CommonService } from '../common service/common.service';
+import { CommonService } from '../../../Common services/common service/common.service';
 
 @Injectable({
   providedIn: 'root'

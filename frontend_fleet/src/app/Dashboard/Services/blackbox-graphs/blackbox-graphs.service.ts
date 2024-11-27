@@ -3,6 +3,7 @@ import { VehiclesApiService } from '../vehicles/vehicles-api.service';
 import { BehaviorSubject, lastValueFrom, Subject, takeUntil } from 'rxjs';
 import { Vehicle } from '../../../Models/Vehicle';
 import { CheckErrorsService } from '../check-errors/check-errors.service';
+import { SessionStorageService } from '../../../Common services/sessionStorage/session-storage.service';
 
 @Injectable({
   providedIn: 'root'
@@ -21,7 +22,8 @@ export class BlackboxGraphsService{
   private blackBoxSliceSelected: string = "";
 
   constructor(
-    private checkErrorsService: CheckErrorsService
+    private checkErrorsService: CheckErrorsService,
+    private sessionStorageService: SessionStorageService
   ) { }
 
 
@@ -66,10 +68,7 @@ export class BlackboxGraphsService{
 
   blackBoxClick() {
     let allVehicles: any[] = [];
-    if (typeof sessionStorage !== "undefined") {
-      const storedVehicles = sessionStorage.getItem("allVehicles");
-      allVehicles = storedVehicles ? JSON.parse(storedVehicles) : [];
-    }
+    allVehicles = this.sessionStorageService.getItem("allVehicles");
 
     if (this.blackBoxSliceSelected === "blackbox") {
       this.blackBoxSliceSelected = "";
@@ -83,10 +82,7 @@ export class BlackboxGraphsService{
 
   blackBoxAntennaClick() {
     let allVehicles: any[] = [];
-    if (typeof sessionStorage !== "undefined") {
-      const storedVehicles = sessionStorage.getItem("allVehicles");
-      allVehicles = storedVehicles ? JSON.parse(storedVehicles) : [];
-    }
+    allVehicles = this.sessionStorageService.getItem("allVehicles");
 
     if (this.blackBoxSliceSelected === "blackbox+antenna") {
       this.blackBoxSliceSelected = "";
