@@ -19,3 +19,4 @@
   1.  funzione che valida gli epc,
   2.  recupero i tag validi da un altra parte, come tabella da kevin,
   3.  salvo comunque tutto comunque
+- [ ] tabella di appoggio con i dati degl'ultimi controlli, così da riprendere i dati da li invece che fare una request, per la dashboard principale.
