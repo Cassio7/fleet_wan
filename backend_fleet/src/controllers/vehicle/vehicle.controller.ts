@@ -23,8 +23,10 @@ export class VehicleController {
   @Get()
   async getAllVehicles(@Res() res: Response) {
     try {
-      const groups = await this.vehicleService.getAllVehicles();
-      res.status(200).json(groups);
+      const vehicles = await this.vehicleService.getAllVehicles();
+      vehicles.length > 0
+        ? res.status(200).json(vehicles)
+        : res.status(404).json({ message: 'Nessun veicolo trovato' });
     } catch (error) {
       console.error('Errore nel recupero dei veicoli:', error);
       res.status(500).send('Errore durante il recupero dei veicoli');
@@ -38,8 +40,12 @@ export class VehicleController {
   @Get('reader')
   async getVehiclesByReader(@Res() res: Response) {
     try {
-      const groups = await this.vehicleService.getVehiclesByReader();
-      res.status(200).json(groups);
+      const vehicles = await this.vehicleService.getVehiclesByReader();
+      vehicles.length > 0
+        ? res.status(200).json(vehicles)
+        : res
+            .status(404)
+            .json({ message: 'Nessun veicolo RFID reader trovato' });
     } catch (error) {
       console.error('Errore nel recupero dei veicoli:', error);
       res.status(500).send('Errore durante il recupero dei veicoli');
@@ -54,7 +60,11 @@ export class VehicleController {
   async getVehiclesWithNoReader(@Res() res: Response) {
     try {
       const vehicles = await this.vehicleService.getVehiclesWithNoReader();
-      res.status(200).json(vehicles);
+      vehicles.length > 0
+        ? res.status(200).json(vehicles)
+        : res
+            .status(404)
+            .json({ message: 'Nessun veicolo NO RFID reader trovato' });
     } catch (error) {
       console.error('Errore nel recupero dei veicoli:', error);
       res.status(500).send('Errore durante il recupero dei veicoli');
@@ -112,7 +122,7 @@ export class VehicleController {
         res.status(200).json(vehicle);
       } else {
         res.status(404).json({
-          message: `Vehicle with plate number: ${plateNumber} not found.`,
+          message: `Veicolo con targa: ${plateNumber} non trovato.`,
         });
       }
     } catch (error) {
@@ -130,11 +140,13 @@ export class VehicleController {
   async getVehicleById(@Res() res: Response, @Param() params: any) {
     try {
       const vehicle = await this.vehicleService.getVehicleById(params.id);
-      vehicle.length > 0
-        ? res.status(200).json(vehicle)
-        : res.status(200).json({
-            message: 'Nessun veicolo con veId: ' + params.id + ' trovato.',
-          });
+      if (vehicle) {
+        res.status(200).json(vehicle);
+      } else {
+        res.status(404).json({
+          message: 'Nessun veicolo con veId: ' + params.id + ' trovato.',
+        });
+      }
     } catch (error) {
       console.error('Errore nel recupero del veicolo:', error);
       res.status(500).send('Errore durante il recupero del veicolo');
