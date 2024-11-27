@@ -32,6 +32,6 @@ export class AuthController {
       httpOnly: true,
       sameSite: 'Strict',
     });
-    res.status(200).send({ message: 'Logged out successfully' });
+    res.status(200).json({ message: 'Logged out successfully' });
   }
 }
