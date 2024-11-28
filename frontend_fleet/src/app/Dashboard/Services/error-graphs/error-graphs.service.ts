@@ -77,18 +77,14 @@ export class ErrorGraphsService{
    * Gestisce la logica del click sulla fetta "funzionante" del grafico degli errori
    */
   workingClick() {
+    let tableVehicles: any[] = [];
+    tableVehicles = JSON.parse(this.sessionStorageService.getItem("tableData"));
+
     if (this.errorSliceSelected === "working") {
-      let tableVehicles: any[] = [];
-
-      tableVehicles = JSON.parse(this.sessionStorageService.getItem("tableData"));
-
       this.errorSliceSelected = "";
       this.checkErrorsService.fillTable$.next(tableVehicles);
     } else {
-      // if (typeof sessionStorage !== "undefined") {
-      //   sessionStorage.setItem("errorSlice", "working"); // Salvataggio scelta attuale in sessionStorage
-      // }
-
+      //sessionStorage.setItem("errorSlice", "working"); // Salvataggio scelta attuale in sessionStorage
       this.errorSliceSelected = "working";
       this.loadFunzionanteData$.next(this.workingVehicles);
     }
@@ -101,13 +97,13 @@ export class ErrorGraphsService{
       let tableVehicles: any[] = [];
       tableVehicles = JSON.parse(this.sessionStorageService.getItem("tableData"));
 
+
       this.errorSliceSelected = "";
       this.checkErrorsService.fillTable$.next(tableVehicles);
     } else {
       // if (typeof sessionStorage !== "undefined") {
       //   sessionStorage.setItem("errorSlice", "warning"); // Salvataggio scelta attuale in sessionStorage
       // }
-
       this.errorSliceSelected = "warning";
       this.loadWarningData$.next(this.warningVehicles);
     }

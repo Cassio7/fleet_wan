@@ -30,8 +30,10 @@ export class BlackboxGraphCardComponent implements AfterViewInit{
   ){}
 
   ngAfterViewInit(): void {
-    this.graphSelect.value = 'pie';
-    this.cd.detectChanges();
+    if(this.graphSelect){
+      this.graphSelect.value = 'pie';
+      this.cd.detectChanges();
+    }
   }
 
   changeGraph(graph: string): void {

@@ -52,18 +52,16 @@ export class BlackboxGraphsService{
    * @param vehicles oggetto custom di veicoli
    */
   public loadChartData(vehicles: any[]){
-    let series: number[] = [];
     try {
       const categorizedVehicles = this.getAllRFIDVehicles(vehicles);
-      series = [
+      this._series = [
         categorizedVehicles.blackboxOnly.length,
         categorizedVehicles.blackboxWithAntenna.length,
       ];
     } catch (error) {
       console.error("Error loading chart data: ", error);
     }
-    this._series = series;
-    this._loadGraphData$.next(series);
+    this._loadGraphData$.next(this._series);
   }
   /**
    * Gestisce la logica del click sulla fetta "blackbox" del grafico dei blackbox
@@ -71,12 +69,13 @@ export class BlackboxGraphsService{
   blackBoxClick() {
     let tableVehicles: any[] = [];
     tableVehicles = JSON.parse(this.sessionStorageService.getItem("tableData"));
-
+    console.log("blackbox click table vehicles: ", tableVehicles);
     if (this.blackBoxSliceSelected === "blackbox") {
       this.blackBoxSliceSelected = "";
       this.checkErrorsService.fillTable$.next(tableVehicles); //Riempi la tabella senza filtri
     } else {
       // sessionStorage.setItem("blackboxSlice", "blackbox"); // Salvataggio scelta attuale in sessionStorage
+      console.log(tableVehicles);
       this.blackBoxSliceSelected = "blackbox";
       this.loadBlackBoxData$.next(this.getAllRFIDVehicles(tableVehicles).blackboxOnly);
     }
