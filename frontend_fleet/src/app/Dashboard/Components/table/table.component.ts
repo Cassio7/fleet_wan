@@ -114,7 +114,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     .subscribe({
       next: (tableVehicles: any[]) => {
         this.fillTableWithGraph(tableVehicles);
-        this.blackboxGraphService.loadChartData(tableVehicles);
+        this.loadGraphs(tableVehicles);
       },
       error: error => console.error("Errore nel caricamento dei dati dal grafico degli errori: ", error)
     });
@@ -124,7 +124,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     .subscribe({
       next: (workingVehicles: any[]) => {
         this.fillTableWithGraph(workingVehicles);
-        this.blackboxGraphService.loadChartData(workingVehicles);
+        this.loadGraphs(workingVehicles);
       },
       error: error => console.error("Errore nel caricamento dei dati dal grafico degli errori: ", error)
     });
@@ -134,7 +134,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     .subscribe({
       next: (warningVehicles: any[]) => {
         this.fillTableWithGraph(warningVehicles);
-        this.blackboxGraphService.loadChartData(warningVehicles);
+        this.loadGraphs(warningVehicles);
       },
       error: error => console.error("Errore nel caricamento dei dati dal grafico degli errori: ", error)
     });
@@ -144,7 +144,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     .subscribe({
       next: (errorVehicles: any[]) => {
         this.fillTableWithGraph(errorVehicles);
-        this.blackboxGraphService.loadChartData(errorVehicles);
+        this.loadGraphs(errorVehicles);
       },
       error: error => console.error("Errore nel caricamento dei dati dal grafico degli errori: ", error)
     });
