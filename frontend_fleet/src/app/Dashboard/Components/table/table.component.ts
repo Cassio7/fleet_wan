@@ -76,7 +76,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     this.handleBlackBoxGraphClick(); // Subscribe a click nel grafico dei blackbox
     this.handleCantiereFilter(); //Subscribe a scelta nel filtro dei cantieri
 
-    this.allVehicles = this.sessionStorageService.getItem("allVehicles");
+    this.allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
 
     if (this.allVehicles) {
       this.vehicleTableData.data = this.allVehicles;
@@ -96,6 +96,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     .subscribe({
       next: (cantieri: string[])=>{
         this.vehicleTableData.data = this.filterService.filterTableByCantieri(this.allVehicles, cantieri) as any;
+        this.sessionStorageService.setItem("tableData", this.vehicleTableData.data);
         this.cd.detectChanges();
         this.loadGraphs(this.vehicleTableData.data);
       },
@@ -211,7 +212,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
  * Riempe la tabella con i dati dei veicoli
  */
   fillTable() {
-    console.log(this.sessionStorageService.getItem("allVehicles"));
+    console.log(JSON.parse(this.sessionStorageService.getItem("allVehicles")));
     this.vehicleTableData.data = [];
     forkJoin({
       vehicles: this.vehicleApiService.getAllVehicles(),

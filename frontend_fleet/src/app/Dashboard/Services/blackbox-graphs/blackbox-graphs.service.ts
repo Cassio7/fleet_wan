@@ -70,7 +70,7 @@ export class BlackboxGraphsService{
    */
   blackBoxClick() {
     let allVehicles: any[] = [];
-    allVehicles = this.sessionStorageService.getItem("allVehicles");
+    allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
 
     if (this.blackBoxSliceSelected === "blackbox") {
       this.blackBoxSliceSelected = "";
@@ -86,7 +86,7 @@ export class BlackboxGraphsService{
    */
   blackBoxAntennaClick() {
     let allVehicles: any[] = [];
-    allVehicles = this.sessionStorageService.getItem("allVehicles");
+    allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
 
     if (this.blackBoxSliceSelected === "blackbox+antenna") {
       this.blackBoxSliceSelected = "";

@@ -80,7 +80,7 @@ export class ErrorGraphsService{
     if (this.errorSliceSelected === "working") {
       let allVehicles: any[] = [];
 
-      allVehicles = this.sessionStorageService.getItem("allVehicles");
+      allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
 
       this.errorSliceSelected = "";
       this.checkErrorsService.fillTable$.next(allVehicles);
@@ -100,7 +100,7 @@ export class ErrorGraphsService{
     if (this.errorSliceSelected === "warning") {
       let allVehicles: any[] = [];
 
-      allVehicles = this.sessionStorageService.getItem("allVehicles");
+      allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
 
       this.errorSliceSelected = "";
       this.checkErrorsService.fillTable$.next(allVehicles);
@@ -120,7 +120,7 @@ export class ErrorGraphsService{
     if (this.errorSliceSelected === "error") {
       let allVehicles: any[] = [];
 
-      allVehicles = this.sessionStorageService.getItem("allVehicles");
+      allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
 
       this.errorSliceSelected = "";
       this.checkErrorsService.fillTable$.next(allVehicles);

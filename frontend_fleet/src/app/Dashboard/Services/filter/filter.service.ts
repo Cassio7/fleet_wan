@@ -43,7 +43,7 @@ export class FilterService {
   filterTableByCantieri(vehicles: any[], cantieri: string[]) {
     let allVehicles: any[] = [];
 
-    allVehicles = this.sessionStorageService.getItem("allVehicles");
+    allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
 
     console.log("filter by cantiere all vehicles: ", allVehicles);
     console.log("filter by cantieri cantieri: ", cantieri);
