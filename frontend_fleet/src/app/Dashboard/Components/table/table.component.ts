@@ -45,6 +45,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
 
   allVehicles: any[] = [];
   vehicleTableData = new MatTableDataSource<Vehicle>();
+  tableMaxLength: number = 0;
 
   sessions: Session[] = [];
   vehicleIds: Number[] = [];
@@ -80,6 +81,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
 
     if (this.allVehicles) {
       this.vehicleTableData.data = this.allVehicles;
+      this.tableMaxLength = this.vehicleTableData.data.length;
       this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));
       this.cd.detectChanges();
       this.vehicleTable.renderRows();

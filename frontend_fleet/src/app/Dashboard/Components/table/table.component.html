@@ -1,6 +1,6 @@
 <div class="table-over">
   <app-row-filter></app-row-filter>
-  <p>Numero di veicoli: {{vehicleTableData.data.length || '-'}}</p>
+  <p>Numero di veicoli: {{vehicleTableData.data.length || '-'}}/{{tableMaxLength}}</p>
   <button mat-raised-button (click)="fillTable()">Ricarica dati</button>
 </div>
 <div class="table-container">
