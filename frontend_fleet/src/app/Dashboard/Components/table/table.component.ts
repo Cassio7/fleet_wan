@@ -211,6 +211,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
  * Riempe la tabella con i dati dei veicoli
  */
   fillTable() {
+    console.log(this.sessionStorageService.getItem("allVehicles"));
     this.vehicleTableData.data = [];
     forkJoin({
       vehicles: this.vehicleApiService.getAllVehicles(),

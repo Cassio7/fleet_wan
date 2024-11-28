@@ -21,12 +21,26 @@ export class SessionStorageService {
     }
   }
 
-  getItem(key: string): any{
-    if(this.checkSessionStorage()){
-      return JSON.parse(sessionStorage.getItem(key) || "");
+  getItem(key: string): any {
+    if (this.checkSessionStorage()) {
+      const value = sessionStorage.getItem(key);
+
+      // Se il valore è presente e non è una stringa vuota
+      if (value) {
+        try {
+          return JSON.parse(value);  // Parsing sicuro
+        } catch (error) {
+          console.error('Errore durante il parsing del valore:', error);
+          return null; // Restituisci null in caso di errore di parsing
+        }
+      }
+
+      // Se il valore non esiste o è vuoto, restituisci null o un oggetto di fallback
+      return null;
     }
-    return [];
+    return null; // Se sessionStorage non è disponibile
   }
+
 
   removeItem(key: string): void {
     if(this.checkSessionStorage()){

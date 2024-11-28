@@ -93,7 +93,11 @@ export class RowFilterComponent implements AfterViewInit{
   fillSelect(){
     let allVehicles;
     allVehicles = this.sessionStorageService.getItem("allVehicles");
-    return this.filterService.fillSelect(allVehicles);
+    if(allVehicles){
+      return this.filterService.fillSelect(allVehicles);
+    }else{
+      return [];
+    }
   }
 
 }
