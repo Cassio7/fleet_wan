@@ -80,6 +80,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
 
     if (this.allVehicles) {
       this.vehicleTableData.data = this.allVehicles;
+      this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));
       this.cd.detectChanges();
       this.vehicleTable.renderRows();
       this.loadGraphs(this.allVehicles);
@@ -96,7 +97,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     .subscribe({
       next: (cantieri: string[])=>{
         this.vehicleTableData.data = this.filterService.filterTableByCantieri(this.allVehicles, cantieri) as any;
-        this.sessionStorageService.setItem("tableData", this.vehicleTableData.data);
+        this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));
         this.cd.detectChanges();
         this.loadGraphs(this.vehicleTableData.data);
       },
@@ -111,9 +112,9 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     //riempe tabella con i dati senza filtri
     this.checkErrorsService.fillTable$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
-      next: (allVehicles: any[]) => {
-        this.fillTableWithGraph(allVehicles);
-        this.blackboxGraphService.loadChartData(allVehicles);
+      next: (tableVehicles: any[]) => {
+        this.fillTableWithGraph(tableVehicles);
+        this.blackboxGraphService.loadChartData(tableVehicles);
       },
       error: error => console.error("Errore nel caricamento dei dati dal grafico degli errori: ", error)
     });
@@ -178,7 +179,11 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     });
   }
 
-
+  /**
+   * Funzione per ordinamento della tabella in base a colonne (cantiere, targa, session)
+   * DA FIXARE PER targa E DA FARE PER session
+   * @param event evento da cui prende nome colonna e direzione ordinamento
+   */
   onSortChange(event: Sort){
     const column = event.active;
     const sortDirection = event.direction;
@@ -206,14 +211,15 @@ export class TableComponent implements OnDestroy, AfterViewInit{
       case 'sessione':
         break;
     }
+    this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));
   }
 
   /**
  * Riempe la tabella con i dati dei veicoli
  */
   fillTable() {
-    console.log(JSON.parse(this.sessionStorageService.getItem("allVehicles")));
     this.vehicleTableData.data = [];
+    this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));
     forkJoin({
       vehicles: this.vehicleApiService.getAllVehicles(),
       anomaliesVehicles: this.checkErrorsService.checkErrorsAllToday(),
@@ -246,6 +252,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
 
             // Aggiornamento tabella
             this.vehicleTableData.data = [...this.vehicleTableData.data, ...vehicles];
+            this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));
             this.vehicleTable.renderRows();
 
           }

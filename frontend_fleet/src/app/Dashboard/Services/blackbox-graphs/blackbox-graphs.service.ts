@@ -69,31 +69,31 @@ export class BlackboxGraphsService{
    * Gestisce la logica del click sulla fetta "blackbox" del grafico dei blackbox
    */
   blackBoxClick() {
-    let allVehicles: any[] = [];
-    allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+    let tableVehicles: any[] = [];
+    tableVehicles = JSON.parse(this.sessionStorageService.getItem("tableData"));
 
     if (this.blackBoxSliceSelected === "blackbox") {
       this.blackBoxSliceSelected = "";
-      this.checkErrorsService.fillTable$.next(allVehicles); //Riempi la tabella senza filtri
+      this.checkErrorsService.fillTable$.next(tableVehicles); //Riempi la tabella senza filtri
     } else {
       // sessionStorage.setItem("blackboxSlice", "blackbox"); // Salvataggio scelta attuale in sessionStorage
       this.blackBoxSliceSelected = "blackbox";
-      this.loadBlackBoxData$.next(this.getAllRFIDVehicles(allVehicles).blackboxOnly);
+      this.loadBlackBoxData$.next(this.getAllRFIDVehicles(tableVehicles).blackboxOnly);
     }
   }
   /**
    * Gestisce la logica del click sulla fetta "blaxbox+antenna" del grafico dei blackbox
    */
   blackBoxAntennaClick() {
-    let allVehicles: any[] = [];
-    allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+    let tableVehicles: any[] = [];
+    tableVehicles = JSON.parse(this.sessionStorageService.getItem("tableData"));
 
     if (this.blackBoxSliceSelected === "blackbox+antenna") {
       this.blackBoxSliceSelected = "";
-      this.checkErrorsService.fillTable$.next(allVehicles);
+      this.checkErrorsService.fillTable$.next(tableVehicles);
     } else {
       this.blackBoxSliceSelected = "blackbox+antenna";
-      this.loadBlackBoxData$.next(this.getAllRFIDVehicles(allVehicles).blackboxWithAntenna);
+      this.loadBlackBoxData$.next(this.getAllRFIDVehicles(tableVehicles).blackboxWithAntenna);
     }
   }
 

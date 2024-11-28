@@ -78,12 +78,12 @@ export class ErrorGraphsService{
    */
   workingClick() {
     if (this.errorSliceSelected === "working") {
-      let allVehicles: any[] = [];
+      let tableVehicles: any[] = [];
 
-      allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+      tableVehicles = JSON.parse(this.sessionStorageService.getItem("tableData"));
 
       this.errorSliceSelected = "";
-      this.checkErrorsService.fillTable$.next(allVehicles);
+      this.checkErrorsService.fillTable$.next(tableVehicles);
     } else {
       // if (typeof sessionStorage !== "undefined") {
       //   sessionStorage.setItem("errorSlice", "working"); // Salvataggio scelta attuale in sessionStorage
@@ -98,12 +98,11 @@ export class ErrorGraphsService{
    */
   warningClick() {
     if (this.errorSliceSelected === "warning") {
-      let allVehicles: any[] = [];
-
-      allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+      let tableVehicles: any[] = [];
+      tableVehicles = JSON.parse(this.sessionStorageService.getItem("tableData"));
 
       this.errorSliceSelected = "";
-      this.checkErrorsService.fillTable$.next(allVehicles);
+      this.checkErrorsService.fillTable$.next(tableVehicles);
     } else {
       // if (typeof sessionStorage !== "undefined") {
       //   sessionStorage.setItem("errorSlice", "warning"); // Salvataggio scelta attuale in sessionStorage
@@ -118,12 +117,12 @@ export class ErrorGraphsService{
    */
   errorClick() {
     if (this.errorSliceSelected === "error") {
-      let allVehicles: any[] = [];
+      let tableVehicles: any[] = [];
 
-      allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+      tableVehicles = JSON.parse(this.sessionStorageService.getItem("tableData"));
 
       this.errorSliceSelected = "";
-      this.checkErrorsService.fillTable$.next(allVehicles);
+      this.checkErrorsService.fillTable$.next(tableVehicles);
     } else {
       // if (typeof sessionStorage !== "undefined") {
       //   sessionStorage.setItem("errorSlice", "error"); // Salvataggio scelta attuale in sessionStorage
