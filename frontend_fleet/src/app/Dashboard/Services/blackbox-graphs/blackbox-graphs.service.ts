@@ -5,11 +5,15 @@ import { Vehicle } from '../../../Models/Vehicle';
 import { CheckErrorsService } from '../check-errors/check-errors.service';
 import { SessionStorageService } from '../../../Common services/sessionStorage/session-storage.service';
 
+export interface blackboxData {
+  sliceSelected: string;
+  blackboxOnly: any[];
+  blackboxWithAntenna: any[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
-
-
 export class BlackboxGraphsService{
   private _loadGraphData$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
   private _loadBlackBoxData$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
@@ -19,6 +23,11 @@ export class BlackboxGraphsService{
   private _series: number[] = []; //[blackbox, blackbox + antenna]
   private _colors = ["#0061ff", "#009bff"];
 
+  private blackboxData: blackboxData = {
+    sliceSelected: "",
+    blackboxOnly: [] as any[],
+    blackboxWithAntenna: [] as any[]
+  }
   private blackBoxSliceSelected: string = "";
 
   constructor(
@@ -34,16 +43,17 @@ export class BlackboxGraphsService{
    * @returns un oggetto che contiene i veicoli con solo blackbox e con blackbox + antenna
    */
   private getAllRFIDVehicles(vehicles: any[]) {
-    const categorizedVehicles = {
+    this.blackboxData = {
+      sliceSelected: "",
       blackboxOnly: [] as Vehicle[],
       blackboxWithAntenna: [] as Vehicle[],
     };
 
     for(const v of vehicles){
-      v.isRFIDReader == true ? categorizedVehicles.blackboxWithAntenna.push(v) : categorizedVehicles.blackboxOnly.push(v);
+      v.isRFIDReader == true ? this.blackboxData.blackboxWithAntenna.push(v) : this.blackboxData.blackboxOnly.push(v);
     }
 
-    return categorizedVehicles;
+    return this.blackboxData;
   }
 
   /**
@@ -53,10 +63,10 @@ export class BlackboxGraphsService{
    */
   public loadChartData(vehicles: any[]){
     try {
-      const categorizedVehicles = this.getAllRFIDVehicles(vehicles);
+      this.blackboxData = this.getAllRFIDVehicles(vehicles);
       this._series = [
-        categorizedVehicles.blackboxOnly.length,
-        categorizedVehicles.blackboxWithAntenna.length,
+        this.blackboxData.blackboxOnly.length,
+        this.blackboxData.blackboxWithAntenna.length,
       ];
     } catch (error) {
       console.error("Error loading chart data: ", error);
