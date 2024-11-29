@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { CommonService } from '../common service/common.service';
+import { CommonService } from '../../../Common services/common service/common.service';
 
 @Injectable({
   providedIn: 'root'
@@ -19,50 +19,58 @@ export class CheckErrorsService {
    * @param vehicle
    * @returns
    */
-  checkGpsError(vehicle: any): string | null {
-    const dateFrom = this.commonService.dateFrom;
-    const dateTo = this.commonService.dateTo;
-    let gpsAnomaly: any;
+    checkGpsError(vehicle: any): string | null {
+      const dateFrom = this.commonService.dateFrom;
+      const dateTo = this.commonService.dateTo;
+      let gpsAnomaly: any = null;
 
-    for(const s of vehicle.sessions){
-      const sessionDate = new Date(s.date);
-      if(sessionDate >= dateFrom && sessionDate <= dateTo){
-        gpsAnomaly = s.anomalies?.find((anomaly: any) => 'GPS' in anomaly);
+      if (vehicle.anomalySessions?.length > 0) {
+        for (const session of vehicle.anomalySessions) {
+          const sessionDate = new Date(session.date);
+
+          if (sessionDate >= dateFrom && sessionDate <= dateTo) {
+            gpsAnomaly = session.anomalies?.find((anomaly: any) => anomaly.GPS);
+
+            if (gpsAnomaly) {
+              return gpsAnomaly.GPS || 'Errore GPS';
+            }
+          }
+        }
       }
+
+      return null; //se non viene trovata alcuna anomalia
     }
 
-    if (gpsAnomaly) {
-      return gpsAnomaly.GPS || 'Errore GPS';
-    }
-
-    return null;
-  }
 
   /**
    * Controlla se è presente un errore di antenna nella sessione di oggi del veicolo preso in input
    * @param vehicle
-   * @returns
+   * @returns se viene riscontrata l'anomalia di antenna in una sessione nel range di tempo, altrimenti "null"
    */
-  checkAntennaError(vehicle: any): string | null {
+  checkAntennaError(vehicle: { anomalySessions?: { date: string; anomalies?: { antenna?: string }[] }[] }): string | null {
     const dateFrom = this.commonService.dateFrom;
     const dateTo = this.commonService.dateTo;
 
-    let antennaAnomaly: any;
+    // Verifica che il veicolo abbia sessioni di anomalie
+    if (vehicle.anomalySessions?.length) {
+      for (const session of vehicle.anomalySessions) {
+        const sessionDate = new Date(session.date);
 
-    for (const s of vehicle.sessions) {
-      const sessionDate = new Date(s.date);
-      if (sessionDate >= dateFrom && sessionDate <= dateTo) {
-        antennaAnomaly = s.anomalies?.find((anomaly: any) => 'antenna' in anomaly);
+        // Se la sessione è nel range di date, cerca l'anomalia "antenna"
+        if (sessionDate >= dateFrom && sessionDate <= dateTo) {
+          const antennaAnomaly = session.anomalies?.find(anomaly => anomaly.antenna);
+
+          if (antennaAnomaly) {
+            return antennaAnomaly.antenna || 'Errore antenna';
+          }
+        }
       }
-    }
-
-
-    if (antennaAnomaly) {
-      return antennaAnomaly.antenna || 'Errore antenna';
     }
 
     return null;
   }
+
+
 
   /**
    * Controlla se è presente un anomalia di sessione nella sessione di oggi del veicolo preso in input
@@ -75,13 +83,18 @@ export class CheckErrorsService {
 
     let sessionAnomaly: any;
 
-    for (const s of vehicle.sessions) {
-      const sessionDate = new Date(s.date);
-      if (sessionDate >= dateFrom && sessionDate <= dateTo) {
-        sessionAnomaly = s.anomalies?.find((anomaly: any) => 'sessionEnd' in anomaly);
+    if(vehicle.sessions?.length > 0){
+      for (const s of vehicle.sessions) {
+        const sessionDate = new Date(s.date);
+        if (sessionDate >= dateFrom && sessionDate <= dateTo) {
+          sessionAnomaly = s.anomalies?.find((anomaly: any) => 'sessionEnd' in anomaly);
+        }
       }
     }
 
+    if(!vehicle.lastValidSession.period_from){
+      return "Nessuna sessione trovata"
+    }
     if (sessionAnomaly) {
       return sessionAnomaly.sessionEnd || 'Errore sessione';
     }
@@ -110,7 +123,6 @@ export class CheckErrorsService {
  * @returns observable http
 */
   public checkErrorsAllToday(): Observable<any>{
-    //*DA CAMBIARE A DATA ATTUALE*
     const body = {
       dateFrom: this.commonService.dateFrom,
       dateTo: this.commonService.dateTo

@@ -867,6 +867,7 @@ export class SessionController {
       });
     }
   }
+  
 
   /**
    * Ritorna tutti i veicoli dove la data dell'ultima sessione non corrisponde all ultimo evento registrato

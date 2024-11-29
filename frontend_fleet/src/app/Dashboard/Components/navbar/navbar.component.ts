@@ -5,7 +5,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterModule } from '@angular/router';
 import { Subject } from 'rxjs';
-import { CommonService } from '../../Services/common service/common.service';
+import { CommonService } from '../../../Common services/common service/common.service';
 
 @Component({
   selector: 'app-navbar',

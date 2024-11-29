@@ -41,16 +41,6 @@ export class ErrorGraphCardComponent implements AfterViewInit, OnDestroy{
   }
 
   ngAfterViewInit(): void {
-    this._series = this.errorGraphsService.loadGraphData$.value;
-    this.errorGraphsService.loadGraphData$.pipe(takeUntil(this.destroy$), skip(1))
-    .subscribe({
-      next: (series: number[]) => {
-        this._series = series;
-      },
-      error: error => console.error("Errore nella presa dei dati dalla carta del grafico degli errori: ", error)
-    });
-
-    this.graphSelect.value = 'pie';
     this.cd.detectChanges();
   }
 
@@ -66,8 +56,17 @@ export class ErrorGraphCardComponent implements AfterViewInit, OnDestroy{
         this.pieGraph = false;
         this.barGraph = true;
         break;
+      // default:
+      //   switch(this.errorGraphsService.errorSliceSelected){
+      //     case "working":
+      //       this.errorGraphsService.check();
+      //       break;
+      //     case "warning":
+      //       break;
+      //     case "errors":
+      //       break;
+      //   }
     }
-    this.errorGraphsService.loadGraphData$.next(this._series);
     this.cd.detectChanges();
   }
 

@@ -9,7 +9,7 @@ export class Session {
     public history: History[],
     public hash: string,
     public anomalies: any[],
-    public period_from?: Date | null,
-    public period_to?: Date | null,
+    public period_from: Date,
+    public period_to: Date,
   ) {}
 }

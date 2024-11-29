@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { CheckErrorsService } from '../check-errors/check-errors.service';
+import { SessionStorageService } from '../../../Common services/sessionStorage/session-storage.service';
 
 @Injectable({
   providedIn: 'root'
@@ -18,11 +19,12 @@ export class ErrorGraphsService{
   private _warningVehicles: any[] = [];
   private _errorVehicles: any[] = [];
 
-  private errorSliceSelected: string = "";
+  private _errorSliceSelected: string = "";
 
 
   constructor(
-    private checkErrorsService: CheckErrorsService
+    private checkErrorsService: CheckErrorsService,
+    private sessionStorageService: SessionStorageService
   ) { }
 
   /**
@@ -31,7 +33,13 @@ export class ErrorGraphsService{
   * @param vehicles oggetto custom di veicoli
   */
   public loadChartData(vehicles: any[]) {
+    this.workingVehicles = [];
+    this.warningVehicles = [];
+    this.errorVehicles = [];
+
+    this._series = [0,0,0];
     for (const vehicle of vehicles) {
+      //controllo errori sul veicolo corrente
       const hasGpsError = this.checkErrorsService.checkGpsError(vehicle);
       const hasSessionError = this.checkErrorsService.checkSessionError(vehicle);
       const hasAntennaError = this.checkErrorsService.checkAntennaError(vehicle);
@@ -53,7 +61,7 @@ export class ErrorGraphsService{
       }
       else if (hasAntennaError && hasSessionError){ //Controllo errori di sessione e antenna (Errore)
         this.errorVehicles.push(vehicle);
-        this.series[2] += 1; //Aggiunta errore
+        this._series[2] += 1; //Aggiunta errore
       }
       // Controllo nessun errore (funzionante)
       else if (!hasGpsError && !hasSessionError && !hasAntennaError) {
@@ -65,63 +73,56 @@ export class ErrorGraphsService{
     this._loadGraphData$.next(this._series);
   }
 
+  /**
+   * Gestisce la logica del click sulla fetta "funzionante" del grafico degli errori
+   */
   workingClick() {
+    let tableVehicles: any[] = [];
+    tableVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+
     if (this.errorSliceSelected === "working") {
-      let allVehicles: any[] = [];
-
-      if (typeof sessionStorage !== "undefined") {
-        const storedVehicles = sessionStorage.getItem("allVehicles");
-        allVehicles = storedVehicles ? JSON.parse(storedVehicles) : [];
-      }
-
       this.errorSliceSelected = "";
-      this.checkErrorsService.fillTable$.next(allVehicles);
+      this.checkErrorsService.fillTable$.next(tableVehicles);
     } else {
-      if (typeof sessionStorage !== "undefined") {
-        sessionStorage.setItem("errorSlice", "working"); // Salvataggio scelta attuale in sessionStorage
-      }
-
+      //sessionStorage.setItem("errorSlice", "working"); // Salvataggio scelta attuale in sessionStorage
       this.errorSliceSelected = "working";
       this.loadFunzionanteData$.next(this.workingVehicles);
     }
   }
-
+  /**
+   * Gestisce la logica del click sulla fetta "warning" del grafico degli errori
+   */
   warningClick() {
     if (this.errorSliceSelected === "warning") {
-      let allVehicles: any[] = [];
+      let tableVehicles: any[] = [];
+      tableVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
 
-      if (typeof sessionStorage !== "undefined") {
-        const storedVehicles = sessionStorage.getItem("allVehicles");
-        allVehicles = storedVehicles ? JSON.parse(storedVehicles) : [];
-      }
 
       this.errorSliceSelected = "";
-      this.checkErrorsService.fillTable$.next(allVehicles);
+      this.checkErrorsService.fillTable$.next(tableVehicles);
     } else {
-      if (typeof sessionStorage !== "undefined") {
-        sessionStorage.setItem("errorSlice", "warning"); // Salvataggio scelta attuale in sessionStorage
-      }
-
+      // if (typeof sessionStorage !== "undefined") {
+      //   sessionStorage.setItem("errorSlice", "warning"); // Salvataggio scelta attuale in sessionStorage
+      // }
       this.errorSliceSelected = "warning";
       this.loadWarningData$.next(this.warningVehicles);
     }
   }
-
+  /**
+   * Gestisce la logica del click sulla fetta "error" del grafico degli errori
+   */
   errorClick() {
     if (this.errorSliceSelected === "error") {
-      let allVehicles: any[] = [];
+      let tableVehicles: any[] = [];
 
-      if (typeof sessionStorage !== "undefined") {
-        const storedVehicles = sessionStorage.getItem("allVehicles");
-        allVehicles = storedVehicles ? JSON.parse(storedVehicles) : [];
-      }
+      tableVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
 
       this.errorSliceSelected = "";
-      this.checkErrorsService.fillTable$.next(allVehicles);
+      this.checkErrorsService.fillTable$.next(tableVehicles);
     } else {
-      if (typeof sessionStorage !== "undefined") {
-        sessionStorage.setItem("errorSlice", "error"); // Salvataggio scelta attuale in sessionStorage
-      }
+      // if (typeof sessionStorage !== "undefined") {
+      //   sessionStorage.setItem("errorSlice", "error"); // Salvataggio scelta attuale in sessionStorage
+      // }
 
       this.errorSliceSelected = "error";
       this.loadErrorData$.next(this.errorVehicles);
@@ -129,10 +130,14 @@ export class ErrorGraphsService{
   }
 
 
-
-
   /*getters & setters*/
 
+  public get errorSliceSelected(): string {
+    return this._errorSliceSelected;
+  }
+  public set errorSliceSelected(value: string) {
+    this._errorSliceSelected = value;
+  }
   public get workingVehicles(): any[] {
     return this._workingVehicles;
   }
@@ -173,6 +178,7 @@ export class ErrorGraphsService{
   public get colors() {
     return this._colors;
   }
+
   public get series() {
     return this._series;
   }

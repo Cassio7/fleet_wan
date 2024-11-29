@@ -101,13 +101,12 @@ mat-drawer {
 .map {
   width: 100%;
   height: 33.3%;
-  background-image: url('https://developers.google.com/static/maps/images/landing/hero_maps_static_api.png');
+  background-image: url('https://pwm.im-cdn.it/image/1400729709/m-c.jpg');
   background-size: cover;
   flex-grow: 7;
   border: 1px solid black;
   max-width: 100%;
   box-sizing: border-box;
-  border-radius: 10px;
 }
 
 
