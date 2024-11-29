@@ -258,6 +258,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
 
             // Aggiornamento tabella
             this.vehicleTableData.data = [...this.vehicleTableData.data, ...vehicles];
+            this.tableMaxLength = this.vehicleTableData.data.length;
             this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));
             this.vehicleTable.renderRows();
 
