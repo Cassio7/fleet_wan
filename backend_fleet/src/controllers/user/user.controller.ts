@@ -7,8 +7,8 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   /**
-   * API per restituire tutti gli utenti 
-   * @param res 
+   * API per restituire tutti gli utenti
+   * @param res
    */
   @Get()
   async getAllUsers(@Res() res: Response) {

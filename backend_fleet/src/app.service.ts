@@ -1,6 +1,5 @@
 import { CompanyFactoryService } from './factory/company.factory';
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { GroupService } from './services/group/group.service';
 import { VehicleService } from './services/vehicle/vehicle.service';
 import { SessionService } from './services/session/session.service';
 import { Cron } from '@nestjs/schedule';
@@ -17,7 +16,6 @@ import { RoleCompanyFactoryService } from './factory/role_company.factory';
 @Injectable()
 export class AppService implements OnModuleInit {
   constructor(
-    private readonly groupService: GroupService,
     private readonly vehicleService: VehicleService,
     private readonly sessionService: SessionService,
     private readonly tagService: TagService,
@@ -32,11 +30,11 @@ export class AppService implements OnModuleInit {
 
   // popolo database all'avvio
   async onModuleInit() {
-    // await this.putDefaultData();
+    //await this.putDefaultData();
     //await this.putDbDataBasicFor();
     //await this.putDbDataBasicForEach();
-    // await this.putDbDataBasicForAdvance();
-    //await this.putDbData5min();
+    //await this.putDbDataBasicForAdvance();
+    //await this.putDbData3min();
   }
 
   async putDefaultData() {
@@ -181,15 +179,18 @@ export class AppService implements OnModuleInit {
    * IL PRESCELTO
    */
   async putDbDataBasicForAdvance() {
-    const startDate = '2024-10-01T00:00:00.000Z';
-    //const endDate = '2024-10-31T00:00:00.000Z';
-    const endDate = new Date().toISOString();
-
+    const startDate = '2024-11-22T00:00:00.000Z';
+    // const endDate = '2024-11-25T00:00:00.000Z';
+    const endDate = new Date(
+      new Date().getTime() + 2 * 60 * 60 * 1000,
+    ).toISOString();
+    console.log('Data inizio: ' + startDate + ' Data fine: ' + endDate);
     const batchSize = 100;
 
-    await this.vehicleService.getVehicleList(254, 313);
-    await this.vehicleService.getVehicleList(305, 650);
-    await this.vehicleService.getVehicleList(324, 688);
+    await this.vehicleService.getVehicleList(254, 313); //Gesenu principale
+    await this.vehicleService.getVehicleList(254, 683); //Gesenu dismessi
+    await this.vehicleService.getVehicleList(305, 650); //TSA principale
+    await this.vehicleService.getVehicleList(324, 688); //Fiumicino principale
 
     const dateFrom_new = new Date(startDate);
     const dateTo_new = new Date(endDate);
@@ -201,8 +202,10 @@ export class AppService implements OnModuleInit {
     // vehicles.push(vehicle1);
     // const vehicle2 = await this.vehicleService.getVehicleById(3517);
     // vehicles.push(vehicle2);
-
     await this.worksiteFactoryService.createDefaultVehicleWorksite();
+
+    // await this.sessionService.getSessionist(324, 3779, startDate, endDate);
+    // return true;
 
     // Creazione della mappa delle compagnie
     const companyMap = new Map();
@@ -227,7 +230,7 @@ export class AppService implements OnModuleInit {
             const datefrom = day;
             const dateto = new Date(datefrom);
             dateto.setHours(23, 59, 59, 0);
-            console.log(datefrom.toISOString());
+            //console.log(dateto);
             return Promise.all([
               this.sessionService.getSessionist(
                 company.suId,
@@ -253,31 +256,15 @@ export class AppService implements OnModuleInit {
     }
   }
 
-  // @Cron('0 0 * * *')
-  // async putDbDataDaily() {
-  //   const startDate = new Date(
-  //     new Date().getTime() - 24 * 60 * 60 * 1000,
-  //   ).toISOString();
-  //   const endDate = new Date().toISOString();
-
-  //   await this.groupService.getGroupList();
-  //   const groups = await this.groupService.getAllGroups();
-  //   for (const group of groups) {
-  //     await this.vehicleService.getVehicleList(group.vgId);
-  //   }
-  //   const vehicles = await this.vehicleService.getAllVehicles();
-  //   for (const vehicle of vehicles) {
-  //     console.log(`${vehicle.veId} - ${vehicle.id}`);
-  //     await this.sessionService.getSessionist(vehicle.veId, startDate, endDate);
-  //   }
-  // }
-
   //@Cron('*/3 * * * *')
-  async putDbData5min() {
+  async putDbData3min() {
     const startDate = new Date(
       new Date().getTime() - 3 * 60 * 1000, // 3 minuti
     ).toISOString();
-    const endDate = new Date().toISOString();
+    const endDate = new Date(
+      new Date().getTime() + 2 * 60 * 60 * 1000,
+    ).toISOString();
+    console.log('Data inizio: ' + startDate + ' Data fine: ' + endDate);
     await this.vehicleService.getVehicleList(254, 313);
     await this.vehicleService.getVehicleList(305, 650);
     await this.vehicleService.getVehicleList(324, 688);

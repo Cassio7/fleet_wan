@@ -3,6 +3,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserService } from './../user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -22,7 +23,6 @@ export class AuthService {
     username: string,
     password: string,
   ): Promise<{ access_token: string }> {
-    const bcrypt = require('bcrypt');
     const user = await this.userService.getUserByUsername(username);
     // Se l'utente non esiste
     if (!user) {

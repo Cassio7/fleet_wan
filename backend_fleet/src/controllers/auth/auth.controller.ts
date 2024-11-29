@@ -4,7 +4,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
-  Res
+  Res,
 } from '@nestjs/common';
 import { AuthService } from 'src/services/auth/auth.service';
 
@@ -32,6 +32,6 @@ export class AuthController {
       httpOnly: true,
       sameSite: 'Strict',
     });
-    res.status(200).send({ message: 'Logged out successfully' });
+    res.status(200).json({ message: 'Logged out successfully' });
   }
 }

@@ -1,4 +1,12 @@
-import { Controller, Get, Param, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { Response } from 'express';
 import { AuthGuard } from 'src/guard/auth.guard';
 import { VehicleService } from 'src/services/vehicle/vehicle.service';
@@ -15,8 +23,10 @@ export class VehicleController {
   @Get()
   async getAllVehicles(@Res() res: Response) {
     try {
-      const groups = await this.vehicleService.getAllVehicles();
-      res.status(200).json(groups);
+      const vehicles = await this.vehicleService.getAllVehicles();
+      vehicles.length > 0
+        ? res.status(200).json(vehicles)
+        : res.status(404).json({ message: 'Nessun veicolo trovato' });
     } catch (error) {
       console.error('Errore nel recupero dei veicoli:', error);
       res.status(500).send('Errore durante il recupero dei veicoli');
@@ -30,8 +40,12 @@ export class VehicleController {
   @Get('reader')
   async getVehiclesByReader(@Res() res: Response) {
     try {
-      const groups = await this.vehicleService.getVehiclesByReader();
-      res.status(200).json(groups);
+      const vehicles = await this.vehicleService.getVehiclesByReader();
+      vehicles.length > 0
+        ? res.status(200).json(vehicles)
+        : res
+            .status(404)
+            .json({ message: 'Nessun veicolo RFID reader trovato' });
     } catch (error) {
       console.error('Errore nel recupero dei veicoli:', error);
       res.status(500).send('Errore durante il recupero dei veicoli');
@@ -46,8 +60,13 @@ export class VehicleController {
   async getVehiclesWithNoReader(@Res() res: Response) {
     try {
       const vehicles = await this.vehicleService.getVehiclesWithNoReader();
-      res.status(200).json(vehicles);
+      vehicles.length > 0
+        ? res.status(200).json(vehicles)
+        : res
+            .status(404)
+            .json({ message: 'Nessun veicolo NO RFID reader trovato' });
     } catch (error) {
+      console.error('Errore nel recupero dei veicoli:', error);
       res.status(500).send('Errore durante il recupero dei veicoli');
     }
   }
@@ -61,9 +80,10 @@ export class VehicleController {
     try {
       const vehicles = await this.vehicleService.getCanVehicles();
       vehicles.length > 0
-        ? res.status(200).send(vehicles)
-        : res.status(404).send("Nessun veicolo 'can' trovato.");
+        ? res.status(200).json(vehicles)
+        : res.status(404).json({ message: "Nessun veicolo 'can' trovato." });
     } catch (error) {
+      console.error('Errore nel recupero dei veicoli:', error);
       res.status(500).send('Errore durante il recupero dei veicoli');
     }
   }
@@ -77,21 +97,59 @@ export class VehicleController {
     try {
       const vehicles = await this.vehicleService.getNonCanVehicles();
       vehicles.length > 0
-        ? res.status(200).send(vehicles)
-        : res.status(404).send("Nessun veicolo non 'can' trovato.");
+        ? res.status(200).json(vehicles)
+        : res
+            .status(404)
+            .json({ message: "Nessun veicolo non 'can' trovato." });
     } catch (error) {
+      console.error('Errore nel recupero dei veicoli:', error);
       res.status(500).send('Errore durante il recupero dei veicoli');
     }
   }
 
+  /**
+   * API che restituisce un veicolo in base alla targa inserita
+   * @param res
+   * @param body
+   */
+  @Post('plate')
+  async getVehicleByPlate(@Res() res: Response, @Body() body: any) {
+    try {
+      const plateNumber = body.plate;
+      const vehicle = await this.vehicleService.getVehicleByPlate(plateNumber);
+
+      if (vehicle) {
+        res.status(200).json(vehicle);
+      } else {
+        res.status(404).json({
+          message: `Veicolo con targa: ${plateNumber} non trovato.`,
+        });
+      }
+    } catch (error) {
+      console.error('Errore nel recupero del veicolo:', error);
+      res.status(500).send('Errore durante il recupero del veicolo');
+    }
+  }
+
+  /**
+   * API per ritornare un veicolo in base al veId identificativo del veicolo
+   * @param res
+   * @param params veId veicolo
+   */
   @Get('/:id')
   async getVehicleById(@Res() res: Response, @Param() params: any) {
     try {
-      const group = await this.vehicleService.getVehicleById(params.id);
-      res.status(200).json(group);
+      const vehicle = await this.vehicleService.getVehicleById(params.id);
+      if (vehicle) {
+        res.status(200).json(vehicle);
+      } else {
+        res.status(404).json({
+          message: 'Nessun veicolo con veId: ' + params.id + ' trovato.',
+        });
+      }
     } catch (error) {
-      console.error('Errore nel recupero dei veicoli:', error);
-      res.status(500).send('Errore durante il recupero dei veicoli');
+      console.error('Errore nel recupero del veicolo:', error);
+      res.status(500).send('Errore durante il recupero del veicolo');
     }
   }
 
@@ -105,50 +163,4 @@ export class VehicleController {
   //     res.status(500).send('Errore durante il recupero dei veicoli');
   //   }
   // }
-
-  /**
-   * API per aggiornare lista veicoli tramite
-   * @param res 
-   * @param params vgId del gruppo
-   */
-  // @Get('/update/:id')
-  // async getVehicleList(@Res() res: Response, @Param() params: any) {
-  //   try {
-  //     const data = await this.vehicleService.getVehicleList(params.id);
-
-  //     if (data.length > 0) {
-  //       let resultMessage: string = `Gruppo di aggiornamento id: ${params.id}\n\n`;
-  //       for (const item of data) {
-  //         resultMessage += `Aggiornati Veicolo id: ${item.veId}\n `;
-  //       }
-  //       res.status(200).send(resultMessage);
-  //     } else if (data === false) {
-  //       res
-  //         .status(200)
-  //         .send(`Nessun veicolo trovato per gruppo id: ${params.id}\n`);
-  //     } else res.status(200).send('Nessun aggiornamento');
-  //   } catch (error) {
-  //     console.error('Errore nella richiesta SOAP:', error);
-  //     res.status(500).send('Errore durante la richiesta al servizio SOAP');
-  //   }
-  // }
-
-  /**
-   * API che restituisce il veicolo che ha la targa presa in input
-   * @param res
-   * @param params plate number
-   */
-  @Get('fetchplate/:plate')
-  async getVehicleByPlate(@Res() res: Response, @Param() params: any) {
-    const plateNumber = params.plate;
-    const vehicle = await this.vehicleService.getVehicleByPlate(plateNumber);
-
-    if (vehicle) {
-      res.status(200).send(vehicle);
-    } else {
-      res
-        .status(404)
-        .send(`Vehicle with plate number: ${plateNumber} not found.`);
-    }
-  }
 }
