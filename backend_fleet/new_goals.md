@@ -13,6 +13,7 @@
 - [ ] assegnare tutti i cantieri ai nuovi veicoli
 - [ ] rimuovere codice non utilizzato
 - [ ] dare un formato di risposta corretto a tutte le API
+- [ ] pensare a tabella di appoggio per alloracare i controlli per tutti i veicoli con GPS, Antenna e Sessione
 - [ ] segnare la posizione dei cantieri con circonferenza, layer comunali
 - [ ] risoluzione posizione con openstreetmap [reverse](https://nominatim.org/release-docs/develop/api/Reverse/)
 - [ ] succede che vengono letti anche i tag di oggetti che non sono contenitori, tipo capi della Decathlon, 3 opzioni
