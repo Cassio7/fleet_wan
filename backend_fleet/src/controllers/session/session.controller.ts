@@ -290,12 +290,10 @@ export class SessionController {
       res.status(200).json(lastSessions);
     } catch (error) {
       console.error(error); // Log dell'errore per debugging
-      res
-        .status(400)
-        .json({
-          message:
-            "Errore nella ricerca dell'ultima sessione di ogni veicolo senza history.",
-        });
+      res.status(400).json({
+        message:
+          "Errore nella ricerca dell'ultima sessione di ogni veicolo senza history.",
+      });
     }
   }
   /**
@@ -932,8 +930,7 @@ export class SessionController {
               veId: vehicle.veId,
               isCan: vehicle.isCan,
               isRFIDReader: vehicle.isRFIDReader,
-              anomalies:
-                'Anomalia: ultima sessione non è stata chiusa correttamente',
+              anomalies: 'Ultima sessione non è stata chiusa correttamente',
             });
           } else if (lastVehicleEventTime > sessionEndTime) {
             acc.push({
@@ -941,7 +938,7 @@ export class SessionController {
               veId: vehicle.veId,
               isCan: vehicle.isCan,
               isRFIDReader: vehicle.isRFIDReader,
-              anomalies: 'Anomalia: è presente una sessione nulla',
+              anomalies: 'Presente una sessione nulla',
             });
           }
         }
