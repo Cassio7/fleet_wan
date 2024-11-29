@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { CommonService } from '../../../Common services/common service/common.service';
+import { Vehicle } from '../../../Models/Vehicle';
 
 @Injectable({
   providedIn: 'root'
@@ -71,37 +72,13 @@ export class CheckErrorsService {
     return null; // Nessuna anomalia trovata
   }
 
-
-
-
   /**
    * Controlla se è presente un anomalia di sessione nella sessione di oggi del veicolo preso in input
    * @param vehicle veicolo da controllare
    * @returns
    */
-  checkSessionError(vehicle: any): string | null {
-    const dateFrom = this.commonService.dateFrom;
-    const dateTo = this.commonService.dateTo;
-
-    let sessionAnomaly: any;
-
-    if(vehicle.sessions?.length > 0){
-      for (const s of vehicle.sessions) {
-        const sessionDate = new Date(s.date);
-        if (sessionDate >= dateFrom && sessionDate <= dateTo) {
-          sessionAnomaly = s.anomalies?.find((anomaly: any) => 'sessionEnd' in anomaly);
-        }
-      }
-    }
-
-    if(!vehicle.lastValidSession.period_from){
-      return "Nessuna sessione trovata"
-    }
-    if (sessionAnomaly) {
-      return sessionAnomaly.sessionEnd || 'Errore sessione';
-    }
-
-    return null;
+  checkSessionError(vehicle: Vehicle): string | null {
+    return vehicle.anomaliaSessione ?? null;
   }
 
   /**

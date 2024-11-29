@@ -245,24 +245,39 @@ export class TableComponent implements OnDestroy, AfterViewInit{
         try {
           if (vehicles && vehicles.length > 0) {
 
-            //Accorpamento anomalie di sessione
-            vehicles.forEach(v => {
-              v.anomalySessions = anomaliesVehicles
-                .filter(anomalyVehicle => anomalyVehicle.veId === v.veId && anomalyVehicle.sessions?.length > 0)
-                .flatMap(anomalyVehicle => anomalyVehicle.sessions);
+            // Accorpamento anomalie di sessione
+            vehicles.forEach(vehicle => {
+              // Accorpamento anomalie dei dispositivi nella sessione
+              vehicle.anomalySessions = anomaliesVehicles
+                .filter(anomalyVehicle => anomalyVehicle.veId === vehicle.veId && anomalyVehicle.sessions?.length > 0)
+                .flatMap(anomalyVehicle => anomalyVehicle.sessions || []); // Se non ci sono sessioni, restituisci un array vuoto
 
-              //Accorpamento ultima sessione valida
-              v.lastValidSession = lastValidSessions
-                .find(lastSession => lastSession.veId === v.veId).lastValidSession || null; // Assign `null` if no session is found.
+              // Accorpamento anomalia di sessione
+              if (vehicle.veId) {
+                const anomalyVehicle = anomaliesVehicles.find(anomaly => anomaly.veId === vehicle.veId);
+
+                // Se l'anomalia esiste, la assegno, altrimenti assegno una stringa vuota
+                if (anomalyVehicle && anomalyVehicle.anomaliaSessione) {
+                  vehicle.anomaliaSessione = anomalyVehicle.anomaliaSessione;
+                } else {
+                  vehicle.anomaliaSessione = ""; // Se non c'è anomaliaSessione, assegno una stringa vuota
+                }
+              }
+
+              console.log("Anomaly vehicles: ", anomaliesVehicles);
+
+              // Accorpamento ultima sessione valida
+              const lastSession = lastValidSessions.find(lastSession => lastSession.veId === vehicle.veId);
+              vehicle.lastValidSession = lastSession ? lastSession.lastValidSession : null; // Se non c'è una sessione valida, metto null
             });
 
             // Aggiornamento tabella
             this.vehicleTableData.data = [...this.vehicleTableData.data, ...vehicles];
-            this.tableMaxLength = this.vehicleTableData.data.length;
             this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));
             this.vehicleTable.renderRows();
 
           }
+
 
 
           this.sessionStorageService.setItem("allVehicles", JSON.stringify(vehicles));// Inserimento veicoli in sessionstorage

@@ -24,6 +24,7 @@ export class Vehicle {
     public history: History[],
     public taghistory: TagHistory[],
     public vehicle_group: VehicleGroup[],
+    public anomaliaSessione: string,
     public anomalySessions: any[],
     public lastValidSession: any,
     public gpsError: boolean,

@@ -48,9 +48,13 @@
     <ng-container matColumnDef="sessione">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Sessione </th>
       <td mat-cell *matCellDef="let vehicle">
-        <mat-icon class="check-icon" *ngIf="!checkSessionError(vehicle) && vehicle.lastValidSession.period_from" matTooltip="Sessione corretta">check_circle</mat-icon>
-        <mat-icon class="error-icon" matTooltip="Nessuna sessione trovata" *ngIf="checkSessionError(vehicle)">error</mat-icon>
-        {{ vehicle.lastValidSession?.period_from ? (vehicle.lastValidSession.period_from | date: 'dd/MM/yy hh:mm') : 'Nessuna sessione' }}
+        <mat-icon class="error-icon" *ngIf="checkSessionError(vehicle)" [matTooltip]="checkSessionError(vehicle)">
+          error
+        </mat-icon>
+        <mat-icon class="check-icon" *ngIf="!checkSessionError(vehicle) && vehicle.lastValidSession?.period_from" matTooltip="Sessione corretta">
+          check_circle
+        </mat-icon>
+        {{ vehicle.lastValidSession?.period_from ? (vehicle.lastValidSession.period_from | date: 'dd/MM/yy hh:mm') : '' }}
       </td>
     </ng-container>
 
