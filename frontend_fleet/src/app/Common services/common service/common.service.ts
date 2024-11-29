@@ -8,8 +8,8 @@ export class CommonService {
   private _notifySidebar$: Subject<void> = new Subject();
   private _url: string = "http://10.1.0.102:3001";
 
-  private _dateFrom: Date = new Date("2024-11-20");
-  private _dateTo: Date = new Date("2024-11-21");
+  private _dateFrom: Date = new Date("2024-11-27");
+  private _dateTo: Date = new Date("2024-11-28");
   constructor() { }
 
   public get notifySidebar$(): Subject<void> {
