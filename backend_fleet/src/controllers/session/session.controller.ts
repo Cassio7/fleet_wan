@@ -264,7 +264,40 @@ export class SessionController {
       });
     }
   }
+  /**
+   * Prende l'ultima sessione valida di ogni veicolo
+   * senza ritornare la cronologia delle posizioni
+   * @param res
+   */
+  @Get('lastvalidnohistory/all')
+  async getAllVehiclesValidSessionNoHistory(@Res() res: Response) {
+    try {
+      const vehicles = await this.vehicleService.getAllVehicles();
 
+      // Crea un array di promesse per ottenere l'ultima sessione senza history per ogni veicolo
+      const sessionPromises = vehicles.map((vehicle) =>
+        this.sessionService
+          .getLastValidSessionNoHistory(vehicle.veId)
+          .then((lastValidSession) => ({
+            veId: vehicle.veId,
+            lastValidSession: lastValidSession ? lastValidSession : {},
+          })),
+      );
+
+      // Attende che tutte le promesse siano completate
+      const lastSessions = await Promise.all(sessionPromises);
+
+      res.status(200).json(lastSessions);
+    } catch (error) {
+      console.error(error); // Log dell'errore per debugging
+      res
+        .status(400)
+        .json({
+          message:
+            "Errore nella ricerca dell'ultima sessione di ogni veicolo senza history.",
+        });
+    }
+  }
   /**
    * Controllo tutte le sessioni di tutti i veicoli, per marcare quelle con dei malfunzionamenti al GPS
    * @param res Ritorno tutti i veicoli con almeno 1 sessione nel range temporale
@@ -867,7 +900,6 @@ export class SessionController {
       });
     }
   }
-  
 
   /**
    * Ritorna tutti i veicoli dove la data dell'ultima sessione non corrisponde all ultimo evento registrato
