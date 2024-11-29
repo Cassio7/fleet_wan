@@ -14,9 +14,11 @@
 - [ ] rivedere logica dei ruoli ma sostituire con i cantieri
 - [ ] rimuovere codice non utilizzato
 - [ ] dare un formato di risposta corretto a tutte le API
-- [ ] pensare a tabella di appoggio per alloracare i controlli per tutti i veicoli con GPS, Antenna e Sessione
+- [ ] inserire una tabella con la tipologia di veicolo (spazzatrice ...)
+- [ ] pensare a tabella di appoggio per allocare i controlli per tutti i veicoli con GPS, Antenna e Sessione
 - [ ] segnare la posizione dei cantieri con circonferenza, layer comunali
 - [ ] risoluzione posizione con openstreetmap [reverse](https://nominatim.org/release-docs/develop/api/Reverse/)
+- [ ] integrazione con Redis per ridurre tempo risoluzione chiamate risoluzione posizione e altro
 - [ ] succede che vengono letti anche i tag di oggetti che non sono contenitori, tipo capi della Decathlon, 3 opzioni
   1.  funzione che valida gli epc,
   2.  recupero i tag validi da un altra parte, come tabella da kevin,
