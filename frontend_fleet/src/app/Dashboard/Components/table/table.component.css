@@ -66,4 +66,9 @@ tr,td, th{
 
 .check-noReader, .error-icon, .close-icon, .check-icon, .warning-icon{
   cursor: pointer;
+  transition: transform 0.2s; /* Aggiunge un effetto hover */
+}
+
+.check-noReader:hover,.error-icon:hover,.close-icon:hover,.check-icon:hover,.warning-icon:hover {
+  transform: scale(1.1); /* Leggera ingrandimento su hover */
 }

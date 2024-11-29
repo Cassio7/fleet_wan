@@ -36,8 +36,10 @@
         <div class="icon-container">
           <mat-icon *ngIf="vehicle.isRFIDReader && !checkAntennaError(vehicle)" class="check-icon" matTooltip="Possiede un'antenna RFID funzionante">settings_input_antenna</mat-icon>
           <mat-icon *ngIf="vehicle.isRFIDReader && checkAntennaError(vehicle)" class="error-icon" matTooltip="Anomalia antenna RFID">settings_input_antenna</mat-icon>
-          <mat-icon *ngIf="!vehicle.isRFIDReader && !checkAntennaError(vehicle)" class="antenna-icon" matTooltip="Non ha un'antenna RFID">settings_input_antenna</mat-icon>
-          <mat-icon *ngIf="!vehicle.isRFIDReader && !checkAntennaError(vehicle)" class="close-icon" matTooltip="Non ha un'antenna RFID">close</mat-icon>
+          <div class="antennaClose-icon">
+            <mat-icon *ngIf="!vehicle.isRFIDReader && !checkAntennaError(vehicle)" class="antenna-icon" matTooltip="Non ha un'antenna RFID">settings_input_antenna</mat-icon>
+            <mat-icon *ngIf="!vehicle.isRFIDReader && !checkAntennaError(vehicle)" class="close-icon" matTooltip="Non ha un'antenna RFID">close</mat-icon>
+          </div>
         </div>
       </td>
     </ng-container>

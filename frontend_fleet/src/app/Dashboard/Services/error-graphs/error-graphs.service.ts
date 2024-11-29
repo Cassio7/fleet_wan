@@ -78,7 +78,7 @@ export class ErrorGraphsService{
    */
   workingClick() {
     let tableVehicles: any[] = [];
-    tableVehicles = JSON.parse(this.sessionStorageService.getItem("tableData"));
+    tableVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
 
     if (this.errorSliceSelected === "working") {
       this.errorSliceSelected = "";
@@ -95,7 +95,7 @@ export class ErrorGraphsService{
   warningClick() {
     if (this.errorSliceSelected === "warning") {
       let tableVehicles: any[] = [];
-      tableVehicles = JSON.parse(this.sessionStorageService.getItem("tableData"));
+      tableVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
 
 
       this.errorSliceSelected = "";
@@ -115,7 +115,7 @@ export class ErrorGraphsService{
     if (this.errorSliceSelected === "error") {
       let tableVehicles: any[] = [];
 
-      tableVehicles = JSON.parse(this.sessionStorageService.getItem("tableData"));
+      tableVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
 
       this.errorSliceSelected = "";
       this.checkErrorsService.fillTable$.next(tableVehicles);
