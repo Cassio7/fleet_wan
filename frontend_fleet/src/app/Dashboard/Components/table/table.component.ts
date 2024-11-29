@@ -50,7 +50,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   sessions: Session[] = [];
   vehicleIds: Number[] = [];
 
-  displayedColumns: string[] = ['cantiere', 'targa', 'GPS', 'antenna', 'sessione'];
+  displayedColumns: string[] = ['targa','cantiere', 'GPS', 'antenna', 'sessione'];
 
 
 
