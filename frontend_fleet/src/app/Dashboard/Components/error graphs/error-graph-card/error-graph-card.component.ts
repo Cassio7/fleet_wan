@@ -41,14 +41,13 @@ export class ErrorGraphCardComponent implements AfterViewInit, OnDestroy{
   }
 
   ngAfterViewInit(): void {
+    if(this.graphSelect){
+      this.graphSelect.value = 'pie';
+    }
     this.cd.detectChanges();
   }
 
   changeGraph(graph: string): void {
-    if(this.graphSelect){
-      this.graphSelect.value = 'pie';
-      this.cd.detectChanges();
-    }
     switch (graph) {
       case 'pie':
         this.graphSelect.value = 'pie';
