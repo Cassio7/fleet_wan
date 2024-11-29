@@ -1231,7 +1231,7 @@ export class SessionController {
             tagEntry.isRFIDReader ||
             comparisonEntry.isRFIDReader ||
             false,
-          Sessione: comparisonEntry.anomalies,
+          anomaliaSessione: comparisonEntry.anomalies,
           sessions: unifiedSessions,
         });
       });
