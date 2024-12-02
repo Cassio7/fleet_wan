@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { HistoryEntity } from 'classes/entities/history.entity';
 import { SessionEntity } from 'classes/entities/session.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
@@ -80,13 +80,36 @@ export class SessionService {
       'Content-Type': 'text/xml; charset=utf-8',
       SOAPAction: `"${methodName}"`,
     };
+    let response;
+    let retries = 3;
+    while (retries > 0) {
+      try {
+        response = await axios.post(this.serviceUrl, requestXml, {
+          headers,
+        });
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          const axiosError = error as AxiosError;
+
+          if (axiosError.response?.status === 502) {
+            console.warn(
+              `Errore 502 ricevuto. Ritento (${3 - retries + 1}/3)...`,
+            );
+            retries -= 1;
+            continue;
+          }
+        }
+        console.error(
+          'Errore non è 502 o i retry sono terminati, saltato controllo:',
+          error.message,
+        );
+      }
+    }
+
     const queryRunner = this.connection.createQueryRunner();
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
-      const response = await axios.post(this.serviceUrl, requestXml, {
-        headers,
-      });
       const jsonResult = await parseStringPromise(response.data, {
         explicitArray: false,
       });
@@ -238,7 +261,6 @@ export class SessionService {
       await queryRunner.rollbackTransaction();
       await queryRunner.release();
       console.error('Errore nella richiesta SOAP:', error);
-      throw new Error('Errore durante la richiesta al servizio SOAP');
     }
   }
 
@@ -447,7 +469,6 @@ export class SessionService {
       await queryRunner.rollbackTransaction();
       await queryRunner.release();
       console.error('Errore nella richiesta SOAP:', error);
-      throw new Error('Errore durante la richiesta al servizio SOAP');
     }
   }
   /**
@@ -666,31 +687,31 @@ export class SessionService {
     return session;
   }
 
-    /**
+  /**
    * Ritorna l'ultima sessione di un veicolo registrata in base all'id
-   * che ha percorso più di 0 metri di distanza. 
+   * che ha percorso più di 0 metri di distanza.
    * Non include lo storico delle posizioni.
    * la session è durata almeno 2 minuti (quindi valida)
    * @param id VeId identificativo Veicolo
    * @returns
    */
-    async getLastValidSessionNoHistory(id: number) {
-      const session = await this.sessionRepository.findOne({
-        where: {
-          history: {
-            vehicle: {
-              veId: id,
-            },
+  async getLastValidSessionNoHistory(id: number) {
+    const session = await this.sessionRepository.findOne({
+      where: {
+        history: {
+          vehicle: {
+            veId: id,
           },
-          distance: Not(0), //controllo distanza maggiore di 0
         },
-        order: {
-          sequence_id: 'DESC',
-        },
-      });
-  
-      return session;
-    }
+        distance: Not(0), //controllo distanza maggiore di 0
+      },
+      order: {
+        sequence_id: 'DESC',
+      },
+    });
+
+    return session;
+  }
   /**
    * Ritorna l'ultima sessione attiva, quella con sequence_id = 0
    * @param id VeId identificativo Veicolo
