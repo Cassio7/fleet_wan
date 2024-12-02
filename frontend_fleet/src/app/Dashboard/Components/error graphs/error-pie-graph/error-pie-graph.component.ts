@@ -3,7 +3,7 @@ import { MatCardModule } from '@angular/material/card';
 import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, ViewChild, ViewEncapsulation } from '@angular/core';
 import { ApexChart, ApexNonAxisChartSeries, ApexResponsive, ChartComponent, NgApexchartsModule } from "ng-apexcharts";
 import { skip, Subject, takeUntil } from 'rxjs';
-import { VehiclesApiService } from '../../../Services/vehicles/vehicles-api.service';
+import { VehiclesApiService } from '../../../../Common services/vehicles/vehicles-api.service';
 
 export type ChartOptions = {
   series: ApexNonAxisChartSeries;
