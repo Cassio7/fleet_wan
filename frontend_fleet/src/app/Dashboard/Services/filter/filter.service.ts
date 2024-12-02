@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { SessionStorageService } from '../../../Common services/sessionStorage/session-storage.service';
+import { ErrorGraphsService } from '../error-graphs/error-graphs.service';
+import { BlackboxGraphsService } from '../blackbox-graphs/blackbox-graphs.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +12,9 @@ export class FilterService {
   private _filterTableByCantiere$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
   constructor(
-    private sessionStorageService: SessionStorageService
+    private sessionStorageService: SessionStorageService,
+    private errorGraphsService: ErrorGraphsService,
+    private blackboxGraphsService: BlackboxGraphsService
   ) { }
 
   /**
@@ -45,7 +49,11 @@ export class FilterService {
     const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
 
     if (cantieri.includes("Seleziona tutto")) {
-      return vehicles; // Ritorna tutti i veicoli
+      if(this.errorGraphsService.checkBlackBoxSlice())
+      return this.errorGraphsService.checkBlackBoxSlice();
+      if(this.blackboxGraphsService.checkErrorGraphSlice())
+        return this.blackboxGraphsService.checkErrorGraphSlice();
+      return allVehicles;// Ritorna tutti i veicoli
     }
 
     // Se è stata selezionata un'opzione e non è la selezione di tutto, filtra in base all'opzione
