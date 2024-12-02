@@ -984,8 +984,7 @@ export class SessionController {
               veId: vehicle.veId,
               isCan: vehicle.isCan,
               isRFIDReader: vehicle.isRFIDReader,
-              anomalies:
-                'Anomalia: ultima sessione non è stata chiusa correttamente',
+              anomalies: 'Ultima sessione non è stata chiusa correttamente',
             });
           } else if (lastVehicleEventTime > sessionEndTime) {
             acc.push({
@@ -993,7 +992,7 @@ export class SessionController {
               veId: vehicle.veId,
               isCan: vehicle.isCan,
               isRFIDReader: vehicle.isRFIDReader,
-              anomalies: 'Anomalia: è presente una sessione nulla',
+              anomalies: 'Presente una sessione nulla',
             });
           }
         }
