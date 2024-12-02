@@ -42,9 +42,16 @@ Mostrerà una notifica in caso di novità sui veicoli, inoltre con un click apri
 ##### Icona account 
 Icona che permette di accedere al profilo, o di uscire dall'account attuale tramite il menù a tendina.
 
-#### DASHBOARD
+---
 
-##### Tabella
+#### Menù laterale
+Permette di accedere alle altre pagine tramite apposti bottoni:
+
+---
+
+##### DASHBOARD
+
+###### Tabella
 Contiene i dati di ciascun veicolo più utili al monitoraggio di quest'ultimi, le colonne presenti sono:
 ###### Targa:
 Contiene la targa del veicolo.
@@ -90,11 +97,6 @@ Visualizza una percentuale dei veicoli muniti solo di blackbox e dei veicoli mun
 
 ###### Mappa
 Dov'è verrà visualizzata l'ultima posizione registrata per ciascun veicolo.
-
----
-
-#### Menù laterale
-Permette di accedere alle altre pagine tramite apposti bottoni:
 
 ---
 

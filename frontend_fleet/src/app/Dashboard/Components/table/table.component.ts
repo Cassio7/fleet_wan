@@ -294,12 +294,14 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     });
   }
 
+  /**
+   * Funzione che viene chiamata ogni volta che i dati nella tabella cambiano
+   */
   tableChange(){
-    const tableVehicles = this.vehicleTableData.data;
-    this.sessionStorageService.setItem("tableData", JSON.stringify(tableVehicles));
-    this.filterService.fillSelect(tableVehicles);
+    // const tableVehicles = this.vehicleTableData.data;
+    // this.sessionStorageService.setItem("tableData", JSON.stringify(tableVehicles));
+    // this.filterService.updateFilterOptions$.next(tableVehicles);
   }
-
 
   /**
    * Carica la tabella con i dati dei veicoli inclusi dal grafico (quando viene premuto su uno spicchio)

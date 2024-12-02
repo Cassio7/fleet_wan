@@ -111,8 +111,6 @@ export class ErrorGraphsService{
    * Gestisce la logica del click sulla fetta "error" del grafico degli errori
    */
   errorClick() {
-    const tableData = JSON.parse(this.sessionStorageService.getItem("allVehicles") || "[]");
-
     if (this.errorsData.errorSliceSelected === "error") {
       this.errorsData.errorSliceSelected = "";
       this.sessionStorageService.setItem("errorSlice", ""); // Deseleziona la fetta
@@ -130,7 +128,6 @@ export class ErrorGraphsService{
     switch (this.sessionStorageService.getItem("blackboxSlice")) {
       case "blackbox":
         vehicles = JSON.parse(this.sessionStorageService.getItem("blackboxVehicles") || "[]");
-        console.log(vehicles);
         break;
 
       case "blackbox+antenna":
