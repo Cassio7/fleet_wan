@@ -1,16 +1,13 @@
 import { CommonEntity } from 'classes/common/common.entity';
 import { RealtimePositionInterface } from 'classes/interfaces/realtime_position.interface';
-import {
-  Column,
-  Entity,
-  Index,
-  ManyToOne
-} from 'typeorm';
+import { Column, Entity, Index, ManyToOne } from 'typeorm';
 import { VehicleEntity } from './vehicle.entity';
 
 @Entity('realtime_positions')
-export class RealtimePositionEntity extends CommonEntity implements RealtimePositionInterface {
-
+export class RealtimePositionEntity
+  extends CommonEntity
+  implements RealtimePositionInterface
+{
   @Column()
   row_number: number;
 
@@ -36,8 +33,8 @@ export class RealtimePositionEntity extends CommonEntity implements RealtimePosi
   direction: number;
 
   @Index()
-  @ManyToOne(() => VehicleEntity, (vehicle) => vehicle.veId)
-  vehicle: VehicleEntity;
+  @ManyToOne(() => VehicleEntity, (vehicle) => vehicle.realtime_position)
+  vehicle: VehicleEntity | null;
 
   @Column({ type: 'varchar', length: 100 })
   hash: string;

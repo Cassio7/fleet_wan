@@ -98,6 +98,7 @@ export class RealtimeService {
       const newTimes = [];
       for (const realtime of filteredData) {
         const vehiclequery = vehiclequeryMap.get(Number(realtime.veId));
+        console.log(vehiclequery.veId);
         const newTime = await queryRunner.manager
           .getRepository(RealtimePositionEntity)
           .create({
@@ -126,7 +127,6 @@ export class RealtimeService {
       await queryRunner.rollbackTransaction();
       await queryRunner.release();
       console.error('Errore nella richiesta SOAP:', error);
-      throw new Error('Errore durante la richiesta al servizio SOAP');
     }
   }
   /**

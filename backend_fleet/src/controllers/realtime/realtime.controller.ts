@@ -68,16 +68,18 @@ export class RealtimeController {
         company.suId,
         params.id,
       );
-      if (data.length > 0) {
+      if (data) {
         res
           .status(200)
-          .send({ message: `Aggiornato il gruppo: ${company.group[0].name}` });
+          .json({ message: `Aggiornato il gruppo: ${company.group[0].name}` });
       } else {
-        res.status(200).send('Nessun aggiornamento');
+        res.status(404).json({ message: 'Nessun aggiornamento' });
       }
     } catch (error) {
       console.error('Errore nella richiesta SOAP:', error);
-      res.status(500).send('Errore durante la richiesta al servizio SOAP');
+      res
+        .status(500)
+        .json({ message: 'Errore durante la richiesta al servizio SOAP' });
     }
   }
 }
