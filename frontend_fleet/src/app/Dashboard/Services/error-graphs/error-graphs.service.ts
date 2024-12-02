@@ -3,6 +3,12 @@ import { BehaviorSubject } from 'rxjs';
 import { CheckErrorsService } from '../check-errors/check-errors.service';
 import { SessionStorageService } from '../../../Common services/sessionStorage/session-storage.service';
 
+interface ErrorsData {
+  workingVehicles: any[];
+  warningVehicles: any[];
+  errorVehicles: any[];
+  errorSliceSelected: string;
+}
 @Injectable({
   providedIn: 'root'
 })
@@ -15,12 +21,12 @@ export class ErrorGraphsService{
   private _series = [0,0,0];//[funzionante, warning, error]
   private _colors = ["#46ff00", "#ffd607", "#ff0000"];
 
-  private _workingVehicles: any[] = [];
-  private _warningVehicles: any[] = [];
-  private _errorVehicles: any[] = [];
-
-  private _errorSliceSelected: string = "";
-
+  private errorsData: ErrorsData = {
+    workingVehicles: [],
+    warningVehicles: [],
+    errorVehicles: [],
+    errorSliceSelected: ""
+  }
   private firstLoad = true;
 
   constructor(
@@ -34,9 +40,9 @@ export class ErrorGraphsService{
   * @param vehicles oggetto custom di veicoli
   */
   public loadChartData(vehicles: any[]) {
-    this.workingVehicles = [];
-    this.warningVehicles = [];
-    this.errorVehicles = [];
+    this.errorsData.workingVehicles = [];
+    this.errorsData.warningVehicles = [];
+    this.errorsData.errorVehicles = [];
 
     this._series = [0,0,0];
     for (const vehicle of vehicles) {
@@ -47,24 +53,24 @@ export class ErrorGraphsService{
 
       // Nessun errore (funzionante)
       if (!hasGpsError && !hasSessionError && !hasAntennaError) {
-        this.workingVehicles.push(vehicle);
+        this.errorsData.workingVehicles.push(vehicle);
         this._series[0] += 1;
       // Errore GPS (warning)
       } else if (hasGpsError && !hasSessionError && !hasAntennaError) {
-        this.warningVehicles.push(vehicle);
+        this.errorsData.warningVehicles.push(vehicle);
         this._series[1] += 1;
       // Errori (sessione, antenna o entrambi)
       } else {
-        this.errorVehicles.push(vehicle);
+        this.errorsData.errorVehicles.push(vehicle);
         this._series[2] += 1;
       }
     }
 
     //impostazione veicoli dell'error graph in sessionstorage solo la prima volta che viene caricato
     if(this.firstLoad){
-      this.sessionStorageService.setItem("workingVehicles", JSON.stringify(this.workingVehicles));
-      this.sessionStorageService.setItem("warningVehicles", JSON.stringify(this.warningVehicles));
-      this.sessionStorageService.setItem("errorVehicles", JSON.stringify(this.errorVehicles));
+      this.sessionStorageService.setItem("workingVehicles", JSON.stringify(this.errorsData.workingVehicles));
+      this.sessionStorageService.setItem("warningVehicles", JSON.stringify(this.errorsData.warningVehicles));
+      this.sessionStorageService.setItem("errorVehicles", JSON.stringify(this.errorsData.errorVehicles));
       this.firstLoad = false;
     }
 
@@ -75,31 +81,29 @@ export class ErrorGraphsService{
    * Gestisce la logica del click sulla fetta "funzionante" del grafico degli errori
    */
   workingClick() {
-    const tableData = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-
-    if (this.errorSliceSelected === "working") {
-      this.errorSliceSelected = "";
+    if (this.errorsData.errorSliceSelected === "working") {
+      this.errorsData.errorSliceSelected = "";
       this.sessionStorageService.setItem("errorSlice", "");//fetta selezionata in session storage
       this.checkErrorsService.fillTable$.next(this.checkBlackBoxSlice());
     } else {
       //sessionStorage.setItem("errorSlice", "working"); // Salvataggio scelta attuale in sessionStorage
-      this.errorSliceSelected = "working";
+      this.errorsData.errorSliceSelected = "working";
       this.sessionStorageService.setItem("errorSlice", "working");//fetta selezionata in session storage
-      this.loadFunzionanteData$.next(this.workingVehicles);
+      this.loadFunzionanteData$.next(this.errorsData.workingVehicles);
     }
   }
   /**
    * Gestisce la logica del click sulla fetta "warning" del grafico degli errori
    */
   warningClick() {
-    if (this.errorSliceSelected === "warning") {
-      this.errorSliceSelected = "";
+    if (this.errorsData.errorSliceSelected === "warning") {
+      this.errorsData.errorSliceSelected = "";
       this.sessionStorageService.setItem("errorSlice", ""); // Deseleziona la fetta
       this.checkErrorsService.fillTable$.next(this.checkBlackBoxSlice());
     } else {
-      this.errorSliceSelected = "warning";
+      this.errorsData.errorSliceSelected = "warning";
       this.sessionStorageService.setItem("errorSlice", "warning"); // Salva la scelta attuale
-      this.loadWarningData$.next(this.warningVehicles);
+      this.loadWarningData$.next(this.errorsData.warningVehicles);
     }
   }
 
@@ -109,14 +113,14 @@ export class ErrorGraphsService{
   errorClick() {
     const tableData = JSON.parse(this.sessionStorageService.getItem("allVehicles") || "[]");
 
-    if (this.errorSliceSelected === "error") {
-      this.errorSliceSelected = "";
+    if (this.errorsData.errorSliceSelected === "error") {
+      this.errorsData.errorSliceSelected = "";
       this.sessionStorageService.setItem("errorSlice", ""); // Deseleziona la fetta
       this.checkErrorsService.fillTable$.next(this.checkBlackBoxSlice());
     } else {
-      this.errorSliceSelected = "error";
+      this.errorsData.errorSliceSelected = "error";
       this.sessionStorageService.setItem("errorSlice", "error"); // Salva la scelta attuale
-      this.loadErrorData$.next(this.errorVehicles);
+      this.loadErrorData$.next(this.errorsData.errorVehicles);
     }
   }
 
@@ -144,32 +148,6 @@ export class ErrorGraphsService{
 
   /*getters & setters*/
 
-  public get errorSliceSelected(): string {
-    return this._errorSliceSelected;
-  }
-  public set errorSliceSelected(value: string) {
-    this._errorSliceSelected = value;
-  }
-  public get workingVehicles(): any[] {
-    return this._workingVehicles;
-  }
-  public set workingVehicles(value: any[]) {
-    this._workingVehicles = value;
-  }
-
-  public get warningVehicles(): any[] {
-    return this._warningVehicles;
-  }
-  public set warningVehicles(value: any[]) {
-    this._warningVehicles = value;
-  }
-
-  public get errorVehicles(): any[] {
-    return this._errorVehicles;
-  }
-  public set errorVehicles(value: any[]) {
-    this._errorVehicles = value;
-  }
 
   public get loadGraphData$(): BehaviorSubject<any> {
     return this._loadGraphData$;
