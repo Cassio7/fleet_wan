@@ -98,8 +98,8 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     this.filterService.filterTableByCantiere$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (cantieri: string[])=>{
-        const tableVehicles = JSON.parse(this.sessionStorageService.getItem("tableData"));
-        this.vehicleTableData.data = this.allVehicles.length > 0 ? this.filterService.filterTableByCantieri(this.allVehicles, cantieri) as any : this.filterService.filterTableByCantieri(tableVehicles, cantieri) as any;
+        const tableData = JSON.parse(this.sessionStorageService.getItem("tableData"))
+        this.vehicleTableData.data = this.filterService.filterTableByCantieri(tableData, cantieri) as any;
         this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));
         this.cd.detectChanges();
         this.loadGraphs(this.vehicleTableData.data);
@@ -116,6 +116,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     this.checkErrorsService.fillTable$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (tableVehicles: any[]) => {
+        //if(blackbox vehicles)
         this.onGraphClick(tableVehicles);
       },
       error: error => console.error("Errore nel caricamento dei dati dal grafico degli errori: ", error)
@@ -126,6 +127,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     .subscribe({
       next: (workingVehicles: any[]) => {
         this.onGraphClick(workingVehicles);
+
       },
       error: error => console.error("Errore nel caricamento dei dati dal grafico degli errori: ", error)
     });
@@ -246,7 +248,6 @@ export class TableComponent implements OnDestroy, AfterViewInit{
                 const anomalyVehicle = anomaliesVehicles.find(anomaly => anomaly.veId === vehicle.veId);
                 // Se l'anomalia esiste, la assegno, altrimenti assegno una stringa vuota
                 if (anomalyVehicle && anomalyVehicle.anomaliaSessione) {
-                console.log(anomalyVehicle);
                   vehicle.anomaliaSessione = anomalyVehicle.anomaliaSessione;
                 } else {
                   vehicle.anomaliaSessione = ""; // Se non c'è anomaliaSessione, assegno una stringa vuota
@@ -270,7 +271,6 @@ export class TableComponent implements OnDestroy, AfterViewInit{
           this.sessionStorageService.setItem("allVehicles", JSON.stringify(vehicles));// Inserimento veicoli in sessionstorage
           this.loadGraphs(vehicles);// Carica i grafici dopo il caricamento della tabella
           this.cd.detectChanges();
-          console.log(vehicles);
         } catch (error) {
           console.error("Error processing vehicles:", error);
         }
@@ -280,10 +280,6 @@ export class TableComponent implements OnDestroy, AfterViewInit{
       }
     });
   }
-
-
-
-
 
 
   /**

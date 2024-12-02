@@ -71,6 +71,9 @@ export class BlackboxGraphsService{
     } catch (error) {
       console.error("Error loading chart data: ", error);
     }
+    //salvataggio dati grafico nel sessionstorage
+    this.sessionStorageService.setItem("blackboxVehicles", this.blackboxData.blackboxWithAntenna);
+    this.sessionStorageService.setItem("blackboxAntennaVehicles", this.blackboxData.blackboxWithAntenna);
     this._loadGraphData$.next(this._series);
   }
   /**
@@ -79,15 +82,16 @@ export class BlackboxGraphsService{
   blackBoxClick() {
     let tableVehicles: any[] = [];
     tableVehicles = JSON.parse(this.sessionStorageService.getItem("tableData"));
-    console.log("blackbox click table vehicles: ", tableVehicles);
+
     if (this.blackBoxSliceSelected === "blackbox") {
       this.blackBoxSliceSelected = "";
-      this.checkErrorsService.fillTable$.next(tableVehicles); //Riempi la tabella senza filtri
+      this.sessionStorageService.setItem("blackboxSlice", "");
+      this.checkErrorsService.fillTable$.next(this.checkErrorGraphSlice());
     } else {
       // sessionStorage.setItem("blackboxSlice", "blackbox"); // Salvataggio scelta attuale in sessionStorage
-      console.log(tableVehicles);
       this.blackBoxSliceSelected = "blackbox";
-      this.loadBlackBoxData$.next(this.getAllRFIDVehicles(tableVehicles).blackboxOnly);
+      this.sessionStorageService.setItem("blackboxSlice", "blackbox");
+      this.loadBlackBoxData$.next(this.getAllRFIDVehicles(this.checkErrorGraphSlice()).blackboxOnly);
     }
   }
   /**
@@ -99,12 +103,39 @@ export class BlackboxGraphsService{
 
     if (this.blackBoxSliceSelected === "blackbox+antenna") {
       this.blackBoxSliceSelected = "";
-      this.checkErrorsService.fillTable$.next(tableVehicles);
+      this.sessionStorageService.setItem("blackboxSlice", "");
+      this.checkErrorsService.fillTable$.next(this.checkErrorGraphSlice());
     } else {
       this.blackBoxSliceSelected = "blackbox+antenna";
-      this.loadBlackBoxData$.next(this.getAllRFIDVehicles(tableVehicles).blackboxWithAntenna);
+      this.sessionStorageService.setItem("blackboxSlice", "blackbox+antenna");
+      this.loadBlackBoxData$.next(this.getAllRFIDVehicles(this.checkErrorGraphSlice()).blackboxWithAntenna);
     }
   }
+
+  checkErrorGraphSlice(): any[] {
+    let vehicles: any[] = [];
+
+    switch (this.sessionStorageService.getItem("errorSlice")) {
+      case "working":
+        vehicles = JSON.parse(this.sessionStorageService.getItem("workingVehicles") || "[]");
+        break;
+
+      case "warning":
+        vehicles = JSON.parse(this.sessionStorageService.getItem("warningVehicles") || "[]");
+        break;
+
+      case "error":
+        vehicles = JSON.parse(this.sessionStorageService.getItem("errorVehicles") || "[]");
+        break;
+
+      default:
+        vehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles") || "[]");
+        break;
+    }
+
+    return vehicles;
+  }
+
 
   public get loadBlackBoxData$(): BehaviorSubject<any[]> {
     return this._loadBlackBoxData$;

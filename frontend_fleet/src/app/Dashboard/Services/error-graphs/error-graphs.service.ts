@@ -21,6 +21,7 @@ export class ErrorGraphsService{
 
   private _errorSliceSelected: string = "";
 
+  private firstLoad = true;
 
   constructor(
     private checkErrorsService: CheckErrorsService,
@@ -44,30 +45,27 @@ export class ErrorGraphsService{
       const hasSessionError = this.checkErrorsService.checkSessionError(vehicle);
       const hasAntennaError = this.checkErrorsService.checkAntennaError(vehicle);
 
-      // Controllo errore GPS (warning) - solo se non ci sono altri errori
-      if (hasGpsError && !hasSessionError && !hasAntennaError) {
-        this._series[1] += 1; //Aggiungi warning
-        this.warningVehicles.push(vehicle);
-      }
-      // Controllo errore antenna (Errore) - solo se non ci sono altri errori
-      else if (hasAntennaError && !hasSessionError && !hasGpsError) {
-        this.errorVehicles.push(vehicle);
-        this._series[2] += 1; //Aggiunta errore
-      }
-      // Controllo errore sessione (Errore) - solo se non ci sono altri errori
-      else if (hasSessionError && !hasGpsError && !hasAntennaError) {
-        this.errorVehicles.push(vehicle);
-        this._series[2] += 1; //Aggiunta errore
-      }
-      else if (hasAntennaError && hasSessionError){ //Controllo errori di sessione e antenna (Errore)
-        this.errorVehicles.push(vehicle);
-        this._series[2] += 1; //Aggiunta errore
-      }
-      // Controllo nessun errore (funzionante)
-      else if (!hasGpsError && !hasSessionError && !hasAntennaError) {
+      // Nessun errore (funzionante)
+      if (!hasGpsError && !hasSessionError && !hasAntennaError) {
         this.workingVehicles.push(vehicle);
-        this._series[0] += 1; //Aggiunta funzionante
+        this._series[0] += 1;
+      // Errore GPS (warning)
+      } else if (hasGpsError && !hasSessionError && !hasAntennaError) {
+        this.warningVehicles.push(vehicle);
+        this._series[1] += 1;
+      // Errori (sessione, antenna o entrambi)
+      } else {
+        this.errorVehicles.push(vehicle);
+        this._series[2] += 1;
       }
+    }
+
+    //impostazione veicoli dell'error graph in sessionstorage solo la prima volta che viene caricato
+    if(this.firstLoad){
+      this.sessionStorageService.setItem("workingVehicles", JSON.stringify(this.workingVehicles));
+      this.sessionStorageService.setItem("warningVehicles", JSON.stringify(this.warningVehicles));
+      this.sessionStorageService.setItem("errorVehicles", JSON.stringify(this.errorVehicles));
+      this.firstLoad = false;
     }
 
     this._loadGraphData$.next(this._series);
@@ -77,15 +75,16 @@ export class ErrorGraphsService{
    * Gestisce la logica del click sulla fetta "funzionante" del grafico degli errori
    */
   workingClick() {
-    let tableVehicles: any[] = [];
-    tableVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+    const tableData = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
 
     if (this.errorSliceSelected === "working") {
       this.errorSliceSelected = "";
-      this.checkErrorsService.fillTable$.next(tableVehicles);
+      this.sessionStorageService.setItem("errorSlice", "");//fetta selezionata in session storage
+      this.checkErrorsService.fillTable$.next(tableData);
     } else {
       //sessionStorage.setItem("errorSlice", "working"); // Salvataggio scelta attuale in sessionStorage
       this.errorSliceSelected = "working";
+      this.sessionStorageService.setItem("errorSlice", "working");//fetta selezionata in session storage
       this.loadFunzionanteData$.next(this.workingVehicles);
     }
   }
@@ -93,40 +92,54 @@ export class ErrorGraphsService{
    * Gestisce la logica del click sulla fetta "warning" del grafico degli errori
    */
   warningClick() {
+    const tableData = JSON.parse(this.sessionStorageService.getItem("allVehicles") || "[]");
+
     if (this.errorSliceSelected === "warning") {
-      let tableVehicles: any[] = [];
-      tableVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-
-
       this.errorSliceSelected = "";
-      this.checkErrorsService.fillTable$.next(tableVehicles);
+      this.sessionStorageService.setItem("errorSlice", ""); // Deseleziona la fetta
+      this.checkErrorsService.fillTable$.next(tableData);
     } else {
-      // if (typeof sessionStorage !== "undefined") {
-      //   sessionStorage.setItem("errorSlice", "warning"); // Salvataggio scelta attuale in sessionStorage
-      // }
       this.errorSliceSelected = "warning";
+      this.sessionStorageService.setItem("errorSlice", "warning"); // Salva la scelta attuale
       this.loadWarningData$.next(this.warningVehicles);
     }
   }
+
   /**
    * Gestisce la logica del click sulla fetta "error" del grafico degli errori
    */
   errorClick() {
+    const tableData = JSON.parse(this.sessionStorageService.getItem("allVehicles") || "[]");
+
     if (this.errorSliceSelected === "error") {
-      let tableVehicles: any[] = [];
-
-      tableVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-
       this.errorSliceSelected = "";
-      this.checkErrorsService.fillTable$.next(tableVehicles);
+      this.sessionStorageService.setItem("errorSlice", ""); // Deseleziona la fetta
+      this.checkErrorsService.fillTable$.next(tableData);
     } else {
-      // if (typeof sessionStorage !== "undefined") {
-      //   sessionStorage.setItem("errorSlice", "error"); // Salvataggio scelta attuale in sessionStorage
-      // }
-
       this.errorSliceSelected = "error";
+      this.sessionStorageService.setItem("errorSlice", "error"); // Salva la scelta attuale
       this.loadErrorData$.next(this.errorVehicles);
     }
+  }
+
+  checkErrorBlackBoxSlice(): any[] {
+    let vehicles: any[] = [];
+
+    switch (this.sessionStorageService.getItem("blackboxSlice")) {
+      case "blackbox":
+        vehicles = JSON.parse(this.sessionStorageService.getItem("blackBoxVehicles") || "[]");
+        break;
+
+      case "blackbox+antenna":
+        vehicles = JSON.parse(this.sessionStorageService.getItem("blackBoxWithAntennaVehicles") || "[]");
+        break;
+
+      default:
+        vehicles = JSON.parse(this.sessionStorageService.getItem("allBlackBoxVehicles") || "[]");
+        break;
+    }
+
+    return vehicles;
   }
 
 

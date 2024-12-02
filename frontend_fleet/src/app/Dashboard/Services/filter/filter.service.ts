@@ -45,7 +45,7 @@ export class FilterService {
     const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
 
     if (cantieri.includes("Seleziona tutto")) {
-      return allVehicles; // Ritorna tutti i veicoli
+      return vehicles; // Ritorna tutti i veicoli
     }
 
     // Se è stata selezionata un'opzione e non è la selezione di tutto, filtra in base all'opzione

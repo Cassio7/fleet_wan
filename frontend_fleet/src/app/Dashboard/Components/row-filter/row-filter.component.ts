@@ -79,14 +79,14 @@ export class RowFilterComponent implements AfterViewInit{
     if (option === "Seleziona tutto") {
       this.selectAll();  // Seleziona tutti i cantieri
     } else if (this.allSelected) {
-      const updatedCantieri = this.cantieri.value?.filter(cantiere => cantiere !== "Seleziona tutto");
+      const updatedCantieri = this.cantieri.value?.filter(cantiere => cantiere !== "Seleziona tutto"); //Rimozione "seleziona tutto" se viene deselezionato qualcosa mentre è attivo "seleziona tutto"
       this.cantieri.setValue(updatedCantieri || null);
       this.allSelected = false;
     }
 
 
     const selectedCantieri = this.cantieri.value; // Opzioni selezionate
-    // Se sono stati selezionati cantieri, invia dati
+    // Se sono stati selezionati cantieri, invio dati
     if (selectedCantieri) {
       this.filterService.filterTableByCantiere$.next(selectedCantieri);
     }
