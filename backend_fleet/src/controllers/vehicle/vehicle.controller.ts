@@ -24,12 +24,13 @@ export class VehicleController {
   async getAllVehicles(@Res() res: Response) {
     try {
       const vehicles = await this.vehicleService.getAllVehicles();
-      vehicles.length > 0
-        ? res.status(200).json(vehicles)
-        : res.status(404).json({ message: 'Nessun veicolo trovato' });
+      if (vehicles.length > 0) res.status(200).json(vehicles);
+      else res.status(404).json({ message: 'Nessun veicolo trovato' });
     } catch (error) {
       console.error('Errore nel recupero dei veicoli:', error);
-      res.status(500).send('Errore durante il recupero dei veicoli');
+      res
+        .status(500)
+        .json({ message: 'Errore durante il recupero dei veicoli' });
     }
   }
 
@@ -41,14 +42,14 @@ export class VehicleController {
   async getVehiclesByReader(@Res() res: Response) {
     try {
       const vehicles = await this.vehicleService.getVehiclesByReader();
-      vehicles.length > 0
-        ? res.status(200).json(vehicles)
-        : res
-            .status(404)
-            .json({ message: 'Nessun veicolo RFID reader trovato' });
+      if (vehicles.length > 0) res.status(200).json(vehicles);
+      else
+        res.status(404).json({ message: 'Nessun veicolo RFID reader trovato' });
     } catch (error) {
       console.error('Errore nel recupero dei veicoli:', error);
-      res.status(500).send('Errore durante il recupero dei veicoli');
+      res
+        .status(500)
+        .json({ message: 'Errore durante il recupero dei veicoli' });
     }
   }
 
@@ -60,14 +61,16 @@ export class VehicleController {
   async getVehiclesWithNoReader(@Res() res: Response) {
     try {
       const vehicles = await this.vehicleService.getVehiclesWithNoReader();
-      vehicles.length > 0
-        ? res.status(200).json(vehicles)
-        : res
-            .status(404)
-            .json({ message: 'Nessun veicolo NO RFID reader trovato' });
+      if (vehicles.length > 0) res.status(200).json(vehicles);
+      else
+        res
+          .status(404)
+          .json({ message: 'Nessun veicolo NO RFID reader trovato' });
     } catch (error) {
       console.error('Errore nel recupero dei veicoli:', error);
-      res.status(500).send('Errore durante il recupero dei veicoli');
+      res
+        .status(500)
+        .json({ message: 'Errore durante il recupero dei veicoli' });
     }
   }
 
@@ -79,12 +82,13 @@ export class VehicleController {
   async getCanVehicles(@Res() res: Response) {
     try {
       const vehicles = await this.vehicleService.getCanVehicles();
-      vehicles.length > 0
-        ? res.status(200).json(vehicles)
-        : res.status(404).json({ message: "Nessun veicolo 'can' trovato." });
+      if (vehicles.length > 0) res.status(200).json(vehicles);
+      else res.status(404).json({ message: "Nessun veicolo 'can' trovato." });
     } catch (error) {
       console.error('Errore nel recupero dei veicoli:', error);
-      res.status(500).send('Errore durante il recupero dei veicoli');
+      res
+        .status(500)
+        .json({ message: 'Errore durante il recupero dei veicoli' });
     }
   }
 
@@ -96,14 +100,14 @@ export class VehicleController {
   async getNonCanVehicles(@Res() res: Response) {
     try {
       const vehicles = await this.vehicleService.getNonCanVehicles();
-      vehicles.length > 0
-        ? res.status(200).json(vehicles)
-        : res
-            .status(404)
-            .json({ message: "Nessun veicolo non 'can' trovato." });
+      if (vehicles.length > 0) res.status(200).json(vehicles);
+      else
+        res.status(404).json({ message: "Nessun veicolo non 'can' trovato." });
     } catch (error) {
       console.error('Errore nel recupero dei veicoli:', error);
-      res.status(500).send('Errore durante il recupero dei veicoli');
+      res
+        .status(500)
+        .json({ message: 'Errore durante il recupero dei veicoli' });
     }
   }
 
@@ -127,7 +131,9 @@ export class VehicleController {
       }
     } catch (error) {
       console.error('Errore nel recupero del veicolo:', error);
-      res.status(500).send('Errore durante il recupero del veicolo');
+      res
+        .status(500)
+        .json({ message: 'Errore durante il recupero del veicolo' });
     }
   }
 
@@ -149,7 +155,9 @@ export class VehicleController {
       }
     } catch (error) {
       console.error('Errore nel recupero del veicolo:', error);
-      res.status(500).send('Errore durante il recupero del veicolo');
+      res
+        .status(500)
+        .json({ message: 'Errore durante il recupero del veicolo' });
     }
   }
 

@@ -1,6 +1,5 @@
-import { Controller, Post, Res, Param, Body, Get } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Res } from '@nestjs/common';
 import { SessionEntity } from 'classes/entities/session.entity';
-import { TagEntity } from 'classes/entities/tag.entity';
 import { TagHistoryEntity } from 'classes/entities/tag_history.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { Response } from 'express';
@@ -46,6 +45,7 @@ export class SessionController {
         res.status(200).json({ message: 'No sessioni attive' });
       }
     } catch (error) {
+      console.error('Errore nella ricerca delle sessioni attive: ' + error);
       res.status(500).json({
         message: 'Errore nella ricerca delle sessioni attive.',
       });
@@ -65,6 +65,9 @@ export class SessionController {
       } else
         res.status(404).json({ message: `No Session per id: ${params.id}` });
     } catch (error) {
+      console.error(
+        'Errore nella ricerca della sessione del veicolo: ' + error,
+      );
       res.status(500).json({
         message: 'Errore nella ricerca della sessione del veicolo.',
       });
@@ -88,10 +91,12 @@ export class SessionController {
           dateFrom,
           dateTo,
         );
-      sessions
-        ? res.status(200).json(sessions)
-        : res.status(404).json({ message: 'No last session found' });
+      if (sessions) res.status(200).json(sessions);
+      else res.status(404).json({ message: 'No last session found' });
     } catch (error) {
+      console.error(
+        'Errore nella ricerca della sessione del veicolo: ' + error,
+      );
       res.status(500).json({
         message: 'Errore nella ricerca della sessione del veicolo.',
       });
@@ -114,6 +119,9 @@ export class SessionController {
         res.status(200).json(lastSessions); // Restituire l'array di sessioni come JSON
       else res.status(404).json({ message: 'Nessuna sessione trovata' });
     } catch (error) {
+      console.error(
+        "Errore nella ricerca dell'ultima sessione del veicolo: " + error,
+      );
       res.status(500).json({
         message: "Errore nella ricerca dell'ultima sessione del veicolo.",
       });
@@ -132,6 +140,7 @@ export class SessionController {
       if (data) res.status(200).json(data);
       else res.status(404).json({ message: `No Session per id: ${params.id}` });
     } catch (error) {
+      console.error("Errore nel recupero dell'ultima sessione: " + error);
       res.status(500).json({
         message: "Errore nel recupero dell'ultima sessione",
       });
@@ -166,6 +175,7 @@ export class SessionController {
         }
       }
     } catch (error) {
+      console.error('Errore nel recupero della sessione attiva: ' + error);
       res.status(500).json({
         message: 'Errore nel recupero della sessione attiva',
       });
@@ -184,8 +194,9 @@ export class SessionController {
       if (data) res.status(200).json(data);
       else res.status(404).json({ message: `No Session per id: ${params.id}` });
     } catch (error) {
+      console.error('Errore nel recupero della distanza: ' + error);
       res.status(500).json({
-        message: 'Errore nel recupero della sessione attiva',
+        message: 'Errore nel recupero della distanza.',
       });
     }
   }
@@ -219,6 +230,9 @@ export class SessionController {
         res.status(404).json({ message: `No Session per id:` });
       }
     } catch (error) {
+      console.error(
+        'Errore nel recupero delle sessioni con range temporale: ' + error,
+      );
       res.status(500).json({
         message: 'Errore nel recupero delle sessioni con range temporale',
       });
@@ -259,6 +273,9 @@ export class SessionController {
       } else
         res.status(404).json({ message: `No Session per id: ${params.id}` });
     } catch (error) {
+      console.error(
+        'Errore nel recupero delle sessioni con range temporale: ' + error,
+      );
       res.status(500).json({
         message: 'Errore nel recupero delle sessioni con range temporale',
       });
@@ -289,7 +306,10 @@ export class SessionController {
 
       res.status(200).json(lastSessions);
     } catch (error) {
-      console.error(error); // Log dell'errore per debugging
+      console.error(
+        "Errore nella ricerca dell'ultima sessione di ogni veicolo senza history: " +
+          error,
+      );
       res.status(400).json({
         message:
           "Errore nella ricerca dell'ultima sessione di ogni veicolo senza history.",
