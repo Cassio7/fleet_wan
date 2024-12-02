@@ -99,7 +99,16 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     .subscribe({
       next: (cantieri: string[])=>{
         const tableData = JSON.parse(this.sessionStorageService.getItem("tableData"))
-        this.vehicleTableData.data = this.filterService.filterTableByCantieri(tableData, cantieri) as any;
+        if(this.blackboxGraphService.checkErrorGraphSlice()){
+          const blackboxgraphVehicles = this.blackboxGraphService.checkErrorGraphSlice();
+          this.vehicleTableData.data = this.filterService.filterTableByCantieri(blackboxgraphVehicles, cantieri) as any;
+        }else if(this.errorGraphService.checkBlackBoxSlice()){
+          const errorGraphVehicles = this.blackboxGraphService.checkErrorGraphSlice();
+          this.vehicleTableData.data = this.filterService.filterTableByCantieri(errorGraphVehicles, cantieri) as any;
+        }else{
+          const allVehicles = this.sessionStorageService.getItem("allVehicles");
+          this.vehicleTableData.data = this.filterService.filterTableByCantieri(allVehicles, cantieri) as any;
+        }
         this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));
         this.cd.detectChanges();
         this.loadGraphs(this.vehicleTableData.data);
@@ -279,6 +288,12 @@ export class TableComponent implements OnDestroy, AfterViewInit{
         console.error("Error loading data:", error);
       }
     });
+  }
+
+  tableChange(){
+    const tableVehicles = this.vehicleTableData.data;
+    this.sessionStorageService.setItem("tableData", JSON.stringify(tableVehicles));
+    this.filterService.fillSelect(tableVehicles);
   }
 
 
