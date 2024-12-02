@@ -145,6 +145,10 @@ export class ErrorGraphsService{
     return vehicles;
   }
 
+  resetGraphs(){
+    this.loadGraphData$.next([]);
+  }
+
 
   /*getters & setters*/
 

@@ -9,7 +9,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Session } from '../../../Models/Session';
 import { first, forkJoin, skip, Subject, switchMap, takeUntil, filter } from 'rxjs';
-import { VehiclesApiService } from '../../Services/vehicles/vehicles-api.service';
+import { VehiclesApiService } from '../../../Common services/vehicles/vehicles-api.service';
 import { Vehicle } from '../../../Models/Vehicle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ErrorGraphsService } from '../../Services/error-graphs/error-graphs.service';
@@ -98,7 +98,6 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     this.filterService.filterTableByCantiere$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (cantieri: string[])=>{
-        const tableData = JSON.parse(this.sessionStorageService.getItem("tableData"))
         if(this.blackboxGraphService.checkErrorGraphSlice()){
           const blackboxgraphVehicles = this.blackboxGraphService.checkErrorGraphSlice();
           this.vehicleTableData.data = this.filterService.filterTableByCantieri(blackboxgraphVehicles, cantieri) as any;
@@ -224,7 +223,11 @@ export class TableComponent implements OnDestroy, AfterViewInit{
  * Riempe la tabella con i dati dei veicoli
  */
   fillTable() {
-    this.vehicleTableData.data = [];
+    //nascondi i grafici
+    this.blackboxGraphService.resetGraphs();
+    this.errorGraphService.resetGraphs();
+
+    this.vehicleTableData.data = []; //inizializza tabella vuota
     this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));
     forkJoin({
       vehicles: this.vehicleApiService.getAllVehicles(),
@@ -279,6 +282,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
 
           this.sessionStorageService.setItem("allVehicles", JSON.stringify(vehicles));// Inserimento veicoli in sessionstorage
           this.loadGraphs(vehicles);// Carica i grafici dopo il caricamento della tabella
+
           this.cd.detectChanges();
         } catch (error) {
           console.error("Error processing vehicles:", error);

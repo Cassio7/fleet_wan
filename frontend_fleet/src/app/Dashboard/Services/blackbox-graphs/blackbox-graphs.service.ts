@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Injectable, OnInit } from '@angular/core';
-import { VehiclesApiService } from '../vehicles/vehicles-api.service';
+import { VehiclesApiService } from '../../../Common services/vehicles/vehicles-api.service';
 import { BehaviorSubject, lastValueFrom, Subject, takeUntil } from 'rxjs';
 import { Vehicle } from '../../../Models/Vehicle';
 import { CheckErrorsService } from '../check-errors/check-errors.service';
@@ -139,6 +139,10 @@ export class BlackboxGraphsService{
     }
 
     return vehicles;
+  }
+
+  resetGraphs(){
+    this.loadGraphData$.next([]);
   }
 
 
