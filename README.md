@@ -47,9 +47,9 @@ Icona che permette di accedere al profilo, o di uscire dall'account attuale tram
 ##### Tabella
 Contiene i dati di ciascun veicolo più utili al monitoraggio di quest'ultimi, le colonne presenti sono:
 ###### Targa:
-Contiene la targa del veicolo
+Contiene la targa del veicolo.
 ###### Cantiere:
-Contiene il nome del comune di appartenenza del veicolo
+Contiene il nome del comune di appartenenza del veicolo.
 ###### GPS:
 Contiene un'icona che indica il funzionamento del GPS per quel veicolo, le icone possono essere:
 - ✅: Se il GPS funziona correttamente per quel veicolo
@@ -68,8 +68,8 @@ Contiene la data dell'ultima sessione valida del veicolo ed un'icona che indica 
 ##### Filtro per cantieri
 Permette di filtrare le righe della tabella in base al cantiere di provenienza dei veicoli, con la possibilità di spuntare "Seleziona tutto" per selezionare tutti i cantieri e deselezionarli tutti.
 ##### Grafici
-Visualizzano un resoconto di alcuni dati dei veicoli nella tabella.
-Alla pressione di ciascun grafico
+Visualizzano un resoconto di alcuni dati dei veicoli nella tabella
+alla pressione di una fetta di ciascuno dei due grafici
 ###### Select
 Grazie al menù a tendina è possibile scegliere tra le due modalità di visualizzazione del grafico:
 - A torta
@@ -77,14 +77,14 @@ Grazie al menù a tendina è possibile scegliere tra le due modalità di visuali
 ###### Grafico degli errori
 Visualizza una percentuale del funzionamento dei veicoli nella tabella.
 Gli errori sono categorizzati, in base al peso attribuitogli, in:
-- ✅(Funzionante): Mostra il corretto funzionamento
-- ⚠️(Warning): Che sono associati, in caso di malfunzionamento, ai GPS
-- ❌(Error):  Che sono associati, in caso di malfunzionamento, alle antenne e alla sessione
+- ✅(Funzionante): Mostra il corretto funzionamento.
+- ⚠️(Warning): Che sono associati, in caso di malfunzionamento, ai GPS.
+- ❌(Error):  Che sono associati, in caso di malfunzionamento, alle antenne e alla sessione.
 ###### Grafico dei black box
 Visualizza una percentuale dei veicoli muniti solo di blackbox e dei veicoli muniti anche di antenna RFID per le letture dei tag sui cassonetti, che sulla tabella corrisponde ad:
-- 📡(di colore verde): se il veicolo è munito di antenna RFID funzionante
+- 📡(di colore verde): se il veicolo è munito di antenna RFID funzionante.
 - 📡(di colore rosso): se il veicolo è munito di antenna RFID che presenta un anomalia.
-- 📡❌(di colore blu e croce rossa): Se l'antenna il veicolo non è munito di antenna
+- 📡❌(di colore blu e croce rossa): Se l'antenna il veicolo non è munito di antenna.
 
 --- 
 
@@ -99,22 +99,22 @@ Permette di accedere alle altre pagine tramite apposti bottoni:
 ---
 
 ##### MEZZI
-Pagina che visualizza tutto l'archivio dei mezzi registrati, con la più possibilità di filtraggio e rappresentazioni grafiche dei dati
+Pagina che visualizza tutto l'archivio dei mezzi registrati, con la più possibilità di filtraggio e rappresentazioni grafiche dei dati.
 
 ---
 
 ##### DETTAGLIO MEZZI
-Pagina che visualizza 
+Pagina che visualizza i veicoli con la possibilità di applicare più filtri e maggiori opzioni per la visualizzazione.
 
 ---
 
 ##### IMPOSTAZIONI
-Pagina per modificare le impostazioni
+Pagina per modificare le impostazioni.
 
 ---
 
 ##### GESTIONE UTENTI
-Pagina che sarà consultabile solo dall'utente Amministratore(Admin), e che gli permetterà di 
+Pagina che sarà consultabile solo dall'utente Amministratore(Admin), i quali poteri non sono ancora ben stati definiti, e che gli permetterà di gestire informazioni come le credenziali degli altri utenti e apportare modifiche ad informazioni come le specifiche dei veicoli.
 
 ---
 
