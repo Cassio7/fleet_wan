@@ -80,7 +80,7 @@ export class ErrorGraphsService{
     if (this.errorSliceSelected === "working") {
       this.errorSliceSelected = "";
       this.sessionStorageService.setItem("errorSlice", "");//fetta selezionata in session storage
-      this.checkErrorsService.fillTable$.next(tableData);
+      this.checkErrorsService.fillTable$.next(this.checkBlackBoxSlice());
     } else {
       //sessionStorage.setItem("errorSlice", "working"); // Salvataggio scelta attuale in sessionStorage
       this.errorSliceSelected = "working";
@@ -92,12 +92,10 @@ export class ErrorGraphsService{
    * Gestisce la logica del click sulla fetta "warning" del grafico degli errori
    */
   warningClick() {
-    const tableData = JSON.parse(this.sessionStorageService.getItem("allVehicles") || "[]");
-
     if (this.errorSliceSelected === "warning") {
       this.errorSliceSelected = "";
       this.sessionStorageService.setItem("errorSlice", ""); // Deseleziona la fetta
-      this.checkErrorsService.fillTable$.next(tableData);
+      this.checkErrorsService.fillTable$.next(this.checkBlackBoxSlice());
     } else {
       this.errorSliceSelected = "warning";
       this.sessionStorageService.setItem("errorSlice", "warning"); // Salva la scelta attuale
@@ -114,7 +112,7 @@ export class ErrorGraphsService{
     if (this.errorSliceSelected === "error") {
       this.errorSliceSelected = "";
       this.sessionStorageService.setItem("errorSlice", ""); // Deseleziona la fetta
-      this.checkErrorsService.fillTable$.next(tableData);
+      this.checkErrorsService.fillTable$.next(this.checkBlackBoxSlice());
     } else {
       this.errorSliceSelected = "error";
       this.sessionStorageService.setItem("errorSlice", "error"); // Salva la scelta attuale
@@ -122,20 +120,21 @@ export class ErrorGraphsService{
     }
   }
 
-  checkErrorBlackBoxSlice(): any[] {
+  checkBlackBoxSlice(): any[] {
     let vehicles: any[] = [];
 
     switch (this.sessionStorageService.getItem("blackboxSlice")) {
       case "blackbox":
-        vehicles = JSON.parse(this.sessionStorageService.getItem("blackBoxVehicles") || "[]");
+        vehicles = JSON.parse(this.sessionStorageService.getItem("blackboxVehicles") || "[]");
+        console.log(vehicles);
         break;
 
       case "blackbox+antenna":
-        vehicles = JSON.parse(this.sessionStorageService.getItem("blackBoxWithAntennaVehicles") || "[]");
+        vehicles = JSON.parse(this.sessionStorageService.getItem("blackboxAntennaVehicles") || "[]");
         break;
 
       default:
-        vehicles = JSON.parse(this.sessionStorageService.getItem("allBlackBoxVehicles") || "[]");
+        vehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles") || "[]");
         break;
     }
 

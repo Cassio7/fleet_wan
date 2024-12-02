@@ -19,6 +19,7 @@ export class BlackboxGraphsService{
   private _loadBlackBoxData$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
   private _loadBlackBoxAntennaData$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
 
+  private firstLoad:boolean = true;
 
   private _series: number[] = []; //[blackbox, blackbox + antenna]
   private _colors = ["#0061ff", "#009bff"];
@@ -72,8 +73,12 @@ export class BlackboxGraphsService{
       console.error("Error loading chart data: ", error);
     }
     //salvataggio dati grafico nel sessionstorage
-    this.sessionStorageService.setItem("blackboxVehicles", this.blackboxData.blackboxWithAntenna);
-    this.sessionStorageService.setItem("blackboxAntennaVehicles", this.blackboxData.blackboxWithAntenna);
+    if(this.firstLoad){
+      this.sessionStorageService.setItem("blackboxVehicles", JSON.stringify(this.blackboxData.blackboxOnly));
+      this.sessionStorageService.setItem("blackboxAntennaVehicles", JSON.stringify(this.blackboxData.blackboxWithAntenna));
+      this.firstLoad = false;
+    }
+    console.log("blackbox vehicles: ", this.blackboxData.blackboxOnly);
     this._loadGraphData$.next(this._series);
   }
   /**
