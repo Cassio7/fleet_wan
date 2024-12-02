@@ -3,6 +3,8 @@ import axios from 'axios';
 import { Response } from 'express';
 import { CompanyService } from 'src/services/company/company.service';
 import { RealtimeService } from 'src/services/realtime/realtime.service';
+import { InjectRedis } from '@nestjs-modules/ioredis';
+import Redis from 'ioredis';
 
 @Controller('realtimes')
 export class RealtimeController {
@@ -10,13 +12,18 @@ export class RealtimeController {
   constructor(
     private readonly realTimeService: RealtimeService,
     private readonly companyService: CompanyService,
+    @InjectRedis() private readonly redis: Redis,
   ) {}
 
   @Get()
   async getAllTimes(@Res() res: Response) {
     try {
       const times = await this.realTimeService.getAllTimes();
-      res.status(200).json(times);
+      if (times) res.status(200).json(times);
+      else
+        res.status(404).json({
+          message: 'Nessun realtime recuperato',
+        });
     } catch (error) {
       console.error('Errore nel recupero dei realtimes:', error);
       res.status(500).send('Errore durante il recupero dei realtimes');
@@ -26,37 +33,51 @@ export class RealtimeController {
   @Get('/:id')
   async getTimeByVeId(@Res() res: Response, @Param() params: any) {
     try {
-      const group = await this.realTimeService.getTimesByVeId(params.id);
-      res.status(200).json(group);
+      const times = await this.realTimeService.getTimesByVeId(params.id);
+      if (times) res.status(200).json(times);
+      else
+        res.status(404).json({
+          message: 'Nessun realtime recuperato per Veicolo: ' + params.id,
+        });
     } catch (error) {
       console.error('Errore nel recupero dei realtimes:', error);
-      res.status(500).send('Errore durante il recupero dei realtimes');
+      res.status(500).json({ message: 'Errore nel recupero dei realtimes' });
     }
   }
   /**
-   * API che restituisce la via posizione in base alle coordinate
+   * API che restituisce la via posizione in base alle coordinate salvandola in cache su Redis
    * @param res VeId del veicolo
    * @param params
    */
-  @Get('resolved/:id')
+  @Get('resolved/:veId')
   async getResolvedByVeId(@Res() res: Response, @Param() params: any) {
     try {
-      const groups = await this.realTimeService.getTimesByVeId(params.id);
+      const times = await this.realTimeService.getTimesByVeId(params.veId);
       const response = [];
-      for (const group of groups) {
-        const pos = await axios.get(this.nominatimUrl, {
-          params: {
-            lat: group.latitude,
-            lon: group.longitude,
-            format: 'json',
-          },
-        });
-        response.push(pos.data.display_name);
+      for (const time of times) {
+        const cacheKey = `pos:${time.latitude}:${time.longitude}`;
+        let position = await this.redis.get(cacheKey);
+        if (!position) {
+          const pos = await axios.get(this.nominatimUrl, {
+            params: {
+              lat: time.latitude,
+              lon: time.longitude,
+              format: 'json',
+            },
+          });
+          position = pos.data.display_name;
+          await this.redis.set(cacheKey, position, 'EX', 86400);
+        }
+
+        response.push(position);
       }
-      res.status(200).json(response);
+      if (response) res.status(200).json(response);
+      else res.status(404).json({ message: 'Nessuna posizione registrata' });
     } catch (error) {
       console.error('Errore nel recupero dei realtimes:', error);
-      res.status(500).send('Errore durante il recupero dei realtimes');
+      res
+        .status(500)
+        .json({ message: 'Errore durante il recupero dei realtimes' });
     }
   }
 
