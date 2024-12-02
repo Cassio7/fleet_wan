@@ -34,7 +34,7 @@ export class RealtimePositionEntity
 
   @Index()
   @ManyToOne(() => VehicleEntity, (vehicle) => vehicle.realtime_position)
-  vehicle: VehicleEntity | null;
+  vehicle: VehicleEntity;
 
   @Column({ type: 'varchar', length: 100 })
   hash: string;

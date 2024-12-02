@@ -15,12 +15,12 @@
 - [ ] rimuovere codice non utilizzato
 - [ ] dare un formato di risposta corretto a tutte le API
 - [ ] inserire una tabella con la tipologia di veicolo (spazzatrice ...)
-- [ ] pensare a tabella di appoggio per allocare i controlli per tutti i veicoli con GPS, Antenna e Sessione
+- [ ] pensare a tabella di appoggio per allocare i controlli per tutti i veicoli con GPS, Antenna e Sessione (FORSE REDIS)
 - [ ] segnare la posizione dei cantieri con circonferenza, layer comunali
-- [ ] risoluzione posizione con openstreetmap [reverse](https://nominatim.org/release-docs/develop/api/Reverse/)
-- [ ] integrazione con Redis per ridurre tempo risoluzione chiamate risoluzione posizione e altro
+- [x] risoluzione posizione con openstreetmap [reverse](https://nominatim.org/release-docs/develop/api/Reverse/)
+- [x] integrazione con Redis per ridurre tempo risoluzione chiamate risoluzione posizione e altro
+- [x] gestito errore 502 *AxiosError* per il recupero dei dati, riprova 3 volte prima di saltare
 - [ ] succede che vengono letti anche i tag di oggetti che non sono contenitori, tipo capi della Decathlon, 3 opzioni
   1.  funzione che valida gli epc,
   2.  recupero i tag validi da un altra parte, come tabella da kevin,
   3.  salvo comunque tutto comunque
-- [ ] tabella di appoggio con i dati degl'ultimi controlli, così da riprendere i dati da li invece che fare una request, per la dashboard principale.

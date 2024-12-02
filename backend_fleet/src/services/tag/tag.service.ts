@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { DetectionTagEntity } from 'classes/entities/detection_tag.entity';
 import { TagEntity } from 'classes/entities/tag.entity';
 import { TagHistoryEntity } from 'classes/entities/tag_history.entity';
@@ -67,9 +67,32 @@ export class TagService {
       'Content-Type': 'text/xml; charset=utf-8',
       SOAPAction: `"${methodName}"`,
     };
+    let response;
+    let retries = 3;
+    while (retries > 0) {
+      try {
+        response = await axios.post(this.serviceUrl, requestXml, {
+          headers,
+        });
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          const axiosError = error as AxiosError;
 
+          if (axiosError.response?.status === 502) {
+            console.warn(
+              `Errore 502 ricevuto. Ritento (${3 - retries + 1}/3)...`,
+            );
+            retries -= 1;
+            continue;
+          }
+        }
+        console.error(
+          'Errore non è 502 o i retry sono terminati, saltato controllo:',
+          error.message,
+        );
+      }
+    }
     const queryRunner = this.connection.createQueryRunner();
-
     const hashTagHistoryCrypt = (tag_history: any): string => {
       const toHash = {
         timestamp: tag_history.timestamp,
@@ -85,9 +108,6 @@ export class TagService {
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
-      const response = await axios.post(this.serviceUrl, requestXml, {
-        headers,
-      });
       const jsonResult = await parseStringPromise(response.data, {
         explicitArray: false,
       });
@@ -188,7 +208,6 @@ export class TagService {
       await queryRunner.rollbackTransaction();
       await queryRunner.release();
       console.error('Errore nella richiesta SOAP:', error);
-      throw new Error('Errore durante la richiesta al servizio SOAP');
     }
   }
 
@@ -264,7 +283,6 @@ export class TagService {
       await queryRunner.rollbackTransaction();
       await queryRunner.release();
       console.error('Errore nella richiesta SOAP:', error);
-      throw new Error('Errore durante la richiesta al servizio SOAP');
     }
   }
 
