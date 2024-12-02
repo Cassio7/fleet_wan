@@ -41,12 +41,8 @@ export class FilterService {
    * @returns array di veicoli filtrati
    */
   filterTableByCantieri(vehicles: any[], cantieri: string[]) {
-    let allVehicles: any[] = [];
+    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
 
-    allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-
-    console.log("filter by cantiere all vehicles: ", allVehicles);
-    console.log("filter by cantieri cantieri: ", cantieri);
     if (cantieri.includes("Seleziona tutto")) {
       return allVehicles; // Ritorna tutti i veicoli
     }

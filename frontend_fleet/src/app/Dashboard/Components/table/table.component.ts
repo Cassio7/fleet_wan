@@ -98,7 +98,8 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     this.filterService.filterTableByCantiere$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (cantieri: string[])=>{
-        this.vehicleTableData.data = this.filterService.filterTableByCantieri(this.allVehicles, cantieri) as any;
+        const tableVehicles = JSON.parse(this.sessionStorageService.getItem("tableData"));
+        this.vehicleTableData.data = this.allVehicles.length > 0 ? this.filterService.filterTableByCantieri(this.allVehicles, cantieri) as any : this.filterService.filterTableByCantieri(tableVehicles, cantieri) as any;
         this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));
         this.cd.detectChanges();
         this.loadGraphs(this.vehicleTableData.data);
@@ -252,19 +253,17 @@ export class TableComponent implements OnDestroy, AfterViewInit{
                 .filter(anomalyVehicle => anomalyVehicle.veId === vehicle.veId && anomalyVehicle.sessions?.length > 0)
                 .flatMap(anomalyVehicle => anomalyVehicle.sessions || []); // Se non ci sono sessioni, restituisci un array vuoto
 
-              // Accorpamento anomalia di sessione
+              // Accorpamento anomalia di ultima sessione
               if (vehicle.veId) {
                 const anomalyVehicle = anomaliesVehicles.find(anomaly => anomaly.veId === vehicle.veId);
-
                 // Se l'anomalia esiste, la assegno, altrimenti assegno una stringa vuota
                 if (anomalyVehicle && anomalyVehicle.anomaliaSessione) {
+                console.log(anomalyVehicle);
                   vehicle.anomaliaSessione = anomalyVehicle.anomaliaSessione;
                 } else {
                   vehicle.anomaliaSessione = ""; // Se non c'è anomaliaSessione, assegno una stringa vuota
                 }
               }
-
-              console.log("Anomaly vehicles: ", anomaliesVehicles);
 
               // Accorpamento ultima sessione valida
               const lastSession = lastValidSessions.find(lastSession => lastSession.veId === vehicle.veId);
