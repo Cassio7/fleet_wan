@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ScheduleModule } from '@nestjs/schedule';
 import { JwtModule } from '@nestjs/jwt';
+import { RedisModule } from '@nestjs-modules/ioredis';
 
 // Importa le entità
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
@@ -23,6 +24,7 @@ import { CompanyEntity } from 'classes/entities/company.entity';
 import { WorksiteEntity } from 'classes/entities/worksite.entity';
 import { NoteEntity } from 'classes/entities/note.entity';
 import { RoleCompanyEntity } from 'classes/entities/role_company.entity';
+import { WorksiteGroupEntity } from 'classes/entities/worksite_group.entity';
 
 // importo i servizi
 import { VehicleService } from './services/vehicle/vehicle.service';
@@ -42,14 +44,13 @@ import { SessionController } from './controllers/session/session.controller';
 import { TagController } from './controllers/tag/tag.controller';
 import { CompanyController } from './controllers/company/company.controller';
 import { AuthController } from './controllers/auth/auth.controller';
+import { UserController } from './controllers/user/user.controller';
 
 // importo i factory
 import { UserFactoryService } from './factory/user.factory';
 import { CompanyFactoryService } from './factory/company.factory';
-import { UserController } from './controllers/user/user.controller';
 import { WorksiteFactoryService } from './factory/worksite.factory';
 import { GroupFactoryService } from './factory/group.factory';
-import { WorksiteGroupEntity } from 'classes/entities/worksite_group.entity';
 import { WorksiteGroupFactoryService } from './factory/worksite_group.factory';
 import { RoleCompanyFactoryService } from './factory/role_company.factory';
 
@@ -177,6 +178,14 @@ import { RoleCompanyFactoryService } from './factory/role_company.factory';
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('SECRET_TOKEN'),
         signOptions: { expiresIn: '10h' },
+      }),
+    }),
+    RedisModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        type: 'single',
+        url: configService.get<string>('REDIS_URL'),
       }),
     }),
   ],
