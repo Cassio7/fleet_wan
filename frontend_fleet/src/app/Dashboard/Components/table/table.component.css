@@ -1,10 +1,10 @@
-.table-over{
+.table-over {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-tr,td, th{
+tr, td, th {
   text-align: center;
 }
 
@@ -14,7 +14,7 @@ tr,td, th{
   overflow-y: auto;
 }
 
-.table-container table{
+.table-container table {
   max-height: 300px;
   overflow-y: auto;
 }
@@ -33,42 +33,41 @@ tr,td, th{
 
 .mat-cell {
   display: flex;
-  justify-content: center; /* Allinea al centro orizzontalmente */
-  align-items: center; /* Allinea al centro verticalmente */
-  padding: 0; /* Rimuove eventuale padding extra */
-  height: 100%; /* Assicura che la cella occupi l'intera altezza */
-  box-sizing: border-box; /* Mantiene le dimensioni corrette */
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .icon-container {
   position: relative;
-  display: inline-block; /* Adatta la dimensione al contenuto */
-  width: 24px; /* Larghezza del contenitore, adattabile alla dimensione delle icone */
-  height: 24px; /* Altezza del contenitore */
+  display: inline-block;
+  width: 24px;
+  height: 24px;
 }
 
-.antenna-icon,
-.close-icon {
+.antenna-icon, .close-icon {
   position: absolute;
   top: 0;
   left: 0;
-  font-size: 24px; /* Dimensione delle icone */
-  line-height: 24px; /* Per uniformare altezza e dimensione */
+  font-size: 24px;
+  line-height: 24px;
 }
 
-.antenna-icon{
+.antenna-icon {
   color: #0061ff;
 }
 
 .close-icon {
-  color: red; /* Colore rosso per l'icona "close" */
+  color: red;
 }
 
-.check-noReader, .error-icon, .close-icon, .check-icon, .warning-icon{
+.check-noReader, .error-icon, .close-icon, .check-icon, .warning-icon {
   cursor: pointer;
-  transition: transform 0.2s; /* Aggiunge un effetto hover */
+  transition: transform 0.2s;
 }
 
-.check-noReader:hover,.error-icon:hover,.close-icon:hover,.check-icon:hover,.warning-icon:hover {
-  transform: scale(1.1); /* Leggera ingrandimento su hover */
+.check-noReader:hover, .error-icon:hover, .close-icon:hover, .check-icon:hover, .warning-icon:hover {
+  transform: scale(1.1);
 }

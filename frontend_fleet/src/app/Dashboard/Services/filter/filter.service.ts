@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { SessionStorageService } from '../../../Common services/sessionStorage/session-storage.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FilterService {
+  private _updateFilterOptions$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
   private _filterTableByCantiere$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
   constructor(
@@ -70,5 +71,8 @@ export class FilterService {
 
   public get filterTableByCantiere$(): BehaviorSubject<string[]> {
     return this._filterTableByCantiere$;
+  }
+  public get updateFilterOptions$(): BehaviorSubject<any[]> {
+    return this._updateFilterOptions$;
   }
 }

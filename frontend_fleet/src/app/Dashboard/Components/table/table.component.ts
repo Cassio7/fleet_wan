@@ -116,9 +116,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     this.checkErrorsService.fillTable$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (tableVehicles: any[]) => {
-        this.fillTableWithGraph(tableVehicles);
-        this.sessionStorageService.setItem("tableData", JSON.stringify(tableVehicles));
-        this.loadGraphs(tableVehicles);
+        this.onGraphClick(tableVehicles);
       },
       error: error => console.error("Errore nel caricamento dei dati dal grafico degli errori: ", error)
     });
@@ -127,9 +125,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     this.errorGraphService.loadFunzionanteData$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (workingVehicles: any[]) => {
-        this.fillTableWithGraph(workingVehicles);
-        this.sessionStorageService.setItem("tableData", JSON.stringify(workingVehicles));
-        this.loadGraphs(workingVehicles);
+        this.onGraphClick(workingVehicles);
       },
       error: error => console.error("Errore nel caricamento dei dati dal grafico degli errori: ", error)
     });
@@ -138,9 +134,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     this.errorGraphService.loadWarningData$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (warningVehicles: any[]) => {
-        this.fillTableWithGraph(warningVehicles);
-        this.sessionStorageService.setItem("tableData", JSON.stringify(warningVehicles));
-        this.loadGraphs(warningVehicles);
+        this.onGraphClick(warningVehicles);
       },
       error: error => console.error("Errore nel caricamento dei dati dal grafico degli errori: ", error)
     });
@@ -149,9 +143,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     this.errorGraphService.loadErrorData$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (errorVehicles: any[]) => {
-        this.fillTableWithGraph(errorVehicles);
-        this.sessionStorageService.setItem("tableData", JSON.stringify(errorVehicles));
-        this.loadGraphs(errorVehicles);
+        this.onGraphClick(errorVehicles);
       },
       error: error => console.error("Errore nel caricamento dei dati dal grafico degli errori: ", error)
     });
@@ -163,24 +155,21 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     this.checkErrorsService.fillTable$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (allVehicles: any[]) => {
-        this.fillTableWithGraph(allVehicles);
-        this.loadGraphs(allVehicles);
+        this.onGraphClick(allVehicles);
       },
       error: error => console.error("Errore nel caricamento dei dati dal grafico dei blackbox: ", error)
     });
     this.blackboxGraphService.loadBlackBoxData$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (blackBoxVehicles: any[]) => {
-        this.fillTableWithGraph(blackBoxVehicles);
-        this.loadGraphs(blackBoxVehicles);
+        this.onGraphClick(blackBoxVehicles);
       },
       error: error => console.error("Errore nel caricamento dei dati dal grafico dei blackbox: ", error)
     });
     this.blackboxGraphService.loadBlackBoxAntennaData$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (blackBoxAntennaVehicles: any[]) => {
-        this.fillTableWithGraph(blackBoxAntennaVehicles);
-        this.loadGraphs(blackBoxAntennaVehicles);
+        this.onGraphClick(blackBoxAntennaVehicles);
       },
       error: error => console.error("Errore nel caricamento dei dati dal grafico dei blackbox: ", error)
     });
@@ -196,7 +185,6 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     const sortDirection = event.direction;
     const vehicles = this.vehicleTableData.data;
 
-    console.log(column);
     switch (column) {
       case 'cantiere':
         if (sortDirection == "asc") {
@@ -311,7 +299,16 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   }
 
 
-
+  /**
+ * Richiama le funzioni per il riempimento della tabella in base al filtro dei grafici (inserendo i nuovi veicoli nel sessionstorage) e la sincronizzazione di quest'ultimi
+ * @param vehicles veicoli da caricare
+ */
+  onGraphClick(vehicles: any[]){
+    this.sessionStorageService.setItem("tableData", JSON.stringify(vehicles));
+    this.filterService.updateFilterOptions$.next(vehicles);
+    this.fillTableWithGraph(vehicles);
+    this.loadGraphs(vehicles);
+  }
 
 
   /**
