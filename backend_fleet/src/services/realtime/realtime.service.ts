@@ -95,30 +95,33 @@ export class RealtimeService {
         ]),
       );
 
-      const newTimes = [];
-      for (const realtime of filteredData) {
-        const vehiclequery = vehiclequeryMap.get(Number(realtime.veId));
-        console.log(vehiclequery.veId);
-        const newTime = await queryRunner.manager
-          .getRepository(RealtimePositionEntity)
-          .create({
-            row_number: realtime.row_number,
-            timestamp: realtime.timestamp,
-            status: realtime.status,
-            latitude: realtime.latitude,
-            longitude: realtime.longitude,
-            nav_mode: realtime.nav_mode,
-            speed: realtime.speed,
-            direction: realtime.direction,
-            vehicle: vehiclequery,
-            hash: realtime.hash,
-          });
-        newTimes.push(newTime);
-      }
-      if (newTimes.length > 0) {
+      const newTimes = await Promise.all(
+        filteredData.map(async (realtime) => {
+          const vehiclequery = vehiclequeryMap.get(Number(realtime.veId));
+          if (vehiclequery) {
+            return queryRunner.manager
+              .getRepository(RealtimePositionEntity)
+              .create({
+                row_number: realtime.row_number,
+                timestamp: realtime.timestamp,
+                status: realtime.status,
+                latitude: realtime.latitude,
+                longitude: realtime.longitude,
+                nav_mode: realtime.nav_mode,
+                speed: realtime.speed,
+                direction: realtime.direction,
+                vehicle: vehiclequery,
+                hash: realtime.hash,
+              });
+          }
+        }),
+      );
+
+      // DATI SALVATI SINGOLARMENTE PER ESCLUDERE ERRORI DI GRANDEZZA QUERY
+      for (const item of newTimes) {
         await queryRunner.manager
           .getRepository(RealtimePositionEntity)
-          .save(newTimes);
+          .save(item);
       }
       await queryRunner.commitTransaction();
       await queryRunner.release();
