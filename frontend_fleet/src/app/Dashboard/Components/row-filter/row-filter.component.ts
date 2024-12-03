@@ -84,7 +84,6 @@ export class RowFilterComponent implements AfterViewInit{
       this.allSelected = false;
     }
 
-
     const selectedCantieri = this.cantieri.value; // Opzioni selezionate
     // Se sono stati selezionati cantieri, invio dati
     if (selectedCantieri) {

@@ -116,6 +116,10 @@ export class BlackboxGraphsService{
     }
   }
 
+  /**
+   * Controlla se al momento della chiamata uno spicchio del grafico degli errori è stato selezionato
+   * @returns veicoli sui quali è stato applicato il filtro corrispondente allo spicchio se esiste
+   */
   checkErrorGraphSlice(): any[] {
     let vehicles: any[] = [];
 
@@ -140,6 +144,9 @@ export class BlackboxGraphsService{
     return vehicles;
   }
 
+  /**
+   * Resetta il valore dei grafici dei blackbox
+   */
   resetGraphs(){
     this.loadGraphData$.next([]);
   }

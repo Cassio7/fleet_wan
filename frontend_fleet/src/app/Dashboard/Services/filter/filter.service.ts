@@ -49,10 +49,16 @@ export class FilterService {
     const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
 
     if (cantieri.includes("Seleziona tutto")) {
-      if(this.errorGraphsService.checkBlackBoxSlice())
-      return this.errorGraphsService.checkBlackBoxSlice();
-      if(this.blackboxGraphsService.checkErrorGraphSlice())
+      if(this.errorGraphsService.checkBlackBoxSlice()){
+        console.log("blackbox slice selected");
+        return this.errorGraphsService.checkBlackBoxSlice();
+      }
+
+      if(this.blackboxGraphsService.checkErrorGraphSlice()){
+        console.log("error slice selected");
         return this.blackboxGraphsService.checkErrorGraphSlice();
+      }
+
       return allVehicles;// Ritorna tutti i veicoli
     }
 

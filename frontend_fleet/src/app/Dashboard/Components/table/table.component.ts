@@ -198,9 +198,9 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     switch (column) {
       case 'cantiere':
         if (sortDirection == "asc") {
-          this.vehicleTableData.data = this.sortService.sortByCantiereAsc(vehicles);
+          this.vehicleTableData.data = this.sortService.sortVehiclesByCantiereAsc(vehicles);
         } else {
-          this.vehicleTableData.data = this.sortService.sortByCantiereDesc(vehicles);
+          this.vehicleTableData.data = this.sortService.sortVehiclesByCantiereDesc(vehicles);
         }
         this.vehicleTable.renderRows();
         break;
@@ -214,6 +214,12 @@ export class TableComponent implements OnDestroy, AfterViewInit{
         this.vehicleTable.renderRows();
         break;
       case 'sessione':
+        if (sortDirection == "asc") {
+          this.vehicleTableData.data = this.sortService.sortVehiclesBySessioneAsc(vehicles);
+        } else {
+          this.vehicleTableData.data = this.sortService.sortVehiclesBySessioneDesc(vehicles);
+        }
+        this.vehicleTable.renderRows();
         break;
     }
     this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));
