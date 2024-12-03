@@ -1,2 +1,36 @@
-<router-outlet></router-outlet>
-<app-footer></app-footer>
+<mat-drawer-container class="drawer-container" style="height: 100vh">
+  <mat-drawer #drawer mode="side" class="sidebar">
+    <div class="drawer-content">
+      <img class="sidebar-logo" src="assets/logo.png" alt="Logo">
+
+      <hr>
+
+      <div class="main-actions">
+        <button mat-raised-button class="dashboard-btn button" routerLink="dashboard">
+          <mat-icon>dashboard</mat-icon>Dashboard
+        </button>
+        <button mat-raised-button class="mezzi-btn button" routerLink="/mezzi">
+          <mat-icon>local_shipping</mat-icon>Mezzi
+        </button>
+        <button mat-raised-button class="dettaglio-mezzi-btn button">
+          <mat-icon>search</mat-icon><mat-icon>local_shipping</mat-icon>Dettaglio mezzi
+        </button>
+      </div>
+
+      <div class="settings">
+        <button mat-raised-button class="gestione-btn button">
+          <mat-icon>manage_accounts</mat-icon>Gestione utente
+        </button>
+        <button mat-raised-button class="settings-btn button">
+          <mat-icon>settings</mat-icon>Impostazioni
+        </button>
+      </div>
+    </div>
+  </mat-drawer>
+
+  <div class="sidebar-content">
+    <app-navbar (toggleSidebar)="drawer.toggle()"></app-navbar>
+    <router-outlet></router-outlet>
+  </div>
+  <app-footer></app-footer>
+</mat-drawer-container>

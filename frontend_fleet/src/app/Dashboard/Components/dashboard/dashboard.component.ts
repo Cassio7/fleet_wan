@@ -11,8 +11,9 @@ import { Subject, takeUntil } from 'rxjs';
 import { CommonService } from '../../../Common services/common service/common.service';
 import { BlackboxGraphCardComponent } from '../blackbox-graphs/blackbox-graph-card/blackbox-graph-card.component';
 import { ErrorGraphCardComponent } from '../error graphs/error-graph-card/error-graph-card.component';
-import { NavbarComponent } from '../navbar/navbar.component';
+import { NavbarComponent } from '../../../Common components/navbar/navbar.component';
 import { TableComponent } from '../table/table.component';
+import { MatToolbarModule } from '@angular/material/toolbar';
 
 @Component({
   selector: 'app-dashboard',
@@ -20,9 +21,6 @@ import { TableComponent } from '../table/table.component';
   imports: [
     MatButtonModule,
     MatIconModule,
-    MatDrawer,
-    MatDrawerContainer,
-    NavbarComponent,
     CommonModule,
     MatButtonModule,
     MatInputModule,
@@ -30,6 +28,7 @@ import { TableComponent } from '../table/table.component';
     MatNativeDateModule,
     MatDatepickerModule,
     RouterModule,
+    MatToolbarModule,
     TableComponent,
     ErrorGraphCardComponent,
     BlackboxGraphCardComponent
@@ -37,8 +36,8 @@ import { TableComponent } from '../table/table.component';
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
-export class DashboardComponent implements AfterViewInit, OnDestroy{
-  @ViewChild('drawer') sidebar!: MatDrawer;
+export class DashboardComponent implements OnDestroy{
+
 
   private readonly destroy$: Subject<void> = new Subject<void>();
 
@@ -52,19 +51,5 @@ export class DashboardComponent implements AfterViewInit, OnDestroy{
     private commonService: CommonService
   ){
 
-  }
-
-
-
-  ngAfterViewInit(): void {
-    this.commonService.notifySidebar$.pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: () => {
-        this.sidebar.toggle();
-      },
-      error: () => {
-        console.error("Error opening the sidebar.");
-      }
-    });
   }
 }

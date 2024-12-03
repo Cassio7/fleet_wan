@@ -1,11 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterModule } from '@angular/router';
 import { Subject } from 'rxjs';
-import { CommonService } from '../../../Common services/common service/common.service';
+import { CommonService } from '../../Common services/common service/common.service';
 
 @Component({
   selector: 'app-navbar',
@@ -22,14 +22,15 @@ import { CommonService } from '../../../Common services/common service/common.se
   styleUrl: './navbar.component.css'
 })
 export class NavbarComponent {
+  @Output() toggleSidebar = new EventEmitter<void>();
 
   constructor(
     private commonService: CommonService,
     private router: Router
   ){}
 
-  notifySidebar(){
-    this.commonService.notifySidebar$.next();
+  notifySidebar() {
+    this.toggleSidebar.emit();
   }
 
   logout(){

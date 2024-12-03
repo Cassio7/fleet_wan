@@ -1,60 +1,4 @@
-.drawer-container {
-  width: 100%;
-  height: 100%;
-}
 
-/* Sidebar CSS */
-.sidebar {
-  padding: clamp(10px, 2vw, 20px);
-  width: clamp(15%, 20vw, 20%);
-  background-color: rgb(0, 201, 77);
-}
-
-.drawer-content {
-  height: 100%;
-  width: 100%;
-}
-
-.sidebar-logo {
-  width: clamp(50%, 70%, 70%);
-  padding: clamp(2px, 1vw, 5px);
-}
-
-hr {
-  width: 100%;
-}
-
-.main-actions {
-  margin-top: clamp(10px, 2vh, 20px);
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: clamp(5px, 1vh, 10px);
-}
-
-.settings {
-  margin: 0;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-end;
-  gap: clamp(5px, 1vh, 10px);
-  flex-grow: 1;
-  overflow: hidden;
-}
-
-.button {
-  color: rgb(0, 0, 0) !important;
-  font-size: clamp(16px, 2vw, 20px);
-  text-align: flex-start;
-}
-
-mat-drawer {
-  height: 100vh;
-  overflow: hidden;
-}
 
 /* Page CSS */
 
@@ -69,15 +13,6 @@ mat-drawer {
   max-width: 100%; /* Limita la larghezza del contenitore */
   box-sizing: border-box; /* Considera il padding nel calcolo della larghezza totale */
 }
-
-
-.drawer-content {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-}
-
 
 
 /* first column css */
