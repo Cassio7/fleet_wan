@@ -66,8 +66,8 @@ export class SortService {
    */
   sortVehiclesBySessioneAsc(vehicles: any[]): any[] {
     return vehicles.sort((a, b) => {
-      const dateA = new Date(a.lastValidSession);
-      const dateB = new Date(b.lastValidSession);
+      const dateA = new Date(a.lastValidSession.period_from);
+      const dateB = new Date(b.lastValidSession.period_from);
       return dateA.getTime() - dateB.getTime();
     });
   }
@@ -79,8 +79,8 @@ export class SortService {
    */
   sortVehiclesBySessioneDesc(vehicles: any[]): any[] {
     return vehicles.sort((a, b) => {
-      const dateA = new Date(a.lastValidSession);
-      const dateB = new Date(b.lastValidSession);
+      const dateA = new Date(a.lastValidSession.period_from);
+      const dateB = new Date(b.lastValidSession.period_from);
       return dateB.getTime() - dateA.getTime();
     });
   }
