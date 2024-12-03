@@ -5,13 +5,10 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatDrawer, MatDrawerContainer } from '@angular/material/sidenav';
 import { RouterModule } from '@angular/router';
-import { Subject, takeUntil } from 'rxjs';
-import { CommonService } from '../../../Common services/common service/common.service';
+import { Subject } from 'rxjs';
 import { BlackboxGraphCardComponent } from '../blackbox-graphs/blackbox-graph-card/blackbox-graph-card.component';
 import { ErrorGraphCardComponent } from '../error graphs/error-graph-card/error-graph-card.component';
-import { NavbarComponent } from '../../../Common components/navbar/navbar.component';
 import { TableComponent } from '../table/table.component';
 import { MatToolbarModule } from '@angular/material/toolbar';
 
@@ -36,20 +33,9 @@ import { MatToolbarModule } from '@angular/material/toolbar';
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
-export class DashboardComponent implements OnDestroy{
+export class DashboardComponent{
 
-
-  private readonly destroy$: Subject<void> = new Subject<void>();
-
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  constructor(
-    private commonService: CommonService
-  ){
+  constructor(){
 
   }
 }

@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable} from 'rxjs';
 import { Session } from '../../../Models/Session';
-import { CommonService } from '../../../Common services/common service/common.service';
+import { CommonService } from '../../../Common-services/common service/common.service';
 
 @Injectable({
   providedIn: 'root'

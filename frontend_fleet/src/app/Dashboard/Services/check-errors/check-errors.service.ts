@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { CommonService } from '../../../Common services/common service/common.service';
+import { CommonService } from '../../../Common-services/common service/common.service';
 import { Vehicle } from '../../../Models/Vehicle';
 
 @Injectable({

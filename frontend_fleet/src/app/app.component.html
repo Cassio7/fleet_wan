@@ -6,10 +6,10 @@
       <hr>
 
       <div class="main-actions">
-        <button mat-raised-button class="dashboard-btn button" routerLink="dashboard">
+        <button mat-raised-button class="dashboard-btn button" routerLink="/dashboard">
           <mat-icon>dashboard</mat-icon>Dashboard
         </button>
-        <button mat-raised-button class="mezzi-btn button" routerLink="/mezzi">
+        <button mat-raised-button class="mezzi-btn button" routerLink="Mezzi/home-mezzi">
           <mat-icon>local_shipping</mat-icon>Mezzi
         </button>
         <button mat-raised-button class="dettaglio-mezzi-btn button">
@@ -29,7 +29,7 @@
   </mat-drawer>
 
   <div class="sidebar-content">
-    <app-navbar (toggleSidebar)="drawer.toggle()"></app-navbar>
+    <app-navbar (toggleSidebar)="drawer.toggle()" *ngIf="isLogged"></app-navbar>
     <router-outlet></router-outlet>
   </div>
   <app-footer></app-footer>

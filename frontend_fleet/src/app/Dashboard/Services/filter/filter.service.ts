@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { SessionStorageService } from '../../../Common services/sessionStorage/session-storage.service';
+import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { ErrorGraphsService } from '../error-graphs/error-graphs.service';
 import { BlackboxGraphsService } from '../blackbox-graphs/blackbox-graphs.service';
 

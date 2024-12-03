@@ -1,9 +1,9 @@
 import { ChangeDetectorRef, Injectable, OnInit } from '@angular/core';
-import { VehiclesApiService } from '../../../Common services/vehicles/vehicles-api.service';
+import { VehiclesApiService } from '../../../Common-services/vehicles/vehicles-api.service';
 import { BehaviorSubject, lastValueFrom, Subject, takeUntil } from 'rxjs';
 import { Vehicle } from '../../../Models/Vehicle';
 import { CheckErrorsService } from '../check-errors/check-errors.service';
-import { SessionStorageService } from '../../../Common services/sessionStorage/session-storage.service';
+import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 
 export interface blackboxData {
   sliceSelected: string;
@@ -78,7 +78,6 @@ export class BlackboxGraphsService{
       this.sessionStorageService.setItem("blackboxAntennaVehicles", JSON.stringify(this.blackboxData.blackboxWithAntenna));
       this.firstLoad = false;
     }
-    console.log("blackbox vehicles: ", this.blackboxData.blackboxOnly);
     this._loadGraphData$.next(this._series);
   }
   /**
