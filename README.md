@@ -101,12 +101,12 @@ Dov'è verrà visualizzata l'ultima posizione registrata per ciascun veicolo.
 ---
 
 ##### MEZZI
-Pagina che visualizza tutto l'archivio dei mezzi registrati, con la più possibilità di filtraggio e rappresentazioni grafiche dei dati.
+Pagina che visualizza tutto l'archivio dei mezzi registrati.
 
 ---
 
 ##### DETTAGLIO MEZZI
-Pagina che visualizza i veicoli con la possibilità di applicare più filtri e maggiori opzioni per la visualizzazione.
+Pagina che estende i dati visualizzati nella dashboard con la possibilità di applicare più filtri e maggiori opzioni per la visualizzazione.
 
 ---
 
