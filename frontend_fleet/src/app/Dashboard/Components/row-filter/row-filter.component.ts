@@ -104,6 +104,10 @@ export class RowFilterComponent implements AfterViewInit{
     }
   }
 
+  onFilterChange(){
+    this.setCantieriSessionStorage();
+  }
+
   /**
    * Inizializza il select per i filtri con i nomi di cantieri a cui i veicoli sono assegnati presi una sola volta
    * @returns array di nomi di cantieri
@@ -112,7 +116,7 @@ export class RowFilterComponent implements AfterViewInit{
     return vehicles ? this.filterService.fillSelect(vehicles) : [];
   }
 
-  // private setCantieriSessionStorage(){
-  //   this.sessionStorageService.setItem("cantieri", JSON.stringify(this.cantieri.value));
-  // }
+  private setCantieriSessionStorage(){
+    this.sessionStorageService.setItem("cantieri", JSON.stringify(this.cantieri.value));
+  }
 }
