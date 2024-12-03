@@ -11,21 +11,6 @@ export class UserService {
   ) {}
 
   /**
-   * Ritorna un utente in base all'username, se esiste
-   * @param username username dell'utente
-   * @returns ritorna oggetto utente
-   */
-  async getUserByUsername(username: string): Promise<any> {
-    const user = await this.userEntity.findOne({
-      where: { username: username },
-      relations: {
-        user_role: { role: true },
-      },
-    });
-    return user;
-  }
-
-  /**
    * Ritorna tutti gli utenti
    * @returns Utenti no password
    */
@@ -33,22 +18,37 @@ export class UserService {
     const users = await this.userEntity.find({
       select: {
         username: true,
+        name: true,
+        surname: true,
         email: true,
-        user_role: {
-          id: true,
-          role: {
-            id: true,
-            name: true,
-            description: true,
-          },
-        },
-      },
-      relations: {
-        user_role: {
-          role: true,
-        },
       },
     });
     return users;
+  }
+  /**
+   * Ritorna un utente in base all'username, se esiste
+   * @param username username dell'utente
+   * @returns ritorna oggetto utente
+   */
+  async getUserByUsername(username: string): Promise<any> {
+    const user = await this.userEntity.findOne({
+      where: { username: username },
+    });
+    return user;
+  }
+
+  /**
+   * Ritorna utente in base all'id
+   * @param id id utente
+   * @returns oggetto utente
+   */
+  async getUserById(id: number): Promise<any> {
+    const user = await this.userEntity.findOne({
+      where: { id: id },
+      relations: {
+        role: true,
+      },
+    });
+    return user;
   }
 }
