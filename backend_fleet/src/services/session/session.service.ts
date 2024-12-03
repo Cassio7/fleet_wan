@@ -87,6 +87,7 @@ export class SessionService {
         response = await axios.post(this.serviceUrl, requestXml, {
           headers,
         });
+        break;
       } catch (error) {
         if (axios.isAxiosError(error)) {
           const axiosError = error as AxiosError;
