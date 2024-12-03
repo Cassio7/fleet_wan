@@ -9,7 +9,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Session } from '../../../Models/Session';
 import { first, forkJoin, skip, Subject, switchMap, takeUntil, filter } from 'rxjs';
-import { VehiclesApiService } from '../../../Common-services/vehicles/vehicles-api.service';
+import { VehiclesApiService } from '../../../Common-services/vehicles service/vehicles-api.service';
 import { Vehicle } from '../../../Models/Vehicle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ErrorGraphsService } from '../../Services/error-graphs/error-graphs.service';

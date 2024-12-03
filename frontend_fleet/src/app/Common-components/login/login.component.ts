@@ -1,12 +1,13 @@
 import { CommonModule } from '@angular/common';
-import {ChangeDetectionStrategy, Component, signal} from '@angular/core';
+import {AfterViewInit, ChangeDetectionStrategy, Component, signal} from '@angular/core';
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import { Router, RouterModule } from '@angular/router';
 import { SessionStorageService } from '../../Common-services/sessionStorage/session-storage.service';
-import { LoginService } from '../../Common-services/login/login.service';
+import { LoginService } from '../../Common-services/login service/login.service';
+import { CookiesService } from '../../Common-services/cookies service/cookies.service';
 
 @Component({
   selector: 'app-login',
@@ -23,12 +24,12 @@ import { LoginService } from '../../Common-services/login/login.service';
   styleUrl: './login.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LoginComponent {
+export class LoginComponent{
   loginForm!: FormGroup;
 
   constructor(
     private router: Router,
-    private sessionStorageService: SessionStorageService,
+    private cookiesService: CookiesService,
     private loginService: LoginService
   ) {
     this.loginForm = new FormGroup({
@@ -39,7 +40,7 @@ export class LoginComponent {
 
   login(){
     if(this.loginForm.valid){
-      this.sessionStorageService.setItem("user", this.loginForm.get('usernameOremail')?.value);
+      this.cookiesService.setCookie("user", this.loginForm.get('usernameOremail')?.value);
       this.loginService.login$.next(); //notifica del login
       this.router.navigate(['dashboard']); //navigazione alla pagina principale
     }
