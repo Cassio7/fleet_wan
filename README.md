@@ -11,6 +11,7 @@
 11. [Manutenzione e Debug](#manutenzione-e-debug)
 12. [Roadmap e Futuri Aggiornamenti](#roadmap-e-futuri-aggiornamenti)
 13. [Contatti e Crediti](#contatti-e-crediti)
+
 ---
 ## Introduzione
 Fleet App è uno strumento per visualizzare in modo rapido i veicoli aziendali e monitorare e controllare il funzionamento di lettori RFID e antenne.
