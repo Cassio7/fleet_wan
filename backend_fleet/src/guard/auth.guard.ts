@@ -5,7 +5,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-
+import { extractTokenFromHeader } from 'src/utils/utils';
 import { AuthService } from 'src/services/auth/auth.service';
 
 @Injectable()
@@ -18,31 +18,20 @@ export class AuthGuard implements CanActivate {
    * @returns
    */
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    try {
-      const request = context.switchToHttp().getRequest();
-      const token = this.extractTokenFromHeader(request);
-      if (!token) {
-        throw new UnauthorizedException();
-      }
-      const resp = await this.authService.validateToken(token);
-      request.decodedData = resp;
-      return true;
-    } catch (error) {
-      console.log('auth error - ', error.message);
-      throw new ForbiddenException(
-        error.message || 'session expired! Please sign In',
-      );
+    const request = context.switchToHttp().getRequest();
+    const token = extractTokenFromHeader(request);
+    if (!token) {
+      throw new UnauthorizedException('Token non fornito.');
     }
-  }
-
-  /**
-   * Filtra il token nell'header della richiesta
-   * @param request la richiesta http
-   * @returns ritorna il token filtrato se presente
-   */
-  private extractTokenFromHeader(request: Request): string | undefined {
-    const { authorization }: any = request.headers;
-    const [type, token] = authorization.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
+    try {
+      const user = await this.authService.validateToken(token); 
+      request.user = user; 
+      return true; 
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw new ForbiddenException(error.message);
+      }
+      throw new ForbiddenException('Accesso non autorizzato.');
+    }
   }
 }
