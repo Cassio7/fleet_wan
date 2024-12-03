@@ -53,7 +53,7 @@ Permette di accedere alle altre pagine tramite apposti bottoni:
 ##### DASHBOARD
 
 ###### Tabella
-Contiene i dati di ciascun veicolo più utili al monitoraggio di quest'ultimi, le colonne presenti sono:
+Contiene i dati più rilevanti di ciascun veicolo per il monitoraggio, con la possibilità di ordinare le colonne per targa, cantiere e sessione, sia in ordine crescente che decrescente. Le colonne disponibili sono:
 
 ###### Targa:
 Contiene la targa del veicolo.
