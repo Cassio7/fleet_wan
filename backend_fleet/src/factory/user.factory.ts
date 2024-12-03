@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RoleEntity } from 'classes/entities/role.entity';
 import { UserEntity } from 'classes/entities/user.entity';
-import { UserRoleEntity } from 'classes/entities/user_role.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -12,25 +12,56 @@ export class UserFactoryService {
     private userRepository: Repository<UserEntity>,
     @InjectRepository(RoleEntity, 'mainConnection')
     private roleRepository: Repository<RoleEntity>,
-    @InjectRepository(UserRoleEntity, 'mainConnection')
-    private userRoleRepository: Repository<UserRoleEntity>,
+    private configService: ConfigService,
   ) {}
 
-  async createDefaultUser(): Promise<UserEntity> {
-    const user = new UserEntity();
-    user.username = 'Kevin';
-    user.email = 'kevin@nomail.com';
-    user.password = 'password';
-    return this.userRepository.save(user);
+  async createDefaultUser(): Promise<UserEntity[]> {
+    const role = await this.roleRepository.find({
+      where: [{ name: 'Admin' }, { name: 'Responsabile' }],
+    });
+    const users = [
+      {
+        name: null,
+        surname: null,
+        username: 'Admin',
+        email: 'admin@nomail.com',
+        password: this.configService.get<string>('USER_PASSWORD'),
+        role: role[0],
+      },
+      {
+        name: 'Mario',
+        surname: 'Rossi',
+        username: 'm.rossi',
+        email: 'm.rossi@nomail.com',
+        password: this.configService.get<string>('USER_PASSWORD'),
+        role: role[1],
+      },
+    ];
+    const userEntities = users.map((userData) => {
+      const user = new UserEntity();
+      user.name = userData.name;
+      user.surname = userData.surname;
+      user.username = userData.username;
+      user.email = userData.email;
+      user.password = userData.password;
+      user.role = userData.role;
+      return user;
+    });
+
+    return this.userRepository.save(userEntities);
   }
 
   async createDefaultRoles(): Promise<RoleEntity[]> {
     const roles = [
       {
         name: 'Admin',
-        description: 'Administrator of application, all CRUD operations',
+        description: 'Amministratore della applicazione. ',
       },
-      { name: 'User', description: 'Basic user with only reading access' },
+      { name: 'Responsabile', description: 'Resposabile di una o più società' },
+      {
+        name: 'Capo Cantiere',
+        description: 'Resposabile di uno o più cantieri',
+      },
     ];
     const roleEntities = roles.map((roleData) => {
       const role = new RoleEntity();
@@ -39,26 +70,5 @@ export class UserFactoryService {
       return role;
     });
     return this.roleRepository.save(roleEntities);
-  }
-
-  async createDefaultUserRoles(): Promise<UserRoleEntity[]> {
-    const user = await this.userRepository.findOne({
-      where: { username: 'Kevin' },
-    });
-
-    if (!user) throw new Error('User "Kevin" not found');
-
-    const roles = await this.roleRepository.find({
-      where: [{ name: 'Admin' }, { name: 'User' }],
-    });
-
-    const userRoles = roles.map((role) => {
-      const userRole = new UserRoleEntity();
-      userRole.user = user;
-      userRole.role = role;
-      return userRole;
-    });
-
-    return this.userRoleRepository.save(userRoles);
   }
 }
