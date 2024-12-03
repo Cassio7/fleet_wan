@@ -54,19 +54,24 @@ Permette di accedere alle altre pagine tramite apposti bottoni:
 
 ###### Tabella
 Contiene i dati di ciascun veicolo più utili al monitoraggio di quest'ultimi, le colonne presenti sono:
+
 ###### Targa:
 Contiene la targa del veicolo.
+
 ###### Cantiere:
 Contiene il nome del comune di appartenenza del veicolo.
+
 ###### GPS:
 Contiene un'icona che indica il funzionamento del GPS per quel veicolo, le icone possono essere:
 - ✅: Se il GPS funziona correttamente per quel veicolo
 - ❌: Se il GPS presenta un'anomalia (tipo di anomalia visualizzabile onMouseHover)
+
 ###### Antenna:
 Contiene un'icona che indica il funzionamento del GPS per quel veicolo, le icone possono essere:
 - 📡(di colore verde): Se l'antenna è presente e funziona sul veicolo
 - 📡(di colore rosso): Se l'antenna è presente sul veicolo e presenta un anomalia 
 - 📡❌(di colore blu e croce rossa): Se l'antenna il veicolo non è munito di antenna (tipo di anomalia visualizzabile onMouseHover)
+
 ###### Sessione:
 Contiene la data dell'ultima sessione valida del veicolo ed un'icona che indica la correttezza della sessione:
 - ✅: Se la sessione è corretta
@@ -75,19 +80,23 @@ Contiene la data dell'ultima sessione valida del veicolo ed un'icona che indica 
 
 ##### Filtro per cantieri
 Permette di filtrare le righe della tabella in base al cantiere di provenienza dei veicoli, con la possibilità di spuntare "Seleziona tutto" per selezionare tutti i cantieri e deselezionarli tutti.
+
 ##### Grafici
 Visualizzano un resoconto di alcuni dati dei veicoli nella tabella
-alla pressione di una fetta di ciascuno dei due grafici
+alla pressione di una fetta di ciascuno dei due grafici.
+
 ###### Select
 Grazie al menù a tendina è possibile scegliere tra le due modalità di visualizzazione del grafico:
 - A torta
 - A barre
+
 ###### Grafico degli errori
 Visualizza una percentuale del funzionamento dei veicoli nella tabella.
 Gli errori sono categorizzati, in base al peso attribuitogli, in:
 - ✅(Funzionante): Mostra il corretto funzionamento.
 - ⚠️(Warning): Che sono associati, in caso di malfunzionamento, ai GPS.
 - ❌(Error):  Che sono associati, in caso di malfunzionamento, alle antenne e alla sessione.
+
 ###### Grafico dei black box
 Visualizza una percentuale dei veicoli muniti solo di blackbox e dei veicoli muniti anche di antenna RFID per le letture dei tag sui cassonetti, che sulla tabella corrisponde ad:
 - 📡(di colore verde): se il veicolo è munito di antenna RFID funzionante.
