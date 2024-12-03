@@ -97,3 +97,18 @@ export function validateDateRange(
   }
   return { isValid: true };
 }
+
+/**
+ * Filtra il token nell'header della richiesta
+ * @param request la richiesta http
+ * @returns ritorna il token filtrato se presente
+ */
+export function extractTokenFromHeader(request: Request): string | undefined {
+  try {
+    const { authorization }: any = request.headers;
+    const [type, token] = authorization.split(' ') ?? [];
+    return type === 'Bearer' ? token : undefined;
+  } catch (error) {
+    console.error(error.message);
+  }
+}
