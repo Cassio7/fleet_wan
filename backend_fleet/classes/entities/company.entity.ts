@@ -2,7 +2,7 @@ import { CommonEntity } from 'classes/common/common.entity';
 import { CompanyInterface } from 'classes/interfaces/company.interface';
 import { Column, Entity, OneToMany } from 'typeorm';
 import { GroupEntity } from './group.entity';
-import { RoleCompanyEntity } from './role_company.entity';
+import { AssociationEntity } from './association.entity';
 
 @Entity('companies')
 export class CompanyEntity extends CommonEntity implements CompanyInterface {
@@ -15,6 +15,6 @@ export class CompanyEntity extends CommonEntity implements CompanyInterface {
   @OneToMany(() => GroupEntity, (group) => group.company)
   group: GroupEntity[];
 
-  @OneToMany(() => RoleCompanyEntity, (role_company) => role_company.company)
-  role_company: RoleCompanyEntity[];
+  @OneToMany(() => AssociationEntity, (association) => association.company)
+  association: AssociationEntity[];
 }
