@@ -112,4 +112,7 @@ export class RowFilterComponent implements AfterViewInit{
     return vehicles ? this.filterService.fillSelect(vehicles) : [];
   }
 
+  // private setCantieriSessionStorage(){
+  //   this.sessionStorageService.setItem("cantieri", JSON.stringify(this.cantieri.value));
+  // }
 }

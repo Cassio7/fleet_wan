@@ -99,14 +99,14 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     .subscribe({
       next: (cantieri: string[])=>{
         if(this.blackboxGraphService.checkErrorGraphSlice()){
-          const blackboxgraphVehicles = this.blackboxGraphService.checkErrorGraphSlice();
-          this.vehicleTableData.data = this.filterService.filterTableByCantieri(blackboxgraphVehicles, cantieri) as any;
+          const blackboxgraphVehicles = this.blackboxGraphService.checkErrorGraphSlice(); //prendi veicoli dal grafico blackbox
+          this.vehicleTableData.data = this.filterService.filterVehiclesWithCantieri(blackboxgraphVehicles, cantieri) as any; //filtraggio per filtro cantieri
         }else if(this.errorGraphService.checkBlackBoxSlice()){
-          const errorGraphVehicles = this.blackboxGraphService.checkErrorGraphSlice();
-          this.vehicleTableData.data = this.filterService.filterTableByCantieri(errorGraphVehicles, cantieri) as any;
+          const errorGraphVehicles = this.errorGraphService.checkBlackBoxSlice(); //prendi veicoli dal grafico errori
+          this.vehicleTableData.data = this.filterService.filterVehiclesWithCantieri(errorGraphVehicles, cantieri) as any; //filtraggio per filtro cantieri
         }else{
-          const allVehicles = this.sessionStorageService.getItem("allVehicles");
-          this.vehicleTableData.data = this.filterService.filterTableByCantieri(allVehicles, cantieri) as any;
+          const allVehicles = this.sessionStorageService.getItem("allVehicles"); //prendi tutti i veicoli
+          this.vehicleTableData.data = this.filterService.filterVehiclesWithCantieri(allVehicles, cantieri) as any; //filtraggio per filtro cantieri
         }
         this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));
         this.cd.detectChanges();
@@ -135,7 +135,6 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     .subscribe({
       next: (workingVehicles: any[]) => {
         this.onGraphClick(workingVehicles);
-
       },
       error: error => console.error("Errore nel caricamento dei dati dal grafico degli errori: ", error)
     });
@@ -158,6 +157,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
       error: error => console.error("Errore nel caricamento dei dati dal grafico degli errori: ", error)
     });
   }
+
   /**
    * Gestisce il click sul grafico dei blackbox, riempendo la tabella e caricando il grafico degli errori di conseguenza
    */
@@ -281,7 +281,6 @@ export class TableComponent implements OnDestroy, AfterViewInit{
             this.vehicleTableData.data = [...this.vehicleTableData.data, ...vehicles];
             this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));
             this.vehicleTable.renderRows();
-
           }
 
 
@@ -304,9 +303,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
    * Funzione che viene chiamata ogni volta che i dati nella tabella cambiano
    */
   tableChange(){
-    // const tableVehicles = this.vehicleTableData.data;
-    // this.sessionStorageService.setItem("tableData", JSON.stringify(tableVehicles));
-    // this.filterService.updateFilterOptions$.next(tableVehicles);
+
   }
 
   /**

@@ -74,7 +74,7 @@ export class ErrorGraphsService{
       this.firstLoad = false;
     }
 
-    this._loadGraphData$.next(this._series);
+    this._loadGraphData$.next(this._series); //invio dati x caricare grafici
   }
 
   /**
@@ -83,7 +83,7 @@ export class ErrorGraphsService{
   workingClick() {
     if (this.errorsData.errorSliceSelected === "working") {
       this.errorsData.errorSliceSelected = "";
-      this.sessionStorageService.setItem("errorSlice", "");//fetta selezionata in session storage
+      this.sessionStorageService.removeItem("errorSlice");//fetta selezionata in session storage
       this.checkErrorsService.fillTable$.next(this.checkBlackBoxSlice());
     } else {
       //sessionStorage.setItem("errorSlice", "working"); // Salvataggio scelta attuale in sessionStorage
@@ -113,7 +113,7 @@ export class ErrorGraphsService{
   errorClick() {
     if (this.errorsData.errorSliceSelected === "error") {
       this.errorsData.errorSliceSelected = "";
-      this.sessionStorageService.setItem("errorSlice", ""); // Deseleziona la fetta
+      this.sessionStorageService.removeItem("errorSlice"); // Deseleziona la fetta
       this.checkErrorsService.fillTable$.next(this.checkBlackBoxSlice());
     } else {
       this.errorsData.errorSliceSelected = "error";

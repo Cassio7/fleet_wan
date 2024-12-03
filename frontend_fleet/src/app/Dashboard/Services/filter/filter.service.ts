@@ -40,12 +40,12 @@ export class FilterService {
 
 
   /**
-   * Permette di riempire la tabella in base al filtro applicato
+   * Filtra un array di veicoli in base al valore del filtro sui cantieri
    * @param vehicles veicoli sui quali applicare il filtro
    * @param cantieri nomi di cantieri presenti nel filtro
    * @returns array di veicoli filtrati
    */
-  filterTableByCantieri(vehicles: any[], cantieri: string[]) {
+  filterVehiclesWithCantieri(vehicles: any[], cantieri: string[]) {
     const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
 
     if (cantieri.includes("Seleziona tutto")) {
