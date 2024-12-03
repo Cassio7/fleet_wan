@@ -13,9 +13,21 @@ interface ErrorsData {
   providedIn: 'root'
 })
 export class ErrorGraphsService{
-  private _loadGraphData$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
+  /**
+   * carica grafico degli errori con una series
+   */
+  private _loadGraphData$: BehaviorSubject<number[]> = new BehaviorSubject<number[]>([]);
+  /**
+   * trasporta i dati dei veicoli funzionanti
+   */
   private _loadFunzionanteData$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
+  /**
+   * trasporta i dati dei veicoli in warning
+   */
   private _loadWarningData$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
+  /**
+   * trasporta i dati dei veicoli in errore
+   */
   private _loadErrorData$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
 
   private _series = [0,0,0];//[funzionante, warning, error]

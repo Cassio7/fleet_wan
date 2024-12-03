@@ -1,6 +1,5 @@
-import { ChangeDetectorRef, Injectable, OnInit } from '@angular/core';
-import { VehiclesApiService } from '../../../Common-services/vehicles service/vehicles-api.service';
-import { BehaviorSubject, lastValueFrom, Subject, takeUntil } from 'rxjs';
+import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 import { Vehicle } from '../../../Models/Vehicle';
 import { CheckErrorsService } from '../check-errors/check-errors.service';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
@@ -15,8 +14,17 @@ export interface blackboxData {
   providedIn: 'root'
 })
 export class BlackboxGraphsService{
-  private _loadGraphData$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
+  /**
+   * Trasporta i dati dei veicoli nel caso uno spicchio venga deselezionato
+   */
+  private _loadGraphData$: BehaviorSubject<number[]> = new BehaviorSubject<number[]>([]);
+  /**
+   * Trasporta i veicoli con blackbox, sui quali verrà chiamata "onGraphClick(blackboxVehicles)" nel table component
+   */
   private _loadBlackBoxData$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
+  /**
+   * Trasporta i veicoli con e antenna, sui quali verrà chiamata "onGraphClick(blackboxAntennaVehicles)" nel table component
+   */
   private _loadBlackBoxAntennaData$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
 
   private firstLoad:boolean = true;
@@ -89,13 +97,13 @@ export class BlackboxGraphsService{
 
     if (this.blackBoxSliceSelected === "blackbox") {
       this.blackBoxSliceSelected = "";
-      this.sessionStorageService.setItem("blackboxSlice", "");
+      this.sessionStorageService.removeItem("blackboxSlice");
       this.checkErrorsService.fillTable$.next(this.checkErrorGraphSlice());
     } else {
       // sessionStorage.setItem("blackboxSlice", "blackbox"); // Salvataggio scelta attuale in sessionStorage
       this.blackBoxSliceSelected = "blackbox";
       this.sessionStorageService.setItem("blackboxSlice", "blackbox");
-      this.loadBlackBoxData$.next(this.getAllRFIDVehicles(this.checkErrorGraphSlice()).blackboxOnly);
+      this.loadBlackBoxData$.next(this.getAllRFIDVehicles(tableVehicles).blackboxOnly);
     }
   }
   /**
@@ -107,12 +115,12 @@ export class BlackboxGraphsService{
 
     if (this.blackBoxSliceSelected === "blackbox+antenna") {
       this.blackBoxSliceSelected = "";
-      this.sessionStorageService.setItem("blackboxSlice", "");
+      this.sessionStorageService.removeItem("blackboxSlice");
       this.checkErrorsService.fillTable$.next(this.checkErrorGraphSlice());
     } else {
       this.blackBoxSliceSelected = "blackbox+antenna";
       this.sessionStorageService.setItem("blackboxSlice", "blackbox+antenna");
-      this.loadBlackBoxData$.next(this.getAllRFIDVehicles(this.checkErrorGraphSlice()).blackboxWithAntenna);
+      this.loadBlackBoxData$.next(this.getAllRFIDVehicles(tableVehicles).blackboxWithAntenna);
     }
   }
 

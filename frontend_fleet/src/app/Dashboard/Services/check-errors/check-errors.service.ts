@@ -8,6 +8,9 @@ import { Vehicle } from '../../../Models/Vehicle';
   providedIn: 'root'
 })
 export class CheckErrorsService {
+  /**
+   * Trasporta i dati dei veicoli nel caso uno spicchio venga deselezionato
+   */
   private _fillTable$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
 
   constructor(

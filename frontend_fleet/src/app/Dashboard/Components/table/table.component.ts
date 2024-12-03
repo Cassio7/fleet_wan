@@ -121,6 +121,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
    */
   private handlErrorGraphClick(){
     //riempe tabella con i dati senza filtri
+
     this.checkErrorsService.fillTable$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (tableVehicles: any[]) => {

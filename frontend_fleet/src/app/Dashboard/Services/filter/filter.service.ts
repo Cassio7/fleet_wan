@@ -8,7 +8,13 @@ import { BlackboxGraphsService } from '../blackbox-graphs/blackbox-graphs.servic
   providedIn: 'root'
 })
 export class FilterService {
+  /**
+   * Trasporta un array di veicoli dai quali poi estrapolare i cantieri per riempire il filtro dei cantieri
+   */
   private _updateFilterOptions$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
+  /**
+   * Trasporta le opzioni selezionate del filtro dei cantieri e notifica la tabella di filtrare i dati in base ai cantieri ottenuti
+   */
   private _filterTableByCantiere$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
   constructor(
