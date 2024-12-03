@@ -19,11 +19,10 @@ import { DetectionTagEntity } from 'classes/entities/detection_tag.entity';
 import { SessionEntity } from 'classes/entities/session.entity';
 import { UserEntity } from 'classes/entities/user.entity';
 import { RoleEntity } from 'classes/entities/role.entity';
-import { UserRoleEntity } from 'classes/entities/user_role.entity';
+import { AssociationEntity } from 'classes/entities/association.entity';
 import { CompanyEntity } from 'classes/entities/company.entity';
 import { WorksiteEntity } from 'classes/entities/worksite.entity';
 import { NoteEntity } from 'classes/entities/note.entity';
-import { RoleCompanyEntity } from 'classes/entities/role_company.entity';
 import { WorksiteGroupEntity } from 'classes/entities/worksite_group.entity';
 
 // importo i servizi
@@ -52,7 +51,8 @@ import { CompanyFactoryService } from './factory/company.factory';
 import { WorksiteFactoryService } from './factory/worksite.factory';
 import { GroupFactoryService } from './factory/group.factory';
 import { WorksiteGroupFactoryService } from './factory/worksite_group.factory';
-import { RoleCompanyFactoryService } from './factory/role_company.factory';
+import { AssociationFactoryService } from './factory/association.factory';
+import { AdminGuard } from './guard/admin.guard';
 
 @Global()
 @Module({
@@ -84,12 +84,11 @@ import { RoleCompanyFactoryService } from './factory/role_company.factory';
           SessionEntity,
           UserEntity,
           RoleEntity,
-          UserRoleEntity,
+          AssociationEntity,
           CompanyEntity,
           WorksiteEntity,
           WorksiteGroupEntity,
           NoteEntity,
-          RoleCompanyEntity,
         ],
         synchronize: true,
         //dropSchema: true, // if true drop db
@@ -108,12 +107,11 @@ import { RoleCompanyFactoryService } from './factory/role_company.factory';
         SessionEntity,
         UserEntity,
         RoleEntity,
-        UserRoleEntity,
+        AssociationEntity,
         CompanyEntity,
         WorksiteEntity,
         WorksiteGroupEntity,
         NoteEntity,
-        RoleCompanyEntity,
       ],
       'mainConnection',
     ),
@@ -140,12 +138,11 @@ import { RoleCompanyFactoryService } from './factory/role_company.factory';
           SessionEntity,
           UserEntity,
           RoleEntity,
-          UserRoleEntity,
+          AssociationEntity,
           CompanyEntity,
           WorksiteEntity,
           WorksiteGroupEntity,
           NoteEntity,
-          RoleCompanyEntity,
         ],
         synchronize: false,
       }),
@@ -163,12 +160,11 @@ import { RoleCompanyFactoryService } from './factory/role_company.factory';
         SessionEntity,
         UserEntity,
         RoleEntity,
-        UserRoleEntity,
+        AssociationEntity,
         CompanyEntity,
         WorksiteEntity,
         WorksiteGroupEntity,
         NoteEntity,
-        RoleCompanyEntity,
       ],
       'readOnlyConnection',
     ),
@@ -216,7 +212,8 @@ import { RoleCompanyFactoryService } from './factory/role_company.factory';
     WorksiteFactoryService,
     GroupFactoryService,
     WorksiteGroupFactoryService,
-    RoleCompanyFactoryService,
+    AssociationFactoryService,
+    AdminGuard,
   ],
 })
 export class AppModule {}

@@ -11,7 +11,7 @@ import { GroupFactoryService } from './factory/group.factory';
 import { WorksiteGroupFactoryService } from './factory/worksite_group.factory';
 
 import { getDaysInRange } from './utils/utils';
-import { RoleCompanyFactoryService } from './factory/role_company.factory';
+import { AssociationFactoryService } from './factory/association.factory';
 
 @Injectable()
 export class AppService implements OnModuleInit {
@@ -25,7 +25,7 @@ export class AppService implements OnModuleInit {
     private readonly worksiteFactoryService: WorksiteFactoryService,
     private readonly groupFactoryService: GroupFactoryService,
     private readonly worksiteGroupFactoryService: WorksiteGroupFactoryService,
-    private readonly roleCompanyFactoryService: RoleCompanyFactoryService,
+    private readonly associationFactoryService: AssociationFactoryService,
   ) {}
 
   // popolo database all'avvio
@@ -38,14 +38,13 @@ export class AppService implements OnModuleInit {
   }
 
   async putDefaultData() {
-    await this.userFactoryService.createDefaultUser();
     await this.userFactoryService.createDefaultRoles();
-    await this.userFactoryService.createDefaultUserRoles();
+    await this.userFactoryService.createDefaultUser();
     await this.companyFactoryService.createDefaultCompanies();
-    await this.roleCompanyFactoryService.createDefaultRoleCompany();
     await this.groupFactoryService.createDefaultGroup();
     await this.worksiteFactoryService.createDefaultWorksite();
     await this.worksiteGroupFactoryService.createDefaultWorksiteGroup();
+    await this.associationFactoryService.createDefaultAssociation();
   }
 
   /**
@@ -179,7 +178,7 @@ export class AppService implements OnModuleInit {
    * IL PRESCELTO
    */
   async putDbDataBasicForAdvance() {
-    const startDate = '2024-11-22T00:00:00.000Z';
+    const startDate = '2024-11-25T00:00:00.000Z';
     // const endDate = '2024-11-25T00:00:00.000Z';
     const endDate = new Date(
       new Date().getTime() + 2 * 60 * 60 * 1000,
@@ -230,7 +229,7 @@ export class AppService implements OnModuleInit {
             const datefrom = day;
             const dateto = new Date(datefrom);
             dateto.setHours(23, 59, 59, 0);
-            //console.log(dateto);
+            console.log(dateto);
             return Promise.all([
               this.sessionService.getSessionist(
                 company.suId,
