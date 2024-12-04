@@ -79,7 +79,7 @@ Contiene la data dell'ultima sessione valida del veicolo ed un'icona che indica 
 
 
 ##### Filtro per cantieri
-Permette di filtrare le righe della tabella in base al cantiere di provenienza dei veicoli, con la possibilità di spuntare "Seleziona tutto" per selezionare tutti i cantieri e deselezionarli tutti.
+Permette di filtrare le righe della tabella in base al cantiere di provenienza dei veicoli.
 
 ##### Grafici
 Visualizzano un resoconto di alcuni dati dei veicoli nella tabella
@@ -97,11 +97,8 @@ Gli errori sono categorizzati, in base al peso attribuitogli, in:
 - ⚠️(Warning): Che sono associati, in caso di malfunzionamento, ai GPS.
 - ❌(Error):  Che sono associati, in caso di malfunzionamento, alle antenne e alla sessione.
 
-###### Grafico dei black box
-Visualizza una percentuale dei veicoli muniti solo di blackbox e dei veicoli muniti anche di antenna RFID per le letture dei tag sui cassonetti, che sulla tabella corrisponde ad:
-- 📡(di colore verde): se il veicolo è munito di antenna RFID funzionante.
-- 📡(di colore rosso): se il veicolo è munito di antenna RFID che presenta un anomalia.
-- 📡❌(di colore blu e croce rossa): Se l'antenna il veicolo non è munito di antenna.
+###### Grafico tipologia istallazione
+Visualizza in percentuale i veicoli muniti solo di blackbox per il tracciamento (blackbox) ed i veicoli muniti sia di blackbox che di antenna RFID per la lettura dei contenitori (blackbox+antenna).
 
 --- 
 
@@ -112,17 +109,14 @@ Dov'è verrà visualizzata l'ultima posizione registrata per ciascun veicolo.
 
 ##### MEZZI
 Pagina che visualizza tutto l'archivio dei mezzi registrati.
-&Egrave; presente una tabella che contiene tutti i dati sui veicoli, con le seguenti colonne:
-- Targa: targa del veicolo
-- Modello: modello del veicolo
-- Cantiere: cantiere di appartenenza del veicolo
-- Antenna: 
-- Attivo ora:
+&Egrave; presente una tabella che contiene dati sui veicoli:
+- Targa
+- 
 
 ---
 
 ##### DETTAGLIO MEZZI
-Pagina che estende i dati visualizzati nella dashboard con la possibilità di applicare più filtri e maggiori opzioni per la visualizzazione.
+Pagina che estende i dati visualizzati nella dashboard con maggiori opzioni per la visualizzazione e la possibilità di applicare più filtri ai dati.
 
 ---
 
@@ -132,7 +126,7 @@ Pagina per modificare le impostazioni.
 ---
 
 ##### GESTIONE UTENTI
-Pagina che sarà consultabile solo dall'utente Amministratore(Admin), i quali poteri non sono ancora ben stati definiti, e che gli permetterà di gestire informazioni come le credenziali degli altri utenti e apportare modifiche ad informazioni come le specifiche dei veicoli.
+Pagina che sarà consultabile solo dall'utente Amministratore(Admin), i cui poteri non sono ancora ben stati definiti. Sarà possibile gestire informazioni come le credenziali degli altri utenti e apportare modifiche più specifiche sui veicoli.
 
 ---
 
