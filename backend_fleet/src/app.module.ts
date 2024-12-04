@@ -24,6 +24,7 @@ import { CompanyEntity } from 'classes/entities/company.entity';
 import { WorksiteEntity } from 'classes/entities/worksite.entity';
 import { NoteEntity } from 'classes/entities/note.entity';
 import { WorksiteGroupEntity } from 'classes/entities/worksite_group.entity';
+import { CategoryEntity } from 'classes/entities/category.entity';
 
 // importo i servizi
 import { VehicleService } from './services/vehicle/vehicle.service';
@@ -52,7 +53,7 @@ import { WorksiteFactoryService } from './factory/worksite.factory';
 import { GroupFactoryService } from './factory/group.factory';
 import { WorksiteGroupFactoryService } from './factory/worksite_group.factory';
 import { AssociationFactoryService } from './factory/association.factory';
-import { AdminGuard } from './guard/admin.guard';
+import { CategoryFactoryService } from './factory/category.factory';
 
 @Global()
 @Module({
@@ -89,6 +90,7 @@ import { AdminGuard } from './guard/admin.guard';
           WorksiteEntity,
           WorksiteGroupEntity,
           NoteEntity,
+          CategoryEntity,
         ],
         synchronize: true,
         //dropSchema: true, // if true drop db
@@ -112,6 +114,7 @@ import { AdminGuard } from './guard/admin.guard';
         WorksiteEntity,
         WorksiteGroupEntity,
         NoteEntity,
+        CategoryEntity,
       ],
       'mainConnection',
     ),
@@ -143,6 +146,7 @@ import { AdminGuard } from './guard/admin.guard';
           WorksiteEntity,
           WorksiteGroupEntity,
           NoteEntity,
+          CategoryEntity,
         ],
         synchronize: false,
       }),
@@ -165,6 +169,7 @@ import { AdminGuard } from './guard/admin.guard';
         WorksiteEntity,
         WorksiteGroupEntity,
         NoteEntity,
+        CategoryEntity,
       ],
       'readOnlyConnection',
     ),
@@ -213,7 +218,7 @@ import { AdminGuard } from './guard/admin.guard';
     GroupFactoryService,
     WorksiteGroupFactoryService,
     AssociationFactoryService,
-    AdminGuard,
+    CategoryFactoryService,
   ],
 })
 export class AppModule {}
