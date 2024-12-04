@@ -9,12 +9,12 @@
 - [x] ottimizzazione inserimento dati
 - [x] altra connessione al database per gli inserimenti per evitare attese e peso aggiuntivo.
 - [x] entità per role_company
-- [ ] restituire i detection quality in base al veicolo per creare una futuro grafico con media
+- [x] restituire i detection quality in base al veicolo per creare una futuro grafico con media
 - [ ] assegnare tutti i cantieri ai nuovi veicoli
-- [ ] rivedere logica dei ruoli ma sostituire con i cantieri
+- [x] rivedere logica dei ruoli ma sostituire con i cantieri
 - [ ] rimuovere codice non utilizzato
 - [ ] dare un formato di risposta corretto a tutte le API
-- [ ] inserire una tabella con la tipologia di veicolo (spazzatrice ...)
+- [x] inserire una tabella con la tipologia di veicolo (spazzatrice ...)
 - [ ] pensare a tabella di appoggio per allocare i controlli per tutti i veicoli con GPS, Antenna e Sessione (FORSE REDIS)
 - [ ] segnare la posizione dei cantieri con circonferenza, layer comunali
 - [x] risoluzione posizione con openstreetmap [reverse](https://nominatim.org/release-docs/develop/api/Reverse/)
