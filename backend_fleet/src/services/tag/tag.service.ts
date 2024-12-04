@@ -406,4 +406,28 @@ export class TagService {
     });
     return tags;
   }
+  /**
+   * Funzione che ritorna tutti i detection quality e il timestamp in base al veicolo
+   * @param id veId identificativo del veicolo
+   * @returns
+   */
+  async getDetectionQualityBiVeId(id: number): Promise<any> {
+    const detections = await this.tagHistoryRepository.find({
+      select: {
+        timestamp: true,
+        detectiontag: {
+          detection_quality: true,
+        },
+      },
+      where: {
+        vehicle: {
+          veId: id,
+        },
+      },
+      relations: {
+        detectiontag: true,
+      },
+    });
+    return detections;
+  }
 }

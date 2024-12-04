@@ -12,14 +12,18 @@ export class TagController {
    * @param res
    * @param params VeId
    */
-  @Get(':id')
+  @Get(':veId')
   async getTagHistoryByVeId(@Res() res: Response, @Param() params: any) {
     try {
-      const group = await this.tagService.getTagHistoryByVeId(params.id);
-      res.status(200).json(group);
+      const tags = await this.tagService.getTagHistoryByVeId(params.veId);
+      if (tags.length > 0) res.status(200).json(tags);
+      else
+        res.status(404).json({
+          message: 'Nessun Tag trovato per Veicolo veId: ' + params.veId,
+        });
     } catch (error) {
-      console.error('Errore nel recupero dei realtimes:', error);
-      res.status(500).send('Errore durante il recupero dei realtimes');
+      console.error('Errore durante il recupero dei Tag:', error);
+      res.status(500).json({ message: 'Errore durante il recupero dei Tag' });
     }
   }
   /**
@@ -27,11 +31,11 @@ export class TagController {
    * @param res
    * @param params VeId
    */
-  @Get('last/:id')
+  @Get('last/:veId')
   async getLastTagHistoryByVeId(@Res() res: Response, @Param() params: any) {
     try {
       const tagHistory = await this.tagService.getLastTagHistoryByVeId(
-        params.id,
+        params.veId,
       );
       if (tagHistory) {
         // const pos = await axios.get(this.nominatimUrl, {
@@ -44,13 +48,13 @@ export class TagController {
         //res.status(200).json({ tagHistory, posizione: pos.data.address });
         res.status(200).json(tagHistory);
       } else {
-        res.status(200).json({
-          message: 'Nessun Tag History trovato per VeId: ' + params.id,
+        res.status(404).json({
+          message: 'Nessun Tag History trovato per VeId: ' + params.veId,
         });
       }
     } catch (error) {
-      console.error('Errore nel recupero dei realtimes:', error);
-      res.status(500).send('Errore durante il recupero dei realtimes');
+      console.error('Errore durante il recupero del Tag:', error);
+      res.status(500).json({ message: 'Errore durante il recupero del Tag' });
     }
   }
 
@@ -61,7 +65,7 @@ export class TagController {
    * @param body Data inizio e data fine ricerca
    * @returns
    */
-  @Post('ranged/:id')
+  @Post('ranged/:veId')
   async getTagHistoryByVeIdRanged(
     @Res() res: Response,
     @Param() params: any,
@@ -73,67 +77,48 @@ export class TagController {
     // controllo data valida
     const validation = validateDateRange(dateFrom, dateTo);
     if (!validation.isValid) {
-      return res.status(400).send(validation.message);
+      return res.status(400).json(validation.message);
     }
     const dateFrom_new = new Date(dateFrom);
     const dateTo_new = new Date(dateTo);
-    const data = await this.tagService.getTagHistoryByVeIdRanged(
-      params.id,
-      dateFrom_new,
-      dateTo_new,
-    );
-    if (data.length > 0) {
-      res.status(200).send(data);
-    } else res.status(200).send(`No TagHistory per id: ${params.id}`);
+    try {
+      const data = await this.tagService.getTagHistoryByVeIdRanged(
+        params.veId,
+        dateFrom_new,
+        dateTo_new,
+      );
+      if (data.length > 0) {
+        res.status(200).json(data);
+      } else
+        res
+          .status(404)
+          .json({ message: `No TagHistory per id: ${params.veId}` });
+    } catch (error) {
+      console.error('Errore durante il recupero dei Tag:', error);
+      res.status(500).json({ message: 'Errore durante il recupero dei Tag' });
+    }
   }
   /**
-   * API per aggiornamento database tag history in base al VeId e ad un range temporale
+   *
    * @param res
-   * @param params VeId
-   * @param body Data inizio e data fine ricerca
-   * @returns
+   * @param params
    */
-  // @Post('update/:id')
-  // async putTagHistory(
-  //   @Res() res: Response,
-  //   @Param() params: any,
-  //   @Body() body: any,
-  // ) {
-  //   try {
-  //     const dateFrom = body.dateFrom;
-  //     const dateTo = body.dateTo;
-  //     // Controlla se dateFrom e dateTo sono forniti
-  //     if (!dateFrom || !dateTo) {
-  //       return res.status(400).send('Date non fornite.');
-  //     }
-
-  //     // Crea un oggetto Date dalla stringa fornita
-  //     const dateFrom_new = new Date(dateFrom);
-  //     const dateTo_new = new Date(dateTo);
-
-  //     // Controlla se la data è valida
-  //     if (isNaN(dateFrom_new.getTime()) || isNaN(dateTo_new.getTime())) {
-  //       return res.status(400).send('Formato della data non valido.');
-  //     }
-  //     if (dateFrom_new.getTime() >= dateTo_new.getTime()) {
-  //       // Restituisci un errore se la condizione è vera
-  //       return res
-  //         .status(400)
-  //         .send(
-  //           'La data iniziale deve essere indietro di almeno 1 giorno dalla finale',
-  //         );
-  //     }
-  //     const data = await this.tagService.putTagHistory(
-  //       params.id,
-  //       dateFrom_new.toISOString(),
-  //       dateTo_new.toISOString(),
-  //     );
-  //     if (data.length > 0) {
-  //       res.status(200).send(data);
-  //     } else res.status(200).send(`No Tag History per id: ${params.id}`);
-  //   } catch (error) {
-  //     console.error('Errore nella richiesta SOAP:', error);
-  //     res.status(500).send('Errore durante la richiesta al servizio SOAP');
-  //   }
-  // }
+  @Get('detection/:veId')
+  async getDetectionQualityBiVeId(@Res() res: Response, @Param() params: any) {
+    try {
+      const detections = await this.tagService.getDetectionQualityBiVeId(
+        params.veId,
+      );
+      if (detections.length > 0) res.status(200).json(detections);
+      else
+        res.status(404).json({
+          message: 'Nessuna lettura per il Veicolo con veId: ' + params.veId,
+        });
+    } catch (error) {
+      console.error('Errore nel recupero delle letture dei tag:', error);
+      res
+        .status(500)
+        .json({ message: 'Errore nel recupero delle letture dei tag.' });
+    }
+  }
 }
