@@ -1,0 +1,18 @@
+
+tr, td, th {
+  text-align: center;
+  width: 200px;
+}
+
+.table-container {
+  border-radius: 10px;
+  height: 500px;
+  width: 800px;
+  overflow-y: auto;
+}
+
+.table-container table {
+  max-height: 300px;
+  overflow-y: auto;
+  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
+}
