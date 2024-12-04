@@ -15,6 +15,10 @@ export class RealtimeController {
     @InjectRedis() private readonly redis: Redis,
   ) {}
 
+  /**
+   * Recupera tutti i realtimes di tutti i veicoli salvati
+   * @param res
+   */
   @Get()
   async getAllTimes(@Res() res: Response) {
     try {
@@ -30,20 +34,26 @@ export class RealtimeController {
     }
   }
 
-  @Get('/:id')
+  /**
+   * Recupera i realtime in base al veId
+   * @param res
+   * @param params veId Identificativo del veicolo
+   */
+  @Get('/:veId')
   async getTimeByVeId(@Res() res: Response, @Param() params: any) {
     try {
-      const times = await this.realTimeService.getTimesByVeId(params.id);
+      const times = await this.realTimeService.getTimesByVeId(params.veId);
       if (times) res.status(200).json(times);
       else
         res.status(404).json({
-          message: 'Nessun realtime recuperato per Veicolo: ' + params.id,
+          message: 'Nessun realtime recuperato per Veicolo: ' + params.veId,
         });
     } catch (error) {
       console.error('Errore nel recupero dei realtimes:', error);
       res.status(500).json({ message: 'Errore nel recupero dei realtimes' });
     }
   }
+
   /**
    * API che restituisce la via posizione in base alle coordinate salvandola in cache su Redis
    * @param res VeId del veicolo
@@ -71,7 +81,7 @@ export class RealtimeController {
 
         response.push(position);
       }
-      if (response) res.status(200).json(response);
+      if (response.length > 0) res.status(200).json(response);
       else res.status(404).json({ message: 'Nessuna posizione registrata' });
     } catch (error) {
       console.error('Errore nel recupero dei realtimes:', error);
@@ -81,13 +91,18 @@ export class RealtimeController {
     }
   }
 
-  @Get('update/:id')
+  /**
+   * Fa una chiamata al servizio SOAP per recuperare i realtimes in base al vgId
+   * @param res
+   * @param params vgId identificativo del gruppo
+   */
+  @Get('update/:vgId')
   async getRealTimeList(@Res() res: Response, @Param() params: any) {
     try {
-      const company = await this.companyService.getCompanyByVgId(params.id);
+      const company = await this.companyService.getCompanyByVgId(params.vgId);
       const data = await this.realTimeService.getRealTimeList(
         company.suId,
-        params.id,
+        params.vgId,
       );
       if (data) {
         res
