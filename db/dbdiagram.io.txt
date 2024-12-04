@@ -7,26 +7,24 @@ table roles{
 table users{
   id int [primary key]
   name string
+  surname string
+  username string
   email string
   password string
+  roleId int [ref: - roles.id]
 }
 
-table user_roles{
+table associations{
   id int [primary key]
   userId int [ref: > users.id]
-  roleId int [ref: > roles.id]
+  companyId int [ref: > companies.id]
+  worksiteId int [ref: > worksite.id]
 }
 
 table companies{
   id int [primary key]
   suId int
   name string
-}
-
-table role_companies{
-  id int [primary key]
-  companyId int [ref: > companies.id]
-  roleId int [ref: > roles.id]
 }
 
 table groups{
@@ -52,6 +50,13 @@ Table vehicles {
   hash string
   deviceId int [ref: - devices.id]
   worksiteId int [ref: > worksite.id]
+}
+
+table categories{
+  id int [primary key]
+  name string
+  description string
+  vehicleId int [ref: > vehicles.id]
 }
 
 table notes{
