@@ -15,6 +15,7 @@ import { NoteEntity } from './note.entity';
 import { RealtimePositionEntity } from './realtime_position.entity';
 import { TagHistoryEntity } from './tag_history.entity';
 import { WorksiteEntity } from './worksite.entity';
+import { CategoryEntity } from './category.entity';
 
 @Entity('vehicles')
 export class VehicleEntity extends CommonEntity implements VehicleInterface {
@@ -76,6 +77,9 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
 
   @OneToMany(() => NoteEntity, (note) => note.vehicle)
   note: NoteEntity[];
+
+  @OneToMany(() => CategoryEntity, (category) => category.vehicle)
+  category: CategoryEntity[];
 
   @ManyToOne(() => WorksiteEntity, (worksite) => worksite.vehicle, {
     nullable: true,
