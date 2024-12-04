@@ -112,6 +112,12 @@ Dov'è verrà visualizzata l'ultima posizione registrata per ciascun veicolo.
 
 ##### MEZZI
 Pagina che visualizza tutto l'archivio dei mezzi registrati.
+&Egrave; presente una tabella che contiene tutti i dati sui veicoli, con le seguenti colonne:
+- Targa: targa del veicolo
+- Modello: modello del veicolo
+- Cantiere: cantiere di appartenenza del veicolo
+- Antenna: 
+- Attivo ora:
 
 ---
 
