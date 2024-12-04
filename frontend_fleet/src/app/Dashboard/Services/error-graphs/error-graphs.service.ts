@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { CheckErrorsService } from '../check-errors/check-errors.service';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
+import { Vehicle } from '../../../Models/Vehicle';
 
 interface ErrorsData {
   workingVehicles: any[];
@@ -33,12 +34,13 @@ export class ErrorGraphsService{
   private _series = [0,0,0];//[funzionante, warning, error]
   private _colors = ["#46ff00", "#ffd607", "#ff0000"];
 
-  private errorsData: ErrorsData = {
+  private _errorsData: ErrorsData = {
     workingVehicles: [],
     warningVehicles: [],
     errorVehicles: [],
     errorSliceSelected: ""
-  }
+  };
+
   private firstLoad = true;
 
   constructor(
@@ -138,8 +140,8 @@ export class ErrorGraphsService{
    * Controlla se al momento della chiamata uno spicchio del grafico dei blackbox è stato selezionato
    * @returns veicoli sui quali è stato applicato il filtro corrispondente allo spicchio se esiste
   */
-  checkBlackBoxSlice(): any[] {
-    let vehicles: any[] = [];
+  checkBlackBoxSlice(): Vehicle[] {
+    let vehicles: Vehicle[] = [];
 
     switch (this.sessionStorageService.getItem("blackboxSlice")) {
       case "blackbox":
@@ -167,6 +169,14 @@ export class ErrorGraphsService{
 
 
   /*getters & setters*/
+
+  public get errorsData(): ErrorsData {
+    return this._errorsData;
+  }
+
+  public set errorsData(value: ErrorsData) {
+    this._errorsData = value;
+  }
 
   public get loadGraphData$(): BehaviorSubject<any> {
     return this._loadGraphData$;

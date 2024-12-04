@@ -4,6 +4,8 @@ import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, ViewChild, View
 import { ApexChart, ApexNonAxisChartSeries, ApexResponsive, ChartComponent, NgApexchartsModule } from "ng-apexcharts";
 import { skip, Subject, takeUntil } from 'rxjs';
 import { VehiclesApiService } from '../../../../Common-services/vehicles service/vehicles-api.service';
+import { SessionStorageService } from '../../../../Common-services/sessionStorage/session-storage.service';
+import { Vehicle } from '../../../../Models/Vehicle';
 
 export type ChartOptions = {
   series: ApexNonAxisChartSeries;
@@ -33,6 +35,7 @@ export class ErrorPieGraphComponent implements AfterViewInit, OnDestroy{
 
   constructor(
     private errorGraphsService: ErrorGraphsService,
+    private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef
   ) {
     this.chartOptions = {
@@ -95,6 +98,26 @@ export class ErrorPieGraphComponent implements AfterViewInit, OnDestroy{
   }
 
   ngAfterViewInit(): void {
+
+    // if(this.sessionStorageService.getItem("errorSlice")){
+    //   const errorSlice = this.sessionStorageService.getItem("errorSlice")
+    //   switch (errorSlice) {
+    //     case "working":
+    //       this.errorGraphsService.errorsData.errorSliceSelected = "working";
+    //       this.workingClick();
+    //       break;
+
+    //     case "warning":
+    //       this.errorGraphsService.errorsData.errorSliceSelected = "warning";
+    //       this.warningClick();
+    //       break;
+
+    //     case "error":
+    //       this.errorGraphsService.errorsData.errorSliceSelected = "error";
+    //       this.errorClick();
+    //       break;
+    //   }
+    // }
     this.chartOptions.series = this.errorGraphsService.loadGraphData$.value;
     this.errorGraphsService.loadGraphData$.pipe(skip(1),takeUntil(this.destroy$))
     .subscribe({

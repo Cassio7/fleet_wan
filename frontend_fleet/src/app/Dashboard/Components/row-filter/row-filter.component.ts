@@ -47,7 +47,7 @@ export class RowFilterComponent implements AfterViewInit{
 
   ngAfterViewInit(): void {
     const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles") || "[]");
-
+    this.setCantieriSessionStorage();
     setTimeout(() => this.selectAll());
 
     this.filterService.updateFilterOptions$
@@ -64,6 +64,7 @@ export class RowFilterComponent implements AfterViewInit{
   private updateListaCantieri(allVehicles: any[]): void {
     if (Array.isArray(allVehicles)) {
       this.listaCantieri = [this.listaCantieri[0], ...this.fillSelect(allVehicles)];
+      this.setCantieriSessionStorage();
       this.cd.detectChanges();
     } else {
       console.error("allVehicles non è un array valido:", allVehicles);
@@ -85,6 +86,7 @@ export class RowFilterComponent implements AfterViewInit{
     }
 
     const selectedCantieri = this.cantieri.value; // Opzioni selezionate
+    this.setCantieriSessionStorage();
     // Se sono stati selezionati cantieri, invio dati
     if (selectedCantieri) {
       this.filterService.filterTableByCantiere$.next(selectedCantieri);
@@ -97,6 +99,7 @@ export class RowFilterComponent implements AfterViewInit{
   private selectAll() {
     if (!this.allSelected) { //Non era già tutto selezionato
       this.cantieri.setValue(this.listaCantieri);
+      this.setCantieriSessionStorage();
       this.allSelected = true;
     } else { //Era già tutto selezionato
       this.cantieri.setValue([]);

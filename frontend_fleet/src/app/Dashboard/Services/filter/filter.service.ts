@@ -48,10 +48,10 @@ export class FilterService {
   /**
    * Filtra un array di veicoli in base al valore del filtro sui cantieri
    * @param vehicles veicoli sui quali applicare il filtro
-   * @param cantieri nomi di cantieri presenti nel filtro
    * @returns array di veicoli filtrati
    */
-  filterVehiclesWithCantieri(vehicles: any[], cantieri: string[]) {
+  filterVehiclesWithCantieri(vehicles: any[]) {
+    const cantieri: string[] = JSON.parse(this.sessionStorageService.getItem("cantieri"));
     const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
 
     if (cantieri.includes("Seleziona tutto")) {

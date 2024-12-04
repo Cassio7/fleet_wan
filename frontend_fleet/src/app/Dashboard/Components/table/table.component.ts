@@ -77,15 +77,15 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     this.handleBlackBoxGraphClick(); // Subscribe a click nel grafico dei blackbox
     this.handleCantiereFilter(); //Subscribe a scelta nel filtro dei cantieri
 
-    this.allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
 
-    if (this.allVehicles) {
-      this.vehicleTableData.data = this.allVehicles;
+    if (allVehicles) {
+      this.vehicleTableData.data = allVehicles;
       this.tableMaxLength = this.vehicleTableData.data.length;
       this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));
       this.cd.detectChanges();
       this.vehicleTable.renderRows();
-      this.loadGraphs(this.allVehicles);
+      this.loadGraphs(allVehicles);
     } else {
       this.fillTable(); // Riempi la tabella con i dati se non ci sono nel sessionStorage
     }
@@ -97,16 +97,16 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   private handleCantiereFilter(){
     this.filterService.filterTableByCantiere$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
-      next: (cantieri: string[])=>{
+      next: ()=>{
         if(this.blackboxGraphService.checkErrorGraphSlice()){
           const blackboxgraphVehicles = this.blackboxGraphService.checkErrorGraphSlice(); //prendi veicoli dal grafico blackbox
-          this.vehicleTableData.data = this.filterService.filterVehiclesWithCantieri(blackboxgraphVehicles, cantieri) as any[]; //filtraggio per filtro cantieri
+          this.vehicleTableData.data = this.filterService.filterVehiclesWithCantieri(blackboxgraphVehicles) as any[]; //filtraggio per filtro cantieri
         }else if(this.errorGraphService.checkBlackBoxSlice()){
           const errorGraphVehicles = this.errorGraphService.checkBlackBoxSlice(); //prendi veicoli dal grafico errori
-          this.vehicleTableData.data = this.filterService.filterVehiclesWithCantieri(errorGraphVehicles, cantieri) as any[]; //filtraggio per filtro cantieri
+          this.vehicleTableData.data = this.filterService.filterVehiclesWithCantieri(errorGraphVehicles) as any[]; //filtraggio per filtro cantieri
         }else{
           const allVehicles = this.sessionStorageService.getItem("allVehicles"); //prendi tutti i veicoli
-          this.vehicleTableData.data = this.filterService.filterVehiclesWithCantieri(allVehicles, cantieri) as any[]; //filtraggio per filtro cantieri
+          this.vehicleTableData.data = this.filterService.filterVehiclesWithCantieri(allVehicles) as any[]; //filtraggio per filtro cantieri
         }
         this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));
         this.cd.detectChanges();
@@ -120,7 +120,6 @@ export class TableComponent implements OnDestroy, AfterViewInit{
    * Gestisce il click sul grafico degli errori, riempendo la tabella e caricando il grafico dei blackbox di conseguenza
    */
   private handlErrorGraphClick(){
-    const cantieri = JSON.parse(this.sessionStorageService.getItem("cantieri"));
     this.checkErrorsService.fillTable$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (tableVehicles: any[]) => {
@@ -324,12 +323,11 @@ export class TableComponent implements OnDestroy, AfterViewInit{
  * @param vehicles veicoli da caricare
  */
   onGraphClick(vehicles: Vehicle[]){
-    const cantieri = JSON.parse(this.sessionStorageService.getItem("cantieri")); //prendi i cantieri
-    const filteredVehicles = this.filterService.filterVehiclesWithCantieri(vehicles, cantieri); //filtra i veicoli in base ai cantieri
-    this.sessionStorageService.setItem("tableData", JSON.stringify(filteredVehicles)); //imposta tableData in sessionstorage
-    this.filterService.updateFilterOptions$.next(filteredVehicles); //aggiorna le opzioni del filtro dei cantieri
-    this.fillTableWithVehicles(filteredVehicles); //riempe la tabella
-    this.loadGraphs(filteredVehicles); //carica i grafici
+    /*filtrare i veicoli per cantiere*/
+    this.sessionStorageService.setItem("tableData", JSON.stringify(vehicles)); //imposta tableData in sessionstorage
+    this.filterService.updateFilterOptions$.next(vehicles); //aggiorna le opzioni del filtro dei cantieri
+    this.fillTableWithVehicles(vehicles); //riempe la tabella
+    this.loadGraphs(vehicles); //carica i grafici
   }
 
 
