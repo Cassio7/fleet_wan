@@ -43,7 +43,6 @@ export class TableComponent implements OnDestroy, AfterViewInit{
 
   private readonly destroy$: Subject<void> = new Subject<void>();
 
-  allVehicles: any[] = [];
   vehicleTableData = new MatTableDataSource<Vehicle>();
   tableMaxLength: number = 0;
 
@@ -77,11 +76,12 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     this.handleBlackBoxGraphClick(); // Subscribe a click nel grafico dei blackbox
     this.handleCantiereFilter(); //Subscribe a scelta nel filtro dei cantieri
 
-    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+    const allVehicles: Vehicle[] = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
 
     if (allVehicles) {
       this.vehicleTableData.data = allVehicles;
-      this.tableMaxLength = this.vehicleTableData.data.length;
+      this.tableMaxLength = allVehicles.length;
+      console.log("CIAOOOO");
       this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));
       this.cd.detectChanges();
       this.vehicleTable.renderRows();
@@ -251,6 +251,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
         lastValidSessions: any[]
       }) => {
         try {
+
           if (vehicles && vehicles.length > 0) {
 
             // Accorpamento anomalie di sessione
@@ -286,7 +287,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
 
           this.sessionStorageService.setItem("allVehicles", JSON.stringify(vehicles));// Inserimento veicoli in sessionstorage
           this.loadGraphs(vehicles);// Carica i grafici dopo il caricamento della tabella
-
+          this.tableMaxLength = vehicles.length;
           this.cd.detectChanges();
         } catch (error) {
           console.error("Error processing vehicles:", error);
