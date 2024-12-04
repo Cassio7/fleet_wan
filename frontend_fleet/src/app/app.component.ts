@@ -38,6 +38,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
   constructor(
     private router: Router,
     private loginService: LoginService,
+    private sessionStorageService: SessionStorageService,
     private cookiesService: CookiesService,
     private cd: ChangeDetectorRef
   ){}
@@ -53,6 +54,13 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
 
     user ? this.isLogged=true : this.isLogged=false; //se è stato impostato l'user
 
+    //se non loggato, redirect a login
+    if(user){
+      this.isLogged = true;
+    }else{
+      this.isLogged = false;
+      this.router.navigate(['/login']);
+    }
     //sottoscrizione al login
     this.loginService.login$.pipe(takeUntil(this.destroy$))
     .subscribe({
