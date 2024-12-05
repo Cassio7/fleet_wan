@@ -3,12 +3,26 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Vehicle } from '../../Models/Vehicle';
-import { Session } from '../../Models/Session';
 
+interface mezziData {
+  aziende: any[];
+  plates: any[];
+  marche: any[];
+  anniImmatricolazione: string[];
+  firstEvents: Date[];
+}
 @Injectable({
   providedIn: 'root'
 })
 export class VehiclesApiService {
+  private _mezziData = {
+    aziende: [],
+    plates: [],
+    marche: [],
+    anniImmatricolazione: [],
+    firstEvents: [],
+  };
+
 
   constructor(
     private http: HttpClient,
@@ -22,6 +36,7 @@ export class VehiclesApiService {
   public getAllVehicles(): Observable<Vehicle[]>{
     return this.http.get<Vehicle[]>("http://10.1.0.102:3001/vehicles");
   }
+
 
   /**
    * Ricerca i dati del veicolo con una specifica targa
@@ -76,5 +91,13 @@ export class VehiclesApiService {
       // dateTo: new Date(new Date().setDate(new Date().getDate() + 1))
     };
     return this.checkGPSAllRanged(body.dateFrom, body.dateTo); //da cambiare in data di ieri e attuale
+  }
+
+
+  public get mezziData() {
+    return this._mezziData;
+  }
+  public set mezziData(value) {
+    this._mezziData = value;
   }
 }
