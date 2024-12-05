@@ -12,12 +12,7 @@ tr, td, th {
   border-radius: 10px;
   height: 80vh;
   overflow-y: auto;
-}
-
-.table-container table {
-  max-height: 300px;
-  overflow-y: auto;
-  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
+  box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
 }
 
 .warning-icon {

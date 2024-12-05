@@ -98,7 +98,6 @@ export class ErrorPieGraphComponent implements AfterViewInit, OnDestroy{
   }
 
   ngAfterViewInit(): void {
-
     // if(this.sessionStorageService.getItem("errorSlice")){
     //   const errorSlice = this.sessionStorageService.getItem("errorSlice")
     //   switch (errorSlice) {
@@ -123,6 +122,9 @@ export class ErrorPieGraphComponent implements AfterViewInit, OnDestroy{
     .subscribe({
       next: (series: any[]) => {
         this.chartOptions.series = series;
+        if(this.chart){
+          this.chart.highlightSeries("Funzionante");
+        }
         this.cd.detectChanges();
       },
       error: error => console.error(error)
