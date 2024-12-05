@@ -51,10 +51,10 @@
         <mat-icon class="error-icon" *ngIf="checkSessionError(vehicle)" [matTooltip]="checkSessionError(vehicle)">
           error
         </mat-icon>
-        <mat-icon class="check-icon" *ngIf="!checkSessionError(vehicle) && vehicle.lastValidSession?.period_from" matTooltip="Sessione corretta">
+        <mat-icon class="check-icon" *ngIf="!checkSessionError(vehicle) && vehicle.lastValidSession?.period_to" matTooltip="Sessione corretta">
           check_circle
         </mat-icon>
-        {{ vehicle.lastValidSession?.period_from ? (vehicle.lastValidSession.period_from | date: 'dd/MM/yy hh:mm') : '' }}
+        {{ vehicle.lastValidSession?.period_to ? (vehicle.lastValidSession.period_to | date: 'dd/MM/yy hh:mm') : '' }}
       </td>
     </ng-container>
 
