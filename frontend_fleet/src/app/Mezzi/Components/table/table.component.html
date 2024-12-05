@@ -115,6 +115,11 @@
       <td mat-cell *matCellDef="let vehicle"> {{ vehicle.retiredEvent ? "SI" : "NO"}} </td>
     </ng-container>
 
+    <ng-container matColumnDef="Notes">
+      <th mat-header-cell *matHeaderCellDef > Notes </th>
+      <td mat-cell *matCellDef="let vehicle"><textarea name="notes" class="notes" matInput></textarea></td>
+    </ng-container>
+
     <!-- Definizione righe della tabella -->
     <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
