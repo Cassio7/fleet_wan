@@ -108,10 +108,8 @@ Dov'è verrà visualizzata l'ultima posizione registrata per ciascun veicolo.
 ---
 
 ##### MEZZI
-Pagina che visualizza tutto l'archivio dei mezzi registrati.
-&Egrave; presente una tabella che contiene dati sui veicoli:
-- Targa
-- 
+Pagina che visualizza tutto l'archivio dei mezzi registrati,
+dove è presente una tabella che contiene dati sui veicoli.
 
 ---
 
