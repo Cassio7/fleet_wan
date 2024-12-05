@@ -2,7 +2,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, ViewChild } fro
 import { MatTableModule, MatTableDataSource, MatTable } from '@angular/material/table';
 import { Vehicle } from '../../../Models/Vehicle';
 import { VehiclesApiService } from '../../../Common-services/vehicles service/vehicles-api.service';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, filter } from 'rxjs';
 import { Session } from '../../../Models/Session';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { CommonModule } from '@angular/common';
@@ -12,6 +12,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatOptionModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { FilterService } from '../../Services/filter.service';
+
 
 @Component({
   selector: 'app-table',
@@ -25,6 +27,7 @@ import { MatInputModule } from '@angular/material/input';
     MatOptionModule,
     MatInputModule,
     MatCheckboxModule,
+    MatIconModule,
     MatTableModule],
   templateUrl: './table.component.html',
   styleUrl: './table.component.css'
@@ -32,15 +35,16 @@ import { MatInputModule } from '@angular/material/input';
 export class TableComponent implements AfterViewInit, OnDestroy{
   @ViewChild('vehicleTable') vehicleTable!: MatTable<Session[]>;
   private readonly destroy$: Subject<void> = new Subject<void>();
-  allVehicles: Vehicle[] = [];
+  allVehicles: any[] = [];
 
   vehicleTableData = new MatTableDataSource<Vehicle>();
 
 
-  displayedColumns: string[] = ["Azienda", "Targa", "Marca e modello", "Cantiere", "Anno immatricolazione", "Tipologia attrezzatura", "Allestimento", "Data installazione fleet", "Data rimozione apparato", "Notes"];
+  displayedColumns: string[] = ["Azienda", "Targa", "Marca&modello", "Cantiere", "Anno immatricolazione", "Tipologia attrezzatura", "Allestimento", "Data-installazione-fleet", "Data-rimozione-apparato", "Notes"];
 
   constructor(
     private vehicleService: VehiclesApiService,
+    private filterService: FilterService,
     private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef
   ){}
@@ -87,9 +91,16 @@ export class TableComponent implements AfterViewInit, OnDestroy{
     });
   }
 
-  selectVehicle($event: any){
+  selectTarga(plate: string, $event: any){
+    this.selectColumnOption($event);
+    this.filterService.addPlateSelection(plate);
+  }
+
+  selectColumnOption($event: any){
     $event.stopPropagation();
     $event.preventDefault();
+
   }
+
 
 }

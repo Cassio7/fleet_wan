@@ -31,3 +31,7 @@ tr, td, th {
 .filter-menu-container{
   max-height: 50px;
 }
+
+.vehicle-icon{
+  cursor: pointer;
+}
