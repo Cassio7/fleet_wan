@@ -4,22 +4,18 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Vehicle } from '../../Models/Vehicle';
 
-interface mezziData {
-  aziende: any[];
+export interface mezziData {
   plates: any[];
-  marche: any[];
-  anniImmatricolazione: string[];
+  modelli: any[];
   firstEvents: Date[];
 }
 @Injectable({
   providedIn: 'root'
 })
 export class VehiclesApiService {
-  private _mezziData = {
-    aziende: [],
+  private _mezziData: mezziData = {
     plates: [],
-    marche: [],
-    anniImmatricolazione: [],
+    modelli: [],
     firstEvents: [],
   };
 
@@ -37,6 +33,16 @@ export class VehiclesApiService {
     return this.http.get<Vehicle[]>("http://10.1.0.102:3001/vehicles");
   }
 
+  public fillMezziData(vehicles: Vehicle[]){
+    vehicles.forEach(vehicle => {
+      this.mezziData.plates.push(vehicle.plate);//aggiunta targa
+      this.mezziData.modelli.push(vehicle.model);//aggiunta modelli (da fare poi)
+      if(vehicle.firstEvent){
+        this.mezziData.firstEvents.push(vehicle.firstEvent);//aggiunta first event
+      }
+    });
+    return this.mezziData;
+  }
 
   /**
    * Ricerca i dati del veicolo con una specifica targa
