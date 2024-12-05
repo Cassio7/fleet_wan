@@ -6,6 +6,10 @@ import { Subject, takeUntil } from 'rxjs';
 import { Session } from '../../../Models/Session';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { CommonModule } from '@angular/common';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatOptionModule } from '@angular/material/core';
 
 export interface PeriodicElement {
   name: string;
@@ -32,6 +36,10 @@ const ELEMENT_DATA: PeriodicElement[] = [
   standalone: true,
   imports: [
     CommonModule,
+    MatMenuModule,
+    MatButtonModule,
+    MatOptionModule,
+    MatCheckboxModule,
     MatTableModule],
   templateUrl: './table.component.html',
   styleUrl: './table.component.css'
@@ -60,8 +68,10 @@ export class TableComponent implements AfterViewInit, OnDestroy{
     if(allVehicles){
       this.vehicleTableData.data = allVehicles;
       this.vehicleTable.renderRows();
+      this.cd.detectChanges();
     }else{
       this.fillTable();
+      this.cd.detectChanges();
     }
   }
 
