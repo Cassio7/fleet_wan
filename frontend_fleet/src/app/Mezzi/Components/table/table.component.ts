@@ -1,7 +1,7 @@
 import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, ViewChild } from '@angular/core';
 import { MatTableModule, MatTableDataSource, MatTable } from '@angular/material/table';
 import { Vehicle } from '../../../Models/Vehicle';
-import { VehiclesApiService } from '../../../Common-services/vehicles service/vehicles-api.service';
+import { mezziData, VehiclesApiService } from '../../../Common-services/vehicles service/vehicles-api.service';
 import { Subject, takeUntil } from 'rxjs';
 import { Session } from '../../../Models/Session';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
@@ -10,26 +10,8 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatOptionModule } from '@angular/material/core';
-
-export interface PeriodicElement {
-  name: string;
-  position: number;
-  weight: number;
-  symbol: string;
-}
-
-const ELEMENT_DATA: PeriodicElement[] = [
-  { position: 1, name: 'Hydrogen', weight: 1.0079, symbol: 'H' },
-  { position: 2, name: 'Helium', weight: 4.0026, symbol: 'He' },
-  { position: 3, name: 'Lithium', weight: 6.941, symbol: 'Li' },
-  { position: 4, name: 'Beryllium', weight: 9.0122, symbol: 'Be' },
-  { position: 5, name: 'Boron', weight: 10.811, symbol: 'B' },
-  { position: 6, name: 'Carbon', weight: 12.0107, symbol: 'C' },
-  { position: 7, name: 'Nitrogen', weight: 14.0067, symbol: 'N' },
-  { position: 8, name: 'Oxygen', weight: 15.9994, symbol: 'O' },
-  { position: 9, name: 'Fluorine', weight: 18.9984, symbol: 'F' },
-  { position: 10, name: 'Neon', weight: 20.1797, symbol: 'Ne' },
-];
+import { MatSelectModule } from '@angular/material/select';
+import { MatIcon, MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-table',
@@ -37,7 +19,10 @@ const ELEMENT_DATA: PeriodicElement[] = [
   imports: [
     CommonModule,
     MatMenuModule,
+    CommonModule,
     MatButtonModule,
+    MatIconModule,
+    MatSelectModule,
     MatOptionModule,
     MatCheckboxModule,
     MatTableModule],
@@ -47,7 +32,10 @@ const ELEMENT_DATA: PeriodicElement[] = [
 export class TableComponent implements AfterViewInit, OnDestroy{
   @ViewChild('vehicleTable') vehicleTable!: MatTable<Session[]>;
   private readonly destroy$: Subject<void> = new Subject<void>();
+  allVehicles: Vehicle[] = [];
+
   vehicleTableData = new MatTableDataSource<Vehicle>();
+
 
   displayedColumns: string[] = ["Azienda", "Targa", "Marca e modello", "Cantiere", "Anno immatricolazione", "Tipologia attrezzatura", "Allestimento", "Data installazione fleet", "Data rimozione apparato"];
 
@@ -62,11 +50,23 @@ export class TableComponent implements AfterViewInit, OnDestroy{
     this.destroy$.complete();
   }
 
+  selectColor($event:any) {
+    // this stops the menu from closing
+    $event.stopPropagation();
+    $event.preventDefault();
 
+    // in this case, the check box is controlled by adding the .selected class
+    if($event.target) {
+      $event.target.classList.toggle('selected');
+    }
+
+    // add additional selection logic here.
+
+  }
   ngAfterViewInit(): void {
-    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-    if(allVehicles){
-      this.vehicleTableData.data = allVehicles;
+    this.allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+    if(this.allVehicles){
+      this.vehicleTableData.data = this.allVehicles;
       this.vehicleTable.renderRows();
       this.cd.detectChanges();
     }else{
@@ -87,5 +87,9 @@ export class TableComponent implements AfterViewInit, OnDestroy{
     });
   }
 
+  selectVehicle($event: any){
+    $event.stopPropagation();
+    $event.preventDefault();
+  }
 
 }

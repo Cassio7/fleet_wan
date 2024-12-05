@@ -1,18 +1,18 @@
 .nVeicoli {
   margin: 0;
-  font-size: 14px; /* Reduced font size */
+  font-size: 16px;
 }
 
 tr, td, th {
   text-align: center;
-  width: 150px; /* Reduced width for table columns */
-  padding: 8px; /* Reduced padding */
+  width: 200px;
+  padding: 10px;
   word-wrap: break-word; /* Ensures long words break within table cells */
 }
 
 .table-container {
   border-radius: 10px;
-  height: 60vh; /* Reduced height of the container */
+  height: 70vh;
   margin: 0;
   width: 100%;
   overflow-y: auto;
@@ -21,87 +21,13 @@ tr, td, th {
 }
 
 .filter-menu-btn {
-  font-size: 14px; /* Smaller font size for buttons */
-  min-width: 120px; /* Smaller minimum width for filter buttons */
-  height: 40px; /* Reduced button height */
+  font-size: 16px;
+  min-width: 150px;
+  height: 50px;
   color: black;
 }
 
-/* Media queries for responsiveness */
-@media (max-width: 1200px) {
-  tr, td, th {
-    width: auto; /* Allows columns to shrink on medium screens */
-    font-size: 13px; /* Slightly smaller font size */
-  }
 
-  .filter-menu-btn {
-    font-size: 12px;
-    min-width: 110px;
-  }
-}
-
-@media (max-width: 992px) {
-  .nVeicoli {
-    font-size: 12px; /* Further reduced font size for medium screens */
-  }
-
-  .table-container {
-    height: auto; /* Let the table container resize on smaller screens */
-    max-width: 100%;
-    overflow-x: auto; /* Allow horizontal scrolling if table overflows */
-  }
-
-  tr, td, th {
-    font-size: 12px; /* Smaller font size for table cells */
-    padding: 6px;
-  }
-
-  .filter-menu-btn {
-    font-size: 12px;
-    min-width: 100px;
-  }
-}
-
-@media (max-width: 768px) {
-  .nVeicoli {
-    font-size: 10px; /* Small font size for small devices */
-  }
-
-  .table-container {
-    height: auto;
-    overflow-x: scroll; /* Make sure the table is scrollable horizontally */
-    padding: 0 8px; /* Adjust horizontal padding */
-  }
-
-  tr, td, th {
-    width: 100%; /* Make table cells fill the available width */
-    font-size: 10px; /* Very small font size for mobile screens */
-    padding: 5px;
-  }
-
-  .filter-menu-btn {
-    font-size: 10px;
-    min-width: 90px; /* Smaller buttons */
-  }
-}
-
-@media (max-width: 576px) {
-  .nVeicoli {
-    font-size: 8px; /* Even smaller font size on extra small screens */
-  }
-
-  .table-container {
-    width: 100%;
-    height: auto;
-  }
-
-  tr, td, th {
-    font-size: 8px;
-    padding: 4px; /* Reduced padding for mobile screens */
-  }
-
-  .filter-menu-btn {
-    font-size: 8px;
-    min-width: 80px; /* Very small buttons */
-  }
+.filter-menu-container{
+  max-height: 50px;
 }
