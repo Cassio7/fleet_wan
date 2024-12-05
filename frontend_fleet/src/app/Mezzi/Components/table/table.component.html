@@ -1,33 +1,65 @@
-<p>Numero di veicoli: {{vehicleTableData.data.length}}</p>
+<p class="nVeicoli">Numero di veicoli: {{vehicleTableData.data.length}}</p>
 <div class="table-container">
   <table mat-table [dataSource]="vehicleTableData" #vehicleTable class="mat-elevation-z8">
-    <ng-container matColumnDef="targa">
-      <th mat-header-cell *matHeaderCellDef > Targa </th>
-      <td mat-cell *matCellDef="let vehicle"> {{vehicle.plate}} </td>
+
+    <!-- Colonna Azienda -->
+    <ng-container matColumnDef="Azienda">
+      <th mat-header-cell *matHeaderCellDef> Azienda </th>
+      <td mat-cell *matCellDef="let vehicle"> {{ "Azienda" }} </td>
     </ng-container>
 
-    <ng-container matColumnDef="modello">
-      <th mat-header-cell *matHeaderCellDef> Modello </th>
-      <td mat-cell *matCellDef="let vehicle"> {{vehicle.model}} </td>
+    <!-- Colonna Targa -->
+    <ng-container matColumnDef="Targa">
+      <th mat-header-cell *matHeaderCellDef> Targa </th>
+      <td mat-cell *matCellDef="let vehicle"> {{ vehicle.plate }} </td>
     </ng-container>
 
-    <ng-container matColumnDef="cantiere">
+    <!-- Colonna Marca e modello -->
+    <ng-container matColumnDef="Marca e modello">
+      <th mat-header-cell *matHeaderCellDef> Marca e modello </th>
+      <td mat-cell *matCellDef="let vehicle"> {{ vehicle.model }} </td>
+    </ng-container>
+
+    <!-- Colonna Cantiere -->
+    <ng-container matColumnDef="Cantiere">
       <th mat-header-cell *matHeaderCellDef> Cantiere </th>
-      <td mat-cell *matCellDef="let vehicle"> {{vehicle.worksite?.name ? vehicle.worksite?.name : "Non assegnato"}} </td>
+      <td mat-cell *matCellDef="let vehicle"> {{ vehicle.worksite?.name ? vehicle.worksite?.name : "non assegnato" }} </td>
     </ng-container>
 
-    <ng-container matColumnDef="antenna">
-      <th mat-header-cell *matHeaderCellDef> Antenna </th>
-      <td mat-cell *matCellDef="let vehicle"> {{vehicle.isRFIDReader ? "SI" : "NO"}} </td>
+    <!-- Colonna Anno immatricolazione -->
+    <ng-container matColumnDef="Anno immatricolazione">
+      <th mat-header-cell *matHeaderCellDef> Anno immatricolazione </th>
+      <td mat-cell *matCellDef="let vehicle"> {{ "Anno di immatricolazione" }} </td>
     </ng-container>
 
-    <ng-container matColumnDef="attivo-ora">
-      <th mat-header-cell *matHeaderCellDef> Attivo ora </th>
-      <td mat-cell *matCellDef="let vehicle"> {{vehicle.active ? "SI" :"NO"}} </td>
+    <!-- Colonna Tipologia attrezzatura -->
+    <ng-container matColumnDef="Tipologia attrezzatura">
+      <th mat-header-cell *matHeaderCellDef> Tipologia attrezzatura </th>
+      <td mat-cell *matCellDef="let vehicle"> {{ "Tipologia attrezzatura" }} </td>
     </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <!-- Colonna Allestimento -->
+    <ng-container matColumnDef="Allestimento">
+      <th mat-header-cell *matHeaderCellDef> Allestimento </th>
+      <td mat-cell *matCellDef="let vehicle"> {{ vehicle.isRFIDReader ? "SI": "NO" }} </td>
+    </ng-container>
+
+    <!-- Colonna Data installazione fleet -->
+    <ng-container matColumnDef="Data installazione fleet">
+      <th mat-header-cell *matHeaderCellDef> Data installazione fleet </th>
+      <td mat-cell *matCellDef="let vehicle"> {{ vehicle.installationDate | date:'dd/MM/yyyy' }} </td>
+    </ng-container>
+
+    <!-- Colonna Data rimozione apparato -->
+    <ng-container matColumnDef="Data rimozione apparato">
+      <th mat-header-cell *matHeaderCellDef> Data rimozione apparato </th>
+      <td mat-cell *matCellDef="let vehicle"> {{ vehicle.retiredEvent ? "SI" : "NO"}} </td>
+    </ng-container>
+
+    <!-- Definizione righe della tabella -->
+    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
   </table>
+
 </div>
 

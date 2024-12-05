@@ -31,6 +31,7 @@ const ELEMENT_DATA: PeriodicElement[] = [
   selector: 'app-table',
   standalone: true,
   imports: [
+    CommonModule,
     MatTableModule],
   templateUrl: './table.component.html',
   styleUrl: './table.component.css'
@@ -40,7 +41,7 @@ export class TableComponent implements AfterViewInit, OnDestroy{
   private readonly destroy$: Subject<void> = new Subject<void>();
   vehicleTableData = new MatTableDataSource<Vehicle>();
 
-  displayedColumns: string[] = ["targa", "modello", "cantiere", "antenna", "attivo-ora"];
+  displayedColumns: string[] = ["Azienda", "Targa", "Marca e modello", "Cantiere", "Anno immatricolazione", "Tipologia attrezzatura", "Allestimento", "Data installazione fleet", "Data rimozione apparato"];
 
   constructor(
     private vehicleService: VehiclesApiService,
