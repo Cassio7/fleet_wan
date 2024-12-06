@@ -13,6 +13,7 @@ import { WorksiteGroupFactoryService } from './factory/worksite_group.factory';
 import { getDaysInRange } from './utils/utils';
 import { AssociationFactoryService } from './factory/association.factory';
 import { CategoryFactoryService } from './factory/category.factory';
+import { AnomalyService } from './services/anomaly/anomaly.service';
 
 @Injectable()
 export class AppService implements OnModuleInit {
@@ -28,13 +29,20 @@ export class AppService implements OnModuleInit {
     private readonly worksiteGroupFactoryService: WorksiteGroupFactoryService,
     private readonly associationFactoryService: AssociationFactoryService,
     private readonly categoryFactoryService: CategoryFactoryService,
+    private readonly anomalyService: AnomalyService,
   ) {}
 
   // popolo database all'avvio
   async onModuleInit() {
+    const startDate = '2024-11-26T00:00:00.000Z';
+    //const endDate = '2024-11-02T00:00:00.000Z';
+    const endDate = new Date(
+      new Date().getTime() + 2 * 60 * 60 * 1000,
+    ).toISOString();
     //await this.putDefaultData();
-    //await this.putDbDataBasicForAdvance();
+    //await this.putDbDataBasicForAdvance(startDate, endDate);
     //await this.putDbData3min();
+    //await this.anomalyCheck(startDate, endDate);
   }
 
   async putDefaultData() {
@@ -51,12 +59,10 @@ export class AppService implements OnModuleInit {
   /**
    * IL PRESCELTO
    */
-  async putDbDataBasicForAdvance() {
-    const startDate = '2024-11-01T00:00:00.000Z';
-    const endDate = '2024-12-01T00:00:00.000Z';
-    // const endDate = new Date(
-    //   new Date().getTime() + 2 * 60 * 60 * 1000,
-    // ).toISOString();
+  async putDbDataBasicForAdvance(start: string, end: string) {
+    const startDate = start;
+    const endDate = end;
+
     console.log('Data inizio: ' + startDate + ' Data fine: ' + endDate);
     const batchSize = 100;
 
@@ -69,10 +75,10 @@ export class AppService implements OnModuleInit {
     const dateTo_new = new Date(endDate);
     const daysInRange = getDaysInRange(dateFrom_new, dateTo_new); // Funzione che restituisce un array di giorni
 
-    //const vehicles = await this.vehicleService.getAllVehicles();
-    const vehicles = [];
-    const vehicle1 = await this.vehicleService.getVehicleById(3796);
-    vehicles.push(vehicle1);
+    const vehicles = await this.vehicleService.getAllVehicles();
+    // const vehicles = [];
+    // const vehicle1 = await this.vehicleService.getVehicleById(3796);
+    // vehicles.push(vehicle1);
     // const vehicle2 = await this.vehicleService.getVehicleById(3517);
     // vehicles.push(vehicle2);
     await this.worksiteFactoryService.createDefaultVehicleWorksite();
@@ -173,5 +179,46 @@ export class AppService implements OnModuleInit {
         );
       }
     }
+  }
+
+  async anomalyCheck(start: string, end: string) {
+    const dateFrom_new = new Date(start);
+    const dateTo_new = new Date(end);
+    const daysInRange = getDaysInRange(dateFrom_new, dateTo_new);
+    await Promise.all(
+      daysInRange.slice(0, -1).map(async (day) => {
+        const datefrom = day;
+        const dateto = new Date(datefrom);
+        dateto.setDate(dateto.getDate() + 1);
+        const data = await this.anomalyService.checkErrorsAllNoAPI(
+          datefrom,
+          dateto.toISOString(),
+        );
+        if (data !== false) {
+          const promises = data.map(async (item) => {
+            const veId = item.veId;
+            const session = item.anomaliaSessione || null;
+            let gps = null;
+            let antenna = null;
+            let date = null;
+            if (item.sessions[0]) {
+              date = item.sessions[0].date || null;
+              if (item.sessions[0].anomalies) {
+                gps = item.sessions[0].anomalies.GPS || null;
+                antenna = item.sessions[0].anomalies.Antenna || null;
+              }
+            }
+            await this.anomalyService.createAnomaly(
+              veId,
+              date,
+              gps,
+              antenna,
+              session,
+            );
+          });
+          await Promise.all(promises);
+        }
+      }),
+    );
   }
 }
