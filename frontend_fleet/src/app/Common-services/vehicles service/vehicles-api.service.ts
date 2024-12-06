@@ -4,21 +4,10 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Vehicle } from '../../Models/Vehicle';
 
-export interface mezziData {
-  plates: any[];
-  modelli: any[];
-  firstEvents: Date[];
-}
 @Injectable({
   providedIn: 'root'
 })
 export class VehiclesApiService {
-  private _mezziData: mezziData = {
-    plates: [],
-    modelli: [],
-    firstEvents: [],
-  };
-
 
   constructor(
     private http: HttpClient,
@@ -31,17 +20,6 @@ export class VehiclesApiService {
    */
   public getAllVehicles(): Observable<Vehicle[]>{
     return this.http.get<Vehicle[]>("http://10.1.0.102:3001/vehicles");
-  }
-
-  public fillMezziData(vehicles: Vehicle[]){
-    vehicles.forEach(vehicle => {
-      this.mezziData.plates.push(vehicle.plate);//aggiunta targa
-      this.mezziData.modelli.push(vehicle.model);//aggiunta modelli (da fare poi)
-      if(vehicle.firstEvent){
-        this.mezziData.firstEvents.push(vehicle.firstEvent);//aggiunta first event
-      }
-    });
-    return this.mezziData;
   }
 
   /**
@@ -63,7 +41,7 @@ export class VehiclesApiService {
     const dateTo = this.commonService.dateTo;
     dateTo.setDate(dateTo.getDate() + 1); //Aumento di un giorno
 
-    //da modificare
+    //da modificare con le variabili
     const body = {
       dateFrom: "2024-10-31",
       dateTo: "2024-11-01"
@@ -97,13 +75,5 @@ export class VehiclesApiService {
       // dateTo: new Date(new Date().setDate(new Date().getDate() + 1))
     };
     return this.checkGPSAllRanged(body.dateFrom, body.dateTo); //da cambiare in data di ieri e attuale
-  }
-
-
-  public get mezziData() {
-    return this._mezziData;
-  }
-  public set mezziData(value) {
-    this._mezziData = value;
   }
 }
