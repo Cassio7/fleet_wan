@@ -13,9 +13,10 @@
 - [ ] assegnare tutti i cantieri ai nuovi veicoli
 - [x] rivedere logica dei ruoli ma sostituire con i cantieri
 - [ ] rimuovere codice non utilizzato
+- [ ] aggiungere campo azienda appartenenza mezzo
 - [ ] dare un formato di risposta corretto a tutte le API
 - [x] inserire una tabella con la tipologia di veicolo (spazzatrice ...)
-- [ ] pensare a tabella di appoggio per allocare i controlli per tutti i veicoli con GPS, Antenna e Sessione (FORSE REDIS)
+- [ ] pensare a tabella di appoggio per allocare i controlli per tutti i veicoli con GPS, Antenna e Sessione (FORSE REDIS) -> tabella anomalies
 - [ ] segnare la posizione dei cantieri con circonferenza, layer comunali
 - [x] risoluzione posizione con openstreetmap [reverse](https://nominatim.org/release-docs/develop/api/Reverse/)
 - [x] integrazione con Redis per ridurre tempo risoluzione chiamate risoluzione posizione e altro
