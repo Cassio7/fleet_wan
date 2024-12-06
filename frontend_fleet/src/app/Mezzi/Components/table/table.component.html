@@ -21,7 +21,7 @@
         <mat-menu #targaMenu="matMenu">
           <!-- Checkbox "Seleziona tutto" -->
           <button mat-menu-item (click)="selectDeselectAllColumnOptions('plate', $event)">
-            <mat-checkbox [checked]="true">Seleziona tutto</mat-checkbox>
+            <mat-checkbox [checked]="selectService.allPlatesSelected">Seleziona tutto</mat-checkbox>
           </button>
           <mat-divider></mat-divider>
           <!-- Checkbox per ogni veicolo -->
@@ -43,13 +43,13 @@
         <mat-menu #marcaMenu="matMenu">
           <!-- Checkbox "Seleziona tutto" for all models -->
           <button mat-menu-item (click)="selectDeselectAllColumnOptions('model', $event)">
-            <mat-checkbox [checked]="true">Seleziona tutto</mat-checkbox>
+            <mat-checkbox [checked]="selectService.allModelsSelected">Seleziona tutto</mat-checkbox>
           </button>
           <mat-divider></mat-divider>
 
           <!-- Checkbox for each vehicle model -->
           <button mat-menu-item *ngFor="let vehicle of filterVehiclesModelsDuplicates()" (click)="selectModel(vehicle.model, $event)">
-            <mat-checkbox [checked]="selectService.selectedData.modelli.includes(vehicle.model)">
+            <mat-checkbox [checked]="selectService.selectedData.modelli.includes(vehicle.model)" (click)="selectModel(vehicle.model, $event)">
               {{ vehicle.model }}
             </mat-checkbox>
           </button>

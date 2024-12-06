@@ -74,6 +74,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
       this.cd.detectChanges();
     }
     this.selectService.selectAll(this.allVehicles); //seleziona tutte le opzioni dei menu delle colonne
+    this.cd.detectChanges();
   }
 
   /**
@@ -98,15 +99,20 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
    * @param $event evento
    */
   selectTarga(plate: string, $event: any){
-    this.selectService.preventSelectClosing($event); //permette al menu di non chiudersi dopo aver selezionato un opzione
-    this.selectService.updatePlateSelection(plate); //aggiunge una targa all'array di targhe selezionate
+    this.onSelection(plate, $event);
     this.vehicleTableData.data = this.mezziFilterService.filterVehiclesBySelections(this.selectService.selectedData, this.allVehicles); //aggiorna tabella
+    this.vehicleTable.renderRows();
   }
 
   selectModel(model: string, $event: any){
+    this.onSelection(model, $event);
+    this.vehicleTableData.data = this.mezziFilterService.filterVehiclesBySelections(this.selectService.selectedData, this.allVehicles);
+    this.vehicleTable.renderRows();
+  }
+
+  private onSelection(model: string, $event: any){
     this.selectService.preventSelectClosing($event);
     this.selectService.updateModelSelection(model);
-    this.vehicleTableData.data = this.mezziFilterService.filterVehiclesBySelections(this.selectService.selectedData, this.allVehicles);
   }
 
   /**

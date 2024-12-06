@@ -12,8 +12,9 @@ export interface selectedData {
   providedIn: 'root'
 })
 export class SelectService {
-  private allPlatesSelected = true;
-  private allModelsSelected = true;
+  private _allPlatesSelected = true;
+  private _allModelsSelected = true;
+
   private _selectedData: selectedData = {
     plates: [],
     modelli: [],
@@ -58,9 +59,11 @@ export class SelectService {
         if (this.allPlatesSelected) {
           this.selectedData.plates = [];// svuotamento array di targhe
           this.allPlatesSelected = false;
+          console.log("true");
           return [];
         } else {
           this.selectedData.plates = vehicles.map(vehicle => vehicle.plate);// seleziona tutte le targhe
+          console.log(this.selectedData.plates);
           this.allPlatesSelected = true;
           return vehicles;
         }
@@ -70,7 +73,7 @@ export class SelectService {
           this.allModelsSelected = false;
           return [];
         } else {
-          this.selectedData.plates = vehicles.map(vehicle => vehicle.plate);// seleziona tutte le targhe
+          this.selectedData.modelli = vehicles.map(vehicle => vehicle.model);// seleziona tutte le targhe
           this.allModelsSelected = true;
           return vehicles;
         }
@@ -103,6 +106,18 @@ export class SelectService {
     $event.preventDefault();
   }
 
+  public get allPlatesSelected() {
+    return this._allPlatesSelected;
+  }
+  public set allPlatesSelected(value) {
+    this._allPlatesSelected = value;
+  }
+  public get allModelsSelected() {
+    return this._allModelsSelected;
+  }
+  public set allModelsSelected(value) {
+    this._allModelsSelected = value;
+  }
   public get selectedData(): selectedData {
     return this._selectedData;
   }

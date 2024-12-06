@@ -15,7 +15,7 @@ export class MezziFilterService {
     // Filtra i veicoli per modello
     const modelFilteredVehicles = this.filterVehiclesByModels(selectedData.modelli, plateFilteredVehicles);
 
-    return modelFilteredVehicles;
+    return modelFilteredVehicles; //ritorna i veicoli dove sono stati applicati tutti i filtri
   }
 
   /**
