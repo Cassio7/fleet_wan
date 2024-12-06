@@ -6,8 +6,8 @@ import { MatOptionModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
-import { FilterService } from '../../Services/filter/filter.service';
 import { skip, Subject, takeUntil } from 'rxjs';
+import { FilterService } from '../../../Common-services/filter/filter.service';
 
 @Component({
   selector: 'app-row-filter',

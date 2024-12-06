@@ -20,13 +20,13 @@
         <button mat-button [matMenuTriggerFor]="targaMenu" class="filter-menu-btn">Targa</button>
         <mat-menu #targaMenu="matMenu">
           <!-- Checkbox "Seleziona tutto" -->
-          <button mat-menu-item (click)="selectDeselectAllColumnOptions('targa', $event)">
+          <button mat-menu-item (click)="selectDeselectAllColumnOptions('plate', $event)">
             <mat-checkbox [checked]="true">Seleziona tutto</mat-checkbox>
           </button>
           <mat-divider></mat-divider>
           <!-- Checkbox per ogni veicolo -->
           <button mat-menu-item *ngFor="let vehicle of allVehicles" (click)="selectTarga(vehicle.plate, $event)">
-            <mat-checkbox [checked]="selectService.selectedData.plates.includes(vehicle.plate)">{{ vehicle.plate }}</mat-checkbox>
+            <mat-checkbox [checked]="selectService.selectedData.plates.includes(vehicle.plate)" (click)="selectTarga(vehicle.plate, $event)">{{ vehicle.plate }}</mat-checkbox>
           </button>
         </mat-menu>
       </th>
@@ -36,21 +36,28 @@
       </td>
     </ng-container>
 
-
-
-
     <!-- Colonna Marca e Modello -->
     <ng-container matColumnDef="Marca&modello">
       <th mat-header-cell *matHeaderCellDef>
         <button mat-button [matMenuTriggerFor]="marcaMenu" class="filter-menu-btn">Marca e modello</button>
         <mat-menu #marcaMenu="matMenu">
-          <button mat-menu-item *ngFor="let vehicle of allVehicles" (click)="selectService.preventSelectClosing($event)">
-            <mat-checkbox>{{vehicle.model}}</mat-checkbox>
+          <!-- Checkbox "Seleziona tutto" for all models -->
+          <button mat-menu-item (click)="selectDeselectAllColumnOptions('model', $event)">
+            <mat-checkbox [checked]="true">Seleziona tutto</mat-checkbox>
+          </button>
+          <mat-divider></mat-divider>
+
+          <!-- Checkbox for each vehicle model -->
+          <button mat-menu-item *ngFor="let vehicle of filterVehiclesModelsDuplicates()" (click)="selectModel(vehicle.model, $event)">
+            <mat-checkbox [checked]="selectService.selectedData.modelli.includes(vehicle.model)">
+              {{ vehicle.model }}
+            </mat-checkbox>
           </button>
         </mat-menu>
       </th>
       <td mat-cell *matCellDef="let vehicle">{{ vehicle.model }}</td>
     </ng-container>
+
 
 
     <!-- Colonna Cantiere -->

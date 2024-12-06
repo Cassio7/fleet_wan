@@ -76,4 +76,15 @@ export class VehiclesApiService {
     };
     return this.checkGPSAllRanged(body.dateFrom, body.dateTo); //da cambiare in data di ieri e attuale
   }
+
+  removeDuplicatePlates(vehicles: Vehicle[]): Vehicle[] {
+    const uniquePlates = new Set<string>(); // to store unique plate numbers
+    return vehicles.filter((vehicle) => {
+      if (uniquePlates.has(vehicle.plate)) {
+        return false; // Skip if the plate is already in the set
+      }
+      uniquePlates.add(vehicle.plate); // Add the plate to the set
+      return true; // Include the vehicle if it's the first occurrence
+    });
+  }
 }

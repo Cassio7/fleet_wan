@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
-import { ErrorGraphsService } from '../error-graphs/error-graphs.service';
-import { BlackboxGraphsService } from '../blackbox-graphs/blackbox-graphs.service';
+import { SessionStorageService } from '../sessionStorage/session-storage.service';
+import { ErrorGraphsService } from '../../Dashboard/Services/error-graphs/error-graphs.service';
+import { BlackboxGraphsService } from '../../Dashboard/Services/blackbox-graphs/blackbox-graphs.service';
+import { Vehicle } from '../../Models/Vehicle';
 
 @Injectable({
   providedIn: 'root'
@@ -43,15 +44,13 @@ export class FilterService {
     return listaCantieri;
   }
 
-
-
   /**
    * Filtra un array di veicoli in base al valore del filtro sui cantieri
    * @param vehicles veicoli sui quali applicare il filtro
    * @param worksites cantieri per cui filtrare (se passato un array vuoto, utilizza i cantieri salvati nel sessionstorage)
    * @returns array di veicoli filtrati
    */
-  filterVehiclesWithCantieri(vehicles: any[], worksites: string[]) {
+  filterVehiclesByCantieri(vehicles: any[], worksites: string[]) {
     const cantieri: string[] = worksites || JSON.parse(this.sessionStorageService.getItem("cantieri"));
     const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
 
@@ -90,10 +89,12 @@ export class FilterService {
     }
   }
 
+
   public get filterTableByCantiere$(): BehaviorSubject<string[]> {
     return this._filterTableByCantiere$;
   }
   public get updateFilterOptions$(): BehaviorSubject<any[]> {
     return this._updateFilterOptions$;
   }
+
 }

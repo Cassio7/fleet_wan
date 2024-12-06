@@ -20,8 +20,8 @@ import { RowFilterComponent } from "../row-filter/row-filter.component";
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatButtonModule } from '@angular/material/button';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
-import { FilterService } from '../../Services/filter/filter.service';
 import { SortService } from '../../Services/sort/sort.service';
+import { FilterService } from '../../../Common-services/filter/filter.service';
 
 @Component({
   selector: 'app-table',
@@ -99,13 +99,13 @@ export class TableComponent implements OnDestroy, AfterViewInit{
       next: ()=>{
         if(this.blackboxGraphService.checkErrorGraphSlice()){
           const blackboxgraphVehicles = this.blackboxGraphService.checkErrorGraphSlice(); //prendi veicoli dal grafico blackbox
-          this.vehicleTableData.data = this.filterService.filterVehiclesWithCantieri(blackboxgraphVehicles, []) as any[]; //filtraggio per filtro cantieri
+          this.vehicleTableData.data = this.filterService.filterVehiclesByCantieri(blackboxgraphVehicles, []) as any[]; //filtraggio per filtro cantieri
         }else if(this.errorGraphService.checkBlackBoxSlice()){
           const errorGraphVehicles = this.errorGraphService.checkBlackBoxSlice(); //prendi veicoli dal grafico errori
-          this.vehicleTableData.data = this.filterService.filterVehiclesWithCantieri(errorGraphVehicles, []) as any[]; //filtraggio per filtro cantieri
+          this.vehicleTableData.data = this.filterService.filterVehiclesByCantieri(errorGraphVehicles, []) as any[]; //filtraggio per filtro cantieri
         }else{
           const allVehicles = this.sessionStorageService.getItem("allVehicles"); //prendi tutti i veicoli
-          this.vehicleTableData.data = this.filterService.filterVehiclesWithCantieri(allVehicles, []) as any[]; //filtraggio per filtro cantieri
+          this.vehicleTableData.data = this.filterService.filterVehiclesByCantieri(allVehicles, []) as any[]; //filtraggio per filtro cantieri
         }
         this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));
         this.cd.detectChanges();

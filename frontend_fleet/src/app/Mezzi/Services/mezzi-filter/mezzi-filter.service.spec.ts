@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { FilterService } from './filter.service';
+import { MezziFilterService } from './mezzi-filter.service';
 
-describe('FilterService', () => {
-  let service: FilterService;
+describe('MezziFilterService', () => {
+  let service: MezziFilterService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(FilterService);
+    service = TestBed.inject(MezziFilterService);
   });
 
   it('should be created', () => {

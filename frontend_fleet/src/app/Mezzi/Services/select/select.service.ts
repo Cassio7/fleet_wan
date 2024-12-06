@@ -12,7 +12,8 @@ export interface selectedData {
   providedIn: 'root'
 })
 export class SelectService {
-  private platesAllSelected = true;
+  private allPlatesSelected = true;
+  private allModelsSelected = true;
   private _selectedData: selectedData = {
     plates: [],
     modelli: [],
@@ -25,12 +26,21 @@ export class SelectService {
    * Aggiunge una targa all'array di targhe selezionate
    * @param plate targa da aggiungere
    */
-  addPlateSelection(plate: string){
+  updatePlateSelection(plate: string){
     if(!this.selectedData.plates.includes(plate)){
       this.selectedData.plates.push(plate);
     }else{
       const index = this.selectedData.plates.indexOf(plate);
       this.selectedData.plates.splice(index, 1);
+    }
+  }
+
+  updateModelSelection(model: string){
+    if(!this.selectedData.modelli.includes(model)){
+      this.selectedData.modelli.push(model);
+    }else{
+      const index = this.selectedData.modelli.indexOf(model);
+      this.selectedData.modelli.splice(index, 1);
     }
   }
 
@@ -45,13 +55,23 @@ export class SelectService {
 
     switch(column) {
       case "targa":
-        if (this.platesAllSelected) {
+        if (this.allPlatesSelected) {
           this.selectedData.plates = [];// svuotamento array di targhe
-          this.platesAllSelected = false;
+          this.allPlatesSelected = false;
           return [];
         } else {
           this.selectedData.plates = vehicles.map(vehicle => vehicle.plate);// seleziona tutte le targhe
-          this.platesAllSelected = true;
+          this.allPlatesSelected = true;
+          return vehicles;
+        }
+      case "model":
+        if (this.allModelsSelected) {
+          this.selectedData.modelli = [];// svuotamento array di targhe
+          this.allModelsSelected = false;
+          return [];
+        } else {
+          this.selectedData.plates = vehicles.map(vehicle => vehicle.plate);// seleziona tutte le targhe
+          this.allModelsSelected = true;
           return vehicles;
         }
     }
@@ -59,16 +79,24 @@ export class SelectService {
     return [];
   }
 
-
-  selectAll(vehicles: Vehicle[]){
+  /**
+   * Riempe l'oggetto di dati selezionati con i dati corrispondenti, non ripetuti
+   * @param vehicles veicoli dai quali riprendere i dati
+   */
+  selectAll(vehicles: Vehicle[]) {
     vehicles.forEach(vehicle => {
       this.selectedData.plates.push(vehicle.plate);
-      this.selectedData.modelli.push(vehicle.model);
-      if(vehicle.firstEvent){
+
+      if (!this.selectedData.modelli.includes(vehicle.model)) {
+        this.selectedData.modelli.push(vehicle.model);
+      }
+
+      if (vehicle.firstEvent) {
         this.selectedData.firstEvents.push(new Date(vehicle.firstEvent));
       }
     });
   }
+
 
   preventSelectClosing($event: any){
     $event.stopPropagation();
