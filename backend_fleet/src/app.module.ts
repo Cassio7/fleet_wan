@@ -47,6 +47,8 @@ import { TagController } from './controllers/tag/tag.controller';
 import { CompanyController } from './controllers/company/company.controller';
 import { AuthController } from './controllers/auth/auth.controller';
 import { UserController } from './controllers/user/user.controller';
+import { AnomalyController } from './controllers/anomaly/anomaly.controller';
+
 
 // importo i factory
 import { UserFactoryService } from './factory/user.factory';
@@ -57,7 +59,6 @@ import { WorksiteGroupFactoryService } from './factory/worksite_group.factory';
 import { AssociationFactoryService } from './factory/association.factory';
 import { CategoryFactoryService } from './factory/category.factory';
 import { AnomalyService } from './services/anomaly/anomaly.service';
-import { AnomalyController } from './controllers/anomaly/anomaly.controller';
 
 @Global()
 @Module({
