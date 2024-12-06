@@ -1303,4 +1303,138 @@ export class SessionController {
         .json({ message: 'Nessun dato trovato per fare controlli' });
     }
   }
+
+  async checkErrorsAllNoAPI(dateFromParam: string, dateToParam: string) {
+    const dateFrom = new Date(dateFromParam);
+    const dateTo = new Date(dateToParam);
+
+    let gpsErrors: any = []; // Risultati controllo GPS
+    let fetchedTagComparisons: any = []; // Risultati comparazione tag
+    let comparison: any = []; // Controllo errori lastEvent
+    const mergedData = [];
+
+    // Controlla errore di GPS
+    try {
+      gpsErrors = await this.checkSessionGPSAllNoApi(dateFrom, dateTo);
+      gpsErrors = Array.isArray(gpsErrors) ? gpsErrors : [];
+    } catch (error) {
+      console.error('Errore nel controllo errori del GPS:', error);
+    }
+
+    // Controlla errore Antenna
+    try {
+      fetchedTagComparisons = await this.tagComparisonAllWithTimeRangeNoApi(
+        dateFrom,
+        dateTo,
+      );
+      fetchedTagComparisons = Array.isArray(fetchedTagComparisons)
+        ? fetchedTagComparisons
+        : [];
+    } catch (error) {
+      console.error(
+        'Errore nella comparazione dei tag per controllare gli errori delle antenne:',
+        error,
+      );
+    }
+
+    // Controlla errore inizio e fine sessione (last event)
+    try {
+      comparison = await this.lastEventComparisonAllNoApi();
+      comparison = Array.isArray(comparison) ? comparison : [];
+    } catch (error) {
+      console.error('Errore nel controllo del last event:', error);
+    }
+
+    // Combina i risultati
+    try {
+      const allPlates = new Set([
+        ...gpsErrors.map((item) => item.plate),
+        ...fetchedTagComparisons.map((item) => item.plate),
+        ...comparison.map((item) => item.plate),
+      ]);
+
+      allPlates.forEach((plate) => {
+        const gpsEntry = gpsErrors.find((item) => item.plate === plate) || {};
+        const tagEntry =
+          fetchedTagComparisons.find((item) => item.plate === plate) || {};
+        const comparisonEntry =
+          comparison.find((item) => item.plate === plate) || {};
+
+        // Combina tutte le sessioni in base alla data
+        const allSessions = new Map();
+
+        // Aggiungi sessioni GPS
+        (gpsEntry.sessions || []).forEach((session) => {
+          if (!allSessions.has(session.date)) {
+            allSessions.set(session.date, {
+              date: session.date,
+              anomalies: {},
+            });
+          }
+          allSessions.get(session.date).anomalies.GPS = session.anomalies?.[0];
+        });
+
+        // Aggiungi sessioni Antenna
+        (tagEntry.sessions || []).forEach((session) => {
+          if (!allSessions.has(session.date)) {
+            allSessions.set(session.date, {
+              date: session.date,
+              anomalies: {},
+            });
+          }
+          allSessions.get(session.date).anomalies.Antenna =
+            session.anomalies?.[0];
+        });
+
+        const combinedMap = new Map();
+
+        allSessions.forEach((value, key) => {
+          // Usando toISOString per avere una chiave comparabile
+          const dateKey = key.toISOString();
+
+          if (combinedMap.has(dateKey)) {
+            // Se la data è già presente, combiniamo le anomalie
+            const existingValue = combinedMap.get(dateKey);
+            existingValue.anomalies = {
+              ...existingValue.anomalies,
+              ...value.anomalies,
+            };
+            combinedMap.set(dateKey, existingValue);
+          } else {
+            // Se la data non esiste, la aggiungiamo
+            combinedMap.set(dateKey, value);
+          }
+        });
+
+        // Trasforma le sessioni in array unificando le anomalie per ciascuna data
+        const unifiedSessions = Array.from(combinedMap.values());
+        unifiedSessions.sort(
+          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+        );
+
+        mergedData.push({
+          plate,
+          veId: gpsEntry.veId || tagEntry.veId || comparisonEntry.veId || null,
+          isCan:
+            gpsEntry.isCan || tagEntry.isCan || comparisonEntry.isCan || false,
+          isRFIDReader:
+            gpsEntry.isRFIDReader ||
+            tagEntry.isRFIDReader ||
+            comparisonEntry.isRFIDReader ||
+            false,
+          anomaliaSessione: comparisonEntry.anomalies,
+          sessions: unifiedSessions,
+        });
+      });
+
+      mergedData.sort((a, b) => a.plate.localeCompare(b.plate));
+    } catch (error) {
+      console.error(
+        'Errore nella formattazione della risposta per le anomalie:',
+        error,
+      );
+    }
+    if (mergedData.length > 0) return mergedData;
+    else return false;
+  }
 }
