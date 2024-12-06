@@ -25,6 +25,8 @@ import { WorksiteEntity } from 'classes/entities/worksite.entity';
 import { NoteEntity } from 'classes/entities/note.entity';
 import { WorksiteGroupEntity } from 'classes/entities/worksite_group.entity';
 import { CategoryEntity } from 'classes/entities/category.entity';
+import { AnomalyEntity } from 'classes/entities/anomaly.entity';
+
 
 // importo i servizi
 import { VehicleService } from './services/vehicle/vehicle.service';
@@ -54,6 +56,8 @@ import { GroupFactoryService } from './factory/group.factory';
 import { WorksiteGroupFactoryService } from './factory/worksite_group.factory';
 import { AssociationFactoryService } from './factory/association.factory';
 import { CategoryFactoryService } from './factory/category.factory';
+import { AnomalyService } from './services/anomaly/anomaly.service';
+import { AnomalyController } from './controllers/anomaly/anomaly.controller';
 
 @Global()
 @Module({
@@ -91,6 +95,7 @@ import { CategoryFactoryService } from './factory/category.factory';
           WorksiteGroupEntity,
           NoteEntity,
           CategoryEntity,
+          AnomalyEntity,
         ],
         synchronize: true,
         //dropSchema: true, // if true drop db
@@ -115,6 +120,7 @@ import { CategoryFactoryService } from './factory/category.factory';
         WorksiteGroupEntity,
         NoteEntity,
         CategoryEntity,
+        AnomalyEntity,
       ],
       'mainConnection',
     ),
@@ -147,6 +153,7 @@ import { CategoryFactoryService } from './factory/category.factory';
           WorksiteGroupEntity,
           NoteEntity,
           CategoryEntity,
+          AnomalyEntity,
         ],
         synchronize: false,
       }),
@@ -170,6 +177,7 @@ import { CategoryFactoryService } from './factory/category.factory';
         WorksiteGroupEntity,
         NoteEntity,
         CategoryEntity,
+        AnomalyEntity,
       ],
       'readOnlyConnection',
     ),
@@ -201,6 +209,7 @@ import { CategoryFactoryService } from './factory/category.factory';
     AuthController,
     UserController,
     CompanyController,
+    AnomalyController,
   ],
   providers: [
     AppService,
@@ -219,6 +228,7 @@ import { CategoryFactoryService } from './factory/category.factory';
     WorksiteGroupFactoryService,
     AssociationFactoryService,
     CategoryFactoryService,
+    AnomalyService,
   ],
 })
 export class AppModule {}

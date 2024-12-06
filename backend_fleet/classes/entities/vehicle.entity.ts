@@ -16,6 +16,7 @@ import { RealtimePositionEntity } from './realtime_position.entity';
 import { TagHistoryEntity } from './tag_history.entity';
 import { WorksiteEntity } from './worksite.entity';
 import { CategoryEntity } from './category.entity';
+import { AnomalyEntity } from './anomaly.entity';
 
 @Entity('vehicles')
 export class VehicleEntity extends CommonEntity implements VehicleInterface {
@@ -85,6 +86,9 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
     nullable: true,
   })
   worksite: WorksiteEntity | null;
+
+  @OneToMany(() => AnomalyEntity, (anomaly) => anomaly.vehicle)
+  anomaly: AnomalyEntity[];
 
   @Column({ type: 'varchar', length: 100 })
   @Index()
