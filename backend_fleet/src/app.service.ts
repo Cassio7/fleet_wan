@@ -52,11 +52,11 @@ export class AppService implements OnModuleInit {
    * IL PRESCELTO
    */
   async putDbDataBasicForAdvance() {
-    const startDate = '2024-12-02T00:00:00.000Z';
-    //const endDate = '2024-11-25T00:00:00.000Z';
-    const endDate = new Date(
-      new Date().getTime() + 2 * 60 * 60 * 1000,
-    ).toISOString();
+    const startDate = '2024-11-01T00:00:00.000Z';
+    const endDate = '2024-12-01T00:00:00.000Z';
+    // const endDate = new Date(
+    //   new Date().getTime() + 2 * 60 * 60 * 1000,
+    // ).toISOString();
     console.log('Data inizio: ' + startDate + ' Data fine: ' + endDate);
     const batchSize = 100;
 
@@ -69,10 +69,10 @@ export class AppService implements OnModuleInit {
     const dateTo_new = new Date(endDate);
     const daysInRange = getDaysInRange(dateFrom_new, dateTo_new); // Funzione che restituisce un array di giorni
 
-    const vehicles = await this.vehicleService.getAllVehicles();
-    // const vehicles = [];
-    // const vehicle1 = await this.vehicleService.getVehicleById(2954);
-    // vehicles.push(vehicle1);
+    //const vehicles = await this.vehicleService.getAllVehicles();
+    const vehicles = [];
+    const vehicle1 = await this.vehicleService.getVehicleById(3796);
+    vehicles.push(vehicle1);
     // const vehicle2 = await this.vehicleService.getVehicleById(3517);
     // vehicles.push(vehicle2);
     await this.worksiteFactoryService.createDefaultVehicleWorksite();
