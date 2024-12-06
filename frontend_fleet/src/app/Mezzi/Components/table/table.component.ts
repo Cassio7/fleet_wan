@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, ViewChild } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, NgZone, OnDestroy, ViewChild } from '@angular/core';
 import { MatTableModule, MatTableDataSource, MatTable } from '@angular/material/table';
 import { Vehicle } from '../../../Models/Vehicle';
 import { VehiclesApiService } from '../../../Common-services/vehicles service/vehicles-api.service';
@@ -36,13 +36,12 @@ import { SelectService } from '../../Services/select/select.service';
   templateUrl: './table.component.html',
   styleUrl: './table.component.css'
 })
-export class TableComponent implements AfterViewInit, OnDestroy{
+export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestroy{
   @ViewChild('vehicleTable') vehicleTable!: MatTable<Session[]>;
   private readonly destroy$: Subject<void> = new Subject<void>();
   allVehicles: any[] = [];
 
   vehicleTableData = new MatTableDataSource<Vehicle>();
-
 
   displayedColumns: string[] = ["Azienda", "Targa", "Marca&modello", "Cantiere", "Anno immatricolazione", "Tipologia attrezzatura", "Allestimento", "Data-installazione-fleet", "Data-rimozione-apparato", "Notes"];
 
@@ -54,12 +53,17 @@ export class TableComponent implements AfterViewInit, OnDestroy{
     private cd: ChangeDetectorRef
   ){}
 
+  ngAfterViewChecked(): void {
+    this.cd.detectChanges();
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
   ngAfterViewInit(): void {
+    //riempimento dati della tabella con sessionstorage se presente oppure fare una chiamata
     this.allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
     if(this.allVehicles){
       this.vehicleTableData.data = this.allVehicles;
@@ -69,6 +73,7 @@ export class TableComponent implements AfterViewInit, OnDestroy{
       this.fillTable();
       this.cd.detectChanges();
     }
+    this.selectService.selectAll(this.allVehicles); //seleziona tutte le opzioni dei menu delle colonne
   }
 
   fillTable(){
@@ -84,15 +89,14 @@ export class TableComponent implements AfterViewInit, OnDestroy{
   }
 
   selectTarga(plate: string, $event: any){
-    this.selectColumnOption($event); //permette al menu di non chiudersi dopo aver selezionato un opzione
+    this.selectService.preventSelectClosing($event); //permette al menu di non chiudersi dopo aver selezionato un opzione
     this.selectService.addPlateSelection(plate); //aggiunge una targa all'array di targhe selezionate
     this.vehicleTableData.data = this.filterService.filterColumns(this.selectService.selectedData, this.allVehicles); //aggiorna filtri
     this.vehicleTable.renderRows();
   }
 
-  selectColumnOption($event: any){
-    $event.stopPropagation();
-    $event.preventDefault();
+  selectDeselectAllColumnOptions(column: string, $event: any){
+    this.vehicleTableData.data = this.selectService.selectDeselectAllColumnOptions(column, this.allVehicles, $event);
+    this.vehicleTable.renderRows();
   }
-
 }

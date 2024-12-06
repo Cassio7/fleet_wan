@@ -20,8 +20,8 @@
         <button mat-button [matMenuTriggerFor]="targaMenu" class="filter-menu-btn">Targa</button>
         <mat-menu #targaMenu="matMenu">
           <!-- Checkbox "Seleziona tutto" -->
-          <button mat-menu-item (click)="selectService.selectDeselectAllColumnOptions('plates')">
-            <mat-checkbox>Seleziona tutto</mat-checkbox>
+          <button mat-menu-item (click)="selectDeselectAllColumnOptions('targa', $event)">
+            <mat-checkbox [checked]="true">Seleziona tutto</mat-checkbox>
           </button>
           <mat-divider></mat-divider>
           <!-- Checkbox per ogni veicolo -->
@@ -44,7 +44,7 @@
       <th mat-header-cell *matHeaderCellDef>
         <button mat-button [matMenuTriggerFor]="marcaMenu" class="filter-menu-btn">Marca e modello</button>
         <mat-menu #marcaMenu="matMenu">
-          <button mat-menu-item *ngFor="let vehicle of allVehicles" (click)="selectColumnOption($event)">
+          <button mat-menu-item *ngFor="let vehicle of allVehicles" (click)="selectService.preventSelectClosing($event)">
             <mat-checkbox>{{vehicle.model}}</mat-checkbox>
           </button>
         </mat-menu>
@@ -58,7 +58,7 @@
       <th mat-header-cell *matHeaderCellDef>
         <button mat-button [matMenuTriggerFor]="cantiereMenu" class="filter-menu-btn">Cantiere</button>
         <mat-menu #cantiereMenu="matMenu">
-          <button mat-menu-item *ngFor="let vehicle of allVehicles" (click)="selectColumnOption($event)">
+          <button mat-menu-item *ngFor="let vehicle of allVehicles" (click)="selectService.preventSelectClosing($event)">
             <mat-checkbox>{{vehicle.worksite?.name || "non assegnato"}}</mat-checkbox>
           </button>
         </mat-menu>
@@ -98,12 +98,12 @@
       <th mat-header-cell *matHeaderCellDef>
         <button mat-button [matMenuTriggerFor]="allestimentoMenu" class="filter-menu-btn">Allestimento</button>
         <mat-menu #allestimentoMenu="matMenu">
-          <button mat-menu-item (click)="selectColumnOption($event)">
+          <button mat-menu-item (click)="selectService.preventSelectClosing($event)">
             <mat-checkbox>
               Blackbox
             </mat-checkbox>
           </button>
-          <button mat-menu-item (click)="selectColumnOption($event)">
+          <button mat-menu-item (click)="selectService.preventSelectClosing($event)">
             <mat-checkbox>
               Blackbox + antenna
             </mat-checkbox>
@@ -118,7 +118,7 @@
       <th mat-header-cell *matHeaderCellDef>
         <button mat-button [matMenuTriggerFor]="installazioneMenu" class="filter-menu-btn">Data installazione fleet</button>
         <mat-menu #installazioneMenu="matMenu">
-          <button mat-menu-item *ngFor="let vehicle of allVehicles" (click)="selectColumnOption($event)">
+          <button mat-menu-item *ngFor="let vehicle of allVehicles" (click)="selectService.preventSelectClosing($event)">
             <mat-checkbox>{{vehicle.firstEvent | date:'dd/MM/yyyy'}}</mat-checkbox>
           </button>
         </mat-menu>
