@@ -12,16 +12,20 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatOptionModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { FilterService } from '../../Services/filter.service';
-
+import { FilterService } from '../../Services/filter/filter.service';
+import { MatDividerModule } from '@angular/material/divider';
+import { FormsModule } from '@angular/forms';
+import { SelectService } from '../../Services/select/select.service';
 
 @Component({
   selector: 'app-table',
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     MatMenuModule,
     CommonModule,
+    MatDividerModule,
     MatButtonModule,
     MatIconModule,
     MatOptionModule,
@@ -43,7 +47,8 @@ export class TableComponent implements AfterViewInit, OnDestroy{
   displayedColumns: string[] = ["Azienda", "Targa", "Marca&modello", "Cantiere", "Anno immatricolazione", "Tipologia attrezzatura", "Allestimento", "Data-installazione-fleet", "Data-rimozione-apparato", "Notes"];
 
   constructor(
-    private vehicleService: VehiclesApiService,
+    public selectService: SelectService,
+    private vehicleApiService: VehiclesApiService,
     private filterService: FilterService,
     private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef
@@ -54,19 +59,6 @@ export class TableComponent implements AfterViewInit, OnDestroy{
     this.destroy$.complete();
   }
 
-  selectColor($event:any) {
-    // this stops the menu from closing
-    $event.stopPropagation();
-    $event.preventDefault();
-
-    // in this case, the check box is controlled by adding the .selected class
-    if($event.target) {
-      $event.target.classList.toggle('selected');
-    }
-
-    // add additional selection logic here.
-
-  }
   ngAfterViewInit(): void {
     this.allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
     if(this.allVehicles){
@@ -80,7 +72,7 @@ export class TableComponent implements AfterViewInit, OnDestroy{
   }
 
   fillTable(){
-    this.vehicleService.getAllVehicles().pipe(takeUntil(this.destroy$))
+    this.vehicleApiService.getAllVehicles().pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (vehicles: Vehicle[]) => {
         this.vehicleTableData.data = vehicles;
@@ -92,15 +84,15 @@ export class TableComponent implements AfterViewInit, OnDestroy{
   }
 
   selectTarga(plate: string, $event: any){
-    this.selectColumnOption($event);
-    this.filterService.addPlateSelection(plate);
+    this.selectColumnOption($event); //permette al menu di non chiudersi dopo aver selezionato un opzione
+    this.selectService.addPlateSelection(plate); //aggiunge una targa all'array di targhe selezionate
+    this.vehicleTableData.data = this.filterService.filterColumns(this.selectService.selectedData, this.allVehicles); //aggiorna filtri
+    this.vehicleTable.renderRows();
   }
 
   selectColumnOption($event: any){
     $event.stopPropagation();
     $event.preventDefault();
-
   }
-
 
 }

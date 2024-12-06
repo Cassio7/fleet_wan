@@ -81,7 +81,6 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     if (allVehicles) {
       this.vehicleTableData.data = allVehicles;
       this.tableMaxLength = allVehicles.length;
-      console.log("CIAOOOO");
       this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));
       this.cd.detectChanges();
       this.vehicleTable.renderRows();
@@ -100,13 +99,13 @@ export class TableComponent implements OnDestroy, AfterViewInit{
       next: ()=>{
         if(this.blackboxGraphService.checkErrorGraphSlice()){
           const blackboxgraphVehicles = this.blackboxGraphService.checkErrorGraphSlice(); //prendi veicoli dal grafico blackbox
-          this.vehicleTableData.data = this.filterService.filterVehiclesWithCantieri(blackboxgraphVehicles) as any[]; //filtraggio per filtro cantieri
+          this.vehicleTableData.data = this.filterService.filterVehiclesWithCantieri(blackboxgraphVehicles, []) as any[]; //filtraggio per filtro cantieri
         }else if(this.errorGraphService.checkBlackBoxSlice()){
           const errorGraphVehicles = this.errorGraphService.checkBlackBoxSlice(); //prendi veicoli dal grafico errori
-          this.vehicleTableData.data = this.filterService.filterVehiclesWithCantieri(errorGraphVehicles) as any[]; //filtraggio per filtro cantieri
+          this.vehicleTableData.data = this.filterService.filterVehiclesWithCantieri(errorGraphVehicles, []) as any[]; //filtraggio per filtro cantieri
         }else{
           const allVehicles = this.sessionStorageService.getItem("allVehicles"); //prendi tutti i veicoli
-          this.vehicleTableData.data = this.filterService.filterVehiclesWithCantieri(allVehicles) as any[]; //filtraggio per filtro cantieri
+          this.vehicleTableData.data = this.filterService.filterVehiclesWithCantieri(allVehicles, []) as any[]; //filtraggio per filtro cantieri
         }
         this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));
         this.cd.detectChanges();
@@ -253,7 +252,6 @@ export class TableComponent implements OnDestroy, AfterViewInit{
         try {
 
           if (vehicles && vehicles.length > 0) {
-
             // Accorpamento anomalie di sessione
             vehicles.forEach(vehicle => {
               // Accorpamento anomalie dei dispositivi nella sessione
