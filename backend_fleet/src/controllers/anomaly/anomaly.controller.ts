@@ -1,4 +1,9 @@
-import { Controller } from '@nestjs/common';
+import { AnomalyService } from './../../services/anomaly/anomaly.service';
+import { Controller, Get } from '@nestjs/common';
 
 @Controller('anomaly')
-export class AnomalyController {}
+export class AnomalyController {
+  constructor(private readonly anomalyService: AnomalyService) {}
+  @Get()
+  async getAllAnomaly() {}
+}
