@@ -28,6 +28,6 @@ export class Vehicle {
     public anomalySessions: any[],
     public lastValidSession: any,
     public gpsError: boolean,
-    public workSite: WorkSite,
+    public worksite: { name: string } | null | undefined
   ) {}
 }
