@@ -1,22 +1,13 @@
 import { Injectable } from '@angular/core';
-import { selectedData } from '../select/select.service';
 import { Vehicle } from '../../../Models/Vehicle';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MezziFilterService {
+  private _filteredVehicles: Vehicle[] = [];
 
   constructor() { }
-
-  filterVehiclesBySelections(selectedData: selectedData, vehicles: Vehicle[]): Vehicle[] {
-    // Filtra i veicoli per targa
-    const plateFilteredVehicles = this.filterVehiclesByPlates(selectedData.plates, vehicles);
-    // Filtra i veicoli per modello
-    const modelFilteredVehicles = this.filterVehiclesByModels(selectedData.modelli, plateFilteredVehicles);
-
-    return modelFilteredVehicles; //ritorna i veicoli dove sono stati applicati tutti i filtri
-  }
 
   /**
    * Filtra i veicoli in base alle targhe selezionate.
@@ -37,8 +28,8 @@ export class MezziFilterService {
    * @returns Un array di veicoli che corrispondono ai modelli selezionati.
    */
   filterVehiclesByModels(selectedModels: string[], vehicles: Vehicle[]): Vehicle[] {
-    if (!selectedModels.length) return vehicles; // Return all vehicles if no models are selected.
-    const modelsSet = new Set(selectedModels); // Using a Set for fast lookup.
+    if (!selectedModels.length) return vehicles;
+    const modelsSet = new Set(selectedModels);
     return vehicles.filter(vehicle => modelsSet.has(vehicle.model));
   }
 
@@ -50,16 +41,18 @@ export class MezziFilterService {
   filterVehiclesModelsDuplicates(vehicles: Vehicle[]) {
     const seenModels = new Set<string>(); // Set per tracciare i modelli unici
     return vehicles.filter(vehicle => {
-      // Se il modello è già stato aggiunto al Set, lo saltiamo
       if (seenModels.has(vehicle.model)) {
         return false;
       }
-      // Se il modello non è presente, lo aggiungiamo al Set e includiamo il veicolo
       seenModels.add(vehicle.model);
       return true;
     });
   }
 
-
-
+  public get filteredVehicles(): Vehicle[] {
+    return this._filteredVehicles;
+  }
+  public set filteredVehicles(value: Vehicle[]) {
+    this._filteredVehicles = value;
+  }
 }

@@ -39,7 +39,6 @@ import { MezziFilterService } from '../../Services/mezzi-filter/mezzi-filter.ser
 export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestroy{
   @ViewChild('vehicleTable') vehicleTable!: MatTable<Session[]>;
   private readonly destroy$: Subject<void> = new Subject<void>();
-  allVehicles: any[] = [];
 
   vehicleTableData = new MatTableDataSource<Vehicle>();
 
@@ -47,8 +46,8 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
 
   constructor(
     public selectService: SelectService,
+    public mezziFilterService: MezziFilterService,
     private vehicleApiService: VehiclesApiService,
-    private mezziFilterService: MezziFilterService,
     private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef
   ){}
@@ -64,16 +63,16 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
 
   ngAfterViewInit(): void {
     //riempimento dati della tabella con sessionstorage se presente oppure fare una chiamata
-    this.allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-    if(this.allVehicles){
-      this.vehicleTableData.data = this.allVehicles;
+    this.mezziFilterService.filteredVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+    if(this.mezziFilterService.filteredVehicles){
+      this.vehicleTableData.data = this.mezziFilterService.filteredVehicles;
       this.vehicleTable.renderRows();
       this.cd.detectChanges();
     }else{
       this.fillTable();
       this.cd.detectChanges();
     }
-    this.selectService.selectAll(this.allVehicles); //seleziona tutte le opzioni dei menu delle colonne
+    this.selectService.selectAll(this.mezziFilterService.filteredVehicles); //seleziona tutte le opzioni dei menu delle colonne
     this.cd.detectChanges();
   }
 
@@ -93,26 +92,19 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
     });
   }
 
-  /**
-   * Viene chiamata quando si preme su un checkbox dentro il menù della colonna "Targa"
-   * @param plate targa corrispondente al checkbox premuto
-   * @param $event evento
-   */
-  selectTarga(plate: string, $event: any){
-    this.onSelection(plate, $event);
-    this.vehicleTableData.data = this.mezziFilterService.filterVehiclesBySelections(this.selectService.selectedData, this.allVehicles); //aggiorna tabella
-    this.vehicleTable.renderRows();
-  }
 
-  selectModel(model: string, $event: any){
-    this.onSelection(model, $event);
-    this.vehicleTableData.data = this.mezziFilterService.filterVehiclesBySelections(this.selectService.selectedData, this.allVehicles);
-    this.vehicleTable.renderRows();
-  }
-
-  private onSelection(model: string, $event: any){
+  selectTarga(vehicle: Vehicle, $event: any){
     this.selectService.preventSelectClosing($event);
-    this.selectService.updateModelSelection(model);
+    this.selectService.updateVehiclesSelectionByPlate(vehicle);
+    this.vehicleTableData.data = this.selectService.selectedVehicles;//aggiorna tabella
+    this.vehicleTable.renderRows();
+  }
+
+  selectModel(vehicle: Vehicle, $event: any){
+    this.selectService.preventSelectClosing($event);
+    this.selectService.updateVehiclesSelectionByModel(vehicle);
+    this.vehicleTableData.data = this.selectService.selectedVehicles;
+    this.vehicleTable.renderRows();
   }
 
   /**
@@ -121,11 +113,11 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
    * @param $event evento
    */
   selectDeselectAllColumnOptions(column: string, $event: any){
-    this.vehicleTableData.data = this.selectService.selectDeselectAllColumnOptions(column, this.allVehicles, $event);
+    this.vehicleTableData.data = this.selectService.selectDeselectAllColumnOptions(column, this.mezziFilterService.filteredVehicles, $event);
     this.vehicleTable.renderRows();
   }
 
   filterVehiclesModelsDuplicates(){
-    return this.mezziFilterService.filterVehiclesModelsDuplicates(this.allVehicles);
+    return this.mezziFilterService.filterVehiclesModelsDuplicates(this.mezziFilterService.filteredVehicles);
   }
 }
