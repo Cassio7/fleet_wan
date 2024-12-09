@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Session } from '../../../Models/Session';
+import { Vehicle } from '../../../Models/Vehicle';
 
 @Injectable({
   providedIn: 'root'
@@ -23,24 +24,30 @@ export class SortService {
    * @param vehicles array di veicoli da ordinare
    * @returns array di veicoli ordinato
    */
-  sortVehiclesByPlateDesc(vehicles: any[]): any[] {
+  sortVehiclesByPlateDesc(vehicles: Vehicle[]): Vehicle[] {
     return [...vehicles].sort((a, b) => {
-      // Check if both a and b have vehicle and plate properties
-      if (!a.vehicle || !b.vehicle || !a.vehicle.plate || !b.vehicle.plate) {
-        return 0;  // If either plate is missing, consider them equal
+      // Check if both a and b have plate properties
+      const plateA = a.plate;
+      const plateB = b.plate;
+
+      // If either plate is missing, consider them equal (return 0)
+      if (!plateA || !plateB) {
+        return 0;
       }
 
-      // Compare the plates, handling cases where plate might not be a string
-      return String(b.vehicle.plate).localeCompare(String(a.vehicle.plate));
+      // Compare the plates, ensuring they are both strings
+      return String(plateB).localeCompare(String(plateA));
     });
   }
+
+
 
   /**
    * Ordina i veicoli in base al cantiere di appartenza con ordine crescente
    * @param vehicles array di veicoli da ordinare
    * @returns array di veicoli ordinato
    */
-  sortVehiclesByCantiereAsc(vehicles: any[]): any[] {
+  sortVehiclesByCantiereAsc(vehicles: Vehicle[]): Vehicle[] {
     return [...vehicles].sort((a, b) => {
       if (!a.worksite?.name || !b.worksite?.name) return 0;
       return a.worksite.name.localeCompare(b.worksite.name) ?? 0;
@@ -52,7 +59,7 @@ export class SortService {
    * @param vehicles array di veicoli da ordinare
    * @returns array di veicoli ordinato
    */
-  sortVehiclesByCantiereDesc(vehicles: any[]): any[] {
+  sortVehiclesByCantiereDesc(vehicles: Vehicle[]): Vehicle[] {
     return [...vehicles].sort((a, b) => {
       if (!a.worksite?.name || !b.worksite?.name) return 0;
       return b.worksite.name.localeCompare(a.worksite.name) ?? 0;

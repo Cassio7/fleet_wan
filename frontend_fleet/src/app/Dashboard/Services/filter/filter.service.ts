@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { SessionStorageService } from '../sessionStorage/session-storage.service';
-import { ErrorGraphsService } from '../../Dashboard/Services/error-graphs/error-graphs.service';
-import { BlackboxGraphsService } from '../../Dashboard/Services/blackbox-graphs/blackbox-graphs.service';
-import { Vehicle } from '../../Models/Vehicle';
+import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
+import { ErrorGraphsService } from '../error-graphs/error-graphs.service';
+import { BlackboxGraphsService } from '../blackbox-graphs/blackbox-graphs.service';
+import { Vehicle } from '../../../Models/Vehicle';
 
 @Injectable({
   providedIn: 'root'
@@ -17,6 +17,9 @@ export class FilterService {
    * Trasporta le opzioni selezionate del filtro dei cantieri e notifica la tabella di filtrare i dati in base ai cantieri ottenuti
    */
   private _filterTableByCantiere$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
+
+  private _allSelected: boolean = false;
+
 
   constructor(
     private sessionStorageService: SessionStorageService,
@@ -50,18 +53,16 @@ export class FilterService {
    * @param worksites cantieri per cui filtrare (se passato un array vuoto, utilizza i cantieri salvati nel sessionstorage)
    * @returns array di veicoli filtrati
    */
-  filterVehiclesByCantieri(vehicles: any[], worksites: string[]) {
-    const cantieri: string[] = worksites || JSON.parse(this.sessionStorageService.getItem("cantieri"));
+  filterVehiclesByCantieri(vehicles:  Vehicle[], worksites: string[]) {
+    const cantieri: string[] = worksites || [];
     const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
 
     if (cantieri.includes("Seleziona tutto")) {
       if(this.errorGraphsService.checkBlackBoxSlice()){
-        console.log("blackbox slice selected");
         return this.errorGraphsService.checkBlackBoxSlice();
       }
 
       if(this.blackboxGraphsService.checkErrorGraphSlice()){
-        console.log("error slice selected");
         return this.blackboxGraphsService.checkErrorGraphSlice();
       }
 
@@ -96,5 +97,10 @@ export class FilterService {
   public get updateFilterOptions$(): BehaviorSubject<any[]> {
     return this._updateFilterOptions$;
   }
-
+  public get allSelected(): boolean {
+    return this._allSelected;
+  }
+  public set allSelected(value: boolean) {
+    this._allSelected = value;
+  }
 }

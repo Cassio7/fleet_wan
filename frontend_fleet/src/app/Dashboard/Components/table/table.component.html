@@ -4,7 +4,7 @@
   <button mat-raised-button (click)="fillTable()">Ricarica dati</button>
 </div>
 <div class="table-container">
-  <table *ngIf="vehicleTableData" #vehicleTable mat-table [dataSource]="vehicleTableData" matSort (matSortChange)="onSortChange($event)" (contentChanged)="tableChange()">
+  <table *ngIf="vehicleTableData" #vehicleTable mat-table [dataSource]="vehicleTableData" matSort (matSortChange)="onSortChange($event)">
     <!-- Targa Column -->
     <ng-container matColumnDef="targa">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Targa </th>

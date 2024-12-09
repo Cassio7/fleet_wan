@@ -7,7 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { skip, Subject, takeUntil } from 'rxjs';
-import { FilterService } from '../../../Common-services/filter/filter.service';
+import { FilterService } from '../../Services/filter/filter.service';
 
 @Component({
   selector: 'app-row-filter',
@@ -29,7 +29,6 @@ export class RowFilterComponent implements AfterViewInit{
   filterForm!: FormGroup;
   listaCantieri: string[] = ["Seleziona tutto"];
   cantieri = new FormControl<string[]>([]);
-  allSelected: boolean = false;
 
   constructor(
     private filterService: FilterService,
@@ -46,10 +45,11 @@ export class RowFilterComponent implements AfterViewInit{
   }
 
   ngAfterViewInit(): void {
-    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles") || "[]");
-    this.setCantieriSessionStorage();
+    //seleziona tutto
     setTimeout(() => this.selectAll());
+    this.setCantieriSessionStorage();
 
+    //sottoscrizione a subject per aggiornare la lista dei cantieri
     this.filterService.updateFilterOptions$
     .pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
@@ -58,16 +58,17 @@ export class RowFilterComponent implements AfterViewInit{
       }
     });
 
-    this.updateListaCantieri(allVehicles);
+    this.cd.detectChanges();
   }
 
-  private updateListaCantieri(allVehicles: any[]): void {
-    if (Array.isArray(allVehicles)) {
-      this.listaCantieri = [this.listaCantieri[0], ...this.fillSelect(allVehicles)];
+  private updateListaCantieri(vehicles: any[]): void {
+    if (Array.isArray(vehicles)) {
+      this.listaCantieri = [this.listaCantieri[0], ...this.fillSelect(vehicles)];
+      this.cantieri.setValue(this.listaCantieri);
       this.setCantieriSessionStorage();
       this.cd.detectChanges();
     } else {
-      console.error("allVehicles non è un array valido:", allVehicles);
+      console.error("allVehicles non è un array valido:", vehicles);
     }
   }
 
@@ -77,33 +78,44 @@ export class RowFilterComponent implements AfterViewInit{
  * @param option opzione selezionata
  */
   selectCantiere(option: string) {
-    if (option === "Seleziona tutto") {
+    //se è stata premuto "Seleziona tutto" e non è tutto selezionato
+    if (option === "Seleziona tutto" && !this.filterService.allSelected) {
       this.selectAll();  // Seleziona tutti i cantieri
-    } else if (this.allSelected) {
-      const updatedCantieri = this.cantieri.value?.filter(cantiere => cantiere !== "Seleziona tutto"); //Rimozione "seleziona tutto" se viene deselezionato qualcosa mentre è attivo "seleziona tutto"
-      this.cantieri.setValue(updatedCantieri || null);
-      this.allSelected = false;
+    }else if(option == "Seleziona tutto" && this.filterService.allSelected){
+      this.cantieri.setValue([]);
+      this.filterService.allSelected = false;
     }
 
     const selectedCantieri = this.cantieri.value; // Opzioni selezionate
+
+    //se è stata premuta un'opzione diversa da "Seleziona tutto" ed è tutto selezionato
+    if(option !== "Seleziona tutto" && this.filterService.allSelected) {
+      const updatedCantieri = this.cantieri.value?.filter(cantiere => cantiere !== "Seleziona tutto"); //Rimozione "seleziona tutto" se viene deselezionato qualcosa mentre è attivo "seleziona tutto"
+      this.cantieri.setValue(updatedCantieri || null);
+      this.filterService.allSelected = false;
+    }
+
     this.setCantieriSessionStorage();
     // Se sono stati selezionati cantieri, invio dati
     if (selectedCantieri) {
       this.filterService.filterTableByCantiere$.next(selectedCantieri);
     }
+    this.cd.detectChanges();
   }
 
   /**
    * Seleziona tutti i filtri del select
    */
   private selectAll() {
-    if (!this.allSelected) { //Non era già tutto selezionato
-      this.cantieri.setValue(this.listaCantieri);
+    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles") || "[]");
+    if (!this.filterService.allSelected) { //Non era già tutto selezionato
+      this.updateListaCantieri(allVehicles);
       this.setCantieriSessionStorage();
-      this.allSelected = true;
+      this.filterService.allSelected = true;
     } else { //Era già tutto selezionato
-      this.cantieri.setValue([]);
-      this.allSelected = false;
+      this.updateListaCantieri([]);
+      this.setCantieriSessionStorage();
+      this.filterService.allSelected = false;
     }
   }
 
@@ -120,6 +132,6 @@ export class RowFilterComponent implements AfterViewInit{
   }
 
   private setCantieriSessionStorage(){
-    this.sessionStorageService.setItem("cantieri", JSON.stringify(this.cantieri.value));
+    this.sessionStorageService.setItem("cantieri", JSON.stringify(this.listaCantieri));
   }
 }

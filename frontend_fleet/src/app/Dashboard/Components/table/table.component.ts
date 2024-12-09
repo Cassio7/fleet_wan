@@ -21,7 +21,7 @@ import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatButtonModule } from '@angular/material/button';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { SortService } from '../../Services/sort/sort.service';
-import { FilterService } from '../../../Common-services/filter/filter.service';
+import { FilterService } from '../../Services/filter/filter.service';
 
 @Component({
   selector: 'app-table',
@@ -93,27 +93,41 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   /**
    * Gestisce l'aggiunta di un filtro aggiungendo i dati dei veicoli filtrati alla tabella
    */
-  private handleCantiereFilter(){
+  private handleCantiereFilter() {
     this.filterService.filterTableByCantiere$.pipe(takeUntil(this.destroy$), skip(1))
-    .subscribe({
-      next: ()=>{
-        if(this.blackboxGraphService.checkErrorGraphSlice()){
-          const blackboxgraphVehicles = this.blackboxGraphService.checkErrorGraphSlice(); //prendi veicoli dal grafico blackbox
-          this.vehicleTableData.data = this.filterService.filterVehiclesByCantieri(blackboxgraphVehicles, []) as any[]; //filtraggio per filtro cantieri
-        }else if(this.errorGraphService.checkBlackBoxSlice()){
-          const errorGraphVehicles = this.errorGraphService.checkBlackBoxSlice(); //prendi veicoli dal grafico errori
-          this.vehicleTableData.data = this.filterService.filterVehiclesByCantieri(errorGraphVehicles, []) as any[]; //filtraggio per filtro cantieri
-        }else{
-          const allVehicles = this.sessionStorageService.getItem("allVehicles"); //prendi tutti i veicoli
-          this.vehicleTableData.data = this.filterService.filterVehiclesByCantieri(allVehicles, []) as any[]; //filtraggio per filtro cantieri
+      .subscribe({
+        next: (cantieri: string[]) => {
+          let vehicles = [];
+
+          const errorSlice = this.sessionStorageService.getItem("errorSlice");
+          const blackboxSlice = this.sessionStorageService.getItem("blackboxSlice");
+
+          if (errorSlice) {
+            const errorGraphVehicles = this.blackboxGraphService.checkErrorGraphSlice();
+            vehicles = this.filterService.filterVehiclesByCantieri(errorGraphVehicles, cantieri) as any[];
+          } else if (blackboxSlice) {
+            const blackboxgraphVehicles = this.errorGraphService.checkBlackBoxSlice();
+            vehicles = this.filterService.filterVehiclesByCantieri(blackboxgraphVehicles, cantieri) as any[];
+          } else {
+            const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+            vehicles = this.filterService.filterVehiclesByCantieri(allVehicles, cantieri) as any[];
+          }
+
+          this.vehicleTableData.data = vehicles;
+
+          this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));
+
+          this.vehicleTable.renderRows();
+          this.cd.detectChanges();
+          this.loadGraphs(this.vehicleTableData.data);
+        },
+        error: error => {
+          console.error("Error receiving filter for the table: ", error);
         }
-        this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));
-        this.cd.detectChanges();
-        this.loadGraphs(this.vehicleTableData.data);
-      },
-      error: error => console.error("Errore nella ricezione del filtro per la tabella: ", error)
-    });
+      });
   }
+
+
 
   /**
    * Gestisce il click sul grafico degli errori, riempendo la tabella e caricando il grafico dei blackbox di conseguenza
@@ -295,13 +309,6 @@ export class TableComponent implements OnDestroy, AfterViewInit{
         console.error("Error loading data:", error);
       }
     });
-  }
-
-  /**
-   * Funzione che viene chiamata ogni volta che i dati nella tabella cambiano
-   */
-  tableChange(){
-
   }
 
   /**
