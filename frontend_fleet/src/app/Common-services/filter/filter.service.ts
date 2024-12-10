@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
-import { ErrorGraphsService } from '../error-graphs/error-graphs.service';
-import { BlackboxGraphsService } from '../blackbox-graphs/blackbox-graphs.service';
-import { Vehicle } from '../../../Models/Vehicle';
+import { SessionStorageService } from '../sessionStorage/session-storage.service';
+import { ErrorGraphsService } from '../../Dashboard/Services/error-graphs/error-graphs.service';
+import { BlackboxGraphsService } from '../../Dashboard/Services/blackbox-graphs/blackbox-graphs.service';
+import { Vehicle } from '../../Models/Vehicle';
 
 @Injectable({
   providedIn: 'root'
