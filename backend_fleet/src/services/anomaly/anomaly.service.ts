@@ -26,7 +26,16 @@ export class AnomalyService {
   ) {}
 
   async getAllAnomaly(): Promise<any> {
-    const anomalies = this.anomalyRepository.find();
+    const anomalies = this.anomalyRepository.find({
+      relations: {
+        vehicle: true,
+      },
+      order: {
+        vehicle: {
+          plate: 'ASC',
+        },
+      },
+    });
     return anomalies;
   }
 
@@ -403,8 +412,13 @@ export class AnomalyService {
       return 'Errore durante la richiesta al db'; // Return error message as string
     }
   }
-
-  async checkErrorsAllNoAPI(dateFromParam: string, dateToParam: string) {
+  /**
+   * Funzione principale che accorpa tutti i controlli, divisa per giorni
+   * @param dateFromParam data di inizio
+   * @param dateToParam data do fome
+   * @returns ritorna false oppure un oggetto con tutte le anomalie divise per veicolo, data e tipologia
+   */
+  async checkErrors(dateFromParam: string, dateToParam: string) {
     const dateFrom = new Date(dateFromParam);
     const dateTo = new Date(dateToParam);
 
