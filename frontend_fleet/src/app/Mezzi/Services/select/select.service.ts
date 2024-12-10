@@ -1,102 +1,94 @@
 import { Injectable } from '@angular/core';
 import { Vehicle } from '../../../Models/Vehicle';
 
+interface SelectionStates {
+  allPlatesSelected: boolean;
+  allModelsSelected: boolean;
+  allCantieriSelected: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class SelectService {
-  private _allPlatesSelected = true;
-  private _allModelsSelected = true;
+  private _selectionStates: SelectionStates = {
+    allPlatesSelected: true,
+    allModelsSelected: true,
+    allCantieriSelected: true,
+  };
 
-  private _plates: string[] = [];
-  private _models: string[] = [];
+
 
   private _selectedVehicles: Vehicle[] = [];
 
   constructor() { }
 
 
-  updateVehiclesSelectionByModel(vehicle: Vehicle) {
-    const index = this.selectedVehicles.findIndex(v => v.model === vehicle.model);
+  updateVehiclesSelectionByModel(allVehicles: Vehicle[], vehicle: Vehicle) {
+    const exists = this.selectedVehicles.some(v => v.model === vehicle.model); //controllo della presenza del veicolo nell'array dei veicoli selezionati
 
-    if (index === -1) {
-      this.selectedVehicles.push(vehicle);
+    if (!exists) {
+      const addingVehicles = allVehicles.filter(v => v.model === vehicle.model);
+      this.selectedVehicles = [...this.selectedVehicles, ...addingVehicles]; //aggiunta di tutti i veicoli con il modello del veicolo
     } else {
-      this.selectedVehicles.splice(index, 1);
+      this.selectedVehicles = this.selectedVehicles.filter(v => v.model !== vehicle.model); //rimozione di tutti i veicoli con il modello del veicolo
     }
+
+    console.log(this.selectedVehicles.map(v => v.model));  // Per il debug
   }
 
-  updateVehiclesSelectionByPlate(vehicle: Vehicle) {
-    const index = this.selectedVehicles.findIndex(v => v.plate === vehicle.plate);
 
-    if (index !== -1) {
-      this.selectedVehicles.splice(index, 1);
+
+  updateVehiclesSelectionByCantiere(allVehicles: Vehicle[], vehicle: Vehicle) {
+    const exists = this.selectedVehicles.some(v => v.worksite?.name === vehicle.worksite?.name);
+
+    if (!exists) {
+      const addingVehicles = allVehicles.filter(v => v.worksite?.name === vehicle.worksite?.name);
+      this.selectedVehicles = [...this.selectedVehicles, ...addingVehicles];
     } else {
-      this.selectedVehicles.push(vehicle);
-    }
-  }
-
-
-  /**
-   * Seleziona o deseleziona tutte le opzioni nel menu di una colonna
-   * @param column colonna a cui appartiene il menu
-   * @param vehicles veicoli da cui prendere i dati
-   * @param $event evento per modificare comportamento del menù
-   */
-  selectDeselectAllColumnOptions(column: string, vehicles: Vehicle[], $event: any) {
-    this.preventSelectClosing($event);
-
-    switch (column) {
-      case "targa":
-        if (this.allPlatesSelected) {
-          this.plates = [];// svuotamento array di targhe
-          this.allPlatesSelected = false;
-          return [];
-        } else {
-          this.plates = vehicles.map(vehicle => vehicle.plate); // seleziona tutte le targhe
-          this.allPlatesSelected = true;
-          return vehicles;
-        }
-      case "model":
-        if (this.allModelsSelected) {
-          this.models = [];// svuotamento array di modelli
-          this.allModelsSelected = false;
-          return [];
-        } else {
-          this.models = vehicles.map(vehicle => vehicle.model); // seleziona tutti i modelli
-          this.allModelsSelected = true;
-          return vehicles;
-        }
+      this.selectedVehicles = this.selectedVehicles.filter(v => v.worksite?.name !== vehicle.worksite?.name);
     }
 
-    return [];
+    console.log(this.selectedVehicles.map(v => v.worksite?.name));  // Per il debug
   }
 
-  /**
-   * Riempe l'oggetto di dati selezionati con i dati corrispondenti, non ripetuti
-   * @param vehicles veicoli dai quali riprendere i dati
-   */
-  selectAll(vehicles: Vehicle[]) {
-    vehicles.forEach(vehicle => {
-      if (!this.plates.includes(vehicle.plate)) {
-        this.plates.push(vehicle.plate);
-      }
 
-      if (!this.models.includes(vehicle.model)) {
-        this.models.push(vehicle.model);
-      }
-    });
+
+  updateVehiclesSelectionByPlate(allVehicles: Vehicle[], vehicle: Vehicle) {
+    const exists = this.selectedVehicles.some(v => v.plate === vehicle.plate);
+
+    if (!exists) {
+      const addingVehicles = allVehicles.filter(v => v.plate === vehicle.plate);
+      this.selectedVehicles = [...this.selectedVehicles, ...addingVehicles];
+    } else {
+      this.selectedVehicles = this.selectedVehicles.filter(v => v.plate !== vehicle.plate);
+    }
+
+    console.log(this.selectedVehicles.map(v => v.plate));  // Per il debug
   }
 
-  /**
-   * Fa in modo che il menù non si chiuda dopo aver selezionato un checkbox
-   * @param $event evento
-   */
-  preventSelectClosing($event: MouseEvent): void {
+
+
+
+  selectDeselectAll(allVehicles: Vehicle[], $event: any) {
     $event.stopPropagation();
-    $event.preventDefault();
+
+    //attributo preso a caso, poteva essere qualunque
+    if (this.selectionStates.allPlatesSelected) {
+      this.selectionStates.allPlatesSelected = false;
+      this.selectedVehicles = [];
+      return [];
+    } else {
+      this.selectionStates.allPlatesSelected = true;
+      this.selectedVehicles = allVehicles;
+      return allVehicles;
+    }
+
   }
 
+  selectAll(allVehicles: Vehicle[]) {
+    this.selectedVehicles = allVehicles;
+  }
 
   /**
    * Controlla se una targa è stata selezionata
@@ -118,18 +110,12 @@ export class SelectService {
     return selectedModels.includes(model);
   }
 
-  public get plates(): string[] {
-    return this._plates;
-  }
-  public set plates(value: string[]) {
-    this._plates = value;
-  }
-
-  public get models(): string[] {
-    return this._models;
-  }
-  public set models(value: string[]) {
-    this._models = value;
+  isCantiereSelected(worksite: string | undefined){
+    if(worksite){
+      const selectedCantieri = this.selectedVehicles.map(vehicle => vehicle.worksite?.name);
+      return selectedCantieri.includes(worksite);
+    }
+    return false;
   }
 
   public get selectedVehicles(): Vehicle[] {
@@ -138,18 +124,10 @@ export class SelectService {
   public set selectedVehicles(value: Vehicle[]) {
     this._selectedVehicles = value;
   }
-
-  public get allPlatesSelected() {
-    return this._allPlatesSelected;
+  public get selectionStates(): SelectionStates {
+    return this._selectionStates;
   }
-  public set allPlatesSelected(value: boolean) {
-    this._allPlatesSelected = value;
-  }
-
-  public get allModelsSelected() {
-    return this._allModelsSelected;
-  }
-  public set allModelsSelected(value: boolean) {
-    this._allModelsSelected = value;
+  public set selectionStates(value: SelectionStates) {
+    this._selectionStates = value;
   }
 }
