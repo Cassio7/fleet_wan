@@ -16,8 +16,9 @@
 - [ ] aggiungere campo azienda appartenenza mezzo
 - [ ] dare un formato di risposta corretto a tutte le API
 - [x] inserire una tabella con la tipologia di veicolo (spazzatrice ...)
-- [ ] pensare a tabella di appoggio per allocare i controlli per tutti i veicoli con GPS, Antenna e Sessione (FORSE REDIS) -> tabella anomalies
+- [x] pensare a tabella di appoggio per allocare i controlli per tutti i veicoli con GPS, Antenna e Sessione -> tabella anomalies
 - [ ] segnare la posizione dei cantieri con circonferenza, layer comunali
+- [ ] implementazione della connessione ed invio email, per alert e recupero dati
 - [x] risoluzione posizione con openstreetmap [reverse](https://nominatim.org/release-docs/develop/api/Reverse/)
 - [x] integrazione con Redis per ridurre tempo risoluzione chiamate risoluzione posizione e altro
 - [x] gestito errore 502 *AxiosError* per il recupero dei dati, riprova 3 volte prima di saltare
