@@ -5,13 +5,11 @@ import { Vehicle } from '../../../Models/Vehicle';
   providedIn: 'root'
 })
 export class MezziFilterService {
-  private _filteredVehicles: Vehicle[] = [];
-
   constructor() { }
 
 
   /**
-   * Filtra i veicoli in base alle targhe selezionate.
+   * Filtra i veicoli in base alle targhe dei veicoli selezionati.
    * @param selectedPlates - Array di targhe selezionate.
    * @param vehicles - Array di veicoli da filtrare.
    * @returns Un array di veicoli che corrispondono alle targhe selezionate.
@@ -23,7 +21,7 @@ export class MezziFilterService {
   }
 
   /**
-   * Filtra i veicoli in base ai modelli selezionati.
+   * Filtra i veicoli in base ai modelli dei veicoli selezionati.
    * @param selectedModels - Array di modelli selezionati.
    * @param vehicles - Array di veicoli da filtrare.
    * @returns Un array di veicoli che corrispondono ai modelli selezionati.
@@ -34,6 +32,12 @@ export class MezziFilterService {
     return vehicles.filter(vehicle => modelsSet.has(vehicle.model));
   }
 
+  /**
+   * Filtra i veicoli in base ai cantieri dei veicoli selezionati.
+   * @param selectedModels - Array di cantieri selezionati.
+   * @param vehicles - Array di veicoli da filtrare.
+   * @returns Un array di veicoli che corrispondono ai cantieri selezionati.
+   */
   filterVehiclesByCantiere(selectedCantieri: string[], vehicles: Vehicle[]): Vehicle[] {
     if (!selectedCantieri || !selectedCantieri.length) {
       return vehicles; // Return all vehicles if no cantieri are selected.
@@ -87,14 +91,5 @@ export class MezziFilterService {
         return true; // Aggiungi il veicolo senza worksite
       }
     });
-  }
-
-
-
-  public get filteredVehicles(): Vehicle[] {
-    return this._filteredVehicles;
-  }
-  public set filteredVehicles(value: Vehicle[]) {
-    this._filteredVehicles = value;
   }
 }

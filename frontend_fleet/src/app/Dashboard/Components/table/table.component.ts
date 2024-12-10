@@ -20,7 +20,7 @@ import { RowFilterComponent } from "../row-filter/row-filter.component";
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatButtonModule } from '@angular/material/button';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
-import { SortService } from '../../Services/sort/sort.service';
+import { SortService } from '../../../Common-services/sort/sort.service';
 import { FilterService } from '../../../Common-services/filter/filter.service';
 
 @Component({

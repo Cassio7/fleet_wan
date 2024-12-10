@@ -16,6 +16,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { FormsModule } from '@angular/forms';
 import { SelectService } from '../../Services/select/select.service';
 import { MezziFilterService } from '../../Services/mezzi-filter/mezzi-filter.service';
+import { SortService } from '../../../Common-services/sort/sort.service';
 
 @Component({
   selector: 'app-table',
@@ -42,11 +43,15 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
 
   vehicleTableData = new MatTableDataSource<Vehicle>();
 
+  allVehicles: Vehicle[] = [];
+  sortedVehicles: Vehicle[] = [];
+
   displayedColumns: string[] = ["Azienda", "Targa", "Marca&modello", "Cantiere", "Anno immatricolazione", "Tipologia attrezzatura", "Allestimento", "Data-installazione-fleet", "Data-rimozione-apparato", "Notes"];
 
   constructor(
     public selectService: SelectService,
     public mezziFilterService: MezziFilterService,
+    private sortService: SortService,
     private vehicleApiService: VehiclesApiService,
     private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef
@@ -63,16 +68,17 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
 
   ngAfterViewInit(): void {
     //riempimento dati della tabella con sessionstorage se presente oppure fare una chiamata
-    this.mezziFilterService.filteredVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-    if(this.mezziFilterService.filteredVehicles){
-      this.vehicleTableData.data = this.mezziFilterService.filteredVehicles;
+    this.allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+    if(this.allVehicles){
+      this.sortedVehicles = this.sortService.sortVehiclesByPlateAsc(this.allVehicles);
+      this.vehicleTableData.data = this.sortedVehicles;
       this.vehicleTable.renderRows();
       this.cd.detectChanges();
     }else{
       this.fillTable();
       this.cd.detectChanges();
     }
-    this.selectService.selectAll(this.mezziFilterService.filteredVehicles); //seleziona tutte le opzioni dei menu delle colonne
+    this.selectService.selectVehicles(this.sortedVehicles); //seleziona tutte le opzioni dei menu delle colonne
     this.cd.detectChanges();
   }
 
@@ -84,7 +90,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
     this.vehicleApiService.getAllVehicles().pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (vehicles: Vehicle[]) => {
-        this.vehicleTableData.data = vehicles;
+        this.vehicleTableData.data = this.sortService.sortVehiclesByPlateAsc(vehicles);
         this.sessionStorageService.setItem("allVehicles", JSON.stringify(vehicles));
         this.vehicleTable.renderRows();
       },
@@ -93,27 +99,43 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
   }
 
 
+  /**
+   * Viene chiamata alla selezione di un checkbox in un menu di una colonna
+   * @param vehicle veicolo da cui prendere la targa
+   * @param $event evento
+   */
   selectTarga(vehicle: Vehicle, $event: any){
-    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-    this.selectService.updateVehiclesSelectionByPlate(allVehicles, vehicle);
-    this.vehicleTableData.data = this.selectService.selectedVehicles;//aggiorna tabella
+    this.selectService.updateVehiclesSelectionByPlate(this.sortedVehicles, vehicle);
+    this.vehicleTableData.data = this.sortService.sortVehiclesByPlateAsc(this.selectService.selectedVehicles); //aggiornamento tabella
     this.onSelection($event);
   }
 
+  /**
+   * Viene chiamata alla selezione di un checkbox in un menu di una colonna
+   * @param vehicle veicolo da cui prendere la targa
+   * @param $event evento
+   */
   selectModel(vehicle: Vehicle, $event: any){
-    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-    this.selectService.updateVehiclesSelectionByModel(allVehicles, vehicle);
-    this.vehicleTableData.data = this.selectService.selectedVehicles;
+    this.selectService.updateVehiclesSelectionByModel(this.sortedVehicles, vehicle);
+    this.vehicleTableData.data = this.sortService.sortVehiclesByPlateAsc(this.selectService.selectedVehicles); //aggiornamento tabella
     this.onSelection($event);
   }
 
+  /**
+   * Viene chiamata alla selezione di un checkbox in un menu di una colonna
+   * @param vehicle veicolo da cui prendere la targa
+   * @param $event evento
+   */
   selectCantiere(vehicle: Vehicle, $event: any){
-    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-    this.selectService.updateVehiclesSelectionByCantiere(allVehicles, vehicle);
-    this.vehicleTableData.data = this.selectService.selectedVehicles;
+    this.selectService.updateVehiclesSelectionByCantiere(this.sortedVehicles, vehicle);
+    this.vehicleTableData.data = this.sortService.sortVehiclesByPlateAsc(this.selectService.selectedVehicles); //aggiornamento tabella
     this.onSelection($event);
   }
 
+  /**
+   * Richiamata ad ogni selezione di un checkbox in uno qualsiasi dei menu delle colonne
+   * @param $event evento
+   */
   private onSelection($event: any){
     $event.stopPropagation(); //impedisci al menu di chiudersi
     this.cd.detectChanges();
@@ -126,8 +148,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
    * @param $event evento
    */
   selectDeselectAll($event: any){
-    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-    this.vehicleTableData.data = this.selectService.selectDeselectAll(allVehicles, $event);
+    this.vehicleTableData.data = this.selectService.selectDeselectAll(this.sortedVehicles, $event);
     this.vehicleTable.renderRows();
   }
 
@@ -136,7 +157,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
    * @returns funzione nel servizio
    */
   filterVehiclesModelsDuplicates(){
-    return this.mezziFilterService.filterVehiclesModelsDuplicates(this.mezziFilterService.filteredVehicles);
+    return this.mezziFilterService.filterVehiclesModelsDuplicates(this.sortedVehicles);
   }
 
   /**
@@ -144,7 +165,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
    * @returns funzione nel servizio
    */
   filterVehiclesCantieriDuplicates(){
-    return this.mezziFilterService.filterVehiclesCantieriDuplicates(this.mezziFilterService.filteredVehicles);
+    return this.mezziFilterService.filterVehiclesCantieriDuplicates(this.sortedVehicles);
   }
 
 }

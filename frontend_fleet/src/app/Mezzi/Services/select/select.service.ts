@@ -23,7 +23,11 @@ export class SelectService {
 
   constructor() { }
 
-
+  /**
+   * Aggiorna i veicoli selezionati in base al modello di un veicolo
+   * @param allVehicles veicoli
+   * @param vehicle veicolo da cui prendere il modello e da aggiungere, in caso, ai veicoli selezionati
+   */
   updateVehiclesSelectionByModel(allVehicles: Vehicle[], vehicle: Vehicle) {
     const exists = this.selectedVehicles.some(v => v.model === vehicle.model); //controllo della presenza del veicolo nell'array dei veicoli selezionati
 
@@ -33,12 +37,14 @@ export class SelectService {
     } else {
       this.selectedVehicles = this.selectedVehicles.filter(v => v.model !== vehicle.model); //rimozione di tutti i veicoli con il modello del veicolo
     }
-
-    console.log(this.selectedVehicles.map(v => v.model));  // Per il debug
   }
 
 
-
+  /**
+   * Aggiorna i veicoli selezionati in base al cantiere di un veicolo
+   * @param allVehicles veicoli
+   * @param vehicle veicolo da cui prendere il cantiere e da aggiungere, in caso, ai veicoli selezionati
+   */
   updateVehiclesSelectionByCantiere(allVehicles: Vehicle[], vehicle: Vehicle) {
     const exists = this.selectedVehicles.some(v => v.worksite?.name === vehicle.worksite?.name);
 
@@ -48,12 +54,14 @@ export class SelectService {
     } else {
       this.selectedVehicles = this.selectedVehicles.filter(v => v.worksite?.name !== vehicle.worksite?.name);
     }
-
-    console.log(this.selectedVehicles.map(v => v.worksite?.name));  // Per il debug
   }
 
 
-
+  /**
+   * Aggiorna i veicoli selezionati in base alla targa di un veicolo
+   * @param allVehicles veicoli
+   * @param vehicle veicolo da cui prendere la targa e da aggiungere, in caso, ai veicoli selezionati
+   */
   updateVehiclesSelectionByPlate(allVehicles: Vehicle[], vehicle: Vehicle) {
     const exists = this.selectedVehicles.some(v => v.plate === vehicle.plate);
 
@@ -63,13 +71,17 @@ export class SelectService {
     } else {
       this.selectedVehicles = this.selectedVehicles.filter(v => v.plate !== vehicle.plate);
     }
-
-    console.log(this.selectedVehicles.map(v => v.plate));  // Per il debug
   }
 
 
 
-
+  /**
+   * Seleziona e deseleziona tutti i veicoli
+   * @param allVehicles tutti i veicoli
+   * @param $event evento
+   * @returns array di tutti i veicoli se non era tutto selezionato
+   * altrimenti un array vuoto
+   */
   selectDeselectAll(allVehicles: Vehicle[], $event: any) {
     $event.stopPropagation();
 
@@ -86,14 +98,19 @@ export class SelectService {
 
   }
 
-  selectAll(allVehicles: Vehicle[]) {
-    this.selectedVehicles = allVehicles;
+  /**
+   * Seleziona tutti i veicoli
+   * @param vehicles veicoli da selezionare
+   */
+  selectVehicles(vehicles: Vehicle[]) {
+    this.selectedVehicles = vehicles;
   }
 
   /**
    * Controlla se una targa è stata selezionata
    * @param plate targa da controllare
-   * @returns true se la targa è contenuta, false se la targa non è contenuta nell'array
+   * @returns true se la targa è contenuta, false se la targa non appartiene
+   * a nessun veicolo nell'array di veicoli selezionati
    */
   isPlateSelected(plate: string){
     const selectedPlates = this.selectedVehicles.map(vehicle => vehicle.plate);
@@ -103,13 +120,20 @@ export class SelectService {
   /**
    * Controlla se un modello è stato selezionato
    * @param model modello da controllare
-   * @returns true se il modello è contenuto, false se il modello non è contenuto nell'array
+   * @returns true se il modello è contenuto, false se il modello non appartiene
+   * a nessun veicolo nell'array di veicoli selezionati
    */
   isModelSelected(model: string){
     const selectedModels = this.selectedVehicles.map(vehicle => vehicle.model);
     return selectedModels.includes(model);
   }
 
+  /**
+   * Controlla se un cantiere è stato selezionato
+   * @param model cantiere da controllare
+   * @returns true se il cantiere è contenuto, false se il cantiere non appartiene
+   * a nessun veicolo nell'array di veicoli selezionati
+   */
   isCantiereSelected(worksite: string | undefined){
     if(worksite){
       const selectedCantieri = this.selectedVehicles.map(vehicle => vehicle.worksite?.name);

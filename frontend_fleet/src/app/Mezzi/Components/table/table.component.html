@@ -26,7 +26,7 @@
           </button>
           <mat-divider></mat-divider>
           <!-- Checkbox per ogni veicolo -->
-          <button mat-menu-item *ngFor="let vehicle of mezziFilterService.filteredVehicles" (click)="selectTarga(vehicle, $event)">
+          <button mat-menu-item *ngFor="let vehicle of sortedVehicles" (click)="selectTarga(vehicle, $event)">
             <mat-checkbox [checked]="selectService.isPlateSelected(vehicle.plate)" (click)="selectTarga(vehicle, $event)">
               {{ vehicle.plate }}
             </mat-checkbox>
@@ -136,7 +136,7 @@
       <th mat-header-cell *matHeaderCellDef>
         <button mat-button [matMenuTriggerFor]="installazioneMenu" class="filter-menu-btn">Data installazione fleet</button>
         <mat-menu #installazioneMenu="matMenu">
-          <button mat-menu-item *ngFor="let vehicle of mezziFilterService.filteredVehicles" (click)="$event.stopPropagation()">
+          <button mat-menu-item *ngFor="let vehicle of sortedVehicles" (click)="$event.stopPropagation()">
             <mat-checkbox>{{vehicle.firstEvent | date:'dd/MM/yyyy'}}</mat-checkbox>
           </button>
         </mat-menu>

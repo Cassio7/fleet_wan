@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Session } from '../../../Models/Session';
-import { Vehicle } from '../../../Models/Vehicle';
+import { Session } from '../../Models/Session';
+import { Vehicle } from '../../Models/Vehicle';
 
 @Injectable({
   providedIn: 'root'
@@ -12,10 +12,10 @@ export class SortService {
    * @param vehicles array di veicoli da ordinare
    * @returns array di veicoli ordinato
    */
-  sortVehiclesByPlateAsc(vehicles: any[]): any[] {
+  sortVehiclesByPlateAsc(vehicles: Vehicle[]): Vehicle[] {
     return [...vehicles].sort((a, b) => {
-      if (!a.vehicle || !b.vehicle) return 0;
-      return a.vehicle.plate.localeCompare(b.vehicle.plate) ?? 0;
+      if (!a || !b) return 0;
+      return a.plate.localeCompare(b.plate) ?? 0;
     });
   }
 
@@ -71,7 +71,7 @@ export class SortService {
    * @param vehicles array di veicoli da ordinare
    * @returns array di veicoli ordinato
    */
-  sortVehiclesBySessioneAsc(vehicles: any[]): any[] {
+  sortVehiclesBySessioneAsc(vehicles: Vehicle[]): Vehicle[] {
     return vehicles.sort((a, b) => {
       const dateA = new Date(a.lastValidSession.period_from);
       const dateB = new Date(b.lastValidSession.period_from);
@@ -84,7 +84,7 @@ export class SortService {
    * @param vehicles array di veicoli da ordinare
    * @returns array di veicoli ordinato
    */
-  sortVehiclesBySessioneDesc(vehicles: any[]): any[] {
+  sortVehiclesBySessioneDesc(vehicles: Vehicle[]): Vehicle[] {
     return vehicles.sort((a, b) => {
       const dateA = new Date(a.lastValidSession.period_from);
       const dateB = new Date(b.lastValidSession.period_from);
