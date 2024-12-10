@@ -5,8 +5,8 @@
 
       <mat-form-field>
         <mat-label>Username or email</mat-label>
-        <input matInput class="usernameOremail" formControlName="usernameOremail" placeholder="Username or email">
-        <mat-error *ngIf="loginForm.controls['usernameOremail'].errors?.['required']">
+        <input matInput class="username" formControlName="username" placeholder="Username">
+        <mat-error *ngIf="loginForm.controls['username'].errors?.['required']">
           L'username è obbligatorio.
         </mat-error>
       </mat-form-field>
@@ -21,6 +21,7 @@
 
       <button mat-raised-button color="primary" type="submit" [disabled]="loginForm.invalid">Invia</button>
 
+      <mat-error *ngIf="loginError">Credenziali incorrette</mat-error>
       <p class="login-p">Non hai un account? Registrati <a class="login-link" routerLink="/sign-up">qui</a></p>
     </form>
   </div>

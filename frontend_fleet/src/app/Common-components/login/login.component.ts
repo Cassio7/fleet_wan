@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {AfterViewInit, ChangeDetectionStrategy, Component, signal} from '@angular/core';
+import {AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, signal} from '@angular/core';
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -8,6 +8,7 @@ import { Router, RouterModule } from '@angular/router';
 import { SessionStorageService } from '../../Common-services/sessionStorage/session-storage.service';
 import { LoginService } from '../../Common-services/login service/login.service';
 import { CookiesService } from '../../Common-services/cookies service/cookies.service';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -25,24 +26,43 @@ import { CookiesService } from '../../Common-services/cookies service/cookies.se
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginComponent{
+  private readonly destroy$: Subject<void> = new Subject<void>();
+  loginError: boolean = false;
   loginForm!: FormGroup;
 
   constructor(
     private router: Router,
     private cookiesService: CookiesService,
-    private loginService: LoginService
+    private loginService: LoginService,
+    private cd: ChangeDetectorRef
   ) {
     this.loginForm = new FormGroup({
-      usernameOremail: new FormControl('', [Validators.required, Validators.maxLength(12)]), //  controllo username
-      password: new FormControl('', [Validators.required]) // controllo password
+      username: new FormControl('', [
+        Validators.required
+      ]),
+      password: new FormControl('', [
+        Validators.required
+      ])
     });
+
   }
 
   login(){
     if(this.loginForm.valid){
-      this.cookiesService.setCookie("user", this.loginForm.get('usernameOremail')?.value);
-      this.loginService.login$.next(); //notifica del login
-      this.router.navigate(['dashboard']); //navigazione alla pagina principale
+      this.loginService.login(this.loginForm.value).pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.cookiesService.setCookie("user", response.access_token);
+          this.loginService.login$.next();
+          this.router.navigate(['/dashboard']);
+        },
+        error: error => {
+          console.error("Errore nel login: ", error);
+          this.loginError = true;
+          this.cd.detectChanges();
+        }
+      });
+      // this.router.navigate(['dashboard']); //navigazione alla pagina principale
     }
 
   }

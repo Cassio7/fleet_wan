@@ -1,5 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
+import { CookiesService } from '../cookies service/cookies.service';
+import { HttpClient } from '@angular/common/http';
+import { CommonService } from '../common service/common.service';
 
 @Injectable({
   providedIn: 'root'
@@ -7,7 +10,19 @@ import { Subject } from 'rxjs';
 export class LoginService {
   private _login$: Subject<void> = new Subject<void>();
 
-  constructor() { }
+  constructor(
+    private http: HttpClient,
+    private commonService: CommonService,
+    private cookieService: CookiesService
+  ) { }
+
+  login(form: any): Observable<any>{
+    const body = {
+      username: form.username,
+      password: form.password
+    }
+    return this.http.post<any>(`${this.commonService.url}/auth/login`, body);
+  }
 
   public get login$(): Subject<void> {
     return this._login$;
