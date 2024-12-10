@@ -7,20 +7,17 @@ import { Repository } from 'typeorm';
 export class UserService {
   constructor(
     @InjectRepository(UserEntity, 'readOnlyConnection')
-    private readonly userEntity: Repository<UserEntity>,
+    private readonly userRepository: Repository<UserEntity>,
   ) {}
 
   /**
    * Ritorna tutti gli utenti
-   * @returns Utenti no password
+   * @returns Utenti
    */
   async getAllUsers(): Promise<any> {
-    const users = await this.userEntity.find({
-      select: {
-        username: true,
-        name: true,
-        surname: true,
-        email: true,
+    const users = await this.userRepository.find({
+      relations: {
+        role: true,
       },
     });
     return users;
@@ -31,8 +28,11 @@ export class UserService {
    * @returns ritorna oggetto utente
    */
   async getUserByUsername(username: string): Promise<any> {
-    const user = await this.userEntity.findOne({
+    const user = await this.userRepository.findOne({
       where: { username: username },
+      relations: {
+        role: true,
+      },
     });
     return user;
   }
@@ -43,7 +43,7 @@ export class UserService {
    * @returns oggetto utente
    */
   async getUserById(id: number): Promise<any> {
-    const user = await this.userEntity.findOne({
+    const user = await this.userRepository.findOne({
       where: { id: id },
       relations: {
         role: true,
