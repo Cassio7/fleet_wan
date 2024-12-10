@@ -9,6 +9,7 @@ export class MezziFilterService {
 
   constructor() { }
 
+
   /**
    * Filtra i veicoli in base alle targhe selezionate.
    * @param selectedPlates - Array di targhe selezionate.
@@ -33,6 +34,20 @@ export class MezziFilterService {
     return vehicles.filter(vehicle => modelsSet.has(vehicle.model));
   }
 
+  filterVehiclesByCantiere(selectedCantieri: string[], vehicles: Vehicle[]): Vehicle[] {
+    if (!selectedCantieri || !selectedCantieri.length) {
+      return vehicles; // Return all vehicles if no cantieri are selected.
+    }
+
+    const modelsSet = new Set(selectedCantieri);
+
+    return vehicles.filter(vehicle => {
+      const worksiteName = vehicle.worksite?.name;
+      return worksiteName ? modelsSet.has(worksiteName) : false;
+    });
+  }
+
+
   /**
    * Filtra i modelli duplicati
    * @param vehicles veicoli dai quali prendere i modelli
@@ -48,6 +63,33 @@ export class MezziFilterService {
       return true;
     });
   }
+
+  /**
+   * Filtra i cantieri duplicati
+   * @param vehicles veicoli dai quali prendere i modelli
+   * @returns array di veicoli filtrati
+   */
+  filterVehiclesCantieriDuplicates(vehicles: Vehicle[]) {
+    const seenCantieri = new Set<string>(); // Set per tracciare i cantieri unici
+    return vehicles.filter(vehicle => {
+      if (vehicle.worksite) {
+        if (seenCantieri.has(vehicle.worksite.name)) {
+          return false; // Duplicato trovato, non includerlo
+        }
+        seenCantieri.add(vehicle.worksite.name); // Aggiungi il nome del worksite al set
+        return true; // Aggiungi il veicolo se il worksite non è stato visto
+      } else {
+        // Se il worksite è null o undefined, usa "non assegnato"
+        if (seenCantieri.has("non assegnato")) {
+          return false; // "non assegnato" già presente, non aggiungere il veicolo
+        }
+        seenCantieri.add("non assegnato"); // Aggiungi "non assegnato" al set
+        return true; // Aggiungi il veicolo senza worksite
+      }
+    });
+  }
+
+
 
   public get filteredVehicles(): Vehicle[] {
     return this._filteredVehicles;

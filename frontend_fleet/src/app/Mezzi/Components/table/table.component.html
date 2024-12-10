@@ -21,8 +21,8 @@
         <button mat-button [matMenuTriggerFor]="targaMenu" class="filter-menu-btn">Targa</button>
         <mat-menu #targaMenu="matMenu">
           <!-- Checkbox "Seleziona tutto" -->
-          <button mat-menu-item (click)="selectDeselectAllColumnOptions('plate', $event)">
-            <mat-checkbox [checked]="selectService.allPlatesSelected">Seleziona tutto</mat-checkbox>
+          <button mat-menu-item (click)="selectDeselectAll($event)">
+            <mat-checkbox [checked]="selectService.selectionStates.allPlatesSelected">Seleziona tutto</mat-checkbox>
           </button>
           <mat-divider></mat-divider>
           <!-- Checkbox per ogni veicolo -->
@@ -45,12 +45,13 @@
         <button mat-button [matMenuTriggerFor]="marcaMenu" class="filter-menu-btn">Marca e modello</button>
         <mat-menu #marcaMenu="matMenu">
           <!-- Checkbox "Seleziona tutto" per tutti i modelli -->
-          <button mat-menu-item (click)="selectDeselectAllColumnOptions('model', $event)">
-            <mat-checkbox [checked]="selectService.allModelsSelected">Seleziona tutto</mat-checkbox>
+          <button mat-menu-item (click)="selectDeselectAll($event)">
+            <mat-checkbox [checked]="selectService.selectionStates.allModelsSelected">Seleziona tutto</mat-checkbox>
           </button>
+
           <mat-divider></mat-divider>
 
-          <!-- Checkbox for each vehicle model -->
+          <!-- Checkbox per ogni vehicle modello -->
           <button mat-menu-item *ngFor="let vehicle of filterVehiclesModelsDuplicates()" (click)="selectModel(vehicle, $event)">
             <mat-checkbox [checked]="selectService.isModelSelected(vehicle.model)" (click)="selectModel(vehicle, $event)">
               {{ vehicle.model }}
@@ -67,8 +68,16 @@
       <th mat-header-cell *matHeaderCellDef>
         <button mat-button [matMenuTriggerFor]="cantiereMenu" class="filter-menu-btn">Cantiere</button>
         <mat-menu #cantiereMenu="matMenu">
-          <button mat-menu-item *ngFor="let vehicle of mezziFilterService.filteredVehicles" (click)="selectService.preventSelectClosing($event)">
-            <mat-checkbox>{{ vehicle.worksite?.['name'] || 'Non assegnato' }}</mat-checkbox>
+          <!-- Checkbox "Seleziona tutto" per tutti i modelli -->
+          <button mat-menu-item (click)="selectDeselectAll($event)">
+            <mat-checkbox [checked]="selectService.selectionStates.allCantieriSelected">Seleziona tutto</mat-checkbox>
+          </button>
+
+          <mat-divider></mat-divider>
+
+          <!-- Checkbox per ogni vehicle cantiere -->
+          <button mat-menu-item *ngFor="let vehicle of filterVehiclesCantieriDuplicates()" (click)="selectCantiere(vehicle, $event)">
+            <mat-checkbox [checked]="selectService.isCantiereSelected(vehicle.worksite?.name)" (click)="selectCantiere(vehicle, $event)">{{ vehicle.worksite?.['name'] || 'Non assegnato' }}</mat-checkbox>
           </button>
         </mat-menu>
       </th>
@@ -107,12 +116,12 @@
       <th mat-header-cell *matHeaderCellDef>
         <button mat-button [matMenuTriggerFor]="allestimentoMenu" class="filter-menu-btn">Allestimento</button>
         <mat-menu #allestimentoMenu="matMenu">
-          <button mat-menu-item (click)="selectService.preventSelectClosing($event)">
+          <button mat-menu-item (click)="$event.stopPropagation()">
             <mat-checkbox>
               Blackbox
             </mat-checkbox>
           </button>
-          <button mat-menu-item (click)="selectService.preventSelectClosing($event)">
+          <button mat-menu-item (click)="$event.stopPropagation()">
             <mat-checkbox>
               Blackbox + antenna
             </mat-checkbox>
@@ -127,7 +136,7 @@
       <th mat-header-cell *matHeaderCellDef>
         <button mat-button [matMenuTriggerFor]="installazioneMenu" class="filter-menu-btn">Data installazione fleet</button>
         <mat-menu #installazioneMenu="matMenu">
-          <button mat-menu-item *ngFor="let vehicle of mezziFilterService.filteredVehicles" (click)="selectService.preventSelectClosing($event)">
+          <button mat-menu-item *ngFor="let vehicle of mezziFilterService.filteredVehicles" (click)="$event.stopPropagation()">
             <mat-checkbox>{{vehicle.firstEvent | date:'dd/MM/yyyy'}}</mat-checkbox>
           </button>
         </mat-menu>

@@ -94,16 +94,29 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
 
 
   selectTarga(vehicle: Vehicle, $event: any){
-    this.selectService.preventSelectClosing($event);
-    this.selectService.updateVehiclesSelectionByPlate(vehicle);
+    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+    this.selectService.updateVehiclesSelectionByPlate(allVehicles, vehicle);
     this.vehicleTableData.data = this.selectService.selectedVehicles;//aggiorna tabella
-    this.vehicleTable.renderRows();
+    this.onSelection($event);
   }
 
   selectModel(vehicle: Vehicle, $event: any){
-    this.selectService.preventSelectClosing($event);
-    this.selectService.updateVehiclesSelectionByModel(vehicle);
+    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+    this.selectService.updateVehiclesSelectionByModel(allVehicles, vehicle);
     this.vehicleTableData.data = this.selectService.selectedVehicles;
+    this.onSelection($event);
+  }
+
+  selectCantiere(vehicle: Vehicle, $event: any){
+    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+    this.selectService.updateVehiclesSelectionByCantiere(allVehicles, vehicle);
+    this.vehicleTableData.data = this.selectService.selectedVehicles;
+    this.onSelection($event);
+  }
+
+  private onSelection($event: any){
+    $event.stopPropagation(); //impedisci al menu di chiudersi
+    this.cd.detectChanges();
     this.vehicleTable.renderRows();
   }
 
@@ -112,12 +125,26 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
    * @param column colonna a cui appartiene il menu dove si trova il checkbox
    * @param $event evento
    */
-  selectDeselectAllColumnOptions(column: string, $event: any){
-    this.vehicleTableData.data = this.selectService.selectDeselectAllColumnOptions(column, this.mezziFilterService.filteredVehicles, $event);
+  selectDeselectAll($event: any){
+    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+    this.vehicleTableData.data = this.selectService.selectDeselectAll(allVehicles, $event);
     this.vehicleTable.renderRows();
   }
 
+  /**
+   * richiama la funzione per rimuovere i duplicati dalla lista di modelli
+   * @returns funzione nel servizio
+   */
   filterVehiclesModelsDuplicates(){
     return this.mezziFilterService.filterVehiclesModelsDuplicates(this.mezziFilterService.filteredVehicles);
   }
+
+  /**
+   * richiama la funzione per rimuovere i duplicati dalla lista di cantieri
+   * @returns funzione nel servizio
+   */
+  filterVehiclesCantieriDuplicates(){
+    return this.mezziFilterService.filterVehiclesCantieriDuplicates(this.mezziFilterService.filteredVehicles);
+  }
+
 }
