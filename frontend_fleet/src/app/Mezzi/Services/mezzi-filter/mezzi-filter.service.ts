@@ -15,8 +15,8 @@ export class MezziFilterService {
    * @returns Un array di veicoli che corrispondono alle targhe selezionate.
    */
   filterVehiclesByPlates(selectedPlates: string[], vehicles: Vehicle[]): Vehicle[] {
-    if (!selectedPlates.length) return vehicles;  // Return all vehicles if no plates are selected.
-    const platesSet = new Set(selectedPlates); // Using a Set for fast lookup.
+    if (!selectedPlates.length) return vehicles;
+    const platesSet = new Set(selectedPlates);
     return vehicles.filter(vehicle => platesSet.has(vehicle.plate));
   }
 
@@ -90,6 +90,19 @@ export class MezziFilterService {
         seenCantieri.add("non assegnato"); // Aggiungi "non assegnato" al set
         return true; // Aggiungi il veicolo senza worksite
       }
+    });
+  }
+
+  filterFirstEventsDuplicates(vehicles: Vehicle[]){
+    const seenFirstEvents = new Set<Date>(); // Set per tracciare le date uniche
+    return vehicles.filter(vehicle => {
+      if(vehicle.firstEvent){
+        if (seenFirstEvents.has(vehicle.firstEvent)) {
+          return false;
+        }
+        seenFirstEvents.add(vehicle.firstEvent);
+      }
+      return true;
     });
   }
 }

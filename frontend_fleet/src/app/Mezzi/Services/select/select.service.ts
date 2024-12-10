@@ -1,21 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Vehicle } from '../../../Models/Vehicle';
 
-interface SelectionStates {
-  allPlatesSelected: boolean;
-  allModelsSelected: boolean;
-  allCantieriSelected: boolean;
-}
-
 @Injectable({
   providedIn: 'root'
 })
 export class SelectService {
-  private _selectionStates: SelectionStates = {
-    allPlatesSelected: true,
-    allModelsSelected: true,
-    allCantieriSelected: true,
-  };
+  private _allOptionsSelected: boolean = true;
+
 
 
 
@@ -26,7 +17,7 @@ export class SelectService {
   /**
    * Aggiorna i veicoli selezionati in base al modello di un veicolo
    * @param allVehicles veicoli
-   * @param vehicle veicolo da cui prendere il modello e da aggiungere, in caso, ai veicoli selezionati
+   * @param vehicle veicolo da cui prendere il modello da aggiungere, in caso, ai veicoli selezionati
    */
   updateVehiclesSelectionByModel(allVehicles: Vehicle[], vehicle: Vehicle) {
     const exists = this.selectedVehicles.some(v => v.model === vehicle.model); //controllo della presenza del veicolo nell'array dei veicoli selezionati
@@ -43,7 +34,7 @@ export class SelectService {
   /**
    * Aggiorna i veicoli selezionati in base al cantiere di un veicolo
    * @param allVehicles veicoli
-   * @param vehicle veicolo da cui prendere il cantiere e da aggiungere, in caso, ai veicoli selezionati
+   * @param vehicle veicolo da cui prendere il cantiere da aggiungere, in caso, ai veicoli selezionati
    */
   updateVehiclesSelectionByCantiere(allVehicles: Vehicle[], vehicle: Vehicle) {
     const exists = this.selectedVehicles.some(v => v.worksite?.name === vehicle.worksite?.name);
@@ -60,7 +51,7 @@ export class SelectService {
   /**
    * Aggiorna i veicoli selezionati in base alla targa di un veicolo
    * @param allVehicles veicoli
-   * @param vehicle veicolo da cui prendere la targa e da aggiungere, in caso, ai veicoli selezionati
+   * @param vehicle veicolo da cui prendere la targa da aggiungere, in caso, ai veicoli selezionati
    */
   updateVehiclesSelectionByPlate(allVehicles: Vehicle[], vehicle: Vehicle) {
     const exists = this.selectedVehicles.some(v => v.plate === vehicle.plate);
@@ -72,6 +63,32 @@ export class SelectService {
       this.selectedVehicles = this.selectedVehicles.filter(v => v.plate !== vehicle.plate);
     }
   }
+
+  /**
+   * Aggiorna i veicoli selezionati in base al first event di un veicolo
+   * @param allVehicles veicoli
+   * @param vehicle veicolo da cui prendere il first event da aggiungere, in caso, ai veicoli selezionati
+   */
+  updateVehiclesSelectionByFirstEvent(allVehicles: Vehicle[], vehicle: Vehicle) {
+    //data senza orario
+    const getDateWithoutTime = (date: Date | null): string => {
+      if (!date) return ''; // Se la data è null, restituisce una stringa vuota
+      const actualDate = (date instanceof Date) ? date : new Date(date); // Converte la stringa in un oggetto Date se necessario
+      return actualDate.toISOString().split('T')[0];  // Restituisce solo la parte della data, es. "2024-12-10"
+    };
+
+    const exists = this.selectedVehicles.some(v => getDateWithoutTime(v.firstEvent) === getDateWithoutTime(vehicle.firstEvent));
+
+    if (!exists) {
+      const addingVehicles = allVehicles.filter(v => getDateWithoutTime(v.firstEvent) === getDateWithoutTime(vehicle.firstEvent));
+      this.selectedVehicles = [...this.selectedVehicles, ...addingVehicles];
+    } else {
+      this.selectedVehicles = this.selectedVehicles.filter(v => getDateWithoutTime(v.firstEvent) !== getDateWithoutTime(vehicle.firstEvent));
+    }
+  }
+
+
+
 
 
 
@@ -86,12 +103,12 @@ export class SelectService {
     $event.stopPropagation();
 
     //attributo preso a caso, poteva essere qualunque
-    if (this.selectionStates.allPlatesSelected) {
-      this.selectionStates.allPlatesSelected = false;
+    if (this.allOptionsSelected) {
+      this.allOptionsSelected = false;
       this.selectedVehicles = [];
       return [];
     } else {
-      this.selectionStates.allPlatesSelected = true;
+      this.allOptionsSelected = true;
       this.selectedVehicles = allVehicles;
       return allVehicles;
     }
@@ -142,16 +159,24 @@ export class SelectService {
     return false;
   }
 
+  isFirsteventSelected(firstEvent: Date | null){
+    if(firstEvent){
+      const selectedFirstevents = this.selectedVehicles.map(vehicle => vehicle.firstEvent);
+      return selectedFirstevents.includes(firstEvent);
+    }
+    return false;
+  }
+
   public get selectedVehicles(): Vehicle[] {
     return this._selectedVehicles;
   }
   public set selectedVehicles(value: Vehicle[]) {
     this._selectedVehicles = value;
   }
-  public get selectionStates(): SelectionStates {
-    return this._selectionStates;
+  public get allOptionsSelected(): boolean {
+    return this._allOptionsSelected;
   }
-  public set selectionStates(value: SelectionStates) {
-    this._selectionStates = value;
+  public set allOptionsSelected(value: boolean) {
+    this._allOptionsSelected = value;
   }
 }
