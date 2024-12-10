@@ -6,6 +6,10 @@ import { Vehicle } from '../../../Models/Vehicle';
 })
 export class SelectService {
   private _allOptionsSelected: boolean = true;
+  private _allestimenti = {
+    blackboxOnly: true,
+    blackboxWithAntenna: true
+  };
 
 
 
@@ -16,7 +20,7 @@ export class SelectService {
 
   /**
    * Aggiorna i veicoli selezionati in base al modello di un veicolo
-   * @param allVehicles veicoli
+   * @param allVehicles tutti i veicoli
    * @param vehicle veicolo da cui prendere il modello da aggiungere, in caso, ai veicoli selezionati
    */
   updateVehiclesSelectionByModel(allVehicles: Vehicle[], vehicle: Vehicle) {
@@ -33,7 +37,7 @@ export class SelectService {
 
   /**
    * Aggiorna i veicoli selezionati in base al cantiere di un veicolo
-   * @param allVehicles veicoli
+   * @param allVehicles tutti i veicoli
    * @param vehicle veicolo da cui prendere il cantiere da aggiungere, in caso, ai veicoli selezionati
    */
   updateVehiclesSelectionByCantiere(allVehicles: Vehicle[], vehicle: Vehicle) {
@@ -50,7 +54,7 @@ export class SelectService {
 
   /**
    * Aggiorna i veicoli selezionati in base alla targa di un veicolo
-   * @param allVehicles veicoli
+   * @param allVehicles tutti i veicoli
    * @param vehicle veicolo da cui prendere la targa da aggiungere, in caso, ai veicoli selezionati
    */
   updateVehiclesSelectionByPlate(allVehicles: Vehicle[], vehicle: Vehicle) {
@@ -64,9 +68,49 @@ export class SelectService {
     }
   }
 
+  updateVehiclesSelectionByAllestimento(allVehicles: Vehicle[], option: string, selected: boolean): void {
+    // Seleziona i veicoli con isRFIDReader = false (blackbox) e quelli con isRFIDReader = true (blackbox+antenna)
+    const blackboxVehicles = allVehicles.filter(vehicle => !vehicle.isRFIDReader);
+    const blackboxAntennaVehicles = allVehicles.filter(vehicle => vehicle.isRFIDReader);
+
+    if(option == "blackbox"){ // è stato premuto l'opzione "blackbox"
+      if(selected){ // l'opzione "blackbox" è stata selezionata
+        this.allestimenti.blackboxOnly = true;
+        this.selectedVehicles = [...this.selectedVehicles, ...blackboxVehicles];
+      }else{ // l'opzione "blackbox" è stata deselezionata
+        this.allestimenti.blackboxOnly = false;
+        // Rimuovi i veicoli con isRFIDReader = false
+        this.selectedVehicles = this.selectedVehicles.filter(vehicle => vehicle.isRFIDReader);
+      }
+    }else if(option == "blackbox+antenna"){ // è stato premuto l'opzione "blackbox+antenna"
+      if(selected){ // l'opzione "blackbox+antenna" è stata selezionata
+        this.allestimenti.blackboxWithAntenna = true;
+        this.selectedVehicles = [...this.selectedVehicles, ...blackboxAntennaVehicles];
+      }else{ // l'opzione "blackbox+antenna" è stata deselezionata
+        this.allestimenti.blackboxWithAntenna = false;
+        // Rimuovi i veicoli con isRFIDReader = true
+        this.selectedVehicles = this.selectedVehicles.filter(vehicle => !vehicle.isRFIDReader);
+      }
+    }
+  }
+
+
+
+  /**
+   * Unisce due array di veicoli evitando duplicati.
+   */
+  private mergeUniqueVehicles(existingVehicles: Vehicle[], newVehicles: Vehicle[]): Vehicle[] {
+    const existingIds = new Set(existingVehicles.map(vehicle => vehicle.veId));
+    const uniqueNewVehicles = newVehicles.filter(vehicle => !existingIds.has(vehicle.veId));
+    return [...existingVehicles, ...uniqueNewVehicles];
+  }
+
+
+
+
   /**
    * Aggiorna i veicoli selezionati in base al first event di un veicolo
-   * @param allVehicles veicoli
+   * @param allVehicles tutti i veicoli
    * @param vehicle veicolo da cui prendere il first event da aggiungere, in caso, ai veicoli selezionati
    */
   updateVehiclesSelectionByFirstEvent(allVehicles: Vehicle[], vehicle: Vehicle) {
@@ -86,11 +130,6 @@ export class SelectService {
       this.selectedVehicles = this.selectedVehicles.filter(v => getDateWithoutTime(v.firstEvent) !== getDateWithoutTime(vehicle.firstEvent));
     }
   }
-
-
-
-
-
 
   /**
    * Seleziona e deseleziona tutti i veicoli
@@ -159,6 +198,13 @@ export class SelectService {
     return false;
   }
 
+  checkAllestimento(type: string){
+    return type == "blackbox" ?
+    this.selectedVehicles.some(vehicle => vehicle.isRFIDReader === false) :
+    this.selectedVehicles.some(vehicle => vehicle.isRFIDReader === true);
+  }
+
+
   isFirsteventSelected(firstEvent: Date | null){
     if(firstEvent){
       const selectedFirstevents = this.selectedVehicles.map(vehicle => vehicle.firstEvent);
@@ -167,6 +213,12 @@ export class SelectService {
     return false;
   }
 
+  public get allestimenti() {
+    return this._allestimenti;
+  }
+  public set allestimenti(value) {
+    this._allestimenti = value;
+  }
   public get selectedVehicles(): Vehicle[] {
     return this._selectedVehicles;
   }

@@ -43,7 +43,6 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
 
   vehicleTableData = new MatTableDataSource<Vehicle>();
 
-  allVehicles: Vehicle[] = [];
   sortedVehicles: Vehicle[] = [];
 
   displayedColumns: string[] = ["Azienda", "Targa", "Marca&modello", "Cantiere", "Anno immatricolazione", "Tipologia attrezzatura", "Allestimento", "Data-installazione-fleet", "Data-rimozione-apparato", "Notes"];
@@ -68,9 +67,9 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
 
   ngAfterViewInit(): void {
     //riempimento dati della tabella con sessionstorage se presente oppure fare una chiamata
-    this.allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-    if(this.allVehicles){
-      this.sortedVehicles = this.sortService.sortVehiclesByPlateAsc(this.allVehicles);
+    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+    if(allVehicles){
+      this.sortedVehicles = this.sortService.sortVehiclesByPlateAsc(allVehicles);
       this.vehicleTableData.data = this.sortedVehicles;
       this.vehicleTable.renderRows();
       this.cd.detectChanges();
@@ -100,7 +99,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
 
 
   /**
-   * Viene chiamata alla selezione di un checkbox in un menu di una colonna
+   * Viene chiamata alla selezione di un checkbox in un menu della colonna delle targhe
    * @param vehicle veicolo da cui prendere la targa
    * @param $event evento
    */
@@ -111,8 +110,8 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
   }
 
   /**
-   * Viene chiamata alla selezione di un checkbox in un menu di una colonna
-   * @param vehicle veicolo da cui prendere la targa
+   * Viene chiamata alla selezione di un checkbox nel menu della colonna dei modelli
+   * @param vehicle veicolo da cui prendere il modello
    * @param $event evento
    */
   selectModel(vehicle: Vehicle, $event: any){
@@ -122,8 +121,8 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
   }
 
   /**
-   * Viene chiamata alla selezione di un checkbox in un menu di una colonna
-   * @param vehicle veicolo da cui prendere la targa
+   * Viene chiamata alla selezione di un checkbox nel menu della colonna cantiere
+   * @param vehicle veicolo da cui prendere la cantiere
    * @param $event evento
    */
   selectCantiere(vehicle: Vehicle, $event: any){
@@ -132,8 +131,29 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
     this.onSelection($event);
   }
 
+  /**
+   * Viene chiamata alla selezione di un checkbox nel menu della colonna della data di installazione del fleet
+   * @param vehicle veicolo da cui prendere il firstevent
+   * @param $event evento
+   */
   selectFirstEvent(vehicle: Vehicle, $event: any){
     this.selectService.updateVehiclesSelectionByFirstEvent(this.sortedVehicles, vehicle);
+    this.vehicleTableData.data = this.sortService.sortVehiclesByPlateAsc(this.selectService.selectedVehicles); //aggiornamento tabella con veicoli selezionati, ordinati per targa
+    this.onSelection($event);
+  }
+
+  /**
+   * Viene chiamata alla selezione di un checkbox nel menu della colonna della data di installazione del fleet
+   * @param vehicle veicolo di cui controllare se ha solo la blackbox o anche l'antenna RFID
+   * @param $event evento
+   */
+  selectAllestimento(option: string, $event: any){
+    if ($event.target.checked) {
+      console.log("Ora è checkkato");
+  } else {
+      console.log("Ora è deselezionato");
+  }
+    this.selectService.updateVehiclesSelectionByAllestimento(this.sortedVehicles, option, $event.target.checked);
     this.vehicleTableData.data = this.sortService.sortVehiclesByPlateAsc(this.selectService.selectedVehicles); //aggiornamento tabella con veicoli selezionati, ordinati per targa
     this.onSelection($event);
   }
