@@ -34,11 +34,11 @@ export class AppService implements OnModuleInit {
 
   // popolo database all'avvio
   async onModuleInit() {
-    const startDate = '2024-11-26T00:00:00.000Z';
-    //const endDate = '2024-11-02T00:00:00.000Z';
-    const endDate = new Date(
-      new Date().getTime() + 2 * 60 * 60 * 1000,
-    ).toISOString();
+    const startDate = '2024-11-25T00:00:00.000Z';
+    const endDate = '2024-12-09T00:00:00.000Z';
+    // const endDate = new Date(
+    //   new Date().getTime() + 2 * 60 * 60 * 1000,
+    // ).toISOString();
     //await this.putDefaultData();
     //await this.putDbDataBasicForAdvance(startDate, endDate);
     //await this.putDbData3min();
@@ -125,7 +125,6 @@ export class AppService implements OnModuleInit {
               ),
             ]);
           });
-
           // Esecuzione delle richieste per il batch corrente
           await Promise.all(requests);
         }
@@ -190,7 +189,7 @@ export class AppService implements OnModuleInit {
         const datefrom = day;
         const dateto = new Date(datefrom);
         dateto.setDate(dateto.getDate() + 1);
-        const data = await this.anomalyService.checkErrorsAllNoAPI(
+        const data = await this.anomalyService.checkErrors(
           datefrom,
           dateto.toISOString(),
         );
