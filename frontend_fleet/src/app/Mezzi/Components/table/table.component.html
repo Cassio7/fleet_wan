@@ -22,12 +22,12 @@
         <mat-menu #targaMenu="matMenu">
           <!-- Checkbox "Seleziona tutto" -->
           <button mat-menu-item (click)="selectDeselectAll($event)">
-            <mat-checkbox [checked]="selectService.selectionStates.allPlatesSelected">Seleziona tutto</mat-checkbox>
+            <mat-checkbox [checked]="selectService.allOptionsSelected">Seleziona tutto</mat-checkbox>
           </button>
           <mat-divider></mat-divider>
           <!-- Checkbox per ogni veicolo -->
           <button mat-menu-item *ngFor="let vehicle of sortedVehicles" (click)="selectTarga(vehicle, $event)">
-            <mat-checkbox [checked]="selectService.isPlateSelected(vehicle.plate)" (click)="selectTarga(vehicle, $event)">
+            <mat-checkbox [checked]="selectService.isPlateSelected(vehicle.plate)">
               {{ vehicle.plate }}
             </mat-checkbox>
           </button>
@@ -46,14 +46,14 @@
         <mat-menu #marcaMenu="matMenu">
           <!-- Checkbox "Seleziona tutto" per tutti i modelli -->
           <button mat-menu-item (click)="selectDeselectAll($event)">
-            <mat-checkbox [checked]="selectService.selectionStates.allModelsSelected">Seleziona tutto</mat-checkbox>
+            <mat-checkbox [checked]="selectService.allOptionsSelected">Seleziona tutto</mat-checkbox>
           </button>
 
           <mat-divider></mat-divider>
 
           <!-- Checkbox per ogni vehicle modello -->
           <button mat-menu-item *ngFor="let vehicle of filterVehiclesModelsDuplicates()" (click)="selectModel(vehicle, $event)">
-            <mat-checkbox [checked]="selectService.isModelSelected(vehicle.model)" (click)="selectModel(vehicle, $event)">
+            <mat-checkbox [checked]="selectService.isModelSelected(vehicle.model)">
               {{ vehicle.model }}
             </mat-checkbox>
           </button>
@@ -70,7 +70,7 @@
         <mat-menu #cantiereMenu="matMenu">
           <!-- Checkbox "Seleziona tutto" per tutti i modelli -->
           <button mat-menu-item (click)="selectDeselectAll($event)">
-            <mat-checkbox [checked]="selectService.selectionStates.allCantieriSelected">Seleziona tutto</mat-checkbox>
+            <mat-checkbox [checked]="selectService.allOptionsSelected">Seleziona tutto</mat-checkbox>
           </button>
 
           <mat-divider></mat-divider>
@@ -116,6 +116,15 @@
       <th mat-header-cell *matHeaderCellDef>
         <button mat-button [matMenuTriggerFor]="allestimentoMenu" class="filter-menu-btn">Allestimento</button>
         <mat-menu #allestimentoMenu="matMenu">
+          <!-- Checkbox "Seleziona tutto" per tutti i modelli -->
+          <button mat-menu-item (click)="selectDeselectAll($event)">
+            <mat-checkbox [checked]="selectService.allOptionsSelected">
+              Seleziona tutto
+            </mat-checkbox>
+          </button>
+
+          <mat-divider></mat-divider>
+
           <button mat-menu-item (click)="$event.stopPropagation()">
             <mat-checkbox>
               Blackbox
@@ -136,8 +145,16 @@
       <th mat-header-cell *matHeaderCellDef>
         <button mat-button [matMenuTriggerFor]="installazioneMenu" class="filter-menu-btn">Data installazione fleet</button>
         <mat-menu #installazioneMenu="matMenu">
-          <button mat-menu-item *ngFor="let vehicle of sortedVehicles" (click)="$event.stopPropagation()">
-            <mat-checkbox>{{vehicle.firstEvent | date:'dd/MM/yyyy'}}</mat-checkbox>
+          <button mat-menu-item (click)="selectDeselectAll($event)">
+            <mat-checkbox [checked]="selectService.allOptionsSelected">
+              Seleziona tutto
+            </mat-checkbox>
+          </button>
+
+          <mat-divider></mat-divider>
+
+          <button mat-menu-item *ngFor="let vehicle of filterFirstEventsDuplicates()" (click)="selectFirstEvent(vehicle, $event)">
+            <mat-checkbox [checked]="selectService.isFirsteventSelected(vehicle.firstEvent)">{{vehicle.firstEvent | date:'dd/MM/yyyy'}}</mat-checkbox>
           </button>
         </mat-menu>
       </th>

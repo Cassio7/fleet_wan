@@ -106,7 +106,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
    */
   selectTarga(vehicle: Vehicle, $event: any){
     this.selectService.updateVehiclesSelectionByPlate(this.sortedVehicles, vehicle);
-    this.vehicleTableData.data = this.sortService.sortVehiclesByPlateAsc(this.selectService.selectedVehicles); //aggiornamento tabella
+    this.vehicleTableData.data = this.sortService.sortVehiclesByPlateAsc(this.selectService.selectedVehicles); //aggiornamento tabella con veicoli selezionati, ordinati per targa
     this.onSelection($event);
   }
 
@@ -117,7 +117,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
    */
   selectModel(vehicle: Vehicle, $event: any){
     this.selectService.updateVehiclesSelectionByModel(this.sortedVehicles, vehicle);
-    this.vehicleTableData.data = this.sortService.sortVehiclesByPlateAsc(this.selectService.selectedVehicles); //aggiornamento tabella
+    this.vehicleTableData.data = this.sortService.sortVehiclesByPlateAsc(this.selectService.selectedVehicles); //aggiornamento tabella con veicoli selezionati, ordinati per targa
     this.onSelection($event);
   }
 
@@ -128,7 +128,13 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
    */
   selectCantiere(vehicle: Vehicle, $event: any){
     this.selectService.updateVehiclesSelectionByCantiere(this.sortedVehicles, vehicle);
-    this.vehicleTableData.data = this.sortService.sortVehiclesByPlateAsc(this.selectService.selectedVehicles); //aggiornamento tabella
+    this.vehicleTableData.data = this.sortService.sortVehiclesByPlateAsc(this.selectService.selectedVehicles); //aggiornamento tabella con veicoli selezionati, ordinati per targa
+    this.onSelection($event);
+  }
+
+  selectFirstEvent(vehicle: Vehicle, $event: any){
+    this.selectService.updateVehiclesSelectionByFirstEvent(this.sortedVehicles, vehicle);
+    this.vehicleTableData.data = this.sortService.sortVehiclesByPlateAsc(this.selectService.selectedVehicles); //aggiornamento tabella con veicoli selezionati, ordinati per targa
     this.onSelection($event);
   }
 
@@ -166,6 +172,14 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
    */
   filterVehiclesCantieriDuplicates(){
     return this.mezziFilterService.filterVehiclesCantieriDuplicates(this.sortedVehicles);
+  }
+
+  /**
+   * richiama la funzione per rimuovere i duplicati dalla lista di cantieri
+   * @returns funzione nel servizio
+   */
+  filterFirstEventsDuplicates(){
+    return this.mezziFilterService.filterFirstEventsDuplicates(this.sortedVehicles);
   }
 
 }
