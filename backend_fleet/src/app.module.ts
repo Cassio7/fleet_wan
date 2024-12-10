@@ -187,7 +187,7 @@ import { AnomalyService } from './services/anomaly/anomaly.service';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('SECRET_TOKEN'),
-        signOptions: { expiresIn: '10h' },
+        signOptions: { expiresIn: '24h' },
       }),
     }),
     RedisModule.forRootAsync({
