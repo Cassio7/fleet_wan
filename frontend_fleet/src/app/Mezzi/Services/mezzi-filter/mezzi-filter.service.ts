@@ -78,31 +78,54 @@ export class MezziFilterService {
     return vehicles.filter(vehicle => {
       if (vehicle.worksite) {
         if (seenCantieri.has(vehicle.worksite.name)) {
-          return false; // Duplicato trovato, non includerlo
+          return false;
         }
-        seenCantieri.add(vehicle.worksite.name); // Aggiungi il nome del worksite al set
-        return true; // Aggiungi il veicolo se il worksite non è stato visto
+        seenCantieri.add(vehicle.worksite.name);
+        return true;
       } else {
         // Se il worksite è null o undefined, usa "non assegnato"
         if (seenCantieri.has("non assegnato")) {
-          return false; // "non assegnato" già presente, non aggiungere il veicolo
+          return false;
         }
-        seenCantieri.add("non assegnato"); // Aggiungi "non assegnato" al set
-        return true; // Aggiungi il veicolo senza worksite
+        seenCantieri.add("non assegnato");
+        return true;
       }
     });
   }
 
-  filterFirstEventsDuplicates(vehicles: Vehicle[]){
-    const seenFirstEvents = new Set<Date>(); // Set per tracciare le date uniche
+  /**
+   * Filtra i first event duplicati
+   * @param vehicles veicoli dai quali prendere i first event
+   * @returns array di veicoli filtrati
+   */
+  filterFirstEventsDuplicates(vehicles: Vehicle[]) {
+    const seenFirstEvents = new Set<string>();
     return vehicles.filter(vehicle => {
-      if(vehicle.firstEvent){
-        if (seenFirstEvents.has(vehicle.firstEvent)) {
+      if (vehicle.firstEvent) {
+        let date: Date;
+
+        if (vehicle.firstEvent instanceof Date) {
+          date = vehicle.firstEvent;
+        } else {
+          date = new Date(vehicle.firstEvent);
+        }
+
+        if (isNaN(date.getTime())) {
           return false;
         }
-        seenFirstEvents.add(vehicle.firstEvent);
+
+        const dateString = date.toISOString().split('T')[0];
+        if (seenFirstEvents.has(dateString)) {
+          return false;
+        }
+        seenFirstEvents.add(dateString);
+        return true;
+      } else {
+        return false;
       }
-      return true;
     });
   }
+
+
+
 }
