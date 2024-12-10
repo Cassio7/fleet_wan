@@ -91,6 +91,18 @@ export class SortService {
       return dateB.getTime() - dateA.getTime();
     });
   }
+
+  sortVehiclesByFirstEventAsc(vehicles: Vehicle[]) {
+    return vehicles.sort((a, b) => {
+      if (a.firstEvent && b.firstEvent) {
+        const dateA = new Date(a.firstEvent);
+        const dateB = new Date(b.firstEvent);
+        return dateA.getTime() - dateB.getTime();
+      }
+      return 0;
+    });
+  }
+
 }
 
 
