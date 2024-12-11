@@ -28,15 +28,13 @@ export class NotesService {
     try {
         // Interruzione dell'esecuzone se almeno uno dei parametri non viene trovato
         if (!content || !vehicleId || !userId) {
-            console.error('Missing required fields: content, vehicleId, or userId');
-            return false;  // or throw a specific error
+            return false; 
         }
     
         await queryRunner.startTransaction();
     
         const vehicle = await queryRunner.manager.findOne(VehicleEntity, { where: { veId: vehicleId } }); //ricerca del veicolo
     
-        console.log('Searching for user with ID:', userId);
         const user = await queryRunner.manager.findOne(UserEntity, { where: { id: userId } }); //ricerca dell'utente
     
         // Interruzione dell'esecuzone se veicolo o utente non trovati
