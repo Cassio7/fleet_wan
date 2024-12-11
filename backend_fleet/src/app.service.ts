@@ -34,8 +34,8 @@ export class AppService implements OnModuleInit {
 
   // popolo database all'avvio
   async onModuleInit() {
-    const startDate = '2024-11-25T00:00:00.000Z';
-    const endDate = '2024-12-09T00:00:00.000Z';
+    const startDate = '2024-12-09T00:00:00.000Z';
+    const endDate = '2024-12-10T00:00:00.000Z';
     // const endDate = new Date(
     //   new Date().getTime() + 2 * 60 * 60 * 1000,
     // ).toISOString();
