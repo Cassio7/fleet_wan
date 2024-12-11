@@ -59,6 +59,7 @@ import { WorksiteGroupFactoryService } from './factory/worksite_group.factory';
 import { AssociationFactoryService } from './factory/association.factory';
 import { CategoryFactoryService } from './factory/category.factory';
 import { AnomalyService } from './services/anomaly/anomaly.service';
+import { RoleService } from './services/role/role.service';
 
 @Global()
 @Module({
@@ -99,7 +100,7 @@ import { AnomalyService } from './services/anomaly/anomaly.service';
           AnomalyEntity,
         ],
         synchronize: true,
-        //dropSchema: true, // if true drop db
+        dropSchema: true, // if true drop db
       }),
     }),
     TypeOrmModule.forFeature(
@@ -230,6 +231,7 @@ import { AnomalyService } from './services/anomaly/anomaly.service';
     AssociationFactoryService,
     CategoryFactoryService,
     AnomalyService,
+    RoleService,
   ],
 })
 export class AppModule {}
