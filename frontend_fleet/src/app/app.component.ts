@@ -11,6 +11,7 @@ import { LoginService } from './Common-services/login service/login.service';
 import { CommonModule } from '@angular/common';
 import { SessionStorageService } from './Common-services/sessionStorage/session-storage.service';
 import { CookiesService } from './Common-services/cookies service/cookies.service';
+import { CommonService } from './Common-services/common service/common.service';
 
 @Component({
   selector: 'app-root',
@@ -39,7 +40,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
   constructor(
     private router: Router,
     private loginService: LoginService,
-    private sessionStorageService: SessionStorageService,
     private cookiesService: CookiesService,
     private cd: ChangeDetectorRef
   ){}
@@ -74,6 +74,10 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
     this.router.events.pipe(filter(event => event instanceof NavigationEnd))
     .subscribe(()=>{
       if(this.router.url == "/login"){
+        //chiusura della sidebar in caso sia aperta mentre l'utente si trova nella pagina di login
+        if(this.drawer.opened){
+          this.drawer.toggle();
+        }
         this.isLogged = false;
       }
     });
@@ -94,7 +98,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
     if (url === '/login') {
       this.isLoginPage = true;
       body.classList.add('bg-image');
-      console.log("aggiunta classlist");
     } else {
       this.isLoginPage = false;
       body.classList.remove('bg-image');
