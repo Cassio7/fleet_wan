@@ -5,8 +5,8 @@ import {
   Column,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToMany,
-  OneToOne,
 } from 'typeorm';
 import { AssociationEntity } from './association.entity';
 import { NoteEntity } from './note.entity';
@@ -19,7 +19,7 @@ export class UserEntity extends CommonEntity implements UserInterface {
   @Column({ nullable: true })
   surname: string;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, unique: true })
   username: string;
 
   @Column()
@@ -42,7 +42,7 @@ export class UserEntity extends CommonEntity implements UserInterface {
   @OneToMany(() => NoteEntity, (note) => note.user)
   note: NoteEntity[];
 
-  @OneToOne(() => RoleEntity)
+  @ManyToOne(() => RoleEntity, (role) => role.user)
   @JoinColumn()
   role: RoleEntity;
 }
