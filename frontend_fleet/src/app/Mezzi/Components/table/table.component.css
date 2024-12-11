@@ -32,6 +32,12 @@ tr, td, th {
   max-height: 50px;
 }
 
-.vehicle-icon{
+
+.vehicle-icon {
+  width: 40px;
+  height: 40px;
   cursor: pointer;
 }
+
+
+
