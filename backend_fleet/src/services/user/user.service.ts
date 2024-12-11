@@ -1,14 +1,45 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { UserDTO } from 'classes/dtos/user.dto';
 import { UserEntity } from 'classes/entities/user.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(UserEntity, 'readOnlyConnection')
     private readonly userRepository: Repository<UserEntity>,
+    @InjectDataSource('mainConnection')
+    private readonly connection: DataSource,
   ) {}
+  /**
+   * Servizio per la creazione nuovo utente
+   */
+  async createUser(user: UserDTO, role): Promise<any> {
+    const queryRunner = this.connection.createQueryRunner();
+    try {
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+      const newUser = await queryRunner.manager
+        .getRepository(UserEntity)
+        .create({
+          name: user.name,
+          surname: user.surname,
+          username: user.username,
+          email: user.email,
+          password: user.password,
+          role: role,
+        });
+      return await queryRunner.manager.getRepository(UserEntity).save(newUser);
+    } catch (error) {
+      console.error('Errore inserimento nuovo utente: ' + error);
+      await queryRunner.rollbackTransaction();
+      await queryRunner.release();
+    } finally {
+      await queryRunner.commitTransaction();
+      await queryRunner.release();
+    }
+  }
 
   /**
    * Ritorna tutti gli utenti
@@ -50,5 +81,46 @@ export class UserService {
       },
     });
     return user;
+  }
+
+  async updateUser(key: string, updateUser: any) {
+    const queryRunner = this.connection.createQueryRunner();
+    try {
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+      await queryRunner.manager.getRepository(UserEntity).update(
+        {
+          key: key,
+        },
+        updateUser,
+      );
+    } catch (error) {
+      console.error('Errore inserimento nuovo utente: ' + error);
+      await queryRunner.rollbackTransaction();
+      await queryRunner.release();
+    } finally {
+      await queryRunner.commitTransaction();
+      await queryRunner.release();
+    }
+  }
+
+  /**
+   * Elimina utente dal database
+   * @param user
+   */
+  async deleteUser(user: UserEntity) {
+    const queryRunner = this.connection.createQueryRunner();
+    try {
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+      await queryRunner.manager.getRepository(UserEntity).remove(user);
+    } catch (error) {
+      console.error('Errore eliminazione utente: ' + error);
+      await queryRunner.rollbackTransaction();
+      await queryRunner.release();
+    } finally {
+      await queryRunner.commitTransaction();
+      await queryRunner.release();
+    }
   }
 }
