@@ -53,6 +53,8 @@ import { WorksiteFactoryService } from './factory/worksite.factory';
 import { GroupFactoryService } from './factory/group.factory';
 import { WorksiteGroupFactoryService } from './factory/worksite_group.factory';
 import { RoleCompanyFactoryService } from './factory/role_company.factory';
+import { NotesService } from './services/notes/notes.service';
+import { NotesController } from './controllers/notes/notes.controller';
 
 @Global()
 @Module({
@@ -200,6 +202,7 @@ import { RoleCompanyFactoryService } from './factory/role_company.factory';
     AuthController,
     UserController,
     CompanyController,
+    NotesController,
   ],
   providers: [
     AppService,
@@ -217,6 +220,7 @@ import { RoleCompanyFactoryService } from './factory/role_company.factory';
     GroupFactoryService,
     WorksiteGroupFactoryService,
     RoleCompanyFactoryService,
+    NotesService,
   ],
 })
 export class AppModule {}
