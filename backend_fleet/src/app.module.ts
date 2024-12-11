@@ -100,7 +100,7 @@ import { RoleService } from './services/role/role.service';
           AnomalyEntity,
         ],
         synchronize: true,
-        dropSchema: true, // if true drop db
+        //dropSchema: true, // if true drop db
       }),
     }),
     TypeOrmModule.forFeature(
