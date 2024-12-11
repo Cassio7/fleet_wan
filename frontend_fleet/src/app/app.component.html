@@ -1,4 +1,4 @@
-<mat-drawer-container class="drawer-container" style="height: 100vh">
+<mat-drawer-container class="drawer-container" style="height: 100vh" [ngClass]="{'bg-image': isLoginPage}">
   <mat-drawer #drawer mode="side" class="sidebar">
     <div class="drawer-content">
       <img class="sidebar-logo" src="assets/logo.png" alt="Logo">

@@ -30,6 +30,7 @@ import { CookiesService } from './Common-services/cookies service/cookies.servic
 })
 export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
   @ViewChild('drawer') drawer!: MatDrawer;
+  isLoginPage = true;
   isLogged = false;
   title = 'frontend_fleet';
   private readonly destroy$: Subject<void> = new Subject<void>();
@@ -91,9 +92,13 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
   setBackgroundImage(url: string): void {
     const body = document.body;
     if (url === '/login') {
+      this.isLoginPage = true;
       body.classList.add('bg-image');
+      console.log("aggiunta classlist");
     } else {
+      this.isLoginPage = false;
       body.classList.remove('bg-image');
     }
+    this.cd.detectChanges();
   }
 }

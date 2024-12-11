@@ -9,6 +9,8 @@ import { SessionStorageService } from '../../Common-services/sessionStorage/sess
 import { LoginService } from '../../Common-services/login service/login.service';
 import { CookiesService } from '../../Common-services/cookies service/cookies.service';
 import { Subject, takeUntil } from 'rxjs';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-login',
@@ -19,7 +21,9 @@ import { Subject, takeUntil } from 'rxjs';
     MatInputModule,
     MatFormFieldModule,
     MatButtonModule,
-    RouterModule
+    MatTooltipModule,
+    RouterModule,
+    MatIconModule
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
@@ -29,6 +33,8 @@ export class LoginComponent{
   private readonly destroy$: Subject<void> = new Subject<void>();
   loginError: boolean = false;
   loginForm!: FormGroup;
+
+  isCapsActive: boolean = false;
 
   constructor(
     private router: Router,
@@ -64,6 +70,9 @@ export class LoginComponent{
       });
       // this.router.navigate(['dashboard']); //navigazione alla pagina principale
     }
+  }
 
+  checkCapslock(event: KeyboardEvent): void {
+    this.isCapsActive = event.getModifierState('CapsLock');
   }
 }

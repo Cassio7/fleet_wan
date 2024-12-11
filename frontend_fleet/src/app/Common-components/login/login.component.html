@@ -2,10 +2,12 @@
   <div class="border-container">
     <form [formGroup]="loginForm" class="login-form" (submit)="login()">
       <h1 class="form-title">ACCEDI</h1>
+      <p *ngIf="isCapsActive" class="caps-lock-warning">Il Caps Lock è attivo<mat-icon>keyboard_capslock_badge</mat-icon></p>
+
 
       <mat-form-field>
         <mat-label>Username or email</mat-label>
-        <input matInput class="username" formControlName="username" placeholder="Username">
+        <input matInput (keydown)="checkCapslock($event)"   class="username" formControlName="username" placeholder="Username">
         <mat-error *ngIf="loginForm.controls['username'].errors?.['required']">
           L'username è obbligatorio.
         </mat-error>
@@ -13,13 +15,14 @@
 
       <mat-form-field>
         <mat-label>Password</mat-label>
-        <input matInput type="password" class="password" formControlName="password" placeholder="Password">
+        <input matInput (keydown)="checkCapslock($event)" type="password" class="password" formControlName="password" placeholder="Password">
         <mat-error *ngIf="loginForm.controls['password'].errors?.['required']">
           La password è obbligatoria.
         </mat-error>
       </mat-form-field>
 
-      <button mat-raised-button color="primary" type="submit" [disabled]="loginForm.invalid">Invia</button>
+      <mat-error *ngIf="loginError">Credenziali non valide</mat-error>
+      <button mat-raised-button color="primary" type="submit" [disabled]="loginForm.invalid" class="submit-btn">Invia</button>
     </form>
   </div>
 </div>
