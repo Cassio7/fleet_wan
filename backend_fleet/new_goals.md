@@ -15,6 +15,7 @@
 - [ ] rimuovere codice non utilizzato
 - [ ] aggiungere campo azienda appartenenza mezzo
 - [ ] dare un formato di risposta corretto a tutte le API
+- [x] aggiunte le operazioni CRUD oer Utente accessibili solo da admin 
 - [x] inserire una tabella con la tipologia di veicolo (spazzatrice ...)
 - [x] pensare a tabella di appoggio per allocare i controlli per tutti i veicoli con GPS, Antenna e Sessione -> tabella anomalies
 - [ ] segnare la posizione dei cantieri con circonferenza, layer comunali
