@@ -393,18 +393,18 @@ export class SessionService {
             where: { veId: id },
           });
 
-        // const historyHashes = cleanedDataHistory.map((history) => history.hash);
+        const historyHashes = cleanedDataHistory.map((history) => history.hash);
 
-        // // Esegui una query per ottenere tutte le sessioni con hash corrispondenti
-        // const historyQueries = await queryRunner.manager
-        //   .getRepository(HistoryEntity)
-        //   .find({
-        //     where: { hash: In(historyHashes) },
-        //   });
-        // // Crea una mappa per abbinare gli hash alle sessioni restituite dalla query
-        // const hisotyrQueryMap = new Map(
-        //   historyQueries.map((query) => [query.hash, query]),
-        // );
+        // Esegui una query per ottenere tutte le sessioni con hash corrispondenti
+        const historyQueries = await queryRunner.manager
+          .getRepository(HistoryEntity)
+          .find({
+            where: { hash: In(historyHashes) },
+          });
+        // Crea una mappa per abbinare gli hash alle sessioni restituite dalla query
+        const hisotyrQueryMap = new Map(
+          historyQueries.map((query) => [query.hash, query]),
+        );
         // pulisce la sessione attiva da timestamp precedenti, evita duplicati e timestamp arretrati
         if (historysession.sessionquery.sequence_id === 0) {
           const keys = await queryRunner.manager
@@ -433,9 +433,9 @@ export class SessionService {
         const newHistory = [];
         for (const history of cleanedDataHistory) {
           // controllo se esiste hash
-          //const exists = hisotyrQueryMap.get(history.hash);
+          const exists = hisotyrQueryMap.get(history.hash);
           // evita che dia errore quando ci sono sessioni senza history
-          if (history.length !== 0) {
+          if (!exists && history.length !== 0) {
             const newHistoryOne = await queryRunner.manager
               .getRepository(HistoryEntity)
               .create({
