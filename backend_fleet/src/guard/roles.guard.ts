@@ -19,9 +19,10 @@ export class RolesGuard implements CanActivate {
     private reflector: Reflector,
   ) {}
   /**
-   * Funzione Guard che serve come middleware controllare il ruolo di un utente e verificare se ha il permesso per
-   * accedere ad una determinata richiesta
-   * @param context
+   * Funzione Guard che serve come middleware controllare il ruolo di un
+   * utente e verificare se ha il permesso per accedere ad una determinata richiesta
+   * Il decoratore è necessario se utilizzo il roles guard
+   * @param context Recupero utente loggato
    * @returns
    */
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -39,7 +40,6 @@ export class RolesGuard implements CanActivate {
     if (!user) {
       throw new ForbiddenException('Utente non autenticato.');
     }
-    //
     const dbUser = await this.userRepository.findOne({
       where: {
         id: user.id,
