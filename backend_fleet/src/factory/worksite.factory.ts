@@ -9,7 +9,10 @@ import { Repository } from 'typeorm';
 @Injectable()
 export class WorksiteFactoryService {
   private readonly cvsPath = path.resolve(process.cwd(), 'files/CANTIERI.csv');
-  private readonly cvsPathV = path.resolve(process.cwd(), 'files/VEICOLI.csv');
+  private readonly cvsPathV = path.resolve(
+    process.cwd(),
+    'files/VEICOLI-ALLEST.csv',
+  );
   constructor(
     @InjectRepository(WorksiteEntity, 'mainConnection')
     private worksiteRepository: Repository<WorksiteEntity>,
@@ -45,6 +48,7 @@ export class WorksiteFactoryService {
               id: data.worksiteId,
             },
           });
+          vehicle.allestimento = data.Allestimento;
           // uso save invece di update così si aggiorna la variabile di version
           await this.vehicleRepository.save(vehicle);
         }
