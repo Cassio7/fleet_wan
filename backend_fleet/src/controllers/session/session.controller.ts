@@ -924,6 +924,4 @@ export class SessionController {
   //       .json({ message: 'Nessun dato trovato per fare controlli' });
   //   }
   // }
-
-
 }

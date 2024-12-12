@@ -114,7 +114,9 @@ export class UserController {
     @Body() userDTO: UserDTO,
   ) {
     try {
-      const user = await this.userService.getUserByUsername(params.username.toLowerCase());
+      const user = await this.userService.getUserByUsername(
+        params.username.toLowerCase(),
+      );
       if (user.username === 'Admin') {
         res
           .status(401)
@@ -135,7 +137,9 @@ export class UserController {
             };
             await this.userService.updateUser(user.key, updateUser);
             console.log(
-              'Utente con username: ' + params.username.toLowerCase() + ' aggiornato!',
+              'Utente con username: ' +
+                params.username.toLowerCase() +
+                ' aggiornato!',
             );
             res.status(200).json(userDTO);
           } else res.status(404).json({ message: 'Ruolo non trovato' });
@@ -154,7 +158,9 @@ export class UserController {
   @Delete(':username')
   async deleteUserByUsername(@Res() res: Response, @Param() params: any) {
     try {
-      const user = await this.userService.getUserByUsername(params.username.toLowerCase());
+      const user = await this.userService.getUserByUsername(
+        params.username.toLowerCase(),
+      );
       if (user.username === 'Admin') {
         res
           .status(401)
@@ -163,10 +169,15 @@ export class UserController {
         if (user) {
           await this.userService.deleteUser(user);
           console.log(
-            'Utente con username: ' + params.username.toLowerCase() + ' eliminato!',
+            'Utente con username: ' +
+              params.username.toLowerCase() +
+              ' eliminato!',
           );
           res.status(200).json({
-            message: 'Utente con username: ' + params.username.toLowerCase() + ' eliminato!',
+            message:
+              'Utente con username: ' +
+              params.username.toLowerCase() +
+              ' eliminato!',
           });
         } else res.status(404).json({ message: 'Utente non trovato' });
       }
@@ -184,7 +195,9 @@ export class UserController {
   @Post('username')
   async getUserByUsername(@Res() res: Response, @Body() body: any) {
     try {
-      const user = await this.userService.getUserByUsername(body.username.toLowerCase());
+      const user = await this.userService.getUserByUsername(
+        body.username.toLowerCase(),
+      );
       if (user) {
         const userDTO = new UserDTO();
         userDTO.email = user.email;

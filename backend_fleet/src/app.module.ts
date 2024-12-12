@@ -27,7 +27,6 @@ import { WorksiteGroupEntity } from 'classes/entities/worksite_group.entity';
 import { CategoryEntity } from 'classes/entities/category.entity';
 import { AnomalyEntity } from 'classes/entities/anomaly.entity';
 
-
 // importo i servizi
 import { VehicleService } from './services/vehicle/vehicle.service';
 import { GroupService } from './services/group/group.service';
@@ -48,7 +47,6 @@ import { CompanyController } from './controllers/company/company.controller';
 import { AuthController } from './controllers/auth/auth.controller';
 import { UserController } from './controllers/user/user.controller';
 import { AnomalyController } from './controllers/anomaly/anomaly.controller';
-
 
 // importo i factory
 import { UserFactoryService } from './factory/user.factory';

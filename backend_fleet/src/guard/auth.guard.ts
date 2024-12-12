@@ -24,9 +24,9 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException('Token non fornito.');
     }
     try {
-      const user = await this.authService.validateToken(token); 
-      request.user = user; 
-      return true; 
+      const user = await this.authService.validateToken(token);
+      request.user = user;
+      return true;
     } catch (error) {
       if (error instanceof UnauthorizedException) {
         throw new ForbiddenException(error.message);

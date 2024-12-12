@@ -7,7 +7,7 @@ export class AnomalyController {
   constructor(private readonly anomalyService: AnomalyService) {}
 
   /**
-   * Ritorna tutte le anomalie salvate 
+   * Ritorna tutte le anomalie salvate
    * @param res oggetto costruito in modo soltanto con le informazioni necessarie
    */
   @Get()

@@ -10,7 +10,7 @@ export class RoleService {
     private readonly roleRepository: Repository<RoleEntity>,
   ) {}
   /**
-   * Recupera tutti i ruoli presenti 
+   * Recupera tutti i ruoli presenti
    * @returns
    */
   async getAllRoles(): Promise<any> {
