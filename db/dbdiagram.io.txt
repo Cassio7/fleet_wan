@@ -11,7 +11,7 @@ table users{
   username string
   email string
   password string
-  roleId int [ref: - roles.id]
+  roleId int [ref: > roles.id]
 }
 
 table associations{
@@ -160,4 +160,15 @@ table session{
   engine_drive int
   engine_stop int
   hash string
+}
+
+table anomaly{
+  id int [primary key]
+  date date
+  gps string
+  antenna string
+  session string
+  hash string
+  vehicleId int [ref: > vehicles.id]
+
 }

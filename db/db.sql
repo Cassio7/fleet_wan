@@ -161,6 +161,16 @@ CREATE TABLE "session" (
   "hash" string
 );
 
+CREATE TABLE "anomaly" (
+  "id" int PRIMARY KEY,
+  "date" date,
+  "gps" string,
+  "antenna" string,
+  "session" string,
+  "hash" string,
+  "vehicleId" int
+);
+
 ALTER TABLE "users" ADD FOREIGN KEY ("roleId") REFERENCES "roles" ("id");
 
 ALTER TABLE "associations" ADD FOREIGN KEY ("userId") REFERENCES "users" ("id");
@@ -196,3 +206,5 @@ ALTER TABLE "tag_history" ADD FOREIGN KEY ("vehicleId") REFERENCES "vehicles" ("
 ALTER TABLE "detection_tag" ADD FOREIGN KEY ("tagId") REFERENCES "tags" ("id");
 
 ALTER TABLE "detection_tag" ADD FOREIGN KEY ("tagHistoryId") REFERENCES "tag_history" ("id");
+
+ALTER TABLE "anomaly" ADD FOREIGN KEY ("vehicleId") REFERENCES "vehicles" ("id");
