@@ -1,7 +1,7 @@
 import { CommonInterface } from 'classes/common/common.interface';
 
 export interface AnomalyInterface extends CommonInterface {
-  day: Date;
+  date: Date;
   gps: string;
   antenna: string;
   session: string;
