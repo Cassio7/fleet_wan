@@ -1,42 +1,80 @@
+import { AssociationService } from './../../services/association/association.service';
+import { Role } from 'classes/enum/role.enum';
 import { AnomalyService } from './../../services/anomaly/anomaly.service';
-import { Body, Controller, Get, Post, Res } from '@nestjs/common';
-import { Response } from 'express';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
+import { Response, Request } from 'express';
+import { Roles } from 'src/decorators/roles.decorator';
+import { AuthGuard } from 'src/guard/auth.guard';
+import { RolesGuard } from 'src/guard/roles.guard';
+import { UserFromToken } from 'classes/interfaces/userToken.interface';
+import { VehicleEntity } from 'classes/entities/vehicle.entity';
 
+@UseGuards(AuthGuard, RolesGuard)
 @Controller('anomaly')
+@Roles(Role.Admin, Role.Responsabile, Role.Capo)
 export class AnomalyController {
-  constructor(private readonly anomalyService: AnomalyService) {}
+  constructor(
+    private readonly anomalyService: AnomalyService,
+    private readonly associationService: AssociationService,
+  ) {}
 
   /**
    * Ritorna tutte le anomalie salvate
-   * @param res oggetto costruito in modo soltanto con le informazioni necessarie
+   * @param res oggetto costruito soltanto con le informazioni necessarie
    */
   @Get()
-  async getAllAnomaly(@Res() res: Response) {
-    const datas = await this.anomalyService.getAllAnomaly();
-    if (datas) {
-      const vehicles = [];
-      datas.forEach((data) => {
-        vehicles.push({
-          plate: data.vehicle.plate,
-          veId: data.vehicle.veId,
-          isCan: data.vehicle.isCan,
-          isRFIDReader: data.vehicle.isRFIDReader,
-          anomaliaSessione: data.session || null,
-          session: {
-            date: data.day,
-            anomalies: {
-              Antenna: data.antenna || null,
-              GPS: data.gps || null,
-            },
-          },
-        });
-      });
-      res.status(200).json(vehicles);
-    } else {
-      res.status(404).json({ message: 'No data' });
-    }
-  }
+  async getAllAnomaly(
+    // Necessario per recuperare user dalla richiesta e non dare errore in compilazione
+    @Req() req: Request & { user: UserFromToken },
+    @Res() res: Response,
+  ) {
+    const vehicles = await this.associationService.getVehiclesByUserRole(
+      req.user.id,
+    );
+    if (vehicles) {
+      const vehicleIds = vehicles.map(
+        (vehicle) => (vehicle as VehicleEntity).veId,
+      );
 
+      const datas = await this.anomalyService.getAllAnomaly(vehicleIds);
+      if (datas.length > 0) {
+        const vehicles = [];
+        datas.forEach((data) => {
+          vehicles.push({
+            plate: data.vehicle.plate,
+            veId: data.vehicle.veId,
+            isCan: data.vehicle.isCan,
+            isRFIDReader: data.vehicle.isRFIDReader,
+            anomaliaSessione: data.session || null,
+            session: {
+              date: data.day,
+              anomalies: {
+                Antenna: data.antenna || null,
+                GPS: data.gps || null,
+              },
+            },
+          });
+        });
+        res.status(200).json(vehicles);
+      } else {
+        res.status(404).json({ message: 'Nessuna anomalia trovata' });
+      }
+    } else
+      res.status(404).json({ message: 'Nessuna veicolo associato al utente' });
+  }
+  /**
+   * API per i controlli dei mezzi in base al range temporale
+   * @param res
+   * @param body
+   */
   @Post('checkerrors')
   async checkErrors(@Res() res: Response, @Body() body) {
     const data = await this.anomalyService.checkErrors(
