@@ -34,11 +34,11 @@ export class AppService implements OnModuleInit {
 
   // popolo database all'avvio
   async onModuleInit() {
-    const startDate = '2024-12-09T00:00:00.000Z';
-    const endDate = '2024-12-10T00:00:00.000Z';
-    // const endDate = new Date(
-    //   new Date().getTime() + 2 * 60 * 60 * 1000,
-    // ).toISOString();
+    const startDate = '2024-12-01T00:00:00.000Z';
+    //const endDate = '2024-12-10T00:00:00.000Z';
+    const endDate = new Date(
+      new Date().getTime() + 2 * 60 * 60 * 1000,
+    ).toISOString();
     //await this.putDefaultData();
     //await this.putDbDataBasicForAdvance(startDate, endDate);
     //await this.putDbData3min();
