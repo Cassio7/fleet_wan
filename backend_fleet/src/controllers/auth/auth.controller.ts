@@ -9,10 +9,16 @@ import {
   Res,
 } from '@nestjs/common';
 import { AuthService } from 'src/services/auth/auth.service';
+import { InjectRedis } from '@nestjs-modules/ioredis';
+import Redis from 'ioredis';
+import { Request } from 'express';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    @InjectRedis() private readonly redis: Redis,
+  ) {}
   /**
    * Login utente
    * @param res ritorna il risultato dell'operazione
@@ -20,7 +26,11 @@ export class AuthController {
    */
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  async logIn(@Body() body: Record<string, any>, @Res() res: any) {
+  async logIn(
+    @Req() req: Request,
+    @Body() body: Record<string, any>,
+    @Res() res: any,
+  ) {
     const { access_token } = await this.authService.logIn(
       body.username,
       body.password,
@@ -30,6 +40,17 @@ export class AuthController {
       sameSite: 'Strict',
       maxAge: 24 * 60 * 60 * 1000, // 24h
     });
+    // Salvo su Redis il login utente
+    const key = `user:login:${body.username}`;
+    const data = {
+      username: body.username,
+      loginTime: new Date().toISOString(),
+      ip: req.ip,
+      userAgent: req.headers['user-agent'],
+      cookie: access_token,
+    };
+    // 1 settimana di salvataggio su redis
+    await this.redis.rpush(key, JSON.stringify(data));
     return res
       .status(200)
       .json({ message: 'Log in successfully', access_token });
