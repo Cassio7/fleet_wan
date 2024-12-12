@@ -3,7 +3,7 @@ import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { AnomalyEntity } from 'classes/entities/anomaly.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { createHash } from 'crypto';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import { SessionService } from '../session/session.service';
 import { VehicleService } from '../vehicle/vehicle.service';
 import { TagService } from '../tag/tag.service';
@@ -24,9 +24,16 @@ export class AnomalyService {
     private readonly tagService: TagService,
     private readonly vehicleService: VehicleService,
   ) {}
-
-  async getAllAnomaly(): Promise<any> {
+  /**
+   * Recupera tutte le anomalie salvate
+   */
+  async getAllAnomaly(veId: number[]): Promise<any> {
     const anomalies = this.anomalyRepository.find({
+      where: {
+        vehicle: {
+          veId: In(veId),
+        },
+      },
       relations: {
         vehicle: true,
       },
@@ -41,7 +48,7 @@ export class AnomalyService {
 
   async createAnomaly(
     veId: number,
-    day: Date,
+    date: Date,
     gps: string | null,
     antenna: string | null,
     session: string | null,
@@ -52,13 +59,19 @@ export class AnomalyService {
     const normalizedGps = normalizeField(gps);
     const normalizedAntenna = normalizeField(antenna);
     const normalizedSession = normalizeField(session);
+    let day = date;
+    if (day === null) {
+      const todayUTC = new Date();
+      todayUTC.setUTCHours(0, 0, 0, 0);
+      day = todayUTC;
+    }
     if (!normalizedGps && !normalizedAntenna && !normalizedSession) {
       return false;
     }
     const hashAnomaly = (): string => {
       const toHash = {
         veId: veId,
-        day: day,
+        date: day,
         gps: normalizedGps,
         antenna: normalizedAntenna,
         session: normalizedSession,
@@ -82,7 +95,7 @@ export class AnomalyService {
       const hash = hashAnomaly();
       const anomaliesQuery = await this.anomalyRepository.findOne({
         where: {
-          day: day,
+          date: day,
           vehicle: {
             veId: veId,
           },
@@ -92,7 +105,7 @@ export class AnomalyService {
         if (anomaliesQuery.hash !== hash) {
           const anomaly = {
             vehicle: vehicle,
-            day: day,
+            date: day,
             session: normalizedSession,
             gps: normalizedGps,
             antenna: normalizedAntenna,
@@ -107,7 +120,7 @@ export class AnomalyService {
           .getRepository(AnomalyEntity)
           .create({
             vehicle: vehicle,
-            day: day,
+            date: day,
             session: normalizedSession,
             gps: normalizedGps,
             antenna: normalizedAntenna,
