@@ -7,7 +7,7 @@ import { VehicleEntity } from './vehicle.entity';
 export class AnomalyEntity extends CommonEntity implements AnomalyInterface {
   @Column({ type: 'timestamptz' })
   @Index()
-  day: Date;
+  date: Date;
 
   @Column({ type: 'varchar', length: 150, nullable: true })
   gps: string;
