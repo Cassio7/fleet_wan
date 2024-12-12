@@ -15,6 +15,10 @@ import { AssociationFactoryService } from './factory/association.factory';
 import { CategoryFactoryService } from './factory/category.factory';
 import { AnomalyService } from './services/anomaly/anomaly.service';
 
+import { InjectRedis } from '@nestjs-modules/ioredis';
+import Redis from 'ioredis';
+
+
 @Injectable()
 export class AppService implements OnModuleInit {
   constructor(
@@ -30,11 +34,12 @@ export class AppService implements OnModuleInit {
     private readonly associationFactoryService: AssociationFactoryService,
     private readonly categoryFactoryService: CategoryFactoryService,
     private readonly anomalyService: AnomalyService,
+    @InjectRedis() private readonly redis: Redis
   ) {}
 
   // popolo database all'avvio
   async onModuleInit() {
-    const startDate = '2024-12-01T00:00:00.000Z';
+    const startDate = '2024-11-01T00:00:00.000Z';
     //const endDate = '2024-12-10T00:00:00.000Z';
     const endDate = new Date(
       new Date().getTime() + 2 * 60 * 60 * 1000,
@@ -46,6 +51,7 @@ export class AppService implements OnModuleInit {
   }
 
   async putDefaultData() {
+    await this.redis.flushdb();
     await this.userFactoryService.createDefaultRoles();
     await this.userFactoryService.createDefaultUser();
     await this.companyFactoryService.createDefaultCompanies();
