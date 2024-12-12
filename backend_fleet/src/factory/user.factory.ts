@@ -16,9 +16,7 @@ export class UserFactoryService {
   ) {}
 
   async createDefaultUser(): Promise<UserEntity[]> {
-    const role = await this.roleRepository.find({
-      where: [{ name: 'Admin' }, { name: 'Responsabile' }],
-    });
+    const role = await this.roleRepository.find();
     const users = [
       {
         name: null,
@@ -35,6 +33,14 @@ export class UserFactoryService {
         email: 'm.rossi@nomail.com',
         password: this.configService.get<string>('USER_PASSWORD'),
         role: role[1],
+      },
+      {
+        name: 'Luca',
+        surname: 'Neri',
+        username: 'l.neri',
+        email: 'l.neri@nomail.com',
+        password: this.configService.get<string>('USER_PASSWORD'),
+        role: role[2],
       },
     ];
     const userEntities = users.map((userData) => {
