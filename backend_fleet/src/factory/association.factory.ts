@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { AssociationEntity } from 'classes/entities/association.entity';
 import { CompanyEntity } from 'classes/entities/company.entity';
 import { UserEntity } from 'classes/entities/user.entity';
+import { WorksiteEntity } from 'classes/entities/worksite.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -12,24 +13,39 @@ export class AssociationFactoryService {
     private userRepository: Repository<UserEntity>,
     @InjectRepository(CompanyEntity, 'readOnlyConnection')
     private companyRepository: Repository<CompanyEntity>,
+    @InjectRepository(WorksiteEntity, 'readOnlyConnection')
+    private worksiteRepository: Repository<WorksiteEntity>,
     @InjectRepository(AssociationEntity, 'mainConnection')
     private associationRepository: Repository<AssociationEntity>,
   ) {}
 
   async createDefaultAssociation(): Promise<AssociationEntity[]> {
-    const user = await this.userRepository.findOne({
+    const admin = await this.userRepository.findOne({
       where: { username: 'Admin' },
     });
 
-    if (!user) throw new Error('User "Admin" not found');
+    if (!admin) throw new Error('User "Admin" not found');
 
     const companies = await this.companyRepository.find();
     const associations = companies.map((company) => {
-      const associationUser = new AssociationEntity();
-      associationUser.user = user;
-      associationUser.company = company;
-      return associationUser;
+      const associationAdmin = new AssociationEntity();
+      associationAdmin.user = admin;
+      associationAdmin.company = company;
+      return associationAdmin;
     });
+    const user = await this.userRepository.findOne({
+      where: { username: 'l.neri' },
+    });
+    if (!user) throw new Error('User "Luca Neri" not found');
+    const worksite = await this.worksiteRepository.findOne({
+      where: {
+        id: 1,
+      },
+    });
+    const associationUser = new AssociationEntity();
+    associationUser.worksite = worksite;
+    associationUser.user = user;
+    associations.push(associationUser);
 
     return this.associationRepository.save(associations);
   }
