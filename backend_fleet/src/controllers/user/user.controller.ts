@@ -9,15 +9,14 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { Response } from 'express';
-import { AuthGuard } from 'src/guard/auth.guard';
-import { UserService } from 'src/services/user/user.service';
-import { RolesGuard } from 'src/guard/roles.guard';
-import { Roles } from 'src/decorators/roles.decorator';
-import { Role } from 'classes/enum/role.enum';
 import { UserDTO } from 'classes/dtos/user.dto';
+import { Role } from 'classes/enum/role.enum';
+import { Response } from 'express';
+import { Roles } from 'src/decorators/roles.decorator';
+import { AuthGuard } from 'src/guard/auth.guard';
+import { RolesGuard } from 'src/guard/roles.guard';
 import { RoleService } from 'src/services/role/role.service';
-import { UserEntity } from 'classes/entities/user.entity';
+import { UserService } from 'src/services/user/user.service';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Controller('user')
