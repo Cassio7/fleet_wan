@@ -4,6 +4,7 @@ import { Note } from '../../../Models/Note';
 import { CommonService } from '../../../Common-services/common service/common.service';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { firstValueFrom, Observable } from 'rxjs';
+import { Vehicle } from '../../../Models/Vehicle';
 
 @Injectable({
   providedIn: 'root'
@@ -31,5 +32,10 @@ export class NotesService {
 
   getAllNotes(): Observable<any>{
     return this.http.get<any>(`${this.commonService.url}/notes/all`);
+  }
+
+  isNoteModified(vehicle: any, currentValue: string): boolean {
+    const initialValue = vehicle.note ? vehicle.note.content : ''; // Se note è null, considera una stringa vuota
+    return initialValue !== currentValue; // Confronta il valore attuale con quello iniziale
   }
 }
