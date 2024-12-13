@@ -16,15 +16,15 @@ tr, td, th {
 }
 
 .warning-icon {
-  color: rgb(255, 208, 0);
+  color: #ffcc00;
 }
 
 .error-icon {
-  color: red;
+  color: #d12717;
 }
 
 .check-icon {
-  color: rgb(3, 184, 3);
+  color: #26a668;
 }
 
 .mat-cell {
@@ -52,11 +52,11 @@ tr, td, th {
 }
 
 .antenna-icon {
-  color: #0061ff;
+  color: #479dff;
 }
 
 .close-icon {
-  color: red;
+  color: #d12717;
 }
 
 .check-noReader, .error-icon, .close-icon, .check-icon, .warning-icon {

@@ -7,7 +7,8 @@
 .sidebar {
   padding: clamp(10px, 2vw, 20px);
   width: clamp(15%, 20vw, 20%);
-  background-color: rgb(0, 201, 77);
+  background-color: #dfdddd;
+  width: 300px;
 }
 
 .drawer-content {
