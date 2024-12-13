@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, Repository, In } from 'typeorm';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { RealtimePositionEntity } from 'classes/entities/realtime_position.entity';
 import { parseStringPromise } from 'xml2js';
@@ -43,6 +43,32 @@ export class RealtimeService {
       'Content-Type': 'text/xml; charset=utf-8',
       SOAPAction: `"${methodName}"`,
     };
+    let response;
+    let retries = 3;
+    while (retries > 0) {
+      try {
+        response = await axios.post(this.serviceUrl, requestXml, {
+          headers,
+        });
+        break;
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          console.warn(
+            `Errore ricevuto. Ritento (${3 - retries + 1}/3)...`,
+            error.message,
+          );
+          retries -= 1;
+
+          // Delay di 1 secondo tra i tentativi
+          await new Promise((resolve) => setTimeout(resolve, 5000));
+          continue;
+        }
+        console.error(
+          'Tutti i tentativi di connessione sono falliti, saltato controllo:',
+          error.message,
+        );
+      }
+    }
     const queryRunner = this.connection.createQueryRunner();
     try {
       await queryRunner.connect();
@@ -66,8 +92,6 @@ export class RealtimeService {
           return []; // se item.list non esiste, salto elemento
         }
         return item.list.map((inside: any) => {
-          const dataToHash = `${inside['rowNumber']}${inside['timestamp']}${inside['status']}${inside['latitude']}${inside['longitude']}${inside['navMode']}${inside['speed']}${inside['direction']}${item['veId']}`;
-          const hash = createHash('sha256').update(dataToHash).digest('hex');
           return {
             row_number: inside['rowNumber'],
             timestamp:
@@ -81,7 +105,6 @@ export class RealtimeService {
             speed: inside['speed'],
             direction: inside['direction'],
             veId: item['veId'],
-            hash: hash,
           };
         });
       });
@@ -94,7 +117,6 @@ export class RealtimeService {
           vehiclequery,
         ]),
       );
-
       const newTimes = (
         await Promise.all(
           filteredData.map(async (realtime) => {
@@ -112,13 +134,11 @@ export class RealtimeService {
                   speed: realtime.speed,
                   direction: realtime.direction,
                   vehicle: vehiclequery,
-                  hash: realtime.hash,
                 });
             }
           }),
         )
       ).filter((entry) => entry !== undefined);
-
       // DATI SALVATI SINGOLARMENTE PER ESCLUDERE ERRORI DI GRANDEZZA QUERY
       const batchSize = 600; // Dimensione del blocco
       for (let i = 0; i < newTimes.length; i += batchSize) {
@@ -153,6 +173,7 @@ export class RealtimeService {
     });
     return times;
   }
+
   /**
    * Ritorna tutti i realtimes in base al VeId inserito
    * @param id VeId identificatico del veicolo
@@ -164,6 +185,21 @@ export class RealtimeService {
         vehicle: true,
       },
       where: { vehicle: { veId: id } },
+    });
+    return times;
+  }
+
+  /**
+   * Ritorna tutti i realtimes in base ai VeId
+   * @param id array di VeId
+   * @returns
+   */
+  async getLastByVeId(id: number[]): Promise<any> {
+    const times = await this.realtimeRepository.find({
+      relations: {
+        vehicle: true,
+      },
+      where: { vehicle: { veId: In(id) } },
     });
     return times;
   }
