@@ -185,13 +185,16 @@
     <ng-container matColumnDef="Notes">
       <th mat-header-cell *matHeaderCellDef> Notes </th>
       <td mat-cell *matCellDef="let vehicle">
-        <textarea #noteInput [value]="vehicle.note ? vehicle.note.content : ''" name="notes" class="notes" matInput></textarea>
+        <textarea #noteInput [value]="vehicle.note ? vehicle.note.content : ''" (keydown)="checkVehicleModifiedNote(vehicle)" name="notes" class="notes" matInput></textarea>
         <button
-        (click)="saveNote(vehicle, noteInput.value)"
-        [ngStyle]="{'background-color': isNoteModified(vehicle, noteInput.value) ? '' : ''}"
-        mat-button>Salva<span *ngIf="isNoteModified(vehicle, noteInput.value)">*</span></button>
+          (click)="saveNote(vehicle, noteInput.value)"
+          mat-button>
+          Salva
+          <span *ngIf="isVehicleNoteModified(vehicle, noteInput.value) && !vehicle.note?.saved">*</span>
+        </button>
       </td>
     </ng-container>
+
 
     <!-- Definizione righe della tabella -->
     <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>

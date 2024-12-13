@@ -93,7 +93,7 @@ export class NotesService {
   
     try {
       // Interruzione se i parametri non sono validi
-      if (!userId || !vehicleId || !updatedContent) {
+      if (!userId || !vehicleId) {
         throw new Error('Invalid input parameters');
       }
   
