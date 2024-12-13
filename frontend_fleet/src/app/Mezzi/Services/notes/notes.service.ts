@@ -15,6 +15,11 @@ export class NotesService {
     private http: HttpClient
   ) { }
 
+  /**
+   * Salva una nota nel db
+   * @param note oggetto nota da salvare
+   * @returns http post
+   */
   saveNoteInDB(note: Note){
     const body = {
       userId: note.userId,

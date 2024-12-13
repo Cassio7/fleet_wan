@@ -95,19 +95,6 @@ export class SelectService {
   }
 
 
-
-  /**
-   * Unisce due array di veicoli evitando duplicati.
-   */
-  private mergeUniqueVehicles(existingVehicles: Vehicle[], newVehicles: Vehicle[]): Vehicle[] {
-    const existingIds = new Set(existingVehicles.map(vehicle => vehicle.veId));
-    const uniqueNewVehicles = newVehicles.filter(vehicle => !existingIds.has(vehicle.veId));
-    return [...existingVehicles, ...uniqueNewVehicles];
-  }
-
-
-
-
   /**
    * Aggiorna i veicoli selezionati in base al first event di un veicolo
    * @param allVehicles tutti i veicoli
@@ -198,19 +185,29 @@ export class SelectService {
     return false;
   }
 
-  checkAllestimento(type: string){
-    return type == "blackbox" ?
-    this.selectedVehicles.some(vehicle => vehicle.isRFIDReader === false) :
-    this.selectedVehicles.some(vehicle => vehicle.isRFIDReader === true);
-  }
 
-
+  /**
+   * Controlla se una data di installazione fleet è stata selezionata
+   * @param model data da controllare
+   * @returns true se la data di installazione è stata selezionata, false se non è stata selezionata
+   */
   isFirsteventSelected(firstEvent: Date | null){
     if(firstEvent){
       const selectedFirstevents = this.selectedVehicles.map(vehicle => vehicle.firstEvent);
       return selectedFirstevents.includes(firstEvent);
     }
     return false;
+  }
+
+  /**
+   * controlla il tipo di allestimento di ciascun veicolo nei veicoli selezionati
+   * @param type tipo di veicoli da ritornare
+   * @returns veicoli
+   */
+  checkAllestimento(type: string){
+    return type == "blackbox" ?
+    this.selectedVehicles.some(vehicle => vehicle.isRFIDReader === false) :
+    this.selectedVehicles.some(vehicle => vehicle.isRFIDReader === true);
   }
 
   public get allestimenti() {

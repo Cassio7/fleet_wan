@@ -173,16 +173,20 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
   }
 
 
+  /**
+   * salva una nota nel db
+   * @param vehicle veicolo sul quale salvare la nota
+   * @param content contenuto della nota
+   */
   saveNote(vehicle: Vehicle, content: string){
     const userId = this.jwtService.decodeJwt(this.cookieService.get("user")).id; //ottieni e trasforma access token
 
-    //oggetto nota
-    const nota = new Note(content, vehicle, userId);
+    const nota = new Note(content, vehicle, userId);//oggetto nota
 
     if(content){
       this.notesService.saveNoteInDB(nota).pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (response: any)=>{
+        next: ()=>{
           console.log("nota salvata correttamente nel db");
         },
         error: error => console.error("errore nel salvataggio della nota nel DB: ", error)
