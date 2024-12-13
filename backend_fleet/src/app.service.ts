@@ -18,7 +18,6 @@ import { AnomalyService } from './services/anomaly/anomaly.service';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import Redis from 'ioredis';
 
-
 @Injectable()
 export class AppService implements OnModuleInit {
   constructor(
@@ -34,7 +33,7 @@ export class AppService implements OnModuleInit {
     private readonly associationFactoryService: AssociationFactoryService,
     private readonly categoryFactoryService: CategoryFactoryService,
     private readonly anomalyService: AnomalyService,
-    @InjectRedis() private readonly redis: Redis
+    @InjectRedis() private readonly redis: Redis,
   ) {}
 
   // popolo database all'avvio
