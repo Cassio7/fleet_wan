@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { HistoryEntity } from 'classes/entities/history.entity';
 import { SessionEntity } from 'classes/entities/session.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { createHash } from 'crypto';
+import { convertHours } from 'src/utils/utils';
 import {
   DataSource,
   In,
@@ -15,7 +16,6 @@ import {
   Repository,
 } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
-import { convertHours } from 'src/utils/utils';
 
 @Injectable()
 export class SessionService {
@@ -90,18 +90,18 @@ export class SessionService {
         break;
       } catch (error) {
         if (axios.isAxiosError(error)) {
-          const axiosError = error as AxiosError;
+          console.warn(
+            `Errore ricevuto. Ritento (${3 - retries + 1}/3)...`,
+            error.message,
+          );
+          retries -= 1;
 
-          if (axiosError.response?.status === 502) {
-            console.warn(
-              `Errore 502 ricevuto. Ritento (${3 - retries + 1}/3)...`,
-            );
-            retries -= 1;
-            continue;
-          }
+          // Delay di 1 secondo tra i tentativi
+          await new Promise((resolve) => setTimeout(resolve, 5000));
+          continue;
         }
         console.error(
-          'Errore non è 502 o i retry sono terminati, saltato controllo:',
+          'Tutti i tentativi di connessione sono falliti, saltato controllo:',
           error.message,
         );
       }

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { DetectionTagEntity } from 'classes/entities/detection_tag.entity';
 import { TagEntity } from 'classes/entities/tag.entity';
 import { TagHistoryEntity } from 'classes/entities/tag_history.entity';
@@ -77,18 +77,18 @@ export class TagService {
         break;
       } catch (error) {
         if (axios.isAxiosError(error)) {
-          const axiosError = error as AxiosError;
+          console.warn(
+            `Errore ricevuto. Ritento (${3 - retries + 1}/3)...`,
+            error.message,
+          );
+          retries -= 1;
 
-          if (axiosError.response?.status === 502) {
-            console.warn(
-              `Errore 502 ricevuto. Ritento (${3 - retries + 1}/3)...`,
-            );
-            retries -= 1;
-            continue;
-          }
+          // Delay di 1 secondo tra i tentativi
+          await new Promise((resolve) => setTimeout(resolve, 5000));
+          continue;
         }
         console.error(
-          'Errore non è 502 o i retry sono terminati, saltato controllo:',
+          'Tutti i tentativi di connessione sono falliti, saltato controllo:',
           error.message,
         );
       }
