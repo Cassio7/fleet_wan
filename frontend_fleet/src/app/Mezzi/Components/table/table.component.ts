@@ -1,7 +1,7 @@
 import { AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, HostListener, NgZone, OnDestroy, ViewChild } from '@angular/core';
 import { Vehicle } from '../../../Models/Vehicle';
 import { VehiclesApiService } from '../../../Common-services/vehicles service/vehicles-api.service';
-import { Subject, takeUntil, filter, forkJoin } from 'rxjs';
+import { Subject, takeUntil, filter, forkJoin, take } from 'rxjs';
 import { Session } from '../../../Models/Session';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { CommonModule } from '@angular/common';
@@ -73,53 +73,65 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
   }
 
   ngAfterViewInit(): void {
-    //rimuovi sessionstorage x note
-    this.sessionStorageService.removeItem("newNotes");
-    //riempimento dati della tabella con sessionstorage se presente oppure fare una chiamata
-    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-    if(allVehicles){
-      this.sortedVehicles = this.sortService.sortVehiclesByPlateAsc(allVehicles);
-      this.vehicleTableData.data = this.sortedVehicles;
-        this.vehicleTable.renderRows();
-      this.cd.detectChanges();
-    }else{
-      this.fillTable();
-      this.cd.detectChanges();
-    }
-    this.selectService.selectVehicles(this.sortedVehicles); //seleziona tutte le opzioni dei menu delle colonne
-    this.cd.detectChanges();
+    // Riempimento dei dati della tabella, delegato interamente a fillTable
+    this.fillTable();
   }
 
   /**
-   * Esegue una chiamata tramite un servizio all'api per ottenere tutti i veicoli
-   * e poi riempe la tabella con i dati raccolti
+   * Esegue il riempimento della tabella controllando prima i dati nel sessionStorage.
+   * Se presenti, utilizza quelli; altrimenti fa una chiamata tramite un servizio all'API.
    */
-  fillTable() {
-    forkJoin({
-      vehicles: this.vehicleApiService.getAllVehicles().pipe(takeUntil(this.destroy$)),
-      notes: this.notesService.getAllNotes().pipe(takeUntil(this.destroy$))
-    }).subscribe({
-      next: ({ vehicles, notes }: { vehicles: Vehicle[], notes: Note[] | Note }) => {
-        const notesArray = Array.isArray(notes) ? notes : [notes]; //rendere un array anche se nota singola
+  fillTable(): void {
+    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
 
-        //accorpamento delle note nei
-        vehicles.forEach((vehicle) => {
-          notesArray.forEach(note => {
-            if(note && note.vehicle.veId == vehicle.veId){
-              vehicle.note = note;
-            }
-          });
-        });
+    if (allVehicles) {
+      this.notesService.getAllNotes().pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (notes: Note[] | Note)=>{
+          // Utilizza i dati dal sessionStorage
+          this.sortedVehicles = this.sortService.sortVehiclesByPlateAsc(allVehicles);
+          this.vehicleTableData.data = this.sortedVehicles;
+          this.vehicleTable.renderRows();
+          this.mergeVehiclesWithNotes(allVehicles, notes);
+          this.selectService.selectVehicles(this.sortedVehicles); // Seleziona tutte le opzioni dei menu delle colonne
+          this.cd.detectChanges();
+        },
+        error: error => console.error("Errore nella ricezione delle note: ", error)
+      });
+    } else {
+      // Recupera i dati tramite chiamata API
+      forkJoin({
+        vehicles: this.vehicleApiService.getAllVehicles().pipe(takeUntil(this.destroy$)),
+        notes: this.notesService.getAllNotes().pipe(takeUntil(this.destroy$))
+      }).subscribe({
+        next: ({ vehicles, notes }: { vehicles: Vehicle[], notes: Note[] | Note }) => {
+          this.mergeVehiclesWithNotes(vehicles, notes);
 
-        this.vehicleTableData.data = this.sortService.sortVehiclesByPlateAsc(vehicles);
-        this.sessionStorageService.setItem("allVehicles", JSON.stringify(vehicles));
-        this.vehicleTable.renderRows();
-      },
-      error: error => console.error("Errore nel ricevere veicoli o note: ", error)
-    });
+          this.sortedVehicles = this.sortService.sortVehiclesByPlateAsc(vehicles);
+          this.vehicleTableData.data = this.sortedVehicles;
+          this.sessionStorageService.setItem("allVehicles", JSON.stringify(vehicles));
+          this.vehicleTable.renderRows();
+          this.selectService.selectVehicles(this.sortedVehicles);
+          this.cd.detectChanges();
+        },
+        error: error => console.error("Errore nella ricezione di veicoli o note: ", error)
+      });
+    }
   }
 
 
+  mergeVehiclesWithNotes(vehicles: Vehicle[], notes: Note[] | Note){
+    const notesArray = Array.isArray(notes) ? notes : [notes]; //rendere un array anche se nota singola
+
+    //accorpamento delle note nei
+    vehicles.forEach((vehicle) => {
+      notesArray.forEach(note => {
+        if(note && note.vehicle.veId == vehicle.veId){
+          vehicle.note = note;
+        }
+      });
+    });
+  }
 
   /**
    * Viene chiamata alla selezione di un checkbox in un menu della colonna delle targhe
@@ -206,6 +218,10 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
         error: error => console.error("errore nel salvataggio della nota nel DB: ", error)
       });
     }
+  }
+
+  isNoteModified(vehicle: any, currentValue: string): boolean {
+    return this.notesService.isNoteModified(vehicle, currentValue);
   }
 
   /**
