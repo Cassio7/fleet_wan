@@ -16,6 +16,24 @@ export class NotesService {
     private readonly connection: DataSource
   ) {}
 
+  async getAllNotes(){
+    const notes = await this.noteRepository.find({
+      select: {
+        content: true,
+        vehicle: {
+          veId: true
+        }
+      },
+      relations: {
+        vehicle: true
+      }
+    });
+    return notes;
+  }
+
+
+  /*OPERAZIONI CRUD */
+
   /**
    * Crea una nuova nota e la immagazzina nel database
    * @param noteDto - DTO della nota

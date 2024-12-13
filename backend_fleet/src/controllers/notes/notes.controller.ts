@@ -7,13 +7,25 @@ export class NotesController {
     constructor(private readonly notesService: NotesService) {}
 
     /**
+     * Prende tutte le note salvate nel db
+     * @param res 
+     * @returns 
+     */
+    @Get('/all')
+    async getAllNotes(@Res() res: any){
+        const notes = await this.notesService.getAllNotes();
+        return notes ? res.status(200).json(notes) : res.status(200).send("Errore nella ricerca di tutte le note");
+    }
+    
+    /*OPERAZIONI CRUD */
+    /**
      * Crea una nuova nota
      * @param noteDto - The data to create a new note
      * @returns The created note entity
      */
     @Post('/create')
-    async create(@Body() noteDto: NoteDto, @Res() res) {
-        return res.send(this.notesService.createNote(noteDto));
+    async create(@Body() noteDto: NoteDto, @Res() res: any) {
+        return res.json(this.notesService.createNote(noteDto));
     }
 
     /**
@@ -28,7 +40,7 @@ export class NotesController {
         const userId = body.userId;
         const newContent = body.content;
 
-        return res.send(this.notesService.updateNote(userId, vehicleId, newContent));
+        return res.json(this.notesService.updateNote(userId, vehicleId, newContent));
     }
 
     /**
@@ -40,6 +52,7 @@ export class NotesController {
     @Post('/delete/:id')
     async delete(@Param() params: any, @Res() res){
         const noteId = params.id;
-        return res.send(this.notesService.deleteNote(noteId));
+        return res.json(this.notesService.deleteNote(noteId));
     }
+
 }
