@@ -66,25 +66,65 @@ export class NotesService {
    * @param noteId id della nota da modificare
    * @param updatedContent contenuto modificato
    */
-  async updateNote(noteId: number, updatedContent: string){
+  async updateNote(
+    userId: number,
+    vehicleId: number,
+    updatedContent: string
+  ): Promise<void> {
     const queryRunner = this.connection.createQueryRunner();
+  
+    try {
+      // Interruzione se i parametri non sono validi
+      if (!userId || !vehicleId || !updatedContent) {
+        throw new Error('Invalid input parameters');
+      }
+  
+      // Avvia la transazione
+      await queryRunner.startTransaction();
+  
+      // Recupera la nota associata a userId e vehicleId
+      const note = await queryRunner.manager.findOne(NoteEntity, {
+        where: {
+          user: {
+            id: userId,
+          },
+          vehicle: {
+            veId: vehicleId,
+          },
+        },
+      });
+  
+      // Se la nota non esiste, crea una nuova nota
+      if (!note) {
+        const noteDto = new NoteDto();
+        noteDto.userId = userId; // Prendi userId direttamente dalla variabile.
+        noteDto.vehicleId = vehicleId; // Prendi vehicleId direttamente dalla variabile.
+        noteDto.content = updatedContent; // Inizializza con un contenuto vuoto o come preferisci.
 
-    try{
-        //interruzione dell'esecuzione se parametro non trovato
-        if(!noteId){
-            throw new Error('Invalid note id');
-        }
-
-
-        await queryRunner.manager.update(NoteEntity, noteId, { content: updatedContent });
-    }catch (error) {
-        await queryRunner.rollbackTransaction();
-        console.error('Error during transaction:', error);
-        throw error;  
+        this.createNote(noteDto);
+      } else {
+        // Aggiorna la nota
+        await queryRunner.manager.update(
+          NoteEntity,
+          { id: note.id },
+          { content: updatedContent }
+        );
+      }
+  
+      // Conferma la transazione
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      // Rollback in caso di errore
+      await queryRunner.rollbackTransaction();
+      console.error('Error during transaction:', error);
+      throw error;
     } finally {
-        await queryRunner.release();
+      // Rilascia il query runner
+      await queryRunner.release();
     }
   }
+  
+  
 
   /**
    * Elimina una nota

@@ -16,14 +16,27 @@ export class NotesController {
         return res.send(this.notesService.createNote(noteDto));
     }
 
-    @Post("update")
+    /**
+     * Aggiorna una nota esistente
+     * @param body corpo della richiesta
+     * @param res 
+     * @returns 
+     */
+    @Post("/update")
     update(@Body() body: any, @Res() res){
-        const noteId = body.id;
-        const content = body.content;
+        const vehicleId = body.vehicleId;
+        const userId = body.userId;
+        const newContent = body.content;
 
-        return res.send(this.notesService.updateNote(noteId, content));
+        return res.send(this.notesService.updateNote(userId, vehicleId, newContent));
     }
 
+    /**
+     * Elimina una nota
+     * @param params id della nota da cancellare
+     * @param res 
+     * @returns 
+     */
     @Post('/delete/:id')
     async delete(@Param() params: any, @Res() res){
         const noteId = params.id;
