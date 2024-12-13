@@ -1,17 +1,27 @@
-import { Controller, Get, Param, Res } from '@nestjs/common';
+import { InjectRedis } from '@nestjs-modules/ioredis';
+import { Controller, Get, Param, Req, Res, UseGuards } from '@nestjs/common';
 import axios from 'axios';
+import { VehicleEntity } from 'classes/entities/vehicle.entity';
+import { Role } from 'classes/enum/role.enum';
+import { UserFromToken } from 'classes/interfaces/userToken.interface';
 import { Response } from 'express';
+import Redis from 'ioredis';
+import { Roles } from 'src/decorators/roles.decorator';
+import { AuthGuard } from 'src/guard/auth.guard';
+import { RolesGuard } from 'src/guard/roles.guard';
+import { AssociationService } from 'src/services/association/association.service';
 import { CompanyService } from 'src/services/company/company.service';
 import { RealtimeService } from 'src/services/realtime/realtime.service';
-import { InjectRedis } from '@nestjs-modules/ioredis';
-import Redis from 'ioredis';
 
+@UseGuards(AuthGuard, RolesGuard)
+@Roles(Role.Admin, Role.Responsabile, Role.Capo)
 @Controller('realtimes')
 export class RealtimeController {
   private readonly nominatimUrl = 'https://nominatim.openstreetmap.org/reverse';
   constructor(
     private readonly realTimeService: RealtimeService,
     private readonly companyService: CompanyService,
+    private readonly associationService: AssociationService,
     @InjectRedis() private readonly redis: Redis,
   ) {}
 
@@ -30,10 +40,49 @@ export class RealtimeController {
         });
     } catch (error) {
       console.error('Errore nel recupero dei realtimes:', error);
-      res.status(500).send('Errore durante il recupero dei realtimes');
+      res.status(500).json({ message: 'Errore nel recupero dei realtimes' });
     }
   }
+  @Get('resolvelast')
+  async getResolveLast(
+    @Req() req: Request & { user: UserFromToken },
+    @Res() res: Response,
+  ) {
+    try {
+      const vehicles = await this.associationService.getVehiclesByUserRole(
+        req.user.id,
+      );
+      if (vehicles) {
+        const vehicleIds = vehicles.map(
+          (vehicle) => (vehicle as VehicleEntity).veId,
+        );
+        const realtimes = await this.realTimeService.getLastByVeId(vehicleIds);
+        // Raggruppa gli ultimi realtime per veicolo
+        const latestRealtimes = realtimes.reduce((acc, current) => {
+          const existing = acc.find(
+            (item) => item.vehicle.veId === current.vehicle.veId,
+          );
+          if (!existing || current.timestamp > existing.timestamp) {
+            // Rimuovi l'elemento esistente se trovato e aggiungi quello corrente
+            return [
+              ...acc.filter(
+                (item) => item.vehicle.veId !== current.vehicle.veId,
+              ),
+              current,
+            ];
+          }
+          return acc;
+        }, []);
 
+        return res.status(200).json(latestRealtimes);
+      } else {
+        return res.status(404).json({ message: 'Nessun realtime trovato' });
+      }
+    } catch (error) {
+      console.error('Errore nel recupero dei realtimes:', error);
+      res.status(500).json({ message: 'Errore nel recupero dei realtimes' });
+    }
+  }
   /**
    * Recupera i realtime in base al veId
    * @param res
@@ -59,7 +108,7 @@ export class RealtimeController {
    * @param res VeId del veicolo
    * @param params
    */
-  @Get('resolved/:veId')
+  @Get('resolve/:veId')
   async getResolvedByVeId(@Res() res: Response, @Param() params: any) {
     try {
       const times = await this.realTimeService.getTimesByVeId(params.veId);
