@@ -1,6 +1,6 @@
-import * as fs from 'fs';
-import { parse } from 'csv-parse';
 import { NotFoundException } from '@nestjs/common';
+import { parse } from 'csv-parse';
+import * as fs from 'fs';
 
 /**
  * Funzione che converte un orario del timestamp in base al fuso orario
