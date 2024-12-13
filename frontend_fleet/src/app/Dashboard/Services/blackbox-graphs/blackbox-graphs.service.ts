@@ -30,7 +30,7 @@ export class BlackboxGraphsService{
   private firstLoad:boolean = true;
 
   private _series: number[] = []; //[blackbox, blackbox + antenna]
-  private _colors = ["#0061ff", "#009bff"];
+  private _colors = ["#ff00f2", "#479dff"];
 
   private blackboxData: blackboxData = {
     sliceSelected: "",

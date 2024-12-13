@@ -32,7 +32,7 @@ export class ErrorGraphsService{
   private _loadErrorData$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
 
   private _series = [0,0,0];//[funzionante, warning, error]
-  private _colors = ["#46ff00", "#ffd607", "#ff0000"];
+  private _colors = ["#26a668", "#ffcc00", "#d12717"];
 
   private _errorsData: ErrorsData = {
     workingVehicles: [],
