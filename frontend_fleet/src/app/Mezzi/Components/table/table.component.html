@@ -35,8 +35,8 @@
       </th>
       <td mat-cell *matCellDef="let vehicle" class="cell">
         <!-- <mat-icon class="vehicle-icon">local_shipping</mat-icon> -->
-          <img src="assets/truck.svg" class="vehicle-icon">
-          <p>{{ vehicle.plate }}</p>
+
+        <p><mat-icon>local_shipping</mat-icon>{{ vehicle.plate }}</p>
       </td>
     </ng-container>
 
@@ -185,8 +185,8 @@
     <ng-container matColumnDef="Notes">
       <th mat-header-cell *matHeaderCellDef> Notes </th>
       <td mat-cell *matCellDef="let vehicle">
-        <textarea #noteInput name="notes" class="notes" matInput></textarea>
-        <button (click)="saveNote(vehicle, noteInput.value)">Salva</button>
+        <textarea #noteInput [value]="vehicle.note ? vehicle.note.content : ''" name="notes" class="notes" matInput></textarea>
+        <button (click)="saveNote(vehicle, noteInput.value)" mat-button>Salva</button>
       </td>
     </ng-container>
 

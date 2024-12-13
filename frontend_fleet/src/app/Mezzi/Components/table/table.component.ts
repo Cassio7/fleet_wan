@@ -1,8 +1,7 @@
 import { AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, HostListener, NgZone, OnDestroy, ViewChild } from '@angular/core';
-import { MatTableModule, MatTableDataSource, MatTable } from '@angular/material/table';
 import { Vehicle } from '../../../Models/Vehicle';
 import { VehiclesApiService } from '../../../Common-services/vehicles service/vehicles-api.service';
-import { Subject, takeUntil, filter } from 'rxjs';
+import { Subject, takeUntil, filter, forkJoin } from 'rxjs';
 import { Session } from '../../../Models/Session';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { CommonModule } from '@angular/common';
@@ -21,6 +20,7 @@ import { CookieService } from 'ngx-cookie-service';
 import { JwtService } from '../../../Common-services/jwt/jwt.service';
 import { NotesService } from '../../Services/notes/notes.service';
 import { Note } from '../../../Models/Note';
+import { MatTableModule, MatTable, MatTableDataSource } from '@angular/material/table';
 
 @Component({
   selector: 'app-table',
@@ -80,7 +80,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
     if(allVehicles){
       this.sortedVehicles = this.sortService.sortVehiclesByPlateAsc(allVehicles);
       this.vehicleTableData.data = this.sortedVehicles;
-      this.vehicleTable.renderRows();
+        this.vehicleTable.renderRows();
       this.cd.detectChanges();
     }else{
       this.fillTable();
@@ -94,17 +94,31 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
    * Esegue una chiamata tramite un servizio all'api per ottenere tutti i veicoli
    * e poi riempe la tabella con i dati raccolti
    */
-  fillTable(){
-    this.vehicleApiService.getAllVehicles().pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: (vehicles: Vehicle[]) => {
+  fillTable() {
+    forkJoin({
+      vehicles: this.vehicleApiService.getAllVehicles().pipe(takeUntil(this.destroy$)),
+      notes: this.notesService.getAllNotes().pipe(takeUntil(this.destroy$))
+    }).subscribe({
+      next: ({ vehicles, notes }: { vehicles: Vehicle[], notes: Note[] | Note }) => {
+        const notesArray = Array.isArray(notes) ? notes : [notes]; //rendere un array anche se nota singola
+
+        //accorpamento delle note nei
+        vehicles.forEach((vehicle) => {
+          notesArray.forEach(note => {
+            if(note && note.vehicle.veId == vehicle.veId){
+              vehicle.note = note;
+            }
+          });
+        });
+
         this.vehicleTableData.data = this.sortService.sortVehiclesByPlateAsc(vehicles);
         this.sessionStorageService.setItem("allVehicles", JSON.stringify(vehicles));
         this.vehicleTable.renderRows();
       },
-      error: error => console.error("Errore nella ricezione di tutti i veicoli: ", error)
+      error: error => console.error("Errore nel ricevere veicoli o note: ", error)
     });
   }
+
 
 
   /**
