@@ -9,5 +9,4 @@ export interface RealtimePositionInterface extends CommonInterface{
     nav_mode: number;
     speed: number;
     direction: number;
-    hash: string;
 }
