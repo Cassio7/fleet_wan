@@ -33,15 +33,16 @@ export class ErrorPieGraphComponent implements AfterViewInit, OnDestroy{
   private readonly destroy$: Subject<void> = new Subject<void>();
   public chartOptions: Partial<ChartOptions>;
 
+  public nVehicles: number = 0;
+
   constructor(
     private errorGraphsService: ErrorGraphsService,
-    private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef
   ) {
     this.chartOptions = {
       series: [],
       chart: {
-        type: "pie",
+        type: "donut",
         height: "400",
         width: "100%",
         events: {
@@ -98,33 +99,22 @@ export class ErrorPieGraphComponent implements AfterViewInit, OnDestroy{
   }
 
   ngAfterViewInit(): void {
-    // if(this.sessionStorageService.getItem("errorSlice")){
-    //   const errorSlice = this.sessionStorageService.getItem("errorSlice")
-    //   switch (errorSlice) {
-    //     case "working":
-    //       this.errorGraphsService.errorsData.errorSliceSelected = "working";
-    //       this.workingClick();
-    //       break;
-
-    //     case "warning":
-    //       this.errorGraphsService.errorsData.errorSliceSelected = "warning";
-    //       this.warningClick();
-    //       break;
-
-    //     case "error":
-    //       this.errorGraphsService.errorsData.errorSliceSelected = "error";
-    //       this.errorClick();
-    //       break;
-    //   }
-    // }
-    this.chartOptions.series = this.errorGraphsService.loadGraphData$.value;
+    this.chartOptions.series = this.errorGraphsService.loadGraphData$.value; //ottenere i dati del grafico
+    //sottoscrizione al subject x caricare i dati del grafico
     this.errorGraphsService.loadGraphData$.pipe(skip(1),takeUntil(this.destroy$))
     .subscribe({
       next: (series: any[]) => {
-        this.chartOptions.series = series;
-        if(this.chart){
-          this.chart.highlightSeries("Funzionante");
-        }
+        this.nVehicles = 0; //azzeramento contatore
+        this.chartOptions.series = series; //ottenere i dati del grafico
+
+        //somma series x ottenere numero di veicoli
+        series.forEach(value => {
+          this.nVehicles += value;
+        });
+
+        // if(this.chart){
+        //   this.chart.highlightSeries("Funzionante");
+        // }
         this.cd.detectChanges();
       },
       error: error => console.error(error)

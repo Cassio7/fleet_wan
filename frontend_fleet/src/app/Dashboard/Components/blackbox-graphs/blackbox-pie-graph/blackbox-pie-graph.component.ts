@@ -29,10 +29,12 @@ export class BlackboxPieGraphComponent implements AfterViewInit {
   private readonly destroy$: Subject<void> = new Subject<void>();
   @ViewChild("chart") chart!: ChartComponent;
 
+  public nVehicles: number = 0;
+
   public chartOptions: Partial<ChartOptions> = {
     series: [],
     chart: {
-      type: "pie",
+      type: "donut",
       height: "400",
       width: "100%",
       events: {
@@ -88,7 +90,13 @@ export class BlackboxPieGraphComponent implements AfterViewInit {
     this.blackboxGraphsService.loadGraphData$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (series: number[]) => {
+        this.nVehicles = 0; //azzeramento contatore dei veicoli
         this.chartOptions.series = series;
+
+        series.forEach(serie => {
+          this.nVehicles += serie;
+        });
+
         this.cd.detectChanges();
       },
       error: error => console.error("Errore nel caricamento del grafico blacbox: ", error)

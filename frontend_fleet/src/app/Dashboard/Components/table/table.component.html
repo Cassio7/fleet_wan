@@ -1,6 +1,5 @@
 <div class="table-over">
   <app-row-filter></app-row-filter>
-  <p>Numero di veicoli: {{vehicleTableData.data.length || '-'}}/{{tableMaxLength}}</p>
   <button mat-raised-button (click)="fillTable()">Ricarica dati</button>
 </div>
 <div class="table-container">
@@ -54,7 +53,7 @@
         <mat-icon class="check-icon" *ngIf="!checkSessionError(vehicle) && vehicle.lastValidSession?.period_to" matTooltip="Sessione corretta">
           check_circle
         </mat-icon>
-        {{ vehicle.lastValidSession?.period_to ? (vehicle.lastValidSession.period_to | date: 'dd/MM/yy hh:mm') : '' }}
+        {{ vehicle.lastValidSession?.period_to ? (vehicle.lastValidSession.period_from | date: 'dd/MM/yy hh:mm') : '' }}
       </td>
     </ng-container>
 
