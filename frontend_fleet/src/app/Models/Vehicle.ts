@@ -1,4 +1,5 @@
 import { Device } from "./Device";
+import { Note } from "./Note";
 import { RealtimePosition } from "./RealtimePosition";
 import { Session } from "./Session";
 import { TagHistory } from "./TagHistory";
@@ -28,6 +29,7 @@ export class Vehicle {
     public anomalySessions: any[],
     public lastValidSession: any,
     public gpsError: boolean,
-    public worksite: { name: string } | null | undefined
+    public worksite: { name: string } | null | undefined,
+    public note?: Note
   ) {}
 }
