@@ -1,4 +1,4 @@
-import { AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, NgZone, OnDestroy, ViewChild } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, HostListener, NgZone, OnDestroy, ViewChild } from '@angular/core';
 import { MatTableModule, MatTableDataSource, MatTable } from '@angular/material/table';
 import { Vehicle } from '../../../Models/Vehicle';
 import { VehiclesApiService } from '../../../Common-services/vehicles service/vehicles-api.service';
@@ -17,6 +17,10 @@ import { FormsModule } from '@angular/forms';
 import { SelectService } from '../../Services/select/select.service';
 import { MezziFilterService } from '../../Services/mezzi-filter/mezzi-filter.service';
 import { SortService } from '../../../Common-services/sort/sort.service';
+import { CookieService } from 'ngx-cookie-service';
+import { JwtService } from '../../../Common-services/jwt/jwt.service';
+import { NotesService } from '../../Services/notes/notes.service';
+import { Note } from '../../../Models/Note';
 
 @Component({
   selector: 'app-table',
@@ -51,8 +55,11 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
     public selectService: SelectService,
     public mezziFilterService: MezziFilterService,
     private sortService: SortService,
+    private notesService: NotesService,
+    private jwtService: JwtService,
     private vehicleApiService: VehiclesApiService,
     private sessionStorageService: SessionStorageService,
+    private cookieService: CookieService,
     private cd: ChangeDetectorRef
   ){}
 
@@ -66,6 +73,8 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
   }
 
   ngAfterViewInit(): void {
+    //rimuovi sessionstorage x note
+    this.sessionStorageService.removeItem("newNotes");
     //riempimento dati della tabella con sessionstorage se presente oppure fare una chiamata
     const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
     if(allVehicles){
@@ -148,11 +157,6 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
    * @param $event evento
    */
   selectAllestimento(option: string, $event: any){
-    if ($event.target.checked) {
-      console.log("Ora è checkkato");
-  } else {
-      console.log("Ora è deselezionato");
-  }
     this.selectService.updateVehiclesSelectionByAllestimento(this.sortedVehicles, option, $event.target.checked);
     this.vehicleTableData.data = this.sortService.sortVehiclesByPlateAsc(this.selectService.selectedVehicles); //aggiornamento tabella con veicoli selezionati, ordinati per targa
     this.onSelection($event);
@@ -166,6 +170,24 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
     $event.stopPropagation(); //impedisci al menu di chiudersi
     this.cd.detectChanges();
     this.vehicleTable.renderRows();
+  }
+
+
+  saveNote(vehicle: Vehicle, content: string){
+    const userId = this.jwtService.decodeJwt(this.cookieService.get("user")).id; //ottieni e trasforma access token
+
+    //oggetto nota
+    const nota = new Note(content, vehicle, userId);
+
+    if(content){
+      this.notesService.saveNoteInDB(nota).pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response: any)=>{
+          console.log("nota salvata correttamente nel db");
+        },
+        error: error => console.error("errore nel salvataggio della nota nel DB: ", error)
+      });
+    }
   }
 
   /**

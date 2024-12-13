@@ -183,8 +183,11 @@
 
     <!-- Colonna Notes -->
     <ng-container matColumnDef="Notes">
-      <th mat-header-cell *matHeaderCellDef > Notes </th>
-      <td mat-cell *matCellDef="let vehicle"><textarea name="notes" class="notes" matInput></textarea></td>
+      <th mat-header-cell *matHeaderCellDef> Notes </th>
+      <td mat-cell *matCellDef="let vehicle">
+        <textarea #noteInput name="notes" class="notes" matInput></textarea>
+        <button (click)="saveNote(vehicle, noteInput.value)">Salva</button>
+      </td>
     </ng-container>
 
     <!-- Definizione righe della tabella -->
@@ -192,3 +195,4 @@
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
   </table>
 </div>
+
