@@ -49,6 +49,32 @@ export class VehicleService {
       'Content-Type': 'text/xml; charset=utf-8',
       SOAPAction: `"${methodName}"`,
     };
+    let response;
+    let retries = 3;
+    while (retries > 0) {
+      try {
+        response = await axios.post(this.serviceUrl, requestXml, {
+          headers,
+        });
+        break;
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          console.warn(
+            `Errore ricevuto. Ritento (${3 - retries + 1}/3)...`,
+            error.message,
+          );
+          retries -= 1;
+
+          // Delay di 1 secondo tra i tentativi
+          await new Promise((resolve) => setTimeout(resolve, 5000));
+          continue;
+        }
+        console.error(
+          'Tutti i tentativi di connessione sono falliti, saltato controllo:',
+          error.message,
+        );
+      }
+    }
     const queryRunner = this.connection.createQueryRunner();
     try {
       await queryRunner.connect();
