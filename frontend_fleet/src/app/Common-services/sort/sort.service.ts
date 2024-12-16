@@ -67,6 +67,30 @@ export class SortService {
   }
 
   /**
+   * Ordina i veicoli in base al modello con ordine crescente
+   * @param vehicles array di veicoli da ordinare
+   * @returns array di veicoli ordinato
+   */
+  sortVehiclesByModelAsc(vehicles: Vehicle[]): Vehicle[] {
+    return [...vehicles].sort((a, b) => {
+      if (!a.model || !b.model) return 0;
+      return a.model.localeCompare(b.model);
+    });
+  }
+
+  /**
+   * Ordina i veicoli in base al modello con ordine decrescente
+   * @param vehicles array di veicoli da ordinare
+   * @returns array di veicoli ordinato
+   */
+  sortVehiclesByModelDesc(vehicles: Vehicle[]): Vehicle[] {
+    return [...vehicles].sort((a, b) => {
+      if (!a.model || !b.model) return 0;
+      return b.model.localeCompare(a.model);
+    });
+  }
+
+  /**
    * Ordina i veicoli in base all'ultima sessione valida con ordine crescente
    * @param vehicles array di veicoli da ordinare
    * @returns array di veicoli ordinato
@@ -92,6 +116,11 @@ export class SortService {
     });
   }
 
+  /**
+   * Ordina i veicoli in base al first event in ordine crescente
+   * @param vehicles array di veicoli da ordinare
+   * @returns array di veicoli ordinato
+   */
   sortVehiclesByFirstEventAsc(vehicles: Vehicle[]) {
     return vehicles.sort((a, b) => {
       if (a.firstEvent && b.firstEvent) {

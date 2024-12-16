@@ -52,7 +52,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
   displayedColumns: string[] = ["Azienda", "Targa", "Marca&modello", "Cantiere", "Anno immatricolazione", "Tipologia attrezzatura", "Allestimento", "Data-installazione-fleet", "Data-rimozione-apparato", "Notes"];
 
   private snackBar = inject(MatSnackBar);
-  durationInSeconds = 3;
+  snackbarDuration = 2; //durata snackbar in secondi
 
   constructor(
     public selectService: SelectService,
@@ -67,10 +67,12 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
   ){}
 
 
-
-  openSnackBar(): void {
+  /**
+   * Apre la snackbar per la nota salvata
+   */
+  openSavedNoteSnackbar(): void {
     this.snackBar.openFromComponent(NoteSnackbarComponent, {
-      duration: this.durationInSeconds * 1000,
+      duration: this.snackbarDuration * 1000,
     });
   }
 
@@ -216,8 +218,6 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
    * @param content contenuto della nota
    */
   saveNote(vehicle: Vehicle, content: string){
-    this.openSnackBar();
-
     if(vehicle.note){
       vehicle.note.saved = true;
     }else{
@@ -237,7 +237,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
       this.notesService.saveNoteInDB(nota).pipe(takeUntil(this.destroy$))
       .subscribe({
         next: ()=>{
-          console.log("nota salvata correttamente nel db");
+          this.openSavedNoteSnackbar();
         },
         error: error => console.error("errore nel salvataggio della nota nel DB: ", error)
       });
@@ -267,7 +267,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
    * @returns funzione nel servizio
    */
   filterVehiclesModelsDuplicates(){
-    return this.mezziFilterService.filterVehiclesModelsDuplicates(this.sortedVehicles);
+    return this.sortService.sortVehiclesByModelAsc(this.mezziFilterService.filterVehiclesModelsDuplicates(this.sortedVehicles));
   }
 
   /**
