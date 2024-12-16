@@ -2,12 +2,13 @@
   <div class="border-container">
     <form [formGroup]="loginForm" class="login-form" (submit)="login()">
       <h1 class="form-title">ACCEDI</h1>
+      <p *ngIf="credentialsWarning" class="credentials-warning">ATTENZIONE: 1 tentativo rimanente prima del blocco</p>
       <p *ngIf="isCapsActive" class="caps-lock-warning">Il Caps Lock è attivo<mat-icon>keyboard_capslock_badge</mat-icon></p>
 
 
       <mat-form-field>
         <mat-label>Username or email</mat-label>
-        <input matInput (keydown)="checkCapslock($event)"   class="username" formControlName="username" placeholder="Username">
+        <input matInput (keydown)="checkCapslock($event)" class="username" formControlName="username" placeholder="Username" #username>
         <mat-error *ngIf="loginForm.controls['username'].errors?.['required']">
           L'username è obbligatorio.
         </mat-error>
@@ -15,14 +16,15 @@
 
       <mat-form-field>
         <mat-label>Password</mat-label>
-        <input matInput (keydown)="checkCapslock($event)" type="password" class="password" formControlName="password" placeholder="Password">
+        <input matInput (keydown)="checkCapslock($event)" type="password" class="password" formControlName="password" placeholder="Password" #password>
         <mat-error *ngIf="loginForm.controls['password'].errors?.['required']">
           La password è obbligatoria.
         </mat-error>
       </mat-form-field>
-
-      <mat-error *ngIf="loginError">Credenziali non valide</mat-error>
-      <button mat-raised-button color="primary" type="submit" [disabled]="loginForm.invalid" class="submit-btn">Invia</button>
+      <p *ngIf="loginSuccess" class="login-success">Accesso... <mat-spinner mode="indeterminate" class="success-spinner"></mat-spinner></p>
+      <mat-error *ngIf="credentialsError">Credenziali non valide</mat-error>
+      <mat-error *ngIf="timeoutCountdown > 1">Troppi tentativi: prossimo tentativo fra {{timeoutCountdown / 1000 | number:'1.0-0'}} secondi</mat-error>
+      <button mat-raised-button color="primary" type="submit" [disabled]="loginForm.invalid || credentialsError" class="submit-btn" #loginBtn>Invia</button>
     </form>
   </div>
 </div>

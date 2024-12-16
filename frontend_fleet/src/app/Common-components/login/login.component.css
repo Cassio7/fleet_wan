@@ -38,3 +38,24 @@
   font-size: 18px;
   vertical-align: middle;
 }
+
+.login-success {
+  font-size: 16px;
+  color: green;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.success-spinner {
+  width: 25px !important;
+  height: 25px !important;
+}
+
+.credentials-warning{
+  color: rgb(255, 238, 0);
+}
+
+mat-error{
+  color: red;
+}
