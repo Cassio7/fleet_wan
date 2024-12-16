@@ -8,7 +8,7 @@ import { TableComponent } from "../../../Mezzi/Components/table/table.component"
   standalone: true,
   imports: [
     TableComponent
-],
+  ],
   templateUrl: './home-mezzi.component.html',
   styleUrls: ['./home-mezzi.component.css']
 })

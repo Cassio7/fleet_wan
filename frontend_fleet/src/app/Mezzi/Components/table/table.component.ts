@@ -1,4 +1,4 @@
-import { AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, HostListener, NgZone, OnDestroy, ViewChild } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, HostListener, inject, NgZone, OnDestroy, ViewChild } from '@angular/core';
 import { Vehicle } from '../../../Models/Vehicle';
 import { VehiclesApiService } from '../../../Common-services/vehicles service/vehicles-api.service';
 import { Subject, takeUntil, filter, forkJoin, take } from 'rxjs';
@@ -21,6 +21,8 @@ import { JwtService } from '../../../Common-services/jwt/jwt.service';
 import { NotesService } from '../../Services/notes/notes.service';
 import { Note } from '../../../Models/Note';
 import { MatTableModule, MatTable, MatTableDataSource } from '@angular/material/table';
+import { NoteSnackbarComponent } from '../note-snackbar/note-snackbar.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-table',
@@ -29,14 +31,12 @@ import { MatTableModule, MatTable, MatTableDataSource } from '@angular/material/
     CommonModule,
     FormsModule,
     MatMenuModule,
-    CommonModule,
     MatDividerModule,
     MatButtonModule,
     MatIconModule,
     MatOptionModule,
     MatInputModule,
     MatCheckboxModule,
-    MatIconModule,
     MatTableModule],
   templateUrl: './table.component.html',
   styleUrl: './table.component.css'
@@ -51,6 +51,9 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
 
   displayedColumns: string[] = ["Azienda", "Targa", "Marca&modello", "Cantiere", "Anno immatricolazione", "Tipologia attrezzatura", "Allestimento", "Data-installazione-fleet", "Data-rimozione-apparato", "Notes"];
 
+  private snackBar = inject(MatSnackBar);
+  durationInSeconds = 3;
+
   constructor(
     public selectService: SelectService,
     public mezziFilterService: MezziFilterService,
@@ -62,6 +65,14 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
     private cookieService: CookieService,
     private cd: ChangeDetectorRef
   ){}
+
+
+
+  openSnackBar(): void {
+    this.snackBar.openFromComponent(NoteSnackbarComponent, {
+      duration: this.durationInSeconds * 1000,
+    });
+  }
 
   ngAfterViewChecked(): void {
     this.cd.detectChanges();
@@ -205,6 +216,8 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
    * @param content contenuto della nota
    */
   saveNote(vehicle: Vehicle, content: string){
+    this.openSnackBar();
+
     if(vehicle.note){
       vehicle.note.saved = true;
     }else{
