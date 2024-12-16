@@ -10,16 +10,10 @@
 - [x] altra connessione al database per gli inserimenti per evitare attese e peso aggiuntivo.
 - [x] entità per role_company
 - [x] restituire i detection quality in base al veicolo per creare una futuro grafico con media
-- [ ] assegnare tutti i cantieri ai nuovi veicoli
 - [x] rivedere logica dei ruoli ma sostituire con i cantieri
-- [ ] rimuovere codice non utilizzato
-- [ ] aggiungere campo azienda appartenenza mezzo
-- [ ] dare un formato di risposta corretto a tutte le API
 - [x] aggiunte le operazioni CRUD oer Utente accessibili solo da admin
 - [x] inserire una tabella con la tipologia di veicolo (spazzatrice ...)
 - [x] pensare a tabella di appoggio per allocare i controlli per tutti i veicoli con GPS, Antenna e Sessione -> tabella anomalies
-- [ ] segnare la posizione dei cantieri con circonferenza, layer comunali
-- [ ] implementazione della connessione ed invio email, per alert e recupero dati
 - [x] risoluzione posizione con openstreetmap [reverse](https://nominatim.org/release-docs/develop/api/Reverse/)
 - [x] integrazione con Redis per ridurre tempo risoluzione chiamate risoluzione posizione e altro
 - [x] gestito errore 502 *AxiosError* per il recupero dei dati, riprova 3 volte prima di saltare
@@ -28,3 +22,10 @@
   2. recupero i tag validi da un altra parte, come tabella da kevin,
   3. salvo comunque tutto comunque.
 - [ ] manca ANOMALIES come aggiornamento sul pdf del database
+- [ ] integrazione dei DTO
+- [ ] rimuovere codice non utilizzato
+- [ ] aggiungere campo azienda appartenenza mezzo
+- [ ] dare un formato di risposta corretto a tutte le API
+- [ ] segnare la posizione dei cantieri con circonferenza, layer comunali
+- [ ] implementazione della connessione ed invio email, per alert e recupero dati
+- [ ] assegnare tutti i cantieri ai nuovi veicoli
