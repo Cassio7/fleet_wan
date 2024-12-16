@@ -43,26 +43,39 @@ export class AnomalyController {
       const vehicleIds = vehicles.map(
         (vehicle) => (vehicle as VehicleEntity).veId,
       );
-
       const datas = await this.anomalyService.getAllAnomaly(vehicleIds);
       if (datas.length > 0) {
-        const vehicles = [];
+        const vehicleMap = new Map();
+
         datas.forEach((data) => {
-          vehicles.push({
-            plate: data.vehicle.plate,
-            veId: data.vehicle.veId,
-            isCan: data.vehicle.isCan,
-            isRFIDReader: data.vehicle.isRFIDReader,
+          const veId = data.vehicle.veId;
+
+          if (!vehicleMap.has(veId)) {
+            // First time seeing this vehicle, create initial entry
+            vehicleMap.set(veId, {
+              plate: data.vehicle.plate,
+              veId: data.vehicle.veId,
+              isCan: data.vehicle.isCan,
+              isRFIDReader: data.vehicle.isRFIDReader,
+              sessions: [],
+            });
+          }
+
+          // Add session to the vehicle's sessions
+          const vehicle = vehicleMap.get(veId);
+          vehicle.sessions.push({
+            date: data.date,
             anomaliaSessione: data.session || null,
-            session: {
-              date: data.day,
-              anomalies: {
-                Antenna: data.antenna || null,
-                GPS: data.gps || null,
-              },
+            anomalies: {
+              Antenna: data.antenna || null,
+              GPS: data.gps || null,
             },
           });
         });
+
+        // Convert map to array
+        const vehicles = Array.from(vehicleMap.values());
+
         res.status(200).json(vehicles);
       } else {
         res.status(404).json({ message: 'Nessuna anomalia trovata' });
