@@ -39,7 +39,7 @@ export class NotesService {
     return initialValue !== currentValue; // Confronta il valore attuale con quello iniziale
   }
 
-  checkVehicleModifiedNote(vehicle: Vehicle){
+  setNoteStatusToModified(vehicle: Vehicle){
     if(vehicle.note){
       vehicle.note.saved = false;
     }

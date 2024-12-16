@@ -218,9 +218,10 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
    * @param content contenuto della nota
    */
   saveNote(vehicle: Vehicle, content: string){
+    //se il veicolo possedeva già una nota creata imposta il salvataggio di quest'ultima a true
     if(vehicle.note){
       vehicle.note.saved = true;
-    }else{
+    }else{ //altrimenti crea una nuova nota vuota e impostala a true
       vehicle.note = {
         saved: true,
         content: '',
@@ -231,25 +232,35 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
 
     const userId = this.jwtService.decodeJwt(this.cookieService.get("user")).id; //ottieni e trasforma access token
 
-    const nota = new Note(content, vehicle, userId);//oggetto nota
+    const nota = new Note(content, vehicle, userId);//creazione nuovo oggetto nota
 
-    if(content){
-      this.notesService.saveNoteInDB(nota).pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: ()=>{
-          this.openSavedNoteSnackbar();
-        },
-        error: error => console.error("errore nel salvataggio della nota nel DB: ", error)
-      });
-    }
+    //salvataggio nota nel database
+    this.notesService.saveNoteInDB(nota).pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: ()=>{
+        this.openSavedNoteSnackbar();
+      },
+      error: error => console.error("errore nel salvataggio della nota nel DB: ", error)
+    });
   }
 
+  /**
+   * Richiama la funzione nel servizio per verificare se una nota è stata modificata
+   * @param vehicle veicolo di cui controllare la nota
+   * @param currentValue valore attuale del campo corrispondente alla nota
+   * @returns chiamata alla funzione per la verifica
+   */
   isVehicleNoteModified(vehicle: Vehicle, currentValue: string): boolean {
     return this.notesService.isVehicleNoteModified(vehicle, currentValue);
   }
 
-  checkVehicleModifiedNote(vehicle: Vehicle){
-    return this.notesService.checkVehicleModifiedNote(vehicle);
+  /**
+   *
+   * @param vehicle
+   * @returns
+   */
+  setNoteStatusToModified(vehicle: Vehicle){
+    return this.notesService.setNoteStatusToModified(vehicle);
   }
 
   /**
