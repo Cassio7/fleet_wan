@@ -9,6 +9,9 @@
       <mat-form-field>
         <mat-label>Username or email</mat-label>
         <input matInput (keydown)="checkCapslock($event)" class="username" formControlName="username" placeholder="Username" #username>
+        <button mat-icon-button matSuffix type="button">
+          <mat-icon>person</mat-icon>
+        </button>
         <mat-error *ngIf="loginForm.controls['username'].errors?.['required']">
           L'username è obbligatorio.
         </mat-error>
@@ -16,7 +19,10 @@
 
       <mat-form-field>
         <mat-label>Password</mat-label>
-        <input matInput (keydown)="checkCapslock($event)" type="password" class="password" formControlName="password" placeholder="Password" #password>
+        <input matInput (keydown)="checkCapslock($event)" [type]="showPassword ? 'text' : 'password'" class="password" formControlName="password" placeholder="Password" #password>
+        <button mat-icon-button matSuffix type="button" (click)="showPassword = !showPassword">
+          <mat-icon>{{ showPassword ? 'visibility' : 'visibility_off' }}</mat-icon>
+        </button>
         <mat-error *ngIf="loginForm.controls['password'].errors?.['required']">
           La password è obbligatoria.
         </mat-error>

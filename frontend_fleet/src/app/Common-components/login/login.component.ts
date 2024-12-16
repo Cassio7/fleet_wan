@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
+import {AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -44,6 +44,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy{
   maxAttempts: number = 3; //tentativi massimi prima dell'inizio dei timeout
   maxTimeoutTime: number = 90; //tempo massimo di timeout
 
+  showPassword: boolean = false;
 
   attempts: number = 0;
   timeoutTime: number = 0;

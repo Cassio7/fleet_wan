@@ -6,7 +6,7 @@
 tr, td, th {
   text-align: center;
   width: 200px;
-  padding: 10px;
+  padding: 5px;
   word-wrap: break-word; /* Ensures long words break within table cells */
 }
 

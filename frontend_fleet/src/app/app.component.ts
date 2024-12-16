@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterModule, RouterOutlet } from '@angular/router';
 import { FooterComponent } from "./Common-components/footer/footer.component";
 import { filter, Subject, takeUntil } from 'rxjs';
 import { MatDrawer, MatSidenavModule } from '@angular/material/sidenav';
@@ -18,6 +18,7 @@ import { CommonService } from './Common-services/common service/common.service';
   standalone: true,
   imports: [
     RouterOutlet,
+    RouterModule,
     CommonModule,
     FooterComponent,
     MatIcon,
