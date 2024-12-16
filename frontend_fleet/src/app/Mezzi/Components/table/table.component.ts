@@ -275,7 +275,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
    * @returns funzione nel servizio
    */
   filterVehiclesCantieriDuplicates(){
-    return this.mezziFilterService.filterVehiclesCantieriDuplicates(this.sortedVehicles);
+    return this.sortService.sortVehiclesByCantiereAsc(this.mezziFilterService.filterVehiclesCantieriDuplicates(this.sortedVehicles));
   }
 
   /**
@@ -283,7 +283,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
    * @returns funzione nel servizio
    */
   filterFirstEventsDuplicates(){
-    return this.mezziFilterService.filterFirstEventsDuplicates(this.sortedVehicles);
+    return this.sortService.sortVehiclesByFirstEventAsc(this.mezziFilterService.filterFirstEventsDuplicates(this.sortedVehicles));
   }
 
 }
