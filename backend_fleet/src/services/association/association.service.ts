@@ -10,6 +10,11 @@ export class AssociationService {
     private readonly associationRepository: Repository<AssociationEntity>,
   ) {}
 
+  /**
+   * Funzione che recupera i veicoli che un utente può visualizzare, in base al suo ruolo di assegnazione
+   * @param id User id
+   * @returns Veicoli
+   */
   async getVehiclesByUserRole(id: number) {
     const associations = await this.associationRepository.find({
       where: {
@@ -33,28 +38,25 @@ export class AssociationService {
       },
     });
     const vehicles = new Set();
-
     associations.forEach((association) => {
-      // Vehicles directly associated with worksite
+      // Prendo i veicoli se hanno direttamente associazione con worksite
       if (association.worksite?.vehicle) {
         association.worksite.vehicle.forEach((vehicle) =>
           vehicles.add(vehicle),
         );
       }
-
-      // Vehicles through company -> group -> worksite_group -> worksite
+      // Prendo tutti i veicoli passando da company -> group -> worksite_group -> worksite considerando soltanto il gruppo principale per evitare duplicati
       if (association.company?.group) {
-        association.company.group.forEach((group) => {
-          if (group.worksite_group) {
-            group.worksite_group.forEach((worksiteGroup) => {
-              if (worksiteGroup.worksite?.vehicle) {
-                worksiteGroup.worksite.vehicle.forEach((vehicle) =>
-                  vehicles.add(vehicle),
-                );
-              }
-            });
-          }
-        });
+        const firstGroup = association.company.group[0];
+        if (firstGroup.worksite_group) {
+          firstGroup.worksite_group.forEach((worksiteGroup) => {
+            if (worksiteGroup.worksite?.vehicle) {
+              worksiteGroup.worksite.vehicle.forEach((vehicle) =>
+                vehicles.add(vehicle),
+              );
+            }
+          });
+        }
       }
     });
     return Array.from(vehicles);
