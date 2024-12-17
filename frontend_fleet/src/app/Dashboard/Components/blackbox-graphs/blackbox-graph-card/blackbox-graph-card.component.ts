@@ -31,14 +31,14 @@ export class BlackboxGraphCardComponent implements AfterViewInit{
 
   ngAfterViewInit(): void {
     if(this.graphSelect){
-      this.graphSelect.value = 'pie';
+      this.graphSelect.value = 'donut';
       this.cd.detectChanges();
     }
   }
 
   changeGraph(graph: string): void {
     switch (graph) {
-      case 'pie':
+      case 'donut':
         this.barGraph = false;
         this.pieGraph = true;
         break;

@@ -1,36 +1,75 @@
-<div class="loginForm-container">
-  <div class="border-container">
-    <form [formGroup]="loginForm" class="login-form" (submit)="login()">
-      <h1 class="form-title">ACCEDI</h1>
-      <p *ngIf="credentialsWarning" class="credentials-warning">ATTENZIONE: 1 tentativo rimanente prima del blocco</p>
-      <p *ngIf="isCapsActive" class="caps-lock-warning">Il Caps Lock è attivo<mat-icon>keyboard_capslock_badge</mat-icon></p>
+<div class="content">
+  <div class="sections-container">
+    <!-- Sezione sinistra: Form di login -->
+    <div class="left-section">
+      <form [formGroup]="loginForm" class="login-form" (submit)="login()">
+        <img src="assets/logo.png" alt="logo gesenu" class="logo">
+        <p class="version">Versione 1.0.0</p>
+        <h1 class="form-title">ACCEDI</h1>
+        <p>Inserisci le tue credenziali</p>
+        <!-- Warnings -->
+        <p *ngIf="credentialsWarning" class="credentials-warning">
+          ATTENZIONE: 1 tentativo rimanente prima del blocco
+        </p>
+        <p *ngIf="isCapsActive" class="caps-lock-warning">
+          Il Caps Lock è attivo <mat-icon>keyboard_capslock_badge</mat-icon>
+        </p>
 
+        <!-- Username -->
+        <mat-form-field appearance="outline">
+          <mat-label>Username o Email</mat-label>
+          <input matInput
+                 (keydown)="checkCapslock($event)"
+                 formControlName="username"
+                 placeholder="Username" />
+          <button mat-icon-button matSuffix type="button">
+            <mat-icon>person</mat-icon>
+          </button>
+          <mat-error *ngIf="loginForm.controls['username'].errors?.['required']">
+            L'username è obbligatorio.
+          </mat-error>
+        </mat-form-field>
 
-      <mat-form-field>
-        <mat-label>Username or email</mat-label>
-        <input matInput (keydown)="checkCapslock($event)" class="username" formControlName="username" placeholder="Username" #username>
-        <button mat-icon-button matSuffix type="button">
-          <mat-icon>person</mat-icon>
-        </button>
-        <mat-error *ngIf="loginForm.controls['username'].errors?.['required']">
-          L'username è obbligatorio.
+        <!-- Password -->
+        <mat-form-field appearance="outline">
+          <mat-label>Password</mat-label>
+          <input matInput
+                 [type]="showPassword ? 'text' : 'password'"
+                 (keydown)="checkCapslock($event)"
+                 formControlName="password"
+                 placeholder="Password" />
+          <button mat-icon-button matSuffix type="button" (click)="showPassword = !showPassword">
+            <mat-icon>{{ showPassword ? 'visibility' : 'visibility_off' }}</mat-icon>
+          </button>
+          <mat-error *ngIf="loginForm.controls['password'].errors?.['required']">
+            La password è obbligatoria.
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Messaggi di stato -->
+        <p *ngIf="loginSuccess" class="login-success">
+          Accesso... <mat-spinner mode="indeterminate" class="success-spinner"></mat-spinner>
+        </p>
+        <mat-error *ngIf="credentialsError">Credenziali non valide</mat-error>
+        <mat-error *ngIf="timeoutCountdown > 1">
+          Troppi tentativi: prossimo tentativo fra {{ timeoutCountdown / 1000 | number:'1.0-0' }} secondi
         </mat-error>
-      </mat-form-field>
 
-      <mat-form-field>
-        <mat-label>Password</mat-label>
-        <input matInput (keydown)="checkCapslock($event)" [type]="showPassword ? 'text' : 'password'" class="password" formControlName="password" placeholder="Password" #password>
-        <button mat-icon-button matSuffix type="button" (click)="showPassword = !showPassword">
-          <mat-icon>{{ showPassword ? 'visibility' : 'visibility_off' }}</mat-icon>
+        <!-- Submit -->
+        <button mat-raised-button
+                color="primary"
+                type="submit"
+                [disabled]="loginForm.invalid || credentialsError"
+                class="submit-btn">
+          Accedi
         </button>
-        <mat-error *ngIf="loginForm.controls['password'].errors?.['required']">
-          La password è obbligatoria.
-        </mat-error>
-      </mat-form-field>
-      <p *ngIf="loginSuccess" class="login-success">Accesso... <mat-spinner mode="indeterminate" class="success-spinner"></mat-spinner></p>
-      <mat-error *ngIf="credentialsError">Credenziali non valide</mat-error>
-      <mat-error *ngIf="timeoutCountdown > 1">Troppi tentativi: prossimo tentativo fra {{timeoutCountdown / 1000 | number:'1.0-0'}} secondi</mat-error>
-      <button mat-raised-button color="primary" type="submit" [disabled]="loginForm.invalid || credentialsError" class="submit-btn" #loginBtn>Invia</button>
-    </form>
+        <p class="copyright">Copyright © Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+      </form>
+    </div>
+
+
+    <!-- Sezione destra: Immagine decorativa -->
+    <div class="right-section"></div>
   </div>
+
 </div>

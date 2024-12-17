@@ -43,7 +43,7 @@ export class ErrorGraphCardComponent implements AfterViewInit, OnDestroy{
   ngAfterViewInit(): void {
     setTimeout(()=>{
       if(this.graphSelect){
-        this.graphSelect.value = 'pie';
+        this.graphSelect.value = 'donut';
       }
     });
     this.cd.detectChanges();
@@ -51,8 +51,8 @@ export class ErrorGraphCardComponent implements AfterViewInit, OnDestroy{
 
   changeGraph(graph: string): void {
     switch (graph) {
-      case 'pie':
-        this.graphSelect.value = 'pie';
+      case 'donut':
+        this.graphSelect.value = 'donut';
         this.barGraph = false;
         this.pieGraph = true;
         break;
