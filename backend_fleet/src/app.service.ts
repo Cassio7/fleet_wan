@@ -50,6 +50,7 @@ export class AppService implements OnModuleInit {
     //await this.putDbData3min();
     //await this.anomalyCheck(startDate, endDate);
     //await this.updateRealtime();
+    await this.redis.publish('realtime_channel', 'Applicazione inizializzata');
   }
 
   async putDefaultData() {
