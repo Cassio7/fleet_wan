@@ -1,7 +1,15 @@
 import { Exclude } from 'class-transformer';
-import { IsEmail, IsString } from 'class-validator';
+import { IsEmail, IsNumber, IsString, IsDate } from 'class-validator';
 
 export class UserDTO {
+  @IsNumber()
+  id: number;
+  @IsDate()
+  createdAt: Date;
+  @IsDate()
+  updatedAt: Date;
+  @IsNumber()
+  version: number;
   @IsString()
   name: string;
   @IsString()
@@ -13,5 +21,6 @@ export class UserDTO {
   @IsString()
   role: string;
   @Exclude()
+  @IsString()
   password: string;
 }
