@@ -6,6 +6,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { Subject, filter } from 'rxjs';
 import { CommonService } from '../../Common-services/common service/common.service';
+import { LoginService } from '../../Common-services/login service/login.service';
 
 @Component({
   selector: 'app-navbar',
@@ -25,7 +26,7 @@ export class NavbarComponent implements OnInit{
   currentPage: string = '';
   icon: string = '';
   constructor(
-    private commonService: CommonService,
+    private loginService: LoginService,
     private router: Router
   ){}
 
@@ -50,7 +51,7 @@ export class NavbarComponent implements OnInit{
   }
 
   logout(){
-    localStorage.removeItem("user");
+    this.loginService.logout();
     this.router.navigate(['/login']);
   }
 }

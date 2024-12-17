@@ -24,6 +24,10 @@ export class LoginService {
     return this.http.post<any>(`${this.commonService.url}/auth/login`, body);
   }
 
+  logout(){
+    localStorage.removeItem("user");
+  }
+
   public get login$(): Subject<void> {
     return this._login$;
   }

@@ -10,6 +10,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { LoginService } from './Common-services/login service/login.service';
 import { CommonModule } from '@angular/common';
 import { CookiesService } from './Common-services/cookies service/cookies.service';
+import { MatMenuModule } from '@angular/material/menu';
 
 @Component({
   selector: 'app-root',
@@ -23,6 +24,7 @@ import { CookiesService } from './Common-services/cookies service/cookies.servic
     MatButtonModule,
     NavbarComponent,
     MatSidenavModule,
+    MatMenuModule,
     MatToolbarModule
 ],
   templateUrl: './app.component.html',
@@ -127,6 +129,11 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
       this.dashboardBtn.nativeElement.style.borderLeft = "transparent";
       break;
     }
+  }
+
+  logout(){
+    this.loginService.logout();
+    this.router.navigate(['/login']);
   }
 
   setBackgroundImage(url: string): void {
