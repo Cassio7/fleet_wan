@@ -1,53 +1,63 @@
+.fixed-drawer-container{
+  width: 6vw;
+}
 .fixed-drawer-content {
-  width: 5vw;
+  width: 100%;
+  height: 100vh;
   background-color: #26a668;
-  padding-top: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
-.fixed-main-actions{
+.fixed-main-actions {
   margin-top: clamp(10px, 2vh, 20px);
   width: 100%;
-  height: 100%;
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: clamp(5px, 1vh, 10px);
 }
 
-.fixed-main-actions mat-icon {
-  transform: scale(2);
-  color: white;
-}
-
-.fixed-main-actions button {
-  display: flex;             /* Imposta il bottone come contenitore flex */
-  justify-content: center;   /* Centra orizzontalmente il contenuto (icona) */
-  align-items: center;       /* Centra verticalmente il contenuto (icona) */
-  padding: 10px;             /* Aggiungi un po' di padding, se necessario */
-}
-
+.fixed-main-actions mat-icon,
 .log-out mat-icon {
   transform: scale(2);
   color: white;
 }
 
-.log-out button {
-  display: flex;             /* Imposta il bottone come contenitore flex */
-  justify-content: center;   /* Centra orizzontalmente il contenuto (icona) */
-  align-items: center;       /* Centra verticalmente il contenuto (icona) */
-  padding: 10px;             /* Aggiungi un po' di padding, se necessario */
+.fixed-main-actions button, .log-out button{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
 }
 
+.log-out {
+  margin-top: auto;
+  margin-bottom: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: clamp(5px, 1vh, 10px);
+  overflow: hidden;
+}
 
 .mat-drawer {
   margin: 0;
   padding: 0;
-  width: 5vw; /* Fix the width of the sidebar */
+  width: 5vw;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .mat-drawer-content {
   margin-left: 0;
-  display: flex; /* Make sure the content area flexes next to the drawer */
+  display: flex;
 }
 
 .sidebar-container {
@@ -55,9 +65,8 @@
 }
 
 .content-area {
-  margin-left: 0; /* Remove margin from content area to ensure it's next to the sidebar */
   margin-top: 0;
-  flex-grow: 1; /* Make content area grow to fill the remaining space */
+  flex-grow: 1;
 }
 
 .drawer-container {
@@ -67,7 +76,7 @@
 
 .sidebar {
   padding: clamp(10px, 2vw, 20px);
-  width: 300px; /* Set a fixed width for the sidebar */
+  width: 300px;
   background-color: #26a668;
 }
 
@@ -108,13 +117,8 @@ hr {
   overflow: hidden;
 }
 
-mat-drawer {
-  height: 100vh;
-  overflow: hidden;
-}
-
 .button {
   color: rgb(0, 0, 0) !important;
   font-size: clamp(16px, 2vw, 20px);
-  text-align: flex-start;
+  text-align: left;
 }

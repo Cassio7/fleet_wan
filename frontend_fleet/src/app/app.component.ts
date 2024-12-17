@@ -18,7 +18,7 @@ import { CookiesService } from './Common-services/cookies service/cookies.servic
     RouterOutlet,
     RouterModule,
     CommonModule,
-    FooterComponent,
+    // FooterComponent,
     MatIconModule,
     MatButtonModule,
     NavbarComponent,

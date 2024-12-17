@@ -1,15 +1,17 @@
-<mat-drawer-container class="fixed-drawer-container">
-  <mat-drawer mode="side" opened class="fixed-drawer-content" *ngIf="!drawer.opened" [style.display]="isLoginPage ? 'none' : 'block'">
-    <div class="fixed-main-actions">
-      <button mat-button class="menu-btn" (click)="drawer.toggle()"><mat-icon>menu</mat-icon></button>
-      <button mat-button routerLink="dashboard"><mat-icon>dashboard</mat-icon></button>
-      <button mat-button routerLink="home-mezzi"><mat-icon>local_shipping</mat-icon></button>
-      <button mat-button><mat-icon>map</mat-icon></button>
-      <button mat-button><mat-icon>manage_accounts</mat-icon></button>
-      <button mat-button><mat-icon>settings</mat-icon></button>
-    </div>
-    <div class="log-out">
-      <button mat-button><mat-icon>power_settings_new</mat-icon></button>
+<mat-drawer-container >
+  <mat-drawer mode="side" class="fixed-drawer-container" opened *ngIf="!drawer.opened" [style.display]="isLoginPage ? 'none' : 'block'">
+    <div class="fixed-drawer-content">
+      <div class="fixed-main-actions">
+        <button mat-button class="menu-btn" (click)="drawer.toggle()"><mat-icon>menu</mat-icon></button>
+        <button mat-button routerLink="dashboard"><mat-icon>dashboard</mat-icon></button>
+        <button mat-button routerLink="home-mezzi"><mat-icon>local_shipping</mat-icon></button>
+        <button mat-button><mat-icon>map</mat-icon></button>
+        <button mat-button><mat-icon>manage_accounts</mat-icon></button>
+        <button mat-button><mat-icon>settings</mat-icon></button>
+      </div>
+      <div class="log-out">
+        <button mat-button><mat-icon>power_settings_new</mat-icon></button>
+      </div>
     </div>
   </mat-drawer>
   <mat-drawer-content>
@@ -50,7 +52,7 @@
           <router-outlet></router-outlet>
         </div>
       </div>
-      <app-footer></app-footer>
+      <!-- <app-footer></app-footer> -->
     </mat-drawer-container>
   </mat-drawer-content>
 </mat-drawer-container>
