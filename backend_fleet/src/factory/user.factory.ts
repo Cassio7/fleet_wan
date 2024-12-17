@@ -21,7 +21,7 @@ export class UserFactoryService {
       {
         name: null,
         surname: null,
-        username: 'Admin',
+        username: 'admin',
         email: this.configService.get<string>('ADMIN_EMAIL'),
         password: this.configService.get<string>('USER_PASSWORD'),
         role: role[0],
