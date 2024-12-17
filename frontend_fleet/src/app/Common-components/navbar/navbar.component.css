@@ -9,6 +9,10 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
+.page-p{
+  display: inline-flex;
+}
+
 
 .logo {
   height: 50px;
@@ -32,7 +36,8 @@
 }
 
 .left-side {
-  display: flex;
+  height: 100%;
+  display: inline-flex;
   align-items: center;
   gap: 10px;
 }

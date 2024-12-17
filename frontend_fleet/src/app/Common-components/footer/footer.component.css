@@ -2,7 +2,7 @@
   position: fixed;
   bottom: 0;
   width: 100%;
-  height: 20px;
+  height: 50px;
   justify-content: space-between;
   align-items: center;
   padding: 0 16px;
@@ -16,15 +16,15 @@
 }
 .title{
   color: white;
-  font-size: 15px;
+  font-size: 20px;
 }
 a{
   margin-right: 20px;
 }
 mat-icon{
   color: white;
-  font-size: 15px;
+  transform: scale(1.2);
 }
 mat-icon:hover{
-  transform: scale(1.05);
+  transform: scale(1.3);
 }
