@@ -56,6 +56,7 @@ export class AnomalyController {
               plate: data.vehicle.plate,
               veId: data.vehicle.veId,
               isCan: data.vehicle.isCan,
+              anomaliaSessione: data.session || null,
               isRFIDReader: data.vehicle.isRFIDReader,
               sessions: [],
             });
@@ -65,7 +66,6 @@ export class AnomalyController {
           const vehicle = vehicleMap.get(veId);
           vehicle.sessions.push({
             date: data.date,
-            anomaliaSessione: data.session || null,
             anomalies: {
               Antenna: data.antenna || null,
               GPS: data.gps || null,
