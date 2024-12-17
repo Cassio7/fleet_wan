@@ -239,20 +239,20 @@ export class AnomalyService {
 
               if (flag_coordinates && flag_distance) {
                 sessions.anomalies.push(
-                  `Anomalia GPS totale, distanza: ${distanceMap[0]} e lat: ${coordinates[0].latitude} e lon: ${coordinates[0].longitude}`,
+                  `Anomalia totale, distanza: ${distanceMap[0]} e lat: ${coordinates[0].latitude} e lon: ${coordinates[0].longitude}`,
                 );
               } else if (flag_coordinates) {
                 sessions.anomalies.push(
-                  `Anomalia nelle coordinate, sempre uguali a lat: ${coordinates[0].latitude} e lon: ${coordinates[0].longitude}`,
+                  `Anomalia coordinate, sempre uguali a lat: ${coordinates[0].latitude} e lon: ${coordinates[0].longitude}`,
                 );
               } else if (flag_coordinates_zero) {
                 sessions.anomalies.push(
-                  `Anomalia nelle coordinate con lat: 0 e lon: 0 sopra al 20%`,
+                  `Anomalia coordinate con lat: 0 e lon: 0 sopra al 20%`,
                 );
               }
               if (flag_distance_can) {
                 sessions.anomalies.push(
-                  `Anomalia GPS per la distanza problema con il tachimetro, sempre uguale a ${distanceMap[0]}`,
+                  `Anomalia tachimetro, distanza sempre uguale a ${distanceMap[0]}`,
                 );
               }
 
@@ -342,15 +342,11 @@ export class AnomalyService {
             }
             // se ci stano sessioni ma no tag, errore
             if (!lastTag && filteredSessions.length > 0) {
-              sessions.anomalies.push(
-                `Anomalia antenna, sessioni trovate ma no tag letti.`,
-              );
+              sessions.anomalies.push(`Sessioni trovate ma no tag letti.`);
             }
             // se ci sta un tag ma no sessioni, errore
             if (lastTag && filteredSessions.length === 0) {
-              sessions.anomalies.push(
-                `Anomalia antenna, tag letto ma nessuna sessione trovata.`,
-              );
+              sessions.anomalies.push(`Tag letto ma nessuna sessione trovata.`);
             }
             return sessions;
           }),
