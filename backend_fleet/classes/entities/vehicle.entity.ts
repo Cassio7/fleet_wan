@@ -50,8 +50,9 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
   @Index()
   isRFIDReader: boolean;
 
-  @Column({ type: 'varchar', nullable: true })
-  allestimento: string;
+  @Column({ type: 'boolean', nullable: true })
+  @Index()
+  allestimento: boolean;
 
   @Column()
   profileId: number;
