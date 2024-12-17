@@ -10,29 +10,25 @@
   justify-content: center;
 }
 
-/* contenitore principale */
 .sections-container {
   display: flex;
-  flex-wrap: wrap; /* Permette alle sezioni di adattarsi su schermi piccoli */
+  flex-wrap: wrap;
   width: 70%;
-  max-width: 1200px; /* Limita la larghezza massima */
+  max-width: 1200px;
   height: 70vh;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   overflow: hidden;
 }
 
-/* Logo */
 .logo {
-  height: 10vh; /* Altezza relativa alla viewport */
-  width: 18vw; /* Mantiene le proporzioni */
+  height: 10vh;
+  width: 18vw;
 }
 
-/* Versione */
 .version {
   color: grey;
 }
 
-/* Sezione sinistra: Form di login */
 .left-section {
   width: 100%;
   flex: 1;
@@ -40,16 +36,15 @@
   justify-content: flex-start;
   align-items: center;
   background-color: #ffffff;
-  padding-left: 3vw; /* Padding relativo alla larghezza della viewport */
+  padding-left: 3vw;
   box-sizing: border-box;
 }
 
-/* Form di login */
 .login-form {
   width: 100%;
   display: flex;
   flex-direction: column;
-  max-width: 80%; /* Limita la larghezza massima */
+  max-width: 80%;
 }
 
 .form-title, .form-title + p {
@@ -58,7 +53,7 @@
 }
 
 .form-title {
-  font-size: 2vw; /* Font-size relativo alla larghezza della viewport */
+  font-size: 2vw;
   text-align: left;
 }
 
@@ -66,12 +61,12 @@
   font-size: 1vw;
   text-align: left;
   color: gray;
-  margin-bottom: 2vh; /* Margine relativo all'altezza della viewport */
+  margin-bottom: 2vh;
 }
 
 .credentials-warning,
 .caps-lock-warning {
-  color: #d9534f;
+  color: rgb(180, 0, 0);
   font-size: 1vw;
   margin-bottom: 1rem;
 }
@@ -82,7 +77,6 @@
   font-size: 1vw;
 }
 
-/* Sezione destra */
 .right-section {
   flex: 1;
   background-image: url('https://www.netmaps.net/wp-content/uploads/2015/03/tashkent-vector-map.jpg');
@@ -90,19 +84,25 @@
   background-position: center;
 }
 
-/* Spinner di successo */
-.success-spinner {
-  width: 2vw;
-  height: 2vw;
+.login-success {
+  display: inline-flex;
+  color: green;
+  gap: 1vw;
+  align-items: center;
 }
+
+.success-spinner {
+  width: 1vw !important;
+  height: 1vw !important;
+}
+
 
 .copyright{
   color: gray;
   font-size: .8vw;
 }
-/* Media Queries per Schermi più piccoli */
 
-/* Schermi tra 1024px e 768px */
+/* schermi tra 1024px e 768px */
 @media (max-width: 1024px) {
   .sections-container {
     width: 90%;

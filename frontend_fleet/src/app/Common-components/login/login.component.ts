@@ -83,7 +83,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy{
     const currentTimeout = parseInt(this.cookiesService.getCookie('currentTimeout'));
 
     if(currentTimeout){
-      // this.setBlockingCountdown(currentTimeout);
+      this.setBlockingCountdown(currentTimeout);
     }
 
     this.credentialsWarning = this.checkLastAttempt(this.attempts);
