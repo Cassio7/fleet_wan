@@ -6,23 +6,29 @@ import {
   Param,
   Post,
   Put,
+  Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { UserDTO } from 'classes/dtos/user.dto';
+import { UserEntity } from 'classes/entities/user.entity';
 import { Role } from 'classes/enum/role.enum';
+import { UserFromToken } from 'classes/interfaces/userToken.interface';
 import { Response } from 'express';
 import { Roles } from 'src/decorators/roles.decorator';
 import { AuthGuard } from 'src/guard/auth.guard';
 import { RolesGuard } from 'src/guard/roles.guard';
 import { RoleService } from 'src/services/role/role.service';
 import { UserService } from 'src/services/user/user.service';
+import { Repository } from 'typeorm';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Controller('user')
-@Roles(Role.Admin)
 export class UserController {
   constructor(
+    @InjectRepository(UserEntity, 'readOnlyConnection')
+    private readonly userRepository: Repository<UserEntity>,
     private readonly userService: UserService,
     private readonly roleService: RoleService,
   ) {}
@@ -31,6 +37,7 @@ export class UserController {
    * API per restituire tutti gli utenti
    * @param res
    */
+  @Roles(Role.Admin)
   @Get()
   async getAllUsers(@Res() res: Response) {
     try {
@@ -47,6 +54,7 @@ export class UserController {
    * @param res
    * @param body
    */
+  @Roles(Role.Admin)
   @Post()
   async createUser(@Res() res: Response, @Body() userDTO: UserDTO) {
     try {
@@ -76,24 +84,85 @@ export class UserController {
         .json({ message: 'Errore nella registrazione del nuovo utente' });
     }
   }
+
+  /**
+   * API per restituire le informazioni relative all'utente in base al token JWT fornito
+   * @param req token JWT recuperato
+   * @param res
+   */
+  @Roles(Role.Admin, Role.Capo, Role.Responsabile)
+  @Get('me')
+  async getMyProfile(
+    @Req() req: Request & { user: UserFromToken },
+    @Res() res: Response,
+  ) {
+    try {
+      const user = await this.userService.getUserById(req.user.id);
+      if (user) res.status(200).json(user);
+      else res.status(404).json({ message: 'Utente non trovato' });
+    } catch (error) {
+      console.error("Errore nel recupero dell'utente:", error);
+      res.status(500).json({ message: "Errore nel recupero dell'utente" });
+    }
+  }
+  /**
+   * API per cambiare la password di un utente in base al token JWT fornito
+   * @param res
+   * @param req token JWT recuperato
+   * @param body vecchia password e la nuova password
+   */
+  @Roles(Role.Admin, Role.Capo, Role.Responsabile)
+  @Put('me/password')
+  async updatePassword(
+    @Res() res: Response,
+    @Req() req: Request & { user: UserFromToken },
+    @Body() body: { currentPassword: string; newPassword: string },
+  ) {
+    try {
+      const user = await this.userRepository.findOne({
+        where: {
+          id: req.user.id,
+        },
+      });
+      if (!user) {
+        return res.status(404).json({ message: 'Utente non trovato' });
+      }
+      const bcrypt = require('bcrypt');
+      const isPasswordMatch = await bcrypt.compare(
+        body.currentPassword,
+        user.password,
+      );
+      if (!isPasswordMatch) {
+        return res.status(401).json({ message: 'Password attuale errata' });
+      }
+      if (
+        body.currentPassword.toLowerCase() === body.newPassword.toLowerCase()
+      ) {
+        return res
+          .status(400)
+          .json({ message: 'Password attuale uguale alla precedente!' });
+      }
+      const salt = await bcrypt.genSalt(10);
+      const hashPassword = await bcrypt.hash(body.newPassword, salt);
+      await this.userService.updateUser(user.key, { password: hashPassword });
+      res.status(200).json({ message: 'Password aggiornata con successo' });
+    } catch (error) {
+      console.error('Errore nel cambio della password:', error);
+      res.status(500).json({ message: 'Errore nel cambio della password' });
+    }
+  }
   /**
    * API per restituire un utente in base all'id
    * @param res
    * @param params id utente
    */
+  @Roles(Role.Admin)
   @Get(':id')
   async getUserById(@Res() res: Response, @Param() params: any) {
     try {
       const user = await this.userService.getUserById(params.id);
-      if (user) {
-        const userDTO = new UserDTO();
-        userDTO.email = user.email;
-        userDTO.name = user.name;
-        userDTO.surname = user.surname;
-        userDTO.username = user.username;
-        userDTO.role = user.role.name;
-        res.status(200).json(userDTO);
-      } else res.status(404).json({ message: 'Utente non trovato' });
+      if (user) res.status(200).json(user);
+      else res.status(404).json({ message: 'Utente non trovato' });
     } catch (error) {
       console.error("Errore nel recupero dell'utente:", error);
       res.status(500).json({ message: "Errore nel recupero dell'utente" });
@@ -106,6 +175,7 @@ export class UserController {
    * @param params username utente
    * @param userDTO nuovi dati dal body
    */
+  @Roles(Role.Admin)
   @Put(':username')
   async updateUserByUsername(
     @Res() res: Response,
@@ -116,7 +186,7 @@ export class UserController {
       const user = await this.userService.getUserByUsername(
         params.username.toLowerCase(),
       );
-      if (user.username === 'Admin') {
+      if (user.username === 'admin') {
         res
           .status(401)
           .json({ message: 'Utente Admin non puo essere eliminato' });
@@ -154,13 +224,14 @@ export class UserController {
    * @param res
    * @param params username utente
    */
+  @Roles(Role.Admin)
   @Delete(':username')
   async deleteUserByUsername(@Res() res: Response, @Param() params: any) {
     try {
       const user = await this.userService.getUserByUsername(
         params.username.toLowerCase(),
       );
-      if (user.username === 'Admin') {
+      if (user.username === 'admin') {
         res
           .status(401)
           .json({ message: 'Utente Admin non puo essere eliminato' });
@@ -191,6 +262,7 @@ export class UserController {
    * @param res
    * @param body username utente
    */
+  @Roles(Role.Admin)
   @Post('username')
   async getUserByUsername(@Res() res: Response, @Body() body: any) {
     try {
@@ -198,13 +270,7 @@ export class UserController {
         body.username.toLowerCase(),
       );
       if (user) {
-        const userDTO = new UserDTO();
-        userDTO.email = user.email;
-        userDTO.name = user.name;
-        userDTO.surname = user.surname;
-        userDTO.username = user.username;
-        userDTO.role = user.role.name;
-        res.status(200).json(userDTO);
+        res.status(200).json(user);
       } else res.status(404).json({ message: 'Utente non trovato' });
     } catch (error) {
       console.error("Errore nel recupero dell'utente:", error);

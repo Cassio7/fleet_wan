@@ -12,8 +12,12 @@ export class UserService {
     @InjectDataSource('mainConnection')
     private readonly connection: DataSource,
   ) {}
+
   /**
    * Servizio per la creazione nuovo utente
+   * @param user User DTO
+   * @param role Ruolo da inserire
+   * @returns
    */
   async createUser(user: UserDTO, role): Promise<any> {
     const queryRunner = this.connection.createQueryRunner();
@@ -45,13 +49,17 @@ export class UserService {
    * Ritorna tutti gli utenti
    * @returns Utenti
    */
-  async getAllUsers(): Promise<any> {
+  async getAllUsers(): Promise<UserDTO> {
     const users = await this.userRepository.find({
       relations: {
         role: true,
       },
+      order: {
+        id: 'ASC',
+      },
     });
-    return users;
+    const usersDTO = await this.formatUserDTO(users, true);
+    return usersDTO;
   }
   /**
    * Ritorna un utente in base all'username, se esiste
@@ -65,24 +73,31 @@ export class UserService {
         role: true,
       },
     });
-    return user;
+    if (!user) return false;
+    const userDTO = await this.formatUserDTO(user, false);
+    return userDTO;
   }
-
   /**
    * Ritorna utente in base all'id
    * @param id id utente
    * @returns oggetto utente
    */
-  async getUserById(id: number): Promise<any> {
+  async getUserById(id: number): Promise<UserDTO | boolean> {
     const user = await this.userRepository.findOne({
       where: { id: id },
       relations: {
         role: true,
       },
     });
-    return user;
+    if (!user) return false;
+    const userDTO = await this.formatUserDTO(user, false);
+    return userDTO;
   }
-
+  /**
+   * Servizio per update utente nel database
+   * @param key chiave univoca utente
+   * @param updateUser nuovi dati passati dal controller
+   */
   async updateUser(key: string, updateUser: any) {
     const queryRunner = this.connection.createQueryRunner();
     try {
@@ -122,5 +137,41 @@ export class UserService {
       await queryRunner.commitTransaction();
       await queryRunner.release();
     }
+  }
+
+  /**
+   * Formatta l'output per la visualizzazione nel frontend
+   * @param user Oggetto UserEntity che deve essere filtrato
+   * @param admin Variabile che cambia il tipo di ritorno in base all utente
+   * @returns
+   */
+  private async formatUserDTO(
+    user: UserEntity | UserEntity[],
+    admin: boolean,
+  ): Promise<any> {
+    const usersArray = Array.isArray(user) ? user : [user];
+    const usersDTO = usersArray.map((user) => {
+      const userDTO = new UserDTO();
+      if (admin) {
+        userDTO.id = user.id;
+        userDTO.createdAt = user.createdAt;
+        userDTO.updatedAt = user.updatedAt;
+        userDTO.version = user.version;
+        userDTO.email = user.email;
+        userDTO.name = user.name;
+        userDTO.surname = user.surname;
+        userDTO.username = user.username;
+        userDTO.role = user.role.name;
+        return userDTO;
+      } else {
+        userDTO.email = user.email;
+        userDTO.name = user.name;
+        userDTO.surname = user.surname;
+        userDTO.username = user.username;
+        userDTO.role = user.role.name;
+        return userDTO;
+      }
+    });
+    return Array.isArray(user) ? usersDTO : usersDTO[0];
   }
 }
