@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { NavigationEnd, Router, RouterModule, RouterOutlet } from '@angular/router';
 import { FooterComponent } from "./Common-components/footer/footer.component";
 import { filter, Subject, takeUntil } from 'rxjs';
@@ -29,7 +29,12 @@ import { CookiesService } from './Common-services/cookies service/cookies.servic
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
-  @ViewChild('drawer') drawer!: MatDrawer;
+  //botti dentro sidebar fissa
+  @ViewChild('dashboardBtn') dashboardBtn!: ElementRef;
+  @ViewChild('mezziBtn') mezziBtn!: ElementRef;
+
+  @ViewChild('drawer') drawer!: MatDrawer; //sidebar mobile
+
   isLoginPage = true;
   isLogged = false;
   title = 'frontend_fleet';
@@ -81,6 +86,24 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
       }
     });
     this.cd.detectChanges();
+
+    this.router.events.pipe(filter(event => event instanceof NavigationEnd))
+    .subscribe(() => {
+      const url = this.router.url;
+      switch (url) {
+        case '/dashboard':
+          this.dashboardBtn.nativeElement.style.borderLeft = '5px solid #FFF';
+          this.removeButtonsSelection("dashboard");
+          break;
+        case '/home-mezzi':
+          this.mezziBtn.nativeElement.style.borderLeft = '5px solid #FFF';
+          this.removeButtonsSelection("mezzi");
+          break;
+        default:
+          this.dashboardBtn.nativeElement.style.borderLeft = '5px solid #FFF';
+      }
+      this.cd.detectChanges();
+    });
   }
 
   ngOnInit(): void {
@@ -89,6 +112,21 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
     ).subscribe((event: NavigationEnd) => {
       this.setBackgroundImage(event.urlAfterRedirects);
     });
+  }
+
+  /**
+   * Rimuove la selezione di tutti i bottoni a parte quello selezionato
+   * @param selectedButton label del bottone selezionato
+   */
+  removeButtonsSelection(selectedButton: string){
+    switch(selectedButton){
+      case "dashboard":
+      this.mezziBtn.nativeElement.style.borderLeft = "transparent";
+      break;
+      case "mezzi":
+      this.dashboardBtn.nativeElement.style.borderLeft = "transparent";
+      break;
+    }
   }
 
   setBackgroundImage(url: string): void {
