@@ -16,7 +16,6 @@ export class WorksiteFactoryService {
   constructor(
     @InjectRepository(WorksiteEntity, 'mainConnection')
     private worksiteRepository: Repository<WorksiteEntity>,
-
     @InjectRepository(VehicleEntity, 'mainConnection')
     private vehicleRepository: Repository<VehicleEntity>,
   ) {}
