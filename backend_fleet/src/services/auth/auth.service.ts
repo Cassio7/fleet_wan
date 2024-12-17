@@ -1,14 +1,17 @@
 import { JwtPayload } from './../../../node_modules/@types/jsonwebtoken/index.d';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { UserService } from './../user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
+import { UserEntity } from 'classes/entities/user.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly userService: UserService,
+    @InjectRepository(UserEntity, 'readOnlyConnection')
+    private readonly userRepository: Repository<UserEntity>,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
@@ -23,12 +26,19 @@ export class AuthService {
     username: string,
     password: string,
   ): Promise<{ access_token: string }> {
-    const user = await this.userService.getUserByUsername(username);
+    const user = await this.userRepository.findOne({
+      where: {
+        username: username,
+      },
+    });
     // Se l'utente non esiste
     if (!user) {
       throw new UnauthorizedException(
         'Credenziali non valide: utente non trovato',
       );
+    }
+    if (!password) {
+      throw new Error('Password invalida per la comparazione');
     }
     const isPasswordValid = await bcrypt.compare(password, user.password);
     // se password non uguale
