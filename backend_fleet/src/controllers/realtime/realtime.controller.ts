@@ -101,6 +101,9 @@ export class RealtimeController {
   async updateRealtime(@Res() res: Response) {
     try {
       await this.realtimeService.clearRealtime();
+      console.log(
+        'Aggiornamento Realtime richiesto alle: ' + new Date().toISOString(),
+      );
       const realtimePromises = [
         this.realtimeService.setRealtime(254, 313), // Gesenu principale
         this.realtimeService.setRealtime(305, 650), // TSA principale
