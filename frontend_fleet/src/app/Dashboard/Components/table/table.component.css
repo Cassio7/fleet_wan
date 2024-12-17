@@ -24,7 +24,7 @@ tr, td, th {
 }
 
 .check-icon {
-  color: #26a668;
+  color: var(--sidebar-color);
 }
 
 .mat-cell {

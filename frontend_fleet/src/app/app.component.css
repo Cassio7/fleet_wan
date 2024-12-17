@@ -1,16 +1,27 @@
-.fixed-drawer-container{
-  width: 6vw;
-}
 .fixed-drawer-content {
   width: 100%;
   height: 100vh;
-  background-color: #26a668;
+  background-color: var(--sidebar-color);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   box-sizing: border-box;
   overflow: hidden;
 }
+
+.fixed-drawer-content button {
+  width: 100%;
+  background-color: transparent;
+  border: transparent;
+  color: white;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+}
+
+.fixed-drawer-content button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
 
 .fixed-main-actions {
   margin-top: clamp(10px, 2vh, 20px);
@@ -24,7 +35,7 @@
 
 .fixed-main-actions mat-icon,
 .log-out mat-icon {
-  transform: scale(2);
+  transform: scale(1.5);
   color: white;
 }
 
@@ -77,7 +88,7 @@
 .sidebar {
   padding: clamp(10px, 2vw, 20px);
   width: 300px;
-  background-color: #26a668;
+  background-color: var(--sidebar-color);
 }
 
 .drawer-content {
