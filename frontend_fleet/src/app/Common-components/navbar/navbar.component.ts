@@ -22,16 +22,11 @@ import { CommonService } from '../../Common-services/common service/common.servi
   styleUrl: './navbar.component.css'
 })
 export class NavbarComponent {
-  @Output() toggleSidebar = new EventEmitter<void>();
 
   constructor(
     private commonService: CommonService,
     private router: Router
   ){}
-
-  notifySidebar() {
-    this.toggleSidebar.emit();
-  }
 
   logout(){
     localStorage.removeItem("user");

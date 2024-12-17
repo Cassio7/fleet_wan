@@ -1,17 +1,15 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { NavigationEnd, Router, RouterModule, RouterOutlet } from '@angular/router';
 import { FooterComponent } from "./Common-components/footer/footer.component";
 import { filter, Subject, takeUntil } from 'rxjs';
 import { MatDrawer, MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatIcon } from '@angular/material/icon';
+import { MatIcon, MatIconModule } from '@angular/material/icon';
 import { NavbarComponent } from './Common-components/navbar/navbar.component';
 import { MatButtonModule } from '@angular/material/button';
 import { LoginService } from './Common-services/login service/login.service';
 import { CommonModule } from '@angular/common';
-import { SessionStorageService } from './Common-services/sessionStorage/session-storage.service';
 import { CookiesService } from './Common-services/cookies service/cookies.service';
-import { CommonService } from './Common-services/common service/common.service';
 
 @Component({
   selector: 'app-root',
@@ -21,12 +19,12 @@ import { CommonService } from './Common-services/common service/common.service';
     RouterModule,
     CommonModule,
     FooterComponent,
-    MatIcon,
+    MatIconModule,
     MatButtonModule,
     NavbarComponent,
     MatSidenavModule,
-    MatToolbarModule,
-  ],
+    MatToolbarModule
+],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -92,7 +90,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
       this.setBackgroundImage(event.urlAfterRedirects);
     });
   }
-
 
   setBackgroundImage(url: string): void {
     const body = document.body;
