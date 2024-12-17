@@ -21,7 +21,7 @@ export class AssociationFactoryService {
 
   async createDefaultAssociation(): Promise<AssociationEntity[]> {
     const admin = await this.userRepository.findOne({
-      where: { username: 'Admin' },
+      where: { username: 'admin' },
     });
 
     if (!admin) throw new Error('User "Admin" not found');
