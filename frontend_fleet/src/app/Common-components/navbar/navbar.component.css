@@ -1,12 +1,14 @@
 .navbar {
   width: 100%;
+  height: var(--navbar-height);
+  background-color: var(--navbarANDstats-brackground);
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 10px;
   box-sizing: border-box;
   cursor: pointer;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border-bottom: 2px solid white;
 }
 
 .left-side {

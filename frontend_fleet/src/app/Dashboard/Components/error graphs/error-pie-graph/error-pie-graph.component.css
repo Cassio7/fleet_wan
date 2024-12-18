@@ -1,11 +1,3 @@
-.chart-container {
-  position: relative;
-}
-
-.inner-text {
-  position: absolute;
-  top: 50%;
-  left: 10.5vw;
-  transform: translate(-50%, -50%);
-  font-size: 1vw;
+.chart-container{
+  cursor: pointer;
 }

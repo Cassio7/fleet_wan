@@ -1,47 +1,12 @@
-.graph-card {
-  width: 100%;
-  cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  box-sizing: border-box;
-  height: auto;
-  border-radius: 0;
-}
-
-.graph-card mat-card-header {
-  width: 100%;
+.graph {
   display: flex;
+  justify-content: center;
   align-items: center;
-  gap: 3%;
-  justify-content: flex-start;
+  height: 100%;
 }
 
-.graph-card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.2);
+.graph-card {
+  height: 23vh;
+  display: flex;
+  flex-direction: column;
 }
-
-.graph-title {
-  font-size: 20px;
-  flex-grow: 0;
-  margin: 0;
-  padding: 0;
-  white-space: nowrap;
-}
-
-.select-title {
-  font-size: 15px;
-  white-space: nowrap;
-  flex-grow: 0;
-  max-width: 50%;
-}
-
-.select-formField {
-  flex-grow: 1;
-  max-width: 50%;
-}
-
-.graph-select {
-  width: 100%;
-}
-
-
