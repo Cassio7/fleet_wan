@@ -16,7 +16,7 @@ html, body, h1, h2, h3, h4, h5, h6, th, td, mat-card-title{
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 :root {
-  --sidebar-color: #26a668;
+  --sidebar-color: #5C9074;
   --navbar-height: 7vh;
-  --navbarANDstats-brackground: rgba(233, 233, 233, 0.89);
+  --navbarANDstats-brackground: rgb(230, 230, 230);
 }

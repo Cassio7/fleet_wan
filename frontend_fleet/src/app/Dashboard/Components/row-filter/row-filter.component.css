@@ -8,7 +8,7 @@
 }
 
 .filters-btn{
-  background-color: green;
+  background-color: var(--sidebar-color);
   border-radius: 0px !important;
   color: white;
 }

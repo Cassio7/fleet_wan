@@ -19,8 +19,8 @@
     <ng-container matColumnDef="GPS">
       <th mat-header-cell *matHeaderCellDef> GPS </th>
       <td mat-cell *matCellDef="let vehicle">
-        <mat-icon class="warning-icon" [matTooltip]="checkGpsError(vehicle)" *ngIf="checkGpsError(vehicle)" [matTooltipClass]="'gps-tooltip'">share_location</mat-icon>
-        <mat-icon class="check-icon" *ngIf="!checkGpsError(vehicle)" matTooltip="Possiede un GPS funzionante">share_location</mat-icon>
+        <mat-icon class="warning-icon" [matTooltip]="checkGpsError(vehicle)" *ngIf="checkGpsError(vehicle)" [matTooltipClass]="'gps-tooltip'">location_on</mat-icon>
+        <mat-icon class="check-icon" *ngIf="!checkGpsError(vehicle)" matTooltip="Possiede un GPS funzionante">location_on</mat-icon>
       </td>
     </ng-container>
 
@@ -29,11 +29,10 @@
       <th mat-header-cell *matHeaderCellDef> Antenna </th>
       <td mat-cell *matCellDef="let vehicle">
         <div class="icon-container">
-          <mat-icon *ngIf="vehicle.isRFIDReader && !checkAntennaError(vehicle)" class="check-icon" matTooltip="Possiede un'antenna RFID funzionante">settings_input_antenna</mat-icon>
-          <mat-icon *ngIf="vehicle.isRFIDReader && checkAntennaError(vehicle)" class="error-icon" [matTooltip]="checkAntennaError(vehicle) ? checkAntennaError(vehicle) : 'Anomalia antenna RFID'">settings_input_antenna</mat-icon>
-          <div class="antennaClose-icon">
-            <mat-icon *ngIf="!vehicle.isRFIDReader && !checkAntennaError(vehicle)" class="antenna-icon" matTooltip="Non ha un'antenna RFID">settings_input_antenna</mat-icon>
-            <mat-icon *ngIf="!vehicle.isRFIDReader && !checkAntennaError(vehicle)" class="close-icon" matTooltip="Non possiede un'antenna RFID">close</mat-icon>
+          <mat-icon *ngIf="vehicle.isRFIDReader && !checkAntennaError(vehicle)" class="check-icon" matTooltip="Possiede un'antenna RFID funzionante">wifi_off</mat-icon>
+          <mat-icon *ngIf="vehicle.isRFIDReader && checkAntennaError(vehicle)" class="error-icon" [matTooltip]="checkAntennaError(vehicle) ? checkAntennaError(vehicle) : 'Anomalia antenna RFID'">wifi_off</mat-icon>
+          <div class="noAntenna-icon">
+            <mat-icon *ngIf="!vehicle.isRFIDReader && !checkAntennaError(vehicle)" class="antenna-icon" matTooltip="Non ha un'antenna RFID">wifi_off</mat-icon>
           </div>
         </div>
       </td>

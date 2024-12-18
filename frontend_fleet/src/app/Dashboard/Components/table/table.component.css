@@ -1,20 +1,48 @@
-.table-over {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-tr, td, th {
-  text-align: center;
-}
-
+/* Contenitore della tabella */
 .table-container {
   border-radius: 10px;
   height: 80vh;
   overflow-y: auto;
   box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
+  display: block; /* Assicurati che la tabella abbia un comportamento di contenitore di blocco */
 }
 
+/* Stili per le righe della tabella */
+tr.mat-header-row, tr.mat-row {
+  height: 100%; /* Assicurati che le righe abbiano un'altezza di 100% */
+  display: flex;
+  justify-content: center; /* Centra le righe */
+}
+
+/* Centra il contenuto nelle celle (sia nelle righe che nelle intestazioni) */
+.mat-cell, th.mat-header-cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center; /* Centra il testo se non usi Flexbox */
+  height: 100%;
+  box-sizing: border-box;
+}
+
+/* Aggiungi la classe header-center per il contenuto centrato nell'intestazione */
+.header-center {
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Centra il contenuto in tutte le celle (td) */
+td.mat-cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+/* Icone di stato */
 .warning-icon {
   color: #ffcc00;
 }
@@ -27,15 +55,7 @@ tr, td, th {
   color: var(--sidebar-color);
 }
 
-.mat-cell {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0;
-  height: 100%;
-  box-sizing: border-box;
-}
-
+/* Contenitore per le icone nelle celle */
 .icon-container {
   position: relative;
   display: inline-block;
@@ -43,6 +63,7 @@ tr, td, th {
   height: 24px;
 }
 
+/* Icona antenna */
 .antenna-icon, .close-icon {
   position: absolute;
   top: 0;
@@ -51,6 +72,7 @@ tr, td, th {
   line-height: 24px;
 }
 
+/* Stili per l'antenna e la chiusura */
 .antenna-icon {
   color: #479dff;
 }
@@ -59,11 +81,14 @@ tr, td, th {
   color: #d12717;
 }
 
-.check-noReader, .error-icon, .close-icon, .check-icon, .warning-icon {
+.warning-icon, .error-icon, .check-icon, .antenna-icon, .close-icon, .noAntenna-icon {
   cursor: pointer;
   transition: transform 0.2s;
 }
 
-.check-noReader:hover, .error-icon:hover, .close-icon:hover, .check-icon:hover, .warning-icon:hover {
-  transform: scale(1.1);
+/* Utilizzo di Flexbox per la riga con le celle */
+.table-over {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
