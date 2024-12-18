@@ -40,7 +40,7 @@ export class NavbarComponent implements OnInit{
           this.icon = "dashboard";
           break;
         case '/home-mezzi':
-          this.currentPage = "Mezzi";
+          this.currentPage = "Parco mezzi";
           this.icon = "local_shipping";
           break;
         default:

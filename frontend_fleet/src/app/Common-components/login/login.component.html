@@ -51,9 +51,7 @@
           Accesso... <mat-spinner mode="indeterminate" class="success-spinner"></mat-spinner>
         </p>
         <mat-error *ngIf="credentialsError">Credenziali non valide</mat-error>
-        <mat-error *ngIf="timeoutCountdown > 1">
-        Troppi tentativi: prossimo tentativo fra {{ timeoutCountdown / 1000 | number:'1.0-0' }} secondi
-        </mat-error>
+        <mat-error *ngIf="timeoutCountdown > 1">Troppi tentativi: prossimo tentativo fra {{ timeoutCountdown / 1000 | number:'1.0-0' }} secondi</mat-error>
 
         <!-- Submit -->
         <button mat-raised-button
