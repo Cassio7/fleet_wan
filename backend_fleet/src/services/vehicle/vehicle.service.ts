@@ -184,12 +184,11 @@ export class VehicleService {
       });
 
       // Inserisci o aggiorna i dispositivi associati
-      const newdevice = await this.putAllDevice(lists);
+      await this.putAllDevice(lists);
 
-      const deviceIds = newdevice.map((device) => device.device_id);
-      const devices1 = await queryRunner.manager
+      const devices = await queryRunner.manager
         .getRepository(DeviceEntity)
-        .findBy({ device_id: In(deviceIds) });
+        .find();
 
       // Troviamo tutti i veicoli esistenti in un'unica query
       const vehicleIds = filteredDataVehicles.map((vehicle) => vehicle.id);
@@ -200,7 +199,9 @@ export class VehicleService {
       const existingVehicleMap = new Map(
         existingVehicles.map((vehicle) => [vehicle.veId, vehicle]),
       );
-
+      const deviceMap = new Map(
+        devices.map((device) => [device.device_id, device]),
+      );
       let flag = 0;
       const newVehicles = [];
       const updatedVehicles = [];
@@ -210,6 +211,7 @@ export class VehicleService {
 
         if (!existingVehicle) {
           // Nuovo veicolo
+          const device = deviceMap.get(Number(vehicle.deviceId));
           const newVehicle = queryRunner.manager
             .getRepository(VehicleEntity)
             .create({
@@ -224,7 +226,7 @@ export class VehicleService {
               isRFIDReader: vehicle.isRFIDReader,
               profileId: vehicle.profileId,
               profileName: vehicle.profileName,
-              device: devices1[flag],
+              device: device,
               hash: vehicle.hash,
             });
           newVehicles.push(newVehicle);
@@ -394,7 +396,6 @@ export class VehicleService {
           await queryRunner.manager
             .getRepository(DeviceEntity)
             .update({ key: device.key }, device);
-          //.update(device.device_id, device);
         }
       }
       await queryRunner.commitTransaction();
