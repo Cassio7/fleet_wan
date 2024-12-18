@@ -94,7 +94,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
     .subscribe(() => {
       const url = this.router.url;
       this.selectButton(url);
-      console.log(this.dashboardBtn.nativeElement.classList);
     });
   }
 

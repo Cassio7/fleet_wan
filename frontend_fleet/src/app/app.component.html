@@ -1,4 +1,4 @@
-<mat-drawer-container >
+<mat-drawer-container>
   <mat-drawer #fixedDrawer mode="side" class="fixed-drawer-container" opened *ngIf="!drawer.opened" [style.display]="isLoginPage ? 'none' : 'block'">
     <div class="fixed-drawer-content">
       <div class="fixed-main-actions">
@@ -10,7 +10,7 @@
         <button><mat-icon>settings</mat-icon></button>
       </div>
       <div class="log-out">
-        <button mat-button [matMenuTriggerFor]="menu"><mat-icon>power_settings_new</mat-icon></button>
+        <button [matMenuTriggerFor]="menu"><mat-icon>power_settings_new</mat-icon></button>
         <mat-menu #menu="matMenu">
           <button mat-menu-item (click)="logout()">Esci</button>
         </mat-menu>
