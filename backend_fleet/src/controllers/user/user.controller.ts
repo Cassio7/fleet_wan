@@ -58,25 +58,24 @@ export class UserController {
   @Post()
   async createUser(@Res() res: Response, @Body() userDTO: UserDTO) {
     try {
+      const regex = /\d/;
+      if (!userDTO.username || regex.test(userDTO.username))
+        return res.status(404).json({
+          message:
+            'Inserisci un username valido, non vuoto e non devono esserci numeri',
+        });
       const exist = await this.userService.getUserByUsername(userDTO.username);
       const role = await this.roleService.getRoleByName(userDTO.role);
-      if (!exist) {
-        if (role) {
-          const user = await this.userService.createUser(userDTO, role);
-          console.log('Utente con username: ' + user.username + ' salvato!');
-          const userDTOfinal = new UserDTO();
-          userDTOfinal.email = user.email;
-          userDTOfinal.name = user.name;
-          userDTOfinal.surname = user.surname;
-          userDTOfinal.username = user.username;
-          userDTOfinal.role = user.role.name;
-          res.status(200).json(userDTOfinal);
-        } else {
-          res.status(404).json({ message: 'Ruolo non trovato' });
-        }
-      } else {
-        res.status(409).json({ message: 'Username esistente' });
-      }
+      if (exist)
+        return res
+          .status(409)
+          .json({ message: 'Username esistente, scegline un altro' });
+      if (!role) return res.status(404).json({ message: 'Ruolo non trovato' });
+      const user = await this.userService.createUser(userDTO, role);
+      console.log('Utente con username: ' + user.username + ' salvato!');
+      res
+        .status(200)
+        .json({ message: `Utente con username ${user.username} salvato!` });
     } catch (error) {
       console.error('Errore nella registrazione del nuovo utente:', error);
       res
@@ -105,10 +104,46 @@ export class UserController {
       res.status(500).json({ message: "Errore nel recupero dell'utente" });
     }
   }
+
+  /**
+   * API  per cambiare le infromazioni utente in base al token JWT fornito
+   * @param res
+   * @param req Prendo user loggato
+   * @param userDTO Nuovi dati aggiornati
+   * @returns
+   */
+  @Roles(Role.Admin, Role.Capo, Role.Responsabile)
+  @Put('me')
+  async updateProfile(
+    @Res() res: Response,
+    @Req() req: Request & { user: UserFromToken },
+    @Body() userDTO: UserDTO,
+  ) {
+    try {
+      const user = await this.userRepository.findOne({
+        where: {
+          id: req.user.id,
+        },
+      });
+      if (!user) {
+        return res.status(404).json({ message: 'Utente non trovato' });
+      }
+      const updateUser = {
+        email: userDTO.email || user.email,
+        name: userDTO.name || user.name,
+        surname: userDTO.surname || user.surname,
+      };
+      await this.userService.updateUser(user.key, updateUser);
+      res.status(200).json({ message: 'Profilo aggiornato con successo' });
+    } catch (error) {
+      console.error("Errore nel recupero dell'utente:", error);
+      res.status(500).json({ message: "Errore nel recupero dell'utente" });
+    }
+  }
   /**
    * API per cambiare la password di un utente in base al token JWT fornito
    * @param res
-   * @param req token JWT recuperato
+   * @param req Prendo user loggato
    * @param body vecchia password e la nuova password
    */
   @Roles(Role.Admin, Role.Capo, Role.Responsabile)
@@ -176,44 +211,51 @@ export class UserController {
    * @param userDTO nuovi dati dal body
    */
   @Roles(Role.Admin)
-  @Put(':username')
-  async updateUserByUsername(
+  @Put(':id')
+  async updateUserById(
     @Res() res: Response,
     @Param() params: any,
     @Body() userDTO: UserDTO,
   ) {
     try {
-      const user = await this.userService.getUserByUsername(
-        params.username.toLowerCase(),
-      );
-      if (user.username === 'admin') {
-        res
+      const user = await this.userRepository.findOne({
+        where: {
+          id: params.id,
+        },
+      });
+      if (!user) return res.status(404).json({ message: 'Utente non trovato' });
+      if (user.username === 'admin')
+        return res
           .status(401)
-          .json({ message: 'Utente Admin non puo essere eliminato' });
-      } else {
-        if (user) {
-          const role = await this.roleService.getRoleByName(userDTO.role);
-          if (role) {
-            const bcrypt = require('bcrypt');
-            const salt = await bcrypt.genSalt(10);
-            const hashPassword = await bcrypt.hash(userDTO.password, salt);
-            const updateUser = {
-              email: userDTO.email,
-              name: userDTO.name,
-              surname: userDTO.surname,
-              password: hashPassword,
-              role: role,
-            };
-            await this.userService.updateUser(user.key, updateUser);
-            console.log(
-              'Utente con username: ' +
-                params.username.toLowerCase() +
-                ' aggiornato!',
-            );
-            res.status(200).json(userDTO);
-          } else res.status(404).json({ message: 'Ruolo non trovato' });
-        } else res.status(404).json({ message: 'Utente non trovato' });
-      }
+          .json({ message: 'Utente Admin non puo essere aggiornato' });
+      const role = await this.roleService.getRoleByName(userDTO.role);
+      if (!role) return res.status(404).json({ message: 'Ruolo non trovato' });
+      const bcrypt = require('bcrypt');
+      const salt = await bcrypt.genSalt(10);
+      const hashPassword = await bcrypt.hash(userDTO.password, salt);
+      const regex = /\d/;
+      if (!userDTO.username || regex.test(userDTO.username))
+        return res.status(404).json({
+          message:
+            'Inserisci un username valido, non vuoto e non devono esserci numeri',
+        });
+      const updateUser = {
+        username: userDTO.username,
+        email: userDTO.email,
+        name: userDTO.name,
+        surname: userDTO.surname,
+        password: hashPassword,
+        role: role,
+      };
+      await this.userService.updateUser(user.key, updateUser);
+      console.log(
+        `Utente con username ${userDTO.username || user.username} aggiornato!`,
+      );
+      res.status(200).json({
+        message: `Utente con username ${
+          userDTO.username || user.username
+        } aggiornato!`,
+      });
     } catch (error) {
       console.error('Errore aggiornamento utente:', error);
       res.status(500).json({ message: 'Errore aggiornamento utente' });
@@ -225,32 +267,24 @@ export class UserController {
    * @param params username utente
    */
   @Roles(Role.Admin)
-  @Delete(':username')
-  async deleteUserByUsername(@Res() res: Response, @Param() params: any) {
+  @Delete(':id')
+  async deleteUserById(@Res() res: Response, @Param() params: any) {
     try {
-      const user = await this.userService.getUserByUsername(
-        params.username.toLowerCase(),
-      );
-      if (user.username === 'admin') {
-        res
+      const user = await this.userRepository.findOne({
+        where: {
+          id: params.id,
+        },
+      });
+      if (!user) return res.status(404).json({ message: 'Utente non trovato' });
+      if (user.username === 'admin')
+        return res
           .status(401)
           .json({ message: 'Utente Admin non puo essere eliminato' });
-      } else {
-        if (user) {
-          await this.userService.deleteUser(user);
-          console.log(
-            'Utente con username: ' +
-              params.username.toLowerCase() +
-              ' eliminato!',
-          );
-          res.status(200).json({
-            message:
-              'Utente con username: ' +
-              params.username.toLowerCase() +
-              ' eliminato!',
-          });
-        } else res.status(404).json({ message: 'Utente non trovato' });
-      }
+      await this.userService.deleteUser(user);
+      console.log(`Utente con username ${user.username} eliminato!`);
+      res.status(200).json({
+        message: `Utente con username ${user.username} eliminato!`,
+      });
     } catch (error) {
       console.error("Errore nel recupero dell'utente:", error);
       res.status(500).json({ message: "Errore nel recupero dell'utente" });
