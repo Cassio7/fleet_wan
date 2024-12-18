@@ -3,7 +3,11 @@
     <p class="page-p"><mat-icon>{{icon}}</mat-icon>/{{currentPage}}</p>
   </div>
   <div class="right-side">
-    <button mat-button class="notifications-btn"><mat-icon>notifications</mat-icon></button>
+    <!-- <button mat-button class="notifications-btn"><mat-icon>notifications</mat-icon></button> -->
+    <div class="profile-info">
+      <p class="username">Username</p>
+      <p class="role">Role</p>
+    </div>
     <button mat-button [matMenuTriggerFor]="menu" class="account-circle-btn"><div mat-card-avatar class="account-circle"></div></button>
     <mat-menu #menu="matMenu">
       <button mat-menu-item (click)="logout()">Esci</button>
