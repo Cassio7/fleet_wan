@@ -190,45 +190,83 @@ export class AppService implements OnModuleInit {
   }
 
   async anomalyCheck(start: string, end: string) {
-    const dateFrom_new = new Date(start);
-    const dateTo_new = new Date(end);
-    const daysInRange = getDaysInRange(dateFrom_new, dateTo_new);
-    await Promise.all(
-      daysInRange.slice(0, -1).map(async (day) => {
-        const datefrom = day;
-        const dateto = new Date(datefrom);
-        dateto.setDate(dateto.getDate() + 1);
-        const data = await this.anomalyService.checkErrors(
-          datefrom,
-          dateto.toISOString(),
-        );
-        if (data !== false) {
-          const promises = data.map(async (item) => {
-            const veId = item.veId;
-            const session = item.anomaliaSessione || null;
-            let gps = null;
-            let antenna = null;
-            let date = null;
-            if (item.sessions[0]) {
-              date = item.sessions[0].date || null;
-              if (item.sessions[0].anomalies) {
-                gps = item.sessions[0].anomalies.GPS || null;
-                antenna = item.sessions[0].anomalies.Antenna || null;
-              }
-            }
-            await this.anomalyService.createAnomaly(
-              veId,
-              date,
-              gps,
-              antenna,
-              session,
-            );
-          });
-          await Promise.all(promises);
-        }
-      }),
+    try {
+      const dateFrom = new Date(start);
+      const dateTo = new Date(end);
+      const daysInRange = getDaysInRange(dateFrom, dateTo);
+
+      await Promise.all(
+        daysInRange.slice(0, -1).map(async (day) => {
+          const datefrom = day;
+          const dateto = new Date(datefrom);
+          dateto.setDate(dateto.getDate() + 1);
+
+          const data = await this.anomalyService.checkErrors(
+            datefrom,
+            dateto.toISOString(),
+          );
+
+          if (data && data.length > 0) {
+            await this.processAnomalies(data);
+          }
+        }),
+      );
+
+      console.log('Anomaly check aggiornato alle: ' + new Date().toISOString());
+    } catch (error) {
+      console.error('Errore durante il controllo delle anomalie:', error);
+    }
+  }
+
+  private async processAnomalies(data: any[]) {
+    const anomalyPromises = data.flatMap((item) => [
+      this.createAnomalyFromSession(item),
+      this.createAnomalyFromAnomaliaSessione(item),
+    ]);
+
+    await Promise.all(anomalyPromises);
+  }
+
+  /**
+   * 
+   * @param item 
+   * @returns 
+   */
+  private async createAnomalyFromSession(item: any) {
+    const veId = item.veId;
+    let date = null;
+    let gps = null;
+    let antenna = null;
+    let session = null;
+
+    if (item.sessions && item.sessions[0]) {
+      date = item.sessions[0].date || null;
+      if (item.sessions[0].anomalies) {
+        gps = item.sessions[0].anomalies.GPS || null;
+        antenna = item.sessions[0].anomalies.Antenna || null;
+      }
+    }
+
+    return this.anomalyService.createAnomaly(veId, date, gps, antenna, session);
+  }
+
+  /**
+   * mi permette di creare una anomalia in data ordierna nel caso anomaliaSessione fosse presente,
+   * dato che non viene controllato per ogni giorno ma solo nell ultimo stato
+   * @param item
+   * @returns
+   */
+  private async createAnomalyFromAnomaliaSessione(item: any) {
+    const veId = item.veId;
+    const session = item.anomaliaSessione || null;
+
+    return this.anomalyService.createAnomaly(
+      veId,
+      null, // date
+      null, // gps
+      null, // antenna
+      session,
     );
-    console.log('Anomaly check aggiornato alle: ' + new Date().toISOString());
   }
 
   //@Cron('*/5 * * * *')
