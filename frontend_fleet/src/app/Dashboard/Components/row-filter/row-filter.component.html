@@ -1,9 +1,36 @@
 <div class="filter-container">
-  <mat-form-field class="filter-form">
+  <mat-form-field class="targa-filter">
+    <mat-label>Targa</mat-label>
+    <input matInput type="text" value="Fixed Value" #targa>
+    <button *ngIf="targa.value" matSuffix mat-icon-button aria-label="Clear" (click)="targa.value = ''">
+      <mat-icon>close</mat-icon>
+    </button>
+  </mat-form-field>
+  <mat-form-field class="cantieri-filter">
     <mat-select [formControl]="cantieri" placeholder="Cantiere" multiple>
       <mat-option [value]="cantiere" (click)="selectCantiere(cantiere)" *ngFor="let cantiere of listaCantieri">
-        {{cantiere}}
+        {{ cantiere }}
       </mat-option>
     </mat-select>
   </mat-form-field>
+  <mat-form-field class="GPS-state-filter">
+    <mat-select [formControl]="cantieri" placeholder="Stati GPS" multiple>
+      <mat-option value="Funzionante">Funzionante</mat-option>
+      <mat-option value="Warning">Warning</mat-option>
+      <mat-option value="Errore">Errore</mat-option>
+    </mat-select>
+    <mat-icon matSuffix>share_location</mat-icon>
+  </mat-form-field>
+  <mat-form-field class="antenna-filter">
+    <mat-select [formControl]="cantieri" placeholder="Stati antenna" multiple>
+      <mat-option value="Blackbox">Blackbox</mat-option>
+      <mat-option value="Blackbox+antenna">Blackbox + antenna</mat-option>
+    </mat-select>
+    <mat-icon matSuffix>wifi</mat-icon>
+  </mat-form-field>
+
+  <!-- Aggiunta del pulsante -->
+  <div class="button-container">
+    <button mat-raised-button color="primary" class="filters-btn">Applica Filtri</button>
+  </div>
 </div>

@@ -1,0 +1,17 @@
+.filter-container {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  gap: 2vw;
+  flex-wrap: wrap;
+  margin: 16px 0;
+}
+
+.filters-btn{
+  background-color: green;
+  border-radius: 0px !important;
+  color: white;
+}
+mat-form-field {
+  flex: 1;
+}

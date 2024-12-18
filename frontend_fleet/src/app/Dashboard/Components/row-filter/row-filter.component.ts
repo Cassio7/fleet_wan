@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { FormGroup, FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormGroup, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatOptionModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -8,6 +8,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { skip, Subject, takeUntil } from 'rxjs';
 import { FilterService } from '../../../Common-services/filter/filter.service';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-row-filter',
@@ -17,8 +20,10 @@ import { FilterService } from '../../../Common-services/filter/filter.service';
     MatSelectModule,
     MatCheckboxModule,
     MatFormFieldModule,
+    MatIconModule,
     MatOptionModule,
     ReactiveFormsModule,
+    MatFormFieldModule, MatInputModule, FormsModule, MatButtonModule, MatIconModule
   ],
   templateUrl: './row-filter.component.html',
   styleUrl: './row-filter.component.css'
