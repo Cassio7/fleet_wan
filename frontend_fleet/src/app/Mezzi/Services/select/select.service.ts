@@ -142,7 +142,7 @@ export class SelectService {
   }
 
   /**
-   * Seleziona tutti i veicoli
+   * Imposta i veicoli selezionati
    * @param vehicles veicoli da selezionare
    */
   selectVehicles(vehicles: Vehicle[]) {

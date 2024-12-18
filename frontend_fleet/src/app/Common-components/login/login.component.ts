@@ -187,6 +187,9 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy{
     return false;
   }
 
+  /**
+   * Elimina i cookies salvati
+   */
   private deleteCookies(){
     this.cookiesService.deleteCookie("timeoutTime");
     this.cookiesService.deleteCookie("attempts");

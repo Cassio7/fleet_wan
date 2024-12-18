@@ -1,5 +1,5 @@
 <p class="nVeicoli">Numero di veicoli: {{vehicleTableData.data.length}}</p>
-
+<button mat-raised-button (click)="resetSelections()">Reimposta filtri</button>
 <div class="table-container">
   <table mat-table [dataSource]="vehicleTableData" #vehicleTable class="mat-elevation-z8">
 

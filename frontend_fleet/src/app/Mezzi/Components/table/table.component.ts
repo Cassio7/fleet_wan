@@ -133,6 +133,11 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
   }
 
 
+  /**
+   * Accorpa i veicoli alla propria nota corrispondente
+   * @param vehicles array di veicoli
+   * @param notes array di note
+   */
   mergeVehiclesWithNotes(vehicles: Vehicle[], notes: Note[] | Note){
     const notesArray = Array.isArray(notes) ? notes : [notes]; //rendere un array anche se nota singola
 
@@ -297,4 +302,14 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
     return this.sortService.sortVehiclesByFirstEventAsc(this.mezziFilterService.filterFirstEventsDuplicates(this.sortedVehicles));
   }
 
+  /**
+   * Resetta tutte le selezioni
+   */
+  resetSelections(){
+    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+    this.selectService.selectVehicles(allVehicles);
+    this.vehicleTableData.data = allVehicles;
+    this.selectService.allOptionsSelected = true;
+    this.cd.detectChanges();
+  }
 }
