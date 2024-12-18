@@ -1,8 +1,8 @@
 <mat-drawer-container >
-  <mat-drawer mode="side" class="fixed-drawer-container" opened *ngIf="!drawer.opened" [style.display]="isLoginPage ? 'none' : 'block'">
+  <mat-drawer #fixedDrawer mode="side" class="fixed-drawer-container" opened *ngIf="!drawer.opened" [style.display]="isLoginPage ? 'none' : 'block'">
     <div class="fixed-drawer-content">
       <div class="fixed-main-actions">
-        <button class="menu-btn" (click)="drawer.toggle()"><mat-icon>menu</mat-icon></button>
+        <button class="menu-btn" (click)="toggleDrawer()"><mat-icon>menu</mat-icon></button>
         <button routerLink="dashboard" #dashboardBtn><mat-icon>dashboard</mat-icon></button>
         <button routerLink="home-mezzi" #mezziBtn><mat-icon>local_shipping</mat-icon></button>
         <button><mat-icon>map</mat-icon></button>
@@ -21,7 +21,7 @@
     <mat-drawer-container class="drawer-container" style="height: 100vh" [ngClass]="{'bg-image': isLoginPage}">
       <mat-drawer #drawer mode="side" class="sidebar">
         <div class="drawer-content">
-          <button mat-button class="menu-btn" (click)="drawer.toggle()"><mat-icon>menu</mat-icon></button>
+          <button mat-button class="menu-btn" (click)="toggleDrawer()"><mat-icon>menu</mat-icon></button>
           <img class="sidebar-logo" src="assets/logo.png" alt="Logo">
 
           <hr> <!--linea di separazione-->

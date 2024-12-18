@@ -33,6 +33,12 @@
   gap: clamp(5px, 1vh, 10px);
 }
 
+.btnSelected {
+  border-left: 5px solid white !important;
+}
+
+
+
 .fixed-main-actions mat-icon,
 .log-out mat-icon {
   transform: scale(1.5);

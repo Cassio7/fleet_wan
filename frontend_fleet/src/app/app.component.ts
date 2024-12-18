@@ -32,10 +32,11 @@ import { MatMenuModule } from '@angular/material/menu';
 })
 export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
   //botti dentro sidebar fissa
-  @ViewChild('dashboardBtn') dashboardBtn!: ElementRef;
-  @ViewChild('mezziBtn') mezziBtn!: ElementRef;
+  @ViewChild('dashboardBtn', { static: false }) dashboardBtn!: ElementRef;
+  @ViewChild('mezziBtn', { static: false }) mezziBtn!: ElementRef;
 
   @ViewChild('drawer') drawer!: MatDrawer; //sidebar mobile
+  @ViewChild('fixedDrawer') fixedDrawer!: MatDrawer; //sidebar fissa
 
   isLoginPage = true;
   isLogged = false;
@@ -92,19 +93,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
     this.router.events.pipe(filter(event => event instanceof NavigationEnd))
     .subscribe(() => {
       const url = this.router.url;
-      switch (url) {
-        case '/dashboard':
-          this.dashboardBtn.nativeElement.style.borderLeft = '5px solid #FFF';
-          this.removeButtonsSelection("dashboard");
-          break;
-        case '/home-mezzi':
-          this.mezziBtn.nativeElement.style.borderLeft = '5px solid #FFF';
-          this.removeButtonsSelection("mezzi");
-          break;
-        default:
-          this.dashboardBtn.nativeElement.style.borderLeft = '5px solid #FFF';
-      }
-      this.cd.detectChanges();
+      this.selectButton(url);
+      console.log(this.dashboardBtn.nativeElement.classList);
     });
   }
 
@@ -117,23 +107,29 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
   }
 
   /**
-   * Rimuove la selezione di tutti i bottoni a parte quello selezionato
-   * @param selectedButton label del bottone selezionato
+   * Selezionato un bottone attivandogli la classe dedicata
+   * @param selectedUrl url da controllare
    */
-  removeButtonsSelection(selectedButton: string){
-    switch(selectedButton){
-      case "dashboard":
-      this.mezziBtn.nativeElement.style.borderLeft = "transparent";
-      break;
-      case "mezzi":
-      this.dashboardBtn.nativeElement.style.borderLeft = "transparent";
-      break;
+  selectButton(selectedUrl: string){
+    if (this.dashboardBtn && this.mezziBtn) {
+      const isDashboard = selectedUrl === '/dashboard';
+      const isMezzi = selectedUrl === '/home-mezzi';
+      this.dashboardBtn.nativeElement.classList.toggle('btnSelected', isDashboard);
+      this.mezziBtn.nativeElement.classList.toggle('btnSelected', isMezzi);
     }
+    this.cd.detectChanges();
   }
 
   logout(){
     this.loginService.logout();
     this.router.navigate(['/login']);
+  }
+
+  toggleDrawer(){
+    const url = this.router.url;
+    this.selectButton(url);
+    this.drawer.toggle();
+    this.cd.detectChanges();
   }
 
   /**
