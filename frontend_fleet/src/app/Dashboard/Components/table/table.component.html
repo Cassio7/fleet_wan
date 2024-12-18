@@ -1,7 +1,3 @@
-<div class="table-over">
-  <app-row-filter></app-row-filter>
-  <button mat-raised-button (click)="fillTable()">Ricarica dati</button>
-</div>
 <div class="table-container">
   <table *ngIf="vehicleTableData" #vehicleTable mat-table [dataSource]="vehicleTableData" matSort (matSortChange)="onSortChange($event)">
     <!-- Targa Column -->

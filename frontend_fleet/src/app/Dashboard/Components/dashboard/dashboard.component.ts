@@ -11,6 +11,7 @@ import { BlackboxGraphCardComponent } from '../blackbox-graphs/blackbox-graph-ca
 import { ErrorGraphCardComponent } from '../error graphs/error-graph-card/error-graph-card.component';
 import { TableComponent } from '../table/table.component';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { RowFilterComponent } from '../row-filter/row-filter.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -28,7 +29,8 @@ import { MatToolbarModule } from '@angular/material/toolbar';
     MatToolbarModule,
     TableComponent,
     ErrorGraphCardComponent,
-    BlackboxGraphCardComponent
+    BlackboxGraphCardComponent,
+    RowFilterComponent
 ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'

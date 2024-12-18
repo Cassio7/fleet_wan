@@ -1,12 +1,19 @@
 <div class="content">
-  <div class="first-column">
-    <app-table></app-table>
-  </div><!--First column end-->
-  <div class="second-column">
-    <div class="map"></div>
-    <div class="graphs">
-      <div class="error-graph"><app-error-graph-card></app-error-graph-card></div>
-      <div class="blackbox-graph"><app-blackbox-graph-card></app-blackbox-graph-card></div>
-    </div><!--Graphs end-->
-  </div><!--Second column end-->
-</div><!-- content end -->
+  <div class="left-section">
+    <div class="graphs-header">
+      <p class="graphs-title">Statistiche</p>
+      <p class="graphs-subtitle">Dati aggiornati sul parco mezzi</p>
+    </div>
+    <div class="error-graph"><app-error-graph-card></app-error-graph-card></div>
+    <div class="blackbox-graph"><app-blackbox-graph-card></app-blackbox-graph-card></div>
+  </div>
+  <div class="right-section">
+    <h2>Dashboard</h2>
+    <div class="filters">
+      <app-row-filter></app-row-filter>
+    </div>
+    <div class="table">
+      <app-table></app-table>
+    </div>
+  </div>
+</div>

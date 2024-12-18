@@ -32,8 +32,7 @@ import { FilterService } from '../../../Common-services/filter/filter.service';
     MatTableModule,
     MatButtonModule,
     MatTooltipModule,
-    MatSortModule,
-    RowFilterComponent
+    MatSortModule
 ],
   templateUrl: './table.component.html',
   styleUrl: './table.component.css'
