@@ -112,7 +112,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
     this.router.events.pipe(
       filter((event): event is NavigationEnd => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
-      this.setBackgroundImage(event.urlAfterRedirects);
+      this.isLoginPage = this.checkLoginPage(event.urlAfterRedirects);
     });
   }
 
@@ -136,15 +136,12 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
     this.router.navigate(['/login']);
   }
 
-  setBackgroundImage(url: string): void {
-    const body = document.body;
-    if (url === '/login') {
-      this.isLoginPage = true;
-      body.classList.add('bg-image');
-    } else {
-      this.isLoginPage = false;
-      body.classList.remove('bg-image');
-    }
-    this.cd.detectChanges();
+  /**
+   * Controlla se la pagina attuale è quella di login
+   * @param url url da controllare
+   * @returns true se è l'url è /login, altrimenti false
+   */
+  checkLoginPage(url: string): boolean {
+    return url === '/login';
   }
 }
