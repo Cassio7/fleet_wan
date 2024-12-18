@@ -1,16 +1,10 @@
 <mat-card class="graph-card" appearance="outlined">
   <mat-card-header>
-    <mat-card-title class="graph-title">Riassunto anomalie</mat-card-title>
-    <mat-form-field appearance="fill" class="select-formField">
-      <mat-label class="select-title">Scegli un grafico</mat-label>
-      <mat-select (selectionChange)="changeGraph($event.value)" #graphSelect class="graph-select">
-        <mat-option value="donut">Donut</mat-option>
-        <mat-option value="bar">Bar</mat-option>
-      </mat-select>
-    </mat-form-field>
+    <mat-card-title class="graph-title">GPS</mat-card-title>
   </mat-card-header>
   <mat-card-content>
-    <app-pie-error-graph *ngIf="pieGraph"></app-pie-error-graph>
-    <app-error-bar-graph *ngIf="barGraph"></app-error-bar-graph>
+    <div class="graph">
+      <app-pie-error-graph></app-pie-error-graph>
+    </div>
   </mat-card-content>
 </mat-card>

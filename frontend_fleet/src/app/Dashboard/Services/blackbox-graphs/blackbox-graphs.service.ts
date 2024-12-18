@@ -31,6 +31,9 @@ export class BlackboxGraphsService{
 
   private _series: number[] = []; //[blackbox, blackbox + antenna]
   private _colors = ["#ff00f2", "#479dff"];
+  private _height = 400;
+  private _width = 350;
+
 
   private blackboxData: blackboxData = {
     sliceSelected: "",
@@ -159,7 +162,18 @@ export class BlackboxGraphsService{
     this.loadGraphData$.next([]);
   }
 
-
+  public get width() {
+    return this._width;
+  }
+  public set width(value) {
+    this._width = value;
+  }
+  public get height() {
+    return this._height;
+  }
+  public set height(value) {
+    this._height = value;
+  }
   public get loadBlackBoxData$(): BehaviorSubject<any[]> {
     return this._loadBlackBoxData$;
   }

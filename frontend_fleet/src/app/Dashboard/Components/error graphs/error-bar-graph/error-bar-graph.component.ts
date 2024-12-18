@@ -121,7 +121,6 @@ export class ErrorBarGraphComponent implements AfterViewInit, OnDestroy{
     this.errorGraphsService.loadGraphData$.pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (series: number[]) => {
-        console.log("BAR RECEIVED: ", series);
         this.chartOptions.series = [{
           name: "Data",
           data: series

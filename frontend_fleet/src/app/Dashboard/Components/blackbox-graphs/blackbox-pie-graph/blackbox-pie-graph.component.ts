@@ -29,47 +29,8 @@ export class BlackboxPieGraphComponent implements AfterViewInit {
   private readonly destroy$: Subject<void> = new Subject<void>();
   @ViewChild("chart") chart!: ChartComponent;
 
+  public chartOptions: Partial<ChartOptions>;
   public nVehicles: number = 0;
-
-  public chartOptions: Partial<ChartOptions> = {
-    series: [],
-    chart: {
-      type: "donut",
-      height: "400",
-      width: "100%",
-      events: {
-        dataPointSelection: (event, chartContext, config) => {
-          switch (config.dataPointIndex) {
-            case 0:
-              this.blackbox();
-              break;
-            case 1:
-              this.blackboxEantenna();
-              break;
-          }
-        }
-      }
-    },
-    labels: ["Blackbox", "BlackBox+antenna"],
-    theme: {
-      monochrome: {
-        enabled: true,
-      },
-    },
-    responsive: [
-      {
-        breakpoint: 480,
-        options: {
-          legend: {
-            position: "top",
-          },
-          chart: {
-            height: "300",
-          },
-        },
-      },
-    ],
-  };
 
   blackbox(){
     this.blackboxGraphsService.blackBoxClick();
@@ -82,7 +43,47 @@ export class BlackboxPieGraphComponent implements AfterViewInit {
   constructor(
     private blackboxGraphsService: BlackboxGraphsService,
     private cd: ChangeDetectorRef
-  ) {}
+  ) {
+    this.chartOptions = {
+      series: [],
+      chart: {
+        type: "donut",
+        height: this.blackboxGraphsService.height,
+        width: this.blackboxGraphsService.width,
+        events: {
+          dataPointSelection: (event, chartContext, config) => {
+            switch (config.dataPointIndex) {
+              case 0:
+                this.blackbox();
+                break;
+              case 1:
+                this.blackboxEantenna();
+                break;
+            }
+          }
+        }
+      },
+      labels: ["Blackbox", "Blackbox+antenna"],
+      theme: {
+        monochrome: {
+          enabled: true,
+        },
+      },
+      responsive: [
+        {
+          breakpoint: 480,
+          options: {
+            legend: {
+              position: "bottom",
+            },
+            chart: {
+              height: blackboxGraphsService.height / 2,
+            },
+          },
+        },
+      ],
+    };
+  }
 
   ngAfterViewInit() {
     this.chartOptions.series = this.blackboxGraphsService.loadGraphData$.value;

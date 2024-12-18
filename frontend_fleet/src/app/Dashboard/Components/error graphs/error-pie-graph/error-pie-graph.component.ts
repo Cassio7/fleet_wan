@@ -43,8 +43,8 @@ export class ErrorPieGraphComponent implements AfterViewInit, OnDestroy{
       series: [],
       chart: {
         type: "donut",
-        height: "400",
-        width: "100%",
+        height: errorGraphsService.height,
+        width: errorGraphsService.width,
         events: {
           dataPointSelection: (event, chartContext, config) => {
             switch (config.dataPointIndex) {
@@ -68,10 +68,11 @@ export class ErrorPieGraphComponent implements AfterViewInit, OnDestroy{
           breakpoint: 480,
           options: {
             legend: {
-              position: "top"
+              position: "bottom"
             },
             chart: {
-              height: "300"
+              width: errorGraphsService.width / 2,
+              height: errorGraphsService.height/2
             }
           }
         }

@@ -33,6 +33,9 @@ export class ErrorGraphsService{
 
   private _series = [0,0,0];//[funzionante, warning, error]
   private _colors = ["#26a668", "#ffcc00", "#d12717"];
+  private _height = 400;
+  private _width = 300;
+
 
   private _errorsData: ErrorsData = {
     workingVehicles: [],
@@ -169,7 +172,18 @@ export class ErrorGraphsService{
 
 
   /*getters & setters*/
-
+  public get width() {
+    return this._width;
+  }
+  public set width(value) {
+    this._width = value;
+  }
+  public get height() {
+    return this._height;
+  }
+  public set height(value) {
+    this._height = value;
+  }
   public get errorsData(): ErrorsData {
     return this._errorsData;
   }
