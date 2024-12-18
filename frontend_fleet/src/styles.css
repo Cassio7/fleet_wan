@@ -17,4 +17,6 @@ html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 :root {
   --sidebar-color: #26a668;
+  --navbar-height: 7vh;
+  --navbarANDstats-brackground: rgba(233, 233, 233, 0.89);
 }
