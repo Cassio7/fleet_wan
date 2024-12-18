@@ -73,7 +73,7 @@ export class UserService {
         role: true,
       },
     });
-    if (!user) return false;
+    if (!user) return null;
     const userDTO = await this.formatUserDTO(user, false);
     return userDTO;
   }
@@ -82,14 +82,14 @@ export class UserService {
    * @param id id utente
    * @returns oggetto utente
    */
-  async getUserById(id: number): Promise<UserDTO | boolean> {
+  async getUserById(id: number): Promise<UserDTO | null> {
     const user = await this.userRepository.findOne({
       where: { id: id },
       relations: {
         role: true,
       },
     });
-    if (!user) return false;
+    if (!user) return null;
     const userDTO = await this.formatUserDTO(user, false);
     return userDTO;
   }
