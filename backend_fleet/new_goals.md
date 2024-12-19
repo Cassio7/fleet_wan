@@ -16,7 +16,7 @@
 - [x] pensare a tabella di appoggio per allocare i controlli per tutti i veicoli con GPS, Antenna e Sessione -> tabella anomalies
 - [x] risoluzione posizione con openstreetmap [reverse](https://nominatim.org/release-docs/develop/api/Reverse/)
 - [x] integrazione con Redis per ridurre tempo risoluzione chiamate risoluzione posizione e altro
-- [x] gestito errore 502 *AxiosError* per il recupero dei dati, riprova 3 volte prima di saltare
+- [x] gestito errore 502 _AxiosError_ per il recupero dei dati, riprova 3 volte prima di saltare
 - [x] manca ANOMALIES come aggiornamento sul pdf del database
 - [ ] succede che vengono letti anche i tag di oggetti che non sono contenitori, tipo capi della Decathlon, 3 opzioni
   1. funzione che valida gli epc;
@@ -30,3 +30,4 @@
 - [ ] implementazione della connessione ed invio email, per alert e recupero dati
 - [ ] assegnare tutti i cantieri ai nuovi veicoli
 - [ ] utilizzare un canale realtime message tramite redis per gli eventi
+- [ ] capire cosa fare con le posizioni in tempo real con lat 0 e lon 0 per mappa frontend
