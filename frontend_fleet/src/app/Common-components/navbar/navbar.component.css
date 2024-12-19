@@ -9,19 +9,19 @@
   box-sizing: border-box;
   cursor: pointer;
   border-bottom: 2px solid white;
+  white-space: nowrap;  /* Prevents wrapping */
 }
 
 .left-side {
   height: 100%;
-  display: inline-flex;
+  display: flex;  /* Changed from inline-flex */
   align-items: center;
   gap: 10px;
 }
 
-.page-p{
+.page-p {
   display: inline-flex;
 }
-
 
 .logo {
   height: 50px;
@@ -68,25 +68,25 @@
   margin: 0;
   line-height: 1;
   padding: 0;
-
   color: rgb(175, 175, 175);
   font-style: italic;
 }
 
-
-.menu-btn{
+.menu-btn {
   width: 70px;
   display: flex;
   align-items: center;
   justify-content: center;
   height: 50px;
 }
-.menu-btn mat-icon{
+
+.menu-btn mat-icon {
   width: 70px;
   height: 50px;
   line-height: 50px;
   font-size: 50px;
 }
+
 .notifications-btn {
   width: 40px;
   height: 40px;
@@ -104,4 +104,3 @@
   align-items: center;
   justify-content: center;
 }
-
