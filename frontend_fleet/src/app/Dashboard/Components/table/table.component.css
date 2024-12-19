@@ -42,6 +42,13 @@ td.mat-cell {
   box-sizing: border-box;
 }
 
+.plate-container{
+  display: inline-block;
+  padding: 3%;
+  background-color: #EFEEE4;
+}
+
+/*Stile icone*/
 .warning-icon {
   color: #ffcc00;
 }
@@ -81,6 +88,7 @@ td.mat-cell {
   cursor: pointer;
   transition: transform 0.2s;
 }
+/*fine stile icone*/
 
 .table-over {
   display: flex;
