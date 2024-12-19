@@ -1,3 +1,4 @@
+<p *ngIf="!loading" class="loading-p">Caricamento dei dati dei veicoli...</p>
 <div class="table-container">
   <table *ngIf="vehicleTableData" #vehicleTable mat-table [dataSource]="vehicleTableData" matSort (matSortChange)="onSortChange($event)">
     <!-- Targa Column -->

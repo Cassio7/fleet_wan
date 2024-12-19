@@ -1,3 +1,8 @@
+.loading-p{
+  font-style: italic;
+  color: gray;
+}
+
 /* Contenitore della tabella */
 .table-container {
   border-radius: 10px;

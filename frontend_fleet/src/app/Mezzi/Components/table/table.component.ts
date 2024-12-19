@@ -17,12 +17,12 @@ import { SelectService } from '../../Services/select/select.service';
 import { MezziFilterService } from '../../Services/mezzi-filter/mezzi-filter.service';
 import { SortService } from '../../../Common-services/sort/sort.service';
 import { CookieService } from 'ngx-cookie-service';
-import { JwtService } from '../../../Common-services/jwt/jwt.service';
 import { NotesService } from '../../Services/notes/notes.service';
 import { Note } from '../../../Models/Note';
 import { MatTableModule, MatTable, MatTableDataSource } from '@angular/material/table';
 import { NoteSnackbarComponent } from '../note-snackbar/note-snackbar.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { AuthService } from '../../../Common-services/auth/auth.service';
 
 @Component({
   selector: 'app-table',
@@ -59,7 +59,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
     public mezziFilterService: MezziFilterService,
     private sortService: SortService,
     private notesService: NotesService,
-    private jwtService: JwtService,
+    private authService: AuthService,
     private vehicleApiService: VehiclesApiService,
     private sessionStorageService: SessionStorageService,
     private cookieService: CookieService,
@@ -235,7 +235,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
       }
     }
 
-    const userId = this.jwtService.decodeJwt(this.cookieService.get("user")).id; //ottieni e trasforma access token
+    const userId = this.authService.decodeToken(this.cookieService.get("user")).id; //ottieni e trasforma access token
 
     const nota = new Note(content, vehicle, userId);//creazione nuovo oggetto nota
 

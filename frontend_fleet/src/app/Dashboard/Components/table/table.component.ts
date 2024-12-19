@@ -44,9 +44,9 @@ export class TableComponent implements OnDestroy, AfterViewInit{
 
   vehicleTableData = new MatTableDataSource<Vehicle>();
   tableMaxLength: number = 0;
+  loading: boolean = true;
 
-  sessions: Session[] = [];
-  vehicleIds: Number[] = [];
+
 
   displayedColumns: string[] = ['targa','cantiere', 'GPS', 'antenna', 'sessione'];
 
@@ -81,9 +81,10 @@ export class TableComponent implements OnDestroy, AfterViewInit{
       this.vehicleTableData.data = allVehicles;
       this.tableMaxLength = allVehicles.length;
       this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));
-      this.cd.detectChanges();
       this.vehicleTable.renderRows();
       this.loadGraphs(allVehicles);
+      this.loading = false;
+      this.cd.detectChanges();
     } else {
       this.fillTable(); // Riempi la tabella con i dati se non ci sono nel sessionStorage
     }
@@ -298,6 +299,8 @@ export class TableComponent implements OnDestroy, AfterViewInit{
 
           this.sessionStorageService.setItem("allVehicles", JSON.stringify(vehicles));// Inserimento veicoli in sessionstorage
           this.loadGraphs(vehicles);// Carica i grafici dopo il caricamento della tabella
+          this.loading = false;
+          this.cd.detectChanges();
           this.tableMaxLength = vehicles.length;
           this.cd.detectChanges();
         } catch (error) {
