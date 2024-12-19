@@ -48,7 +48,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
 
 
 
-  displayedColumns: string[] = ['targa','cantiere', 'GPS', 'antenna', 'sessione'];
+  displayedColumns: string[] = ['tipologia','targa','cantiere', 'GPS', 'antenna', 'sessione'];
 
 
 
