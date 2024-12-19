@@ -102,6 +102,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
       filter((event): event is NavigationEnd => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
       this.isLoginPage = this.checkLoginPage(event.urlAfterRedirects);
+      if(this.drawer.opened)
+        this.drawer.toggle();
     });
   }
 
