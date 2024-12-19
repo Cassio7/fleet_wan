@@ -10,6 +10,10 @@ import { TagService } from '../tag/tag.service';
 import { getDaysInRange, validateDateRange } from 'src/utils/utils';
 import { SessionEntity } from 'classes/entities/session.entity';
 import { TagHistoryEntity } from 'classes/entities/tag_history.entity';
+import { InjectRedis } from '@nestjs-modules/ioredis';
+import Redis from 'ioredis';
+import { AnomalyDTO } from 'classes/dtos/anomaly.dto';
+import { VehicleDTO } from 'classes/dtos/vehicle.dto';
 
 @Injectable()
 export class AnomalyService {
@@ -23,6 +27,7 @@ export class AnomalyService {
     private readonly sessionService: SessionService,
     private readonly tagService: TagService,
     private readonly vehicleService: VehicleService,
+    @InjectRedis() private readonly redis: Redis,
   ) {}
   /**
    * Recupera tutte le anomalie salvate
@@ -46,6 +51,109 @@ export class AnomalyService {
     return anomalies;
   }
 
+  /**
+   * Recupera le anomalie di tutti i veicoli passati, soltanto quello con data piu recente
+   * @param veId id dei veicoli
+   * @returns
+   */
+  async getLastAnomaly(veId: number[]): Promise<any> {
+    const anomalies = await this.anomalyRepository
+      .createQueryBuilder('anomaly')
+      .innerJoinAndSelect('anomaly.vehicle', 'vehicle')
+      .where((qb) => {
+        const subQuery = qb
+          .subQuery()
+          .select('MAX(a2.date)')
+          .from('anomaly', 'a2')
+          .where('a2.vehicle_id = anomaly.vehicle_id')
+          .getQuery();
+        return 'anomaly.date = ' + subQuery;
+      })
+      .andWhere('vehicle.veId IN (:...veId)', { veId })
+      .orderBy('vehicle.plate', 'ASC')
+      .getMany();
+
+    return anomalies;
+  }
+
+  /**
+   * Restituisce le anomalie in base ai veid inseriti del giorno prima
+   * @param veId
+   * @returns
+   */
+  async getDayBeforeAnomaly(veId: number[]): Promise<any> {
+    const now = new Date();
+    const dayBefore = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() - 1,
+    );
+    dayBefore.setHours(0, 0, 0, 0);
+    const anomalies = await this.anomalyRepository.find({
+      where: {
+        vehicle: {
+          veId: In(veId),
+        },
+        date: dayBefore,
+      },
+      relations: {
+        vehicle: true,
+      },
+      order: {
+        vehicle: {
+          plate: 'ASC',
+        },
+      },
+    });
+
+    return anomalies.reduce(
+      (acc, anomaly) => {
+        // Trova il gruppo del veicolo esistente o ne crea uno nuovo
+        let vehicleGroup = acc.find(
+          (group) => group.vehicle.veId === anomaly.vehicle.veId,
+        );
+
+        if (!vehicleGroup) {
+          const vehicleDTO = new VehicleDTO();
+          vehicleDTO.plate = anomaly.vehicle.plate;
+          vehicleDTO.veId = anomaly.vehicle.veId;
+          vehicleDTO.lastEvent = anomaly.vehicle.lastEvent;
+          vehicleDTO.isCan = anomaly.vehicle.isCan;
+          vehicleDTO.isRFIDReader = anomaly.vehicle.isRFIDReader;
+
+          vehicleGroup = {
+            vehicle: vehicleDTO,
+            anomalies: [],
+          };
+          acc.push(vehicleGroup);
+        }
+
+        const anomalyDTO = new AnomalyDTO();
+        // Assumo che questi siano i campi dell'AnomalyDTO, adattali secondo la tua implementazione
+        anomalyDTO.date = anomaly.date;
+        anomalyDTO.gps = anomaly.gps;
+        anomalyDTO.antenna = anomaly.antenna;
+        anomalyDTO.session = anomaly.session;
+        // ... altri campi dell'anomalia ...
+
+        vehicleGroup.anomalies.push(anomalyDTO);
+
+        return acc;
+      },
+      [] as Array<{ vehicle: VehicleDTO; anomalies: AnomalyDTO[] }>,
+    );
+  }
+  /**
+   * Imposta le ultime anomalie riscontrate su Redis per recupero veloce
+   * @param anomalies
+   */
+  async setDayBeforeAnomalyRedis(anomalies: any) {
+    for (const anomaly of anomalies) {
+      const key = `dayBeforeAnomaly:${anomaly.vehicle.veId}`;
+      await this.redis.set(key, JSON.stringify(anomaly));
+    }
+  }
+
   async createAnomaly(
     veId: number,
     date: Date,
@@ -64,9 +172,6 @@ export class AnomalyService {
       const todayUTC = new Date();
       todayUTC.setUTCHours(0, 0, 0, 0);
       day = todayUTC;
-    }
-    if (!normalizedGps && !normalizedAntenna && !normalizedSession) {
-      return false;
     }
     const hashAnomaly = (): string => {
       const toHash = {
@@ -103,6 +208,12 @@ export class AnomalyService {
       });
       if (anomaliesQuery) {
         if (anomaliesQuery.hash !== hash) {
+          if (!normalizedGps && !normalizedAntenna && !normalizedSession) {
+            await queryRunner.manager
+              .getRepository(AnomalyEntity)
+              .remove(anomaliesQuery);
+            return false;
+          }
           const anomaly = {
             vehicle: vehicle,
             date: day,
@@ -116,6 +227,9 @@ export class AnomalyService {
             .update({ key: anomaliesQuery.key }, anomaly);
         }
       } else {
+        if (!normalizedGps && !normalizedAntenna && !normalizedSession) {
+          return false;
+        }
         const anomaly = await queryRunner.manager
           .getRepository(AnomalyEntity)
           .create({
