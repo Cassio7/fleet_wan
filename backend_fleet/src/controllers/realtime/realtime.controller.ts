@@ -120,7 +120,7 @@ export class RealtimeController {
       const realtimes = await this.realtimeService.getTimesByVeId(vehicleIds);
       const latestRealtimes =
         await this.realtimeService.calculateLastValid(realtimes);
-      await this.realtimeService.setLastValid(latestRealtimes);
+      await this.realtimeService.setLastValidRedis(latestRealtimes);
       if (allUpdated) {
         res
           .status(200)

@@ -266,7 +266,7 @@ export class RealtimeService {
    * Imposta i realtime sulla cache di redis per recupero veloce
    * @param realtimes
    */
-  async setLastValid(realtimes: any) {
+  async setLastValidRedis(realtimes: any) {
     for (const realtime of realtimes) {
       const key = `realtime:${realtime.vehicle.veId}`;
       await this.redis.set(key, JSON.stringify(realtime));
