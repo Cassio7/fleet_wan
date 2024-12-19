@@ -29,8 +29,15 @@
     <ng-container matColumnDef="GPS">
       <th mat-header-cell *matHeaderCellDef> GPS </th>
       <td mat-cell *matCellDef="let vehicle">
-        <mat-icon class="warning-icon" [matTooltip]="checkGpsError(vehicle)" *ngIf="checkGpsError(vehicle)" [matTooltipClass]="'gps-tooltip'">location_on</mat-icon>
-        <mat-icon class="check-icon" *ngIf="!checkGpsError(vehicle)" matTooltip="Possiede un GPS funzionante">location_on</mat-icon>
+        <div class="warning-container" *ngIf="checkGpsError(vehicle)" [matTooltip]="checkGpsError(vehicle)">
+          <mat-icon class="gpsIcon-warning">location_on</mat-icon>
+          Warning
+        </div>
+
+        <div class="OK-container" matTooltip="GPS funzionante" *ngIf="!checkGpsError(vehicle)">
+          <mat-icon class="gpsIcon-OK">location_on</mat-icon>
+          OK
+        </div>
       </td>
     </ng-container>
 
@@ -38,12 +45,16 @@
     <ng-container matColumnDef="antenna">
       <th mat-header-cell *matHeaderCellDef> Antenna </th>
       <td mat-cell *matCellDef="let vehicle">
-        <div class="icon-container">
-          <mat-icon *ngIf="vehicle.isRFIDReader && !checkAntennaError(vehicle)" class="check-icon" matTooltip="Possiede un'antenna RFID funzionante">wifi_off</mat-icon>
-          <mat-icon *ngIf="vehicle.isRFIDReader && checkAntennaError(vehicle)" class="error-icon" [matTooltip]="checkAntennaError(vehicle) ? checkAntennaError(vehicle) : 'Anomalia antenna RFID'">wifi_off</mat-icon>
-          <div class="noAntenna-icon">
-            <mat-icon *ngIf="!vehicle.isRFIDReader && !checkAntennaError(vehicle)" class="antenna-icon" matTooltip="Non ha un'antenna RFID">wifi_off</mat-icon>
-          </div>
+        <div class="OK-container" *ngIf="!checkAntennaError(vehicle) && vehicle.isRFIDReader" matTooltip="Antenna funzionante">
+          <mat-icon class="gpsIcon-OK">wifi</mat-icon>
+          OK
+        </div>
+        <div class="noRFID-container" matTooltip="Non ha un'antenna RFID" *ngIf="!vehicle.isRFIDReader">
+          <mat-icon class="noAntennA-icon">wifi_off</mat-icon>
+        </div>
+        <div class="error-container" *ngIf="vehicle.isRFIDReader && checkAntennaError(vehicle)" [matTooltip]="checkAntennaError(vehicle) ? checkAntennaError(vehicle) : 'Anomalia antenna RFID'">
+          <mat-icon class="errorIcon-error">wifi</mat-icon>
+          Error
         </div>
       </td>
     </ng-container>
@@ -52,12 +63,16 @@
     <ng-container matColumnDef="sessione">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Sessione </th>
       <td mat-cell *matCellDef="let vehicle">
-        <mat-icon class="error-icon" *ngIf="checkSessionError(vehicle)" [matTooltip]="checkSessionError(vehicle)">
-          error
-        </mat-icon>
-        <mat-icon class="check-icon" *ngIf="!checkSessionError(vehicle) && vehicle.lastValidSession?.period_to" matTooltip="Sessione corretta">
+        <div class="error-container" *ngIf="checkSessionError(vehicle)" [matTooltip]="checkSessionError(vehicle)">
+          <!-- <mat-icon class="error-icon" [matTooltip]="checkSessionError(vehicle)">error</mat-icon> -->
+          Error
+        </div>
+        <div class="OK-container" *ngIf="!checkSessionError(vehicle)" matTooltip="Sessione corretta">
+          OK
+        </div>
+        <!-- <mat-icon class="check-icon" *ngIf="!checkSessionError(vehicle) && vehicle.lastValidSession?.period_to" matTooltip="Sessione corretta">
           check_circle
-        </mat-icon>
+        </mat-icon> -->
         {{ vehicle.lastValidSession?.period_to ? (vehicle.lastValidSession.period_from | date: 'dd/MM/yy hh:mm') : '' }}
       </td>
     </ng-container>

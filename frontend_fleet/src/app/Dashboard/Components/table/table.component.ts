@@ -372,7 +372,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   /**
    * Richiama controllo errore antenna
    * @param vehicle veicolo da controllare
-   * @returns risultato del controllo sul GPS
+   * @returns risultato del controllo sull'antenna
    */
   checkAntennaError(vehicle: any): string | null {
     return this.checkErrorsService.checkAntennaError(vehicle);
@@ -380,7 +380,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   /**
    * Richiama controllo errore sessione
    * @param vehicle veicolo da controllare
-   * @returns risultato del controllo sul GPS
+   * @returns risultato del controllo sulla sessione
    */
   checkSessionError(vehicle: any): string | null {
     return this.checkErrorsService.checkSessionError(vehicle);

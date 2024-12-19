@@ -49,24 +49,65 @@ td.mat-cell {
 }
 
 /*Stile icone*/
-.warning-icon {
-  color: #ffcc00;
+
+.OK-container{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: white;
+  background-color: var(--sidebar-color);
+  padding: 3%;
+  cursor: pointer;
+  border-radius: 5px;
 }
 
-.error-icon {
-  color: #d12717;
+.OK-container mat-icon{
+  font-size: 20px;
 }
 
-.check-icon {
-  color: var(--sidebar-color);
+.warning-container{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  color: white;
+  background-color: #ffcc00;
+  padding: 3%;
+  cursor: pointer;
+  border-radius: 5px;
 }
 
-.icon-container {
+.error-container{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  color: white;
+  background-color: #d12717;
+  padding: 3%;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.noRFID-container{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  color: white;
+  background-color: #000000;
+  padding: 3%;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+/* .icon-container {
   position: relative;
   display: inline-block;
   width: 24px;
   height: 24px;
-}
+} */
 
 .antenna-icon, .close-icon {
   position: absolute;
@@ -76,9 +117,9 @@ td.mat-cell {
   line-height: 24px;
 }
 
-.antenna-icon {
+/* .antenna-icon {
   color: #479dff;
-}
+} */
 
 .close-icon {
   color: #d12717;

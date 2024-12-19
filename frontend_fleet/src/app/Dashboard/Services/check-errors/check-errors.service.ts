@@ -52,7 +52,7 @@ export class CheckErrorsService {
   /**
    * Controlla se è presente un errore di antenna nella sessione di oggi del veicolo preso in input
    * @param vehicle
-   * @returns se viene riscontrata l'anomalia di antenna in una sessione nel range di tempo, altrimenti "null"
+   * @returns l'anomalia se viene riscontrata, altrimenti "null"
    */
   checkAntennaError(vehicle: { anomalySessions?: { date: string; anomalies?: { Antenna?: string } }[] }): string | null {
     const dateFrom = this.commonService.dateFrom;
