@@ -7,14 +7,22 @@ import { VehiclesApiService } from '../../../../Common-services/vehicles service
 import { SessionStorageService } from '../../../../Common-services/sessionStorage/session-storage.service';
 import { Vehicle } from '../../../../Models/Vehicle';
 
+// export type ChartOptions = {
+//   series: ApexNonAxisChartSeries;
+//   chart: ApexChart;
+//   responsive: ApexResponsive[];
+//   labels: any;
+//   colors?: string[];
+// };
 export type ChartOptions = {
-  series: ApexNonAxisChartSeries;
-  chart: ApexChart;
-  responsive: ApexResponsive[];
+  series: any[];
+  chart: any;
+  responsive: any[];
   labels: any;
-  colors?: string[];
+  legend: any;
+  title: any;
+  plotOptions: any;
 };
-
 
 @Component({
   selector: 'app-pie-error-graph',
@@ -31,7 +39,7 @@ export type ChartOptions = {
 export class ErrorPieGraphComponent implements AfterViewInit, OnDestroy{
   @ViewChild("chart") chart!: ChartComponent;
   private readonly destroy$: Subject<void> = new Subject<void>();
-  public chartOptions: Partial<ChartOptions>;
+  public chartOptions: any;
 
   public nVehicles: number = 0;
 
@@ -43,10 +51,10 @@ export class ErrorPieGraphComponent implements AfterViewInit, OnDestroy{
       series: [],
       chart: {
         type: "donut",
-        height: errorGraphsService.height,
-        width: errorGraphsService.width,
+        height: this.errorGraphsService.height,
+        width: this.errorGraphsService.width,
         events: {
-          dataPointSelection: (event, chartContext, config) => {
+          dataPointSelection: (event: any, chartContext: any, config: any) => {
             switch (config.dataPointIndex) {
               case 0:
                 this.workingClick();
@@ -61,6 +69,23 @@ export class ErrorPieGraphComponent implements AfterViewInit, OnDestroy{
           }
         }
       },
+      plotOptions: {
+        pie: {
+          donut: {
+            labels: {
+              show: true,
+              total: {
+                showAlways: true,
+                show: true,
+                label: "mezzi",
+                fontSize: "18px",
+                fontWeight: 600,
+                color: "#000",
+              }
+            }
+          }
+        }
+      },
       labels: ["Funzionante", "Warning", "Error"],
       colors: this.errorGraphsService.colors,
       responsive: [
@@ -71,8 +96,8 @@ export class ErrorPieGraphComponent implements AfterViewInit, OnDestroy{
               position: "bottom"
             },
             chart: {
-              width: errorGraphsService.width / 2,
-              height: errorGraphsService.height/2
+              width: this.errorGraphsService.width / 2,
+              height: this.errorGraphsService.height / 2
             }
           }
         }
