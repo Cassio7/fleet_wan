@@ -13,6 +13,7 @@ export type ChartOptions = {
   labels: any;
   theme: ApexTheme;
   title: ApexTitleSubtitle;
+  plotOptions: any;
 };
 
 @Component({
@@ -59,6 +60,23 @@ export class BlackboxPieGraphComponent implements AfterViewInit {
               case 1:
                 this.blackboxEantenna();
                 break;
+            }
+          }
+        }
+      },
+      plotOptions: {
+        pie: {
+          donut: {
+            labels: {
+              show: true,
+              total: {
+                showAlways: true,
+                show: true,
+                label: "mezzi",
+                fontSize: "18px",
+                fontWeight: 600,
+                color: "#000",
+              }
             }
           }
         }

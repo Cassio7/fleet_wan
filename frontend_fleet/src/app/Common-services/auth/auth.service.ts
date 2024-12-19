@@ -9,6 +9,11 @@ export class AuthService {
 
   constructor() { }
 
+  /**
+   * Decodifica un token JWT
+   * @param token token JWT da decodificare
+   * @returns token decodificato
+   */
   decodeToken(token: string): any {
     try {
       return jwtDecode(token);

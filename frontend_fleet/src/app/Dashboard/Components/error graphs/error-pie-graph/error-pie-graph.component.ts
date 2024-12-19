@@ -15,12 +15,10 @@ import { Vehicle } from '../../../../Models/Vehicle';
 //   colors?: string[];
 // };
 export type ChartOptions = {
-  series: any[];
-  chart: any;
-  responsive: any[];
+  series: ApexNonAxisChartSeries;
+  chart: ApexChart;
+  responsive: ApexResponsive[];
   labels: any;
-  legend: any;
-  title: any;
   plotOptions: any;
 };
 
