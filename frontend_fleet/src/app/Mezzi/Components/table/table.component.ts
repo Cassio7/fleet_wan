@@ -45,8 +45,8 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
   @ViewChild('vehicleTable') vehicleTable!: MatTable<Session[]>;
   private readonly destroy$: Subject<void> = new Subject<void>();
 
+  loading: boolean = true;
   vehicleTableData = new MatTableDataSource<Vehicle>();
-
   sortedVehicles: Vehicle[] = [];
 
   displayedColumns: string[] = ["Azienda", "Targa", "Marca&modello", "Cantiere", "Anno immatricolazione", "Tipologia attrezzatura", "Allestimento", "Data-installazione-fleet", "Data-rimozione-apparato", "Notes"];
@@ -107,6 +107,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
           this.vehicleTable.renderRows();
           this.mergeVehiclesWithNotes(allVehicles, notes);
           this.selectService.selectVehicles(this.sortedVehicles); // Seleziona tutte le opzioni dei menu delle colonne
+          this.loading = false;
           this.cd.detectChanges();
         },
         error: error => console.error("Errore nella ricezione delle note: ", error)
@@ -125,6 +126,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
           this.sessionStorageService.setItem("allVehicles", JSON.stringify(vehicles));
           this.vehicleTable.renderRows();
           this.selectService.selectVehicles(this.sortedVehicles);
+          this.loading = false;
           this.cd.detectChanges();
         },
         error: error => console.error("Errore nella ricezione di veicoli o note: ", error)

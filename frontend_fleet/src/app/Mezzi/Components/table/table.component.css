@@ -1,3 +1,8 @@
+.loading-p{
+  font-style: italic;
+  color: gray;
+}
+
 .nVeicoli {
   margin: 0;
   font-size: 16px;
@@ -7,7 +12,7 @@ tr, td, th {
   text-align: center;
   width: 200px;
   padding: 5px;
-  word-wrap: break-word; /* Ensures long words break within table cells */
+  word-wrap: break-word;
 }
 
 .table-container {
