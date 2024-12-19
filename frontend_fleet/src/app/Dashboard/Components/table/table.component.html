@@ -73,7 +73,15 @@
         <!-- <mat-icon class="check-icon" *ngIf="!checkSessionError(vehicle) && vehicle.lastValidSession?.period_to" matTooltip="Sessione corretta">
           check_circle
         </mat-icon> -->
-        {{ vehicle.lastValidSession?.period_to ? (vehicle.lastValidSession.period_from | date: 'dd/MM/yy hh:mm') : '' }}
+        <span *ngIf="!checkSessionError(vehicle); else noError">
+          {{ vehicle.lastValidSession?.period_to ? (vehicle.lastValidSession.period_from | date: 'dd/MM/yy hh:mm') : '' }}
+        </span>
+        <ng-template #noError>
+          <span class="session-date">
+            {{ vehicle.lastValidSession?.period_to ? (vehicle.lastValidSession.period_from | date: 'dd/MM/yy hh:mm') : '' }}
+          </span>
+        </ng-template>
+
       </td>
     </ng-container>
 

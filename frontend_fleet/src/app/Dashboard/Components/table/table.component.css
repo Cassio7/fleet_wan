@@ -109,6 +109,10 @@ td.mat-cell {
   height: 24px;
 } */
 
+.session-date{
+  color: red;
+}
+
 .antenna-icon, .close-icon {
   position: absolute;
   top: 0;

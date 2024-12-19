@@ -1,7 +1,7 @@
 <div class="filter-container">
   <mat-form-field class="targa-filter">
     <mat-label>Targa</mat-label>
-    <input matInput type="text" value="Fixed Value" #targa>
+    <input matInput type="text" value="Targa" #targa>
     <button *ngIf="targa.value" matSuffix mat-icon-button aria-label="Clear" (click)="targa.value = ''">
       <mat-icon>close</mat-icon>
     </button>
@@ -19,7 +19,7 @@
       <mat-option value="Warning">Warning</mat-option>
       <mat-option value="Errore">Errore</mat-option>
     </mat-select>
-    <mat-icon matSuffix>share_location</mat-icon>
+    <mat-icon matSuffix>location_on</mat-icon>
   </mat-form-field>
   <mat-form-field class="antenna-filter">
     <mat-select [formControl]="cantieri" placeholder="Stati antenna" multiple>
