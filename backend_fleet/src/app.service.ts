@@ -40,7 +40,7 @@ export class AppService implements OnModuleInit {
 
   // popolo database all'avvio
   async onModuleInit() {
-    const startDate = '2024-12-01T00:00:00.000Z';
+    const startDate = '2024-12-18T00:00:00.000Z';
     //const endDate = '2024-12-10T00:00:00.000Z';
     const endDate = new Date(
       new Date().getTime() + 2 * 60 * 60 * 1000,
@@ -49,6 +49,8 @@ export class AppService implements OnModuleInit {
     //await this.putDbDataBasicForAdvance(startDate, endDate);
     //await this.putDbData3min();
     //await this.anomalyCheck(startDate, endDate);
+    //await this.dailyAnomalyCheck();
+    //await this.setDayBeforeAnomaly();
     //await this.updateRealtime();
     await this.redis.publish('realtime_channel', 'Applicazione inizializzata');
   }
@@ -200,7 +202,6 @@ export class AppService implements OnModuleInit {
           const datefrom = day;
           const dateto = new Date(datefrom);
           dateto.setDate(dateto.getDate() + 1);
-
           const data = await this.anomalyService.checkErrors(
             datefrom,
             dateto.toISOString(),
@@ -228,9 +229,9 @@ export class AppService implements OnModuleInit {
   }
 
   /**
-   * 
-   * @param item 
-   * @returns 
+   *
+   * @param item
+   * @returns
    */
   private async createAnomalyFromSession(item: any) {
     const veId = item.veId;
@@ -269,6 +270,65 @@ export class AppService implements OnModuleInit {
     );
   }
 
+  //@Cron('58 23 * * *')
+  async dailyAnomalyCheck() {
+    try {
+      const datefrom = new Date();
+      const dateto = new Date(datefrom);
+      datefrom.setHours(0, 0, 0, 0);
+      dateto.setDate(dateto.getDate() + 1);
+      const data = await this.anomalyService.checkErrors(
+        datefrom.toISOString(),
+        dateto.toISOString(),
+      );
+      if (data && data.length > 0) {
+        const anomalyPromises = data.flatMap((item) => {
+          const veId = item.veId;
+          let date = null;
+          let gps = null;
+          let antenna = null;
+          const session = item.anomaliaSessione || null;
+
+          if (item.sessions && item.sessions[0]) {
+            date = item.sessions[0].date || null;
+            if (item.sessions[0].anomalies) {
+              gps = item.sessions[0].anomalies.GPS || null;
+              antenna = item.sessions[0].anomalies.Antenna || null;
+            }
+          }
+
+          return this.anomalyService.createAnomaly(
+            veId,
+            date,
+            gps,
+            antenna,
+            session,
+          );
+        });
+
+        await Promise.all(anomalyPromises);
+      }
+      console.log(
+        'Daily Anomaly check aggiornato alle: ' + new Date().toISOString(),
+      );
+    } catch (error) {
+      console.error(
+        'Errore durante il controllo giornaliero delle anomalie:',
+        error,
+      );
+    }
+  }
+
+  /**
+   * Imposta le anomalies su redis del giorno precedente ad oggi
+   */
+  async setDayBeforeAnomaly() {
+    const vehicles = await this.vehicleService.getAllVehicles();
+    const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
+    const anomalies = await this.anomalyService.getDayBeforeAnomaly(vehicleIds);
+    await this.anomalyService.setDayBeforeAnomalyRedis(anomalies);
+  }
+
   //@Cron('*/5 * * * *')
   async updateRealtime() {
     await this.realtimeService.clearRealtime();
@@ -280,7 +340,7 @@ export class AppService implements OnModuleInit {
     const realtimes = await this.realtimeService.getTimesByVeId(vehicleIds);
     const latestRealtimes =
       await this.realtimeService.calculateLastValid(realtimes);
-    await this.realtimeService.setLastValid(latestRealtimes);
+    await this.realtimeService.setLastValidRedis(latestRealtimes);
     console.log('Realtime aggiornato alle: ' + new Date().toISOString());
   }
 }
