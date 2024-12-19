@@ -139,3 +139,14 @@ hr {
   font-size: clamp(16px, 2vw, 20px);
   text-align: left;
 }
+.log-out mat-icon {
+  display: inline-block; /* Necessary for the animation */
+  transition: transform 0.5s ease-in-out, color 0.3s ease; /* Smooth transition for both */
+}
+
+.log-out mat-icon:hover {
+  transform: rotate(360deg); /* Rotate the icon */
+  color: red; /* Change color when hovered */
+}
+
+

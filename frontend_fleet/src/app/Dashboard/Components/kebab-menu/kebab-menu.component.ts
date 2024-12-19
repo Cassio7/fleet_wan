@@ -5,6 +5,7 @@ import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import { MatIconModule } from '@angular/material/icon';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
+import { KanbanGpsService } from '../../Services/kanban-gps/kanban-gps.service';
 
 @Component({
   selector: 'app-kebab-menu',
@@ -21,16 +22,18 @@ import { filter } from 'rxjs';
 export class KebabMenuComponent{
   selectedOption: string = "table";
 
+  constructor(private kanbangpsService: KanbanGpsService){}
+
   chooseKebabMenuOption(value: string){
     switch(value){
       case "table":
-        //switcha a componente tabella
+        this.kanbangpsService.loadKanbanGps$.next("table");//switcha a componente tabella
         break;
       case "GPS":
-        //switcha a componente GPS
+        this.kanbangpsService.loadKanbanGps$.next("GPS");//switcha a componente GPS
         break;
       case "antenna":
-        //switcha a componente antenna
+        this.kanbangpsService.loadKanbanGps$.next("antenna");//switcha a componente antenna
         break;
     }
   }

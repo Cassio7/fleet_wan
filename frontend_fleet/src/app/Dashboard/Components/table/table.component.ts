@@ -15,13 +15,13 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ErrorGraphsService } from '../../Services/error-graphs/error-graphs.service';
 import { BlackboxGraphsService } from '../../Services/blackbox-graphs/blackbox-graphs.service';
 import { CheckErrorsService } from '../../Services/check-errors/check-errors.service';
-import { CommonService } from '../../../Common-services/common service/common.service';
-import { RowFilterComponent } from "../row-filter/row-filter.component";
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatButtonModule } from '@angular/material/button';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { SortService } from '../../../Common-services/sort/sort.service';
 import { FilterService } from '../../../Common-services/filter/filter.service';
+import { KanbanGpsService } from '../../Services/kanban-gps/kanban-gps.service';
+import { KanbanGpsComponent } from "../kanban-gps/kanban-gps.component";
 
 @Component({
   selector: 'app-table',

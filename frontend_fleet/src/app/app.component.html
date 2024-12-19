@@ -10,7 +10,7 @@
         <button><mat-icon>settings</mat-icon></button>
       </div>
       <div class="log-out">
-        <button [matMenuTriggerFor]="menu"><mat-icon>power_settings_new</mat-icon></button>
+        <button [matMenuTriggerFor]="menu" class="logout-btn"><mat-icon class="logout-icon">power_settings_new</mat-icon></button>
         <mat-menu #menu="matMenu">
           <button mat-menu-item (click)="logout()">Esci</button>
         </mat-menu>
