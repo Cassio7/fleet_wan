@@ -78,6 +78,10 @@ td.mat-cell {
   border-radius: 5px;
 }
 
+.warning-container mat-icon{
+  font-size: 20px;
+}
+
 .error-container{
   display: inline-flex;
   align-items: center;
@@ -88,6 +92,10 @@ td.mat-cell {
   padding: 3%;
   cursor: pointer;
   border-radius: 5px;
+}
+
+.error-container mat-icon{
+  font-size: 20px;
 }
 
 .noRFID-container{
@@ -108,6 +116,11 @@ td.mat-cell {
   width: 24px;
   height: 24px;
 } */
+
+.session-error{
+  display: flex;
+  gap: 5px;
+}
 
 .session-date{
   color: red;

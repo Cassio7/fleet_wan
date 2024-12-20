@@ -85,6 +85,29 @@ export class CheckErrorsService {
   }
 
   /**
+   * Calcola da quanti giorni le sessioni di un veicolo sono in errore
+   * @param vehicle veicolo da cui prendere l'ultimo evento
+   * @returns differenza in giorni: oggi - lastevent
+   */
+  calculateSessionErrorDays(vehicle: Vehicle): number {
+    const todayDate = new Date(); //giorni di oggi
+
+    //verifica che lastEvent non sia null
+    if (!vehicle.lastEvent) {
+      return -1;
+    }
+
+    const vehicleLastEvent = new Date(vehicle.lastEvent); //ultimo evento del veicolo
+
+    const differenceInMillis = todayDate.getTime() - vehicleLastEvent.getTime(); //differenza in millisecondi
+    const differenceInDays = Math.floor(differenceInMillis / (1000 * 60 * 60 * 24)); //conversione differenza in giorni
+
+    return differenceInDays;
+  }
+
+
+
+  /**
  * Controlla gli errori di tutti i veicoli con sessioni in un determinato arco di tempo
  * @param dateFrom data di inizio ricerca
  * @param dateTo data di fine ricerca

@@ -343,9 +343,18 @@ export class TableComponent implements OnDestroy, AfterViewInit{
    * Richiama le funzioni per il caricamento del grafico degli errori e del grafico dei blackbox
    * @param newVehicles da questi veicoli come input ai grafici per il caricamento
    */
-  loadGraphs(newVehicles: any[]) {
+  loadGraphs(newVehicles: Vehicle[]) {
     this.errorGraphService.loadChartData(newVehicles);
     this.blackboxGraphService.loadChartData(newVehicles);
+  }
+
+  /**
+   * Calcola da quanti giorni le sessioni di un veicolo sono in errore
+   * @param vehicle veicolo da cui prendere l'ultimo evento
+   * @returns differenza in giorni: oggi - lastevent
+   */
+  calculateSessionErrorDays(vehicle: Vehicle){
+    return this.checkErrorsService.calculateSessionErrorDays(vehicle);
   }
 
   /**
