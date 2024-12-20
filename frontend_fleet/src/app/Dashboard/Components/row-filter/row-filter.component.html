@@ -1,28 +1,28 @@
 <div class="filter-container">
-  <mat-form-field class="targa-filter">
+  <mat-form-field class="targa-filter" appearance="outline">
     <mat-label>Targa</mat-label>
-    <input matInput type="text" value="Targa" #targa>
+    <input matInput type="text" value="Targa" #targa class="targa-input">
     <button *ngIf="targa.value" matSuffix mat-icon-button aria-label="Clear" (click)="targa.value = ''">
       <mat-icon>close</mat-icon>
     </button>
   </mat-form-field>
-  <mat-form-field class="cantieri-filter">
-    <mat-select [formControl]="cantieri" placeholder="Cantiere" multiple>
+  <mat-form-field class="cantieri-filter" appearance="outline">
+    <mat-select [formControl]="cantieri" placeholder="Cantiere" multiple class="cantiere-input">
       <mat-option [value]="cantiere" (click)="selectCantiere(cantiere)" *ngFor="let cantiere of listaCantieri">
         {{ cantiere }}
       </mat-option>
     </mat-select>
   </mat-form-field>
-  <mat-form-field class="GPS-state-filter">
-    <mat-select [formControl]="cantieri" placeholder="Stati GPS" multiple>
+  <mat-form-field class="GPS-state-filter" appearance="outline">
+    <mat-select [formControl]="cantieri" placeholder="Stati GPS" multiple class="GPS-input">
       <mat-option value="Funzionante">Funzionante</mat-option>
       <mat-option value="Warning">Warning</mat-option>
       <mat-option value="Errore">Errore</mat-option>
     </mat-select>
     <mat-icon matSuffix>location_on</mat-icon>
   </mat-form-field>
-  <mat-form-field class="antenna-filter">
-    <mat-select [formControl]="cantieri" placeholder="Stati antenna" multiple>
+  <mat-form-field class="antenna-filter" appearance="outline">
+    <mat-select [formControl]="cantieri" placeholder="Stati antenna" multiple class="antenna-input">
       <mat-option value="Blackbox">Blackbox</mat-option>
       <mat-option value="Blackbox+antenna">Blackbox + antenna</mat-option>
     </mat-select>
