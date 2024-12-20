@@ -9,22 +9,24 @@
           <mat-icon class="gpsIcon-OK">location_on</mat-icon>
           OK
         </div>
-        <span class="nMezzi">{{ kanbanGpsService.workingItems.length }}</span>
+        <span class="nMezzi">{{ kanbanGpsService.workingVehicles.length }}</span>
       </div>
-      <mat-progress-bar mode="determinate" [value]="kanbanGpsService.workingItems.length" class="progress-bar"></mat-progress-bar>
-      <mat-form-field appearance="fill">
-        <mat-label>Add Item</mat-label>
-        <input matInput [(ngModel)]="kanbanGpsService.newWorkingItem" /> <!-- Ensure matInput is added here -->
-      </mat-form-field>
-      <button mat-raised-button color="primary" (click)="addItem('working')">Add</button>
-      <mat-list>
-        <mat-list-item *ngFor="let item of kanbanGpsService.workingItems">
-          {{ item }}
-          <button mat-icon-button color="warn" (click)="removeItem('working', item)">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </mat-list-item>
-      </mat-list>
+      <mat-progress-bar mode="determinate" [value]="kanbanGpsService.workingVehicles.length" class="progress-bar"></mat-progress-bar>
+      <div class="scrollable-list">
+        <mat-list>
+          <mat-list-item *ngFor="let vehicle of kanbanGpsService.workingVehicles">
+            <div class="vehicle">
+              <div class="info">
+                <p class="type">{{ "tipologia"}}</p>
+                <p class="cantiere">{{ vehicle.worksite?.name ? vehicle.worksite?.name : "non assegnato"}}</p>
+              </div>
+              <div class="plate-container">
+                <p class="plate">{{ vehicle.plate }}</p>
+              </div>
+            </div>
+          </mat-list-item>
+        </mat-list>
+      </div>
     </div>
 
     <!-- Warning Column -->
@@ -34,22 +36,24 @@
           <mat-icon class="gpsIcon-warning">location_on</mat-icon>
           Warning
         </div>
-        <span class="nMezzi">{{ kanbanGpsService.warningItems.length }}</span>
+        <span class="nMezzi">{{ kanbanGpsService.warningVehicles.length }}</span>
       </div>
-      <mat-progress-bar mode="determinate" [value]="kanbanGpsService.warningItems.length" class="progress-bar"></mat-progress-bar>
-      <mat-form-field appearance="fill">
-        <mat-label>Add Item</mat-label>
-        <input matInput [(ngModel)]="kanbanGpsService.newWarningItem" /> <!-- Ensure matInput is added here -->
-      </mat-form-field>
-      <button mat-raised-button color="accent" (click)="addItem('warning')">Add</button>
-      <mat-list>
-        <mat-list-item *ngFor="let item of kanbanGpsService.warningItems">
-          {{ item }}
-          <button mat-icon-button color="warn" (click)="removeItem('warning', item)">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </mat-list-item>
-      </mat-list>
+      <mat-progress-bar mode="determinate" [value]="kanbanGpsService.warningVehicles.length" class="progress-bar"></mat-progress-bar>
+      <div class="scrollable-list">
+        <mat-list>
+          <mat-list-item *ngFor="let vehicle of kanbanGpsService.warningVehicles">
+            <div class="vehicle">
+              <div class="info">
+                <p class="type">{{ "tipologia"}}</p>
+                <p class="cantiere">{{ vehicle.worksite?.name ? vehicle.worksite?.name : "non assegnato"}}</p>
+              </div>
+              <div class="plate-container">
+                <p class="plate">{{ vehicle.plate }}</p>
+              </div>
+            </div>
+          </mat-list-item>
+        </mat-list>
+      </div>
     </div>
 
     <!-- Error Column -->
@@ -59,22 +63,24 @@
           <mat-icon class="errorIcon-error">wifi</mat-icon>
           Error
         </div>
-        <span class="nMezzi">{{ kanbanGpsService.errorItems.length }}</span>
+        <span class="nMezzi">{{ kanbanGpsService.errorVehicles.length }}</span>
       </div>
-      <mat-progress-bar mode="determinate" [value]="kanbanGpsService.errorItems.length" class="progress-bar"></mat-progress-bar>
-      <mat-form-field appearance="fill">
-        <mat-label>Add Item</mat-label>
-        <input matInput [(ngModel)]="kanbanGpsService.newErrorItem" /> <!-- Ensure matInput is added here -->
-      </mat-form-field>
-      <button mat-raised-button color="warn" (click)="addItem('error')">Add</button>
-      <mat-list>
-        <mat-list-item *ngFor="let item of kanbanGpsService.errorItems">
-          {{ item }}
-          <button mat-icon-button color="warn" (click)="removeItem('error', item)">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </mat-list-item>
-      </mat-list>
+      <mat-progress-bar mode="determinate" [value]="kanbanGpsService.errorVehicles.length" class="progress-bar"></mat-progress-bar>
+      <div class="scrollable-list">
+        <mat-list>
+          <mat-list-item *ngFor="let vehicle of kanbanGpsService.errorVehicles">
+            <div class="vehicle">
+              <div class="info">
+                <p class="type">{{ "tipologia"}}</p>
+                <p class="cantiere">{{ vehicle.worksite?.name ? vehicle.worksite?.name : "non assegnato"}}</p>
+              </div>
+              <div class="plate-container">
+                <p class="plate">{{ vehicle.plate }}</p>
+              </div>
+            </div>
+          </mat-list-item>
+        </mat-list>
+      </div>
     </div>
   </div>
 </div>

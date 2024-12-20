@@ -3,7 +3,7 @@
   flex-direction: column;
 }
 
-.columns{
+.columns {
   margin-top: 2vh;
   display: flex;
   justify-content: space-between;
@@ -11,14 +11,14 @@
   padding: 16px;
 }
 
-.title{
+.title {
   font-size: 40px;
   font-weight: bold;
   line-height: 1;
   margin: 0;
 }
 
-.subtitle{
+.subtitle {
   font-size: 20px;
   color: gray;
   font-style: italic;
@@ -26,7 +26,7 @@
   margin: 0;
 }
 
-.progress-bar{
+.progress-bar {
   margin-bottom: 1vh;
 }
 
@@ -41,7 +41,7 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.header{
+.header {
   width: 100%;
   display: flex;
   align-items: center;
@@ -49,87 +49,98 @@
   margin-bottom: 1vh;
 }
 
-.OK-container{
+.OK-container, .warning-container, .error-container {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  gap: 5px;
+  padding: 3%;
+  cursor: pointer;
+  border-radius: 5px;
+  height: 1vh;
   color: white;
+}
+
+.OK-container {
   background-color: var(--sidebar-color);
-  padding: 3%;
-  cursor: pointer;
-  border-radius: 5px;
-  height: 1vh;
 }
 
-.warning-container{
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  color: white;
+.warning-container {
   background-color: #ffcc00;
-  padding: 3%;
-  cursor: pointer;
-  border-radius: 5px;
-  height: 1vh;
 }
 
-.error-container{
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  color: white;
+.error-container {
   background-color: #d12717;
-  padding: 3%;
-  cursor: pointer;
-  border-radius: 5px;
-  height: 1vh;
 }
 
-/* Title styling */
-h3 {
-  text-align: center;
-  margin-bottom: 16px;
-  font-size: 1.25rem;
-  color: #333;
+.vehicle {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
 }
 
-/* Form field styling */
+.info {
+  display: flex;
+  flex-direction: column;
+}
+
+.plate {
+  text-align: right;
+  background-color: #EFEEE4;
+  padding: 5px;
+}
+
+/* Styling for form fields, buttons, and list items */
 mat-form-field {
-  width: 100%;  /* Ensures the form field takes full width in its container */
+  width: 100%;
   margin-bottom: 16px;
 }
 
-/* Input field styling */
 input[matInput] {
   font-size: 1rem;
   padding: 8px;
 }
 
-/* Button styling */
 button {
   width: 100%;
   margin-top: 8px;
 }
 
-/* List item styling */
 mat-list-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 8px;
   border-bottom: 1px solid #ddd;
+  height: auto !important;
 }
 
-/* Icon button styling */
 mat-icon-button {
-  color: #f44336;  /* Red color for delete buttons */
+  color: #f44336;
 }
 
-/* Hover effects for list items */
 mat-list-item:hover {
   background-color: #f1f1f1;
   cursor: pointer;
+}
+.scrollable-list {
+  max-height: 500px; /* Set max height for the scrollable area */
+  overflow-y: auto; /* Enable vertical scrolling */
+  margin-top: 10px; /* Optional: add some space above the list */
+  padding-right: 20px; /* To add space on the right for the scrollbar */
+  padding-left: 10px; /* Add space on the left side for the scrollbar */
+}
+
+/* Custom scrollbar styles (optional) */
+.scrollable-list::-webkit-scrollbar {
+  width: 10px; /* Adjust width of the scrollbar */
+}
+
+.scrollable-list::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 10px;
+}
+
+.scrollable-list::-webkit-scrollbar-thumb:hover {
+  background-color: #555;
 }

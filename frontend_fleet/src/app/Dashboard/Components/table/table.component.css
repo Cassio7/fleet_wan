@@ -110,13 +110,6 @@ td.mat-cell {
   border-radius: 5px;
 }
 
-/* .icon-container {
-  position: relative;
-  display: inline-block;
-  width: 24px;
-  height: 24px;
-} */
-
 .session-error{
   display: flex;
   align-items: center;
@@ -134,10 +127,6 @@ td.mat-cell {
   font-size: 24px;
   line-height: 24px;
 }
-
-/* .antenna-icon {
-  color: #479dff;
-} */
 
 .close-icon {
   color: #d12717;
