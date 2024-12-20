@@ -1,7 +1,7 @@
 <div class="filter-container">
   <mat-form-field class="targa-filter" appearance="outline">
     <mat-label>Targa</mat-label>
-    <input matInput type="text" value="Targa" #targa class="targa-input">
+    <input matInput type="text" placeholder="Targa" #targa class="targa-input">
     <button *ngIf="targa.value" matSuffix mat-icon-button aria-label="Clear" (click)="targa.value = ''">
       <mat-icon>close</mat-icon>
     </button>

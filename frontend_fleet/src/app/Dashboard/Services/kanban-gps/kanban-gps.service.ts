@@ -31,6 +31,12 @@ export class KanbanGpsService{
     }
   }
 
+  clearVehicles(){
+    this.workingVehicles = [];
+    this.warningVehicles = [];
+    this.errorVehicles = [];
+  }
+
   // /**
   //  * Rimuove un item da una colonna del kanban GPS
   //  * @param column colonna dalla quale rimuovere

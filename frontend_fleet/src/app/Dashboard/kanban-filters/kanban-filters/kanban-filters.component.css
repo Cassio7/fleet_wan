@@ -1,18 +1,16 @@
-.filter-container {
+.filters-container {
   display: flex;
-  justify-content: space-evenly;
   align-items: center;
-  gap: 2vw;
-  flex-wrap: wrap;
-  margin: 16px 0;
+  justify-content: space-between;
+  width: 100%;
+}
+
+mat-form-field {
+  width: 40%;
 }
 
 .filters-btn{
   background-color: var(--sidebar-color);
   border-radius: 5px !important;
   color: white;
-}
-
-mat-form-field {
-  flex: 1;
 }

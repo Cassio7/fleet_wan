@@ -1,6 +1,9 @@
 <div class="container">
   <h2 class="title">Stato GPS</h2>
   <p class="subtitle">Monitora lo stato dei GPS</p>
+  <div class="filters">
+    <app-kanban-filters></app-kanban-filters>
+  </div>
   <div class="columns">
     <!-- Working Column -->
     <div class="working-col">
@@ -11,7 +14,7 @@
         </div>
         <span class="nMezzi">{{ kanbanGpsService.workingVehicles.length }}</span>
       </div>
-      <mat-progress-bar mode="determinate" [value]="kanbanGpsService.workingVehicles.length" class="progress-bar"></mat-progress-bar>
+      <mat-progress-bar mode="determinate" [value]="kanbanGpsService.workingVehicles.length" class="progress-bar working-bar" color="accent"></mat-progress-bar>
       <div class="scrollable-list">
         <mat-list>
           <mat-list-item *ngFor="let vehicle of kanbanGpsService.workingVehicles">

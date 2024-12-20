@@ -26,9 +26,17 @@
   margin: 0;
 }
 
+.filters{
+  margin-top: 20px;
+}
+
 .progress-bar {
   margin-bottom: 1vh;
+  border-radius: 2px;
+  background-color: green !important; /*non funziona*/
 }
+
+
 
 .working-col, .warning-col, .error-col {
   flex: 1;
@@ -55,7 +63,6 @@
   justify-content: center;
   gap: 5px;
   padding: 3%;
-  cursor: pointer;
   border-radius: 5px;
   height: 1vh;
   color: white;
@@ -90,7 +97,6 @@
   padding: 5px;
 }
 
-/* Styling for form fields, buttons, and list items */
 mat-form-field {
   width: 100%;
   margin-bottom: 16px;
@@ -134,10 +140,12 @@ mat-list-item:hover {
 /* Custom scrollbar styles (optional) */
 .scrollable-list::-webkit-scrollbar {
   width: 10px; /* Adjust width of the scrollbar */
+  background-color: transparent;
 }
 
 .scrollable-list::-webkit-scrollbar-thumb {
-  background-color: #888;
+  background-color: green;
+  margin-left: 50px;
   border-radius: 10px;
 }
 
