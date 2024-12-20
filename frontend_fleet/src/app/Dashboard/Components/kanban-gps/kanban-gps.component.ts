@@ -11,6 +11,7 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
 import { CheckErrorsService } from '../../Services/check-errors/check-errors.service';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { Vehicle } from '../../../Models/Vehicle';
+import { KanbanFiltersComponent } from "../../kanban-filters/kanban-filters/kanban-filters.component";
 
 @Component({
   selector: 'app-kanban-gps',
@@ -23,8 +24,9 @@ import { Vehicle } from '../../../Models/Vehicle';
     MatButtonModule,
     MatProgressBarModule,
     MatIconModule,
-    MatListModule
-  ],
+    MatListModule,
+    KanbanFiltersComponent
+],
   templateUrl: './kanban-gps.component.html',
   styleUrl: './kanban-gps.component.css'
 })
@@ -42,7 +44,7 @@ export class KanbanGpsComponent implements AfterViewInit{
   addVehiclesGpsData(){
     const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
     const series = this.checkErrorsService.checkGpsErrorsAll(allVehicles);//recupero dati dei veicoli controllati
-    console.log("series: ", series);
+    this.kanbanGpsService.clearVehicles();
     //aggiunta veicoli funzionanti
     series[0].forEach(vehicle => {
       this.addItem("working", vehicle);

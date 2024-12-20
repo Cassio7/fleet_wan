@@ -37,12 +37,13 @@
 }
 
 .graphs-header .graphs-title {
-  font-size: 20px;
+  font-size: 40px;
   font-weight: bold;
   line-height: 1;
 }
 
 .graphs-header .graphs-subtitle {
+  font-size: 20px;
   line-height: 1;
 }
 

@@ -12,9 +12,9 @@ import { TableComponent } from '../table/table.component';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RowFilterComponent } from '../row-filter/row-filter.component';
 import { KebabMenuComponent } from '../kebab-menu/kebab-menu.component';
-import { KanbanGpsService } from '../../Services/kanban-gps/kanban-gps.service';
 import { skip, Subject, takeUntil } from 'rxjs';
 import { KanbanGpsComponent } from "../kanban-gps/kanban-gps.component";
+import { KanbanGpsService } from '../../Services/kanban-gps/kanban-gps.service';
 
 @Component({
   selector: 'app-dashboard',

@@ -43,7 +43,6 @@ td.mat-cell {
 }
 
 .plate-container{
-  display: inline-block;
   padding: 3%;
   background-color: #EFEEE4;
 }
@@ -98,7 +97,7 @@ td.mat-cell {
   font-size: 20px;
 }
 
-.noRFID-container{
+.noRFID-container mat-icon{
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -108,7 +107,9 @@ td.mat-cell {
   padding: 3%;
   cursor: pointer;
   border-radius: 5px;
+  font-size: 20px;
 }
+
 
 .session-error{
   display: flex;
