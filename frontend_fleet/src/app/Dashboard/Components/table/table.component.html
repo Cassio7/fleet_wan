@@ -63,27 +63,27 @@
     <ng-container matColumnDef="sessione">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Sessione </th>
       <td mat-cell *matCellDef="let vehicle">
-        <!-- icone -->
-        <div class="session-error" *ngIf="checkSessionError(vehicle)" [matTooltip]="checkSessionError(vehicle)">
-          <div class="error-container">
-            {{calculateSessionErrorDays(vehicle)}}gg
-          </div>
-          <div class="error-container">
-            Error
-          </div>
-        </div>
-        <div class="OK-container" *ngIf="!checkSessionError(vehicle) && vehicle.lastValidSession?.period_to" matTooltip="Sessione corretta">
-          OK
-        </div>
         <!-- se non c'è errore, data nera -->
-        <span *ngIf="!checkSessionError(vehicle) && vehicle.lastValidSession?.period_to; else noError">
+        <span *ngIf="!checkSessionError(vehicle) && vehicle.lastValidSession?.period_to; else sessionError">
+          <!-- icone -->
+          <div class="OK-container" *ngIf="!checkSessionError(vehicle) && vehicle.lastValidSession?.period_to" matTooltip="Sessione corretta">
+            OK
+          </div>
           {{ vehicle.lastValidSession?.period_to ? (vehicle.lastValidSession.period_from | date: 'dd/MM/yy hh:mm') : '' }}
         </span>
-        <!-- se c'è errore, data rossa -->
-        <ng-template #noError>
-          <span class="session-date">
-            {{ vehicle.lastValidSession?.period_to ? (vehicle.lastValidSession.period_from | date: 'dd/MM/yy hh:mm') : '' }}
-          </span>
+        <!-- se c'è errore  -->
+        <ng-template #sessionError>
+          <div class="session-error" *ngIf="checkSessionError(vehicle)" [matTooltip]="checkSessionError(vehicle)">
+            <div class="error-container">
+              {{calculateSessionErrorDays(vehicle)}}gg
+            </div>
+            <div class="error-container">
+              Error
+            </div>
+            <span class="session-date">
+              {{ vehicle.lastValidSession?.period_to ? (vehicle.lastValidSession.period_from | date: 'dd/MM/yy hh:mm') : '' }}
+            </span>
+          </div>
         </ng-template>
 
       </td>

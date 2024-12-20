@@ -119,6 +119,7 @@ td.mat-cell {
 
 .session-error{
   display: flex;
+  align-items: center;
   gap: 5px;
 }
 

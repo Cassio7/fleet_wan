@@ -15,6 +15,8 @@
   </mat-form-field>
   <mat-form-field class="GPS-state-filter" appearance="outline">
     <mat-select [formControl]="cantieri" placeholder="Stati GPS" multiple class="GPS-input">
+      <mat-option>Seleziona tutto</mat-option>
+      <mat-divider></mat-divider>
       <mat-option value="Funzionante">Funzionante</mat-option>
       <mat-option value="Warning">Warning</mat-option>
       <mat-option value="Errore">Errore</mat-option>
@@ -23,6 +25,8 @@
   </mat-form-field>
   <mat-form-field class="antenna-filter" appearance="outline">
     <mat-select [formControl]="cantieri" placeholder="Stati antenna" multiple class="antenna-input">
+      <mat-option>Seleziona tutto</mat-option>
+      <mat-divider></mat-divider>
       <mat-option value="Blackbox">Blackbox</mat-option>
       <mat-option value="Blackbox+antenna">Blackbox + antenna</mat-option>
     </mat-select>

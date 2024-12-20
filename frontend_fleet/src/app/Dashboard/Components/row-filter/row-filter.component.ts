@@ -11,6 +11,7 @@ import { FilterService } from '../../../Common-services/filter/filter.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
+import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
   selector: 'app-row-filter',
@@ -21,6 +22,7 @@ import { MatInputModule } from '@angular/material/input';
     MatCheckboxModule,
     MatFormFieldModule,
     MatIconModule,
+    MatDividerModule,
     MatOptionModule,
     ReactiveFormsModule,
     MatFormFieldModule, MatInputModule, FormsModule, MatButtonModule, MatIconModule
