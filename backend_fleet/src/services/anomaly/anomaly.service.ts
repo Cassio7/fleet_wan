@@ -77,24 +77,19 @@ export class AnomalyService {
   }
 
   /**
-   * Restituisce le anomalie in base ai veid inseriti del giorno prima
-   * @param veId
+   * Restituisce le anomalie in base ai veid inseriti e in base al giorno
+   * @param veId Id dei veicoli
+   * @param date data da controllare
    * @returns
    */
-  async getDayBeforeAnomaly(veId: number[]): Promise<any> {
-    const now = new Date();
-    const dayBefore = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate() - 1,
-    );
-    dayBefore.setHours(0, 0, 0, 0);
+  async getAnomalyByDate(veId: number[], date: Date): Promise<any> {
+    date.setHours(0, 0, 0, 0);
     const anomalies = await this.anomalyRepository.find({
       where: {
         vehicle: {
           veId: In(veId),
         },
-        date: dayBefore,
+        date: date,
       },
       relations: {
         vehicle: true,
@@ -117,8 +112,6 @@ export class AnomalyService {
           const vehicleDTO = new VehicleDTO();
           vehicleDTO.plate = anomaly.vehicle.plate;
           vehicleDTO.veId = anomaly.vehicle.veId;
-          vehicleDTO.lastEvent = anomaly.vehicle.lastEvent;
-          vehicleDTO.isCan = anomaly.vehicle.isCan;
           vehicleDTO.isRFIDReader = anomaly.vehicle.isRFIDReader;
 
           vehicleGroup = {
@@ -143,13 +136,24 @@ export class AnomalyService {
       [] as Array<{ vehicle: VehicleDTO; anomalies: AnomalyDTO[] }>,
     );
   }
+
   /**
-   * Imposta le ultime anomalie riscontrate su Redis per recupero veloce
+   * Imposta le anomalie di ieri su Redis per recupero veloce
    * @param anomalies
    */
   async setDayBeforeAnomalyRedis(anomalies: any) {
     for (const anomaly of anomalies) {
       const key = `dayBeforeAnomaly:${anomaly.vehicle.veId}`;
+      await this.redis.set(key, JSON.stringify(anomaly));
+    }
+  }
+  /**
+   * Imposta anomalie di oggi su Redis per recupero veloce
+   * @param anomalies
+   */
+  async setTodayAnomalyRedis(anomalies: any) {
+    for (const anomaly of anomalies) {
+      const key = `todayAnomaly:${anomaly.vehicle.veId}`;
       await this.redis.set(key, JSON.stringify(anomaly));
     }
   }
@@ -251,7 +255,6 @@ export class AnomalyService {
   }
 
   private async checkSessionGPSAllNoApi(dateFrom: Date, dateTo: Date) {
-    // controllo data valida
     const validation = validateDateRange(
       dateFrom.toISOString(),
       dateTo.toISOString(),
@@ -259,11 +262,10 @@ export class AnomalyService {
     if (!validation.isValid) {
       return validation.message;
     }
-    const dateFrom_new = new Date(dateFrom);
-    const dateTo_new = new Date(dateTo);
 
-    const daysInRange = getDaysInRange(dateFrom_new, dateTo_new);
+    const daysInRange = getDaysInRange(new Date(dateFrom), new Date(dateTo));
     const vehicles = await this.vehicleService.getAllVehicles();
+
     const anomaliesForAllVehicles = await Promise.all(
       vehicles.map(async (vehicle) => {
         const vehicleCheck = {
@@ -273,123 +275,104 @@ export class AnomalyService {
           isRFIDReader: vehicle.isRFIDReader,
           sessions: [],
         };
-        // Raccogli le anomalie per ogni veicolo
+
         const anomaliesForVehicle = await Promise.all(
           daysInRange.slice(0, -1).map(async (day) => {
-            const datefrom = day;
-            const dateto = new Date(datefrom);
+            const dateto = new Date(day);
             dateto.setHours(23, 59, 59, 0);
 
             const datas = await this.sessionService.getAllSessionByVeIdRanged(
               vehicle.veId,
-              datefrom,
+              day,
               dateto,
             );
-            if (datas.length > 0) {
-              let flag_distance_can = false;
-              let flag_distance = false;
-              let flag_coordinates = false;
-              let flag_coordinates_zero = false;
 
-              const sessions = {
-                date: day,
-                anomalies: [],
-              };
+            if (datas.length === 0) return null;
 
+            const coordinates = datas.flatMap((data) =>
+              data.history.map((entry) => ({
+                latitude: entry.latitude,
+                longitude: entry.longitude,
+              })),
+            );
+
+            if (coordinates.length <= 4) return null;
+
+            const sessions = {
+              date: day,
+              anomalies: [],
+            };
+
+            // Check coordinates anomalies
+            const isCoordinatesFixed = coordinates.every(
+              (coord) =>
+                coord.latitude === coordinates[0].latitude &&
+                coord.longitude === coordinates[0].longitude,
+            );
+
+            const zeroCoordinatesCount = coordinates.filter(
+              (coord) => coord.latitude === 0 && coord.longitude === 0,
+            ).length;
+            const hasZeroCoordinatesAnomaly =
+              zeroCoordinatesCount > coordinates.length * 0.2;
+
+            // Skip distance check only for specific condition
+            const skipDistanceCheck =
+              datas.length === 1 && datas[0].sequence_id === 0;
+
+            if (!skipDistanceCheck) {
               const distanceMap = datas.map((data) => data.distance);
-              // le coordinate riguardano il numero di history in tutte le sessioni di quella giornata
-              const coordinates = datas.flatMap((data) =>
-                data.history.map((entry) => ({
-                  latitude: entry.latitude,
-                  longitude: entry.longitude,
-                })),
-              );
-              if (coordinates.length > 4) {
-                if (vehicle.isCan) {
-                  if (distanceMap.every((distance) => distance === 0)) {
-                    flag_distance_can = true;
-                  }
-                  if (
-                    coordinates.every(
-                      (coord) =>
-                        coord.latitude === coordinates[0].latitude &&
-                        coord.longitude === coordinates[0].longitude,
-                    )
-                  ) {
-                    flag_coordinates = true;
-                  }
-                  const zeroCoordinatesCount = coordinates.filter(
-                    (coord) => coord.latitude === 0 && coord.longitude === 0,
-                  ).length;
-                  if (zeroCoordinatesCount > coordinates.length * 0.2) {
-                    flag_coordinates_zero = true;
-                  }
-                } else {
-                  if (
-                    distanceMap.every(
-                      (distance) => distance === distanceMap[0],
-                    ) ||
-                    distanceMap.every((distance) => distance === 0)
-                  ) {
-                    flag_distance = true;
-                  }
-                  if (
-                    coordinates.every(
-                      (coord) =>
-                        coord.latitude === coordinates[0].latitude &&
-                        coord.longitude === coordinates[0].longitude,
-                    )
-                  ) {
-                    flag_coordinates = true;
-                  }
-                  const zeroCoordinatesCount = coordinates.filter(
-                    (coord) => coord.latitude === 0 && coord.longitude === 0,
-                  ).length;
-                  if (zeroCoordinatesCount > coordinates.length * 0.2) {
-                    flag_coordinates_zero = true;
-                  }
+
+              if (vehicle.isCan) {
+                const hasDistanceAnomaly = distanceMap.every(
+                  (distance) => distance === 0,
+                );
+                if (hasDistanceAnomaly) {
+                  sessions.anomalies.push(
+                    `Anomalia tachimetro, distanza sempre uguale a ${distanceMap[0]}`,
+                  );
+                }
+              } else {
+                const hasDistanceAnomaly =
+                  distanceMap.every(
+                    (distance) => distance === distanceMap[0],
+                  ) || distanceMap.every((distance) => distance === 0);
+
+                if (hasDistanceAnomaly && isCoordinatesFixed) {
+                  sessions.anomalies.push(
+                    `Anomalia totale, distanza: ${distanceMap[0]} e lat: ${coordinates[0].latitude} e lon: ${coordinates[0].longitude}`,
+                  );
+                  // Return early to avoid duplicate coordinate anomaly message
+                  return sessions;
                 }
               }
-
-              if (flag_coordinates && flag_distance) {
-                sessions.anomalies.push(
-                  `Anomalia totale, distanza: ${distanceMap[0]} e lat: ${coordinates[0].latitude} e lon: ${coordinates[0].longitude}`,
-                );
-              } else if (flag_coordinates) {
-                sessions.anomalies.push(
-                  `Anomalia coordinate, sempre uguali a lat: ${coordinates[0].latitude} e lon: ${coordinates[0].longitude}`,
-                );
-              } else if (flag_coordinates_zero) {
-                sessions.anomalies.push(
-                  `Anomalia coordinate con lat: 0 e lon: 0 sopra al 20%`,
-                );
-              }
-              if (flag_distance_can) {
-                sessions.anomalies.push(
-                  `Anomalia tachimetro, distanza sempre uguale a ${distanceMap[0]}`,
-                );
-              }
-
-              return sessions; // ritorna il risultato per questo giorno
             }
-            return null; // Se non ci sono dati, ritorna null
+
+            // Add coordinate-related anomalies
+            if (isCoordinatesFixed) {
+              sessions.anomalies.push(
+                `Anomalia coordinate, sempre uguali a lat: ${coordinates[0].latitude} e lon: ${coordinates[0].longitude}`,
+              );
+            } else if (hasZeroCoordinatesAnomaly) {
+              sessions.anomalies.push(
+                `Anomalia coordinate con lat: 0 e lon: 0 sopra al 20%`,
+              );
+            }
+
+            return sessions.anomalies.length > 0 ? sessions : null;
           }),
         );
-        const validSessions = anomaliesForVehicle.filter(
+
+        vehicleCheck.sessions = anomaliesForVehicle.filter(
           (session) => session !== null,
         );
-        vehicleCheck.sessions = validSessions;
-        // Filtra i risultati nulli
         return vehicleCheck;
       }),
     );
 
-    // Appiattisce l'array
-    const allAnomalies = anomaliesForAllVehicles.flat();
-    const filteredData = allAnomalies.filter(
+    return anomaliesForAllVehicles.filter(
       (item) => Array.isArray(item.sessions) && item.sessions.length > 0,
     );
-    return filteredData; // Restituisce il risultato senza res.send
   }
 
   /**
