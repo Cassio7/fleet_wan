@@ -1,0 +1,135 @@
+.container {
+  display: flex;
+  flex-direction: column;
+}
+
+.columns{
+  margin-top: 2vh;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+}
+
+.title{
+  font-size: 40px;
+  font-weight: bold;
+  line-height: 1;
+  margin: 0;
+}
+
+.subtitle{
+  font-size: 20px;
+  color: gray;
+  font-style: italic;
+  line-height: 1;
+  margin: 0;
+}
+
+.progress-bar{
+  margin-bottom: 1vh;
+}
+
+.working-col, .warning-col, .error-col {
+  flex: 1;
+  padding: 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  min-width: 200px;
+  max-width: 350px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.header{
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1vh;
+}
+
+.OK-container{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: white;
+  background-color: var(--sidebar-color);
+  padding: 3%;
+  cursor: pointer;
+  border-radius: 5px;
+  height: 1vh;
+}
+
+.warning-container{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  color: white;
+  background-color: #ffcc00;
+  padding: 3%;
+  cursor: pointer;
+  border-radius: 5px;
+  height: 1vh;
+}
+
+.error-container{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  color: white;
+  background-color: #d12717;
+  padding: 3%;
+  cursor: pointer;
+  border-radius: 5px;
+  height: 1vh;
+}
+
+/* Title styling */
+h3 {
+  text-align: center;
+  margin-bottom: 16px;
+  font-size: 1.25rem;
+  color: #333;
+}
+
+/* Form field styling */
+mat-form-field {
+  width: 100%;  /* Ensures the form field takes full width in its container */
+  margin-bottom: 16px;
+}
+
+/* Input field styling */
+input[matInput] {
+  font-size: 1rem;
+  padding: 8px;
+}
+
+/* Button styling */
+button {
+  width: 100%;
+  margin-top: 8px;
+}
+
+/* List item styling */
+mat-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  border-bottom: 1px solid #ddd;
+}
+
+/* Icon button styling */
+mat-icon-button {
+  color: #f44336;  /* Red color for delete buttons */
+}
+
+/* Hover effects for list items */
+mat-list-item:hover {
+  background-color: #f1f1f1;
+  cursor: pointer;
+}
