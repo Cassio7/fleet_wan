@@ -40,7 +40,7 @@ export class AppService implements OnModuleInit {
 
   // popolo database all'avvio
   async onModuleInit() {
-    const startDate = '2024-12-18T00:00:00.000Z';
+    const startDate = '2024-12-19T00:00:00.000Z';
     //const endDate = '2024-12-10T00:00:00.000Z';
     const endDate = new Date(
       new Date().getTime() + 2 * 60 * 60 * 1000,
@@ -50,7 +50,7 @@ export class AppService implements OnModuleInit {
     //await this.putDbData3min();
     //await this.anomalyCheck(startDate, endDate);
     //await this.dailyAnomalyCheck();
-    //await this.setDayBeforeAnomaly();
+    //await this.setAnomaly();
     //await this.updateRealtime();
     await this.redis.publish('realtime_channel', 'Applicazione inizializzata');
   }
@@ -320,13 +320,32 @@ export class AppService implements OnModuleInit {
   }
 
   /**
-   * Imposta le anomalies su redis del giorno precedente ad oggi
+   * Imposta le anomalies su redis del giorno precedente e di oggi
    */
-  async setDayBeforeAnomaly() {
+  //@Cron('02 2 * * *')
+  async setAnomaly() {
+    const keys = await this.redis.keys('*Anomaly:*');
+    if (keys.length > 0) {
+      await this.redis.del(keys);
+    }
     const vehicles = await this.vehicleService.getAllVehicles();
     const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
-    const anomalies = await this.anomalyService.getDayBeforeAnomaly(vehicleIds);
-    await this.anomalyService.setDayBeforeAnomalyRedis(anomalies);
+    const now = new Date();
+    const dayBefore = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() - 1,
+    );
+    const yesterdayAnomalies = await this.anomalyService.getAnomalyByDate(
+      vehicleIds,
+      dayBefore,
+    );
+    const todayAnomalies = await this.anomalyService.getAnomalyByDate(
+      vehicleIds,
+      now,
+    );
+    await this.anomalyService.setDayBeforeAnomalyRedis(yesterdayAnomalies);
+    await this.anomalyService.setTodayAnomalyRedis(todayAnomalies);
   }
 
   //@Cron('*/5 * * * *')
