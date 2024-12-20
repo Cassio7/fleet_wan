@@ -21,7 +21,7 @@ export class CheckErrorsService {
     /**
    * Controlla se è presente un errore di GPS nella sessione di oggi del veicolo preso in input
    * @param vehicle
-   * @returns
+   * @returns l'anomalia se viene riscontrata, altrimenti "null"
    */
     checkGpsError(vehicle: { anomalySessions?: { date: string; anomalies?: { GPS?: string } }[] }): string | null {
       const dateFrom = this.commonService.dateFrom;
@@ -43,9 +43,6 @@ export class CheckErrorsService {
       }
       return null; // Se non viene trovata alcuna anomalia
     }
-
-
-
 
 
 
@@ -89,7 +86,7 @@ export class CheckErrorsService {
    * @param vehicle veicolo da cui prendere l'ultimo evento
    * @returns differenza in giorni: oggi - lastevent
    */
-  calculateSessionErrorDays(vehicle: Vehicle): number {
+  public calculateSessionErrorDays(vehicle: Vehicle): number {
     const todayDate = new Date(); //giorni di oggi
 
     //verifica che lastEvent non sia null
@@ -103,6 +100,26 @@ export class CheckErrorsService {
     const differenceInDays = Math.floor(differenceInMillis / (1000 * 60 * 60 * 24)); //conversione differenza in giorni
 
     return differenceInDays;
+  }
+
+  /**
+   * Controlla i gps dei veicoli passati come parametro
+   * @param allVehicles veicoli da controllare
+   * @returns array formato da: [workingVehicles, warningVehicles]
+   */
+  public checkGpsErrorsAll(allVehicles: Vehicle[]){
+    const workingVehicles: Vehicle[] = [];
+    const warningVehicles: Vehicle[] = [];
+
+    allVehicles.map(vehicle => {
+      if(this.checkGpsError(vehicle)){
+        warningVehicles.push(vehicle);
+      }else{
+        workingVehicles.push(vehicle);
+      }
+    });
+
+    return [workingVehicles, warningVehicles];
   }
 
 
