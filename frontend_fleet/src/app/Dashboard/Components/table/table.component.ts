@@ -23,6 +23,7 @@ import { FilterService } from '../../../Common-services/filter/filter.service';
 import { KanbanGpsService } from '../../Services/kanban-gps/kanban-gps.service';
 import { KanbanGpsComponent } from "../kanban-gps/kanban-gps.component";
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { CantieriFilterService } from '../../../Common-services/cantieri-filter/cantieri-filter.service';
 
 @Component({
   selector: 'app-table',
@@ -46,7 +47,9 @@ export class TableComponent implements OnDestroy, AfterViewInit{
 
   vehicleTableData = new MatTableDataSource<Vehicle>();
   tableMaxLength: number = 0;
-  completedCalls: number = 0;
+
+  loadingProgress: number = 0;
+  loadingText: string = "";
   loading: boolean = true;
 
 
@@ -64,6 +67,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     private errorGraphService: ErrorGraphsService,
     private blackboxGraphService: BlackboxGraphsService,
     private vehicleApiService: VehiclesApiService,
+    private cantieriFilterService: CantieriFilterService,
     private filterService: FilterService,
     private sessionStorageService: SessionStorageService,
     private sessionApiService: SessionApiService,
@@ -114,7 +118,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
    * Gestisce l'aggiunta di un filtro aggiungendo i dati dei veicoli filtrati alla tabella
    */
   private handleCantiereFilter() {
-    this.filterService.filterTableByCantiere$.pipe(takeUntil(this.destroy$), skip(1))
+    this.cantieriFilterService.filterTableByCantiere$.pipe(takeUntil(this.destroy$), skip(1))
       .subscribe({
         next: (cantieri: string[]) => {
           let vehicles = [];
@@ -124,13 +128,13 @@ export class TableComponent implements OnDestroy, AfterViewInit{
 
           if (errorSlice) {
             const errorGraphVehicles = this.blackboxGraphService.checkErrorGraphSlice();
-            vehicles = this.filterService.filterVehiclesByCantieri(errorGraphVehicles, cantieri) as any[];
+            vehicles = this.cantieriFilterService.filterVehiclesByCantieri(errorGraphVehicles, cantieri) as any[];
           } else if (blackboxSlice) {
             const blackboxgraphVehicles = this.errorGraphService.checkBlackBoxSlice();
-            vehicles = this.filterService.filterVehiclesByCantieri(blackboxgraphVehicles, cantieri) as any[];
+            vehicles = this.cantieriFilterService.filterVehiclesByCantieri(blackboxgraphVehicles, cantieri) as any[];
           } else {
             const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-            vehicles = this.filterService.filterVehiclesByCantieri(allVehicles, cantieri) as any[];
+            vehicles = this.cantieriFilterService.filterVehiclesByCantieri(allVehicles, cantieri) as any[];
           }
 
           this.vehicleTableData.data = vehicles;
@@ -270,7 +274,9 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     forkJoin({
       vehicles: this.vehicleApiService.getAllVehicles().pipe(
         tap(() => {
-          this.completedCalls+=33.3;
+          this.loadingProgress+=33.3;
+          this.loadingText = "Caricamento veicoli...";
+          this.cd.detectChanges();
         }),
         catchError((error) => {
           console.error("Errore caricamento vehicles:", error);
@@ -279,7 +285,9 @@ export class TableComponent implements OnDestroy, AfterViewInit{
       ),
       anomaliesVehicles: this.checkErrorsService.checkErrorsAllToday().pipe(
         tap(() => {
-          this.completedCalls+=33.3;
+          this.loadingProgress+=33.3;
+          this.loadingText = "Caricamento veicoli con anomalie...";
+          this.cd.detectChanges();
         }),
         catchError((error) => {
           console.error("Errore caricamento anomaliesVehicles:", error);
@@ -288,7 +296,9 @@ export class TableComponent implements OnDestroy, AfterViewInit{
       ),
       lastValidSessions: this.sessionApiService.getAllVehiclesLastValidSession().pipe(
         tap(() => {
-          this.completedCalls+=33.3;
+          this.loadingProgress+=33.3;
+          this.loadingText = "Caricamento sessioni valide...";
+          this.cd.detectChanges();
         }),
         catchError((error) => {
           console.error("Errore caricamento lastValidSessions:", error);
@@ -362,7 +372,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   onGraphClick(vehicles: Vehicle[]){
     /*filtrare i veicoli per cantiere*/
     this.sessionStorageService.setItem("tableData", JSON.stringify(vehicles)); //imposta tableData in sessionstorage
-    this.filterService.updateFilterOptions$.next(vehicles); //aggiorna le opzioni del filtro dei cantieri
+    this.cantieriFilterService.updateCantieriFilterOptions$.next(vehicles); //aggiorna le opzioni del filtro dei cantieri
     this.fillTableWithVehicles(vehicles); //riempe la tabella
     this.loadGraphs(vehicles); //carica i grafici
   }

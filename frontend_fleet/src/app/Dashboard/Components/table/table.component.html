@@ -1,6 +1,6 @@
 <div class="loading-progress" *ngIf="loading">
-  <p class="loading-p">Caricamento dei dati dei veicoli...</p>
-  <mat-progress-bar mode="determinate" [value]="completedCalls" class="loading-bar"></mat-progress-bar>
+  <p class="loading-p">{{loadingText}}</p>
+  <mat-progress-bar mode="determinate" [value]="loadingProgress" class="loading-bar"></mat-progress-bar>
 </div>
 <div class="table-container">
   <table *ngIf="vehicleTableData" #vehicleTable mat-table [dataSource]="vehicleTableData" matSort (matSortChange)="onSortChange($event)">

@@ -14,7 +14,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatDividerModule } from '@angular/material/divider';
 import { FormsModule } from '@angular/forms';
 import { SelectService } from '../../Services/select/select.service';
-import { MezziFilterService } from '../../Services/mezzi-filter/mezzi-filter.service';
 import { SortService } from '../../../Common-services/sort/sort.service';
 import { CookieService } from 'ngx-cookie-service';
 import { NotesService } from '../../Services/notes/notes.service';
@@ -24,6 +23,8 @@ import { NoteSnackbarComponent } from '../note-snackbar/note-snackbar.component'
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from '../../../Common-services/auth/auth.service';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { CantieriFilterService } from '../../../Common-services/cantieri-filter/cantieri-filter.service';
+import { MezziFilterService } from '../../Services/mezzi-filter/mezzi-filter.service';
 
 @Component({
   selector: 'app-table',
@@ -59,6 +60,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
 
   constructor(
     public selectService: SelectService,
+    public cantieriFilterService: CantieriFilterService,
     public mezziFilterService: MezziFilterService,
     private sortService: SortService,
     private notesService: NotesService,
@@ -300,7 +302,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
    * @returns funzione nel servizio
    */
   filterVehiclesCantieriDuplicates(){
-    return this.sortService.sortVehiclesByCantiereAsc(this.mezziFilterService.filterVehiclesCantieriDuplicates(this.sortedVehicles));
+    return this.sortService.sortVehiclesByCantiereAsc(this.cantieriFilterService.filterVehiclesCantieriDuplicates(this.sortedVehicles));
   }
 
   /**

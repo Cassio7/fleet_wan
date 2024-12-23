@@ -33,26 +33,6 @@ export class MezziFilterService {
   }
 
   /**
-   * Filtra i veicoli in base ai cantieri dei veicoli selezionati.
-   * @param selectedModels - Array di cantieri selezionati.
-   * @param vehicles - Array di veicoli da filtrare.
-   * @returns Un array di veicoli che corrispondono ai cantieri selezionati.
-   */
-  filterVehiclesByCantiere(selectedCantieri: string[], vehicles: Vehicle[]): Vehicle[] {
-    if (!selectedCantieri || !selectedCantieri.length) {
-      return vehicles; // Return all vehicles if no cantieri are selected.
-    }
-
-    const modelsSet = new Set(selectedCantieri);
-
-    return vehicles.filter(vehicle => {
-      const worksiteName = vehicle.worksite?.name;
-      return worksiteName ? modelsSet.has(worksiteName) : false;
-    });
-  }
-
-
-  /**
    * Filtra i modelli duplicati
    * @param vehicles veicoli dai quali prendere i modelli
    * @returns array di veicoli filtrati
@@ -65,31 +45,6 @@ export class MezziFilterService {
       }
       seenModels.add(vehicle.model);
       return true;
-    });
-  }
-
-  /**
-   * Filtra i cantieri duplicati
-   * @param vehicles veicoli dai quali prendere i modelli
-   * @returns array di veicoli filtrati
-   */
-  filterVehiclesCantieriDuplicates(vehicles: Vehicle[]) {
-    const seenCantieri = new Set<string>(); // Set per tracciare i cantieri unici
-    return vehicles.filter(vehicle => {
-      if (vehicle.worksite) {
-        if (seenCantieri.has(vehicle.worksite.name)) {
-          return false;
-        }
-        seenCantieri.add(vehicle.worksite.name);
-        return true;
-      } else {
-        // Se il worksite è null o undefined, usa "non assegnato"
-        if (seenCantieri.has("non assegnato")) {
-          return false;
-        }
-        seenCantieri.add("non assegnato");
-        return true;
-      }
     });
   }
 
