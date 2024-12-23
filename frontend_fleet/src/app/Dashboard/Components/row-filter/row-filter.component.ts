@@ -55,9 +55,10 @@ export class RowFilterComponent implements AfterViewInit{
   }
 
   ngAfterViewInit(): void {
+    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
     //seleziona tutto
     setTimeout(() => {
-      this.setCantieriOptions();
+      this.cantieriFilterService.updateListaCantieri(allVehicles);
       this.toggleSelectAllCantieri();
     });
     this.cantieriFilterService.setCantieriSessionStorage();
@@ -100,24 +101,7 @@ export class RowFilterComponent implements AfterViewInit{
    * Seleziona tutti i filtri del select dei cantieri
    */
   toggleSelectAllCantieri() {
-    if (this.cantieriFilterService.allSelected) {
-      this.cantieri.setValue([]);
-      this.cantieriFilterService.filterTableByCantiere$.next([]);
-      this.cantieriFilterService.allSelected = false;
-    } else {
-      this.cantieri.setValue(this.cantieriFilterService.listaCantieri);
-      this.cantieriFilterService.filterTableByCantiere$.next(this.cantieriFilterService.listaCantieri);
-      this.cantieriFilterService.allSelected = true;
-    }
-    this.cantieriFilterService.setCantieriSessionStorage();
-  }
-
-  /**
-   * Imposta le opzioni nel filtro dei cantieri
-   */
-  setCantieriOptions(){
-    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-    this.cantieriFilterService.updateListaCantieri(allVehicles);
+    this.cantieri.setValue(this.cantieriFilterService.toggleSelectAllCantieri());
   }
 
   // onFilterChange(){

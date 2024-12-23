@@ -32,11 +32,11 @@ export class CantieriFilterService{
   ) { }
 
   /**
-   * Inizializza il select per i filtri con i nomi di cantieri a cui i veicoli sono assegnati presi una sola volta
+   * Ritorna i nomi dei cantieri dei veicoli, presi solo una volta
    * @param vehicles veicoli da cui prendere i nomi dei cantieri assegnati
    * @returns array di nomi di cantieri
    */
-  fillCantieriSelect(vehicles: any[]) {
+  vehiclesCantieriOnce(vehicles: any[]): string[] {
     let seen = new Set<string>();
     let listaCantieri = vehicles
       .map(vehicle => {
@@ -48,6 +48,7 @@ export class CantieriFilterService{
         seen.add(name);
         return true;
       });
+    this.listaCantieri = listaCantieri;
     return listaCantieri;
   }
 
@@ -138,6 +139,11 @@ export class CantieriFilterService{
     });
   }
 
+  /**
+   * Aggiunge i cantieri dei veicoli passati alle opzioni del select dei cantieri
+   * @param vehicles veicoli da cui prendere i cantieri
+   * @returns lista dei cantieri presenti nel select
+   */
   updateListaCantieri(vehicles: Vehicle[], ): string[]{
     if (Array.isArray(vehicles) && vehicles.length > 0) {
       const firstElement = this.listaCantieri[0] || null; // Elemento preesistente o null
@@ -154,17 +160,43 @@ export class CantieriFilterService{
   }
 
   /**
+   * Seleziona / deseleziona tutti i cantieri dei veicoli nel select e notifica la tabella di aggiornare i dati
+   * @returns nuovo valore della lista cantieri
+   */
+  toggleSelectAllCantieri(){
+    if (this.allSelected) {
+      this.filterTableByCantiere$.next([]);
+      this.allSelected = false;
+      this.setCantieriSessionStorage();
+      return [];
+    } else {
+      this.filterTableByCantiere$.next(this.listaCantieri);
+      this.allSelected = true;
+      this.setCantieriSessionStorage();
+      return this.listaCantieri;
+    }
+  }
+
+  /**
    * Inizializza il select per i filtri con i nomi di cantieri a cui i veicoli sono assegnati presi una sola volta
    * @returns array di nomi di cantieri
    */
-  fillSelect(vehicles: any[]){
-    return vehicles ? this.fillCantieriSelect(vehicles) : [];
+  private fillSelect(vehicles: any[]){
+    return vehicles ? this.vehiclesCantieriOnce(vehicles) : [];
   }
 
+  /**
+   * controlla se i cantieri sono tutti selezionati
+   * @returns true se tutti selezionati
+   * @returns false se non sono tutti selezionati
+   */
   isCantieriAllSelected(): boolean{
     return this.allSelected;
   }
 
+  /**
+   * imposta il sessionstorage dei cantieri
+   */
   setCantieriSessionStorage(){
     this.sessionStorageService.setItem("cantieri", JSON.stringify(this.listaCantieri));
   }
