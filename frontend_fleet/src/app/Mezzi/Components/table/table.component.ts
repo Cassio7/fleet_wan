@@ -25,6 +25,7 @@ import { AuthService } from '../../../Common-services/auth/auth.service';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { CantieriFilterService } from '../../../Common-services/cantieri-filter/cantieri-filter.service';
 import { MezziFilterService } from '../../Services/mezzi-filter/mezzi-filter.service';
+import { ModelFilterService } from '../../../Common-services/model-filter/model-filter.service';
 
 @Component({
   selector: 'app-table',
@@ -60,8 +61,9 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
 
   constructor(
     public selectService: SelectService,
-    public cantieriFilterService: CantieriFilterService,
+    private cantieriFilterService: CantieriFilterService,
     public mezziFilterService: MezziFilterService,
+    private modelFilterService: ModelFilterService,
     private sortService: SortService,
     private notesService: NotesService,
     private authService: AuthService,
@@ -294,7 +296,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
    * @returns funzione nel servizio
    */
   filterVehiclesModelsDuplicates(){
-    return this.sortService.sortVehiclesByModelAsc(this.mezziFilterService.filterVehiclesModelsDuplicates(this.sortedVehicles));
+    return this.sortService.sortVehiclesByModelAsc(this.modelFilterService.filterVehiclesModelsDuplicates(this.sortedVehicles));
   }
 
   /**
