@@ -24,7 +24,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from '../../../Common-services/auth/auth.service';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { CantieriFilterService } from '../../../Common-services/cantieri-filter/cantieri-filter.service';
-import { MezziFilterService } from '../../Services/mezzi-filter/mezzi-filter.service';
 import { ModelFilterService } from '../../../Common-services/model-filter/model-filter.service';
 import { FirstEventsFilterService } from '../../../Common-services/firstEvents-filter/first-events-filter.service';
 
