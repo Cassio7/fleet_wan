@@ -15,11 +15,10 @@ export class GpsFilterService {
   /**
    * Trasporta le opzioni selezionate del filtro dei gps e notifica la tabella di filtrare i dati in base ai cantieri ottenuti
    */
-  private readonly _filterTableByGps$: BehaviorSubject<string> = new BehaviorSubject<string>("");
+  private readonly _filterTableByGps$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
   constructor(
-    private checkErrorsService: CheckErrorsService,
-    private sessionStorageService: SessionStorageService
+
   ) { }
 
 
@@ -29,18 +28,27 @@ export class GpsFilterService {
    */
   toggleSelectAllGps(): string{
     if (this.allSelected) {
-      this.filterTableByGps$.next("");
+      this.filterTableByGps$.next([]);
       this.allSelected = false;
       return "";
     } else {
-      this._filterTableByGps$.next("all");
+      this._filterTableByGps$.next(["all"]);
       this.allSelected = true;
       return "all";
     }
   }
 
+  /**
+   * controlla se sono selezionati tutti gli stati gps
+   * @returns true se è tutto selezionato
+   * @returns false se non è tutto selezionato
+   */
+  isGpsFilterAllSelected(): boolean{
+    return this.allSelected;
+  }
 
-  public get filterTableByGps$(): BehaviorSubject<string> {
+
+  public get filterTableByGps$(): BehaviorSubject<string[]> {
     return this._filterTableByGps$;
   }
   public get updateCantieriFilterOptions$(): BehaviorSubject<any[]> {

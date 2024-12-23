@@ -107,7 +107,7 @@ export class CheckErrorsService {
    * @param allVehicles veicoli da controllare
    * @returns array formato da: [workingVehicles, warningVehicles]
    */
-  public checkGpsErrorsAll(allVehicles: Vehicle[]){
+  public checkVehiclesGpsErrors(allVehicles: Vehicle[]){
     const workingVehicles: Vehicle[] = [];
     const warningVehicles: Vehicle[] = [];
 

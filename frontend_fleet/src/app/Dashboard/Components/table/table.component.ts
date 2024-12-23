@@ -157,18 +157,27 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   handleGpsFilter(){
     this.gpsFilterService.filterTableByGps$.pipe(takeUntil(this.destroy$))
     .subscribe({
-      next: (selection: string) => {
+      next: (selections: string[]) => {
+        console.log("selections: ", selections);
         const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-        switch(selection){
-          case "all":
-            this.vehicleTableData.data = allVehicles;
-            break;
-          case "":
-            this.vehicleTableData.data = [];
-            break;
+        const gpsCheckSeries = this.checkErrorsService.checkVehiclesGpsErrors(allVehicles);
+
+        if (selections.includes("all")) {
+          this.vehicleTableData.data = allVehicles;
         }
+        if(selections.includes("Funzionante")){
+          this.vehicleTableData.data = gpsCheckSeries[0];
+        }
+        if(selections.includes("Warning")){
+          this.vehicleTableData.data = gpsCheckSeries[1];
+        }
+        if (selections.length == 0) {
+          this.vehicleTableData.data = [];
+        }
+
         this.vehicleTable.renderRows();
       },
+
       error: error => console.error("Errore nel filtro dei gps: ", error)
     });
   }

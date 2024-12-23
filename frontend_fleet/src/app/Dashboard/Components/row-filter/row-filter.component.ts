@@ -109,17 +109,16 @@ export class RowFilterComponent implements AfterViewInit{
     if(option=="Seleziona tutto"){
       this.toggleSelectAllGps();
     }else{
-      const selectedGps = this.gps.value; //opzioni selezionate
+      const selectedGpsStates = this.gps.value; //opzioni selezionate
 
-      // if(this.cantieriFilterService.isCantieriAllSelected()) {
-      //   this.cantieriFilterService.allSelected = false;
-      // }
-      // this.cantieriFilterService.setCantieriSessionStorage();
-      // //se sono stati selezionati cantieri, invio dati
-      // if (selectedCantieri) {
-      //   this.cantieriFilterService.filterTableByCantiere$.next(selectedCantieri);
-      // }
-      // this.cd.detectChanges();
+      if(this.gpsFilterService.isGpsFilterAllSelected()) {
+        this.gpsFilterService.allSelected = false;
+      }
+      //se è stato selezionato uno stato gps
+      if (selectedGpsStates) {
+        this.gpsFilterService.filterTableByGps$.next(selectedGpsStates);
+      }
+      this.cd.detectChanges();
     }
   }
 
