@@ -8,7 +8,7 @@
   </mat-form-field>
   <mat-form-field class="cantieri-filter" appearance="outline">
     <mat-select [formControl]="cantieri" placeholder="Cantiere" multiple class="cantiere-input">
-      <mat-option [value]="cantiere" (click)="selectCantiere(cantiere)" *ngFor="let cantiere of listaCantieri">
+      <mat-option [value]="cantiere" (click)="selectCantiere(cantiere)" *ngFor="let cantiere of cantieriFilterService.listaCantieri">
         {{ cantiere }}
       </mat-option>
     </mat-select>

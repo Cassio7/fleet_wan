@@ -8,7 +8,7 @@ import { BehaviorSubject } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
-export class CantieriFilterService {
+export class CantieriFilterService{
 
   /**
    * Trasporta un array di veicoli dai quali poi estrapolare i cantieri per riempire il filtro dei cantieri
@@ -22,6 +22,7 @@ export class CantieriFilterService {
 
   private _allSelected: boolean = false;
 
+  listaCantieri: string[] = ["Seleziona tutto"];
 
 
   constructor(
@@ -135,6 +136,37 @@ export class CantieriFilterService {
         return true;
       }
     });
+  }
+
+  updateListaCantieri(vehicles: Vehicle[], ): string[]{
+    if (Array.isArray(vehicles) && vehicles.length > 0) {
+      const firstElement = this.listaCantieri[0] || null; // Elemento preesistente o null
+      const newCantieri = this.fillSelect(vehicles);
+
+      this.listaCantieri = firstElement ? [firstElement, ...newCantieri] : newCantieri;
+
+      this.setCantieriSessionStorage();
+      return this.listaCantieri;
+    } else {
+      console.error("Array di veicoli non valido o vuoto:", vehicles);
+      return [];
+    }
+  }
+
+  /**
+   * Inizializza il select per i filtri con i nomi di cantieri a cui i veicoli sono assegnati presi una sola volta
+   * @returns array di nomi di cantieri
+   */
+  fillSelect(vehicles: any[]){
+    return vehicles ? this.fillCantieriSelect(vehicles) : [];
+  }
+
+  isCantieriAllSelected(): boolean{
+    return this.allSelected;
+  }
+
+  setCantieriSessionStorage(){
+    this.sessionStorageService.setItem("cantieri", JSON.stringify(this.listaCantieri));
   }
 
   public get updateCantieriFilterOptions$(): BehaviorSubject<any[]> {
