@@ -28,6 +28,18 @@ export class PlateFilterService {
     return filteredVehicles;
   }
 
+  /**
+   * Filtra i veicoli in base alle targhe dei veicoli selezionati.
+   * @param selectedPlates - Array di targhe selezionate.
+   * @param vehicles - Array di veicoli da filtrare.
+   * @returns Un array di veicoli che corrispondono alle targhe selezionate.
+   */
+  filterVehiclesByPlates(selectedPlates: string[], vehicles: Vehicle[]): Vehicle[] {
+    if (!selectedPlates.length) return vehicles;
+    const platesSet = new Set(selectedPlates);
+    return vehicles.filter(vehicle => platesSet.has(vehicle.plate));
+  }
+
   public get filterByPlateResearch$(): BehaviorSubject<string> {
     return this._filterByPlateResearch$;
   }

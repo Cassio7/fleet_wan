@@ -7,19 +7,6 @@ import { Vehicle } from '../../../Models/Vehicle';
 export class MezziFilterService {
   constructor() { }
 
-
-  /**
-   * Filtra i veicoli in base alle targhe dei veicoli selezionati.
-   * @param selectedPlates - Array di targhe selezionate.
-   * @param vehicles - Array di veicoli da filtrare.
-   * @returns Un array di veicoli che corrispondono alle targhe selezionate.
-   */
-  filterVehiclesByPlates(selectedPlates: string[], vehicles: Vehicle[]): Vehicle[] {
-    if (!selectedPlates.length) return vehicles;
-    const platesSet = new Set(selectedPlates);
-    return vehicles.filter(vehicle => platesSet.has(vehicle.plate));
-  }
-
   /**
    * Filtra i veicoli in base ai modelli dei veicoli selezionati.
    * @param selectedModels - Array di modelli selezionati.
