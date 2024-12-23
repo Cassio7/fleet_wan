@@ -12,8 +12,8 @@ import { CheckErrorsService } from '../../Services/check-errors/check-errors.ser
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { Vehicle } from '../../../Models/Vehicle';
 import { KanbanFiltersComponent } from "../../kanban-filters/kanban-filters/kanban-filters.component";
-import { FilterService } from '../../../Common-services/filter/filter.service';
 import { skip, Subject, takeUntil } from 'rxjs';
+import { PlateFilterService } from '../../../Common-services/plate-filter/plate-filter.service';
 
 @Component({
   selector: 'app-kanban-gps',
@@ -37,7 +37,7 @@ export class KanbanGpsComponent implements AfterViewInit{
 
   constructor(
     public kanbanGpsService: KanbanGpsService,
-    private filterService: FilterService,
+    private plateFilterService: PlateFilterService,
     private sessionStorageService: SessionStorageService,
     private checkErrorsService: CheckErrorsService,
     private cd: ChangeDetectorRef
@@ -46,11 +46,11 @@ export class KanbanGpsComponent implements AfterViewInit{
   ngAfterViewInit(): void {
     const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
     let kanbanVehicles = allVehicles;
-    this.filterService.filterByPlateResearch$.pipe(takeUntil(this.destroy$), skip(1))
+    this.plateFilterService.filterByPlateResearch$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (research: string) => {
         kanbanVehicles = allVehicles;
-        kanbanVehicles = this.filterService.filterVehiclesByPlateResearch(research, kanbanVehicles);
+        kanbanVehicles = this.plateFilterService.filterVehiclesByPlateResearch(research, kanbanVehicles);
         this.setKanbanData(kanbanVehicles);
         this.cd.detectChanges();
       },

@@ -7,13 +7,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { skip, Subject, takeUntil } from 'rxjs';
-import { FilterService } from '../../../Common-services/filter/filter.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatDividerModule } from '@angular/material/divider';
 import { Vehicle } from '../../../Models/Vehicle';
 import { CantieriFilterService } from '../../../Common-services/cantieri-filter/cantieri-filter.service';
+import { PlateFilterService } from '../../../Common-services/plate-filter/plate-filter.service';
 
 @Component({
   selector: 'app-row-filter',
@@ -42,7 +42,7 @@ export class RowFilterComponent implements AfterViewInit{
   cantieri = new FormControl<string[]>([]);
 
   constructor(
-    private filterService: FilterService,
+    private plateFilterService: PlateFilterService,
     private cantieriFilterService: CantieriFilterService,
     private sessionStorageService: SessionStorageService,
      private cd: ChangeDetectorRef) {
@@ -92,7 +92,7 @@ export class RowFilterComponent implements AfterViewInit{
    * Invia il subject per il filtro dei veicoli in base alla ricerca sulla targa passandogli il valore del campo di ricerca
    */
   searchPlates(){
-    this.filterService.filterByPlateResearch$.next(this.plate);
+    this.plateFilterService.filterByPlateResearch$.next(this.plate);
   }
 
 

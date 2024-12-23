@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
-import { FilterService } from '../../../Common-services/filter/filter.service';
+import { PlateFilterService } from '../../../Common-services/plate-filter/plate-filter.service';
 
 @Component({
   selector: 'app-kanban-filters',
@@ -32,10 +32,10 @@ export class KanbanFiltersComponent{
   plate: string = "";
 
   constructor(
-    private filterService: FilterService
+    private plateFilterService: PlateFilterService
   ){}
 
   searchPlates(){
-    this.filterService.filterByPlateResearch$.next(this.plate);
+    this.plateFilterService.filterByPlateResearch$.next(this.plate);
   }
 }

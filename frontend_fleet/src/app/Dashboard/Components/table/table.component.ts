@@ -19,11 +19,11 @@ import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatButtonModule } from '@angular/material/button';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { SortService } from '../../../Common-services/sort/sort.service';
-import { FilterService } from '../../../Common-services/filter/filter.service';
 import { KanbanGpsService } from '../../Services/kanban-gps/kanban-gps.service';
 import { KanbanGpsComponent } from "../kanban-gps/kanban-gps.component";
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { CantieriFilterService } from '../../../Common-services/cantieri-filter/cantieri-filter.service';
+import { PlateFilterService } from '../../../Common-services/plate-filter/plate-filter.service';
 
 @Component({
   selector: 'app-table',
@@ -68,7 +68,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     private blackboxGraphService: BlackboxGraphsService,
     private vehicleApiService: VehiclesApiService,
     private cantieriFilterService: CantieriFilterService,
-    private filterService: FilterService,
+    private plateFilterService: PlateFilterService,
     private sessionStorageService: SessionStorageService,
     private sessionApiService: SessionApiService,
     private checkErrorsService: CheckErrorsService,
@@ -84,17 +84,17 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     this.handleBlackBoxGraphClick(); // Subscribe a click nel grafico dei blackbox
     this.handleCantiereFilter(); //Subscribe a scelta nel filtro dei cantieri
 
-    this.filterService.filterByPlateResearch$.pipe(takeUntil(this.destroy$), skip(1))
+    this.plateFilterService.filterByPlateResearch$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (research: string) => {
         if(this.sessionStorageService.getItem("errorSlice")){
           const errorVehicles = JSON.parse(this.sessionStorageService.getItem("errorVehicles"));
-          this.vehicleTableData.data = this.filterService.filterVehiclesByPlateResearch(research, errorVehicles);
+          this.vehicleTableData.data = this.plateFilterService.filterVehiclesByPlateResearch(research, errorVehicles);
         }else if(this.sessionStorageService.getItem("blackboxSlice")){
           const blackboxVehicles = JSON.parse(this.sessionStorageService.getItem("blackboxVehicles"));
-          this.vehicleTableData.data = this.filterService.filterVehiclesByPlateResearch(research, blackboxVehicles);
+          this.vehicleTableData.data = this.plateFilterService.filterVehiclesByPlateResearch(research, blackboxVehicles);
         }else{
-          this.vehicleTableData.data = this.filterService.filterVehiclesByPlateResearch(research, allVehicles);
+          this.vehicleTableData.data = this.plateFilterService.filterVehiclesByPlateResearch(research, allVehicles);
         }
         this.vehicleTable.renderRows();
       },

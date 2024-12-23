@@ -1,18 +1,15 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
 import { Vehicle } from '../../Models/Vehicle';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
-export class FilterService {
-  private _filterByPlateResearch$: BehaviorSubject<string> = new BehaviorSubject<string>("");
+export class PlateFilterService {
 
-  private _allSelected: boolean = false;
+  private readonly _filterByPlateResearch$: BehaviorSubject<string> = new BehaviorSubject<string>("");
 
-
-  constructor(
-  ) { }
+  constructor() { }
 
   /**
    * Filtra i veicoli passati per parametro in base alla targa ed ad un input di ricerca su quest'ultima
@@ -31,14 +28,7 @@ export class FilterService {
     return filteredVehicles;
   }
 
-
   public get filterByPlateResearch$(): BehaviorSubject<string> {
     return this._filterByPlateResearch$;
-  }
-  public get allSelected(): boolean {
-    return this._allSelected;
-  }
-  public set allSelected(value: boolean) {
-    this._allSelected = value;
   }
 }
