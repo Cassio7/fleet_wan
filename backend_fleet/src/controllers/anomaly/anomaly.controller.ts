@@ -1,6 +1,4 @@
-import { AssociationService } from './../../services/association/association.service';
-import { Role } from 'classes/enum/role.enum';
-import { AnomalyService } from './../../services/anomaly/anomaly.service';
+import { InjectRedis } from '@nestjs-modules/ioredis';
 import {
   Body,
   Controller,
@@ -10,15 +8,17 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { Response, Request } from 'express';
+import { VehicleEntity } from 'classes/entities/vehicle.entity';
+import { Role } from 'classes/enum/role.enum';
+import { UserFromToken } from 'classes/interfaces/userToken.interface';
+import { Request, Response } from 'express';
+import Redis from 'ioredis';
 import { Roles } from 'src/decorators/roles.decorator';
 import { AuthGuard } from 'src/guard/auth.guard';
 import { RolesGuard } from 'src/guard/roles.guard';
-import { UserFromToken } from 'classes/interfaces/userToken.interface';
-import { VehicleEntity } from 'classes/entities/vehicle.entity';
-import Redis from 'ioredis';
-import { InjectRedis } from '@nestjs-modules/ioredis';
 import { VehicleService } from 'src/services/vehicle/vehicle.service';
+import { AnomalyService } from './../../services/anomaly/anomaly.service';
+import { AssociationService } from './../../services/association/association.service';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Controller('anomaly')
@@ -86,21 +86,28 @@ export class AnomalyController {
     } else
       res.status(404).json({ message: 'Nessuna veicolo associato al utente' });
   }
+
+  /**
+   * API che ritorna tutti i veicoli con il relativo andamento delle anomalie
+   * @param req recupero utente dal token
+   * @param res
+   * @param body data di inizio e fine ricerca
+   * @returns
+   */
   @Post()
   async getAnomalyByDate(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
-    @Body() body: { dateFrom: string; dateTo?: string },
+    @Body() body: { dateFrom: string; dateTo: string },
   ) {
     try {
-      // Validate input date
       if (!body.dateFrom) {
         return res
           .status(400)
           .json({ message: 'Inserisci una data di inizio' });
       }
 
-      // Get vehicles for user
+      // Prendo i veicoli dall'utente
       const vehicles = (await this.associationService.getVehiclesByUserRole(
         req.user.id,
       )) as VehicleEntity[];
@@ -112,41 +119,27 @@ export class AnomalyController {
       const dateFrom = new Date(body.dateFrom);
       let anomalies: any[] = [];
 
-      if (body.dateTo) {
-        // Handle date range query
-        const dateTo = new Date(body.dateTo);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
 
-        if (dateTo < dateFrom) {
-          return res.status(400).json({
-            message:
-              'La data di fine deve essere successiva alla data di inizio',
-          });
-        }
-        // Fetch anomalies for date range from service
-        // anomalies = await this.anomalyService.getAnomalyByDateRange(
-        //   vehicleIds,
-        //   dateFrom,
-        //   dateTo,
-        // );
-      } else {
-        // Handle single date query
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        const yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
-
-        const isToday = dateFrom.getTime() === today.getTime();
-        const isYesterday = dateFrom.getTime() === yesterday.getTime();
-        if (!isToday && !isYesterday) {
-          anomalies = await this.anomalyService.getAnomalyByDate(
-            vehicleIds,
-            dateFrom,
-          );
-        } else {
-          const keyPrefix = isToday ? 'todayAnomaly' : 'dayBeforeAnomaly';
+      if (!body.dateTo) {
+        return res.status(400).json({
+          message: 'Inserisci una data di fine',
+        });
+      }
+      const dateTo = new Date(body.dateTo);
+      if (dateTo < dateFrom) {
+        return res.status(400).json({
+          message: 'La data di fine deve essere successiva alla data di inizio',
+        });
+      }
+      // Case 1: Se dateFrom === dateTo e il giorno è oggi usare todayAnomaly
+      if (dateFrom.getTime() === dateTo.getTime()) {
+        if (dateFrom.getTime() === today.getTime()) {
           const redisPromises = vehicleIds.map(async (id) => {
-            const key = `${keyPrefix}:${id}`;
+            const key = `todayAnomaly:${id}`;
             try {
               const data = await this.redis.get(key);
               return data ? JSON.parse(data) : null;
@@ -158,10 +151,38 @@ export class AnomalyController {
               return null;
             }
           });
-
-          const redisResults = await Promise.all(redisPromises);
-          anomalies = redisResults.filter(Boolean);
+          anomalies = (await Promise.all(redisPromises)).filter(Boolean);
+        } else {
+          anomalies = await this.anomalyService.getAnomalyByDate(
+            vehicleIds,
+            dateFrom,
+          );
         }
+      }
+      // Case 2: Se dateFrom è ieri e il dateTo è oggi usa dayBeforeAnomaly
+      else if (
+        dateFrom.getTime() === yesterday.getTime() &&
+        dateTo.getTime() === today.getTime()
+      ) {
+        const redisPromises = vehicleIds.map(async (id) => {
+          const key = `dayBeforeAnomaly:${id}`;
+          try {
+            const data = await this.redis.get(key);
+            return data ? JSON.parse(data) : null;
+          } catch (error) {
+            console.error(`Errore recupero da redis il veicolo ${id}:`, error);
+            return null;
+          }
+        });
+        anomalies = (await Promise.all(redisPromises)).filter(Boolean);
+      }
+      // Case 3: Se nessuno dei caso è true fa getAnomalyByDateRange
+      else {
+        anomalies = await this.anomalyService.getAnomalyByDateRange(
+          vehicleIds,
+          dateFrom,
+          dateTo,
+        );
       }
 
       return res.status(200).json(anomalies);
