@@ -87,15 +87,7 @@ export class AppService implements OnModuleInit {
     const daysInRange = getDaysInRange(dateFrom_new, dateTo_new); // Funzione che restituisce un array di giorni
 
     const vehicles = await this.vehicleService.getAllVehicles();
-    // const vehicles = [];
-    // const vehicle1 = await this.vehicleService.getVehicleById(3796);
-    // vehicles.push(vehicle1);
-    // const vehicle2 = await this.vehicleService.getVehicleById(3517);
-    // vehicles.push(vehicle2);
     await this.worksiteFactoryService.createDefaultVehicleWorksite();
-
-    // await this.sessionService.getSessionist(324, 3779, startDate, endDate);
-    // return true;
 
     // Creazione della mappa delle compagnie
     const companyMap = new Map();
@@ -206,7 +198,6 @@ export class AppService implements OnModuleInit {
             datefrom,
             dateto.toISOString(),
           );
-
           if (data && data.length > 0) {
             await this.processAnomalies(data);
           }
