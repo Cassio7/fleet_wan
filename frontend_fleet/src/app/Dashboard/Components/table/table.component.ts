@@ -24,6 +24,7 @@ import { KanbanGpsComponent } from "../kanban-gps/kanban-gps.component";
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { CantieriFilterService } from '../../../Common-services/cantieri-filter/cantieri-filter.service';
 import { PlateFilterService } from '../../../Common-services/plate-filter/plate-filter.service';
+import { GpsFilterService } from '../../../Common-services/gps-filter/gps-filter.service';
 
 @Component({
   selector: 'app-table',
@@ -68,6 +69,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     private blackboxGraphService: BlackboxGraphsService,
     private vehicleApiService: VehiclesApiService,
     private cantieriFilterService: CantieriFilterService,
+    private gpsFilterService: GpsFilterService,
     private plateFilterService: PlateFilterService,
     private sessionStorageService: SessionStorageService,
     private sessionApiService: SessionApiService,
@@ -83,6 +85,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     this.handlErrorGraphClick(); // Subscribe a click nel grafico degli errori
     this.handleBlackBoxGraphClick(); // Subscribe a click nel grafico dei blackbox
     this.handleCantiereFilter(); //Subscribe a scelta nel filtro dei cantieri
+    this.handleGpsFilter();
 
     this.plateFilterService.filterByPlateResearch$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
@@ -149,6 +152,25 @@ export class TableComponent implements OnDestroy, AfterViewInit{
           console.error("Error receiving filter for the table: ", error);
         }
       });
+  }
+
+  handleGpsFilter(){
+    this.gpsFilterService.filterTableByGps$.pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (selection: string) => {
+        const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+        switch(selection){
+          case "all":
+            this.vehicleTableData.data = allVehicles;
+            break;
+          case "":
+            this.vehicleTableData.data = [];
+            break;
+        }
+        this.vehicleTable.renderRows();
+      },
+      error: error => console.error("Errore nel filtro dei gps: ", error)
+    });
   }
 
 

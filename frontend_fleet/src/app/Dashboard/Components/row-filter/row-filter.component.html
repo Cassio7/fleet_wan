@@ -14,12 +14,12 @@
     </mat-select>
   </mat-form-field>
   <mat-form-field class="GPS-state-filter" appearance="outline">
-    <mat-select [formControl]="cantieri" placeholder="Stati GPS" multiple class="GPS-input">
-      <mat-option>Seleziona tutto</mat-option>
+    <mat-select [formControl]="gps" placeholder="Stati GPS" multiple class="GPS-input">
+      <mat-option value="Seleziona tutto" (click)="selectGps('Seleziona tutto')">Seleziona tutto</mat-option>
       <mat-divider></mat-divider>
-      <mat-option value="Funzionante">Funzionante</mat-option>
-      <mat-option value="Warning">Warning</mat-option>
-      <mat-option value="Errore">Errore</mat-option>
+      <mat-option value="Funzionante" (click)="selectGps('Funzionante')">Funzionante</mat-option>
+      <mat-option value="Warning" (click)="selectGps('Warning')">Warning</mat-option>
+      <mat-option value="Errore" (click)="selectGps('Errore')">Errore</mat-option>
     </mat-select>
     <mat-icon matSuffix>location_on</mat-icon>
   </mat-form-field>

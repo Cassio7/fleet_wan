@@ -13,6 +13,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatDividerModule } from '@angular/material/divider';
 import { PlateFilterService } from '../../../Common-services/plate-filter/plate-filter.service';
 import { CantieriFilterService } from '../../../Common-services/cantieri-filter/cantieri-filter.service';
+import { GpsFilterService } from '../../../Common-services/gps-filter/gps-filter.service';
 
 @Component({
   selector: 'app-row-filter',
@@ -38,10 +39,12 @@ export class RowFilterComponent implements AfterViewInit{
   filterForm!: FormGroup;
   plate: string = "";
   cantieri = new FormControl<string[]>([]);
+  gps = new FormControl<string[]>([]);
 
   constructor(
     private plateFilterService: PlateFilterService,
     public cantieriFilterService: CantieriFilterService,
+    private gpsFilterService: GpsFilterService,
     private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef) {
     this.filterForm = new FormGroup({
@@ -60,6 +63,7 @@ export class RowFilterComponent implements AfterViewInit{
     setTimeout(() => {
       this.cantieriFilterService.updateListaCantieri(allVehicles);
       this.toggleSelectAllCantieri();
+      this.toggleSelectAllGps();
     });
     this.cantieriFilterService.setCantieriSessionStorage();
 
@@ -76,7 +80,7 @@ export class RowFilterComponent implements AfterViewInit{
   }
 
   /**
-   * Viene chiamata alla premuta di un qualsiasi checkbox dentro il select per il filtro
+   * Viene chiamata alla premuta di un qualsiasi checkbox dentro il select per il filtro dei cantieri
    * @param option opzione selezionata
    */
   selectCantiere(option: string) {
@@ -98,10 +102,43 @@ export class RowFilterComponent implements AfterViewInit{
   }
 
   /**
+   * Viene chiamata alla premuta di un qualsiasi checkbox dentro il select per il filtro dei gps
+   * @param option opzione selezionata
+   */
+  selectGps(option: string) {
+    if(option=="Seleziona tutto"){
+      this.toggleSelectAllGps();
+    }else{
+      const selectedGps = this.gps.value; //opzioni selezionate
+
+      // if(this.cantieriFilterService.isCantieriAllSelected()) {
+      //   this.cantieriFilterService.allSelected = false;
+      // }
+      // this.cantieriFilterService.setCantieriSessionStorage();
+      // //se sono stati selezionati cantieri, invio dati
+      // if (selectedCantieri) {
+      //   this.cantieriFilterService.filterTableByCantiere$.next(selectedCantieri);
+      // }
+      // this.cd.detectChanges();
+    }
+  }
+
+  /**
    * Seleziona tutti i filtri del select dei cantieri
    */
   toggleSelectAllCantieri() {
     this.cantieri.setValue(this.cantieriFilterService.toggleSelectAllCantieri());
+  }
+
+  /**
+   * Seleziona tutti i filtri del select dei gps
+   */
+  toggleSelectAllGps() {
+    if(this.gpsFilterService.toggleSelectAllGps() == "all"){
+      this.gps.setValue(["Seleziona tutto","Funzionante", "Warning", "Errore"]);
+    }else{
+      this.gps.setValue([]);
+    }
   }
 
   // onFilterChange(){
