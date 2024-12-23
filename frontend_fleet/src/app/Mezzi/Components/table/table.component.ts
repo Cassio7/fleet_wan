@@ -1,7 +1,7 @@
 import { AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, HostListener, inject, NgZone, OnDestroy, ViewChild } from '@angular/core';
 import { Vehicle } from '../../../Models/Vehicle';
 import { VehiclesApiService } from '../../../Common-services/vehicles service/vehicles-api.service';
-import { Subject, takeUntil, filter, forkJoin, take } from 'rxjs';
+import { Subject, takeUntil, filter, forkJoin, take, tap } from 'rxjs';
 import { Session } from '../../../Models/Session';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { CommonModule } from '@angular/common';
@@ -23,6 +23,7 @@ import { MatTableModule, MatTable, MatTableDataSource } from '@angular/material/
 import { NoteSnackbarComponent } from '../note-snackbar/note-snackbar.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from '../../../Common-services/auth/auth.service';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 @Component({
   selector: 'app-table',
@@ -35,6 +36,7 @@ import { AuthService } from '../../../Common-services/auth/auth.service';
     MatButtonModule,
     MatIconModule,
     MatOptionModule,
+    MatProgressBarModule,
     MatInputModule,
     MatCheckboxModule,
     MatTableModule],
@@ -45,6 +47,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
   @ViewChild('vehicleTable') vehicleTable!: MatTable<Session[]>;
   private readonly destroy$: Subject<void> = new Subject<void>();
 
+  completedCalls: number = 0;
   loading: boolean = true;
   vehicleTableData = new MatTableDataSource<Vehicle>();
   sortedVehicles: Vehicle[] = [];
@@ -115,8 +118,12 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
     } else {
       // Recupera i dati tramite chiamata API
       forkJoin({
-        vehicles: this.vehicleApiService.getAllVehicles().pipe(takeUntil(this.destroy$)),
-        notes: this.notesService.getAllNotes().pipe(takeUntil(this.destroy$))
+        vehicles: this.vehicleApiService.getAllVehicles().pipe(takeUntil(this.destroy$), tap(()=>{
+          this.completedCalls+=50;
+        })),
+        notes: this.notesService.getAllNotes().pipe(takeUntil(this.destroy$), tap(()=> {
+          this.completedCalls+=50;
+        }))
       }).subscribe({
         next: ({ vehicles, notes }: { vehicles: Vehicle[], notes: Note[] | Note }) => {
           this.mergeVehiclesWithNotes(vehicles, notes);

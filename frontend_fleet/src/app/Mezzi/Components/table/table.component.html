@@ -1,6 +1,9 @@
 <p class="nVeicoli">Numero di veicoli: {{vehicleTableData.data.length}}</p>
 <button mat-raised-button (click)="resetSelections()">Reimposta filtri</button>
-<p class="loading-p" *ngIf="loading">Caricamento veicoli...</p>
+<div class="loading-progress" *ngIf="loading">
+  <p class="loading-p">Caricamento dei dati dei veicoli...</p>
+  <mat-progress-bar mode="determinate" [value]="completedCalls" class="loading-bar"></mat-progress-bar>
+</div>
 <div class="table-container">
   <table mat-table [dataSource]="vehicleTableData" #vehicleTable class="mat-elevation-z8">
 
