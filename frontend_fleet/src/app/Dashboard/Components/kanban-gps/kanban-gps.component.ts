@@ -1,4 +1,4 @@
-import { AfterViewInit, Component } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {MatListModule} from '@angular/material/list';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -12,6 +12,8 @@ import { CheckErrorsService } from '../../Services/check-errors/check-errors.ser
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { Vehicle } from '../../../Models/Vehicle';
 import { KanbanFiltersComponent } from "../../kanban-filters/kanban-filters/kanban-filters.component";
+import { FilterService } from '../../../Common-services/filter/filter.service';
+import { skip, Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-kanban-gps',
@@ -31,19 +33,35 @@ import { KanbanFiltersComponent } from "../../kanban-filters/kanban-filters/kanb
   styleUrl: './kanban-gps.component.css'
 })
 export class KanbanGpsComponent implements AfterViewInit{
+  private readonly destroy$: Subject<void> = new Subject<void>();
+
   constructor(
     public kanbanGpsService: KanbanGpsService,
+    private filterService: FilterService,
     private sessionStorageService: SessionStorageService,
-    private checkErrorsService: CheckErrorsService
+    private checkErrorsService: CheckErrorsService,
+    private cd: ChangeDetectorRef
   ){}
 
   ngAfterViewInit(): void {
-    this.addVehiclesGpsData();
+    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+    let kanbanVehicles = allVehicles;
+    this.filterService.filterByPlateResearch$.pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next: (research: string) => {
+        kanbanVehicles = allVehicles;
+        kanbanVehicles = this.filterService.filterVehiclesByPlateResearch(research, kanbanVehicles);
+        this.setKanbanData(kanbanVehicles);
+        this.cd.detectChanges();
+        console.log("kanbanvehicles: ", kanbanVehicles);
+      },
+      error: error => console.error("Errore nel filtro delle targhe: ", error)
+    });
+    this.setKanbanData(kanbanVehicles);
   }
 
-  addVehiclesGpsData(){
-    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-    const series = this.checkErrorsService.checkGpsErrorsAll(allVehicles);//recupero dati dei veicoli controllati
+  setKanbanData(vehicles: Vehicle[]){
+    const series = this.checkErrorsService.checkGpsErrorsAll(vehicles);//recupero dati dei veicoli controllati
     this.kanbanGpsService.clearVehicles();
     //aggiunta veicoli funzionanti
     series[0].forEach(vehicle => {
@@ -53,7 +71,6 @@ export class KanbanGpsComponent implements AfterViewInit{
     series[1].forEach(vehicle => {
       this.addItem("warning", vehicle);
     });
-    console.log(this.kanbanGpsService.workingVehicles);
   }
 
   addItem(column: 'working' | 'warning' | 'error', vehicle: Vehicle) {

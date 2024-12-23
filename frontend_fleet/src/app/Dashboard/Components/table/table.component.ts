@@ -77,7 +77,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     this.handleBlackBoxGraphClick(); // Subscribe a click nel grafico dei blackbox
     this.handleCantiereFilter(); //Subscribe a scelta nel filtro dei cantieri
 
-    this.filterService.filterByPlateResearch$.pipe(takeUntil(this.destroy$))
+    this.filterService.filterByPlateResearch$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (research: string) => {
         if(this.sessionStorageService.getItem("errorSlice")){
