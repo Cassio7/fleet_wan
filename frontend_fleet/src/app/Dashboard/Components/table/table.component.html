@@ -1,4 +1,5 @@
 <p *ngIf="loading" class="loading-p">Caricamento dei dati dei veicoli...</p>
+<mat-progress-bar mode="determinate" [value]="completedCalls" *ngIf="loading" class="loading-progress"></mat-progress-bar>
 <div class="table-container">
   <table *ngIf="vehicleTableData" #vehicleTable mat-table [dataSource]="vehicleTableData" matSort (matSortChange)="onSortChange($event)">
     <!-- Tipologia column -->

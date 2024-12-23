@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Session } from '../../../Models/Session';
-import { first, forkJoin, skip, Subject, switchMap, takeUntil, filter, take } from 'rxjs';
+import { first, forkJoin, skip, Subject, switchMap, takeUntil, filter, take, catchError, of, tap } from 'rxjs';
 import { VehiclesApiService } from '../../../Common-services/vehicles service/vehicles-api.service';
 import { Vehicle } from '../../../Models/Vehicle';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -22,6 +22,7 @@ import { SortService } from '../../../Common-services/sort/sort.service';
 import { FilterService } from '../../../Common-services/filter/filter.service';
 import { KanbanGpsService } from '../../Services/kanban-gps/kanban-gps.service';
 import { KanbanGpsComponent } from "../kanban-gps/kanban-gps.component";
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 @Component({
   selector: 'app-table',
@@ -32,6 +33,7 @@ import { KanbanGpsComponent } from "../kanban-gps/kanban-gps.component";
     MatTableModule,
     MatButtonModule,
     MatTooltipModule,
+    MatProgressBarModule,
     MatSortModule
 ],
   templateUrl: './table.component.html',
@@ -44,6 +46,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
 
   vehicleTableData = new MatTableDataSource<Vehicle>();
   tableMaxLength: number = 0;
+  completedCalls: number = 0;
   loading: boolean = true;
 
 
@@ -255,19 +258,43 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   }
 
   /**
- * Riempe la tabella con i dati dei veicoli
- */
+   * Riempe la tabella con i dati dei veicoli
+   */
   fillTable() {
     //nascondi i grafici
     this.blackboxGraphService.resetGraphs();
     this.errorGraphService.resetGraphs();
 
-    this.vehicleTableData.data = []; //inizializza tabella vuota
+    this.vehicleTableData.data = []; //inizializzazione tabella vuota
     this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));
     forkJoin({
-      vehicles: this.vehicleApiService.getAllVehicles(),
-      anomaliesVehicles: this.checkErrorsService.checkErrorsAllToday(),
-      lastValidSessions: this.sessionApiService.getAllVehiclesLastValidSession()
+      vehicles: this.vehicleApiService.getAllVehicles().pipe(
+        tap(() => {
+          this.completedCalls+=33.3;
+        }),
+        catchError((error) => {
+          console.error("Errore caricamento vehicles:", error);
+          return of([]);
+        })
+      ),
+      anomaliesVehicles: this.checkErrorsService.checkErrorsAllToday().pipe(
+        tap(() => {
+          this.completedCalls+=33.3;
+        }),
+        catchError((error) => {
+          console.error("Errore caricamento anomaliesVehicles:", error);
+          return of([]);
+        })
+      ),
+      lastValidSessions: this.sessionApiService.getAllVehiclesLastValidSession().pipe(
+        tap(() => {
+          this.completedCalls+=33.3;
+        }),
+        catchError((error) => {
+          console.error("Errore caricamento lastValidSessions:", error);
+          return of([]);
+        })
+      )
     })
     .pipe(takeUntil(this.destroy$))
     .subscribe({
@@ -276,46 +303,31 @@ export class TableComponent implements OnDestroy, AfterViewInit{
         anomaliesVehicles,
         lastValidSessions
       }: {
-        vehicles: Vehicle[],
-        anomaliesVehicles: any[],
-        lastValidSessions: any[]
+        vehicles: Vehicle[];
+        anomaliesVehicles: any[];
+        lastValidSessions: any[];
       }) => {
         try {
-
           if (vehicles && vehicles.length > 0) {
-            // Accorpamento anomalie di sessione
-            vehicles.forEach(vehicle => {
-              // Accorpamento anomalie dei dispositivi nella sessione
+            vehicles.forEach((vehicle) => {
               vehicle.anomalySessions = anomaliesVehicles
                 .filter(anomalyVehicle => anomalyVehicle.veId === vehicle.veId && anomalyVehicle.sessions?.length > 0)
-                .flatMap(anomalyVehicle => anomalyVehicle.sessions || []); // Se non ci sono sessioni, restituisci un array vuoto
+                .flatMap(anomalyVehicle => anomalyVehicle.sessions || []);
 
-              // Accorpamento anomalia di ultima sessione
-              if (vehicle.veId) {
-                const anomalyVehicle = anomaliesVehicles.find(anomaly => anomaly.veId === vehicle.veId);
-                // Se l'anomalia esiste, la assegno, altrimenti assegno una stringa vuota
-                if (anomalyVehicle && anomalyVehicle.anomaliaSessione) {
-                  vehicle.anomaliaSessione = anomalyVehicle.anomaliaSessione;
-                } else {
-                  vehicle.anomaliaSessione = ""; // Se non c'è anomaliaSessione, assegno una stringa vuota
-                }
-              }
+              const anomalyVehicle = anomaliesVehicles.find(anomaly => anomaly.veId === vehicle.veId);
+              vehicle.anomaliaSessione = anomalyVehicle?.anomaliaSessione || "";
 
-              // Accorpamento ultima sessione valida
               const lastSession = lastValidSessions.find(lastSession => lastSession.veId === vehicle.veId);
-              vehicle.lastValidSession = lastSession ? lastSession.lastValidSession : null; // Se non c'è una sessione valida, metto null
+              vehicle.lastValidSession = lastSession ? lastSession.lastValidSession : null;
             });
 
-            // Aggiornamento tabella
             this.vehicleTableData.data = [...this.vehicleTableData.data, ...vehicles];
             this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));
             this.vehicleTable.renderRows();
           }
 
-
-
-          this.sessionStorageService.setItem("allVehicles", JSON.stringify(vehicles));// Inserimento veicoli in sessionstorage
-          this.loadGraphs(vehicles);// Carica i grafici dopo il caricamento della tabella
+          this.sessionStorageService.setItem("allVehicles", JSON.stringify(vehicles));
+          this.loadGraphs(vehicles);
           this.loading = false;
           this.cd.detectChanges();
           this.tableMaxLength = vehicles.length;

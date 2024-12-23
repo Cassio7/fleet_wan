@@ -139,8 +139,6 @@ td.mat-cell {
 }
 /*fine stile icone*/
 
-.table-over {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.loading-progress{
+  margin-bottom: 2vh;
 }

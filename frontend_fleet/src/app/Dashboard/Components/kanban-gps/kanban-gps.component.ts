@@ -53,7 +53,6 @@ export class KanbanGpsComponent implements AfterViewInit{
         kanbanVehicles = this.filterService.filterVehiclesByPlateResearch(research, kanbanVehicles);
         this.setKanbanData(kanbanVehicles);
         this.cd.detectChanges();
-        console.log("kanbanvehicles: ", kanbanVehicles);
       },
       error: error => console.error("Errore nel filtro delle targhe: ", error)
     });
