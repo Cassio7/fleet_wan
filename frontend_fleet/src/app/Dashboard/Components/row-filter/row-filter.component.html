@@ -32,7 +32,15 @@
     </mat-select>
     <mat-icon matSuffix>wifi</mat-icon>
   </mat-form-field>
-
+  <mat-form-field class="session-filter" appearance="outline">
+    <mat-select [formControl]="cantieri" placeholder="Stati sessione" multiple class="antenna-input">
+      <mat-option>Seleziona tutto</mat-option>
+      <mat-divider></mat-divider>
+      <mat-option value="Funzionante">Funzionante</mat-option>
+      <mat-option value="Errore">Errore</mat-option>
+      <mat-option value="noSession">Nessuna sessione</mat-option>
+    </mat-select>
+  </mat-form-field>
   <!-- Aggiunta del pulsante -->
   <div class="button-container">
     <button mat-raised-button color="primary" class="filters-btn">Aggiorna i dati</button>
