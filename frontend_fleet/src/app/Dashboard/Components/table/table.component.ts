@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Session } from '../../../Models/Session';
-import { first, forkJoin, skip, Subject, switchMap, takeUntil, filter } from 'rxjs';
+import { first, forkJoin, skip, Subject, switchMap, takeUntil, filter, take } from 'rxjs';
 import { VehiclesApiService } from '../../../Common-services/vehicles service/vehicles-api.service';
 import { Vehicle } from '../../../Models/Vehicle';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -71,11 +71,28 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   }
 
   ngAfterViewInit(): void {
+    const allVehicles: Vehicle[] = JSON.parse(this.sessionStorageService.getItem("allVehicles")); //array di tutti i veicoli
+
     this.handlErrorGraphClick(); // Subscribe a click nel grafico degli errori
     this.handleBlackBoxGraphClick(); // Subscribe a click nel grafico dei blackbox
     this.handleCantiereFilter(); //Subscribe a scelta nel filtro dei cantieri
 
-    const allVehicles: Vehicle[] = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+    this.filterService.filterByPlateResearch$.pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (research: string) => {
+        if(this.sessionStorageService.getItem("errorSlice")){
+          const errorVehicles = JSON.parse(this.sessionStorageService.getItem("errorVehicles"));
+          this.vehicleTableData.data = this.filterService.filterVehiclesByPlateResearch(research, errorVehicles);
+        }else if(this.sessionStorageService.getItem("blackboxSlice")){
+          const blackboxVehicles = JSON.parse(this.sessionStorageService.getItem("blackboxVehicles"));
+          this.vehicleTableData.data = this.filterService.filterVehiclesByPlateResearch(research, blackboxVehicles);
+        }else{
+          this.vehicleTableData.data = this.filterService.filterVehiclesByPlateResearch(research, allVehicles);
+        }
+        this.vehicleTable.renderRows();
+      },
+      error: error => console.error("Errore nel filtro delle targhe: ", error)
+    });
 
     if (allVehicles) {
       this.vehicleTableData.data = allVehicles;

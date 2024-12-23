@@ -12,12 +12,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatDividerModule } from '@angular/material/divider';
+import { Vehicle } from '../../../Models/Vehicle';
 
 @Component({
   selector: 'app-row-filter',
   standalone: true,
   imports: [
     CommonModule,
+    ReactiveFormsModule,
     MatSelectModule,
     MatCheckboxModule,
     MatFormFieldModule,
@@ -35,6 +37,7 @@ export class RowFilterComponent implements AfterViewInit{
 
   filterForm!: FormGroup;
   listaCantieri: string[] = ["Seleziona tutto"];
+  plate: string = "";
   cantieri = new FormControl<string[]>([]);
 
   constructor(
@@ -68,6 +71,10 @@ export class RowFilterComponent implements AfterViewInit{
     this.cd.detectChanges();
   }
 
+  /**
+   * Aggiorna la lista dei cantieri con i veicoli passati
+   * @param vehicles veicoli
+   */
   private updateListaCantieri(vehicles: any[]): void {
     if (Array.isArray(vehicles)) {
       this.listaCantieri = [this.listaCantieri[0], ...this.fillSelect(vehicles)];
@@ -75,8 +82,15 @@ export class RowFilterComponent implements AfterViewInit{
       this.setCantieriSessionStorage();
       this.cd.detectChanges();
     } else {
-      console.error("allVehicles non è un array valido:", vehicles);
+      console.error("array di veicoli non valido:", vehicles);
     }
+  }
+
+  /**
+   * Invia il subject per il filtro dei veicoli in base alla ricerca sulla targa passandogli il valore del campo di ricerca
+   */
+  searchPlates(){
+    this.filterService.filterByPlateResearch$.next(this.plate);
   }
 
 

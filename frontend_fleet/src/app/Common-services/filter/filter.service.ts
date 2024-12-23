@@ -18,6 +18,8 @@ export class FilterService {
    */
   private _filterTableByCantiere$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
+  private _filterByPlateResearch$: BehaviorSubject<string> = new BehaviorSubject<string>("");
+
   private _allSelected: boolean = false;
 
 
@@ -90,7 +92,27 @@ export class FilterService {
     }
   }
 
+  /**
+   * Filtra i veicoli passati per parametro in base alla targa ed ad un input di ricerca su quest'ultima
+   * @param research ricerca
+   * @param vehicles veicoli
+   * @returns veicoli filtrati
+   */
+  filterVehiclesByPlateResearch(research: string, vehicles: Vehicle[]) {
+    const searchTextLower = research.toLowerCase();//ricerca minuscolo
 
+    //filtro veicoli in base a ricerca
+    const filteredVehicles = vehicles.filter(vehicle =>
+      vehicle.plate.toLowerCase().includes(searchTextLower)
+    );
+
+    return filteredVehicles;
+  }
+
+
+  public get filterByPlateResearch$(): BehaviorSubject<string> {
+    return this._filterByPlateResearch$;
+  }
   public get filterTableByCantiere$(): BehaviorSubject<string[]> {
     return this._filterTableByCantiere$;
   }
