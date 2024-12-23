@@ -35,7 +35,16 @@ export class KanbanFiltersComponent{
     private plateFilterService: PlateFilterService
   ){}
 
-  searchPlates(){
-    this.plateFilterService.filterByPlateResearch$.next(this.plate);
+  /**
+   * Invia il subject per filtrare le targhe in base all'input inserito
+   * @param emptyButtonClick se la funzione è stata chiamata dalla premuta del bottone per svuotare il campo
+   */
+  searchPlates(emptyButtonClick: boolean){
+    if(emptyButtonClick){
+      this.plateFilterService.filterByPlateResearch$.next("");
+      this.plate = "";
+    }else{
+      this.plateFilterService.filterByPlateResearch$.next(this.plate);
+    }
   }
 }

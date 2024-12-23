@@ -11,7 +11,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatDividerModule } from '@angular/material/divider';
-import { Vehicle } from '../../../Models/Vehicle';
 import { CantieriFilterService } from '../../../Common-services/cantieri-filter/cantieri-filter.service';
 import { PlateFilterService } from '../../../Common-services/plate-filter/plate-filter.service';
 
@@ -89,10 +88,16 @@ export class RowFilterComponent implements AfterViewInit{
   }
 
   /**
-   * Invia il subject per il filtro dei veicoli in base alla ricerca sulla targa passandogli il valore del campo di ricerca
+   * Invia il subject per filtrare le targhe in base all'input inserito
+   * @param emptyButtonClick se la funzione è stata chiamata dalla premuta del bottone per svuotare il campo
    */
-  searchPlates(){
-    this.plateFilterService.filterByPlateResearch$.next(this.plate);
+  searchPlates(emptyButtonClick: boolean){
+    if(emptyButtonClick){
+      this.plateFilterService.filterByPlateResearch$.next("");
+      this.plate = "";
+    }else{
+      this.plateFilterService.filterByPlateResearch$.next(this.plate);
+    }
   }
 
 
