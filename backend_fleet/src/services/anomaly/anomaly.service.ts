@@ -227,6 +227,16 @@ export class AnomalyService {
     return true;
   }
 
+  /**
+   * Funzione per creare una anomalia, in base ai dati passati come parametro, vengono salvate
+   * pure le anomalie nulle per indicare che il mezzo ha lavorato
+   * @param veId veId identificativo del veicolo
+   * @param date data dell'anomalia
+   * @param gps anomalia gps
+   * @param antenna anomalia antenna
+   * @param session anomalia sessione
+   * @returns
+   */
   async createAnomaly(
     veId: number,
     date: Date,
@@ -324,7 +334,13 @@ export class AnomalyService {
     }
   }
 
-  private async checkSessionGPSAllNoApi(dateFrom: Date, dateTo: Date) {
+  /**
+   * Controllo tutte le sessioni di tutti i veicoli, per marcare quelle con dei malfunzionamenti al GPS
+   * @param dateFrom Data inizio ricerca
+   * @param dateTo Data fine ricerca
+   * @returns
+   */
+  private async checkGPS(dateFrom: Date, dateTo: Date) {
     const validation = validateDateRange(
       dateFrom.toISOString(),
       dateTo.toISOString(),
@@ -451,10 +467,7 @@ export class AnomalyService {
    * @param period_from data di fine periodo
    * @returns
    */
-  private async tagComparisonAllWithTimeRangeNoApi(
-    dateFrom: Date,
-    dateTo: Date,
-  ) {
+  private async checkAntenna(dateFrom: Date, dateTo: Date) {
     // controllo data valida
     const validation = validateDateRange(
       dateFrom.toISOString(),
@@ -537,7 +550,11 @@ export class AnomalyService {
     }
   }
 
-  private async lastEventComparisonAllNoApi() {
+  /**
+   * Ritorna tutti i veicoli dove la data dell'ultima sessione non corrisponde all ultimo evento registrato
+   * @returns
+   */
+  private async checkSession() {
     try {
       const vehicles = await this.vehicleService.getAllVehicles();
 
@@ -588,6 +605,7 @@ export class AnomalyService {
       return 'Errore durante la richiesta al db'; // Return error message as string
     }
   }
+
   /**
    * Funzione principale che accorpa tutti i controlli, divisa per giorni
    * @param dateFromParam data di inizio
@@ -605,7 +623,7 @@ export class AnomalyService {
 
     // Controlla errore di GPS
     try {
-      gpsErrors = await this.checkSessionGPSAllNoApi(dateFrom, dateTo);
+      gpsErrors = await this.checkGPS(dateFrom, dateTo);
       gpsErrors = Array.isArray(gpsErrors) ? gpsErrors : [];
     } catch (error) {
       console.error('Errore nel controllo errori del GPS:', error);
@@ -613,10 +631,7 @@ export class AnomalyService {
 
     // Controlla errore Antenna
     try {
-      fetchedTagComparisons = await this.tagComparisonAllWithTimeRangeNoApi(
-        dateFrom,
-        dateTo,
-      );
+      fetchedTagComparisons = await this.checkAntenna(dateFrom, dateTo);
       fetchedTagComparisons = Array.isArray(fetchedTagComparisons)
         ? fetchedTagComparisons
         : [];
@@ -629,7 +644,7 @@ export class AnomalyService {
 
     // Controlla errore inizio e fine sessione (last event)
     try {
-      comparison = await this.lastEventComparisonAllNoApi();
+      comparison = await this.checkSession();
       comparison = Array.isArray(comparison) ? comparison : [];
     } catch (error) {
       console.error('Errore nel controllo del last event:', error);
