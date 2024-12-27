@@ -24,7 +24,7 @@
   width: 17vw;
   background-color: var(--navbarANDstats-brackground);
   padding: 2vw;
-  padding-left: 50px; /* Aggiunge 50px di spazio a sinistra */
+  padding-left: 50px;
   display: flex;
   flex-direction: column;
   gap: 2vh;

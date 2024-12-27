@@ -6,6 +6,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
 import { KanbanGpsService } from '../../Services/kanban-gps/kanban-gps.service';
+import { KanbanAntennaService } from '../../Services/kanban-antenna/kanban-antenna.service';
+import { KanbanTableService } from '../../Services/kanban-table/kanban-table.service';
 
 @Component({
   selector: 'app-kebab-menu',
@@ -22,18 +24,22 @@ import { KanbanGpsService } from '../../Services/kanban-gps/kanban-gps.service';
 export class KebabMenuComponent{
   selectedOption: string = "table";
 
-  constructor(private kanbangpsService: KanbanGpsService){}
+  constructor(
+    private kanbanTableService: KanbanTableService,
+    private kanbangpsService: KanbanGpsService,
+    private kanbanAntennaService: KanbanAntennaService
+  ){}
 
   chooseKebabMenuOption(value: string){
     switch(value){
       case "table":
-        this.kanbangpsService.loadKanbanGps$.next("table");//switcha a componente tabella
+        this.kanbanTableService.loadKabanTable$.next();//switcha a componente tabella
         break;
       case "GPS":
-        this.kanbangpsService.loadKanbanGps$.next("GPS");//switcha a componente GPS
+        this.kanbangpsService.loadKanbanGps$.next();//switcha a componente GPS
         break;
       case "antenna":
-        this.kanbangpsService.loadKanbanGps$.next("antenna");//switcha a componente antenna
+        this.kanbanAntennaService.loadKanbanAntenna$.next();//switcha a componente antenna
         break;
     }
   }

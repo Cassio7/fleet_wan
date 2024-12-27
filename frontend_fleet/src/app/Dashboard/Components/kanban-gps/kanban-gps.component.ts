@@ -11,7 +11,7 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
 import { CheckErrorsService } from '../../Services/check-errors/check-errors.service';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { Vehicle } from '../../../Models/Vehicle';
-import { KanbanFiltersComponent } from "../../kanban-filters/kanban-filters/kanban-filters.component";
+import { KanbanFiltersComponent } from "../kanban-filters/kanban-filters.component";
 import { skip, Subject, takeUntil } from 'rxjs';
 import { PlateFilterService } from '../../../Common-services/plate-filter/plate-filter.service';
 

@@ -15,6 +15,9 @@ import { KebabMenuComponent } from '../kebab-menu/kebab-menu.component';
 import { skip, Subject, takeUntil } from 'rxjs';
 import { KanbanGpsComponent } from "../kanban-gps/kanban-gps.component";
 import { KanbanGpsService } from '../../Services/kanban-gps/kanban-gps.service';
+import { KanbanAntennaComponent } from "../kanban-antenna/kanban-antenna.component";
+import { KanbanAntennaService } from '../../Services/kanban-antenna/kanban-antenna.service';
+import { KanbanTableService } from '../../Services/kanban-table/kanban-table.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -36,7 +39,8 @@ import { KanbanGpsService } from '../../Services/kanban-gps/kanban-gps.service';
     BlackboxGraphCardComponent,
     RowFilterComponent,
     KebabMenuComponent,
-    KanbanGpsComponent
+    KanbanGpsComponent,
+    KanbanAntennaComponent
 ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
@@ -45,34 +49,59 @@ export class DashboardComponent implements AfterViewInit{
   private readonly destroy$: Subject<void> = new Subject<void>();
 
   private _table: boolean = true;
-  private _kabanGps: boolean = false;
+  private _kanbanGps: boolean = false;
+  private _kanbanAntenna: boolean = false;
+
 
   constructor(
     private kabanGpsService: KanbanGpsService,
+    private KanbanAntennaService: KanbanAntennaService,
+    private kanbanTableService: KanbanTableService,
     private cd: ChangeDetectorRef
   ){
 
   }
   ngAfterViewInit(): void {
-    this.kabanGpsService.loadKanbanGps$.pipe(takeUntil(this.destroy$), skip(1))
+    this.kanbanTableService.loadKabanTable$.pipe(takeUntil(this.destroy$))
     .subscribe({
-      next: (option: string) => {
-        this.displayComponent(option); //display del componente scelto dal kebab menu
+      next: () => {
+        this.displayComponent("table"); //display del componente scelto dal kebab menu
       },
       error: error => console.error("Errore nel caricamento del kaban gps: ", error)
     });
+    this.kabanGpsService.loadKanbanGps$.pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: () => {
+        this.displayComponent("GPS"); //display del componente scelto dal kebab menu
+      },
+      error: error => console.error("Errore nel caricamento del kaban gps: ", error)
+    });
+    this.KanbanAntennaService.loadKanbanAntenna$.pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: () => {
+        this.displayComponent("antenna"); //display del componente scelto dal kebab menu
+      },
+      error: error => console.error("Errore nel caricamento del kaban gps: ", error)
+    });
+
   }
 
   private displayComponent(pageName: string){
     switch(pageName){
       case "table":
         this.table = true;
-        this.kabanGps = false;
+        this.kanbanGps = false;
+        this.kabanAntenna = false;
         break;
       case "GPS":
-        this.kabanGps = true;
+        this.kanbanGps = true;
         this.table = false;
+        this.kabanAntenna = false;
         break;
+      case "antenna":
+        this.kabanAntenna = true;
+        this.table = false;
+        this.kanbanGps = false;
     }
     this.cd.detectChanges();
   }
@@ -83,10 +112,16 @@ export class DashboardComponent implements AfterViewInit{
   public set table(value: boolean) {
     this._table = value;
   }
-  public get kabanGps(): boolean {
-    return this._kabanGps;
+  public get kanbanGps(): boolean {
+    return this._kanbanGps;
   }
-  public set kabanGps(value: boolean) {
-    this._kabanGps = value;
+  public set kanbanGps(value: boolean) {
+    this._kanbanGps = value;
+  }
+  public get kabanAntenna(): boolean {
+    return this._kanbanAntenna;
+  }
+  public set kabanAntenna(value: boolean) {
+    this._kanbanAntenna = value;
   }
 }

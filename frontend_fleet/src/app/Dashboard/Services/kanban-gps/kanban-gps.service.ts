@@ -6,7 +6,7 @@ import { Vehicle } from '../../../Models/Vehicle';
   providedIn: 'root'
 })
 export class KanbanGpsService{
-  private _loadKanbanGps$: BehaviorSubject<string> = new BehaviorSubject<string>("");
+  private readonly _loadKanbanGps$: Subject<void> = new Subject<void>();
   workingVehicles: Vehicle[] = [];
   warningVehicles: Vehicle[] = [];
   errorVehicles: Vehicle[] = [];
@@ -61,10 +61,7 @@ export class KanbanGpsService{
 
 
 
-  public get loadKanbanGps$(): BehaviorSubject<string> {
+  public get loadKanbanGps$(): Subject<void> {
     return this._loadKanbanGps$;
-  }
-  public set loadKanbanGps$(value: BehaviorSubject<string>) {
-    this._loadKanbanGps$ = value;
   }
 }
