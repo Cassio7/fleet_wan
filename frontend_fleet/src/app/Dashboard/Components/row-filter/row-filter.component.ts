@@ -37,6 +37,7 @@ import { AntennaFilterService } from '../../../Common-services/antenna-filter/an
 export class RowFilterComponent implements AfterViewInit{
   private readonly destroy$: Subject<void> = new Subject<void>();
 
+
   filterForm!: FormGroup;
   plate: string = "";
   cantieri = new FormControl<string[]>([]);
@@ -48,6 +49,7 @@ export class RowFilterComponent implements AfterViewInit{
     public cantieriFilterService: CantieriFilterService,
     private gpsFilterService: GpsFilterService,
     private antennaFilterService: AntennaFilterService,
+    private cantiereFilterService: CantieriFilterService,
     private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef) {
     this.filterForm = new FormGroup({

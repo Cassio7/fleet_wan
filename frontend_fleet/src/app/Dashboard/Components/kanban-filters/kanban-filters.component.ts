@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { AfterViewInit, ChangeDetectorRef, Component } from '@angular/core';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDividerModule } from '@angular/material/divider';
@@ -10,12 +10,15 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { PlateFilterService } from '../../../Common-services/plate-filter/plate-filter.service';
+import { CantieriFilterService } from '../../../Common-services/cantieri-filter/cantieri-filter.service';
+import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 
 @Component({
   selector: 'app-kanban-filters',
   standalone: true,
   imports: [
     MatFormFieldModule,
+    ReactiveFormsModule,
     CommonModule,
     MatInputModule,
     MatIconModule,
@@ -28,12 +31,36 @@ import { PlateFilterService } from '../../../Common-services/plate-filter/plate-
   templateUrl: './kanban-filters.component.html',
   styleUrl: './kanban-filters.component.css'
 })
-export class KanbanFiltersComponent{
+export class KanbanFiltersComponent implements AfterViewInit{
   plate: string = "";
+  filterForm!: FormGroup;
+  cantieri = new FormControl<string[]>([]);
 
   constructor(
-    private plateFilterService: PlateFilterService
-  ){}
+    private plateFilterService: PlateFilterService,
+    public cantieriFilterService: CantieriFilterService,
+    private sessionStorageService: SessionStorageService,
+    private cd: ChangeDetectorRef
+  ){
+    this.filterForm = new FormGroup({
+      cantiere: new FormControl(''),
+      targa: new FormControl(''),
+      range: new FormGroup({
+        start: new FormControl(new Date()),
+        end: new FormControl(new Date())
+      })
+    });
+  }
+
+
+  ngAfterViewInit(): void {
+    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+    setTimeout(() => {
+      this.cantieriFilterService.updateListaCantieri(allVehicles);
+      this.toggleSelectAllCantieri();
+    },1000);
+    this.cd.detectChanges();
+  }
 
   /**
    * Invia il subject per filtrare le targhe in base all'input inserito
@@ -46,5 +73,30 @@ export class KanbanFiltersComponent{
     }else{
       this.plateFilterService.filterByPlateResearch$.next(this.plate);
     }
+  }
+
+  selectCantiere(option: string) {
+    if(option=="Seleziona tutto"){
+      this.toggleSelectAllCantieri();
+    }else{
+      const selectedCantieri = this.cantieri.value; //opzioni selezionate
+
+      if(this.cantieriFilterService.isCantieriAllSelected()) {
+        this.cantieriFilterService.allSelected = false;
+      }
+      this.cantieriFilterService.setCantieriSessionStorage();
+      //se sono stati selezionati cantieri, invio dati
+      if (selectedCantieri) {
+        this.cantieriFilterService.filterTableByCantiere$.next(selectedCantieri);
+      }
+      this.cd.detectChanges();
+    }
+  }
+
+  /**
+   * Seleziona tutti i filtri del select dei cantieri
+   */
+  toggleSelectAllCantieri() {
+    this.cantieri.setValue(this.cantieriFilterService.toggleSelectAllCantieri());
   }
 }

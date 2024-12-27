@@ -1,27 +1,21 @@
 import { AntennaFilterService } from './../../../Common-services/antenna-filter/antenna-filter.service';
-import { WorkSite } from './../../../Models/Worksite';
 import { SessionApiService } from './../../Services/session/session-api.service';
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectorRef, Component, inject, OnDestroy, ViewChild } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { MatCheckboxModule } from '@angular/material/checkbox';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, ViewChild } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSelectModule } from '@angular/material/select';
 import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Session } from '../../../Models/Session';
-import { first, forkJoin, skip, Subject, switchMap, takeUntil, filter, take, catchError, of, tap } from 'rxjs';
+import { forkJoin, skip, Subject, takeUntil, catchError, of, tap } from 'rxjs';
 import { VehiclesApiService } from '../../../Common-services/vehicles service/vehicles-api.service';
 import { Vehicle } from '../../../Models/Vehicle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ErrorGraphsService } from '../../Services/error-graphs/error-graphs.service';
 import { BlackboxGraphsService } from '../../Services/blackbox-graphs/blackbox-graphs.service';
 import { CheckErrorsService } from '../../Services/check-errors/check-errors.service';
-import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
+import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatButtonModule } from '@angular/material/button';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { SortService } from '../../../Common-services/sort/sort.service';
-import { KanbanGpsService } from '../../Services/kanban-gps/kanban-gps.service';
-import { KanbanGpsComponent } from "../kanban-gps/kanban-gps.component";
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { CantieriFilterService } from '../../../Common-services/cantieri-filter/cantieri-filter.service';
 import { PlateFilterService } from '../../../Common-services/plate-filter/plate-filter.service';
@@ -89,6 +83,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     this.handleCantiereFilter(); //Subscribe a scelta nel filtro dei cantieri
     this.handleGpsFilter();
     this.handleAntennaFilter();
+
 
     this.plateFilterService.filterByPlateResearch$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({

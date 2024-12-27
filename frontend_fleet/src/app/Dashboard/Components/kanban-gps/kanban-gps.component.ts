@@ -46,6 +46,8 @@ export class KanbanGpsComponent implements AfterViewInit{
   ngAfterViewInit(): void {
     const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
     let kanbanVehicles = allVehicles;
+
+
     this.plateFilterService.filterByPlateResearch$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (research: string) => {
