@@ -5,8 +5,8 @@
   <div class="right-side">
     <!-- <button mat-button class="notifications-btn"><mat-icon>notifications</mat-icon></button> -->
     <div class="profile-info">
-      <p class="username">Username</p>
-      <p class="role">Role</p>
+      <p class="username">{{username}}</p>
+      <p class="role">{{role}}</p>
     </div>
     <button mat-button [matMenuTriggerFor]="menu" class="account-circle-btn"><div mat-card-avatar class="account-circle"></div></button>
     <mat-menu #menu="matMenu">

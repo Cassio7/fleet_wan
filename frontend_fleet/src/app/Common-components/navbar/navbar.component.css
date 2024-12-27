@@ -9,12 +9,12 @@
   box-sizing: border-box;
   cursor: pointer;
   border-bottom: 2px solid white;
-  white-space: nowrap;  /* Prevents wrapping */
+  white-space: nowrap;
 }
 
 .left-side {
   height: 100%;
-  display: flex;  /* Changed from inline-flex */
+  display: flex;
   align-items: center;
   gap: 10px;
 }
@@ -57,14 +57,14 @@
 }
 
 .username {
-  font-size: 18px;
+  font-size: 20px;
   margin: 0;
   line-height: 1;
   padding: 0;
 }
 
 .role {
-  font-size: 10px;
+  font-size: 15px;
   margin: 0;
   line-height: 1;
   padding: 0;
