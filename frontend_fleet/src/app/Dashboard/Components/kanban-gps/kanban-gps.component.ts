@@ -65,13 +65,15 @@ export class KanbanGpsComponent implements AfterViewInit{
    */
   setKanbanData(vehicles: Vehicle[]){
     const series = this.checkErrorsService.checkVehiclesGpsErrors(vehicles);//recupero dati dei veicoli controllati
+    const workingVehicles = series[0];
+    const warningVehicles = series[1];
     this.kanbanGpsService.clearVehicles();
     //aggiunta veicoli funzionanti
-    series[0].forEach(vehicle => {
+    workingVehicles.forEach(vehicle => {
       this.addItem("working", vehicle);
     });
     //aggiunta veicoli con warning
-    series[1].forEach(vehicle => {
+    warningVehicles.forEach(vehicle => {
       this.addItem("warning", vehicle);
     });
   }

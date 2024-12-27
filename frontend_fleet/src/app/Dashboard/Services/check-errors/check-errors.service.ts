@@ -18,37 +18,37 @@ export class CheckErrorsService {
     private commonService: CommonService
   ) { }
 
-    /**
-   * Controlla se è presente un errore di GPS nella sessione di oggi del veicolo preso in input
-   * @param vehicle
-   * @returns l'anomalia se viene riscontrata, altrimenti "null"
-   */
-    checkGpsError(vehicle: { anomalySessions?: { date: string; anomalies?: { GPS?: string } }[] }): string | null {
-      const dateFrom = this.commonService.dateFrom;
-      const dateTo = this.commonService.dateTo;
+  /**
+ * Controlla se è presente un errore di GPS nella sessione di oggi del veicolo preso in input
+ * @param vehicle
+ * @returns l'anomalia se viene riscontrata, altrimenti "null"
+ */
+  checkGpsError(vehicle: { anomalySessions?: { date: string; anomalies?: { GPS?: string } }[] }): string | null {
+    const dateFrom = this.commonService.dateFrom;
+    const dateTo = this.commonService.dateTo;
 
-      // Usa l'operatore opzionale e un array vuoto come fallback
-      const anomalySessions = vehicle.anomalySessions ?? [];
+    // Usa l'operatore opzionale e un array vuoto come fallback
+    const anomalySessions = vehicle.anomalySessions ?? [];
 
-      for (const session of anomalySessions) {
-        const sessionDate = new Date(session.date);
+    for (const session of anomalySessions) {
+      const sessionDate = new Date(session.date);
 
-        if (sessionDate >= dateFrom && sessionDate <= dateTo) {
+      if (sessionDate >= dateFrom && sessionDate <= dateTo) {
 
-          // Verifica se `anomalies` ha la proprietà GPS
-          if (session.anomalies?.GPS) {
-            return session.anomalies.GPS || 'Errore GPS';
-          }
+        // Verifica se `anomalies` ha la proprietà GPS
+        if (session.anomalies?.GPS) {
+          return session.anomalies.GPS || 'Errore GPS';
         }
       }
-      return null; // Se non viene trovata alcuna anomalia
     }
+    return null; // Se non viene trovata alcuna anomalia
+  }
 
 
 
   /**
    * Controlla se è presente un errore di antenna nella sessione di oggi del veicolo preso in input
-   * @param vehicle
+   * @param vehicle veicolo da controllare
    * @returns l'anomalia se viene riscontrata, altrimenti "null"
    */
   checkAntennaError(vehicle: { anomalySessions?: { date: string; anomalies?: { Antenna?: string } }[] }): string | null {
@@ -104,14 +104,14 @@ export class CheckErrorsService {
 
   /**
    * Controlla i gps dei veicoli passati come parametro
-   * @param allVehicles veicoli da controllare
+   * @param vehicles veicoli da controllare
    * @returns array formato da: [workingVehicles, warningVehicles]
    */
-  public checkVehiclesGpsErrors(allVehicles: Vehicle[]){
+  public checkVehiclesGpsErrors(vehicles: Vehicle[]){
     const workingVehicles: Vehicle[] = [];
     const warningVehicles: Vehicle[] = [];
 
-    allVehicles.map(vehicle => {
+    vehicles.map(vehicle => {
       if(this.checkGpsError(vehicle)){
         warningVehicles.push(vehicle);
       }else{
@@ -122,14 +122,34 @@ export class CheckErrorsService {
     return [workingVehicles, warningVehicles];
   }
 
+  /**
+   * Controlla le antenne dei veicoli passati come parametro
+   * @param vehicles veicoli da controllare
+   * @returns array formato da: [workingVehicles, warningVehicles]
+   */
+  public checkVehiclesAntennaErrors(vehicles: Vehicle[]){
+    const workingVehicles: Vehicle[] = [];
+    const errorVehicles: Vehicle[] = [];
 
+    vehicles.map(vehicle => {
+      if(vehicle.isRFIDReader){
+        const antennaCheck = this.checkAntennaError(vehicle);
+        if(antennaCheck){
+          errorVehicles.push(vehicle);
+        }else{
+          workingVehicles.push(vehicle);
+        }
+      }
+    });
+    return [workingVehicles, errorVehicles];
+  }
 
   /**
- * Controlla gli errori di tutti i veicoli con sessioni in un determinato arco di tempo
- * @param dateFrom data di inizio ricerca
- * @param dateTo data di fine ricerca
- * @returns observable http
- */
+   * Controlla gli errori di tutti i veicoli con sessioni in un determinato arco di tempo
+   * @param dateFrom data di inizio ricerca
+   * @param dateTo data di fine ricerca
+   * @returns observable http
+   */
   public checkErrorsAllRanged(dateFrom: Date, dateTo: Date): Observable<any>{
     const body = {
       dateFrom: dateFrom,
