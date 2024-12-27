@@ -140,6 +140,10 @@ export class RowFilterComponent implements AfterViewInit{
     }
   }
 
+  toggleSelectAllAntenne(){
+
+  }
+
   // onFilterChange(){
   //   this.cantieriFilterService.setCantieriSessionStorage();
   // }

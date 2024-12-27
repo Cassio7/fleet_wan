@@ -54,7 +54,7 @@ export class BlackboxGraphsService{
    * @param vehicles oggetto custom di veicoli
    * @returns un oggetto che contiene i veicoli con solo blackbox e con blackbox + antenna
    */
-  private getAllRFIDVehicles(vehicles: any[]) {
+  public getAllRFIDVehicles(vehicles: any[]) {
     this.blackboxData = {
       sliceSelected: "",
       blackboxOnly: [] as Vehicle[],

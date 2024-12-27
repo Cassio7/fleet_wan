@@ -59,6 +59,10 @@ export class KanbanGpsComponent implements AfterViewInit{
     this.setKanbanData(kanbanVehicles);
   }
 
+  /**
+   * Imposta i dati delle colonne del kanban
+   * @param vehicles veicoli da suddividere nelle colonne
+   */
   setKanbanData(vehicles: Vehicle[]){
     const series = this.checkErrorsService.checkVehiclesGpsErrors(vehicles);//recupero dati dei veicoli controllati
     this.kanbanGpsService.clearVehicles();
@@ -72,6 +76,11 @@ export class KanbanGpsComponent implements AfterViewInit{
     });
   }
 
+  /**
+   * Aggiunge un elemento ad una colonna del kanban
+   * @param column colonna su cui aggiungere
+   * @param vehicle veicolo da aggiungere
+   */
   addItem(column: 'working' | 'warning' | 'error', vehicle: Vehicle) {
     this.kanbanGpsService.addVehicle(column, vehicle);
   }

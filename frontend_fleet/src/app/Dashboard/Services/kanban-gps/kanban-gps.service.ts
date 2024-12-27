@@ -31,6 +31,9 @@ export class KanbanGpsService{
     }
   }
 
+  /**
+   * Elimina gli elementi nel kanban gps
+   */
   clearVehicles(){
     this.workingVehicles = [];
     this.warningVehicles = [];

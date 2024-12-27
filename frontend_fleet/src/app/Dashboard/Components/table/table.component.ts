@@ -1,3 +1,4 @@
+import { AntennaFilterService } from './../../../Common-services/antenna-filter/antenna-filter.service';
 import { WorkSite } from './../../../Models/Worksite';
 import { SessionApiService } from './../../Services/session/session-api.service';
 import { CommonModule } from '@angular/common';
@@ -70,6 +71,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     private vehicleApiService: VehiclesApiService,
     private cantieriFilterService: CantieriFilterService,
     private gpsFilterService: GpsFilterService,
+    private AntennaFilterService: AntennaFilterService,
     private plateFilterService: PlateFilterService,
     private sessionStorageService: SessionStorageService,
     private sessionApiService: SessionApiService,
@@ -189,7 +191,9 @@ export class TableComponent implements OnDestroy, AfterViewInit{
       });
   }
 
+  handleAntennaFilter(){
 
+  }
 
 
   /**
