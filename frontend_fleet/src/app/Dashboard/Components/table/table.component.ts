@@ -481,6 +481,16 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   checkGpsError(vehicle: any): string | null {
     return this.checkErrorsService.checkGpsError(vehicle);
   }
+
+  /**
+   * Richiama controllo errore GPS
+   * @param vehicle veicolo da controllare
+   * @returns risultato del controllo sul GPS
+   */
+  checkGpsWarning(vehicle: any): string | null {
+    return this.checkErrorsService.checkGPSWarning(vehicle);
+  }
+
   /**
    * Richiama controllo errore antenna
    * @param vehicle veicolo da controllare

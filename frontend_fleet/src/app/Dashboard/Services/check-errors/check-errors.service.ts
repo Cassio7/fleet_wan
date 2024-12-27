@@ -19,7 +19,7 @@ export class CheckErrorsService {
   ) { }
 
   /**
- * Controlla se è presente un errore di GPS nella sessione di oggi del veicolo preso in input
+ * Controlla se è presente un errore di GPS nella sessione, nel range temporale , del veicolo preso in input
  * @param vehicle
  * @returns l'anomalia se viene riscontrata, altrimenti "null"
  */
@@ -27,7 +27,6 @@ export class CheckErrorsService {
     const dateFrom = this.commonService.dateFrom;
     const dateTo = this.commonService.dateTo;
 
-    // Usa l'operatore opzionale e un array vuoto come fallback
     const anomalySessions = vehicle.anomalySessions ?? [];
 
     for (const session of anomalySessions) {
@@ -37,7 +36,35 @@ export class CheckErrorsService {
 
         // Verifica se `anomalies` ha la proprietà GPS
         if (session.anomalies?.GPS) {
-          return session.anomalies.GPS || 'Errore GPS';
+          const gpsAnomaly = session.anomalies?.GPS;
+          const isTotal = gpsAnomaly.includes("totale") || gpsAnomaly.includes("TOTALE"); //controllo se anomalia totale
+          if(isTotal){
+            return gpsAnomaly;
+          }
+        }
+      }
+    }
+    return null; // Se non viene trovata alcuna anomalia
+  }
+
+  checkGPSWarning(vehicle: { anomalySessions?: { date: string; anomalies?: { GPS?: string } }[] }): string | null{
+    const dateFrom = this.commonService.dateFrom;
+    const dateTo = this.commonService.dateTo;
+
+    const anomalySessions = vehicle.anomalySessions ?? [];
+
+    for (const session of anomalySessions) {
+      const sessionDate = new Date(session.date);
+
+      if (sessionDate >= dateFrom && sessionDate <= dateTo) {
+
+        // Verifica se `anomalies` ha la proprietà GPS
+        if (session.anomalies?.GPS) {
+          const gpsAnomaly = session.anomalies?.GPS;
+          const isTotal = gpsAnomaly.includes("totale") || gpsAnomaly.includes("TOTALE"); //controllo se anomalia totale
+          if(!isTotal){
+            return gpsAnomaly;
+          }
         }
       }
     }
