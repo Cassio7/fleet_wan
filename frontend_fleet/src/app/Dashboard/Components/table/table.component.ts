@@ -154,33 +154,41 @@ export class TableComponent implements OnDestroy, AfterViewInit{
       });
   }
 
-  handleGpsFilter(){
+  handleGpsFilter() {
     this.gpsFilterService.filterTableByGps$.pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: (selections: string[]) => {
-        console.log("selections: ", selections);
-        const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-        const gpsCheckSeries = this.checkErrorsService.checkVehiclesGpsErrors(allVehicles);
+      .subscribe({
+        next: (selections: string[]) => {
+          console.log("selections: ", selections);
 
-        if (selections.includes("all")) {
-          this.vehicleTableData.data = allVehicles;
-        }
-        if(selections.includes("Funzionante")){
-          this.vehicleTableData.data = gpsCheckSeries[0];
-        }
-        if(selections.includes("Warning")){
-          this.vehicleTableData.data = gpsCheckSeries[1];
-        }
-        if (selections.length == 0) {
-          this.vehicleTableData.data = [];
-        }
+          const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+          const gpsCheckSeries = this.checkErrorsService.checkVehiclesGpsErrors(allVehicles); //[0] funzionante [1] warning [2] error
 
-        this.vehicleTable.renderRows();
-      },
+          let filteredVehicles: Vehicle[] = [];
 
-      error: error => console.error("Errore nel filtro dei gps: ", error)
-    });
+          if (selections.includes("all")) {
+            filteredVehicles = allVehicles;
+          } else {
+            if (selections.includes("Funzionante")) {
+              filteredVehicles = [...filteredVehicles, ...gpsCheckSeries[0]];
+            }
+            if (selections.includes("Warning")) {
+              filteredVehicles = [...filteredVehicles, ...gpsCheckSeries[1]];
+            }
+          }
+
+          filteredVehicles = filteredVehicles.filter((vehicle, index, self) =>
+            index === self.findIndex(v => v.veId === vehicle.veId)
+          );
+
+          this.vehicleTableData.data = selections.length > 0 ? filteredVehicles : [];
+
+          this.vehicleTable.renderRows();
+        },
+
+        error: error => console.error("Errore nel filtro dei gps: ", error)
+      });
   }
+
 
 
 
