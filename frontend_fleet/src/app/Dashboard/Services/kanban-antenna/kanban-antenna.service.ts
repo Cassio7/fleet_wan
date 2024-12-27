@@ -39,17 +39,8 @@ export class KanbanAntennaService {
 
   setKanbanData(vehicles: Vehicle[]){
     const antennaSeries = this.checkErrorsService.checkVehiclesAntennaErrors(vehicles);
-    const workingVehicles: Vehicle[] = antennaSeries[0];
-    const errorVehicles: Vehicle[] = antennaSeries[1];
-
-    this.clearVehicles();
-
-    workingVehicles.forEach(vehicle=>{
-      this.addVehicle('working', vehicle);
-    });
-    errorVehicles.forEach(vehicle=>{
-      this.addVehicle('error', vehicle);
-    });
+    this.workingVehicles = antennaSeries[0];
+    this.errorVehicles = antennaSeries[2];
   }
 
   /**

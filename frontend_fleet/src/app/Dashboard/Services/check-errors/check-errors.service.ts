@@ -110,25 +110,33 @@ export class CheckErrorsService {
   public checkVehiclesGpsErrors(vehicles: Vehicle[]){
     const workingVehicles: Vehicle[] = [];
     const warningVehicles: Vehicle[] = [];
+    const errorVehicles: Vehicle[] = [];
 
     vehicles.map(vehicle => {
-      if(this.checkGpsError(vehicle)){
-        warningVehicles.push(vehicle);
+      const gpsCheck = this.checkGpsError(vehicle);
+      if(gpsCheck){
+        if(gpsCheck.includes("totale") || gpsCheck.includes("TOTALE")){
+          console.log("E TOTALE!");
+          errorVehicles.push(vehicle);
+        }else{
+          warningVehicles.push(vehicle);
+        }
       }else{
         workingVehicles.push(vehicle);
       }
     });
 
-    return [workingVehicles, warningVehicles];
+    return [workingVehicles, warningVehicles, errorVehicles];
   }
 
   /**
    * Controlla le antenne dei veicoli passati come parametro
    * @param vehicles veicoli da controllare
-   * @returns array formato da: [workingVehicles, warningVehicles]
+   * @returns array formato da: [workingVehicles, warningVehicles, errorVehicles]
    */
   public checkVehiclesAntennaErrors(vehicles: Vehicle[]){
     const workingVehicles: Vehicle[] = [];
+    const warningVehicles: Vehicle[] = [];
     const errorVehicles: Vehicle[] = [];
 
     vehicles.map(vehicle => {
@@ -141,7 +149,7 @@ export class CheckErrorsService {
         }
       }
     });
-    return [workingVehicles, errorVehicles];
+    return [workingVehicles, warningVehicles, errorVehicles];
   }
 
   /**

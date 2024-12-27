@@ -40,17 +40,9 @@ export class KanbanGpsService{
    */
   setKanbanData(vehicles: Vehicle[]){
     const series = this.checkErrorsService.checkVehiclesGpsErrors(vehicles);//recupero dati dei veicoli controllati
-    const workingVehicles = series[0];
-    const warningVehicles = series[1];
-    this.clearVehicles();
-    //aggiunta veicoli funzionanti
-    workingVehicles.forEach(vehicle => {
-      this.addVehicle("working", vehicle);
-    });
-    //aggiunta veicoli con warning
-    warningVehicles.forEach(vehicle => {
-      this.addVehicle("warning", vehicle);
-    });
+    this.workingVehicles = series[0];
+    this.warningVehicles = series[1];
+    this.errorVehicles = series[2];
   }
 
   /**
