@@ -211,6 +211,7 @@ export class AnomalyService {
       const key = `dayBeforeAnomaly:${anomaly.vehicle.veId}`;
       await this.redis.set(key, JSON.stringify(anomaly));
     }
+    return true;
   }
   /**
    * Imposta anomalie di oggi su Redis per recupero veloce
@@ -221,6 +222,9 @@ export class AnomalyService {
       const key = `todayAnomaly:${anomaly.vehicle.veId}`;
       await this.redis.set(key, JSON.stringify(anomaly));
     }
+    const key = `todayAnomaly:lastUpdate`;
+    await this.redis.set(key, new Date().toISOString());
+    return true;
   }
 
   async createAnomaly(
@@ -299,17 +303,6 @@ export class AnomalyService {
             .getRepository(AnomalyEntity)
             .update({ key: anomaliesQuery.key }, anomaly);
         }
-        const anomaly = {
-          vehicle: vehicle,
-          date: day,
-          session: normalizedSession,
-          gps: normalizedGps,
-          antenna: normalizedAntenna,
-          hash: hash,
-        };
-        await queryRunner.manager
-          .getRepository(AnomalyEntity)
-          .update({ key: anomaliesQuery.key }, anomaly);
       } else if (!anomaliesQuery) {
         const anomaly = await queryRunner.manager
           .getRepository(AnomalyEntity)
