@@ -170,6 +170,9 @@ export class TableComponent implements OnDestroy, AfterViewInit{
             if (selections.includes("Warning")) {
               filteredVehicles = [...filteredVehicles, ...gpsCheckSeries[1]];
             }
+            if (selections.includes("Errore")) {
+              filteredVehicles = [...filteredVehicles, ...gpsCheckSeries[2]];
+            }
           }
 
           filteredVehicles = filteredVehicles.filter((vehicle, index, self) =>
