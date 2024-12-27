@@ -12,6 +12,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { PlateFilterService } from '../../../Common-services/plate-filter/plate-filter.service';
 import { CantieriFilterService } from '../../../Common-services/cantieri-filter/cantieri-filter.service';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
+import { KanbanGpsService } from '../../Services/kanban-gps/kanban-gps.service';
+import { KanbanAntennaService } from '../../Services/kanban-antenna/kanban-antenna.service';
 
 @Component({
   selector: 'app-kanban-filters',
@@ -39,6 +41,8 @@ export class KanbanFiltersComponent implements AfterViewInit{
   constructor(
     private plateFilterService: PlateFilterService,
     public cantieriFilterService: CantieriFilterService,
+    private kanbanGpsService: KanbanGpsService,
+    private kanbanAntennaService: KanbanAntennaService,
     private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef
   ){
@@ -58,7 +62,7 @@ export class KanbanFiltersComponent implements AfterViewInit{
     setTimeout(() => {
       this.cantieriFilterService.updateListaCantieri(allVehicles);
       this.toggleSelectAllCantieri();
-    },1000);
+    });
     this.cd.detectChanges();
   }
 
@@ -87,7 +91,8 @@ export class KanbanFiltersComponent implements AfterViewInit{
       this.cantieriFilterService.setCantieriSessionStorage();
       //se sono stati selezionati cantieri, invio dati
       if (selectedCantieri) {
-        this.cantieriFilterService.filterTableByCantiere$.next(selectedCantieri);
+        this.kanbanGpsService.loadKanbanGps$.next();
+        this.kanbanAntennaService.loadKanbanAntenna$.next();
       }
       this.cd.detectChanges();
     }

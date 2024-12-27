@@ -39,7 +39,6 @@ export class KanbanGpsComponent implements AfterViewInit{
     public kanbanGpsService: KanbanGpsService,
     private plateFilterService: PlateFilterService,
     private sessionStorageService: SessionStorageService,
-    private checkErrorsService: CheckErrorsService,
     private cd: ChangeDetectorRef
   ){}
 
@@ -53,43 +52,11 @@ export class KanbanGpsComponent implements AfterViewInit{
       next: (research: string) => {
         kanbanVehicles = allVehicles;
         kanbanVehicles = this.plateFilterService.filterVehiclesByPlateResearch(research, kanbanVehicles);
-        this.setKanbanData(kanbanVehicles);
+        this.kanbanGpsService.setKanbanData(kanbanVehicles);
         this.cd.detectChanges();
       },
       error: error => console.error("Errore nel filtro delle targhe: ", error)
     });
-    this.setKanbanData(kanbanVehicles);
+    this.kanbanGpsService.setKanbanData(kanbanVehicles);
   }
-
-  /**
-   * Imposta i dati delle colonne del kanban
-   * @param vehicles veicoli da suddividere nelle colonne
-   */
-  setKanbanData(vehicles: Vehicle[]){
-    const series = this.checkErrorsService.checkVehiclesGpsErrors(vehicles);//recupero dati dei veicoli controllati
-    const workingVehicles = series[0];
-    const warningVehicles = series[1];
-    this.kanbanGpsService.clearVehicles();
-    //aggiunta veicoli funzionanti
-    workingVehicles.forEach(vehicle => {
-      this.addItem("working", vehicle);
-    });
-    //aggiunta veicoli con warning
-    warningVehicles.forEach(vehicle => {
-      this.addItem("warning", vehicle);
-    });
-  }
-
-  /**
-   * Aggiunge un elemento ad una colonna del kanban
-   * @param column colonna su cui aggiungere
-   * @param vehicle veicolo da aggiungere
-   */
-  addItem(column: 'working' | 'warning' | 'error', vehicle: Vehicle) {
-    this.kanbanGpsService.addVehicle(column, vehicle);
-  }
-
-  // removeItem(column: 'working' | 'warning' | 'error', item: string) {
-  //   this.kanbanGpsService.removeItem(column, item);
-  // }
 }

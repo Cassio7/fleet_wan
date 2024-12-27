@@ -40,51 +40,29 @@ export class KanbanAntennaComponent implements AfterViewInit{
     public kanbanAntennaService: KanbanAntennaService,
     private plateFilterService: PlateFilterService,
     private sessionStorageService: SessionStorageService,
-    private checkErrorsService: CheckErrorsService,
     private cd: ChangeDetectorRef
   ){}
 
   ngAfterViewInit(): void {
-      const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-      let kanbanVehicles = allVehicles;
-      this.plateFilterService.filterByPlateResearch$.pipe(takeUntil(this.destroy$), skip(1))
-      .subscribe({
-        next: (research: string) => {
-          kanbanVehicles = allVehicles;
-          kanbanVehicles = this.plateFilterService.filterVehiclesByPlateResearch(research, kanbanVehicles);
-          this.setKanbanData(kanbanVehicles);
-          this.cd.detectChanges();
-        },
-        error: error => console.error("Errore nel filtro delle targhe: ", error)
-      });
-      this.setKanbanData(kanbanVehicles);
-    }
-
-    /**
-     * Imposta i dati delle colonne del kanban
-     * @param vehicles veicoli da suddividere nelle colonne
-     */
-    setKanbanData(vehicles: Vehicle[]){
-      const antennaSeries = this.checkErrorsService.checkVehiclesAntennaErrors(vehicles);
-      const workingVehicles: Vehicle[] = antennaSeries[0];
-      const errorVehicles: Vehicle[] = antennaSeries[1];
-
-      this.kanbanAntennaService.clearVehicles();
-
-      workingVehicles.forEach(vehicle=>{
-        this.addItem('working', vehicle);
-      });
-      errorVehicles.forEach(vehicle=>{
-        this.addItem('error', vehicle);
-      });
-    }
-
-    /**
-     * Aggiunge un elemento ad una colonna del kanban
-     * @param column colonna su cui aggiungere
-     * @param vehicle veicolo da aggiungere
-     */
-    addItem(column: 'working' | 'warning' | 'error', vehicle: Vehicle) {
-      this.kanbanAntennaService.addVehicle(column, vehicle);
-    }
+    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+    let kanbanVehicles = allVehicles;
+    this.kanbanAntennaService.loadKanbanAntennaVehicles$.pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next: (vehicles: Vehicle[]) => {
+        this.kanbanAntennaService.setKanbanData(vehicles);
+      },
+      error: error => console.error("Errore nel caricamento del kanban antenna: ", error)
+    });
+    this.plateFilterService.filterByPlateResearch$.pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next: (research: string) => {
+        kanbanVehicles = allVehicles;
+        kanbanVehicles = this.plateFilterService.filterVehiclesByPlateResearch(research, kanbanVehicles);
+        this.kanbanAntennaService.setKanbanData(kanbanVehicles);
+        this.cd.detectChanges();
+      },
+      error: error => console.error("Errore nel filtro delle targhe: ", error)
+    });
+    this.kanbanAntennaService.setKanbanData(kanbanVehicles);
+  }
 }

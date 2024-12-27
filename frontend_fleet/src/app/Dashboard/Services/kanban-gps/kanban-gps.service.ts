@@ -1,6 +1,7 @@
 import { AfterViewInit, Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { Vehicle } from '../../../Models/Vehicle';
+import { CheckErrorsService } from '../check-errors/check-errors.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,9 @@ export class KanbanGpsService{
   warningVehicles: Vehicle[] = [];
   errorVehicles: Vehicle[] = [];
 
-  constructor() { }
+  constructor(
+    private checkErrorsService: CheckErrorsService
+  ) { }
 
   /**
    * Aggiunge un item ad una colonna del kanban GPS
@@ -29,6 +32,25 @@ export class KanbanGpsService{
         this.errorVehicles.push(vehicle);
         break;
     }
+  }
+
+  /**
+   * Imposta i dati delle colonne del kanban
+   * @param vehicles veicoli da suddividere nelle colonne
+   */
+  setKanbanData(vehicles: Vehicle[]){
+    const series = this.checkErrorsService.checkVehiclesGpsErrors(vehicles);//recupero dati dei veicoli controllati
+    const workingVehicles = series[0];
+    const warningVehicles = series[1];
+    this.clearVehicles();
+    //aggiunta veicoli funzionanti
+    workingVehicles.forEach(vehicle => {
+      this.addVehicle("working", vehicle);
+    });
+    //aggiunta veicoli con warning
+    warningVehicles.forEach(vehicle => {
+      this.addVehicle("warning", vehicle);
+    });
   }
 
   /**
