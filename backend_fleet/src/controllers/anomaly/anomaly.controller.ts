@@ -117,6 +117,7 @@ export class AnomalyController {
 
       const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
       const dateFrom = new Date(body.dateFrom);
+      let lastUpdate;
       let anomalies: any[] = [];
 
       const today = new Date();
@@ -138,6 +139,7 @@ export class AnomalyController {
       // Case 1: Se dateFrom === dateTo e il giorno è oggi usare todayAnomaly
       if (dateFrom.getTime() === dateTo.getTime()) {
         if (dateFrom.getTime() === today.getTime()) {
+          lastUpdate = await this.redis.get('todayAnomaly:lastUpdate');
           const redisPromises = vehicleIds.map(async (id) => {
             const key = `todayAnomaly:${id}`;
             try {
@@ -185,7 +187,21 @@ export class AnomalyController {
         );
       }
 
-      return res.status(200).json(anomalies);
+      // Esegui operazioni direttamente sulle anomalie, ordinandole per data
+      const processedAnomalies = anomalies.map((entry) => ({
+        plate: entry.vehicle.plate,
+        veId: entry.vehicle.veId,
+        isRFIDReader: entry.vehicle.isRFIDReader,
+        anomalies: entry.anomalies.sort(
+          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+        ),
+      }));
+
+      // Restituisci il risultato
+      return res.status(200).json({
+        lastUpdate,
+        vehicles: processedAnomalies,
+      });
     } catch (error) {
       console.error('Errore durante il recupero delle anomalie:', error);
       return res.status(500).json({
@@ -213,7 +229,7 @@ export class AnomalyController {
 
   /**
    * Funzione API che permette il ricalcolo delle anomalie per la giornata odierna e,
-   * una volta popolato il database, imposta i nuovi risultati su redis
+   * una volta popolato il database, imposta i nuovi risultati su redis di oggi e ieri
    * @param res
    * @returns
    */
