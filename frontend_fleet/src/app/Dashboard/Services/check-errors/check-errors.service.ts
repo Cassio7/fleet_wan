@@ -132,22 +132,18 @@ export class CheckErrorsService {
   /**
    * Controlla i gps dei veicoli passati come parametro
    * @param vehicles veicoli da controllare
-   * @returns array formato da: [workingVehicles, warningVehicles]
+   * @returns array formato da: [workingVehicles, warningVehicles, errorVehicles]
    */
-  public checkVehiclesGpsErrors(vehicles: Vehicle[]){
+  public checkVehiclesGpsErrors(vehicles: Vehicle[]): [Vehicle[], Vehicle[], Vehicle[]] {
     const workingVehicles: Vehicle[] = [];
     const warningVehicles: Vehicle[] = [];
     const errorVehicles: Vehicle[] = [];
 
-    vehicles.map(vehicle => {
-      const gpsCheck = this.checkGpsError(vehicle);
-      if(gpsCheck){
-        if(gpsCheck.includes("totale") || gpsCheck.includes("TOTALE")){
-          console.log("E TOTALE!");
-          errorVehicles.push(vehicle);
-        }else{
-          warningVehicles.push(vehicle);
-        }
+    vehicles.forEach(vehicle => {
+      if(this.checkGpsError(vehicle)){
+        errorVehicles.push(vehicle);
+      }else if(this.checkGPSWarning(vehicle)){
+        warningVehicles.push(vehicle);
       }else{
         workingVehicles.push(vehicle);
       }
@@ -155,6 +151,7 @@ export class CheckErrorsService {
 
     return [workingVehicles, warningVehicles, errorVehicles];
   }
+
 
   /**
    * Controlla le antenne dei veicoli passati come parametro
@@ -177,6 +174,26 @@ export class CheckErrorsService {
       }
     });
     return [workingVehicles, warningVehicles, errorVehicles];
+  }
+
+  /**
+   * Controlla l'anomalia di sessione dei veicoli passati come parametro
+   * @param vehicles veicoli da controllare
+   * @returns array formato da: [workingVehicles, errorVehicles]
+   */
+  checkVehiclesSessionErrors(vehicles: Vehicle[]){
+    const workingVehicles: Vehicle[] = [];
+    const errorVehicles: Vehicle[] = [];
+
+    vehicles.map(vehicle => {
+      const sessionCheck = this.checkSessionError(vehicle);
+      if(sessionCheck){
+        errorVehicles.push(vehicle);
+      }else{
+        workingVehicles.push(vehicle);
+      }
+    });
+    return [workingVehicles, errorVehicles];
   }
 
   /**
