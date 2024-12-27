@@ -199,7 +199,9 @@ export class AppService implements OnModuleInit {
             dateto.toISOString(),
           );
           if (data && data.length > 0) {
-            await this.processAnomalies(data);
+            await Promise.all(
+              data.map((item) => this.createAnomalyFromSession(item)),
+            );
           }
         }),
       );
@@ -208,15 +210,6 @@ export class AppService implements OnModuleInit {
     } catch (error) {
       console.error('Errore durante il controllo delle anomalie:', error);
     }
-  }
-
-  private async processAnomalies(data: any[]) {
-    const anomalyPromises = data.flatMap((item) => [
-      this.createAnomalyFromSession(item),
-      this.createAnomalyFromAnomaliaSessione(item),
-    ]);
-
-    await Promise.all(anomalyPromises);
   }
 
   /**
@@ -237,28 +230,16 @@ export class AppService implements OnModuleInit {
         gps = item.sessions[0].anomalies.GPS || null;
         antenna = item.sessions[0].anomalies.Antenna || null;
       }
+      return this.anomalyService.createAnomaly(
+        veId,
+        date,
+        gps,
+        antenna,
+        session,
+      );
     }
 
-    return this.anomalyService.createAnomaly(veId, date, gps, antenna, session);
-  }
-
-  /**
-   * mi permette di creare una anomalia in data ordierna nel caso anomaliaSessione fosse presente,
-   * dato che non viene controllato per ogni giorno ma solo nell ultimo stato
-   * @param item
-   * @returns
-   */
-  private async createAnomalyFromAnomaliaSessione(item: any) {
-    const veId = item.veId;
-    const session = item.anomaliaSessione || null;
-
-    return this.anomalyService.createAnomaly(
-      veId,
-      null, // date
-      null, // gps
-      null, // antenna
-      session,
-    );
+    return null;
   }
 
   //@Cron('58 23 * * *')
