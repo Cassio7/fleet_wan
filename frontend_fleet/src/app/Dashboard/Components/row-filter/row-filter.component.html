@@ -24,11 +24,11 @@
     <mat-icon matSuffix>location_on</mat-icon>
   </mat-form-field>
   <mat-form-field class="antenna-filter" appearance="outline">
-    <mat-select [formControl]="cantieri" placeholder="Stati antenna" multiple class="antenna-input">
-      <mat-option>Seleziona tutto</mat-option>
+    <mat-select [formControl]="antenne" placeholder="Stati antenna" multiple class="antenna-input">
+      <mat-option value="Seleziona tutto" (click)="selectAntenna('Seleziona tutto')">Seleziona tutto</mat-option>
       <mat-divider></mat-divider>
-      <mat-option value="Blackbox">Blackbox</mat-option>
-      <mat-option value="Blackbox+antenna">Blackbox + antenna</mat-option>
+      <mat-option value="Blackbox" (click)="selectAntenna('blackbox')">Blackbox</mat-option>
+      <mat-option value="Blackbox+antenna" (click)="selectAntenna('blackbox+antenna')">Blackbox + antenna</mat-option>
     </mat-select>
     <mat-icon matSuffix>wifi</mat-icon>
   </mat-form-field>

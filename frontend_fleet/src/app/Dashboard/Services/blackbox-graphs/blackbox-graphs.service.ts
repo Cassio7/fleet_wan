@@ -52,7 +52,7 @@ export class BlackboxGraphsService{
   /**
    * Prende tutti i veicoli su cui è stata montata un antenna per leggere i tag
    * @param vehicles oggetto custom di veicoli
-   * @returns un oggetto che contiene i veicoli con solo blackbox e con blackbox + antenna
+   * @returns un oggetto di tipo blackboxData che contiene i veicoli con solo blackbox e con blackbox + antenna
    */
   public getAllRFIDVehicles(vehicles: any[]) {
     this.blackboxData = {

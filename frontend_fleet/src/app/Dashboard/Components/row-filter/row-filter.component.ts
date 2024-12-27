@@ -14,6 +14,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { PlateFilterService } from '../../../Common-services/plate-filter/plate-filter.service';
 import { CantieriFilterService } from '../../../Common-services/cantieri-filter/cantieri-filter.service';
 import { GpsFilterService } from '../../../Common-services/gps-filter/gps-filter.service';
+import { AntennaFilterService } from '../../../Common-services/antenna-filter/antenna-filter.service';
 
 @Component({
   selector: 'app-row-filter',
@@ -40,11 +41,13 @@ export class RowFilterComponent implements AfterViewInit{
   plate: string = "";
   cantieri = new FormControl<string[]>([]);
   gps = new FormControl<string[]>([]);
+  antenne = new FormControl<string[]>([]);
 
   constructor(
     private plateFilterService: PlateFilterService,
     public cantieriFilterService: CantieriFilterService,
     private gpsFilterService: GpsFilterService,
+    private antennaFilterService: AntennaFilterService,
     private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef) {
     this.filterForm = new FormGroup({
@@ -64,6 +67,7 @@ export class RowFilterComponent implements AfterViewInit{
       this.cantieriFilterService.updateListaCantieri(allVehicles);
       this.toggleSelectAllCantieri();
       this.toggleSelectAllGps();
+      this.toggleSelectAllAntenne();
     });
     this.cantieriFilterService.setCantieriSessionStorage();
 
@@ -123,6 +127,27 @@ export class RowFilterComponent implements AfterViewInit{
   }
 
   /**
+   * Seleziona tutti i filtri del select delle antenne
+   */
+  selectAntenna(option: string) {
+    if(option=="Seleziona tutto"){
+      console.log
+      this.toggleSelectAllAntenne();
+    }else{
+      const selectedAntenne = this.antenne.value; //opzioni selezionate
+
+      if(this.antennaFilterService.isAntennaFilterAllSelected()) {
+        this.antennaFilterService.allSelected = false;
+      }
+      //se è stato selezionato uno stato gps
+      if (selectedAntenne) {
+        this.antennaFilterService.filterTableByAntenna$.next(selectedAntenne);
+      }
+      this.cd.detectChanges();
+    }
+  }
+
+  /**
    * Seleziona tutti i filtri del select dei cantieri
    */
   toggleSelectAllCantieri() {
@@ -134,20 +159,31 @@ export class RowFilterComponent implements AfterViewInit{
    */
   toggleSelectAllGps() {
     if(this.gpsFilterService.toggleSelectAllGps() == "all"){
-      this.gps.setValue(["Seleziona tutto","Funzionante", "Warning", "Errore"]);
+      this.gps.setValue(["Seleziona tutto", "Funzionante", "Warning", "Errore"]);
     }else{
       this.gps.setValue([]);
     }
   }
 
+  /**
+   * Seleziona tutti i filtri del select delle antenne
+   */
   toggleSelectAllAntenne(){
-
+    if(this.antennaFilterService.toggleSelectAllAntenne() == "all"){
+      this.antenne.setValue(["Seleziona tutto", "Blackbox", "Blackbox+antenna"]);
+    }else{
+      this.antenne.setValue([]);
+    }
   }
 
   // onFilterChange(){
   //   this.cantieriFilterService.setCantieriSessionStorage();
   // }
 
+  /**
+   * Controlla se tutti i cantieri sono selezionati
+   * @returns ritorna il risultato della funzione nel servizio
+   */
   isCantieriAllSelected(): boolean {
     return this.cantieriFilterService.isCantieriAllSelected();
   }

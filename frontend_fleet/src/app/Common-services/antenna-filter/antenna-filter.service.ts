@@ -11,7 +11,7 @@ private readonly _filterTableByAntenna$: BehaviorSubject<string[]> = new Behavio
   constructor() { }
 
   /**
-   * Seleziona / deseleziona tutti gli stati dei gps dei veicoli nel select e notifica la tabella di aggiornare i dati
+   * Seleziona / deseleziona tutti gli stati delle antenne dei veicoli nel select e notifica la tabella di aggiornare i dati
    * @returns nuovo valore della lista cantieri
    */
   toggleSelectAllAntenne(): string{
@@ -24,6 +24,15 @@ private readonly _filterTableByAntenna$: BehaviorSubject<string[]> = new Behavio
       this.allSelected = true;
       return "all";
     }
+  }
+
+  /**
+   * controlla se sono selezionati tutti gli stati gps
+   * @returns true se è tutto selezionato
+   * @returns false se non è tutto selezionato
+   */
+  isAntennaFilterAllSelected(): boolean{
+    return this.allSelected;
   }
 
   public get allSelected(): boolean {

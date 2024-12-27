@@ -71,7 +71,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     private vehicleApiService: VehiclesApiService,
     private cantieriFilterService: CantieriFilterService,
     private gpsFilterService: GpsFilterService,
-    private AntennaFilterService: AntennaFilterService,
+    private antennaFilterService: AntennaFilterService,
     private plateFilterService: PlateFilterService,
     private sessionStorageService: SessionStorageService,
     private sessionApiService: SessionApiService,
@@ -88,6 +88,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     this.handleBlackBoxGraphClick(); // Subscribe a click nel grafico dei blackbox
     this.handleCantiereFilter(); //Subscribe a scelta nel filtro dei cantieri
     this.handleGpsFilter();
+    this.handleAntennaFilter();
 
     this.plateFilterService.filterByPlateResearch$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
@@ -160,8 +161,6 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     this.gpsFilterService.filterTableByGps$.pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (selections: string[]) => {
-          console.log("selections: ", selections);
-
           const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
           const gpsCheckSeries = this.checkErrorsService.checkVehiclesGpsErrors(allVehicles); //[0] funzionante [1] warning [2] error
 
@@ -192,7 +191,34 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   }
 
   handleAntennaFilter(){
+    this.antennaFilterService.filterTableByAntenna$.pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (selections: string[]) => {
+        const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+        const antennaCheck = this.blackboxGraphService.getAllRFIDVehicles(allVehicles);
+        let filteredVehicles: Vehicle[] = [];
 
+        if (selections.includes("all")) {
+          filteredVehicles = allVehicles;
+        } else {
+          if (selections.includes("Blackbox")) {
+            filteredVehicles = [...filteredVehicles, ...antennaCheck.blackboxOnly];
+          }
+          if (selections.includes("Blackbox+antenna")) {
+            filteredVehicles = [...filteredVehicles, ...antennaCheck.blackboxWithAntenna];
+          }
+        }
+
+        filteredVehicles = filteredVehicles.filter((vehicle, index, self) =>
+          index === self.findIndex(v => v.veId === vehicle.veId)
+        );
+
+        this.vehicleTableData.data = selections.length > 0 ? filteredVehicles : [];
+
+        this.vehicleTable.renderRows();
+      },
+      error: error => console.error("Errore nel filtro delle antenne: ", error)
+    });
   }
 
 
