@@ -61,38 +61,67 @@ export class ErrorGraphsService{
     this.errorsData.warningVehicles = [];
     this.errorsData.errorVehicles = [];
 
-    this._series = [0,0,0];
-    for (const vehicle of vehicles) {
-      //controllo errori sul veicolo corrente
-      const hasGpsError = this.checkErrorsService.checkGpsError(vehicle);
-      const hasSessionError = this.checkErrorsService.checkSessionError(vehicle);
-      const hasAntennaError = this.checkErrorsService.checkAntennaError(vehicle);
+    this._series = [0, 0, 0]; // [working, warning, error]
 
-      // Nessun errore (funzionante)
-      if (!hasGpsError && !hasSessionError && !hasAntennaError) {
-        this.errorsData.workingVehicles.push(vehicle);
-        this._series[0] += 1;
-      // Errore GPS (warning)
-      } else if (hasGpsError && !hasSessionError && !hasAntennaError) {
-        this.errorsData.warningVehicles.push(vehicle);
-        this._series[1] += 1;
-      // Errori (sessione, antenna o entrambi)
-      } else {
-        this.errorsData.errorVehicles.push(vehicle);
-        this._series[2] += 1;
-      }
+    //controlli su gps e antenna
+    const gpsCheckResult: Vehicle[][] = this.checkErrorsService.checkVehiclesGpsErrors(vehicles);
+    const antennaCheckResult: Vehicle[][] = this.checkErrorsService.checkVehiclesAntennaErrors(vehicles);
+    const sessionCheckResult: Vehicle[][] = this.checkErrorsService.checkVehiclesSessionErrors(vehicles);
+
+    const workingVehiclesSet = new Set<Vehicle>();
+    const warningVehiclesSet = new Set<Vehicle>();
+    const errorVehiclesSet = new Set<Vehicle>();
+
+    //aggiunta risultati gps
+    gpsCheckResult[0].forEach(vehicle => workingVehiclesSet.add(vehicle));
+    gpsCheckResult[1].forEach(vehicle => warningVehiclesSet.add(vehicle));
+    gpsCheckResult[2].forEach(vehicle => errorVehiclesSet.add(vehicle));
+
+    //aggiunta risultati antenna
+    antennaCheckResult[0].forEach(vehicle => workingVehiclesSet.add(vehicle));
+    antennaCheckResult[1].forEach(vehicle => warningVehiclesSet.add(vehicle));
+    antennaCheckResult[2].forEach(vehicle => errorVehiclesSet.add(vehicle));
+
+    //aggiunta risultati sessione
+    sessionCheckResult[0].forEach(vehicle => workingVehiclesSet.add(vehicle));
+    sessionCheckResult[1].forEach(vehicle => errorVehiclesSet.add(vehicle));
+
+    //filtri per priorità
+
+    warningVehiclesSet.forEach(vehicle => {
+        if (errorVehiclesSet.has(vehicle)) {
+            warningVehiclesSet.delete(vehicle);
+        }
+    });
+
+    workingVehiclesSet.forEach(vehicle => {
+        if (warningVehiclesSet.has(vehicle) || errorVehiclesSet.has(vehicle)) {
+            workingVehiclesSet.delete(vehicle);
+        }
+    });
+
+    this.errorsData.workingVehicles = Array.from(workingVehiclesSet);
+    this.errorsData.warningVehicles = Array.from(warningVehiclesSet);
+    this.errorsData.errorVehicles = Array.from(errorVehiclesSet);
+
+    //impostazione series
+    this._series = [
+        this.errorsData.workingVehicles.length,
+        this.errorsData.warningVehicles.length,
+        this.errorsData.errorVehicles.length
+    ];
+
+    //calcolo in sessionstorage alla prima esecuzione
+    if (this.firstLoad) {
+        this.sessionStorageService.setItem("workingVehicles", JSON.stringify(this.errorsData.workingVehicles));
+        this.sessionStorageService.setItem("warningVehicles", JSON.stringify(this.errorsData.warningVehicles));
+        this.sessionStorageService.setItem("errorVehicles", JSON.stringify(this.errorsData.errorVehicles));
+        this.firstLoad = false;
     }
 
-    //impostazione veicoli dell'error graph in sessionstorage solo la prima volta che viene caricato
-    if(this.firstLoad){
-      this.sessionStorageService.setItem("workingVehicles", JSON.stringify(this.errorsData.workingVehicles));
-      this.sessionStorageService.setItem("warningVehicles", JSON.stringify(this.errorsData.warningVehicles));
-      this.sessionStorageService.setItem("errorVehicles", JSON.stringify(this.errorsData.errorVehicles));
-      this.firstLoad = false;
-    }
+    this._loadGraphData$.next(this._series); //invio dati per il caricamento dei grafici
+}
 
-    this._loadGraphData$.next(this._series); //invio dati x caricare grafici
-  }
 
   /**
    * Gestisce la logica del click sulla fetta "funzionante" del grafico degli errori
@@ -214,5 +243,8 @@ export class ErrorGraphsService{
 
   public get series() {
     return this._series;
+  }
+  public set series(value: any[]) {
+    this._series = value;
   }
 }
