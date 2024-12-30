@@ -85,27 +85,43 @@ export class RowFilterComponent implements AfterViewInit{
     this.cd.detectChanges();
   }
 
-  /**
-   * Viene chiamata alla premuta di un qualsiasi checkbox dentro il select per il filtro dei cantieri
-   * @param option opzione selezionata
-   */
-  selectCantiere(option: string) {
-    if(option=="Seleziona tutto"){
-      this.toggleSelectAllCantieri();
-    }else{
-      const selectedCantieri = this.cantieri.value; //opzioni selezionate
+/**
+ * Viene chiamata alla premuta di un qualsiasi checkbox dentro il select per il filtro dei cantieri
+ * @param option opzione selezionata
+ */
+selectCantiere(option: string) {
+  const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+  const selectedCantieri = this.cantieri.value || [];
 
-      if(this.cantieriFilterService.isCantieriAllSelected()) {
-        this.cantieriFilterService.allSelected = false;
-      }
-      this.cantieriFilterService.setCantieriSessionStorage();
-      //se sono stati selezionati cantieri, invio dati
-      if (selectedCantieri) {
-        this.cantieriFilterService.filterTableByCantiere$.next(selectedCantieri);
-      }
-      this.cd.detectChanges();
+  if (option === "Seleziona tutto") {
+    this.toggleSelectAllCantieri();
+  } else {
+    // Rimozione di "Seleziona tutto" solo quando una singola opzione è deselezionata
+    if (this.cantieriFilterService.isCantieriAllSelected()) {
+      this.cantieriFilterService.allSelected = false;
+      // Se "Seleziona tutto" è selezionato, lo deselezioniamo senza rimuoverlo
+      const updatedSelections = selectedCantieri.filter(selection => selection !== "Seleziona tutto");
+      this.cantieri.setValue(updatedSelections);
+    }
+
+    const allOptions = this.cantiereFilterService.vehiclesCantieriOnce(allVehicles);
+    const areAllSelected = allOptions.every(option => selectedCantieri.includes(option));
+
+    // Selezione di "Seleziona tutto" quando tutte le opzioni singole sono selezionate
+    if (areAllSelected && !selectedCantieri.includes("Seleziona tutto")) {
+      selectedCantieri.unshift("Seleziona tutto");
+      this.cantieri.setValue(selectedCantieri);
+      this.cantieriFilterService.allSelected = true;
     }
   }
+
+  // Notifica il filtro alla tabella basato sulle opzioni selezionate
+  this.cantieriFilterService.filterTableByCantiere$.next(this.cantieri.value || []);
+  this.cantieriFilterService.setCantieriSessionStorage(); // Salva la sessione aggiornata
+  this.cd.detectChanges();
+}
+
+
 
   /**
    * Viene chiamata alla premuta di un qualsiasi checkbox dentro il select per il filtro dei gps
@@ -126,7 +142,7 @@ export class RowFilterComponent implements AfterViewInit{
       const allOptions = ["Funzionante", "Warning", "Errore"];
       const areAllSelected = allOptions.every(option => selectedGpsStates.includes(option));
 
-      //aggiunta di "Seleziona tutto" quando tutte le opzioni singole sono selezionate
+      //selezione di "Seleziona tutto" quando tutte le opzioni singole sono selezionate
       if (areAllSelected && !selectedGpsStates.includes("Seleziona tutto")) {
         selectedGpsStates.push("Seleziona tutto");
         this.gps.setValue(selectedGpsStates);
@@ -149,7 +165,7 @@ export class RowFilterComponent implements AfterViewInit{
     if (option === "Seleziona tutto") {
       this.toggleSelectAllAntenne();
     } else {
-      //Rimozione seleziona tutto
+      //rimozione di "Seleziona tutto" quando una singola opzione è deselezionata
       if (this.antennaFilterService.isAntennaFilterAllSelected()) {
         this.antennaFilterService.allSelected = false;
         this.antenne.setValue(selectedAntenne.filter(selection => selection !== "Seleziona tutto"));
@@ -157,7 +173,8 @@ export class RowFilterComponent implements AfterViewInit{
 
       const allOptions = ["Funzionante", "Errore", "Blackbox"];
       const areAllSelected = allOptions.every(option => selectedAntenne.includes(option));
-      //Riaggiunta seleziona tutto
+
+      //selezione di "Seleziona tutto" quando tutte le opzioni singole sono selezionate
       if (areAllSelected && !selectedAntenne.includes("Seleziona tutto")) {
         selectedAntenne.push("Seleziona tutto");
         this.antenne.setValue(selectedAntenne);

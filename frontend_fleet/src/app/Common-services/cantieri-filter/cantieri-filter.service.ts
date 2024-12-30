@@ -48,7 +48,7 @@ export class CantieriFilterService{
         seen.add(name);
         return true;
       });
-    this.listaCantieri = listaCantieri;
+    this.listaCantieri = ["Seleziona tutto", ...listaCantieri];
     return listaCantieri;
   }
 
