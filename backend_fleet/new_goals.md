@@ -24,7 +24,7 @@
   3. salvo comunque tutto comunque.
 - [ ] integrazione dei DTO
 - [ ] rimuovere codice non utilizzato
-- [ ] aggiungere campo azienda appartenenza mezzo
+- [x] aggiungere campo azienda appartenenza mezzo (relevant_company)
 - [ ] dare un formato di risposta corretto a tutte le API
 - [ ] segnare la posizione dei cantieri con circonferenza, layer comunali
 - [ ] implementazione della connessione ed invio email, per alert e recupero dati
