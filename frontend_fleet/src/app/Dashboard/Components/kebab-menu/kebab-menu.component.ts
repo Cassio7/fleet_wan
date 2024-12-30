@@ -1,5 +1,6 @@
+import { SessionStorageService } from './../../../Common-services/sessionStorage/session-storage.service';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import { MatIconModule } from '@angular/material/icon';
@@ -21,14 +22,21 @@ import { KanbanTableService } from '../../Services/kanban-table/kanban-table.ser
   templateUrl: './kebab-menu.component.html',
   styleUrl: './kebab-menu.component.css'
 })
-export class KebabMenuComponent{
+export class KebabMenuComponent implements AfterViewInit{
   selectedOption: string = "table";
 
   constructor(
     private kanbanTableService: KanbanTableService,
     private kanbangpsService: KanbanGpsService,
-    private kanbanAntennaService: KanbanAntennaService
+    private kanbanAntennaService: KanbanAntennaService,
+    private cd: ChangeDetectorRef,
+    private sessionStorageService: SessionStorageService
   ){}
+
+  ngAfterViewInit(): void {
+    this.selectedOption = this.sessionStorageService.getItem("dashboard-section");
+    this.cd.detectChanges();
+  }
 
   /**
    * Gestisce il comportamento alla selezione di un'opzione nel kebab menu,

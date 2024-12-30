@@ -1,3 +1,4 @@
+import { SessionStorageService } from './../../../Common-services/sessionStorage/session-storage.service';
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -62,58 +63,72 @@ export class DashboardComponent implements AfterViewInit{
     private errorGraphService: ErrorGraphsService,
     private KanbanAntennaService: KanbanAntennaService,
     private kanbanTableService: KanbanTableService,
+    private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef
   ){
 
   }
   ngAfterViewInit(): void {
     this.errorGraphTitle = this.errorGraphService.graphTitle;
+    const currentSection = this.sessionStorageService.getItem("dashboard-section");
+    this.displaySection(currentSection);
+
     this.kanbanTableService.loadKabanTable$.pipe(takeUntil(this.destroy$))
     .subscribe({
       next: () => {
-        this.displayComponent("table"); //display del componente scelto dal kebab menu
+        this.displaySection("table"); //display del componente scelto dal kebab menu
         this.graphs.nativeElement.style.pointerEvents = 'auto';
         this.errorGraphTitle = this.errorGraphService.graphTitle = "GPS";//impostazione titolo del grafico
+        this.sessionStorageService.setItem("dashboard-section", "table");
       },
       error: error => console.error("Errore nel caricamento del kaban gps: ", error)
     });
     this.kabanGpsService.loadKanbanGps$.pipe(takeUntil(this.destroy$))
     .subscribe({
       next: () => {
-        this.displayComponent("GPS"); //display del componente scelto dal kebab menu
+        this.displaySection("GPS"); //display del componente scelto dal kebab menu
         this.graphs.nativeElement.style.pointerEvents = 'none';//disabilita click su grafico
         this.errorGraphTitle = this.errorGraphService.graphTitle = "GPS";//impostazione titolo del grafico
+        this.sessionStorageService.setItem("dashboard-section", "GPS");
       },
       error: error => console.error("Errore nel caricamento del kaban gps: ", error)
     });
     this.KanbanAntennaService.loadKanbanAntenna$.pipe(takeUntil(this.destroy$))
     .subscribe({
       next: () => {
-        this.displayComponent("antenna"); //display del componente scelto dal kebab menu
+        this.displaySection("Antenna"); //display del componente scelto dal kebab menu
         this.graphs.nativeElement.style.pointerEvents = 'none';//disabilita click su grafico
         this.errorGraphTitle = this.errorGraphService.graphTitle = "Antenna";
+        this.sessionStorageService.setItem("dashboard-section", "Antenna");
       },
       error: error => console.error("Errore nel caricamento del kaban gps: ", error)
     });
     this.cd.detectChanges();
   }
 
-  private displayComponent(pageName: string){
-    switch(pageName){
+  /**
+   * Mostra una sezione della dashboard
+   * @param sectionName nome della sezione da mostrare
+   */
+  private displaySection(sectionName: string){
+    switch(sectionName){
       case "table":
         this.table = true;
         this.kanbanGps = false;
         this.kabanAntenna = false;
+        this.graphs.nativeElement.style.pointerEvents = 'auto';
         break;
       case "GPS":
         this.kanbanGps = true;
         this.table = false;
         this.kabanAntenna = false;
+        this.graphs.nativeElement.style.pointerEvents = 'none';
         break;
-      case "antenna":
+      case "Antenna":
         this.kabanAntenna = true;
         this.table = false;
         this.kanbanGps = false;
+        this.graphs.nativeElement.style.pointerEvents = 'none';
     }
     this.cd.detectChanges();
   }
