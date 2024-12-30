@@ -16,11 +16,11 @@ interface ErrorsData {
 export class ErrorGraphsService{
   //carica grafico degli errori con una series
   private readonly _loadGraphData$: BehaviorSubject<number[]> = new BehaviorSubject<number[]>([]);
-  //trasporta i dati dei veicoli funzionanti
+  //trasporta i dati dei veicoli funzionanti per caricare la tabella
   private readonly _loadFunzionanteData$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
-  //trasporta i dati dei veicoli in warning
+  //trasporta i dati dei veicoli in warning per caricare la tabella
   private readonly _loadWarningData$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
-  //trasporta i dati dei veicoli in errore
+  //trasporta i dati dei veicoli in errore per caricare la tabella
   private readonly _loadErrorData$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
 
 

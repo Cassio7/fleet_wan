@@ -34,12 +34,12 @@
     <mat-icon matSuffix>wifi</mat-icon>
   </mat-form-field>
   <mat-form-field class="session-filter" appearance="outline">
-    <mat-select [formControl]="cantieri" placeholder="Stati sessione" multiple class="antenna-input">
-      <mat-option>Seleziona tutto</mat-option>
+    <mat-select [formControl]="sessionStates" placeholder="Stati sessione" multiple class="antenna-input">
+      <mat-option value="Seleziona tutto" (click)="selectSession('Seleziona tutto')">Seleziona tutto</mat-option>
       <mat-divider></mat-divider>
-      <mat-option value="Funzionante">Funzionante</mat-option>
-      <mat-option value="Errore">Errore</mat-option>
-      <mat-option value="noSession">Nessuna sessione</mat-option>
+      <mat-option value="Funzionante" (click)="selectSession('Funzionante')">Funzionante</mat-option>
+      <mat-option value="Errore" (click)="selectSession('Errore')">Errore</mat-option>
+      <mat-option value="Nessuna sessione" (click)="selectSession('Nessuna sessione')">Nessuna sessione</mat-option>
     </mat-select>
   </mat-form-field>
   <!-- Aggiunta del pulsante -->

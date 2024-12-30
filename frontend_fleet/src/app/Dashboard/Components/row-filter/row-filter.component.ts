@@ -1,3 +1,4 @@
+import { SessionFilterService } from './../../../Common-services/session-filter/session-filter.service';
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
@@ -18,11 +19,11 @@ import { AntennaFilterService } from '../../../Common-services/antenna-filter/an
 
 
 export interface activeFilters{
-  plate: boolean,
-  cantieri: boolean,
-  gps: boolean,
-  antenna: boolean,
-  sessione: boolean
+  plate: string,
+  cantieri: string[],
+  gps: string[],
+  antenna: string[],
+  sessione: string[]
 };
 
 @Component({
@@ -52,6 +53,7 @@ export class RowFilterComponent implements AfterViewInit{
   cantieri = new FormControl<string[]>([]);
   gps = new FormControl<string[]>([]);
   antenne = new FormControl<string[]>([]);
+  sessionStates = new FormControl<string[]>([]);
 
   constructor(
     private plateFilterService: PlateFilterService,
@@ -59,6 +61,7 @@ export class RowFilterComponent implements AfterViewInit{
     private gpsFilterService: GpsFilterService,
     private antennaFilterService: AntennaFilterService,
     private cantiereFilterService: CantieriFilterService,
+    private sessionFilterService: SessionFilterService,
     private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef) {
     this.filterForm = new FormGroup({
@@ -79,6 +82,7 @@ export class RowFilterComponent implements AfterViewInit{
       this.toggleSelectAllCantieri();
       this.toggleSelectAllGps();
       this.toggleSelectAllAntenne();
+      this.toggleSelectAllSession();
     });
     this.cantieriFilterService.setCantieriSessionStorage();
 
@@ -94,40 +98,40 @@ export class RowFilterComponent implements AfterViewInit{
     this.cd.detectChanges();
   }
 
-/**
- * Viene chiamata alla premuta di un qualsiasi checkbox dentro il select per il filtro dei cantieri
- * @param option opzione selezionata
- */
-selectCantiere(option: string) {
-  const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-  const selectedCantieri = this.cantieri.value || [];
+  /**
+   * Viene chiamata alla premuta di un qualsiasi checkbox dentro il select per il filtro dei cantieri
+   * @param option opzione selezionata
+   */
+  selectCantiere(option: string) {
+    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+    const selectedCantieri = this.cantieri.value || [];
 
-  if (option === "Seleziona tutto") {
-    this.toggleSelectAllCantieri();
-  } else {
-    //rimozione di "Seleziona tutto" solo quando una singola opzione è deselezionata
-    if (this.cantieriFilterService.isCantieriAllSelected()) {
-      this.cantieriFilterService.allSelected = false;
-      const updatedSelections = selectedCantieri.filter(selection => selection !== "Seleziona tutto");
-      this.cantieri.setValue(updatedSelections);
+    if (option === "Seleziona tutto") {
+      this.toggleSelectAllCantieri();
+    } else {
+      //rimozione di "Seleziona tutto" solo quando una singola opzione è deselezionata
+      if (this.cantieriFilterService.isCantieriAllSelected()) {
+        this.cantieriFilterService.allSelected = false;
+        const updatedSelections = selectedCantieri.filter(selection => selection !== "Seleziona tutto");
+        this.cantieri.setValue(updatedSelections);
+      }
+
+      const allOptions = this.cantiereFilterService.vehiclesCantieriOnce(allVehicles);
+      const areAllSelected = allOptions.every(option => selectedCantieri.includes(option));
+
+      //selezione di "Seleziona tutto" quando tutte le opzioni singole sono selezionate
+      if (areAllSelected && !selectedCantieri.includes("Seleziona tutto")) {
+        selectedCantieri.unshift("Seleziona tutto");
+        this.cantieri.setValue(selectedCantieri);
+        this.cantieriFilterService.allSelected = true;
+      }
     }
 
-    const allOptions = this.cantiereFilterService.vehiclesCantieriOnce(allVehicles);
-    const areAllSelected = allOptions.every(option => selectedCantieri.includes(option));
 
-    //selezione di "Seleziona tutto" quando tutte le opzioni singole sono selezionate
-    if (areAllSelected && !selectedCantieri.includes("Seleziona tutto")) {
-      selectedCantieri.unshift("Seleziona tutto");
-      this.cantieri.setValue(selectedCantieri);
-      this.cantieriFilterService.allSelected = true;
-    }
+    this.cantieriFilterService.filterTableByCantiere$.next(this.cantieri.value || []); //notifica il filtro alla tabella basato sulle opzioni selezionate
+    this.cantieriFilterService.setCantieriSessionStorage(); // Salva la sessione aggiornata
+    this.cd.detectChanges();
   }
-
-
-  this.cantieriFilterService.filterTableByCantiere$.next(this.cantieri.value || []); //notifica il filtro alla tabella basato sulle opzioni selezionate
-  this.cantieriFilterService.setCantieriSessionStorage(); // Salva la sessione aggiornata
-  this.cd.detectChanges();
-}
 
 
 
@@ -194,6 +198,41 @@ selectCantiere(option: string) {
     this.cd.detectChanges();
   }
 
+  selectSession(option: string){
+    const selectedSessionStates = this.gps.value || [];
+
+    if (option === "Seleziona tutto") {
+      this.toggleSelectAllSession();
+    } else {
+      //rimozione di "Seleziona tutto" quando una singola opzione è deselezionata
+      if (this.sessionFilterService.isSessionFilterAllSelected()) {
+        this.sessionFilterService.allSelected = false;
+        this.gps.setValue(selectedSessionStates.filter(selection => selection !== "Seleziona tutto"));
+      }
+
+      const allOptions = ["Funzionante", "Warning", "Errore"];
+      const areAllSelected = allOptions.every(option => selectedSessionStates.includes(option));
+
+      //selezione di "Seleziona tutto" quando tutte le opzioni singole sono selezionate
+      if (areAllSelected && !selectedSessionStates.includes("Seleziona tutto")) {
+        selectedSessionStates.push("Seleziona tutto");
+        this.gps.setValue(selectedSessionStates);
+        this.sessionFilterService.allSelected = true;
+      }
+    }
+
+
+    this.sessionFilterService.filterTableBySessionStates$.next(this.gps.value || []);//notifica il filtro alla tabella basato sulle opzioni selezionate
+    this.cd.detectChanges();
+  }
+
+  toggleSelectAllSession(){
+    if(this.sessionFilterService.toggleSelectAllSessionStates() == "all"){
+      this.sessionStates.setValue(["Seleziona tutto", "Funzionante", "Errore", "Nessuna sessione"]);
+    }else{
+      this.sessionStates.setValue([]);
+    }
+  }
 
   /**
    * Seleziona tutti i filtri del select dei cantieri
