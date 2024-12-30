@@ -1,6 +1,6 @@
 import { AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, HostListener, inject, NgZone, OnDestroy, ViewChild } from '@angular/core';
 import { Vehicle } from '../../../Models/Vehicle';
-import { VehiclesApiService } from '../../../Common-services/vehicles service/vehicles-api.service';
+import { VehiclesApiService } from '../../../Common-services/vehicles api service/vehicles-api.service';
 import { Subject, takeUntil, filter, forkJoin, take, tap } from 'rxjs';
 import { Session } from '../../../Models/Session';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';

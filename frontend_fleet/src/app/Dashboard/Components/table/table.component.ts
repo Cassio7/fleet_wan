@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Session } from '../../../Models/Session';
 import { forkJoin, skip, Subject, takeUntil, catchError, of, tap } from 'rxjs';
-import { VehiclesApiService } from '../../../Common-services/vehicles service/vehicles-api.service';
+import { VehiclesApiService } from '../../../Common-services/vehicles api service/vehicles-api.service';
 import { Vehicle } from '../../../Models/Vehicle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ErrorGraphsService } from '../../Services/error-graphs/error-graphs.service';

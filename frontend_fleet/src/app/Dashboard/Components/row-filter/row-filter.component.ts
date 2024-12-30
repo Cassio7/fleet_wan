@@ -16,6 +16,15 @@ import { CantieriFilterService } from '../../../Common-services/cantieri-filter/
 import { GpsFilterService } from '../../../Common-services/gps-filter/gps-filter.service';
 import { AntennaFilterService } from '../../../Common-services/antenna-filter/antenna-filter.service';
 
+
+export interface activeFilters{
+  plate: boolean,
+  cantieri: boolean,
+  gps: boolean,
+  antenna: boolean,
+  sessione: boolean
+};
+
 @Component({
   selector: 'app-row-filter',
   standalone: true,
@@ -34,9 +43,9 @@ import { AntennaFilterService } from '../../../Common-services/antenna-filter/an
   templateUrl: './row-filter.component.html',
   styleUrl: './row-filter.component.css'
 })
+
 export class RowFilterComponent implements AfterViewInit{
   private readonly destroy$: Subject<void> = new Subject<void>();
-
 
   filterForm!: FormGroup;
   plate: string = "";
@@ -113,6 +122,7 @@ selectCantiere(option: string) {
       this.cantieriFilterService.allSelected = true;
     }
   }
+
 
   this.cantieriFilterService.filterTableByCantiere$.next(this.cantieri.value || []); //notifica il filtro alla tabella basato sulle opzioni selezionate
   this.cantieriFilterService.setCantieriSessionStorage(); // Salva la sessione aggiornata
