@@ -8,6 +8,8 @@ import {
 
 export class VehicleDTO {
   @IsNumber()
+  id: number;
+  @IsNumber()
   veId: number;
   @IsBoolean()
   active: boolean;
@@ -31,6 +33,12 @@ export class VehicleDTO {
   isCan: boolean;
   @IsBoolean()
   isRFIDReader: boolean;
+  @IsOptional()
+  @IsBoolean()
+  allestimento?: boolean | null;
+  @IsOptional()
+  @IsString()
+  relevant_company?: string | null;
   @IsNumber()
   profileId: number;
   @IsString()
