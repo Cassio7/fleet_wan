@@ -112,25 +112,33 @@ export class RowFilterComponent implements AfterViewInit{
    * @param option opzione selezionata
    */
   selectGps(option: string) {
-    if(option=="Seleziona tutto"){
+    const selectedGpsStates = this.gps.value || [];
+
+    if (option === "Seleziona tutto") {
       this.toggleSelectAllGps();
-    }else{
-      const selectedGpsStates = this.gps.value; //opzioni selezionate
-      //come se fosse stato premuto "tutto selezionato" nel caso vengano selezionate tutte le opzioni singolarmente
-      if (JSON.stringify(selectedGpsStates) === JSON.stringify(["Funzionante", "Warning", "Errore"])) {
-        this.antenne.setValue(["Seleziona tutto" ,"Funzionante", "Warning", "Errore"]);
-        this.antennaFilterService.allSelected = true;
-      }
-      if(this.gpsFilterService.isGpsFilterAllSelected()) {
+    } else {
+      //rimozione di "Seleziona tutto" quando una singola opzione è deselezionata
+      if (this.gpsFilterService.isGpsFilterAllSelected()) {
         this.gpsFilterService.allSelected = false;
+        this.gps.setValue(selectedGpsStates.filter(selection => selection !== "Seleziona tutto"));
       }
-      //se è stato selezionato uno stato gps
-      if (selectedGpsStates) {
-        this.gpsFilterService.filterTableByGps$.next(selectedGpsStates);
+
+      const allOptions = ["Funzionante", "Warning", "Errore"];
+      const areAllSelected = allOptions.every(option => selectedGpsStates.includes(option));
+
+      //aggiunta di "Seleziona tutto" quando tutte le opzioni singole sono selezionate
+      if (areAllSelected && !selectedGpsStates.includes("Seleziona tutto")) {
+        selectedGpsStates.push("Seleziona tutto");
+        this.gps.setValue(selectedGpsStates);
+        this.gpsFilterService.allSelected = true;
       }
-      this.cd.detectChanges();
     }
+
+
+    this.gpsFilterService.filterTableByGps$.next(this.gps.value || []);//notifica il filtro alla tabella basato sulle opzioni selezionate
+    this.cd.detectChanges();
   }
+
 
   /**
    * Seleziona tutti i filtri del select delle antenne
