@@ -133,7 +133,6 @@ export class RowFilterComponent implements AfterViewInit{
    */
   selectAntenna(option: string) {
     if(option=="Seleziona tutto"){
-      console.log
       this.toggleSelectAllAntenne();
     }else{
       const selectedAntenne = this.antenne.value; //opzioni selezionate
@@ -172,7 +171,7 @@ export class RowFilterComponent implements AfterViewInit{
    */
   toggleSelectAllAntenne(){
     if(this.antennaFilterService.toggleSelectAllAntenne() == "all"){
-      this.antenne.setValue(["Seleziona tutto", "Blackbox", "Blackbox+antenna"]);
+      this.antenne.setValue(["Seleziona tutto", "Funzionante", "Errore", "Blackbox", "Blackbox+antenna"]);
     }else{
       this.antenne.setValue([]);
     }

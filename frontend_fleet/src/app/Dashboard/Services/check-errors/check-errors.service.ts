@@ -74,7 +74,7 @@ export class CheckErrorsService {
 
 
   /**
-   * Controlla se è presente un errore di antenna nella sessione di oggi del veicolo preso in input
+   * Controlla se è presente un errore di antenna del veicolo preso in input
    * @param vehicle veicolo da controllare
    * @returns l'anomalia se viene riscontrata, altrimenti "null"
    */

@@ -193,25 +193,33 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     .subscribe({
       next: (selections: string[]) => {
         const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-        const antennaCheck = this.blackboxGraphService.getAllRFIDVehicles(allVehicles);
+        const antennaCheck = this.checkErrorsService.checkVehiclesAntennaErrors(allVehicles);
+        const vehiclesBlackboxData = this.blackboxGraphService.getAllRFIDVehicles(allVehicles);
         let filteredVehicles: Vehicle[] = [];
 
         if (selections.includes("all")) {
           filteredVehicles = allVehicles;
         } else {
           if (selections.includes("Blackbox")) {
-            filteredVehicles = [...filteredVehicles, ...antennaCheck.blackboxOnly];
+            filteredVehicles = [...filteredVehicles, ...vehiclesBlackboxData.blackboxOnly];
           }
           if (selections.includes("Blackbox+antenna")) {
-            filteredVehicles = [...filteredVehicles, ...antennaCheck.blackboxWithAntenna];
+            filteredVehicles = [...filteredVehicles, ...vehiclesBlackboxData.blackboxWithAntenna];
+          }
+          if (selections.includes("Funzionante")) {
+            filteredVehicles = [...filteredVehicles, ...antennaCheck[0]];
+          }
+          if (selections.includes("Errore")) {
+            filteredVehicles = [...filteredVehicles, ...antennaCheck[2]];
           }
         }
 
+        //rimozione duplicati
         filteredVehicles = filteredVehicles.filter((vehicle, index, self) =>
           index === self.findIndex(v => v.veId === vehicle.veId)
         );
 
-        this.vehicleTableData.data = selections.length > 0 ? filteredVehicles : [];
+        this.vehicleTableData.data = filteredVehicles;
 
         this.vehicleTable.renderRows();
       },
