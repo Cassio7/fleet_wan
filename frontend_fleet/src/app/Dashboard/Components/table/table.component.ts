@@ -98,6 +98,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
           this.vehicleTableData.data = this.plateFilterService.filterVehiclesByPlateResearch(research, allVehicles);
         }
         this.vehicleTable.renderRows();
+        this.loadGraphs(this.vehicleTableData.data);
       },
       error: error => console.error("Errore nel filtro delle targhe: ", error)
     });
@@ -182,6 +183,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
           this.vehicleTableData.data = selections.length > 0 ? filteredVehicles : [];
 
           this.vehicleTable.renderRows();
+          this.loadGraphs(this.vehicleTableData.data);
         },
 
         error: error => console.error("Errore nel filtro dei gps: ", error)
@@ -222,6 +224,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
         this.vehicleTableData.data = filteredVehicles;
 
         this.vehicleTable.renderRows();
+        this.loadGraphs(this.vehicleTableData.data);
       },
       error: error => console.error("Errore nel filtro delle antenne: ", error)
     });

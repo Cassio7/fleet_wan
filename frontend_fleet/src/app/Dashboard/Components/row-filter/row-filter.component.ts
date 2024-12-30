@@ -96,10 +96,9 @@ selectCantiere(option: string) {
   if (option === "Seleziona tutto") {
     this.toggleSelectAllCantieri();
   } else {
-    // Rimozione di "Seleziona tutto" solo quando una singola opzione è deselezionata
+    //rimozione di "Seleziona tutto" solo quando una singola opzione è deselezionata
     if (this.cantieriFilterService.isCantieriAllSelected()) {
       this.cantieriFilterService.allSelected = false;
-      // Se "Seleziona tutto" è selezionato, lo deselezioniamo senza rimuoverlo
       const updatedSelections = selectedCantieri.filter(selection => selection !== "Seleziona tutto");
       this.cantieri.setValue(updatedSelections);
     }
@@ -107,7 +106,7 @@ selectCantiere(option: string) {
     const allOptions = this.cantiereFilterService.vehiclesCantieriOnce(allVehicles);
     const areAllSelected = allOptions.every(option => selectedCantieri.includes(option));
 
-    // Selezione di "Seleziona tutto" quando tutte le opzioni singole sono selezionate
+    //selezione di "Seleziona tutto" quando tutte le opzioni singole sono selezionate
     if (areAllSelected && !selectedCantieri.includes("Seleziona tutto")) {
       selectedCantieri.unshift("Seleziona tutto");
       this.cantieri.setValue(selectedCantieri);
@@ -115,8 +114,7 @@ selectCantiere(option: string) {
     }
   }
 
-  // Notifica il filtro alla tabella basato sulle opzioni selezionate
-  this.cantieriFilterService.filterTableByCantiere$.next(this.cantieri.value || []);
+  this.cantieriFilterService.filterTableByCantiere$.next(this.cantieri.value || []); //notifica il filtro alla tabella basato sulle opzioni selezionate
   this.cantieriFilterService.setCantieriSessionStorage(); // Salva la sessione aggiornata
   this.cd.detectChanges();
 }

@@ -79,14 +79,14 @@
         </span>
         <!-- se c'è errore  -->
         <ng-template #sessionError>
-          <div class="session-error" *ngIf="checkSessionError(vehicle)" [matTooltip]="checkSessionError(vehicle)">
-            <div class="error-container">
+          <div class="session-error" *ngIf="checkSessionError(vehicle)">
+            <div class="error-container" [matTooltip]="checkSessionError(vehicle)">
               {{calculateSessionErrorDays(vehicle)}}gg
             </div>
-            <div class="error-container">
+            <div class="error-container" [matTooltip]="checkSessionError(vehicle)">
               Error
             </div>
-            <span class="session-date">
+            <span class="session-date" [matTooltip]="checkSessionError(vehicle)">
               {{ vehicle.lastValidSession?.period_to ? (vehicle.lastValidSession.period_from | date: 'dd/MM/yy hh:mm') : '' }}
             </span>
           </div>
