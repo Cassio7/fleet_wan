@@ -36,6 +36,13 @@ export class AssociationService {
           },
         },
       },
+      order: {
+        company: {
+          group: {
+            id: 'ASC',
+          },
+        },
+      },
     });
     const vehicles = new Set();
     associations.forEach((association) => {
@@ -45,7 +52,7 @@ export class AssociationService {
           vehicles.add(vehicle),
         );
       }
-      // Prendo tutti i veicoli passando da company -> group -> worksite_group -> worksite considerando soltanto il gruppo principale per evitare duplicati
+      // Prendo tutti i veicoli passando da company -> group -> worksite_group -> worksite considerando soltanto il comune principale per evitare duplicati
       if (association.company?.group) {
         const firstGroup = association.company.group[0];
         if (firstGroup.worksite_group) {
