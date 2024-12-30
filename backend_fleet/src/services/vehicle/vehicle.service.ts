@@ -1,3 +1,4 @@
+import { WorksiteDTO } from './../../../classes/dtos/worksite.dto';
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import axios from 'axios';
@@ -7,6 +8,8 @@ import { createHash } from 'crypto';
 import { convertHours } from 'src/utils/utils';
 import { DataSource, In, Repository } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
+import { VehicleDTO } from 'classes/dtos/vehicle.dto';
+import { DeviceDTO } from 'classes/dtos/device.dto';
 
 @Injectable()
 export class VehicleService {
@@ -409,7 +412,7 @@ export class VehicleService {
     }
   }
   /**
-   * Recupera tutti i veicoli dal database in ordine
+   * Recupera tutti i veicoli dal database in ordine, viene usata dentro il server
    * @returns
    */
   async getAllVehicles(): Promise<any> {
@@ -424,7 +427,29 @@ export class VehicleService {
     });
     return vehicles;
   }
+  /**
+   * Recupera tutti i veicoli dal database in ordine, crea un oggetto DTO da restituire per la chiamata API
+   * @returns
+   */
+  async getAllVehiclesDTO(): Promise<any> {
+    const vehicles = await this.vehicleRepository.find({
+      relations: {
+        device: true,
+        worksite: true,
+      },
+      order: {
+        plate: 'ASC',
+      },
+    });
 
+    return vehicles.map((vehicle) => this.toDTO(vehicle));
+  }
+
+  /**
+   *
+   * @param plateNumber
+   * @returns
+   */
   async getVehicleByPlate(plateNumber: string) {
     const vehicle = await this.vehicleRepository.findOne({
       where: {
@@ -432,9 +457,13 @@ export class VehicleService {
       },
       relations: {
         device: true,
+        worksite: true,
+      },
+      order: {
+        plate: 'ASC',
       },
     });
-    return vehicle;
+    return this.toDTO(vehicle);
   }
 
   /**
@@ -442,14 +471,19 @@ export class VehicleService {
    * @param veId VeId
    * @returns
    */
-  async getVehicleById(veId: number): Promise<any> {
-    const vehicle = await this.vehicleRepository.findOne({
-      where: { veId: veId },
+  async getVehicleByVeId(veId: number[] | number): Promise<any> {
+    const veIdArray = Array.isArray(veId) ? veId : [veId];
+    const vehicles = await this.vehicleRepository.find({
+      where: { veId: In(veIdArray) },
       relations: {
         device: true,
+        worksite: true,
+      },
+      order: {
+        plate: 'ASC',
       },
     });
-    return vehicle;
+    return vehicles.map((vehicle) => this.toDTO(vehicle));
   }
 
   /**
@@ -526,23 +560,6 @@ export class VehicleService {
     return vehicles;
   }
   /**
-   * Recupera tutti i veicoli appartenenti allo stesso gruppo in base VgId
-   * @param id VgId
-   * @returns
-   */
-  // async getVehiclesByGroup(id: number): Promise<any> {
-  //   const vehicles = await this.vehicleGroupRepository.find({
-  //     where: { group: { vgId: id } },
-  //     relations: {
-  //       vehicle: true,
-  //     },
-  //     order: {
-  //       id: 'ASC',
-  //     },
-  //   });
-  //   return vehicles;
-  // }
-  /**
    * Recupera tutti i dispositivi
    * @returns
    */
@@ -564,5 +581,57 @@ export class VehicleService {
       where: { device_id: id },
     });
     return devices;
+  }
+
+  private toDTO(vehicle: VehicleEntity): any {
+    // Crea VehicleDTO
+    const vehicleDTO = new VehicleDTO();
+    vehicleDTO.id = vehicle.id;
+    vehicleDTO.veId = vehicle.veId;
+    vehicleDTO.active = vehicle.active;
+    vehicleDTO.plate = vehicle.plate;
+    vehicleDTO.model = vehicle.model;
+    vehicleDTO.firstEvent = vehicle.firstEvent ?? null;
+    vehicleDTO.lastEvent = vehicle.lastEvent ?? null;
+    vehicleDTO.lastSessionEvent = vehicle.lastSessionEvent ?? null;
+    vehicleDTO.retiredEvent = vehicle.retiredEvent ?? null;
+    vehicleDTO.isCan = vehicle.isCan;
+    vehicleDTO.isRFIDReader = vehicle.isRFIDReader;
+    vehicleDTO.allestimento = vehicle.allestimento ?? null;
+    vehicleDTO.relevant_company = vehicle.relevant_company ?? null;
+    vehicleDTO.profileId = vehicle.profileId;
+    vehicleDTO.profileName = vehicle.profileName;
+
+    // Crea DeviceDTO se esiste il device
+    let deviceDTO: DeviceDTO | null = null;
+    if (vehicle.device) {
+      deviceDTO = new DeviceDTO();
+      deviceDTO.device_id = vehicle.device.device_id;
+      deviceDTO.type = vehicle.device.type;
+      deviceDTO.serial_number = vehicle.device.serial_number;
+      deviceDTO.date_build = vehicle.device.date_build;
+      deviceDTO.fw_upgrade_disable = vehicle.device.fw_upgrade_disable;
+      deviceDTO.fw_id = vehicle.device.fw_id;
+      deviceDTO.fw_update = vehicle.device.fw_update ?? null;
+      deviceDTO.fw_upgrade_received = vehicle.device.fw_upgrade_received;
+      deviceDTO.rtc_battery_fail = vehicle.device.rtc_battery_fail;
+      deviceDTO.power_fail_detected = vehicle.device.power_fail_detected;
+      deviceDTO.power_on_off_detected = vehicle.device.power_on_off_detected;
+    }
+
+    // Crea WorksiteDTO se esiste il worksite
+    let worksiteDTO: WorksiteDTO | null = null;
+    if (vehicle.worksite) {
+      worksiteDTO = new WorksiteDTO();
+      worksiteDTO.id = vehicle.worksite.id;
+      worksiteDTO.name = vehicle.worksite.name;
+    }
+
+    // Restituisci l'oggetto combinato
+    return {
+      ...vehicleDTO,
+      device: deviceDTO,
+      worksite: worksiteDTO,
+    };
   }
 }
