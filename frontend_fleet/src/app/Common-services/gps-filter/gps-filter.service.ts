@@ -8,8 +8,6 @@ import { Vehicle } from '../../Models/Vehicle';
   providedIn: 'root'
 })
 export class GpsFilterService {
-  private readonly _updateCantieriFilterOptions$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
-
   private _allSelected = false;
 
   /**
@@ -50,9 +48,6 @@ export class GpsFilterService {
 
   public get filterTableByGps$(): BehaviorSubject<string[]> {
     return this._filterTableByGps$;
-  }
-  public get updateCantieriFilterOptions$(): BehaviorSubject<any[]> {
-    return this._updateCantieriFilterOptions$;
   }
   public get allSelected() {
     return this._allSelected;

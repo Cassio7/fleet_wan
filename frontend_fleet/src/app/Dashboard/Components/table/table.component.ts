@@ -20,6 +20,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { CantieriFilterService } from '../../../Common-services/cantieri-filter/cantieri-filter.service';
 import { PlateFilterService } from '../../../Common-services/plate-filter/plate-filter.service';
 import { GpsFilterService } from '../../../Common-services/gps-filter/gps-filter.service';
+import { SessionFilterService } from '../../../Common-services/session-filter/session-filter.service';
 
 @Component({
   selector: 'app-table',
@@ -67,6 +68,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     private gpsFilterService: GpsFilterService,
     private antennaFilterService: AntennaFilterService,
     private plateFilterService: PlateFilterService,
+    private sessionFilterService: SessionFilterService,
     private sessionStorageService: SessionStorageService,
     private sessionApiService: SessionApiService,
     private checkErrorsService: CheckErrorsService,
@@ -83,6 +85,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     this.handleCantiereFilter(); //Subscribe a scelta nel filtro dei cantieri
     this.handleGpsFilter();
     this.handleAntennaFilter();
+    this.handleSessionFilter();
 
 
     this.plateFilterService.filterByPlateResearch$.pipe(takeUntil(this.destroy$), skip(1))
@@ -227,6 +230,40 @@ export class TableComponent implements OnDestroy, AfterViewInit{
         this.loadGraphs(this.vehicleTableData.data);
       },
       error: error => console.error("Errore nel filtro delle antenne: ", error)
+    });
+  }
+
+  handleSessionFilter(){
+    this.sessionFilterService.filterTableBySessionStates$.pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (selections: string[]) => {
+        console.log("session selections: ", selections);
+        const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+        const sessionCheck = this.checkErrorsService.checkVehiclesSessionErrors(allVehicles); //[0] funzionante [1] error
+
+        let filteredVehicles: Vehicle[] = [];
+
+        if (selections.includes("all")) {
+          filteredVehicles = allVehicles;
+        } else {
+          if (selections.includes("Funzionante")) {
+            filteredVehicles = [...filteredVehicles, ...sessionCheck[0]];
+          }
+          if (selections.includes("Errore")) {
+            filteredVehicles = [...filteredVehicles, ...sessionCheck[1]];
+          }
+        }
+
+        filteredVehicles = filteredVehicles.filter((vehicle, index, self) =>
+          index === self.findIndex(v => v.veId === vehicle.veId)
+        );
+
+        this.vehicleTableData.data = selections.length > 0 ? filteredVehicles : [];
+
+        this.vehicleTable.renderRows();
+        this.loadGraphs(this.vehicleTableData.data);
+      },
+      error: error => console.error("Errore nel filtro per gli stati di sessione: ", error)
     });
   }
 

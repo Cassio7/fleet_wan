@@ -199,7 +199,7 @@ export class RowFilterComponent implements AfterViewInit{
   }
 
   selectSession(option: string){
-    const selectedSessionStates = this.gps.value || [];
+    const selectedSessionStates = this.sessionStates.value || [];
 
     if (option === "Seleziona tutto") {
       this.toggleSelectAllSession();
@@ -222,12 +222,13 @@ export class RowFilterComponent implements AfterViewInit{
     }
 
 
-    this.sessionFilterService.filterTableBySessionStates$.next(this.gps.value || []);//notifica il filtro alla tabella basato sulle opzioni selezionate
+    this.sessionFilterService.filterTableBySessionStates$.next(this.sessionStates.value || []);//notifica il filtro alla tabella basato sulle opzioni selezionate
     this.cd.detectChanges();
   }
 
   toggleSelectAllSession(){
-    if(this.sessionFilterService.toggleSelectAllSessionStates() == "all"){
+    const toggle = this.sessionFilterService.toggleSelectAllSessionStates();
+    if(toggle == "all"){
       this.sessionStates.setValue(["Seleziona tutto", "Funzionante", "Errore", "Nessuna sessione"]);
     }else{
       this.sessionStates.setValue([]);

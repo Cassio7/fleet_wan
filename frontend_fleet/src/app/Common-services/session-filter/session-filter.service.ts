@@ -5,8 +5,6 @@ import { BehaviorSubject } from 'rxjs';
   providedIn: 'root'
 })
 export class SessionFilterService {
-  private readonly _updateCantieriFilterOptions$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
-
   private _allSelected = false;
 
   /**
@@ -63,9 +61,6 @@ export class SessionFilterService {
 
   public get filterTableBySessionStates$(): BehaviorSubject<string[]> {
     return this._filterTableBySessionStates$;
-  }
-  public get updateCantieriFilterOptions$(): BehaviorSubject<any[]> {
-    return this._updateCantieriFilterOptions$;
   }
   public get allSelected() {
     return this._allSelected;
