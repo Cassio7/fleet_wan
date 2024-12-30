@@ -41,50 +41,23 @@ export class AnomalyController {
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
   ) {
-    const vehicles = (await this.associationService.getVehiclesByUserRole(
-      req.user.id,
-    )) as VehicleEntity[];
-    if (vehicles) {
-      const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
-      const datas = await this.anomalyService.getAllAnomaly(vehicleIds);
-      if (datas.length > 0) {
-        const vehicleMap = new Map();
-
-        datas.forEach((data) => {
-          const veId = data.vehicle.veId;
-
-          if (!vehicleMap.has(veId)) {
-            // First time seeing this vehicle, create initial entry
-            vehicleMap.set(veId, {
-              plate: data.vehicle.plate,
-              veId: data.vehicle.veId,
-              isCan: data.vehicle.isCan,
-              anomaliaSessione: data.session || null,
-              isRFIDReader: data.vehicle.isRFIDReader,
-              sessions: [],
-            });
-          }
-
-          // Add session to the vehicle's sessions
-          const vehicle = vehicleMap.get(veId);
-          vehicle.sessions.push({
-            date: data.date,
-            anomalies: {
-              Antenna: data.antenna || null,
-              GPS: data.gps || null,
-            },
-          });
-        });
-
-        // Convert map to array
-        const vehicles = Array.from(vehicleMap.values());
-
-        res.status(200).json(vehicles);
-      } else {
-        res.status(404).json({ message: 'Nessuna anomalia trovata' });
+    try {
+      const vehicles = (await this.associationService.getVehiclesByUserRole(
+        req.user.id,
+      )) as VehicleEntity[];
+      if (!vehicles || vehicles.length === 0) {
+        return res.status(404).json({ message: 'Nessun Veicolo associato' });
       }
-    } else
-      res.status(404).json({ message: 'Nessuna veicolo associato al utente' });
+      const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
+      const anomalies = await this.anomalyService.getAllAnomaly(vehicleIds);
+      if (!anomalies || anomalies.length === 0) {
+        return res.status(404).json({ message: 'Nessuna anomalia trovata' });
+      }
+      res.status(200).json(anomalies);
+    } catch (error) {
+      console.error('Errore nel recupero delle anomalie:', error);
+      res.status(500).json({ message: 'Errore nel recupero delle anomalie' });
+    }
   }
 
   /**
