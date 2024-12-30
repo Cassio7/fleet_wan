@@ -116,7 +116,11 @@ export class RowFilterComponent implements AfterViewInit{
       this.toggleSelectAllGps();
     }else{
       const selectedGpsStates = this.gps.value; //opzioni selezionate
-
+      //come se fosse stato premuto "tutto selezionato" nel caso vengano selezionate tutte le opzioni singolarmente
+      if (JSON.stringify(selectedGpsStates) === JSON.stringify(["Funzionante", "Warning", "Errore"])) {
+        this.antenne.setValue(["Seleziona tutto" ,"Funzionante", "Warning", "Errore"]);
+        this.antennaFilterService.allSelected = true;
+      }
       if(this.gpsFilterService.isGpsFilterAllSelected()) {
         this.gpsFilterService.allSelected = false;
       }
@@ -132,21 +136,31 @@ export class RowFilterComponent implements AfterViewInit{
    * Seleziona tutti i filtri del select delle antenne
    */
   selectAntenna(option: string) {
-    if(option=="Seleziona tutto"){
-      this.toggleSelectAllAntenne();
-    }else{
-      const selectedAntenne = this.antenne.value; //opzioni selezionate
+    const selectedAntenne = this.antenne.value || [];
 
-      if(this.antennaFilterService.isAntennaFilterAllSelected()) {
+    if (option === "Seleziona tutto") {
+      this.toggleSelectAllAntenne();
+    } else {
+      //Rimozione seleziona tutto
+      if (this.antennaFilterService.isAntennaFilterAllSelected()) {
         this.antennaFilterService.allSelected = false;
+        this.antenne.setValue(selectedAntenne.filter(selection => selection !== "Seleziona tutto"));
       }
-      //se è stato selezionato uno stato gps
-      if (selectedAntenne) {
-        this.antennaFilterService.filterTableByAntenna$.next(selectedAntenne);
+
+      const allOptions = ["Funzionante", "Errore", "Blackbox"];
+      const areAllSelected = allOptions.every(option => selectedAntenne.includes(option));
+      //Riaggiunta seleziona tutto
+      if (areAllSelected && !selectedAntenne.includes("Seleziona tutto")) {
+        selectedAntenne.push("Seleziona tutto");
+        this.antenne.setValue(selectedAntenne);
+        this.antennaFilterService.allSelected = true;
       }
-      this.cd.detectChanges();
     }
+
+    this.antennaFilterService.filterTableByAntenna$.next(this.antenne.value || []); //notifica di filtrare tabella in base al filtro delle antenne
+    this.cd.detectChanges();
   }
+
 
   /**
    * Seleziona tutti i filtri del select dei cantieri
@@ -171,7 +185,7 @@ export class RowFilterComponent implements AfterViewInit{
    */
   toggleSelectAllAntenne(){
     if(this.antennaFilterService.toggleSelectAllAntenne() == "all"){
-      this.antenne.setValue(["Seleziona tutto", "Funzionante", "Errore", "Blackbox", "Blackbox+antenna"]);
+      this.antenne.setValue(["Seleziona tutto", "Funzionante", "Errore", "Blackbox"]);
     }else{
       this.antenne.setValue([]);
     }
