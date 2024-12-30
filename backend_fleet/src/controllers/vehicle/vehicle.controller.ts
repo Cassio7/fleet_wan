@@ -4,27 +4,51 @@ import {
   Get,
   Param,
   Post,
+  Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
+import { VehicleEntity } from 'classes/entities/vehicle.entity';
+import { Role } from 'classes/enum/role.enum';
+import { UserFromToken } from 'classes/interfaces/userToken.interface';
 import { Response } from 'express';
+import { Roles } from 'src/decorators/roles.decorator';
 import { AuthGuard } from 'src/guard/auth.guard';
+import { RolesGuard } from 'src/guard/roles.guard';
+import { AssociationService } from 'src/services/association/association.service';
 import { VehicleService } from 'src/services/vehicle/vehicle.service';
 
+@UseGuards(AuthGuard, RolesGuard)
 @Controller('vehicles')
+@Roles(Role.Admin, Role.Responsabile, Role.Capo)
 export class VehicleController {
-  constructor(private readonly vehicleService: VehicleService) {}
+  constructor(
+    private readonly associationService: AssociationService,
+    private readonly vehicleService: VehicleService,
+  ) {}
 
   /**
-   * Recupera tutti i veicoli listati
+   * Ritorna tutti i veicoli in base all utente token utente che fa la richiesta
+   * @param req User token
    * @param res
+   * @returns
    */
-  //@UseGuards(AuthGuard)
   @Get()
-  async getAllVehicles(@Res() res: Response) {
+  async getAllVehicles(
+    @Req() req: Request & { user: UserFromToken },
+    @Res() res: Response,
+  ) {
     try {
-      const vehicles = await this.vehicleService.getAllVehicles();
-      if (vehicles.length > 0) res.status(200).json(vehicles);
+      const vehicles = (await this.associationService.getVehiclesByUserRole(
+        req.user.id,
+      )) as VehicleEntity[];
+      if (!vehicles || vehicles.length === 0) {
+        return res.status(404).json({ message: 'Nessun Veicolo associato' });
+      }
+      const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
+      const vehiclesOutput =
+        await this.vehicleService.getVehicleByVeId(vehicleIds);
+      if (vehiclesOutput.length > 0) res.status(200).json(vehiclesOutput);
       else res.status(404).json({ message: 'Nessun veicolo trovato' });
     } catch (error) {
       console.error('Errore nel recupero dei veicoli:', error);
@@ -138,21 +162,44 @@ export class VehicleController {
   }
 
   /**
-   * API per ritornare un veicolo in base al veId identificativo del veicolo
+   *  API per ritornare un veicolo in base al veId identificativo del veicolo
+   * @param req Utente token per controllo permessi
    * @param res
-   * @param params veId veicolo
+   * @param params VeId identificativo veicoli
+   * @returns
    */
-  @Get('/:id')
-  async getVehicleById(@Res() res: Response, @Param() params: any) {
+  @Get('/:veId')
+  async getVehicleById(
+    @Req() req: Request & { user: UserFromToken },
+    @Res() res: Response,
+    @Param() params: any,
+  ) {
     try {
-      const vehicle = await this.vehicleService.getVehicleById(params.id);
-      if (vehicle) {
-        res.status(200).json(vehicle);
-      } else {
-        res.status(404).json({
-          message: 'Nessun veicolo con veId: ' + params.id + ' trovato.',
+      const vehicles = (await this.associationService.getVehiclesByUserRole(
+        req.user.id,
+      )) as VehicleEntity[];
+
+      if (!vehicles || !Array.isArray(vehicles)) {
+        return res.status(404).json({ message: 'Nessun Veicolo associato' });
+      }
+      const vehicle = await this.vehicleService.getVehicleByVeId([params.veId]);
+      if (!vehicle || vehicle.length === 0) {
+        return res.status(404).json({
+          message: 'Nessun veicolo con veId: ' + params.veId + ' trovato.',
         });
       }
+
+      const vehicleCheck = vehicles.find(
+        (element) => element.veId === Number(params.veId),
+      );
+
+      if (!vehicleCheck) {
+        return res.status(404).json({
+          message: `Non hai i permessi per visualizzare il veicolo con VeId: ${params.veId}`,
+        });
+      }
+
+      res.status(200).json(vehicle);
     } catch (error) {
       console.error('Errore nel recupero del veicolo:', error);
       res
@@ -160,15 +207,4 @@ export class VehicleController {
         .json({ message: 'Errore durante il recupero del veicolo' });
     }
   }
-
-  // @Get('group/:id')
-  // async getVehiclesByGroup(@Res() res: Response, @Param() params: any) {
-  //   try {
-  //     const vehicles = await this.vehicleService.getVehiclesByGroup(params.id);
-  //     res.status(200).json(vehicles);
-  //   } catch (error) {
-  //     console.error('Errore nel recupero dei veicoli:', error);
-  //     res.status(500).send('Errore durante il recupero dei veicoli');
-  //   }
-  // }
 }
