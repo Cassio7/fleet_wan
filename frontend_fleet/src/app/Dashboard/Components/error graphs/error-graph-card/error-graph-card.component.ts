@@ -1,5 +1,5 @@
 import { ErrorGraphsService } from './../../../Services/error-graphs/error-graphs.service';
-import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy, ViewChild } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { ErrorBarGraphComponent } from "../error-bar-graph/error-bar-graph.component";
 import { Router } from '@angular/router';
@@ -15,7 +15,6 @@ import { first, skip, Subject, takeUntil } from 'rxjs';
   imports: [
     CommonModule,
     MatCardModule,
-    ErrorBarGraphComponent,
     ErrorPieGraphComponent,
     MatSelectModule,
     MatOptionModule
@@ -26,12 +25,11 @@ import { first, skip, Subject, takeUntil } from 'rxjs';
 export class ErrorGraphCardComponent implements AfterViewInit, OnDestroy{
   @ViewChild('graphSelect') graphSelect!: MatSelect;
   private destroy$: Subject<void> = new Subject<void>();
-  private _series: number[] = [];
+  @Input() errorGraphTitle: string = "";
   pieGraph: boolean = true;
   barGraph: boolean = false;
 
   constructor(
-    private errorGraphsService: ErrorGraphsService,
     private cd: ChangeDetectorRef
   ){}
 

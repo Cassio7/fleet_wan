@@ -14,7 +14,6 @@ import { BlackboxPieGraphComponent } from "../blackbox-pie-graph/blackbox-pie-gr
     MatCardModule,
     MatSelectModule,
     MatFormFieldModule,
-    BlackboxBarGraphComponent,
     BlackboxPieGraphComponent
 ],
   templateUrl: './blackbox-graph-card.component.html',

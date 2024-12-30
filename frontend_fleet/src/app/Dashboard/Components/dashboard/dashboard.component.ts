@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectorRef, Component } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -18,6 +18,7 @@ import { KanbanGpsService } from '../../Services/kanban-gps/kanban-gps.service';
 import { KanbanAntennaComponent } from "../kanban-antenna/kanban-antenna.component";
 import { KanbanAntennaService } from '../../Services/kanban-antenna/kanban-antenna.service';
 import { KanbanTableService } from '../../Services/kanban-table/kanban-table.service';
+import { ErrorGraphsService } from '../../Services/error-graphs/error-graphs.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -46,7 +47,10 @@ import { KanbanTableService } from '../../Services/kanban-table/kanban-table.ser
   styleUrl: './dashboard.component.css'
 })
 export class DashboardComponent implements AfterViewInit{
+  @ViewChild('graphs') graphs!: ElementRef;
   private readonly destroy$: Subject<void> = new Subject<void>();
+
+  errorGraphTitle: string = "GPS";
 
   private _table: boolean = true;
   private _kanbanGps: boolean = false;
@@ -55,6 +59,7 @@ export class DashboardComponent implements AfterViewInit{
 
   constructor(
     private kabanGpsService: KanbanGpsService,
+    private errorGraphService: ErrorGraphsService,
     private KanbanAntennaService: KanbanAntennaService,
     private kanbanTableService: KanbanTableService,
     private cd: ChangeDetectorRef
@@ -62,10 +67,13 @@ export class DashboardComponent implements AfterViewInit{
 
   }
   ngAfterViewInit(): void {
+    this.errorGraphTitle = this.errorGraphService.graphTitle;
     this.kanbanTableService.loadKabanTable$.pipe(takeUntil(this.destroy$))
     .subscribe({
       next: () => {
         this.displayComponent("table"); //display del componente scelto dal kebab menu
+        this.graphs.nativeElement.style.pointerEvents = 'auto';
+        this.errorGraphTitle = this.errorGraphService.graphTitle = "GPS";//impostazione titolo del grafico
       },
       error: error => console.error("Errore nel caricamento del kaban gps: ", error)
     });
@@ -73,6 +81,8 @@ export class DashboardComponent implements AfterViewInit{
     .subscribe({
       next: () => {
         this.displayComponent("GPS"); //display del componente scelto dal kebab menu
+        this.graphs.nativeElement.style.pointerEvents = 'none';//disabilita click su grafico
+        this.errorGraphTitle = this.errorGraphService.graphTitle = "GPS";//impostazione titolo del grafico
       },
       error: error => console.error("Errore nel caricamento del kaban gps: ", error)
     });
@@ -80,10 +90,12 @@ export class DashboardComponent implements AfterViewInit{
     .subscribe({
       next: () => {
         this.displayComponent("antenna"); //display del componente scelto dal kebab menu
+        this.graphs.nativeElement.style.pointerEvents = 'none';//disabilita click su grafico
+        this.errorGraphTitle = this.errorGraphService.graphTitle = "Antenna";
       },
       error: error => console.error("Errore nel caricamento del kaban gps: ", error)
     });
-
+    this.cd.detectChanges();
   }
 
   private displayComponent(pageName: string){

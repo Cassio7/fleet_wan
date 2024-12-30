@@ -14,23 +14,17 @@ interface ErrorsData {
   providedIn: 'root'
 })
 export class ErrorGraphsService{
-  /**
-   * carica grafico degli errori con una series
-   */
-  private _loadGraphData$: BehaviorSubject<number[]> = new BehaviorSubject<number[]>([]);
-  /**
-   * trasporta i dati dei veicoli funzionanti
-   */
-  private _loadFunzionanteData$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
-  /**
-   * trasporta i dati dei veicoli in warning
-   */
-  private _loadWarningData$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
-  /**
-   * trasporta i dati dei veicoli in errore
-   */
-  private _loadErrorData$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
+  //carica grafico degli errori con una series
+  private readonly _loadGraphData$: BehaviorSubject<number[]> = new BehaviorSubject<number[]>([]);
+  //trasporta i dati dei veicoli funzionanti
+  private readonly _loadFunzionanteData$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
+  //trasporta i dati dei veicoli in warning
+  private readonly _loadWarningData$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
+  //trasporta i dati dei veicoli in errore
+  private readonly _loadErrorData$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
 
+
+  private _graphTitle = "GPS";
   private _series = [0,0,0];//[funzionante, warning, error]
   private _colors = ["#5C9074", "#ffcc00", "#d12717"];
   private _height = 400;
@@ -201,6 +195,12 @@ export class ErrorGraphsService{
 
 
   /*getters & setters*/
+  public get graphTitle() {
+    return this._graphTitle;
+  }
+  public set graphTitle(value) {
+    this._graphTitle = value;
+  }
   public get width() {
     return this._width;
   }
