@@ -140,11 +140,11 @@ export class CantieriFilterService{
   }
 
   /**
-   * Aggiunge i cantieri dei veicoli passati alle opzioni del select dei cantieri
+   * Seleziona i cantieri dei veicoli passati
    * @param vehicles veicoli da cui prendere i cantieri
-   * @returns lista dei cantieri presenti nel select
+   * @returns lista dei cantieri selezionati
    */
-  updateListaCantieri(vehicles: Vehicle[], ): string[]{
+  updateListaCantieri(vehicles: Vehicle[]): string[]{
     if (Array.isArray(vehicles) && vehicles.length > 0) {
       const firstElement = this.listaCantieri[0] || null; // Elemento preesistente o null
       const newCantieri = this.fillSelect(vehicles);

@@ -3,7 +3,7 @@
   <mat-progress-bar mode="determinate" [value]="loadingProgress" class="loading-bar"></mat-progress-bar>
 </div>
 <div class="table-container">
-  <table *ngIf="vehicleTableData" #vehicleTable mat-table [dataSource]="vehicleTableData" matSort (matSortChange)="onSortChange($event)">
+  <table #vehicleTable mat-table [dataSource]="vehicleTableData" matSort (matSortChange)="onSortChange($event)">
     <!-- Tipologia column -->
     <ng-container matColumnDef="tipologia">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Tipologia </th>

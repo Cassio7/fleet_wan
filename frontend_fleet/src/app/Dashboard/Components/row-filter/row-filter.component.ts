@@ -17,15 +17,6 @@ import { CantieriFilterService } from '../../../Common-services/cantieri-filter/
 import { GpsFilterService } from '../../../Common-services/gps-filter/gps-filter.service';
 import { AntennaFilterService } from '../../../Common-services/antenna-filter/antenna-filter.service';
 
-
-export interface activeFilters{
-  plate: string,
-  cantieri: string[],
-  gps: string[],
-  antenna: string[],
-  sessione: string[]
-};
-
 @Component({
   selector: 'app-row-filter',
   standalone: true,
@@ -92,6 +83,13 @@ export class RowFilterComponent implements AfterViewInit{
     .subscribe({
       next: (vehicles: any[]) => {
         this.cantieriFilterService.updateListaCantieri(vehicles);
+      }
+    });
+
+    this.gpsFilterService.updateGpsFilterOptions$.pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next: (selectedOptions: string[]) => {
+        this.gps.setValue(selectedOptions);
       }
     });
 
