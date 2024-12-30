@@ -155,6 +155,12 @@ export class RealtimeController {
       if (!vehicles || !Array.isArray(vehicles)) {
         return res.status(404).json({ message: 'Nessun Veicolo associato' });
       }
+      const times = await this.realtimeService.getTimesByVeId([params.veId]);
+      if (!times || times.length === 0) {
+        return res.status(404).json({
+          message: `Nessun realtime recuperato per Veicolo: ${params.veId}`,
+        });
+      }
 
       const vehicle = vehicles.find(
         (element) => element.veId === Number(params.veId),
@@ -163,12 +169,6 @@ export class RealtimeController {
       if (!vehicle) {
         return res.status(404).json({
           message: `Non hai i permessi per visualizzare il veicolo con VeId: ${params.veId}`,
-        });
-      }
-      const times = await this.realtimeService.getTimesByVeId([vehicle.veId]);
-      if (!times || times.length === 0) {
-        return res.status(404).json({
-          message: `Nessun realtime recuperato per Veicolo: ${params.veId}`,
         });
       }
 
