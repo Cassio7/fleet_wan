@@ -32,11 +32,12 @@ export class AnomalyService {
   /**
    * Recupera tutte le anomalie salvate
    */
-  async getAllAnomaly(veId: number[]): Promise<any> {
+  async getAllAnomaly(veId: number[] | number): Promise<any> {
+    const veIdArray = Array.isArray(veId) ? veId : [veId];
     const anomalies = this.anomalyRepository.find({
       where: {
         vehicle: {
-          veId: In(veId),
+          veId: In(veIdArray),
         },
       },
       relations: {
@@ -73,7 +74,7 @@ export class AnomalyService {
       .orderBy('vehicle.plate', 'ASC')
       .getMany();
 
-    return anomalies;
+    return this.toDTO(anomalies);
   }
 
   /**
@@ -82,12 +83,13 @@ export class AnomalyService {
    * @param date data da controllare
    * @returns
    */
-  async getAnomalyByDate(veId: number[], date: Date): Promise<any> {
+  async getAnomalyByDate(veId: number[] | number, date: Date): Promise<any> {
+    const veIdArray = Array.isArray(veId) ? veId : [veId];
     date.setHours(0, 0, 0, 0);
     const anomalies = await this.anomalyRepository.find({
       where: {
         vehicle: {
-          veId: In(veId),
+          veId: In(veIdArray),
         },
         date: date,
       },
@@ -101,40 +103,7 @@ export class AnomalyService {
       },
     });
 
-    return anomalies.reduce(
-      (acc, anomaly) => {
-        // Trova il gruppo del veicolo esistente o ne crea uno nuovo
-        let vehicleGroup = acc.find(
-          (group) => group.vehicle.veId === anomaly.vehicle.veId,
-        );
-
-        if (!vehicleGroup) {
-          const vehicleDTO = new VehicleDTO();
-          vehicleDTO.plate = anomaly.vehicle.plate;
-          vehicleDTO.veId = anomaly.vehicle.veId;
-          vehicleDTO.isRFIDReader = anomaly.vehicle.isRFIDReader;
-
-          vehicleGroup = {
-            vehicle: vehicleDTO,
-            anomalies: [],
-          };
-          acc.push(vehicleGroup);
-        }
-
-        const anomalyDTO = new AnomalyDTO();
-        // Assumo che questi siano i campi dell'AnomalyDTO, adattali secondo la tua implementazione
-        anomalyDTO.date = anomaly.date;
-        anomalyDTO.gps = anomaly.gps;
-        anomalyDTO.antenna = anomaly.antenna;
-        anomalyDTO.session = anomaly.session;
-        // ... altri campi dell'anomalia ...
-
-        vehicleGroup.anomalies.push(anomalyDTO);
-
-        return acc;
-      },
-      [] as Array<{ vehicle: VehicleDTO; anomalies: AnomalyDTO[] }>,
-    );
+    return this.toDTO(anomalies);
   }
 
   /**
@@ -145,16 +114,17 @@ export class AnomalyService {
    * @returns
    */
   async getAnomalyByDateRange(
-    veId: number[],
+    veId: number[] | number,
     dateFrom: Date,
     dateTo: Date,
   ): Promise<any> {
+    const veIdArray = Array.isArray(veId) ? veId : [veId];
     dateFrom.setHours(0, 0, 0, 0);
     dateTo.setHours(0, 0, 0, 0);
     const anomalies = await this.anomalyRepository.find({
       where: {
         vehicle: {
-          veId: In(veId),
+          veId: In(veIdArray),
         },
         date: Between(dateFrom, dateTo),
       },
@@ -167,40 +137,7 @@ export class AnomalyService {
         },
       },
     });
-    return anomalies.reduce(
-      (acc, anomaly) => {
-        // Trova il gruppo del veicolo esistente o ne crea uno nuovo
-        let vehicleGroup = acc.find(
-          (group) => group.vehicle.veId === anomaly.vehicle.veId,
-        );
-
-        if (!vehicleGroup) {
-          const vehicleDTO = new VehicleDTO();
-          vehicleDTO.plate = anomaly.vehicle.plate;
-          vehicleDTO.veId = anomaly.vehicle.veId;
-          vehicleDTO.isRFIDReader = anomaly.vehicle.isRFIDReader;
-
-          vehicleGroup = {
-            vehicle: vehicleDTO,
-            anomalies: [],
-          };
-          acc.push(vehicleGroup);
-        }
-
-        const anomalyDTO = new AnomalyDTO();
-        // Assumo che questi siano i campi dell'AnomalyDTO, adattali secondo la tua implementazione
-        anomalyDTO.date = anomaly.date;
-        anomalyDTO.gps = anomaly.gps;
-        anomalyDTO.antenna = anomaly.antenna;
-        anomalyDTO.session = anomaly.session;
-        // ... altri campi dell'anomalia ...
-
-        vehicleGroup.anomalies.push(anomalyDTO);
-
-        return acc;
-      },
-      [] as Array<{ vehicle: VehicleDTO; anomalies: AnomalyDTO[] }>,
-    );
+    return this.toDTO(anomalies);
   }
   /**
    * Imposta le anomalie di ieri su Redis per recupero veloce
@@ -340,7 +277,7 @@ export class AnomalyService {
    * @param dateTo Data fine ricerca
    * @returns
    */
-  private async checkGPS(dateFrom: Date, dateTo: Date) {
+  async checkGPS(dateFrom: Date, dateTo: Date) {
     const validation = validateDateRange(
       dateFrom.toISOString(),
       dateTo.toISOString(),
@@ -352,7 +289,7 @@ export class AnomalyService {
     const daysInRange = getDaysInRange(new Date(dateFrom), new Date(dateTo));
     const vehicles = await this.vehicleService.getAllVehicles();
 
-    const anomaliesForAllVehicles = await Promise.all(
+    const resultsForAllVehicles = await Promise.all(
       vehicles.map(async (vehicle) => {
         const vehicleCheck = {
           plate: vehicle.plate,
@@ -362,7 +299,7 @@ export class AnomalyService {
           sessions: [],
         };
 
-        const anomaliesForVehicle = await Promise.all(
+        const sessionsForVehicle = await Promise.all(
           daysInRange.slice(0, -1).map(async (day) => {
             const dateto = new Date(day);
             dateto.setHours(23, 59, 59, 0);
@@ -372,7 +309,6 @@ export class AnomalyService {
               day,
               dateto,
             );
-
             if (datas.length === 0) return null;
 
             const coordinates = datas.flatMap((data) =>
@@ -384,7 +320,7 @@ export class AnomalyService {
 
             if (coordinates.length <= 4) return null;
 
-            const sessions = {
+            const session = {
               date: day,
               anomalies: [],
             };
@@ -414,7 +350,7 @@ export class AnomalyService {
                   (distance) => distance === 0,
                 );
                 if (hasDistanceAnomaly) {
-                  sessions.anomalies.push(
+                  session.anomalies.push(
                     `Anomalia tachimetro, distanza sempre uguale a ${distanceMap[0]}`,
                   );
                 }
@@ -425,38 +361,43 @@ export class AnomalyService {
                   ) || distanceMap.every((distance) => distance === 0);
 
                 if (hasDistanceAnomaly && isCoordinatesFixed) {
-                  sessions.anomalies.push(
+                  session.anomalies.push(
                     `Anomalia totale, distanza: ${distanceMap[0]} e lat: ${coordinates[0].latitude} e lon: ${coordinates[0].longitude}`,
                   );
-                  // Return early to avoid duplicate coordinate anomaly message
-                  return sessions;
+                  return session;
                 }
               }
             }
 
             // Add coordinate-related anomalies
             if (isCoordinatesFixed) {
-              sessions.anomalies.push(
+              session.anomalies.push(
                 `Anomalia coordinate, sempre uguali a lat: ${coordinates[0].latitude} e lon: ${coordinates[0].longitude}`,
               );
             } else if (hasZeroCoordinatesAnomaly) {
-              sessions.anomalies.push(
+              session.anomalies.push(
                 `Anomalia coordinate con lat: 0 e lon: 0 sopra al 20%`,
               );
             }
 
-            return sessions.anomalies.length > 0 ? sessions : null;
+            // Return session with either anomalies or null anomalies for good sessions
+            return {
+              ...session,
+              anomalies:
+                session.anomalies.length > 0 ? session.anomalies : null,
+            };
           }),
         );
 
-        vehicleCheck.sessions = anomaliesForVehicle.filter(
+        vehicleCheck.sessions = sessionsForVehicle.filter(
           (session) => session !== null,
         );
         return vehicleCheck;
       }),
     );
 
-    return anomaliesForAllVehicles.filter(
+    // Return vehicles that have any sessions (good or with anomalies)
+    return resultsForAllVehicles.filter(
       (item) => Array.isArray(item.sessions) && item.sessions.length > 0,
     );
   }
@@ -741,5 +682,44 @@ export class AnomalyService {
     }
     if (mergedData.length > 0) return mergedData;
     else return false;
+  }
+
+  private toDTO(
+    anomalies: AnomalyEntity[],
+  ): Array<{ vehicle: VehicleDTO; anomalies: AnomalyDTO[] }> {
+    return anomalies.reduce(
+      (acc, anomaly) => {
+        // Trova il gruppo del veicolo esistente o ne crea uno nuovo
+        let vehicleGroup = acc.find(
+          (group) => group.vehicle.veId === anomaly.vehicle.veId,
+        );
+
+        if (!vehicleGroup) {
+          const vehicleDTO = new VehicleDTO();
+          vehicleDTO.plate = anomaly.vehicle.plate;
+          vehicleDTO.veId = anomaly.vehicle.veId;
+          vehicleDTO.isRFIDReader = anomaly.vehicle.isRFIDReader;
+
+          vehicleGroup = {
+            vehicle: vehicleDTO,
+            anomalies: [],
+          };
+          acc.push(vehicleGroup);
+        }
+
+        // Crea e mappa il DTO per l'anomalia
+        const anomalyDTO = new AnomalyDTO();
+        anomalyDTO.date = anomaly.date;
+        anomalyDTO.gps = anomaly.gps;
+        anomalyDTO.antenna = anomaly.antenna;
+        anomalyDTO.session = anomaly.session;
+        // Aggiungi altri campi se necessari
+
+        vehicleGroup.anomalies.push(anomalyDTO);
+
+        return acc;
+      },
+      [] as Array<{ vehicle: VehicleDTO; anomalies: AnomalyDTO[] }>,
+    );
   }
 }
