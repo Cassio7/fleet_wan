@@ -79,6 +79,10 @@ export class KanbanFiltersComponent implements AfterViewInit{
     }
   }
 
+  /**
+   * Gestisce la selezione di un cantiere nel menù apposito
+   * @param option opzione selezionata
+   */
   selectCantiere(option: string) {
     if(option=="Seleziona tutto"){
       this.toggleSelectAllCantieri();

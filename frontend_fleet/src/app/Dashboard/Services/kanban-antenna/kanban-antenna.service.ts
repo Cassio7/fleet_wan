@@ -37,6 +37,10 @@ export class KanbanAntennaService {
     }
   }
 
+  /**
+   * Imposta i dati delle colonne del kanban delle antenne
+   * @param vehicles elementi con cui riempire le colonne
+   */
   setKanbanData(vehicles: Vehicle[]){
     const antennaSeries = this.checkErrorsService.checkVehiclesAntennaErrors(vehicles);
     this.workingVehicles = antennaSeries[0];

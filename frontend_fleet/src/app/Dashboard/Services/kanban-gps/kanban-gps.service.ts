@@ -36,7 +36,7 @@ export class KanbanGpsService{
 
   /**
    * Imposta i dati delle colonne del kanban
-   * @param vehicles veicoli da suddividere nelle colonne
+   * @param vehicles elementi con cui riempire le colonne
    */
   setKanbanData(vehicles: Vehicle[]){
     const series = this.checkErrorsService.checkVehiclesGpsErrors(vehicles);//recupero dati dei veicoli controllati

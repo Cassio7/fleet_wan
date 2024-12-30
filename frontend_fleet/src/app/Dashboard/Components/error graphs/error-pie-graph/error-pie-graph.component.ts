@@ -103,14 +103,21 @@ export class ErrorPieGraphComponent implements AfterViewInit, OnDestroy{
     };
   }
 
+  /**
+   * Click sulla fetta "funzionante" del grafico
+   */
   workingClick() {
     this.errorGraphsService.workingClick();
   }
-
+  /**
+   * Click sulla fetta "warning" del grafico
+   */
   warningClick() {
     this.errorGraphsService.warningClick();
   }
-
+  /**
+   * Click sulla fetta "error" del grafico
+   */
   errorClick() {
     this.errorGraphsService.errorClick();
   }

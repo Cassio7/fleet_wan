@@ -30,6 +30,11 @@ export class KebabMenuComponent{
     private kanbanAntennaService: KanbanAntennaService
   ){}
 
+  /**
+   * Gestisce il comportamento alla selezione di un'opzione nel kebab menu,
+   * caricando la sezione corrispondente
+   * @param value valore selezionato
+   */
   chooseKebabMenuOption(value: string){
     switch(value){
       case "table":
