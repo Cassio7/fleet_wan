@@ -160,13 +160,13 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     this.gpsFilterService.filterTableByGps$.pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (selections: string[]) => {
-          const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-          const gpsCheckSeries = this.checkErrorsService.checkVehiclesGpsErrors(allVehicles); //[0] funzionante [1] warning [2] error
+          const tableVehicles = JSON.parse(this.sessionStorageService.getItem("tableData"));
+          const gpsCheckSeries = this.checkErrorsService.checkVehiclesGpsErrors(tableVehicles); //[0] funzionante [1] warning [2] error
 
           let filteredVehicles: Vehicle[] = [];
 
           if (selections.includes("all")) {
-            filteredVehicles = allVehicles;
+            filteredVehicles = tableVehicles;
           } else {
             if (selections.includes("Funzionante")) {
               filteredVehicles = [...filteredVehicles, ...gpsCheckSeries[0]];
@@ -197,13 +197,13 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     this.antennaFilterService.filterTableByAntenna$.pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (selections: string[]) => {
-        const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-        const antennaCheck = this.checkErrorsService.checkVehiclesAntennaErrors(allVehicles);
-        const vehiclesBlackboxData = this.blackboxGraphService.getAllRFIDVehicles(allVehicles);
+        const tableVehicles = JSON.parse(this.sessionStorageService.getItem("tableData"));
+        const antennaCheck = this.checkErrorsService.checkVehiclesAntennaErrors(tableVehicles);
+        const vehiclesBlackboxData = this.blackboxGraphService.getAllRFIDVehicles(tableVehicles);
         let filteredVehicles: Vehicle[] = [];
 
         if (selections.includes("all")) {
-          filteredVehicles = allVehicles;
+          filteredVehicles = tableVehicles;
         } else {
           if (selections.includes("Blackbox")) {
             filteredVehicles = [...filteredVehicles, ...vehiclesBlackboxData.blackboxOnly];
@@ -238,13 +238,13 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     .subscribe({
       next: (selections: string[]) => {
         console.log("session selections: ", selections);
-        const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-        const sessionCheck = this.checkErrorsService.checkVehiclesSessionErrors(allVehicles); //[0] funzionante [1] error
+        const tableVehicles = JSON.parse(this.sessionStorageService.getItem("tableData"));
+        const sessionCheck = this.checkErrorsService.checkVehiclesSessionErrors(tableVehicles); //[0] funzionante [1] error
 
         let filteredVehicles: Vehicle[] = [];
 
         if (selections.includes("all")) {
-          filteredVehicles = allVehicles;
+          filteredVehicles = tableVehicles;
         } else {
           if (selections.includes("Funzionante")) {
             filteredVehicles = [...filteredVehicles, ...sessionCheck[0]];
