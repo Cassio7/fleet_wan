@@ -292,7 +292,7 @@ export class AppService implements OnModuleInit {
   }
 
   /**
-   * Imposta le anomalies su redis del giorno precedente e di oggi
+   * Imposta le anomalies su redis del giorno precedente, di oggi ed anche il last
    */
   //@Cron('02 2 * * *')
   async setAnomaly() {
@@ -316,8 +316,10 @@ export class AppService implements OnModuleInit {
       vehicleIds,
       now,
     );
+    const lastAnomalies = await this.anomalyService.getLastAnomaly(vehicleIds);
     await this.anomalyService.setDayBeforeAnomalyRedis(yesterdayAnomalies);
     await this.anomalyService.setTodayAnomalyRedis(todayAnomalies);
+    await this.anomalyService.setLastAnomalyRedis(lastAnomalies);
   }
 
   //@Cron('*/5 * * * *')
