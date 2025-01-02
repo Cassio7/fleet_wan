@@ -133,13 +133,15 @@ export class TableComponent implements OnDestroy, AfterViewInit{
 
           if (errorSlice) {
             const errorGraphVehicles = this.blackboxGraphService.checkErrorGraphSlice();
-            vehicles = this.cantieriFilterService.filterVehiclesByCantieri(errorGraphVehicles, cantieri) as any[];
+            vehicles = this.cantieriFilterService.filterVehiclesByCantieri(errorGraphVehicles, cantieri) as Vehicle[];
           } else if (blackboxSlice) {
             const blackboxgraphVehicles = this.errorGraphService.checkBlackBoxSlice();
-            vehicles = this.cantieriFilterService.filterVehiclesByCantieri(blackboxgraphVehicles, cantieri) as any[];
+            vehicles = this.cantieriFilterService.filterVehiclesByCantieri(blackboxgraphVehicles, cantieri) as Vehicle[];
           } else {
             const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-            vehicles = this.cantieriFilterService.filterVehiclesByCantieri(allVehicles, cantieri) as any[];
+            const tableVehicles = JSON.parse(this.sessionStorageService.getItem("tableData"));
+            const actualVehicles = (tableVehicles && tableVehicles.length > 0) ? tableVehicles : allVehicles;
+            vehicles = this.cantieriFilterService.filterVehiclesByCantieri(actualVehicles, cantieri) as Vehicle[];
           }
 
           this.vehicleTableData.data = vehicles;
@@ -160,13 +162,16 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     this.gpsFilterService.filterTableByGps$.pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (selections: string[]) => {
+          const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
           const tableVehicles = JSON.parse(this.sessionStorageService.getItem("tableData"));
-          const gpsCheckSeries = this.checkErrorsService.checkVehiclesGpsErrors(tableVehicles); //[0] funzionante [1] warning [2] error
+
+          const vehicles = (tableVehicles && tableVehicles.length > 0) ? tableVehicles : allVehicles;
+          const gpsCheckSeries = this.checkErrorsService.checkVehiclesGpsErrors(vehicles); //[0] funzionante [1] warning [2] error
 
           let filteredVehicles: Vehicle[] = [];
 
           if (selections.includes("all")) {
-            filteredVehicles = tableVehicles;
+            filteredVehicles = vehicles;
           } else {
             if (selections.includes("Funzionante")) {
               filteredVehicles = [...filteredVehicles, ...gpsCheckSeries[0]];
@@ -200,7 +205,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
         const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
         const tableVehicles = JSON.parse(this.sessionStorageService.getItem("tableData"));
 
-        let vehicles = (tableVehicles && tableVehicles.length > 0) ? tableVehicles : allVehicles;
+        const vehicles = (tableVehicles && tableVehicles.length > 0) ? tableVehicles : allVehicles;
 
         const antennaCheck = this.checkErrorsService.checkVehiclesAntennaErrors(vehicles);
         const vehiclesBlackboxData = this.blackboxGraphService.getAllRFIDVehicles(vehicles);
