@@ -4,7 +4,8 @@
   </mat-card-header>
   <mat-card-content>
     <div class="graph">
-      <app-pie-error-graph></app-pie-error-graph>
+      <app-pie-error-graph *ngIf="errorsGraph"></app-pie-error-graph>
+      <app-gps-graph *ngIf="gpsGraph"></app-gps-graph>
     </div>
   </mat-card-content>
 </mat-card>

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { Vehicle } from '../../../Models/Vehicle';
 import { CheckErrorsService } from '../check-errors/check-errors.service';
+import { BlackboxGraphsService } from '../blackbox-graphs/blackbox-graphs.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,27 +13,28 @@ export class KanbanAntennaService {
 
 
   workingVehicles: Vehicle[] = [];
-  warningVehicles: Vehicle[] = [];
+  blackboxVehicles: Vehicle[] = [];
   errorVehicles: Vehicle[] = [];
 
   constructor(
     private checkErrorsService: CheckErrorsService,
+    private blackboxGraphService: BlackboxGraphsService
   ) { }
 
   /**
    * Aggiunge un item ad una colonna del kanban GPS
    * @param column colonna sulla quale aggiungere
    */
-  addVehicle(column: 'working' | 'warning' | 'error', vehicle: Vehicle) {
+  addVehicle(column: 'working' | 'error' | 'blackbox', vehicle: Vehicle) {
     switch (column) {
       case 'working':
         this.workingVehicles.push(vehicle);
         break;
-      case 'warning':
-        this.warningVehicles.push(vehicle);
-        break;
       case 'error':
         this.errorVehicles.push(vehicle);
+        break;
+      case 'blackbox':
+        this.blackboxVehicles.push(vehicle);
         break;
     }
   }
@@ -45,6 +47,7 @@ export class KanbanAntennaService {
     const antennaSeries = this.checkErrorsService.checkVehiclesAntennaErrors(vehicles);
     this.workingVehicles = antennaSeries[0];
     this.errorVehicles = antennaSeries[2];
+    this.blackboxVehicles = this.blackboxGraphService.getAllRFIDVehicles(vehicles).blackboxOnly;
   }
 
   /**
@@ -52,7 +55,7 @@ export class KanbanAntennaService {
    */
   clearVehicles(){
     this.workingVehicles = [];
-    this.warningVehicles = [];
+    this.blackboxVehicles = [];
     this.errorVehicles = [];
   }
 

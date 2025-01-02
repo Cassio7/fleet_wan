@@ -3,9 +3,6 @@ import { MatCardModule } from '@angular/material/card';
 import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, ViewChild, ViewEncapsulation } from '@angular/core';
 import { ApexChart, ApexNonAxisChartSeries, ApexResponsive, ChartComponent, NgApexchartsModule } from "ng-apexcharts";
 import { skip, Subject, takeUntil } from 'rxjs';
-import { VehiclesApiService } from '../../../../Common-services/vehicles api service/vehicles-api.service';
-import { SessionStorageService } from '../../../../Common-services/sessionStorage/session-storage.service';
-import { Vehicle } from '../../../../Models/Vehicle';
 
 // export type ChartOptions = {
 //   series: ApexNonAxisChartSeries;

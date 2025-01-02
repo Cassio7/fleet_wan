@@ -5,7 +5,7 @@
       <p class="graphs-subtitle">Dati aggiornati sul parco mezzi</p>
     </div>
     <div class="graphs" #graphs>
-      <div class="error-graph"><app-error-graph-card [errorGraphTitle]="errorGraphTitle"></app-error-graph-card></div>
+      <div class="error-graph"><app-error-graph-card [errorGraphTitle]="'GPS'"></app-error-graph-card></div>
       <div class="blackbox-graph"><app-blackbox-graph-card *ngIf="table"></app-blackbox-graph-card></div>
     </div>
   </div>

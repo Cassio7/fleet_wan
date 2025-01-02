@@ -138,6 +138,7 @@ export class RowFilterComponent implements AfterViewInit{
    * @param option opzione selezionata
    */
   selectGps(option: string) {
+    const tableData = this.sessionStorageService.getItem("tableData");
     const selectedGpsStates = this.gps.value || [];
 
     if (option === "Seleziona tutto") {
@@ -159,7 +160,6 @@ export class RowFilterComponent implements AfterViewInit{
         this.gpsFilterService.allSelected = true;
       }
     }
-
 
     this.gpsFilterService.filterTableByGps$.next(this.gps.value || []);//notifica il filtro alla tabella basato sulle opzioni selezionate
     this.cd.detectChanges();
@@ -191,7 +191,6 @@ export class RowFilterComponent implements AfterViewInit{
         this.antennaFilterService.allSelected = true;
       }
     }
-
     this.antennaFilterService.filterTableByAntenna$.next(this.antenne.value || []); //notifica di filtrare tabella in base al filtro delle antenne
     this.cd.detectChanges();
   }
@@ -264,9 +263,14 @@ export class RowFilterComponent implements AfterViewInit{
     }
   }
 
-  updateAllFiltersOptions(vehicles: Vehicle[]){
+  /**
+   * Aggiorna le opzioni selezionate dei cantieri
+   * @param vehicles veicoli da controllare
+   */
+  updateAllFiltersSelectedOptions(vehicles: Vehicle[]){
     const data = vehicles || JSON.parse(this.sessionStorageService.getItem("tableData"));
-    this.cantieri.setValue(["Seleziona tutto", ...this.cantieriFilterService.vehiclesCantieriOnce(data)]);
+    console.log(this.sortService.sortVehiclesByCantiereDesc(data));
+    this.cantieri.setValue(["Seleziona tutto", ...this.cantiereFilterService.vehiclesCantieriOnce(this.sortService.sortVehiclesByCantiereDesc(data))]);
     this.gps.setValue(["Seleziona tutto", ...this.gpsFilterService.updateSelectedOptions(data)]);
     this.antenne.setValue(["Seleziona tutto", ...this.antennaFilterService.updateSelectedOptions(data)]);
   }

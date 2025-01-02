@@ -38,7 +38,7 @@
 
 
 
-.working-col, .warning-col, .error-col {
+.working-col, .blackbox-col, .error-col {
   flex: 1;
   padding: 16px;
   border: 1px solid #ccc;
@@ -57,7 +57,7 @@
   margin-bottom: 1vh;
 }
 
-.OK-container, .warning-container, .error-container {
+.OK-container, .blackbox-container, .error-container {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -72,8 +72,9 @@
   background-color: var(--sidebar-color);
 }
 
-.warning-container {
-  background-color: #ffcc00;
+.blackbox-container {
+  background-color: black;
+  color: white;
 }
 
 .error-container {

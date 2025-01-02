@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { RouterModule } from '@angular/router';
 import { BlackboxGraphCardComponent } from '../blackbox-graphs/blackbox-graph-card/blackbox-graph-card.component';
-import { ErrorGraphCardComponent } from '../error graphs/error-graph-card/error-graph-card.component';
+import { ErrorGraphCardComponent } from '../error-graphs/error-graph-card/error-graph-card.component';
 import { TableComponent } from '../table/table.component';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RowFilterComponent } from '../row-filter/row-filter.component';
@@ -20,6 +20,7 @@ import { KanbanAntennaComponent } from "../kanban-antenna/kanban-antenna.compone
 import { KanbanAntennaService } from '../../Services/kanban-antenna/kanban-antenna.service';
 import { KanbanTableService } from '../../Services/kanban-table/kanban-table.service';
 import { ErrorGraphsService } from '../../Services/error-graphs/error-graphs.service';
+import { GpsGraphComponent } from "../error-graphs/gps-graph/gps-graph.component";
 
 @Component({
   selector: 'app-dashboard',

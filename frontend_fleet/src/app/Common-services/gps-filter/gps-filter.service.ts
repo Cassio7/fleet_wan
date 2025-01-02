@@ -56,6 +56,7 @@ export class GpsFilterService {
    * @returns array di opzioni selezionate
    */
   updateSelectedOptions(vehicles: Vehicle[]){
+    this.selectedOptions = [];
     const gpsCheck = this.checkErrorsService.checkVehiclesGpsErrors(vehicles);
 
     if(gpsCheck[0].length>0){
