@@ -16,6 +16,8 @@ import { PlateFilterService } from '../../../Common-services/plate-filter/plate-
 import { CantieriFilterService } from '../../../Common-services/cantieri-filter/cantieri-filter.service';
 import { GpsFilterService } from '../../../Common-services/gps-filter/gps-filter.service';
 import { AntennaFilterService } from '../../../Common-services/antenna-filter/antenna-filter.service';
+import { Vehicle } from '../../../Models/Vehicle';
+import { SortService } from '../../../Common-services/sort/sort.service';
 
 @Component({
   selector: 'app-row-filter',
@@ -49,10 +51,11 @@ export class RowFilterComponent implements AfterViewInit{
   constructor(
     private plateFilterService: PlateFilterService,
     public cantieriFilterService: CantieriFilterService,
-    private gpsFilterService: GpsFilterService,
-    private antennaFilterService: AntennaFilterService,
+    public gpsFilterService: GpsFilterService,
+    public antennaFilterService: AntennaFilterService,
+    public sessionFilterService: SessionFilterService,
+    private sortService: SortService,
     private cantiereFilterService: CantieriFilterService,
-    private sessionFilterService: SessionFilterService,
     private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef) {
     this.filterForm = new FormGroup({
@@ -70,10 +73,7 @@ export class RowFilterComponent implements AfterViewInit{
     //seleziona tutto
     setTimeout(() => {
       this.cantieriFilterService.updateListaCantieri(allVehicles);
-      this.toggleSelectAllCantieri();
-      this.toggleSelectAllGps();
-      this.toggleSelectAllAntenne();
-      this.toggleSelectAllSession();
+      this.toggleSelectAll();
     });
     this.cantieriFilterService.setCantieriSessionStorage();
 
@@ -105,7 +105,7 @@ export class RowFilterComponent implements AfterViewInit{
     const selectedCantieri = this.cantieri.value || [];
 
     if (option === "Seleziona tutto") {
-      this.toggleSelectAllCantieri();
+      this.toggleSelectAll();
     } else {
       //rimozione di "Seleziona tutto" solo quando una singola opzione è deselezionata
       if (this.cantieriFilterService.isCantieriAllSelected()) {
@@ -141,7 +141,7 @@ export class RowFilterComponent implements AfterViewInit{
     const selectedGpsStates = this.gps.value || [];
 
     if (option === "Seleziona tutto") {
-      this.toggleSelectAllGps();
+      this.toggleSelectAll();
     } else {
       //rimozione di "Seleziona tutto" quando una singola opzione è deselezionata
       if (this.gpsFilterService.isGpsFilterAllSelected()) {
@@ -173,7 +173,7 @@ export class RowFilterComponent implements AfterViewInit{
     const selectedAntenne = this.antenne.value || [];
 
     if (option === "Seleziona tutto") {
-      this.toggleSelectAllAntenne();
+      this.toggleSelectAll();
     } else {
       //rimozione di "Seleziona tutto" quando una singola opzione è deselezionata
       if (this.antennaFilterService.isAntennaFilterAllSelected()) {
@@ -200,7 +200,7 @@ export class RowFilterComponent implements AfterViewInit{
     const selectedSessionStates = this.sessionStates.value || [];
 
     if (option === "Seleziona tutto") {
-      this.toggleSelectAllSession();
+      this.toggleSelectAll();
     } else {
       //rimozione di "Seleziona tutto" quando una singola opzione è deselezionata
       if (this.sessionFilterService.isSessionFilterAllSelected()) {
@@ -219,7 +219,6 @@ export class RowFilterComponent implements AfterViewInit{
       }
     }
 
-
     this.sessionFilterService.filterTableBySessionStates$.next(this.sessionStates.value || []);//notifica il filtro alla tabella basato sulle opzioni selezionate
     this.cd.detectChanges();
   }
@@ -227,7 +226,7 @@ export class RowFilterComponent implements AfterViewInit{
   toggleSelectAllSession(){
     const toggle = this.sessionFilterService.toggleSelectAllSessionStates();
     if(toggle == "all"){
-      this.sessionStates.setValue(["Seleziona tutto", "Funzionante", "Errore", "Nessuna sessione"]);
+      this.sessionStates.setValue(["Seleziona tutto", ...this.sessionFilterService.allOptions]);
     }else{
       this.sessionStates.setValue([]);
     }
@@ -236,8 +235,11 @@ export class RowFilterComponent implements AfterViewInit{
   /**
    * Seleziona tutti i filtri del select dei cantieri
    */
-  toggleSelectAllCantieri() {
+  toggleSelectAll() {
     this.cantieri.setValue(this.cantieriFilterService.toggleSelectAllCantieri());
+    this.toggleSelectAllGps()
+    this.toggleSelectAllAntenne();
+    this.toggleSelectAllSession();
   }
 
   /**
@@ -245,7 +247,7 @@ export class RowFilterComponent implements AfterViewInit{
    */
   toggleSelectAllGps() {
     if(this.gpsFilterService.toggleSelectAllGps() == "all"){
-      this.gps.setValue(["Seleziona tutto", "Funzionante", "Warning", "Errore"]);
+      this.gps.setValue(["Seleziona tutto", ...this.gpsFilterService.allOptions]);
     }else{
       this.gps.setValue([]);
     }
@@ -256,15 +258,19 @@ export class RowFilterComponent implements AfterViewInit{
    */
   toggleSelectAllAntenne(){
     if(this.antennaFilterService.toggleSelectAllAntenne() == "all"){
-      this.antenne.setValue(["Seleziona tutto", "Funzionante", "Errore", "Blackbox"]);
+      this.antenne.setValue(["Seleziona tutto", ...this.antennaFilterService.allOptions]);
     }else{
       this.antenne.setValue([]);
     }
   }
 
-  // onFilterChange(){
-  //   this.cantieriFilterService.setCantieriSessionStorage();
-  // }
+  updateAllFiltersOptions(vehicles: Vehicle[]){
+    const data = vehicles || JSON.parse(this.sessionStorageService.getItem("tableData"));
+    this.cantieri.setValue(["Seleziona tutto", ...this.cantieriFilterService.vehiclesCantieriOnce(data)]);
+    this.gps.setValue(["Seleziona tutto", ...this.gpsFilterService.updateSelectedOptions(data)]);
+    this.antenne.setValue(["Seleziona tutto", ...this.antennaFilterService.updateSelectedOptions(data)]);
+    console.log(this.antennaFilterService.updateSelectedOptions(vehicles));
+  }
 
   /**
    * Controlla se tutti i cantieri sono selezionati
