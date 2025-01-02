@@ -17,15 +17,12 @@ export class PlateFilterService {
    * @param vehicles veicoli
    * @returns veicoli filtrati
    */
-  filterVehiclesByPlateResearch(research: string, vehicles: Vehicle[]) {
-    const searchTextLower = research.toLowerCase();//ricerca minuscolo
+  filterVehiclesByPlateResearch(research: string, vehicles: Vehicle[]): Vehicle[] {
+    const searchTextLower = research.toLowerCase().replace(/\s+/g, '');
 
-    //filtro veicoli in base a ricerca
-    const filteredVehicles = vehicles.filter(vehicle =>
-      vehicle.plate.toLowerCase().includes(searchTextLower)
+    return vehicles.filter(vehicle =>
+      vehicle.plate.toLowerCase().replace(/\s+/g, '').includes(searchTextLower)
     );
-
-    return filteredVehicles;
   }
 
   /**
