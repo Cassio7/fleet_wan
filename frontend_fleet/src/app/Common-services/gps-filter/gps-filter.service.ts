@@ -8,7 +8,7 @@ import { Vehicle } from '../../Models/Vehicle';
   providedIn: 'root'
 })
 export class GpsFilterService {
-  private _allOptions: string[] = ["Funzionante", "Warning", "Error"];
+  private _allOptions: string[] = ["Funzionante", "Warning", "Errore"];
   private _selectedOptions: string[] = [];
   private _allSelected = false;
 

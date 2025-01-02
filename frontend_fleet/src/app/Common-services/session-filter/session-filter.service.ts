@@ -5,6 +5,8 @@ import { BehaviorSubject } from 'rxjs';
   providedIn: 'root'
 })
 export class SessionFilterService {
+  private _allOptions: string[] = ["Funzionante", "Errore", "Nessuna sessione"];
+  private _selectedOptions: string[] = [];
   private _allSelected = false;
 
   /**
@@ -21,13 +23,15 @@ export class SessionFilterService {
    * Seleziona / deseleziona tutti gli stati dei gps dei veicoli nel select e notifica la tabella di aggiornare i dati
    * @returns nuovo valore della lista cantieri
    */
-  toggleSelectAllFSessionsStates(): string{
+  toggleSelectAllSessionsStates(): string{
     if (this.allSelected) {
       this._filterTableBySessionStates$.next([]);
+      this.selectedOptions = this.allOptions;
       this.allSelected = false;
       return "";
     } else {
       this._filterTableBySessionStates$.next(["all"]);
+      this.selectedOptions = [];
       this.allSelected = true;
       return "all";
     }
@@ -58,7 +62,18 @@ export class SessionFilterService {
     }
   }
 
-
+  public get allOptions(): string[] {
+    return this._allOptions;
+  }
+  public set allOptions(value: string[]) {
+    this._allOptions = value;
+  }
+  public get selectedOptions(): string[] {
+    return this._selectedOptions;
+  }
+  public set selectedOptions(value: string[]) {
+    this._selectedOptions = value;
+  }
   public get filterTableBySessionStates$(): BehaviorSubject<string[]> {
     return this._filterTableBySessionStates$;
   }

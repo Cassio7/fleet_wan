@@ -140,7 +140,7 @@ export class CantieriFilterService{
   }
 
   /**
-   * Seleziona i cantieri dei veicoli passati
+   * Aggiorna le opzioni presenti nel filtro dei cantieri
    * @param vehicles veicoli da cui prendere i cantieri
    * @returns lista dei cantieri selezionati
    */
