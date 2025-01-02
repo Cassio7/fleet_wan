@@ -78,7 +78,6 @@ export class DashboardComponent implements AfterViewInit{
     .subscribe({
       next: () => {
         this.displaySection("table"); //display del componente scelto dal kebab menu
-        this.graphs.nativeElement.style.pointerEvents = 'auto';
         this.errorGraphTitle = this.errorGraphService.graphTitle = "GPS";//impostazione titolo del grafico
         this.sessionStorageService.setItem("dashboard-section", "table");
       },
@@ -88,7 +87,6 @@ export class DashboardComponent implements AfterViewInit{
     .subscribe({
       next: () => {
         this.displaySection("GPS"); //display del componente scelto dal kebab menu
-        this.graphs.nativeElement.style.pointerEvents = 'none';//disabilita click su grafico
         this.errorGraphTitle = this.errorGraphService.graphTitle = "GPS";//impostazione titolo del grafico
         this.sessionStorageService.setItem("dashboard-section", "GPS");
       },
@@ -98,7 +96,6 @@ export class DashboardComponent implements AfterViewInit{
     .subscribe({
       next: () => {
         this.displaySection("Antenna"); //display del componente scelto dal kebab menu
-        this.graphs.nativeElement.style.pointerEvents = 'none';//disabilita click su grafico
         this.errorGraphTitle = this.errorGraphService.graphTitle = "Antenna";
         this.sessionStorageService.setItem("dashboard-section", "Antenna");
       },
@@ -117,19 +114,16 @@ export class DashboardComponent implements AfterViewInit{
         this.table = true;
         this.kanbanGps = false;
         this.kabanAntenna = false;
-        this.graphs.nativeElement.style.pointerEvents = 'auto';
         break;
       case "GPS":
         this.kanbanGps = true;
         this.table = false;
         this.kabanAntenna = false;
-        this.graphs.nativeElement.style.pointerEvents = 'none';
         break;
       case "Antenna":
         this.kabanAntenna = true;
         this.table = false;
         this.kanbanGps = false;
-        this.graphs.nativeElement.style.pointerEvents = 'none';
         break;
     }
     this.cd.detectChanges();

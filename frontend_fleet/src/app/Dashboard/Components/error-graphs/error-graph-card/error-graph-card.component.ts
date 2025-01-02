@@ -28,7 +28,7 @@ import { KanbanTableService } from '../../../Services/kanban-table/kanban-table.
 })
 export class ErrorGraphCardComponent implements AfterViewInit, OnDestroy{
   private destroy$: Subject<void> = new Subject<void>();
-  @Input() errorGraphTitle: string = "Errors";
+  errorGraphTitle: string = "Errors";
   errorsGraph: boolean = true;
   gpsGraph: boolean = false;
   antennaGraph: boolean = false;
