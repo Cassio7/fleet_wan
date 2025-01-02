@@ -28,6 +28,6 @@
 - [ ] dare un formato di risposta corretto a tutte le API
 - [ ] segnare la posizione dei cantieri con circonferenza, layer comunali
 - [ ] implementazione della connessione ed invio email, per alert e recupero dati
-- [ ] assegnare tutti i cantieri ai nuovi veicoli
+- [x] assegnare tutti i cantieri ai nuovi veicoli
 - [ ] utilizzare un canale realtime message tramite redis per gli eventi
 - [ ] capire cosa fare con le posizioni in tempo real con lat 0 e lon 0 per mappa frontend
