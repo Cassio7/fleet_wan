@@ -269,7 +269,6 @@ export class RowFilterComponent implements AfterViewInit{
     this.cantieri.setValue(["Seleziona tutto", ...this.cantieriFilterService.vehiclesCantieriOnce(data)]);
     this.gps.setValue(["Seleziona tutto", ...this.gpsFilterService.updateSelectedOptions(data)]);
     this.antenne.setValue(["Seleziona tutto", ...this.antennaFilterService.updateSelectedOptions(data)]);
-    console.log(this.antennaFilterService.updateSelectedOptions(vehicles));
   }
 
   /**

@@ -38,8 +38,6 @@ private readonly _filterTableByAntenna$: BehaviorSubject<string[]> = new Behavio
     this.selectedOptions = [];
     const antennaErrorsCheck = this.checkErrorsService.checkVehiclesAntennaErrors(vehicles);
     const antennaPresenceCheck = this.checkRFIDVehicles(vehicles);
-    console.log("antennaCheck: ", antennaErrorsCheck);
-    console.log("antennaPresenceCheck: ", antennaPresenceCheck);
 
     if(antennaErrorsCheck[0].length>0){
       this.selectedOptions.push("Funzionante");

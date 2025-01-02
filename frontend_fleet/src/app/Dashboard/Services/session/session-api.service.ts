@@ -31,8 +31,6 @@ export class SessionApiService {
     const dateFrom = start_date.toISOString();
     const dateTo = end_date.toISOString();
 
-    console.log("Inviata la richiesta: " + dateFrom + " to: " + dateTo);
-
     // Parametri nel corpo della richiesta
     const body = {
       dateFrom: dateFrom,

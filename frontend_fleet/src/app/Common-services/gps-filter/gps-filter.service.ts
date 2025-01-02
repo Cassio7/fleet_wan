@@ -58,18 +58,14 @@ export class GpsFilterService {
   updateSelectedOptions(vehicles: Vehicle[]){
     const gpsCheck = this.checkErrorsService.checkVehiclesGpsErrors(vehicles);
 
-    console.log("gpsCheck: ", gpsCheck);
     if(gpsCheck[0].length>0){
       this.selectedOptions.push("Funzionante");
-      console.log("pushato funzionante");
     }
     if(gpsCheck[1].length>0){
       this.selectedOptions.push("Warning");
-      console.log("pushato warning");
     }
     if(gpsCheck[2].length>0){
       this.selectedOptions.push("Errore");
-      console.log("pushato errore");
     }
 
     if(JSON.stringify(this.selectedOptions) == JSON.stringify(["Funzionante", "Warning", "Errore"])){
