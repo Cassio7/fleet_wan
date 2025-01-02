@@ -129,6 +129,7 @@ export class DashboardComponent implements AfterViewInit{
         this.table = false;
         this.kanbanGps = false;
         this.graphs.nativeElement.style.pointerEvents = 'none';
+        break;
     }
     this.cd.detectChanges();
   }
