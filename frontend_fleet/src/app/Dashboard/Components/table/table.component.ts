@@ -246,13 +246,16 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     this.sessionFilterService.filterTableBySessionStates$.pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (selections: string[]) => {
+        const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
         const tableVehicles = JSON.parse(this.sessionStorageService.getItem("tableData"));
-        const sessionCheck = this.checkErrorsService.checkVehiclesSessionErrors(tableVehicles); //[0] funzionante [1] error
+
+        const vehicles = (tableVehicles && tableVehicles.length > 0) ? tableVehicles : allVehicles;
+        const sessionCheck = this.checkErrorsService.checkVehiclesSessionErrors(vehicles); //[0] funzionante [1] error
 
         let filteredVehicles: Vehicle[] = [];
 
         if (selections.includes("all")) {
-          filteredVehicles = tableVehicles;
+          filteredVehicles = vehicles;
         } else {
           if (selections.includes("Funzionante")) {
             filteredVehicles = [...filteredVehicles, ...sessionCheck[0]];
