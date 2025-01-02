@@ -48,8 +48,9 @@ export class VehicleController {
       const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
       const vehiclesOutput =
         await this.vehicleService.getVehicleByVeId(vehicleIds);
-      if (vehiclesOutput.length > 0) res.status(200).json(vehiclesOutput);
-      else res.status(404).json({ message: 'Nessun veicolo trovato' });
+      if (!vehiclesOutput || vehiclesOutput.length === 0)
+        return res.status(404).json({ message: 'Nessun veicolo trovato' });
+      res.status(200).json(vehiclesOutput);
     } catch (error) {
       console.error('Errore nel recupero dei veicoli:', error);
       res
@@ -57,7 +58,31 @@ export class VehicleController {
         .json({ message: 'Errore durante il recupero dei veicoli' });
     }
   }
+  /**
+   * API che restituisce un veicolo in base alla targa inserita
+   * @param res
+   * @param body
+   */
+  @Post()
+  async getVehicleByPlate(@Res() res: Response, @Body() body: any) {
+    try {
+      const plateNumber = body.plate;
+      const vehicle = await this.vehicleService.getVehicleByPlate(plateNumber);
 
+      if (vehicle) {
+        res.status(200).json(vehicle);
+      } else {
+        res.status(404).json({
+          message: `Veicolo con targa: ${plateNumber} non trovato.`,
+        });
+      }
+    } catch (error) {
+      console.error('Errore nel recupero del veicolo:', error);
+      res
+        .status(500)
+        .json({ message: 'Errore durante il recupero del veicolo' });
+    }
+  }
   /**
    * Ritorna tutti i veicoli dove l'RFID reader è stato montato
    * @param res
@@ -132,32 +157,6 @@ export class VehicleController {
       res
         .status(500)
         .json({ message: 'Errore durante il recupero dei veicoli' });
-    }
-  }
-
-  /**
-   * API che restituisce un veicolo in base alla targa inserita
-   * @param res
-   * @param body
-   */
-  @Post('plate')
-  async getVehicleByPlate(@Res() res: Response, @Body() body: any) {
-    try {
-      const plateNumber = body.plate;
-      const vehicle = await this.vehicleService.getVehicleByPlate(plateNumber);
-
-      if (vehicle) {
-        res.status(200).json(vehicle);
-      } else {
-        res.status(404).json({
-          message: `Veicolo con targa: ${plateNumber} non trovato.`,
-        });
-      }
-    } catch (error) {
-      console.error('Errore nel recupero del veicolo:', error);
-      res
-        .status(500)
-        .json({ message: 'Errore durante il recupero del veicolo' });
     }
   }
 
