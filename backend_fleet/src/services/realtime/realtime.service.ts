@@ -168,15 +168,17 @@ export class RealtimeService {
 
   /**
    * Ritorna tutti i realtimes in base al VeId inserito
-   * @param id VeId identificatico del veicolo
+   * @param veId VeId identificatico del veicolo
    * @returns Raggruppa i realtime per veicolo usando i DTO
    */
-  async getTimesByVeId(id: number[]): Promise<any> {
+  async getTimesByVeId(veId: number[] | number): Promise<any> {
+    const veIdArray = Array.isArray(veId) ? veId : [veId];
+
     const times = await this.realtimeRepository.find({
       relations: {
         vehicle: true,
       },
-      where: { vehicle: { veId: In(id) } },
+      where: { vehicle: { veId: In(veIdArray) } },
     });
     // Creo DTO e formatto un output corretto
     return times.reduce(
