@@ -19,6 +19,7 @@ import { RolesGuard } from 'src/guard/roles.guard';
 import { VehicleService } from 'src/services/vehicle/vehicle.service';
 import { AnomalyService } from './../../services/anomaly/anomaly.service';
 import { AssociationService } from './../../services/association/association.service';
+import { sortRedisData } from 'src/utils/utils';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Controller('anomaly')
@@ -49,7 +50,7 @@ export class AnomalyController {
         return res.status(404).json({ message: 'Nessun Veicolo associato' });
       }
       const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
-      const anomalies = await this.anomalyService.getAllAnomaly(vehicleIds);
+      const anomalies = await this.anomalyService.getAllAnomalyByVeId(vehicleIds);
       if (!anomalies || anomalies.length === 0) {
         return res.status(404).json({ message: 'Nessuna anomalia trovata' });
       }
@@ -151,7 +152,7 @@ export class AnomalyController {
         });
         anomalies = (await Promise.all(redisPromises)).filter(Boolean);
       }
-      // Case 3: Se nessuno dei caso è true fa getAnomalyByDateRange
+      // Case 3: Se nessuno dei casi è true fa getAnomalyByDateRange
       else {
         anomalies = await this.anomalyService.getAnomalyByDateRange(
           vehicleIds,
@@ -159,21 +160,11 @@ export class AnomalyController {
           dateTo,
         );
       }
-
-      // Esegui operazioni direttamente sulle anomalie, ordinandole per data
-      const processedAnomalies = anomalies.map((entry) => ({
-        plate: entry.vehicle.plate,
-        veId: entry.vehicle.veId,
-        isRFIDReader: entry.vehicle.isRFIDReader,
-        anomalies: entry.anomalies.sort(
-          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
-        ),
-      }));
-
+      anomalies = sortRedisData(anomalies);
       // Restituisci il risultato
       return res.status(200).json({
         lastUpdate,
-        vehicles: processedAnomalies,
+        vehicles: anomalies,
       });
     } catch (error) {
       console.error('Errore durante il recupero delle anomalie:', error);
@@ -182,6 +173,62 @@ export class AnomalyController {
       });
     }
   }
+
+  /**
+   * API per recuperare l'anomalia piu recente per ogni veicolo associato, recupera
+   * la più recente escludendo la data odierna. Prima cerca su Redis e se non trova
+   * fa una query di ricerca
+   * @param req Utente con token
+   * @param res
+   * @returns
+   */
+  @Get('last')
+  async getLastAnomaly(
+    // Necessario per recuperare user dalla richiesta e non dare errore in compilazione
+    @Req() req: Request & { user: UserFromToken },
+    @Res() res: Response,
+  ) {
+    try {
+      const vehicles = (await this.associationService.getVehiclesByUserRole(
+        req.user.id,
+      )) as VehicleEntity[];
+      if (!vehicles || vehicles.length === 0) {
+        return res.status(404).json({ message: 'Nessun Veicolo associato' });
+      }
+      const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
+      let anomalies = [];
+      // Recupero da Redis filtrando i null
+      anomalies = (
+        await Promise.all(
+          vehicleIds.map(async (id) => {
+            const key = `lastAnomaly:${id}`;
+            try {
+              const data = await this.redis.get(key);
+              return data ? JSON.parse(data) : null;
+            } catch (error) {
+              console.error(
+                `Errore recupero da redis il veicolo ${id}:`,
+                error,
+              );
+              return null;
+            }
+          }),
+        )
+      ).filter(Boolean);
+      anomalies = sortRedisData(anomalies);
+      if (!anomalies || anomalies.length === 0) {
+        anomalies = await this.anomalyService.getLastAnomaly(vehicleIds);
+      }
+      if (!anomalies || anomalies.length === 0) {
+        return res.status(404).json({ message: 'Nessuna anomalia trovata' });
+      }
+      res.status(200).json({ vehicles: anomalies });
+    } catch (error) {
+      console.error('Errore nel recupero delle anomalie:', error);
+      res.status(500).json({ message: 'Errore nel recupero delle anomalie' });
+    }
+  }
+
   /**
    * API per i controlli dei mezzi in base al range temporale
    * @param res
@@ -245,9 +292,13 @@ export class AnomalyController {
 
       await Promise.all(anomalyPromises);
 
-      const keys = await this.redis.keys('*Anomaly:*');
-      if (keys.length > 0) {
-        await this.redis.del(keys);
+      const todaykeys = await this.redis.keys('todayAnomaly:*');
+      if (todaykeys.length > 0) {
+        await this.redis.del(todaykeys);
+      }
+      const dayBeforekeys = await this.redis.keys('dayBeforeAnomaly:*');
+      if (dayBeforekeys.length > 0) {
+        await this.redis.del(dayBeforekeys);
       }
       const vehicles = await this.vehicleService.getAllVehicles();
       const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
