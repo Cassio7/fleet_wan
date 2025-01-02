@@ -112,3 +112,20 @@ export function extractTokenFromHeader(request: Request): string | undefined {
     console.error(error.message);
   }
 }
+
+/**
+ * Mette in ordine per targa gli elementi passati dal redis
+ * @param data solitamente anomalie
+ * @returns
+ */
+export function sortRedisData(data: any) {
+  return data.sort((a: any, b: any) => {
+    if (a.vehicle.plate < b.vehicle.plate) {
+      return -1;
+    }
+    if (a.vehicle.plate > b.vehicle.plate) {
+      return 1;
+    }
+    return 0;
+  });
+}
