@@ -197,13 +197,17 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     this.antennaFilterService.filterTableByAntenna$.pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (selections: string[]) => {
+        const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
         const tableVehicles = JSON.parse(this.sessionStorageService.getItem("tableData"));
-        const antennaCheck = this.checkErrorsService.checkVehiclesAntennaErrors(tableVehicles);
-        const vehiclesBlackboxData = this.blackboxGraphService.getAllRFIDVehicles(tableVehicles);
+
+        let vehicles = (tableVehicles && tableVehicles.length > 0) ? tableVehicles : allVehicles;
+
+        const antennaCheck = this.checkErrorsService.checkVehiclesAntennaErrors(vehicles);
+        const vehiclesBlackboxData = this.blackboxGraphService.getAllRFIDVehicles(vehicles);
         let filteredVehicles: Vehicle[] = [];
 
         if (selections.includes("all")) {
-          filteredVehicles = tableVehicles;
+          filteredVehicles = vehicles;
         } else {
           if (selections.includes("Blackbox")) {
             filteredVehicles = [...filteredVehicles, ...vehiclesBlackboxData.blackboxOnly];
@@ -237,7 +241,6 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     this.sessionFilterService.filterTableBySessionStates$.pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (selections: string[]) => {
-        console.log("session selections: ", selections);
         const tableVehicles = JSON.parse(this.sessionStorageService.getItem("tableData"));
         const sessionCheck = this.checkErrorsService.checkVehiclesSessionErrors(tableVehicles); //[0] funzionante [1] error
 
