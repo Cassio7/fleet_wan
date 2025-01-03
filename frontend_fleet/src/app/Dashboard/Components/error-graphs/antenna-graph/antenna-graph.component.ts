@@ -1,10 +1,12 @@
 import { ChangeDetectorRef, Component } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { SessionStorageService } from '../../../../Common-services/sessionStorage/session-storage.service';
 import { CheckErrorsService } from '../../../Services/check-errors/check-errors.service';
 import { NgApexchartsModule } from "ng-apexcharts";
 import { AntennaGraphService } from '../../../Services/antenna-graph/antenna-graph.service';
 import { BlackboxGraphsService } from '../../../Services/blackbox-graphs/blackbox-graphs.service';
+import { Vehicle } from '../../../../Models/Vehicle';
+import { PlateFilterService } from '../../../../Common-services/plate-filter/plate-filter.service';
 
 @Component({
   selector: 'app-antenna-graph',
@@ -23,6 +25,7 @@ export class AntennaGraphComponent {
 
   constructor(
     private antennaGraphService: AntennaGraphService,
+    private plateFilterService: PlateFilterService,
     private checkErrorsService: CheckErrorsService,
     private blackboxGraphService: BlackboxGraphsService,
     private sessionStorageService: SessionStorageService,
@@ -105,19 +108,31 @@ export class AntennaGraphComponent {
     console.log("error gps");
   }
 
+  initializeGraph(vehicles: Vehicle[]){
+    this.chartOptions.series = [];
+
+    const antennaCheck = this.checkErrorsService.checkVehiclesAntennaErrors(vehicles);
+    const blackboxData = this.blackboxGraphService.getAllRFIDVehicles(vehicles);
+
+    this.chartOptions.series = [antennaCheck[0].length, antennaCheck[1].length, blackboxData.blackboxOnly.length];
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
   ngAfterViewInit(): void {
-    this.chartOptions.series = [];
-
     const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-    const antennaCheck = this.checkErrorsService.checkVehiclesAntennaErrors(allVehicles);
-    const blackboxData = this.blackboxGraphService.getAllRFIDVehicles(allVehicles);
-
-    this.chartOptions.series = [antennaCheck[0].length, antennaCheck[1].length, blackboxData.blackboxOnly.length];
+    this.initializeGraph(allVehicles);
+    this.plateFilterService.filterByPlateResearch$.pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (research: string)=>{
+        const plateFilteredVehicles = this.plateFilterService.filterVehiclesByPlateResearch(research, allVehicles);
+        this.initializeGraph(plateFilteredVehicles);
+      },
+      error: error => console.error("Errore nel filtro per la targa: ",error)
+    });
     this.cd.detectChanges();
   }
 }
