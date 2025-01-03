@@ -7,13 +7,16 @@
     </button>
     <mat-icon matSuffix *ngIf="!targa.value">search</mat-icon>
   </mat-form-field>
+
   <mat-form-field class="cantieri-filter" appearance="outline">
     <mat-select [formControl]="cantieri" placeholder="Cantiere" multiple class="cantiere-input">
       <mat-option [value]="cantiere" (click)="selectCantiere(cantiere)" *ngFor="let cantiere of cantieriFilterService.listaCantieri">
         {{ cantiere }}
       </mat-option>
     </mat-select>
+    <mat-icon matSuffix>engineering</mat-icon>
   </mat-form-field>
+
   <mat-form-field class="GPS-state-filter" appearance="outline">
     <mat-select [formControl]="gps" placeholder="Stati GPS" multiple class="GPS-input">
       <mat-option value="Seleziona tutto" (click)="selectGps('Seleziona tutto')">Seleziona tutto</mat-option>
@@ -47,8 +50,8 @@
     <mat-icon matSuffix>settings_backup_restore</mat-icon>
   </mat-form-field>
 
-  <!-- Aggiunta del pulsante -->
+  <!-- Aggiunta del pulsante
   <div class="button-container">
     <button mat-raised-button color="primary" class="filters-btn">Aggiorna i dati</button>
-  </div>
+  </div> -->
 </div>
