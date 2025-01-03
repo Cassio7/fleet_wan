@@ -96,17 +96,17 @@ export class CantieriFilterService{
   }
 
   /**
-   * Filtra i veicoli in base ai cantieri dei veicoli selezionati.
-   * @param selectedModels - Array di cantieri selezionati.
+   * Filtra i veicoli in base ai modelli dei veicoli selezionati.
+   * @param selectedModels - Array di modelli selezionati.
    * @param vehicles - Array di veicoli da filtrare.
-   * @returns Un array di veicoli che corrispondono ai cantieri selezionati.
+   * @returns Un array di veicoli che corrispondono ai modelli selezionati.
    */
-  filterVehiclesByCantiere(selectedCantieri: string[], vehicles: Vehicle[]): Vehicle[] {
-    if (!selectedCantieri || !selectedCantieri.length) {
+  filterVehiclesByModel(selectedModels: string[], vehicles: Vehicle[]): Vehicle[] {
+    if (!selectedModels || !selectedModels.length) {
       return vehicles; // Return all vehicles if no cantieri are selected.
     }
 
-    const modelsSet = new Set(selectedCantieri);
+    const modelsSet = new Set(selectedModels);
 
     return vehicles.filter(vehicle => {
       const worksiteName = vehicle.worksite?.name;
