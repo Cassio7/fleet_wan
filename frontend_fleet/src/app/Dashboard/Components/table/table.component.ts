@@ -5,7 +5,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, ViewChild } fro
 import { MatIconModule } from '@angular/material/icon';
 import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Session } from '../../../Models/Session';
-import { forkJoin, skip, Subject, takeUntil, catchError, of, tap } from 'rxjs';
+import { forkJoin, skip, Subject, takeUntil, catchError, of, tap, filter } from 'rxjs';
 import { VehiclesApiService } from '../../../Common-services/vehicles api service/vehicles-api.service';
 import { Vehicle } from '../../../Models/Vehicle';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -158,37 +158,40 @@ export class TableComponent implements OnDestroy, AfterViewInit{
       });
   }
 
+  /**
+   * Gestisce la sottoscrizione al filtro dei gps, impostando i dati della tabella di conseguenza
+   */
   handleGpsFilter() {
     this.gpsFilterService.filterTableByGps$.pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (selections: string[]) => {
-          const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-          const tableVehicles = JSON.parse(this.sessionStorageService.getItem("tableData"));
+          const allVehicles: Vehicle[] = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+          const tableVehicles: Vehicle[] = JSON.parse(this.sessionStorageService.getItem("tableData"));
 
-          const vehicles = (tableVehicles && tableVehicles.length > 0) ? tableVehicles : allVehicles;
+          const vehicles = tableVehicles ? tableVehicles : allVehicles;
           const gpsCheckSeries = this.checkErrorsService.checkVehiclesGpsErrors(vehicles); //[0] funzionante [1] warning [2] error
 
-          let filteredVehicles: Vehicle[] = [];
+          let selectedVehicles: Vehicle[] = [];
 
           if (selections.includes("all")) {
-            filteredVehicles = vehicles;
+            selectedVehicles = vehicles;
           } else {
             if (selections.includes("Funzionante")) {
-              filteredVehicles = [...filteredVehicles, ...gpsCheckSeries[0]];
+              selectedVehicles = [...selectedVehicles, ...gpsCheckSeries[0]];
             }
             if (selections.includes("Warning")) {
-              filteredVehicles = [...filteredVehicles, ...gpsCheckSeries[1]];
+              selectedVehicles = [...selectedVehicles, ...gpsCheckSeries[1]];
             }
             if (selections.includes("Errore")) {
-              filteredVehicles = [...filteredVehicles, ...gpsCheckSeries[2]];
+              selectedVehicles = [...selectedVehicles, ...gpsCheckSeries[2]];
             }
           }
 
-          filteredVehicles = filteredVehicles.filter((vehicle, index, self) =>
-            index === self.findIndex(v => v.veId === vehicle.veId)
-          );
+          const filteredVehicles = allVehicles.filter(vehicle => {
+            return selectedVehicles.some(selected => selected.veId === vehicle.veId);
+          });
 
-          this.vehicleTableData.data = selections.length > 0 ? filteredVehicles : [];
+          this.vehicleTableData.data = filteredVehicles.length > 0 ? filteredVehicles : [];
 
           this.vehicleTable.renderRows();
           this.loadGraphs(this.vehicleTableData.data);
@@ -198,85 +201,100 @@ export class TableComponent implements OnDestroy, AfterViewInit{
       });
   }
 
-  handleAntennaFilter(){
+
+  handleAntennaFilter() {
     this.antennaFilterService.filterTableByAntenna$.pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (selections: string[]) => {
-        const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-        const tableVehicles = JSON.parse(this.sessionStorageService.getItem("tableData"));
+        const allVehicles: Vehicle[] = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+        const tableVehicles: Vehicle[] = JSON.parse(this.sessionStorageService.getItem("tableData"));
 
         const vehicles = (tableVehicles && tableVehicles.length > 0) ? tableVehicles : allVehicles;
 
         const antennaCheck = this.checkErrorsService.checkVehiclesAntennaErrors(vehicles);
         const vehiclesBlackboxData = this.blackboxGraphService.getAllRFIDVehicles(vehicles);
-        let filteredVehicles: Vehicle[] = [];
+        let selectedVehicles: Vehicle[] = [];
 
         if (selections.includes("all")) {
-          filteredVehicles = vehicles;
+          selectedVehicles = vehicles;
         } else {
           if (selections.includes("Blackbox")) {
-            filteredVehicles = [...filteredVehicles, ...vehiclesBlackboxData.blackboxOnly];
+            selectedVehicles = [...selectedVehicles, ...vehiclesBlackboxData.blackboxOnly];
           }
           if (selections.includes("Blackbox+antenna")) {
-            filteredVehicles = [...filteredVehicles, ...vehiclesBlackboxData.blackboxWithAntenna];
+            selectedVehicles = [...selectedVehicles, ...vehiclesBlackboxData.blackboxWithAntenna];
           }
           if (selections.includes("Funzionante")) {
-            filteredVehicles = [...filteredVehicles, ...antennaCheck[0]];
+            selectedVehicles = [...selectedVehicles, ...antennaCheck[0]];
           }
           if (selections.includes("Errore")) {
-            filteredVehicles = [...filteredVehicles, ...antennaCheck[2]];
+            selectedVehicles = [...selectedVehicles, ...antennaCheck[2]];
           }
         }
 
-        //rimozione duplicati
-        filteredVehicles = filteredVehicles.filter((vehicle, index, self) =>
-          index === self.findIndex(v => v.veId === vehicle.veId)
-        );
+        const filteredVehicles = allVehicles.filter(vehicle => {
+          return selectedVehicles.some(selected => selected.veId === vehicle.veId);
+        });
 
-        this.vehicleTableData.data = filteredVehicles;
+        this.vehicleTableData.data = filteredVehicles.length > 0 ? filteredVehicles : [];
 
         this.vehicleTable.renderRows();
+
         this.loadGraphs(this.vehicleTableData.data);
       },
       error: error => console.error("Errore nel filtro delle antenne: ", error)
     });
-  }
+}
 
-  handleSessionFilter(){
-    this.sessionFilterService.filterTableBySessionStates$.pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: (selections: string[]) => {
-        const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-        const tableVehicles = JSON.parse(this.sessionStorageService.getItem("tableData"));
 
-        const vehicles = (tableVehicles && tableVehicles.length > 0) ? tableVehicles : allVehicles;
-        const sessionCheck = this.checkErrorsService.checkVehiclesSessionErrors(vehicles); //[0] funzionante [1] error
+handleSessionFilter() {
+  this.sessionFilterService.filterTableBySessionStates$.pipe(takeUntil(this.destroy$))
+  .subscribe({
+    next: (selections: string[]) => {
+      const allVehicles: Vehicle[] = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+      const tableVehicles: Vehicle[] = JSON.parse(this.sessionStorageService.getItem("tableData"));
 
-        let filteredVehicles: Vehicle[] = [];
+      const vehicles = (tableVehicles && tableVehicles.length > 0) ? tableVehicles : allVehicles;
+      const sessionCheck = this.checkErrorsService.checkVehiclesSessionErrors(vehicles); //[0] funzionante [1] errore
 
-        if (selections.includes("all")) {
-          filteredVehicles = vehicles;
-        } else {
-          if (selections.includes("Funzionante")) {
-            filteredVehicles = [...filteredVehicles, ...sessionCheck[0]];
-          }
-          if (selections.includes("Errore")) {
-            filteredVehicles = [...filteredVehicles, ...sessionCheck[1]];
-          }
+      let selectedVehicles: Vehicle[] = [];
+
+      // Se "all" è selezionato, aggiungi tutti i veicoli
+      if (selections.includes("all")) {
+        selectedVehicles = vehicles;
+      } else {
+        // Seleziona i veicoli in base alle opzioni
+        if (selections.includes("Funzionante")) {
+          selectedVehicles = [...selectedVehicles, ...sessionCheck[0]];
         }
+        if (selections.includes("Errore")) {
+          selectedVehicles = [...selectedVehicles, ...sessionCheck[1]];
+        }
+      }
 
-        filteredVehicles = filteredVehicles.filter((vehicle, index, self) =>
-          index === self.findIndex(v => v.veId === vehicle.veId)
-        );
+      // Rimozione duplicati basandosi sull'ID (veId)
+      selectedVehicles = selectedVehicles.filter((vehicle, index, self) =>
+        index === self.findIndex(v => v.veId === vehicle.veId)
+      );
 
-        this.vehicleTableData.data = selections.length > 0 ? filteredVehicles : [];
+      // Filtrare allVehicles per includere solo i veicoli selezionati
+      const filteredVehicles = allVehicles.filter(vehicle => {
+        return selectedVehicles.some(selected => selected.veId === vehicle.veId);
+      });
 
-        this.vehicleTable.renderRows();
-        this.loadGraphs(this.vehicleTableData.data);
-      },
-      error: error => console.error("Errore nel filtro per gli stati di sessione: ", error)
-    });
-  }
+      // Impostare i dati della tabella con i veicoli filtrati
+      this.vehicleTableData.data = filteredVehicles.length > 0 ? filteredVehicles : [];
+
+      // Render della tabella
+      this.vehicleTable.renderRows();
+
+      // Caricamento dei grafici
+      this.loadGraphs(this.vehicleTableData.data);
+    },
+    error: error => console.error("Errore nel filtro per gli stati di sessione: ", error)
+  });
+}
+
 
 
   /**
