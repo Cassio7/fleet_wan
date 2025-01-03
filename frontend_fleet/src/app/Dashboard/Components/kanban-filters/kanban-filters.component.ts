@@ -14,6 +14,7 @@ import { CantieriFilterService } from '../../../Common-services/cantieri-filter/
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { KanbanGpsService } from '../../Services/kanban-gps/kanban-gps.service';
 import { KanbanAntennaService } from '../../Services/kanban-antenna/kanban-antenna.service';
+import { SortService } from '../../../Common-services/sort/sort.service';
 
 @Component({
   selector: 'app-kanban-filters',
@@ -38,11 +39,16 @@ export class KanbanFiltersComponent implements AfterViewInit{
   filterForm!: FormGroup;
   cantieri = new FormControl<string[]>([]);
 
+  //tracciatori di kanban
+  kanbanGps: boolean = false;
+  kanbanAntenna: boolean = false;
+
   constructor(
     private plateFilterService: PlateFilterService,
     public cantieriFilterService: CantieriFilterService,
     private kanbanGpsService: KanbanGpsService,
     private kanbanAntennaService: KanbanAntennaService,
+    private sortService: SortService,
     private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef
   ){
@@ -60,9 +66,20 @@ export class KanbanFiltersComponent implements AfterViewInit{
   ngAfterViewInit(): void {
     const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
     setTimeout(() => {
+      this.cantieriFilterService.allSelected = false;
       this.cantieriFilterService.updateListaCantieri(allVehicles);
       this.toggleSelectAllCantieri();
+
+      const section =  this.sessionStorageService.getItem("dashboard-section");
+      if(section == "GPS"){
+        this.kanbanGps = true;
+        this.kanbanAntenna = false;
+      }else if(section == "Antenna"){
+        this.kanbanGps = false;
+        this.kanbanAntenna = true;
+      }
     });
+
     this.cd.detectChanges();
   }
 
@@ -84,22 +101,57 @@ export class KanbanFiltersComponent implements AfterViewInit{
    * @param option opzione selezionata
    */
   selectCantiere(option: string) {
-    if(option=="Seleziona tutto"){
-      this.toggleSelectAllCantieri();
-    }else{
-      const selectedCantieri = this.cantieri.value; //opzioni selezionate
+    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+    let selectedCantieri = this.cantieri.value || [];
 
-      if(this.cantieriFilterService.isCantieriAllSelected()) {
+    if (option === "Seleziona tutto") {
+      this.toggleSelectAllCantieri();
+    } else {
+      if (this.cantieriFilterService.isCantieriAllSelected()) {
         this.cantieriFilterService.allSelected = false;
+        const updatedSelections = selectedCantieri.filter(selection => selection !== "Seleziona tutto");
+        this.cantieri.setValue(updatedSelections);
       }
-      //se sono stati selezionati cantieri, invio dati
-      if (selectedCantieri) {
-        this.kanbanGpsService.loadKanbanGps$.next();
-        this.kanbanAntennaService.loadKanbanAntenna$.next();
+
+      const allOptions = this.cantieriFilterService.vehiclesCantieriOnce(allVehicles);
+      const areAllSelected = allOptions.every(option => selectedCantieri.includes(option));
+
+      if (areAllSelected && !selectedCantieri.includes("Seleziona tutto")) {
+        selectedCantieri.unshift("Seleziona tutto");
+        this.cantieri.setValue(selectedCantieri);
+        this.cantieriFilterService.allSelected = true;
       }
-      this.cd.detectChanges();
     }
-  }
+    if (this.kanbanGps) {
+        let serviceVehicles = this.kanbanGpsService.workingVehicles;
+        serviceVehicles = [...this.kanbanGpsService.warningVehicles];
+        serviceVehicles = [...this.kanbanGpsService.errorVehicles];
+
+        const kanbanVehicles = this.sortService.vehiclesInDefaultOrder(serviceVehicles);
+
+        const cantieriFilteredVehicles = this.cantieriFilterService.filterVehiclesByCantieri(kanbanVehicles, selectedCantieri);
+
+        console.log("selectedCantieri: ", selectedCantieri);
+        console.log("cantieriFilteredVehicles: ", cantieriFilteredVehicles);
+        this.kanbanGpsService.setKanbanData(cantieriFilteredVehicles);
+        console.log("kanban gps set.");
+      }else if(this.kanbanAntenna){
+        let serviceVehicles = this.kanbanAntennaService.workingVehicles;
+        serviceVehicles = [...this.kanbanAntennaService.blackboxVehicles];
+        serviceVehicles = [...this.kanbanAntennaService.errorVehicles];
+
+        const kanbanVehicles = this.sortService.vehiclesInDefaultOrder(serviceVehicles);
+
+        const cantieriFilteredVehicles = this.cantieriFilterService.filterVehiclesByCantieri(kanbanVehicles, selectedCantieri);
+
+        console.log("selectedCantieri: ", selectedCantieri);
+        console.log("cantieriFilteredVehicles: ", cantieriFilteredVehicles);
+        this.kanbanGpsService.setKanbanData(cantieriFilteredVehicles);
+        console.log("kanban gps set.");
+      }
+    }
+
+
 
   /**
    * Seleziona tutti i filtri del select dei cantieri
