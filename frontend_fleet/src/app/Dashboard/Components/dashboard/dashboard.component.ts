@@ -114,19 +114,16 @@ export class DashboardComponent implements AfterViewInit{
         this.table = true;
         this.kanbanGps = false;
         this.kabanAntenna = false;
-        this.graphs.nativeElement.style.pointerEvents = 'auto';
         break;
       case "GPS":
         this.kanbanGps = true;
         this.table = false;
         this.kabanAntenna = false;
-        this.graphs.nativeElement.style.pointerEvents = 'none';
         break;
       case "Antenna":
         this.kabanAntenna = true;
         this.table = false;
         this.kanbanGps = false;
-        this.graphs.nativeElement.style.pointerEvents = 'none';
         break;
     }
     this.cd.detectChanges();

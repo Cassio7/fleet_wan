@@ -226,7 +226,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
             selectedVehicles = [...selectedVehicles, ...antennaCheck[0]];
           }
           if (selections.includes("Errore")) {
-            selectedVehicles = [...selectedVehicles, ...antennaCheck[2]];
+            selectedVehicles = [...selectedVehicles, ...antennaCheck[1]];
           }
         }
 

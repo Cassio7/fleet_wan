@@ -123,33 +123,28 @@ export class KanbanFiltersComponent implements AfterViewInit{
       }
     }
     if (this.kanbanGps) {
-        let serviceVehicles = this.kanbanGpsService.workingVehicles;
-        serviceVehicles = [...this.kanbanGpsService.warningVehicles];
-        serviceVehicles = [...this.kanbanGpsService.errorVehicles];
+      let serviceVehicles = this.kanbanGpsService.workingVehicles;
+      serviceVehicles = [...this.kanbanGpsService.warningVehicles];
+      serviceVehicles = [...this.kanbanGpsService.errorVehicles];
 
-        const kanbanVehicles = this.sortService.vehiclesInDefaultOrder(serviceVehicles);
+      const kanbanVehicles = this.sortService.vehiclesInDefaultOrder(serviceVehicles);
 
-        const cantieriFilteredVehicles = this.cantieriFilterService.filterVehiclesByCantieri(kanbanVehicles, selectedCantieri);
+      const cantieriFilteredVehicles = this.cantieriFilterService.filterVehiclesByCantieri(kanbanVehicles, selectedCantieri);
 
-        console.log("selectedCantieri: ", selectedCantieri);
-        console.log("cantieriFilteredVehicles: ", cantieriFilteredVehicles);
-        this.kanbanGpsService.setKanbanData(cantieriFilteredVehicles);
-        console.log("kanban gps set.");
-      }else if(this.kanbanAntenna){
-        let serviceVehicles = this.kanbanAntennaService.workingVehicles;
-        serviceVehicles = [...this.kanbanAntennaService.blackboxVehicles];
-        serviceVehicles = [...this.kanbanAntennaService.errorVehicles];
+      this.kanbanGpsService.setKanbanData(cantieriFilteredVehicles);
+    }else if(this.kanbanAntenna){
+      let serviceVehicles = this.kanbanAntennaService.workingVehicles;
+      serviceVehicles = [...this.kanbanAntennaService.blackboxVehicles];
+      serviceVehicles = [...this.kanbanAntennaService.errorVehicles];
 
-        const kanbanVehicles = this.sortService.vehiclesInDefaultOrder(serviceVehicles);
+      const kanbanVehicles = this.sortService.vehiclesInDefaultOrder(serviceVehicles);
 
-        const cantieriFilteredVehicles = this.cantieriFilterService.filterVehiclesByCantieri(kanbanVehicles, selectedCantieri);
+      const cantieriFilteredVehicles = this.cantieriFilterService.filterVehiclesByCantieri(kanbanVehicles, selectedCantieri);
 
-        console.log("selectedCantieri: ", selectedCantieri);
-        console.log("cantieriFilteredVehicles: ", cantieriFilteredVehicles);
-        this.kanbanGpsService.setKanbanData(cantieriFilteredVehicles);
-        console.log("kanban gps set.");
-      }
+      this.kanbanGpsService.setKanbanData(cantieriFilteredVehicles);
     }
+    this.cd.detectChanges();
+  }
 
 
 

@@ -124,7 +124,6 @@ export class RowFilterComponent implements AfterViewInit{
       }
     }
 
-
     this.cantieriFilterService.filterTableByCantiere$.next(this.cantieri.value || []); //notifica il filtro alla tabella basato sulle opzioni selezionate
     this.cd.detectChanges();
   }

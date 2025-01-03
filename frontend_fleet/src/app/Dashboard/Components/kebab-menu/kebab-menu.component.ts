@@ -48,12 +48,15 @@ export class KebabMenuComponent implements AfterViewInit{
     switch(value){
       case "table":
         this.kanbanTableService.loadKabanTable$.next();//switcha a componente tabella
+        this.sessionStorageService.setItem("dashboard-section", "table");
         break;
       case "GPS":
         this.kanbangpsService.loadKanbanGps$.next();//switcha a componente GPS
+        this.sessionStorageService.setItem("dashboard-section", "GPS");
         break;
       case "antenna":
         this.kanbanAntennaService.loadKanbanAntenna$.next();//switcha a componente antenna
+        this.sessionStorageService.setItem("dashboard-section", "Antenna");
         break;
     }
   }
