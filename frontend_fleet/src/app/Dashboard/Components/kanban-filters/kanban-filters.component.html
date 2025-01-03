@@ -5,7 +5,7 @@
     <button *ngIf="targa.value" matSuffix mat-icon-button aria-label="Clear" (click)="searchPlates(true)">
       <mat-icon>close</mat-icon>
     </button>
-    <mat-icon matSuffix>search</mat-icon>
+    <mat-icon matSuffix *ngIf="!targa.value">search</mat-icon>
   </mat-form-field>
   <mat-form-field class="cantieri-filter" appearance="outline">
     <mat-select [formControl]="cantieri" placeholder="Cantiere" multiple class="cantiere-input">
