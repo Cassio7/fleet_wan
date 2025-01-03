@@ -92,7 +92,6 @@ export class KanbanFiltersComponent implements AfterViewInit{
       if(this.cantieriFilterService.isCantieriAllSelected()) {
         this.cantieriFilterService.allSelected = false;
       }
-      this.cantieriFilterService.setCantieriSessionStorage();
       //se sono stati selezionati cantieri, invio dati
       if (selectedCantieri) {
         this.kanbanGpsService.loadKanbanGps$.next();

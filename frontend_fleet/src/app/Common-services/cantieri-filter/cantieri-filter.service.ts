@@ -150,8 +150,6 @@ export class CantieriFilterService{
       const newCantieri = this.fillSelect(vehicles);
 
       this.listaCantieri = firstElement ? [firstElement, ...newCantieri] : newCantieri;
-
-      this.setCantieriSessionStorage();
       return this.listaCantieri;
     } else {
       console.error("Array di veicoli non valido o vuoto:", vehicles);
@@ -166,13 +164,11 @@ export class CantieriFilterService{
   toggleSelectAllCantieri(){
     if (this.allSelected) {
       this.filterTableByCantiere$.next([]);
-      this.allSelected = false;
-      this.setCantieriSessionStorage();
+      this.allSelected = false
       return [];
     } else {
       this.filterTableByCantiere$.next(this.listaCantieri);
-      this.allSelected = true;
-      this.setCantieriSessionStorage();
+      this.allSelected = true
       return this.listaCantieri;
     }
   }
@@ -192,13 +188,6 @@ export class CantieriFilterService{
    */
   isCantieriAllSelected(): boolean{
     return this.allSelected;
-  }
-
-  /**
-   * imposta il sessionstorage dei cantieri
-   */
-  setCantieriSessionStorage(){
-    this.sessionStorageService.setItem("cantieri", JSON.stringify(this.listaCantieri));
   }
 
   public get updateCantieriFilterOptions$(): BehaviorSubject<any[]> {
