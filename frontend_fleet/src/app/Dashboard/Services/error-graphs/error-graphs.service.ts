@@ -73,7 +73,7 @@ export class ErrorGraphsService{
 
     //aggiunta risultati antenna
     antennaCheckResult[0].forEach(vehicle => workingVehiclesSet.add(vehicle));
-    antennaCheckResult[1].forEach(vehicle => warningVehiclesSet.add(vehicle));
+    antennaCheckResult[1].forEach(vehicle => errorVehiclesSet.add(vehicle));
 
     //aggiunta risultati sessione
     sessionCheckResult[0].forEach(vehicle => workingVehiclesSet.add(vehicle));
@@ -111,7 +111,6 @@ export class ErrorGraphsService{
         this.sessionStorageService.setItem("errorVehicles", JSON.stringify(this.errorsData.errorVehicles));
         this.firstLoad = false;
     }
-
     this._loadGraphData$.next(this._series); //invio dati per il caricamento dei grafici
 }
 
