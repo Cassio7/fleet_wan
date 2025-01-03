@@ -4,6 +4,8 @@ import { NgApexchartsModule } from "ng-apexcharts";
 import { Subject, skip, takeUntil } from 'rxjs';
 import { CheckErrorsService } from '../../../Services/check-errors/check-errors.service';
 import { SessionStorageService } from '../../../../Common-services/sessionStorage/session-storage.service';
+import { PlateFilterService } from '../../../../Common-services/plate-filter/plate-filter.service';
+import { Vehicle } from '../../../../Models/Vehicle';
 
 @Component({
   selector: 'app-gps-graph',
@@ -23,6 +25,7 @@ export class GpsGraphComponent implements AfterViewInit{
   constructor(
     private gpsGraphService: GpsGraphService,
     private checkErrorsService: CheckErrorsService,
+    private plateFilterService: PlateFilterService,
     private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef
   ) {
@@ -103,18 +106,31 @@ export class GpsGraphComponent implements AfterViewInit{
     console.log("error gps");
   }
 
+  initializeGraph(vehicles: Vehicle[]){
+    this.chartOptions.series = [];
+
+    const gpsCheck = this.checkErrorsService.checkVehiclesGpsErrors(vehicles);
+
+    this.chartOptions.series = [gpsCheck[0].length, gpsCheck[1].length, gpsCheck[2].length];
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
   ngAfterViewInit(): void {
-    this.chartOptions.series = [];
-
     const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-    const gpsCheck = this.checkErrorsService.checkVehiclesGpsErrors(allVehicles);
-
-    this.chartOptions.series = [gpsCheck[0].length, gpsCheck[1].length, gpsCheck[2].length];
+    this.initializeGraph(allVehicles);
+    this.plateFilterService.filterByPlateResearch$.pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (research: string)=>{
+        const plateFilteredVehicles = this.plateFilterService.filterVehiclesByPlateResearch(research, allVehicles);
+        this.initializeGraph(plateFilteredVehicles);
+      },
+      error: error => console.error("Errore nel filtro per la targa: ",error)
+    });
     this.cd.detectChanges();
   }
+
 }
