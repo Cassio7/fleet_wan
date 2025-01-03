@@ -1,11 +1,29 @@
 import { Injectable } from '@angular/core';
 import { Session } from '../../Models/Session';
 import { Vehicle } from '../../Models/Vehicle';
+import { SessionStorageService } from '../sessionStorage/session-storage.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SortService {
+
+  constructor(
+    private sessionStorageService: SessionStorageService
+  ){}
+
+  /**
+   * Filtra "allVehicles" con i veicoli passati, in modo da ottenere lo stesso ordine di visualizzazione
+   * @param selectedVehicles veicoli selezionati
+   * @returns array di veicoli filtrato
+   */
+  vehiclesInDefaultOrder(selectedVehicles: Vehicle[]){
+    const allVehicles: Vehicle[] = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+    const filteredVehicles = allVehicles.filter(vehicle => {
+      return selectedVehicles.some(selected => selected.veId === vehicle.veId);
+    });
+    return filteredVehicles;
+  }
 
   /**
    * Ordina i veicoli in base alla targa con ordine crescente

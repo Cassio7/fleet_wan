@@ -187,9 +187,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
             }
           }
 
-          const filteredVehicles = allVehicles.filter(vehicle => {
-            return selectedVehicles.some(selected => selected.veId === vehicle.veId);
-          });
+          const filteredVehicles = this.sortService.vehiclesInDefaultOrder(selectedVehicles);
 
           this.vehicleTableData.data = filteredVehicles.length > 0 ? filteredVehicles : [];
 
@@ -232,14 +230,11 @@ export class TableComponent implements OnDestroy, AfterViewInit{
           }
         }
 
-        const filteredVehicles = allVehicles.filter(vehicle => {
-          return selectedVehicles.some(selected => selected.veId === vehicle.veId);
-        });
+        const filteredVehicles = this.sortService.vehiclesInDefaultOrder(selectedVehicles);
 
         this.vehicleTableData.data = filteredVehicles.length > 0 ? filteredVehicles : [];
 
         this.vehicleTable.renderRows();
-
         this.loadGraphs(this.vehicleTableData.data);
       },
       error: error => console.error("Errore nel filtro delle antenne: ", error)
@@ -259,11 +254,11 @@ handleSessionFilter() {
 
       let selectedVehicles: Vehicle[] = [];
 
-      // Se "all" è selezionato, aggiungi tutti i veicoli
+      //se "all" è selezionato, aggiungi tutti i veicoli
       if (selections.includes("all")) {
         selectedVehicles = vehicles;
       } else {
-        // Seleziona i veicoli in base alle opzioni
+        //selezione dei veicoli in base alle opzioni
         if (selections.includes("Funzionante")) {
           selectedVehicles = [...selectedVehicles, ...sessionCheck[0]];
         }
@@ -272,23 +267,13 @@ handleSessionFilter() {
         }
       }
 
-      // Rimozione duplicati basandosi sull'ID (veId)
-      selectedVehicles = selectedVehicles.filter((vehicle, index, self) =>
-        index === self.findIndex(v => v.veId === vehicle.veId)
-      );
+      //filtrare allVehicles per includere solo i veicoli selezionati
+      const filteredVehicles = this.sortService.vehiclesInDefaultOrder(selectedVehicles);
 
-      // Filtrare allVehicles per includere solo i veicoli selezionati
-      const filteredVehicles = allVehicles.filter(vehicle => {
-        return selectedVehicles.some(selected => selected.veId === vehicle.veId);
-      });
-
-      // Impostare i dati della tabella con i veicoli filtrati
+      //impostare i dati della tabella con i veicoli filtrati
       this.vehicleTableData.data = filteredVehicles.length > 0 ? filteredVehicles : [];
 
-      // Render della tabella
       this.vehicleTable.renderRows();
-
-      // Caricamento dei grafici
       this.loadGraphs(this.vehicleTableData.data);
     },
     error: error => console.error("Errore nel filtro per gli stati di sessione: ", error)
