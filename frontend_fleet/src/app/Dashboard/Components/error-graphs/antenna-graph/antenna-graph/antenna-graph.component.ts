@@ -1,28 +1,30 @@
-import { GpsGraphService } from './../../../Services/gps-graph/gps-graph.service';
-import { AfterViewInit, ChangeDetectorRef, Component, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
+import { Subject } from 'rxjs';
+import { SessionStorageService } from '../../../../../Common-services/sessionStorage/session-storage.service';
+import { CheckErrorsService } from '../../../../Services/check-errors/check-errors.service';
 import { NgApexchartsModule } from "ng-apexcharts";
-import { Subject, skip, takeUntil } from 'rxjs';
-import { CheckErrorsService } from '../../../Services/check-errors/check-errors.service';
-import { SessionStorageService } from '../../../../Common-services/sessionStorage/session-storage.service';
+import { AntennaGraphService } from '../../../../Services/antenna-graph/antenna-graph.service';
+import { BlackboxGraphsService } from '../../../../Services/blackbox-graphs/blackbox-graphs.service';
 
 @Component({
-  selector: 'app-gps-graph',
+  selector: 'app-antenna-graph',
   standalone: true,
   imports: [
     NgApexchartsModule
   ],
-  templateUrl: './gps-graph.component.html',
-  styleUrl: './gps-graph.component.css'
+  templateUrl: './antenna-graph.component.html',
+  styleUrl: './antenna-graph.component.css'
 })
-export class GpsGraphComponent implements AfterViewInit{
+export class AntennaGraphComponent {
   private readonly destroy$: Subject<void> = new Subject<void>();
   public chartOptions: any;
 
   public nVehicles: number = 0;
 
   constructor(
-    private gpsGraphService: GpsGraphService,
+    private antennaGraphService: AntennaGraphService,
     private checkErrorsService: CheckErrorsService,
+    private blackboxGraphService: BlackboxGraphsService,
     private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef
   ) {
@@ -30,8 +32,8 @@ export class GpsGraphComponent implements AfterViewInit{
       series: [],
       chart: {
         type: "donut",
-        height: this.gpsGraphService.height,
-        width: this.gpsGraphService.width,
+        height: this.antennaGraphService.height,
+        width: this.antennaGraphService.width,
         events: {
           dataPointSelection: (event: any, chartContext: any, config: any) => {
             switch (config.dataPointIndex) {
@@ -65,8 +67,8 @@ export class GpsGraphComponent implements AfterViewInit{
           }
         }
       },
-      labels: ["Funzionante", "Warning", "Error"],
-      colors: this.gpsGraphService.colors,
+      labels: ["Funzionante", "Error", "Blackbox"],
+      colors: this.antennaGraphService.colors,
       responsive: [
         {
           breakpoint: 480,
@@ -75,8 +77,8 @@ export class GpsGraphComponent implements AfterViewInit{
               position: "bottom"
             },
             chart: {
-              width: this.gpsGraphService.width / 2,
-              height: this.gpsGraphService.height / 2
+              width: this.antennaGraphService.width / 2,
+              height: this.antennaGraphService.height / 2
             }
           }
         }
@@ -112,9 +114,10 @@ export class GpsGraphComponent implements AfterViewInit{
     this.chartOptions.series = [];
 
     const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-    const gpsCheck = this.checkErrorsService.checkVehiclesGpsErrors(allVehicles);
+    const antennaCheck = this.checkErrorsService.checkVehiclesAntennaErrors(allVehicles);
+    const blackboxData = this.blackboxGraphService.getAllRFIDVehicles(allVehicles);
 
-    this.chartOptions.series = [gpsCheck[0].length, gpsCheck[1].length, gpsCheck[2].length];
+    this.chartOptions.series = [antennaCheck[0].length, antennaCheck[1].length, blackboxData.blackboxOnly.length];
     this.cd.detectChanges();
   }
 }

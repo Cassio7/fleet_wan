@@ -50,7 +50,7 @@ export class ErrorGraphsService{
   * e notifica e manda i dati al grafico tramite un subject
   * @param vehicles oggetto custom di veicoli
   */
-  public loadChartData(vehicles: any[]) {
+  public loadChartData(vehicles: Vehicle[]) {
     this.errorsData.workingVehicles = [];
     this.errorsData.warningVehicles = [];
     this.errorsData.errorVehicles = [];
@@ -74,7 +74,6 @@ export class ErrorGraphsService{
     //aggiunta risultati antenna
     antennaCheckResult[0].forEach(vehicle => workingVehiclesSet.add(vehicle));
     antennaCheckResult[1].forEach(vehicle => warningVehiclesSet.add(vehicle));
-    antennaCheckResult[2].forEach(vehicle => errorVehiclesSet.add(vehicle));
 
     //aggiunta risultati sessione
     sessionCheckResult[0].forEach(vehicle => workingVehiclesSet.add(vehicle));

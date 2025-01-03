@@ -156,11 +156,10 @@ export class CheckErrorsService {
   /**
    * Controlla le antenne dei veicoli passati come parametro
    * @param vehicles veicoli da controllare
-   * @returns array formato da: [workingVehicles, warningVehicles, errorVehicles]
+   * @returns array formato da: [workingVehicles, errorVehicles]
    */
   public checkVehiclesAntennaErrors(vehicles: Vehicle[]){
     const workingVehicles: Vehicle[] = [];
-    const warningVehicles: Vehicle[] = [];
     const errorVehicles: Vehicle[] = [];
 
     vehicles.map(vehicle => {
@@ -173,7 +172,7 @@ export class CheckErrorsService {
         }
       }
     });
-    return [workingVehicles, warningVehicles, errorVehicles];
+    return [workingVehicles, errorVehicles];
   }
 
   /**

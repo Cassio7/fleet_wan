@@ -11,6 +11,8 @@ import { GpsGraphComponent } from "../gps-graph/gps-graph.component";
 import { KanbanGpsService } from '../../../Services/kanban-gps/kanban-gps.service';
 import { KanbanAntennaService } from '../../../Services/kanban-antenna/kanban-antenna.service';
 import { KanbanTableService } from '../../../Services/kanban-table/kanban-table.service';
+import { AntennaGraphComponent } from "../antenna-graph/antenna-graph/antenna-graph.component";
+import { SessionStorageService } from '../../../../Common-services/sessionStorage/session-storage.service';
 
 @Component({
   selector: 'app-error-graph-card',
@@ -21,7 +23,8 @@ import { KanbanTableService } from '../../../Services/kanban-table/kanban-table.
     ErrorPieGraphComponent,
     MatSelectModule,
     MatOptionModule,
-    GpsGraphComponent
+    GpsGraphComponent,
+    AntennaGraphComponent
 ],
   templateUrl: './error-graph-card.component.html',
   styleUrl: './error-graph-card.component.css'
@@ -29,7 +32,7 @@ import { KanbanTableService } from '../../../Services/kanban-table/kanban-table.
 export class ErrorGraphCardComponent implements AfterViewInit, OnDestroy{
   private destroy$: Subject<void> = new Subject<void>();
   errorGraphTitle: string = "Errors";
-  errorsGraph: boolean = true;
+  errorsGraph: boolean = false;
   gpsGraph: boolean = false;
   antennaGraph: boolean = false;
 
@@ -37,12 +40,30 @@ export class ErrorGraphCardComponent implements AfterViewInit, OnDestroy{
     private kanabanGpsService: KanbanGpsService,
     private kanbanAntennaService: KanbanAntennaService,
     private kanbanTableService: KanbanTableService,
+    private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef
   ){}
 
 
   ngAfterViewInit(): void {
-    console.log("load kanban table");
+    this.handleKanbansLoading();
+    const section = this.sessionStorageService.getItem("dashboard-section");
+
+    console.log("section: ", section);
+    switch(section){
+      case "table":
+        this.changeGraph("Errors");
+        break;
+      case "GPS":
+        this.changeGraph("GPS");
+        break;
+      case "Antenna":
+        this.changeGraph("Antenna");
+        break;
+    }
+  }
+
+  handleKanbansLoading(){
     this.errorGraphTitle = "Errors";
     this.changeGraph('Errors');
     this.cd.detectChanges();
@@ -50,7 +71,6 @@ export class ErrorGraphCardComponent implements AfterViewInit, OnDestroy{
     this.kanabanGpsService.loadKanbanGps$.pipe(takeUntil(this.destroy$))
     .subscribe({
       next: () => {
-        console.log("load kanban gps");
         this.errorGraphTitle = "GPS";
         this.changeGraph('GPS');
         this.cd.detectChanges();
@@ -60,7 +80,6 @@ export class ErrorGraphCardComponent implements AfterViewInit, OnDestroy{
     this.kanbanAntennaService.loadKanbanAntenna$.pipe(takeUntil(this.destroy$))
     .subscribe({
       next: () => {
-        console.log("load kanban Antenna");
         this.errorGraphTitle = "Antenna";
         this.changeGraph('Antenna');
         this.cd.detectChanges();
@@ -70,7 +89,6 @@ export class ErrorGraphCardComponent implements AfterViewInit, OnDestroy{
     this.kanbanTableService.loadKabanTable$.pipe(takeUntil(this.destroy$))
     .subscribe({
       next: () => {
-        console.log("load kanban table");
         this.errorGraphTitle = "Errors";
         this.changeGraph('Errors');
         this.cd.detectChanges();
@@ -95,6 +113,7 @@ export class ErrorGraphCardComponent implements AfterViewInit, OnDestroy{
         this.errorsGraph = false;
         this.antennaGraph = false;
         this.gpsGraph = true;
+        console.log("ho finito gps");
         break;
       case 'Antenna':
         this.errorsGraph = false;

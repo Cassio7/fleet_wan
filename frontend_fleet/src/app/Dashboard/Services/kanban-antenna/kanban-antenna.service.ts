@@ -46,7 +46,7 @@ export class KanbanAntennaService {
   setKanbanData(vehicles: Vehicle[]){
     const antennaSeries = this.checkErrorsService.checkVehiclesAntennaErrors(vehicles);
     this.workingVehicles = antennaSeries[0];
-    this.errorVehicles = antennaSeries[2];
+    this.errorVehicles = antennaSeries[1];
     this.blackboxVehicles = this.blackboxGraphService.getAllRFIDVehicles(vehicles).blackboxOnly;
   }
 
