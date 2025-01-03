@@ -1,10 +1,10 @@
 import { ChangeDetectorRef, Component } from '@angular/core';
 import { Subject } from 'rxjs';
-import { SessionStorageService } from '../../../../../Common-services/sessionStorage/session-storage.service';
-import { CheckErrorsService } from '../../../../Services/check-errors/check-errors.service';
+import { SessionStorageService } from '../../../../Common-services/sessionStorage/session-storage.service';
+import { CheckErrorsService } from '../../../Services/check-errors/check-errors.service';
 import { NgApexchartsModule } from "ng-apexcharts";
-import { AntennaGraphService } from '../../../../Services/antenna-graph/antenna-graph.service';
-import { BlackboxGraphsService } from '../../../../Services/blackbox-graphs/blackbox-graphs.service';
+import { AntennaGraphService } from '../../../Services/antenna-graph/antenna-graph.service';
+import { BlackboxGraphsService } from '../../../Services/blackbox-graphs/blackbox-graphs.service';
 
 @Component({
   selector: 'app-antenna-graph',
@@ -67,7 +67,7 @@ export class AntennaGraphComponent {
           }
         }
       },
-      labels: ["Funzionante", "Error", "Blackbox"],
+      labels: ["Funzionante", "Error", "No antenna"],
       colors: this.antennaGraphService.colors,
       responsive: [
         {
