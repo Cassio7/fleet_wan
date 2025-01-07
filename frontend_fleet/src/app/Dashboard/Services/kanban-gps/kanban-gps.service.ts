@@ -17,6 +17,14 @@ export class KanbanGpsService{
   ) { }
 
   /**
+   * Permette di ottenere tutti i veicoli di tutte le colonne del kanban gps
+   * @returns array di veicoli così formato: [prima colonna, seconda colonna, terza colonna]
+   */
+  getAllKanbanVehicles(){
+    return [...this.workingVehicles, ...this.warningVehicles, ...this.errorVehicles];
+  }
+
+  /**
    * Aggiunge un item ad una colonna del kanban GPS
    * @param column colonna sulla quale aggiungere
    */

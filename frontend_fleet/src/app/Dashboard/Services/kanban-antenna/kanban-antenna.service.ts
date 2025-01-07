@@ -13,13 +13,22 @@ export class KanbanAntennaService {
 
 
   workingVehicles: Vehicle[] = [];
-  blackboxVehicles: Vehicle[] = [];
   errorVehicles: Vehicle[] = [];
+  blackboxVehicles: Vehicle[] = [];
 
   constructor(
     private checkErrorsService: CheckErrorsService,
     private blackboxGraphService: BlackboxGraphsService
   ) { }
+
+
+  /**
+   * Permette di ottenere tutti i veicoli di tutte le colonne del kanban gps
+   * @returns array di veicoli così formato: [prima colonna, seconda colonna, terza colonna]
+   */
+  getAllKanbanVehicles(){
+    return [...this.workingVehicles, ...this.errorVehicles, this.blackboxVehicles];
+  }
 
   /**
    * Aggiunge un item ad una colonna del kanban GPS
