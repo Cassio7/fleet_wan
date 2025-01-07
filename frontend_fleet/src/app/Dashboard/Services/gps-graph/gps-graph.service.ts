@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { Vehicle } from '../../../Models/Vehicle';
 import { CheckErrorsService } from '../check-errors/check-errors.service';
@@ -18,11 +18,38 @@ export class GpsGraphService {
 
   private _width = 300;
 
+  private readonly _loadChartData$: BehaviorSubject<Vehicle[]> = new BehaviorSubject<Vehicle[]>([]);
+
 
   constructor(
     private checkErrorsService: CheckErrorsService,
     private sessionStorageService: SessionStorageService
   ) { }
+
+  /**
+   * Permette di preparare i dati per il caricamento del grafico dei gps
+   * @param vehicles veicoli da analizzare
+   * @returns array: [workingVehicles, warningVehicles, errorVehicles]
+   */
+  public loadChartData(vehicles: Vehicle[]) {
+    this._series = [0, 0, 0]; // [working, warning, error]
+
+    //controlli su gps e antenna
+    const gpsCheckResult: Vehicle[][] = this.checkErrorsService.checkVehiclesGpsErrors(vehicles);
+
+    const workingVehicles = Array.from(gpsCheckResult[0]);
+    const warningVehicles = Array.from(gpsCheckResult[1]);
+    const errorVehicles = Array.from(gpsCheckResult[2]);
+
+    //impostazione series
+    this._series = [
+        workingVehicles.length,
+        warningVehicles.length,
+        errorVehicles.length
+    ];
+
+    return [workingVehicles, warningVehicles, errorVehicles];
+}
 
 
   /*getters & setters*/
@@ -55,5 +82,8 @@ export class GpsGraphService {
   }
   public set width(value) {
     this._width = value;
+  }
+  public get loadChartData$(): Subject<Vehicle[]> {
+    return this._loadChartData$;
   }
 }

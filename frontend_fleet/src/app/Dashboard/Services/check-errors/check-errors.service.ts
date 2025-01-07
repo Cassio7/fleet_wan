@@ -211,8 +211,6 @@ export class CheckErrorsService {
 
   /**
  * Controlla gli errori di tutti i veicoli con sessioni nella giornata di oggi
- * @param dateFrom data di inizio ricerca
- * @param dateTo data di fine ricerca
  * @returns observable http
 */
   public checkErrorsAllToday(): Observable<any>{

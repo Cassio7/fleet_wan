@@ -1,3 +1,4 @@
+import { ErrorGraphsService } from './../../../Services/error-graphs/error-graphs.service';
 import { GpsGraphService } from './../../../Services/gps-graph/gps-graph.service';
 import { AfterViewInit, ChangeDetectorRef, Component, ViewChild } from '@angular/core';
 import { NgApexchartsModule } from "ng-apexcharts";
@@ -25,6 +26,7 @@ export class GpsGraphComponent implements AfterViewInit{
   constructor(
     private gpsGraphService: GpsGraphService,
     private checkErrorsService: CheckErrorsService,
+    private errorGraphsService: ErrorGraphsService,
     private plateFilterService: PlateFilterService,
     private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef
@@ -110,8 +112,10 @@ export class GpsGraphComponent implements AfterViewInit{
     this.chartOptions.series = [];
 
     const gpsCheck = this.checkErrorsService.checkVehiclesGpsErrors(vehicles);
+    console.log("gpsCheck: ", gpsCheck);
 
-    this.chartOptions.series = [gpsCheck[0].length, gpsCheck[1].length, gpsCheck[2].length];
+    const series = [gpsCheck[0].length, gpsCheck[1].length, gpsCheck[2].length];
+    this.chartOptions.series = series;
   }
 
   ngOnDestroy(): void {
@@ -122,13 +126,21 @@ export class GpsGraphComponent implements AfterViewInit{
   ngAfterViewInit(): void {
     const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
     this.initializeGraph(allVehicles);
-    this.plateFilterService.filterByPlateResearch$.pipe(takeUntil(this.destroy$))
+    this.plateFilterService.filterByPlateResearch$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (research: string)=>{
         const plateFilteredVehicles = this.plateFilterService.filterVehiclesByPlateResearch(research, allVehicles);
         this.initializeGraph(plateFilteredVehicles);
       },
       error: error => console.error("Errore nel filtro per la targa: ",error)
+    });
+    this.gpsGraphService.loadChartData$.pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next:(vehicles: Vehicle[]) => {
+        this.initializeGraph(vehicles);
+        this.cd.detectChanges();
+      },
+      error: error => console.error("Errore nel caricamento del grafico GPS: ", error)
     });
     this.cd.detectChanges();
   }

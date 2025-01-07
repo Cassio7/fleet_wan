@@ -49,6 +49,7 @@ export class ErrorGraphsService{
   * Permette di preparare l'array per riempire il grafico degli errori
   * e notifica e manda i dati al grafico tramite un subject
   * @param vehicles oggetto custom di veicoli
+  * @returns oggetto errorsData
   */
   public loadChartData(vehicles: Vehicle[]) {
     this.errorsData.workingVehicles = [];
@@ -112,6 +113,7 @@ export class ErrorGraphsService{
         this.firstLoad = false;
     }
     this._loadGraphData$.next(this._series); //invio dati per il caricamento dei grafici
+    return this.errorsData;
 }
 
 
