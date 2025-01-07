@@ -59,6 +59,8 @@ import { CategoryFactoryService } from './factory/category.factory';
 import { AnomalyService } from './services/anomaly/anomaly.service';
 import { RoleService } from './services/role/role.service';
 import { AssociationService } from './services/association/association.service';
+import { AssociationController } from './controllers/association/association.controller';
+import { WorksiteService } from './services/worksite/worksite.service';
 
 @Global()
 @Module({
@@ -211,6 +213,7 @@ import { AssociationService } from './services/association/association.service';
     UserController,
     CompanyController,
     AnomalyController,
+    AssociationController,
   ],
   providers: [
     AppService,
@@ -232,6 +235,7 @@ import { AssociationService } from './services/association/association.service';
     AnomalyService,
     RoleService,
     AssociationService,
+    WorksiteService,
   ],
 })
 export class AppModule {}
