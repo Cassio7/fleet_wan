@@ -3,10 +3,12 @@ import {
   Controller,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Req,
   Res,
   UseGuards,
+  UsePipes,
 } from '@nestjs/common';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { Role } from 'classes/enum/role.enum';
@@ -168,6 +170,7 @@ export class VehicleController {
    * @returns
    */
   @Get('/:veId')
+  @UsePipes(ParseIntPipe)
   async getVehicleById(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,

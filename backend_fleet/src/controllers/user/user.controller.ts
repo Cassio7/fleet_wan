@@ -4,11 +4,13 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Req,
   Res,
   UseGuards,
+  UsePipes,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserDTO } from 'classes/dtos/user.dto';
@@ -193,6 +195,7 @@ export class UserController {
    */
   @Roles(Role.Admin)
   @Get(':id')
+  @UsePipes(ParseIntPipe)
   async getUserById(@Res() res: Response, @Param() params: any) {
     try {
       const user = await this.userService.getUserById(params.id);
