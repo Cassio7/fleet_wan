@@ -1,8 +1,9 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { CommonService } from '../common service/common.service';
 import { Vehicle } from '../../Models/Vehicle';
+import { CookiesService } from '../cookies service/cookies.service';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +16,7 @@ export class CheckErrorsService {
 
   constructor(
     private http: HttpClient,
+    private cookieService: CookiesService,
     private commonService: CommonService
   ) { }
 
@@ -201,24 +203,32 @@ export class CheckErrorsService {
    * @param dateTo data di fine ricerca
    * @returns observable http
    */
-  public checkErrorsAllRanged(dateFrom: Date, dateTo: Date): Observable<any>{
+  public checkErrorsAllRanged(dateFrom: Date, dateTo: Date): Observable<any> {
+    const access_token = this.cookieService.getCookie("user");
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${access_token}`,
+      'Content-Type': 'application/json'
+    });
+
     const body = {
       dateFrom: dateFrom,
       dateTo: dateTo
-    }
-    return this.http.post(`http://10.1.0.102:3001/session/checkerrors/all`, body);
+    };
+
+    return this.http.post(
+      `${this.commonService.url}/anomaly`,
+      body,
+      { headers }
+    );
   }
+
 
   /**
  * Controlla gli errori di tutti i veicoli con sessioni nella giornata di oggi
  * @returns observable http
-*/
+  */
   public checkErrorsAllToday(): Observable<any>{
-    const body = {
-      dateFrom: this.commonService.dateFrom,
-      dateTo: this.commonService.dateTo
-    }
-    return this.http.post(`http://10.1.0.102:3001/session/checkerrors/all`, body);
+    return this.checkErrorsAllRanged(new Date(), new Date());
   }
 
 

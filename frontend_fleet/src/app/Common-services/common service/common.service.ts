@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class CommonService {
-  private _url: string = "http://10.1.0.102:3001";
+  private _url: string = "http://10.1.0.102:3001/v0";
 
   private _dateFrom: Date = new Date("2024-11-29");
   private _dateTo: Date = new Date("2024-11-30");

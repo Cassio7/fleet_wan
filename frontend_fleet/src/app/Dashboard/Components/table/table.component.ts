@@ -394,6 +394,7 @@ handleSessionFilter() {
    * Riempe la tabella con i dati dei veicoli
    */
   fillTable() {
+    console.log("filltable chiamata!");
     //nascondi i grafici
     this.blackboxGraphService.resetGraphs();
     this.errorGraphService.resetGraphs();
@@ -446,7 +447,8 @@ handleSessionFilter() {
         anomaliesVehicles: any[];
         lastValidSessions: any[];
       }) => {
-        try {
+          console.log("anomaliesVehicles: ", anomaliesVehicles);
+          try {
           if (vehicles && vehicles.length > 0) {
             vehicles.forEach((vehicle) => {
               vehicle.anomalySessions = anomaliesVehicles

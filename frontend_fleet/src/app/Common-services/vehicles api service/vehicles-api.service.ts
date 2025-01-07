@@ -1,8 +1,9 @@
 import { CommonService } from '../common service/common.service';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Vehicle } from '../../Models/Vehicle';
+import { CookiesService } from '../cookies service/cookies.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,15 +12,21 @@ export class VehiclesApiService {
 
   constructor(
     private http: HttpClient,
-    private commonService: CommonService
+    private commonService: CommonService,
+    private cookieService: CookiesService
   ) { }
 
   /**
    * Prende tutti i dati dei veicoli dall'api gestita nel backend
    * @returns observable http
    */
-  public getAllVehicles(): Observable<Vehicle[]>{
-    return this.http.get<Vehicle[]>("http://10.1.0.102:3001/vehicles");
+  public getAllVehicles(): Observable<Vehicle[]> {
+    const access_token = this.cookieService.getCookie("user");
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${access_token}`
+    });
+
+    return this.http.get<Vehicle[]>(`${this.commonService.url}/vehicles`, { headers });
   }
 
   /**
@@ -27,9 +34,18 @@ export class VehiclesApiService {
    * @param plate targa del veicolo da ricercare
    * @returns observable http
    */
-  public getVehicleByPlate(plate: string): Observable<Vehicle>{
-    return this.http.get<Vehicle>(`http://10.1.0.102:3001/vehicles/fetchplate/${plate}`);
+  public getVehicleByPlate(plate: string): Observable<Vehicle> {
+    const access_token = this.cookieService.getCookie("user");
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${access_token}`
+    });
+
+    return this.http.get<Vehicle>(
+      `http://10.1.0.102:3001/vehicles/fetchplate/${plate}`,
+      { headers }
+    );
   }
+
 
   /**
    * Controlla il GPS di un veicolo
