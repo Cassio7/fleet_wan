@@ -534,7 +534,7 @@ handleSessionFilter() {
     if (vehicle?.worksite && vehicle.worksite.name) {
       return vehicle.worksite.name;
     } else {
-      return "Non assegnato.";
+      return "Non assegnato";
     }
   }
 

@@ -27,18 +27,17 @@ export class GpsFilterService {
    * Seleziona / deseleziona tutti gli stati dei gps dei veicoli nel select e notifica la tabella di aggiornare i dati
    * @returns nuovo valore della lista cantieri
    */
-  toggleSelectAllGps(): string{
+  toggleSelectAllGps(): boolean{
     if (this.allSelected) {
       this.filterTableByGps$.next([]);
       this.allSelected = false;
       this.selectedOptions = [];
-      return "";
     } else {
       this._filterTableByGps$.next(["all"]);
       this.allSelected = true;
       this.selectedOptions = this.allOptions;
-      return "all";
     }
+    return this.allSelected;
   }
 
   /**

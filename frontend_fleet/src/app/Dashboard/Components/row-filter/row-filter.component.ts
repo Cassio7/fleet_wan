@@ -115,6 +115,7 @@ export class RowFilterComponent implements AfterViewInit{
 
       const allOptions = this.cantiereFilterService.vehiclesCantieriOnce(allVehicles);
       const areAllSelected = allOptions.every(option => selectedCantieri.includes(option));
+      console.log("areAllSelected: ", areAllSelected);
 
       //selezione di "Seleziona tutto" quando tutte le opzioni singole sono selezionate
       if (areAllSelected && !selectedCantieri.includes("Seleziona tutto")) {
@@ -242,7 +243,7 @@ export class RowFilterComponent implements AfterViewInit{
    * Seleziona tutti i filtri del select dei gps
    */
   toggleSelectAllGps() {
-    if(this.gpsFilterService.toggleSelectAllGps() == "all"){
+    if(this.gpsFilterService.toggleSelectAllGps()){
       this.gps.setValue(["Seleziona tutto", ...this.gpsFilterService.allOptions]);
     }else{
       this.gps.setValue([]);
