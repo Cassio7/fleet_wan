@@ -164,6 +164,7 @@ export class UserService {
         userDTO.role = user.role.name;
         return userDTO;
       } else {
+        userDTO.id = user.id;
         userDTO.email = user.email;
         userDTO.name = user.name;
         userDTO.surname = user.surname;
