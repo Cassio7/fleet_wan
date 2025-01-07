@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component } from '@angular/core';
-import { Subject, takeUntil } from 'rxjs';
+import { skip, Subject, takeUntil } from 'rxjs';
 import { SessionStorageService } from '../../../../Common-services/sessionStorage/session-storage.service';
 import { CheckErrorsService } from '../../../Services/check-errors/check-errors.service';
 import { NgApexchartsModule } from "ng-apexcharts";
@@ -114,6 +114,7 @@ export class AntennaGraphComponent {
     const antennaCheck = this.checkErrorsService.checkVehiclesAntennaErrors(vehicles);
     const blackboxData = this.blackboxGraphService.getAllRFIDVehicles(vehicles);
 
+    console.log([antennaCheck[0].length, antennaCheck[1].length, blackboxData.blackboxOnly.length]);
     this.chartOptions.series = [antennaCheck[0].length, antennaCheck[1].length, blackboxData.blackboxOnly.length];
   }
 
@@ -125,13 +126,21 @@ export class AntennaGraphComponent {
   ngAfterViewInit(): void {
     const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
     this.initializeGraph(allVehicles);
-    this.plateFilterService.filterByPlateResearch$.pipe(takeUntil(this.destroy$))
+    this.plateFilterService.filterByPlateResearch$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (research: string)=>{
         const plateFilteredVehicles = this.plateFilterService.filterVehiclesByPlateResearch(research, allVehicles);
         this.initializeGraph(plateFilteredVehicles);
       },
       error: error => console.error("Errore nel filtro per la targa: ",error)
+    });
+    this.antennaGraphService.loadChartData$.pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next: (vehicles: Vehicle[]) => {
+        this.initializeGraph(vehicles);
+        this.cd.detectChanges();
+      },
+      error: error => console.error("Errore nel caricamento del grafico delle antenne: ", error)
     });
     this.cd.detectChanges();
   }

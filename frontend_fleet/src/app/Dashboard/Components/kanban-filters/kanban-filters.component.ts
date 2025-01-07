@@ -17,6 +17,7 @@ import { SessionStorageService } from '../../../Common-services/sessionStorage/s
 import { KanbanAntennaService } from '../../Services/kanban-antenna/kanban-antenna.service';
 import { SortService } from '../../../Common-services/sort/sort.service';
 import { Vehicle } from '../../../Models/Vehicle';
+import { AntennaGraphService } from '../../Services/antenna-graph/antenna-graph.service';
 
 @Component({
   selector: 'app-kanban-filters',
@@ -51,6 +52,7 @@ export class KanbanFiltersComponent implements AfterViewInit{
     private kanbanGpsService: KanbanGpsService,
     private kanbanAntennaService: KanbanAntennaService,
     private gpsGraphService: GpsGraphService,
+    private antennaGraphService: AntennaGraphService,
     private sortService: SortService,
     private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef
@@ -128,32 +130,16 @@ export class KanbanFiltersComponent implements AfterViewInit{
       }
     }
 
-    let serviceVehicles: Vehicle[] = [];
-    if (this.kanbanGps) {
-      serviceVehicles = this.kanbanGpsService.getAllKanbanVehicles();
-    } else if (this.kanbanAntenna) {
-      serviceVehicles = [
-        ...this.kanbanAntennaService.workingVehicles,
-        ...this.kanbanAntennaService.blackboxVehicles,
-        ...this.kanbanAntennaService.errorVehicles,
-      ];
+    let selectedCantieriCache: string[] = [];
+    const cantieriFilteredVehicles: Vehicle[] = this.cantieriFilterService.filterVehiclesByCantieri(allVehicles, selectedCantieri);
+    selectedCantieriCache = selectedCantieri;
+    if(this.kanbanGps){
+      this.gpsGraphService.loadChartData$.next(cantieriFilteredVehicles);
+    }else if(this.kanbanAntenna){
+      this.antennaGraphService.loadChartData$.next(cantieriFilteredVehicles);
     }
 
-    if (serviceVehicles.length > 0) {
-      let selectedCantieriCache: string[] = [];
-      const kanbanVehicles = this.sortService.vehiclesInDefaultOrder(serviceVehicles);
-      const cantieriFilteredVehicles: Vehicle[] = this.cantieriFilterService.filterVehiclesByCantieri(kanbanVehicles, selectedCantieri);
-      selectedCantieriCache = selectedCantieri;
-      if(this.kanbanGps){
-        console.log("cantieriFilteredVehicles: ", cantieriFilteredVehicles);
-        this.gpsGraphService.loadChartData$.next(cantieriFilteredVehicles);
-      }else if(this.kanbanAntenna){
-        // this.gpsGraphService.loadChartData$.next();
-      }
-
-      this.kanbanGpsService.setKanbanData(cantieriFilteredVehicles);
-    }
-
+    this.kanbanGpsService.setKanbanData(cantieriFilteredVehicles);
 
     this.cd.detectChanges();
   }

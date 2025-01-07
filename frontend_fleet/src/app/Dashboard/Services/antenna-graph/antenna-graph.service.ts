@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
+import { Vehicle } from '../../../Models/Vehicle';
 
 @Injectable({
   providedIn: 'root'
@@ -14,6 +16,7 @@ export class AntennaGraphService {
 
   private _width = 300;
 
+  private readonly _loadChartData$: BehaviorSubject<Vehicle[]> = new BehaviorSubject<Vehicle[]>([]);
 
   constructor() { }
 
@@ -48,5 +51,8 @@ export class AntennaGraphService {
   }
   public set width(value) {
     this._width = value;
+  }
+  public get loadChartData$(): BehaviorSubject<Vehicle[]> {
+    return this._loadChartData$;
   }
 }

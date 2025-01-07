@@ -112,7 +112,6 @@ export class GpsGraphComponent implements AfterViewInit{
     this.chartOptions.series = [];
 
     const gpsCheck = this.checkErrorsService.checkVehiclesGpsErrors(vehicles);
-    console.log("gpsCheck: ", gpsCheck);
 
     const series = [gpsCheck[0].length, gpsCheck[1].length, gpsCheck[2].length];
     this.chartOptions.series = series;
