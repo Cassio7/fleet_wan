@@ -50,7 +50,8 @@ export class AnomalyController {
         return res.status(404).json({ message: 'Nessun Veicolo associato' });
       }
       const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
-      const anomalies = await this.anomalyService.getAllAnomalyByVeId(vehicleIds);
+      const anomalies =
+        await this.anomalyService.getAllAnomalyByVeId(vehicleIds);
       if (!anomalies || anomalies.length === 0) {
         return res.status(404).json({ message: 'Nessuna anomalia trovata' });
       }
