@@ -1,12 +1,12 @@
 import { ChangeDetectorRef, Component } from '@angular/core';
 import { skip, Subject, takeUntil } from 'rxjs';
 import { SessionStorageService } from '../../../../Common-services/sessionStorage/session-storage.service';
-import { CheckErrorsService } from '../../../../Common-services/check-errors/check-errors.service';
 import { NgApexchartsModule } from "ng-apexcharts";
 import { AntennaGraphService } from '../../../Services/antenna-graph/antenna-graph.service';
 import { BlackboxGraphsService } from '../../../Services/blackbox-graphs/blackbox-graphs.service';
 import { Vehicle } from '../../../../Models/Vehicle';
 import { PlateFilterService } from '../../../../Common-services/plate-filter/plate-filter.service';
+import { CheckErrorsService } from '../../../../Common-services/check-errors/check-errors.service';
 
 @Component({
   selector: 'app-antenna-graph',

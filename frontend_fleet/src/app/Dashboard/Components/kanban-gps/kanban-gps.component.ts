@@ -8,7 +8,6 @@ import { MatInputModule } from '@angular/material/input';
 import { KanbanGpsService } from '../../Services/kanban-gps/kanban-gps.service';
 import { MatButtonModule } from '@angular/material/button';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
-import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { Vehicle } from '../../../Models/Vehicle';
 import { KanbanFiltersComponent } from "../kanban-filters/kanban-filters.component";

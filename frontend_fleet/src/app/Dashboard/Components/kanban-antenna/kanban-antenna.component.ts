@@ -13,7 +13,6 @@ import { takeUntil, skip, Subject } from 'rxjs';
 import { PlateFilterService } from '../../../Common-services/plate-filter/plate-filter.service';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { Vehicle } from '../../../Models/Vehicle';
-import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
 import { BlackboxGraphsService } from '../../Services/blackbox-graphs/blackbox-graphs.service';
 
 @Component({

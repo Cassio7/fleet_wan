@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { Vehicle } from '../../../Models/Vehicle';
+import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
 
 interface ErrorsData {
   workingVehicles: any[];

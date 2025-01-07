@@ -11,7 +11,6 @@ import { Vehicle } from '../../../Models/Vehicle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ErrorGraphsService } from '../../Services/error-graphs/error-graphs.service';
 import { BlackboxGraphsService } from '../../Services/blackbox-graphs/blackbox-graphs.service';
-import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatButtonModule } from '@angular/material/button';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
@@ -21,6 +20,7 @@ import { CantieriFilterService } from '../../../Common-services/cantieri-filter/
 import { PlateFilterService } from '../../../Common-services/plate-filter/plate-filter.service';
 import { GpsFilterService } from '../../../Common-services/gps-filter/gps-filter.service';
 import { SessionFilterService } from '../../../Common-services/session-filter/session-filter.service';
+import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
 
 @Component({
   selector: 'app-table',

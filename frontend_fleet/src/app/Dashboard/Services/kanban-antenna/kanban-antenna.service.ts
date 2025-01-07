@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { Vehicle } from '../../../Models/Vehicle';
-import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
 import { BlackboxGraphsService } from '../blackbox-graphs/blackbox-graphs.service';
+import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
 
 @Injectable({
   providedIn: 'root'

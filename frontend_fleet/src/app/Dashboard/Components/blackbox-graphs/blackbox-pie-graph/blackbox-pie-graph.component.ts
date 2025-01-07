@@ -4,7 +4,6 @@ import { ApexNonAxisChartSeries, ApexChart, ApexResponsive, ApexTheme, ApexTitle
 import { BlackboxGraphsService } from '../../../Services/blackbox-graphs/blackbox-graphs.service';
 import { skip, Subject, takeUntil } from 'rxjs';
 import { ErrorGraphsService } from '../../../Services/error-graphs/error-graphs.service';
-import { CheckErrorsService } from '../../../../Common-services/check-errors/check-errors.service';
 
 export type ChartOptions = {
   series: ApexNonAxisChartSeries;
