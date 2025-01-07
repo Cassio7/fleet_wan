@@ -19,12 +19,13 @@ import { DetectionTagEntity } from 'classes/entities/detection_tag.entity';
 import { SessionEntity } from 'classes/entities/session.entity';
 import { UserEntity } from 'classes/entities/user.entity';
 import { RoleEntity } from 'classes/entities/role.entity';
-import { UserRoleEntity } from 'classes/entities/user_role.entity';
+import { AssociationEntity } from 'classes/entities/association.entity';
 import { CompanyEntity } from 'classes/entities/company.entity';
 import { WorksiteEntity } from 'classes/entities/worksite.entity';
 import { NoteEntity } from 'classes/entities/note.entity';
-import { RoleCompanyEntity } from 'classes/entities/role_company.entity';
 import { WorksiteGroupEntity } from 'classes/entities/worksite_group.entity';
+import { CategoryEntity } from 'classes/entities/category.entity';
+import { AnomalyEntity } from 'classes/entities/anomaly.entity';
 
 // importo i servizi
 import { VehicleService } from './services/vehicle/vehicle.service';
@@ -45,6 +46,7 @@ import { TagController } from './controllers/tag/tag.controller';
 import { CompanyController } from './controllers/company/company.controller';
 import { AuthController } from './controllers/auth/auth.controller';
 import { UserController } from './controllers/user/user.controller';
+import { AnomalyController } from './controllers/anomaly/anomaly.controller';
 
 // importo i factory
 import { UserFactoryService } from './factory/user.factory';
@@ -52,9 +54,15 @@ import { CompanyFactoryService } from './factory/company.factory';
 import { WorksiteFactoryService } from './factory/worksite.factory';
 import { GroupFactoryService } from './factory/group.factory';
 import { WorksiteGroupFactoryService } from './factory/worksite_group.factory';
-import { RoleCompanyFactoryService } from './factory/role_company.factory';
 import { NotesService } from './services/notes/notes.service';
 import { NotesController } from './controllers/notes/notes.controller';
+import { AssociationFactoryService } from './factory/association.factory';
+import { CategoryFactoryService } from './factory/category.factory';
+import { AnomalyService } from './services/anomaly/anomaly.service';
+import { RoleService } from './services/role/role.service';
+import { AssociationService } from './services/association/association.service';
+import { AssociationController } from './controllers/association/association.controller';
+import { WorksiteService } from './services/worksite/worksite.service';
 
 @Global()
 @Module({
@@ -86,12 +94,13 @@ import { NotesController } from './controllers/notes/notes.controller';
           SessionEntity,
           UserEntity,
           RoleEntity,
-          UserRoleEntity,
+          AssociationEntity,
           CompanyEntity,
           WorksiteEntity,
           WorksiteGroupEntity,
           NoteEntity,
-          RoleCompanyEntity,
+          CategoryEntity,
+          AnomalyEntity,
         ],
         synchronize: true,
         //dropSchema: true, // if true drop db
@@ -110,12 +119,13 @@ import { NotesController } from './controllers/notes/notes.controller';
         SessionEntity,
         UserEntity,
         RoleEntity,
-        UserRoleEntity,
+        AssociationEntity,
         CompanyEntity,
         WorksiteEntity,
         WorksiteGroupEntity,
         NoteEntity,
-        RoleCompanyEntity,
+        CategoryEntity,
+        AnomalyEntity,
       ],
       'mainConnection',
     ),
@@ -142,12 +152,13 @@ import { NotesController } from './controllers/notes/notes.controller';
           SessionEntity,
           UserEntity,
           RoleEntity,
-          UserRoleEntity,
+          AssociationEntity,
           CompanyEntity,
           WorksiteEntity,
           WorksiteGroupEntity,
           NoteEntity,
-          RoleCompanyEntity,
+          CategoryEntity,
+          AnomalyEntity,
         ],
         synchronize: false,
       }),
@@ -165,12 +176,13 @@ import { NotesController } from './controllers/notes/notes.controller';
         SessionEntity,
         UserEntity,
         RoleEntity,
-        UserRoleEntity,
+        AssociationEntity,
         CompanyEntity,
         WorksiteEntity,
         WorksiteGroupEntity,
         NoteEntity,
-        RoleCompanyEntity,
+        CategoryEntity,
+        AnomalyEntity,
       ],
       'readOnlyConnection',
     ),
@@ -179,7 +191,7 @@ import { NotesController } from './controllers/notes/notes.controller';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('SECRET_TOKEN'),
-        signOptions: { expiresIn: '10h' },
+        signOptions: { expiresIn: '24h' },
       }),
     }),
     RedisModule.forRootAsync({
@@ -203,6 +215,8 @@ import { NotesController } from './controllers/notes/notes.controller';
     UserController,
     CompanyController,
     NotesController,
+    AnomalyController,
+    AssociationController,
   ],
   providers: [
     AppService,
@@ -219,8 +233,13 @@ import { NotesController } from './controllers/notes/notes.controller';
     WorksiteFactoryService,
     GroupFactoryService,
     WorksiteGroupFactoryService,
-    RoleCompanyFactoryService,
     NotesService,
+    AssociationFactoryService,
+    CategoryFactoryService,
+    AnomalyService,
+    RoleService,
+    AssociationService,
+    WorksiteService,
   ],
 })
 export class AppModule {}

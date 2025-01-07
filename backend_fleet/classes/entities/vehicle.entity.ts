@@ -15,6 +15,8 @@ import { NoteEntity } from './note.entity';
 import { RealtimePositionEntity } from './realtime_position.entity';
 import { TagHistoryEntity } from './tag_history.entity';
 import { WorksiteEntity } from './worksite.entity';
+import { CategoryEntity } from './category.entity';
+import { AnomalyEntity } from './anomaly.entity';
 
 @Entity('vehicles')
 export class VehicleEntity extends CommonEntity implements VehicleInterface {
@@ -48,6 +50,10 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
   @Index()
   isRFIDReader: boolean;
 
+  @Column({ type: 'boolean', nullable: true })
+  @Index()
+  allestimento: boolean;
+
   @Column()
   profileId: number;
 
@@ -56,6 +62,9 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
 
   @Column({ type: 'timestamptz', nullable: true })
   retiredEvent: Date;
+
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  relevant_company: string;
 
   @OneToOne(() => DeviceEntity)
   @JoinColumn({ name: 'device_id' })
@@ -77,10 +86,16 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
   @OneToMany(() => NoteEntity, (note) => note.vehicle)
   note: NoteEntity[];
 
+  @OneToMany(() => CategoryEntity, (category) => category.vehicle)
+  category: CategoryEntity[];
+
   @ManyToOne(() => WorksiteEntity, (worksite) => worksite.vehicle, {
     nullable: true,
   })
   worksite: WorksiteEntity | null;
+
+  @OneToMany(() => AnomalyEntity, (anomaly) => anomaly.vehicle)
+  anomaly: AnomalyEntity[];
 
   @Column({ type: 'varchar', length: 100 })
   @Index()

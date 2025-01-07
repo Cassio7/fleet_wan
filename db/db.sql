@@ -7,26 +7,24 @@ CREATE TABLE "roles" (
 CREATE TABLE "users" (
   "id" int PRIMARY KEY,
   "name" string,
+  "surname" string,
+  "username" string,
   "email" string,
-  "password" string
+  "password" string,
+  "roleId" int
 );
 
-CREATE TABLE "user_roles" (
+CREATE TABLE "associations" (
   "id" int PRIMARY KEY,
   "userId" int,
-  "roleId" int
+  "companyId" int,
+  "worksiteId" int
 );
 
 CREATE TABLE "companies" (
   "id" int PRIMARY KEY,
   "suId" int,
   "name" string
-);
-
-CREATE TABLE "role_companies" (
-  "id" int PRIMARY KEY,
-  "companyId" int,
-  "roleId" int
 );
 
 CREATE TABLE "groups" (
@@ -52,6 +50,13 @@ CREATE TABLE "vehicles" (
   "hash" string,
   "deviceId" int,
   "worksiteId" int
+);
+
+CREATE TABLE "categories" (
+  "id" int PRIMARY KEY,
+  "name" string,
+  "description" string,
+  "vehicleId" int
 );
 
 CREATE TABLE "notes" (
@@ -156,19 +161,31 @@ CREATE TABLE "session" (
   "hash" string
 );
 
-ALTER TABLE "user_roles" ADD FOREIGN KEY ("userId") REFERENCES "users" ("id");
+CREATE TABLE "anomaly" (
+  "id" int PRIMARY KEY,
+  "date" date,
+  "gps" string,
+  "antenna" string,
+  "session" string,
+  "hash" string,
+  "vehicleId" int
+);
 
-ALTER TABLE "user_roles" ADD FOREIGN KEY ("roleId") REFERENCES "roles" ("id");
+ALTER TABLE "users" ADD FOREIGN KEY ("roleId") REFERENCES "roles" ("id");
 
-ALTER TABLE "role_companies" ADD FOREIGN KEY ("companyId") REFERENCES "companies" ("id");
+ALTER TABLE "associations" ADD FOREIGN KEY ("userId") REFERENCES "users" ("id");
 
-ALTER TABLE "role_companies" ADD FOREIGN KEY ("roleId") REFERENCES "roles" ("id");
+ALTER TABLE "associations" ADD FOREIGN KEY ("companyId") REFERENCES "companies" ("id");
+
+ALTER TABLE "associations" ADD FOREIGN KEY ("worksiteId") REFERENCES "worksite" ("id");
 
 ALTER TABLE "groups" ADD FOREIGN KEY ("companyId") REFERENCES "companies" ("id");
 
 ALTER TABLE "vehicles" ADD FOREIGN KEY ("deviceId") REFERENCES "devices" ("id");
 
 ALTER TABLE "vehicles" ADD FOREIGN KEY ("worksiteId") REFERENCES "worksite" ("id");
+
+ALTER TABLE "categories" ADD FOREIGN KEY ("vehicleId") REFERENCES "vehicles" ("id");
 
 ALTER TABLE "notes" ADD FOREIGN KEY ("userId") REFERENCES "users" ("id");
 
@@ -189,3 +206,5 @@ ALTER TABLE "tag_history" ADD FOREIGN KEY ("vehicleId") REFERENCES "vehicles" ("
 ALTER TABLE "detection_tag" ADD FOREIGN KEY ("tagId") REFERENCES "tags" ("id");
 
 ALTER TABLE "detection_tag" ADD FOREIGN KEY ("tagHistoryId") REFERENCES "tag_history" ("id");
+
+ALTER TABLE "anomaly" ADD FOREIGN KEY ("vehicleId") REFERENCES "vehicles" ("id");

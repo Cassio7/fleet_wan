@@ -1,6 +1,6 @@
-import * as fs from 'fs';
-import { parse } from 'csv-parse';
 import { NotFoundException } from '@nestjs/common';
+import { parse } from 'csv-parse';
+import * as fs from 'fs';
 
 /**
  * Funzione che converte un orario del timestamp in base al fuso orario
@@ -96,4 +96,36 @@ export function validateDateRange(
     };
   }
   return { isValid: true };
+}
+
+/**
+ * Filtra il token nell'header della richiesta
+ * @param request la richiesta http
+ * @returns ritorna il token filtrato se presente
+ */
+export function extractTokenFromHeader(request: Request): string | undefined {
+  try {
+    const { authorization }: any = request.headers;
+    const [type, token] = authorization.split(' ') ?? [];
+    return type === 'Bearer' ? token : undefined;
+  } catch (error) {
+    console.error(error.message);
+  }
+}
+
+/**
+ * Mette in ordine per targa gli elementi passati dal redis
+ * @param data solitamente anomalie
+ * @returns
+ */
+export function sortRedisData(data: any) {
+  return data.sort((a: any, b: any) => {
+    if (a.vehicle.plate < b.vehicle.plate) {
+      return -1;
+    }
+    if (a.vehicle.plate > b.vehicle.plate) {
+      return 1;
+    }
+    return 0;
+  });
 }

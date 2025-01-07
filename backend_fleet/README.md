@@ -24,11 +24,18 @@ Per il corretto funzionamento creare il file `.env`, ed inserire i seguenti dati
 DB_HOST=localhost
 DB_PORT=1234
 DB_USERNAME=user
-DB_PASSWORD=password
+DB_PASSWORD=psw
 DB_DATABASE=database
 
 #JWT
 SECRET_TOKEN = insane_password_fleet_baited
+
+REDIS_URL = redis://:psw@localhost:1234
+
+# User factory data
+USER_PASSWORD = psw
+ADMIN_EMAIL = admin@nomail.com
+
 ```
 
 Inserire anche la cartella `files` con dentro i file CVS per popolare il database.

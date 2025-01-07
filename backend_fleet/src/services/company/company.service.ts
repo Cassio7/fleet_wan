@@ -19,6 +19,20 @@ export class CompanyService {
   }
 
   /**
+   * Ritorna la società in base all'id passato
+   * @param id identificativo società
+   * @returns
+   */
+  async getCompanyById(id: number): Promise<CompanyEntity> {
+    const company = await this.companyEntity.findOne({
+      where: {
+        id: id,
+      },
+    });
+    return company;
+  }
+
+  /**
    * Ritorna l'oggetto società
    * @param veId Ricerca in base all veId del veicolo
    * @returns

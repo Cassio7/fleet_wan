@@ -1,10 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
+import { HistoryDTO } from 'classes/dtos/history.dto';
+import { SessionDTO } from 'classes/dtos/session.dto';
 import { HistoryEntity } from 'classes/entities/history.entity';
 import { SessionEntity } from 'classes/entities/session.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { createHash } from 'crypto';
+import { convertHours } from 'src/utils/utils';
 import {
   DataSource,
   In,
@@ -15,7 +18,6 @@ import {
   Repository,
 } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
-import { convertHours } from 'src/utils/utils';
 
 @Injectable()
 export class SessionService {
@@ -87,20 +89,21 @@ export class SessionService {
         response = await axios.post(this.serviceUrl, requestXml, {
           headers,
         });
+        break;
       } catch (error) {
         if (axios.isAxiosError(error)) {
-          const axiosError = error as AxiosError;
+          console.warn(
+            `Errore ricevuto. Ritento (${3 - retries + 1}/3)...`,
+            error.message,
+          );
+          retries -= 1;
 
-          if (axiosError.response?.status === 502) {
-            console.warn(
-              `Errore 502 ricevuto. Ritento (${3 - retries + 1}/3)...`,
-            );
-            retries -= 1;
-            continue;
-          }
+          // Delay di 1 secondo tra i tentativi
+          await new Promise((resolve) => setTimeout(resolve, 5000));
+          continue;
         }
         console.error(
-          'Errore non è 502 o i retry sono terminati, saltato controllo:',
+          'Tutti i tentativi di connessione sono falliti, saltato controllo:',
           error.message,
         );
       }
@@ -263,29 +266,6 @@ export class SessionService {
       console.error('Errore nella richiesta SOAP:', error);
     }
   }
-
-  // /**
-  //  * Ritorna l'ultima sessione di ciascun veicolo
-  //  * @returns
-  //  */
-  // async getAllVehiclesLastSessions() {
-  //   try {
-  //     const sessions = await this.sessionRepository.find({
-  //       relations: {
-  //         history: {
-  //           vehicle: true,
-  //         }
-  //       },
-  //       order: {
-  //         createdAt: "DESC"
-  //       },
-  //     });
-  //     return sessions;
-  //   } catch (error) {
-  //     console.error("Errore nel recupero delle ultime sessioni per i veicoli:", error);
-  //     throw new Error("Non è stato possibile recuperare le ultime sessioni per i veicoli.");
-  //   }
-  // }
 
   /**
    * Inserisce tutti gli history presenti associati ad una determinata sessione
@@ -471,6 +451,7 @@ export class SessionService {
       console.error('Errore nella richiesta SOAP:', error);
     }
   }
+
   /**
    * Ricerca sessione tramite l'hash
    * @param hash hash della sessione generato in getSessionist
@@ -534,7 +515,7 @@ export class SessionService {
     dateFrom: Date,
     dateTo: Date,
   ): Promise<any> {
-    const session = await this.sessionRepository.find({
+    const sessions = await this.sessionRepository.find({
       where: [
         // nel mezzo
         {
@@ -545,7 +526,7 @@ export class SessionService {
         // sessione inizia prima del controllo e finisce dopo lo stesso giorno
         {
           history: { vehicle: { veId: id } },
-          period_from: LessThanOrEqual(dateFrom), // La sessione può iniziare prima di dateTo
+          period_from: LessThanOrEqual(dateFrom), // La sessione può iniziare prima di dateFrom
           period_to: MoreThanOrEqual(dateFrom), // La sessione può finire dopo dateFrom
         },
       ],
@@ -554,7 +535,42 @@ export class SessionService {
         history: true,
       },
     });
-    return session;
+    // Mappare i dati manualmente in SessionDTO senza class-transformer
+    const mappedSessions = sessions.map((session) => {
+      const sessionDto: SessionDTO = {
+        id: session.id,
+        period_from: session.period_from,
+        period_to: session.period_to,
+        sequence_id: session.sequence_id,
+        closed: session.closed,
+        distance: session.distance,
+        engine_drive: session.engine_drive,
+        engine_stop: session.engine_stop,
+      };
+
+      // Mappare anche i dati di history dentro ogni sessione
+      sessionDto['history'] = session.history.map((history) => {
+        const historyDTO: HistoryDTO = {
+          id: history.id,
+          timestamp: history.timestamp,
+          status: history.status,
+          latitude: history.latitude,
+          longitude: history.longitude,
+          nav_mode: history.nav_mode,
+          speed: history.speed,
+          direction: history.direction,
+          tot_distance: history.tot_distance,
+          tot_consumption: history.tot_consumption,
+          fuel: history.fuel,
+          brushes: history.brushes,
+        };
+        return historyDTO;
+      });
+
+      return sessionDto;
+    });
+
+    return mappedSessions;
   }
 
   /**
@@ -660,59 +676,6 @@ export class SessionService {
   }
 
   /**
-   * Ritorna l'ultima sessione di un veicolo registrata in base all'id
-   * che ha percorso più di 0 metri di distanza
-   * @param id veId identificativo veicolo
-   * @param dateFrom Data inizio ricerca sessione
-   * @param dateTo Data fine ricerca sessione
-   * @returns
-   */
-  async getLastValidSessionRanged(id: number, dateFrom: Date, dateTo: Date) {
-    const session = await this.sessionRepository.findOne({
-      where: {
-        period_from: MoreThanOrEqual(dateFrom),
-        period_to: LessThanOrEqual(dateTo),
-        history: {
-          vehicle: {
-            veId: id,
-          },
-        },
-        distance: MoreThan(0), //controllo distanza maggiore di 0
-      },
-      order: {
-        sequence_id: 'DESC',
-      },
-    });
-
-    return session;
-  }
-
-  /**
-   * Ritorna l'ultima sessione di un veicolo registrata in base all'id
-   * che ha percorso più di 0 metri di distanza.
-   * Non include lo storico delle posizioni.
-   * la session è durata almeno 2 minuti (quindi valida)
-   * @param id VeId identificativo Veicolo
-   * @returns
-   */
-  async getLastValidSessionNoHistory(id: number) {
-    const session = await this.sessionRepository.findOne({
-      where: {
-        history: {
-          vehicle: {
-            veId: id,
-          },
-        },
-        distance: Not(0), //controllo distanza maggiore di 0
-      },
-      order: {
-        sequence_id: 'DESC',
-      },
-    });
-
-    return session;
-  }
-  /**
    * Ritorna l'ultima sessione attiva, quella con sequence_id = 0
    * @param id VeId identificativo Veicolo
    * @returns
@@ -726,6 +689,7 @@ export class SessionService {
     });
     return session;
   }
+
   /**
    * Ritorna tutte le sessioni attive, quelle con sequence_id = 0
    * @returns
