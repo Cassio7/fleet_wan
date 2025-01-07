@@ -8,9 +8,10 @@ import { CheckErrorsService } from '../check-errors/check-errors.service';
 })
 export class KanbanGpsService{
   private readonly _loadKanbanGps$: Subject<void> = new Subject<void>();
-  workingVehicles: Vehicle[] = [];
-  warningVehicles: Vehicle[] = [];
-  errorVehicles: Vehicle[] = [];
+  private _allSelected: boolean = false;
+  private _workingVehicles: Vehicle[] = [];
+  private _warningVehicles: Vehicle[] = [];
+  private _errorVehicles: Vehicle[] = [];
 
   constructor(
     private checkErrorsService: CheckErrorsService
@@ -40,6 +41,19 @@ export class KanbanGpsService{
         this.errorVehicles.push(vehicle);
         break;
     }
+  }
+
+  /**
+   * Permette di gestire la selezione e deselezione di tutti i veicoli tramite il pulsante "Seleziona tutto"
+   * all'interno del filtro per cantieri del kanban gps
+   */
+  toggleSelectAllKanbanVehicles(){
+    if(this.allSelected){
+      this.allSelected = false;
+    }else{
+      this.allSelected = true;
+    }
+    return this.allSelected;
   }
 
   /**
@@ -85,5 +99,29 @@ export class KanbanGpsService{
 
   public get loadKanbanGps$(): Subject<void> {
     return this._loadKanbanGps$;
+  }
+  public get allSelected(): boolean {
+    return this._allSelected;
+  }
+  public set allSelected(value: boolean) {
+    this._allSelected = value;
+  }
+  public get workingVehicles(): Vehicle[] {
+    return this._workingVehicles;
+  }
+  public set workingVehicles(value: Vehicle[]) {
+    this._workingVehicles = value;
+  }
+  public get warningVehicles(): Vehicle[] {
+    return this._warningVehicles;
+  }
+  public set warningVehicles(value: Vehicle[]) {
+    this._warningVehicles = value;
+  }
+  public get errorVehicles(): Vehicle[] {
+    return this._errorVehicles;
+  }
+  public set errorVehicles(value: Vehicle[]) {
+    this._errorVehicles = value;
   }
 }
