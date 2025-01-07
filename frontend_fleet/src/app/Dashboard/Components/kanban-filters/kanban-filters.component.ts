@@ -112,16 +112,13 @@ export class KanbanFiltersComponent implements AfterViewInit{
     if (option === "Seleziona tutto") {
       this.toggleSelectAllCantieri();
     } else {
-      if (this.cantieriFilterService.isCantieriAllSelected()) {
+      if (this.cantieriFilterService.allSelected) {
         this.cantieriFilterService.allSelected = false;
         selectedCantieri = selectedCantieri.filter(selection => selection !== "Seleziona tutto");
         this.cantieri.setValue(selectedCantieri);
       }
 
-      const allOptions = this.cantieriFilterService.vehiclesCantieriOnce(allVehicles); //tutti i cantieri, quindi tutte le opzioni del filtro
-      const areAllSelected = allOptions.every(option => selectedCantieri.includes(option)); //controllo se tutto selezionato
-
-      if (areAllSelected && !selectedCantieri.includes("Seleziona tutto")) {
+      if (this.cantieriFilterService.allSelected && !selectedCantieri.includes("Seleziona tutto")) {
         //deselect seleziona tutto se viene deselezionata un'opzione
         selectedCantieri.unshift("Seleziona tutto");
         this.cantieri.setValue(selectedCantieri);

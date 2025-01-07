@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { CheckErrorsService } from '../../Dashboard/Services/check-errors/check-errors.service';
+import { CheckErrorsService } from '../check-errors/check-errors.service';
 import { Vehicle } from '../../Models/Vehicle';
 
 @Injectable({

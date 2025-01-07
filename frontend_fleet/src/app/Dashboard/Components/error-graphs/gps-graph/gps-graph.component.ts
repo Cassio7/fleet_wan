@@ -3,7 +3,7 @@ import { GpsGraphService } from './../../../Services/gps-graph/gps-graph.service
 import { AfterViewInit, ChangeDetectorRef, Component, ViewChild } from '@angular/core';
 import { NgApexchartsModule } from "ng-apexcharts";
 import { Subject, skip, takeUntil } from 'rxjs';
-import { CheckErrorsService } from '../../../Services/check-errors/check-errors.service';
+import { CheckErrorsService } from '../../../../Common-services/check-errors/check-errors.service';
 import { SessionStorageService } from '../../../../Common-services/sessionStorage/session-storage.service';
 import { PlateFilterService } from '../../../../Common-services/plate-filter/plate-filter.service';
 import { Vehicle } from '../../../../Models/Vehicle';
