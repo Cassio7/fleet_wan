@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Logger,
   Param,
   ParseIntPipe,
   Post,
@@ -24,6 +25,7 @@ import { NoteDto } from 'classes/dtos/note.dto';
 @UseGuards(AuthGuard, RolesGuard)
 @Controller('notes')
 export class NotesController {
+  private logger = new Logger(NotesController.name);
   constructor(private readonly notesService: NotesService) {}
 
   /**
@@ -40,14 +42,29 @@ export class NotesController {
   ) {
     try {
       const notes = await this.notesService.getAllNotesByUser(req.user.id);
-      if (!notes || notes.length === 0)
+      if (!notes || notes.length === 0) {
+        this.logger.warn(`Nessuna nota trovata: UserID: ${req.user.id}`);
         return res.status(404).json({ message: 'Nessuna nota trovata' });
+      }
+      this.logger.log(
+        `Tutte le note sono state recuperate: UserID: ${req.user.id}`,
+      );
       return res.status(200).json(notes);
     } catch (error) {
-      console.error('Errore nel recupero delle note:', error.message);
+      const log = 'Note non recuperate:';
+      if (error.status && error.status < 500) {
+        this.logger.warn(
+          `${log} UserID: ${req.user.id}, Message: ${error.message}`,
+        );
+      } else {
+        this.logger.error(
+          `${log} UserID: ${req.user.id}`,
+          error.stack || error.message,
+        );
+      }
       res
-        .status(500)
-        .json({ message: 'Errore nel recupero delle note ' + error.message });
+        .status(error.status || 500)
+        .json({ message: error.message || 'Errore recupero nota' });
     }
   }
 
@@ -58,17 +75,35 @@ export class NotesController {
    */
   @Roles(Role.Admin)
   @Get('admin')
-  async getAllNotes(@Res() res: Response) {
+  async getAllNotes(
+    @Req() req: Request & { user: UserFromToken },
+    @Res() res: Response,
+  ) {
     try {
       const notes = await this.notesService.getAllNotes();
-      if (!notes || notes.length === 0)
+      if (!notes || notes.length === 0) {
+        this.logger.warn(`Nessuna nota trovata admin: UserID: ${req.user.id}`);
         return res.status(404).json({ message: 'Nessuna nota trovata' });
+      }
+      this.logger.log(
+        `Tutte le note sono state recuperate admin: UserID: ${req.user.id}`,
+      );
       return res.status(200).json(notes);
     } catch (error) {
-      console.error('Errore nel recupero delle note:', error.message);
+      const log = 'Note non recuperate admin:';
+      if (error.status && error.status < 500) {
+        this.logger.warn(
+          `${log} UserID: ${req.user.id}, Message: ${error.message}`,
+        );
+      } else {
+        this.logger.error(
+          `${log} UserID: ${req.user.id}`,
+          error.stack || error.message,
+        );
+      }
       res
-        .status(500)
-        .json({ message: 'Errore nel recupero delle note ' + error.message });
+        .status(error.status || 500)
+        .json({ message: error.message || 'Errore recupero nota' });
     }
   }
 
@@ -87,24 +122,34 @@ export class NotesController {
     @Res() res: Response,
   ) {
     try {
+      const log = 'Nota creata con successo!';
       const veId = Number(body.veId); // Garantisce che veId sia un numero
 
       if (isNaN(veId)) {
         return res
           .status(400)
-          .json({ message: 'veId deve essere un numero valido' });
+          .json({ message: 'Il veId deve essere un numero valido' });
       }
       await this.notesService.createNote(req.user.id, veId, body.content);
-      return res.status(200).json({ message: 'Nota creata con successo!' });
-    } catch (error) {
-      console.error(
-        'Errore nella registrazione della nuova nota:',
-        error.message,
+      this.logger.log(
+        `${log}: UserID: ${req.user.id}, Contenuto: ${body.content}`,
       );
-      res.status(500).json({
-        message:
-          'Errore nella registrazione della nuova nota: ' + error.message,
-      });
+      return res.status(200).json({ message: log });
+    } catch (error) {
+      const log = 'Nota non creata:';
+      if (error.status && error.status < 500) {
+        this.logger.warn(
+          `${log} UserID: ${req.user.id}, Message: ${error.message}`,
+        );
+      } else {
+        this.logger.error(
+          `${log} UserID: ${req.user.id}`,
+          error.stack || error.message,
+        );
+      }
+      res
+        .status(error.status || 500)
+        .json({ message: error.message || 'Errore creazione nota' });
     }
   }
 
@@ -125,13 +170,27 @@ export class NotesController {
     @Res() res: Response,
   ) {
     try {
+      const log = 'Nota aggiornata con successo!';
       await this.notesService.updateNote(req.user.id, noteId, body.content);
-      return res.status(200).json({ message: 'Nota aggiornata con successo!' });
+      this.logger.log(
+        `${log}: UserID: ${req.user.id}, NoteID: ${noteId}, Contenuto: ${body.content}`,
+      );
+      return res.status(200).json({ message: log });
     } catch (error) {
-      console.error("Errore nell'aggiornamento della nota:", error.message);
-      res.status(500).json({
-        message: "Errore nell'aggiornamento della nota: " + error.message,
-      });
+      const log = 'Nota non aggiornata:';
+      if (error.status && error.status < 500) {
+        this.logger.warn(
+          `${log} UserID: ${req.user.id}, NoteID: ${noteId}, Message: ${error.message}`,
+        );
+      } else {
+        this.logger.error(
+          `${log} UserID: ${req.user.id}, NoteID: ${noteId}`,
+          error.stack || error.message,
+        );
+      }
+      res
+        .status(error.status || 500)
+        .json({ message: error.message || 'Errore aggiornamento nota' });
     }
   }
 
@@ -152,13 +211,25 @@ export class NotesController {
     @Res() res: Response,
   ) {
     try {
+      const log = 'Nota eliminata con successo!';
       await this.notesService.deleteNote(req.user.id, noteId);
-      return res.status(200).json({ message: 'Nota eliminata con successo!' });
+      this.logger.log(`${log}: UserID: ${req.user.id}, NoteID: ${noteId}`);
+      return res.status(200).json({ message: log });
     } catch (error) {
-      console.error("Errore nell'eliminazione della nota:", error.message);
-      res.status(500).json({
-        message: "Errore nell'eliminazone della nota: " + error.message,
-      });
+      const log = 'Nota non eliminata:';
+      if (error.status && error.status < 500) {
+        this.logger.warn(
+          `${log} UserID: ${req.user.id}, NoteID: ${noteId}, Message: ${error.message}`,
+        );
+      } else {
+        this.logger.error(
+          `${log} UserID: ${req.user.id}, NoteID: ${noteId}`,
+          error.stack || error.message,
+        );
+      }
+      res
+        .status(error.status || 500)
+        .json({ message: error.message || 'Errore eliminazione nota' });
     }
   }
 }
