@@ -1,4 +1,4 @@
-import { Vehicle } from './Vehicle';
+import { Vehicle } from './VehicleData';
 
 export class RealtimePosition {
   constructor(
