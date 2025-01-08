@@ -102,13 +102,26 @@ export class CheckErrorsService {
   }
 
   /**
-   * Controlla se è presente un anomalia di sessione nella sessione di oggi del veicolo preso in input
+   * Controlla se è presente un anomalia di sessione del veicolo preso in input nell'arco di tempo definito nel common service
    * @param vehicle veicolo da controllare
-   * @returns
+   * @returns tipo di anomalia di sessione se trovata
+   * @returns null se non viene trovata un'anomalia
    */
   checkSessionError(vehicle: Vehicle): string | null {
-    return vehicle.anomaliaSessione ?? null;
+    const dateFrom = this.commonService.dateFrom;
+    const dateTo = this.commonService.dateTo;
+
+    const anomalies = vehicle.anomalies;
+
+    //ricerca anomalia nell'arco di tempo richiesto
+    const foundAnomaly = anomalies.find(anomaliesObj => {
+      const anomaliesDate = new Date(anomaliesObj.date); // Data delle anomalie
+      return anomaliesDate >= dateFrom && anomaliesDate <= dateTo;
+    });
+
+    return foundAnomaly ? foundAnomaly.session : null;
   }
+
 
   /**
    * Calcola da quanti giorni le sessioni di un veicolo sono in errore
