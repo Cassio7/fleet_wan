@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { NoteDto } from 'classes/dtos/note.dto';
 import { VehicleDTO } from 'classes/dtos/vehicle.dto';
@@ -26,18 +26,25 @@ export class NotesService {
    * @returns
    */
   async getAllNotes() {
-    const notes = await this.noteRepository.find({
-      relations: {
-        vehicle: true,
-        user: true,
-      },
-      order: {
-        vehicle: {
-          plate: 'ASC',
+    try {
+      const notes = await this.noteRepository.find({
+        relations: {
+          vehicle: true,
+          user: true,
         },
-      },
-    });
-    return notes.map((note) => this.toDTO(note));
+        order: {
+          vehicle: {
+            plate: 'ASC',
+          },
+        },
+      });
+      return notes.map((note) => this.toDTO(note));
+    } catch (error) {
+      throw new HttpException(
+        `Errore durante recupero delle note admin`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   /**
@@ -50,29 +57,39 @@ export class NotesService {
       userId,
     )) as VehicleEntity[];
     if (!vehicles || vehicles.length === 0)
-      throw new Error('Nessun Veicolo associato');
-    const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
-    const veIdArray = Array.isArray(vehicleIds) ? vehicleIds : [vehicleIds];
-    const notes = await this.noteRepository.find({
-      relations: {
-        vehicle: true,
-        user: true,
-      },
-      where: {
-        vehicle: {
-          veId: In(veIdArray),
+      throw new HttpException(
+        'Nessun veicolo associato trovato per questo utente',
+        HttpStatus.NOT_FOUND,
+      );
+    try {
+      const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
+      const veIdArray = Array.isArray(vehicleIds) ? vehicleIds : [vehicleIds];
+      const notes = await this.noteRepository.find({
+        relations: {
+          vehicle: true,
+          user: true,
         },
-        user: {
-          id: userId,
+        where: {
+          vehicle: {
+            veId: In(veIdArray),
+          },
+          user: {
+            id: userId,
+          },
         },
-      },
-      order: {
-        vehicle: {
-          plate: 'ASC',
+        order: {
+          vehicle: {
+            plate: 'ASC',
+          },
         },
-      },
-    });
-    return notes.map((note) => this.toDTO(note));
+      });
+      return notes.map((note) => this.toDTO(note));
+    } catch (error) {
+      throw new HttpException(
+        `Errore durante recupero delle note`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   /**
@@ -82,13 +99,19 @@ export class NotesService {
    * @param content contenuto della nota
    */
   async createNote(userId: number, veId: number, content: string) {
-    if (!content || content.trim().length === 0)
-      throw new Error('Il contenuto della nota non può essere vuoto');
-
-    if (content.length > 500)
-      throw new Error(
-        'Il contenuto della nota supera il limite di 500 caratteri',
+    if (!content || content.trim().length === 0) {
+      throw new HttpException(
+        'Il contenuto della nota non può essere vuoto',
+        HttpStatus.BAD_REQUEST,
       );
+    }
+
+    if (content.length > 500) {
+      throw new HttpException(
+        'Il contenuto della nota supera il limite di 500 caratteri',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
 
     const user = await this.checkUser(userId);
 
@@ -96,11 +119,18 @@ export class NotesService {
       userId,
     )) as VehicleEntity[];
     if (!vehicles || vehicles.length === 0)
-      throw new Error('Nessun Veicolo associato');
-    const vehicle = vehicles.find((v) => v.veId === veId);
-    if (!vehicle) throw new Error('Non hai i permessi per questo veicolo');
+      throw new HttpException(
+        'Nessun veicolo associato trovato per questo utente',
+        HttpStatus.NOT_FOUND,
+      );
 
-    // se già esiste una nota non si puo crearne un altra
+    const vehicle = vehicles.find((v) => v.veId === veId);
+    if (!vehicle)
+      throw new HttpException(
+        'Non hai i permessi per creare una nota per questo veicolo',
+        HttpStatus.FORBIDDEN,
+      );
+
     const existNote = await this.noteRepository.findOne({
       where: {
         vehicle: {
@@ -112,8 +142,9 @@ export class NotesService {
       },
     });
     if (existNote)
-      throw new Error(
-        `Hai già una nota creata per questo veicolo, non puoi crearne un'altra`,
+      throw new HttpException(
+        `Hai già creato una nota per questo veicolo, non puoi crearne un'altra`,
+        HttpStatus.CONFLICT,
       );
 
     const queryRunner = this.connection.createQueryRunner();
@@ -129,9 +160,11 @@ export class NotesService {
       await queryRunner.manager.getRepository(NoteEntity).save(newNote);
       await queryRunner.commitTransaction();
     } catch (error) {
-      console.error('Errore inserimento nuovo utente: ' + error);
       await queryRunner.rollbackTransaction();
-      throw error;
+      throw new HttpException(
+        'Errore durante la creazione della nota',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     } finally {
       await queryRunner.release();
     }
@@ -150,11 +183,15 @@ export class NotesService {
     updatedContent: string,
   ): Promise<void> {
     if (!updatedContent || updatedContent.trim().length === 0)
-      throw new Error('Il contenuto della nota non può essere vuoto');
+      throw new HttpException(
+        'Il contenuto della nota non può essere vuoto',
+        HttpStatus.BAD_REQUEST,
+      );
 
     if (updatedContent.length > 500)
-      throw new Error(
+      throw new HttpException(
         'Il contenuto della nota supera il limite di 500 caratteri',
+        HttpStatus.BAD_REQUEST,
       );
     const user = await this.checkUser(userId);
 
@@ -167,7 +204,11 @@ export class NotesService {
         user: true,
       },
     });
-    if (!note) throw new Error(`Nota con ID ${noteId} non trovata`);
+    if (!note)
+      throw new HttpException(
+        `Nota con ID ${noteId} non trovata`,
+        HttpStatus.NOT_FOUND,
+      );
 
     if (user.role.name !== 'Admin') {
       const vehicles = (await this.associationService.getVehiclesByUserRole(
@@ -177,8 +218,9 @@ export class NotesService {
         !vehicles.find((v) => v.veId === note.vehicle.veId) ||
         note.user.id !== user.id
       )
-        throw new Error(
-          `Non hai il permesso aggiornare la nota di questo veicolo`,
+        throw new HttpException(
+          'Non hai il permesso per aggiornare la nota di questo veicolo',
+          HttpStatus.FORBIDDEN,
         );
     }
 
@@ -192,9 +234,11 @@ export class NotesService {
         .update({ key: note.key }, { content: updatedContent });
       await queryRunner.commitTransaction();
     } catch (error) {
-      console.error('Errore durante aggiornamento nota:', error);
       await queryRunner.rollbackTransaction();
-      throw error;
+      throw new HttpException(
+        `Errore durante l'aggiornamento della nota`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     } finally {
       await queryRunner.release();
     }
@@ -217,7 +261,12 @@ export class NotesService {
         user: true,
       },
     });
-    if (!note) throw new Error(`Nota con ID ${noteId} non trovata`);
+    if (!note)
+      throw new HttpException(
+        `Nota con ID ${noteId} non trovata`,
+        HttpStatus.NOT_FOUND,
+      );
+
     if (user.role.name !== 'Admin') {
       const vehicles = (await this.associationService.getVehiclesByUserRole(
         user.id,
@@ -226,8 +275,9 @@ export class NotesService {
         !vehicles.find((v) => v.veId === note.vehicle.veId) ||
         note.user.id !== user.id
       )
-        throw new Error(
-          `Non hai il permesso per rimuovere la nota di questo veicolo`,
+        throw new HttpException(
+          'Non hai il permesso per eliminare la nota di questo veicolo',
+          HttpStatus.FORBIDDEN,
         );
     }
     const queryRunner = this.connection.createQueryRunner();
@@ -238,8 +288,10 @@ export class NotesService {
       await queryRunner.commitTransaction();
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      console.error('Error during transaction:', error);
-      throw error;
+      throw new HttpException(
+        `Errore durante l'eliminazione della nota`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     } finally {
       await queryRunner.release();
     }
@@ -268,12 +320,21 @@ export class NotesService {
     };
   }
 
+  /**
+   * controlla se utente loggato esiste
+   * @param userId id utente
+   * @returns ritorna utente
+   */
   private async checkUser(userId: number): Promise<UserEntity> {
     const user = await this.userRepository.findOne({
       where: { id: userId },
       relations: ['role'],
     });
-    if (!user) throw new Error(`Utente con ID ${userId} non trovato`);
+    if (!user)
+      throw new HttpException(
+        `Utente con ID ${userId} non trovato`,
+        HttpStatus.NOT_FOUND,
+      );
     return user;
   }
 }
