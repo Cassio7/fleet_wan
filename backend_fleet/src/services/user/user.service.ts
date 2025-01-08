@@ -19,28 +19,30 @@ export class UserService {
    * @param role Ruolo da inserire
    * @returns
    */
-  async createUser(user: UserDTO, role): Promise<any> {
+  async createUser(user: UserDTO, role): Promise<UserEntity> {
     const queryRunner = this.connection.createQueryRunner();
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
-      const newUser = await queryRunner.manager
-        .getRepository(UserEntity)
-        .create({
-          name: user.name,
-          surname: user.surname,
-          username: user.username,
-          email: user.email,
-          password: user.password,
-          role: role,
-        });
-      return await queryRunner.manager.getRepository(UserEntity).save(newUser);
+
+      const newUser = queryRunner.manager.getRepository(UserEntity).create({
+        name: user.name,
+        surname: user.surname,
+        username: user.username,
+        email: user.email,
+        password: user.password,
+        role: role,
+      });
+
+      await queryRunner.manager.getRepository(UserEntity).save(newUser);
+      await queryRunner.commitTransaction();
+
+      return newUser;
     } catch (error) {
       console.error('Errore inserimento nuovo utente: ' + error);
       await queryRunner.rollbackTransaction();
-      await queryRunner.release();
+      throw error;
     } finally {
-      await queryRunner.commitTransaction();
       await queryRunner.release();
     }
   }
@@ -109,12 +111,12 @@ export class UserService {
         },
         updateUser,
       );
+      await queryRunner.commitTransaction();
     } catch (error) {
       console.error('Errore inserimento nuovo utente: ' + error);
       await queryRunner.rollbackTransaction();
-      await queryRunner.release();
+      throw error;
     } finally {
-      await queryRunner.commitTransaction();
       await queryRunner.release();
     }
   }
@@ -129,12 +131,11 @@ export class UserService {
       await queryRunner.connect();
       await queryRunner.startTransaction();
       await queryRunner.manager.getRepository(UserEntity).remove(user);
+      await queryRunner.commitTransaction();
     } catch (error) {
       console.error('Errore eliminazione utente: ' + error);
       await queryRunner.rollbackTransaction();
-      await queryRunner.release();
     } finally {
-      await queryRunner.commitTransaction();
       await queryRunner.release();
     }
   }
