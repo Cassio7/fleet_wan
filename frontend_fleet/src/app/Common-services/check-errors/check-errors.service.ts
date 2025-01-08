@@ -25,31 +25,21 @@ export class CheckErrorsService {
  * @param vehicle
  * @returns l'anomalia se viene riscontrata, altrimenti "null"
  */
-  checkGpsError(vehicle: { anomalySessions?: { date: string; anomalies?: { GPS?: string } }[] }): string | null {
+  checkGpsError(vehicle: Vehicle): string | null {
     const dateFrom = this.commonService.dateFrom;
     const dateTo = this.commonService.dateTo;
 
-    const anomalySessions = vehicle.anomalySessions ?? [];
+    const anomalies = vehicle.anomalies ?? [];
 
-    for (const session of anomalySessions) {
-      const sessionDate = new Date(session.date);
-
-      if (sessionDate >= dateFrom && sessionDate <= dateTo) {
-
-        // Verifica se `anomalies` ha la proprietà GPS
-        if (session.anomalies?.GPS) {
-          const gpsAnomaly = session.anomalies?.GPS;
-          const isTotal = gpsAnomaly.includes("totale") || gpsAnomaly.includes("TOTALE"); //controllo se anomalia totale
-          if(isTotal){
-            return gpsAnomaly;
-          }
-        }
-      }
-    }
-    return null; // Se non viene trovata alcuna anomalia
+    const foundAnomaly = anomalies.find(anomalyObj => {
+      const anomaliesDate = new Date(anomalyObj.date);
+      return anomaliesDate >= dateFrom && anomaliesDate <= dateTo;
+    });
+    return foundAnomaly ? foundAnomaly.session : null;
   }
 
-  checkGPSWarning(vehicle: { anomalySessions?: { date: string; anomalies?: { GPS?: string } }[] }): string | null{
+
+  checkGPSWarning(vehicle: Vehicle): string | null{
     const dateFrom = this.commonService.dateFrom;
     const dateTo = this.commonService.dateTo;
 
@@ -129,19 +119,20 @@ export class CheckErrorsService {
    * @returns differenza in giorni: oggi - lastevent
    */
   public calculateSessionErrorDays(vehicle: Vehicle): number {
-    const todayDate = new Date(); //giorni di oggi
+    // const todayDate = new Date(); //giorni di oggi
 
-    //verifica che lastEvent non sia null
-    if (!vehicle.lastEvent) {
-      return -1;
-    }
+    // //verifica che lastEvent non sia null
+    // if (!vehicle.lastEvent) {
+    //   return -1;
+    // }
 
-    const vehicleLastEvent = new Date(vehicle.lastEvent); //ultimo evento del veicolo
+    // const vehicleLastEvent = new Date(vehicle.lastEvent); //ultimo evento del veicolo
 
-    const differenceInMillis = todayDate.getTime() - vehicleLastEvent.getTime(); //differenza in millisecondi
-    const differenceInDays = Math.floor(differenceInMillis / (1000 * 60 * 60 * 24)); //conversione differenza in giorni
+    // const differenceInMillis = todayDate.getTime() - vehicleLastEvent.getTime(); //differenza in millisecondi
+    // const differenceInDays = Math.floor(differenceInMillis / (1000 * 60 * 60 * 24)); //conversione differenza in giorni
 
-    return differenceInDays;
+    // return differenceInDays;
+    return 1;
   }
 
   /**
@@ -155,17 +146,23 @@ export class CheckErrorsService {
     const errorVehicles: Vehicle[] = [];
 
     vehicles.forEach(vehicle => {
-      if(this.checkGpsError(vehicle)){
+      //controllaerroregpsperveicolo
+      if (this.checkGpsError(vehicle)) {
         errorVehicles.push(vehicle);
-      }else if(this.checkGPSWarning(vehicle)){
+      }
+      //controllawarninggpsperveicolo
+      else if (this.checkGPSWarning(vehicle)) {
         warningVehicles.push(vehicle);
-      }else{
+      }
+      //veicoloinfunzionamentocorrettosenzaerroriowarning
+      else {
         workingVehicles.push(vehicle);
       }
     });
 
     return [workingVehicles, warningVehicles, errorVehicles];
   }
+
 
 
   /**
@@ -178,7 +175,7 @@ export class CheckErrorsService {
     const errorVehicles: Vehicle[] = [];
 
     vehicles.map(vehicle => {
-      if(vehicle.isRFIDReader){
+      if(vehicle.vehicle.isRFIDReader){
         const antennaCheck = this.checkAntennaError(vehicle);
         if(antennaCheck){
           errorVehicles.push(vehicle);
