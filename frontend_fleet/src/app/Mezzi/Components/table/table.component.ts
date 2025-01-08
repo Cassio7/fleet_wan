@@ -26,6 +26,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { CantieriFilterService } from '../../../Common-services/cantieri-filter/cantieri-filter.service';
 import { ModelFilterService } from '../../../Common-services/model-filter/model-filter.service';
 import { FirstEventsFilterService } from '../../../Common-services/firstEvents-filter/first-events-filter.service';
+import { VehicleData } from '../../../Models/VehicleData';
 
 @Component({
   selector: 'app-table',
@@ -51,8 +52,8 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
 
   completedCalls: number = 0;
   loading: boolean = true;
-  vehicleTableData = new MatTableDataSource<Vehicle>();
-  sortedVehicles: Vehicle[] = [];
+  vehicleTableData = new MatTableDataSource<VehicleData>();
+  sortedVehicles: VehicleData[] = [];
 
   displayedColumns: string[] = ["Azienda", "Targa", "Marca&modello", "Cantiere", "Anno immatricolazione", "Tipologia attrezzatura", "Allestimento", "Data-installazione-fleet", "Data-rimozione-apparato", "Notes"];
 
@@ -102,17 +103,17 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
    * Se presenti, utilizza quelli; altrimenti fa una chiamata tramite un servizio all'API.
    */
   fillTable(): void {
-    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+    const allVehiclesData: (VehicleData | Vehicle)[] = JSON.parse(this.sessionStorageService.getItem("allData"));
 
-    if (allVehicles) {
+    if (allVehiclesData) {
       this.notesService.getAllNotes().pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (notes: Note[] | Note)=>{
           // Utilizza i dati dal sessionStorage
-          this.sortedVehicles = this.sortService.sortVehiclesByPlateAsc(allVehicles);
+          this.sortedVehicles = this.sortService.sortVehiclesByPlateAsc(allVehiclesData);
           this.vehicleTableData.data = this.sortedVehicles;
           this.vehicleTable.renderRows();
-          this.mergeVehiclesWithNotes(allVehicles, notes);
+          this.mergeVehiclesWithNotes(allVehiclesData, notes);
           this.selectService.selectVehicles(this.sortedVehicles); // Seleziona tutte le opzioni dei menu delle colonne
           this.loading = false;
           this.cd.detectChanges();
@@ -148,17 +149,19 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
 
   /**
    * Accorpa i veicoli alla propria nota corrispondente
-   * @param vehicles array di veicoli
+   * @param vehiclesData array di dati dei veicoli
    * @param notes array di note
    */
-  mergeVehiclesWithNotes(vehicles: Vehicle[], notes: Note[] | Note){
-    const notesArray = Array.isArray(notes) ? notes : [notes]; //rendere un array anche se nota singola
+  mergeVehiclesWithNotes(vehiclesData: (VehicleData | Vehicle)[], notes: Note[] | Note): void {
+    const notesArray = Array.isArray(notes) ? notes : [notes]; // Rende sempre un array anche se la nota è singola
 
-    //accorpamento delle note nei
-    vehicles.forEach((vehicle) => {
+    // Accorpamento delle note nei veicoli
+    vehiclesData.forEach((obj) => {
+      const vehicle = 'vehicle' in obj ? obj.vehicle : obj; // Accede a vehicle, che può essere in obj.vehicle o direttamente in obj
+
       notesArray.forEach(note => {
-        if(note && note.vehicle.veId == vehicle.veId){
-          vehicle.note = note;
+        if (note && note.vehicle.veId === vehicle.veId) {
+          vehicle.note = note; // Associa la nota al veicolo corrispondente
         }
       });
     });
@@ -169,7 +172,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
    * @param vehicle veicolo da cui prendere la targa
    * @param $event evento
    */
-  selectTarga(vehicle: Vehicle, $event: any){
+  selectTarga(vehicle: VehicleData, $event: any){
     this.selectService.updateVehiclesSelectionByPlate(this.sortedVehicles, vehicle);
     this.vehicleTableData.data = this.sortService.sortVehiclesByPlateAsc(this.selectService.selectedVehicles); //aggiornamento tabella con veicoli selezionati, ordinati per targa
     this.onSelection($event);
@@ -180,7 +183,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
    * @param vehicle veicolo da cui prendere il modello
    * @param $event evento
    */
-  selectModel(vehicle: Vehicle, $event: any){
+  selectModel(vehicle: VehicleData, $event: any){
     this.selectService.updateVehiclesSelectionByModel(this.sortedVehicles, vehicle);
     this.vehicleTableData.data = this.sortService.sortVehiclesByPlateAsc(this.selectService.selectedVehicles); //aggiornamento tabella con veicoli selezionati, ordinati per targa
     this.onSelection($event);
@@ -191,7 +194,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
    * @param vehicle veicolo da cui prendere la cantiere
    * @param $event evento
    */
-  selectCantiere(vehicle: Vehicle, $event: any){
+  selectCantiere(vehicle: VehicleData, $event: any){
     this.selectService.updateVehiclesSelectionByCantiere(this.sortedVehicles, vehicle);
     this.vehicleTableData.data = this.sortService.sortVehiclesByPlateAsc(this.selectService.selectedVehicles); //aggiornamento tabella con veicoli selezionati, ordinati per targa
     this.onSelection($event);
@@ -202,7 +205,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
    * @param vehicle veicolo da cui prendere il firstevent
    * @param $event evento
    */
-  selectFirstEvent(vehicle: Vehicle, $event: any){
+  selectFirstEvent(vehicle: VehicleData, $event: any){
     this.selectService.updateVehiclesSelectionByFirstEvent(this.sortedVehicles, vehicle);
     this.vehicleTableData.data = this.sortService.sortVehiclesByPlateAsc(this.selectService.selectedVehicles); //aggiornamento tabella con veicoli selezionati, ordinati per targa
     this.onSelection($event);
@@ -268,7 +271,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
    * @param currentValue valore attuale del campo corrispondente alla nota
    * @returns chiamata alla funzione per la verifica
    */
-  isVehicleNoteModified(vehicle: Vehicle, currentValue: string): boolean {
+  isVehicleNoteModified(vehicle: VehicleData, currentValue: string): boolean {
     return this.notesService.isVehicleNoteModified(vehicle, currentValue);
   }
 
@@ -277,7 +280,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
    * @param vehicle
    * @returns
    */
-  setNoteStatusToModified(vehicle: Vehicle){
+  setNoteStatusToModified(vehicle: VehicleData){
     return this.notesService.setNoteStatusToModified(vehicle);
   }
 

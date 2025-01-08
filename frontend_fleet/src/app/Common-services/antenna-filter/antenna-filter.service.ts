@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { Vehicle } from '../../Models/Vehicle';
 import { CheckErrorsService } from '../check-errors/check-errors.service';
+import { VehicleData } from '../../Models/VehicleData';
 
 @Injectable({
   providedIn: 'root'
@@ -34,7 +34,7 @@ private readonly _filterTableByAntenna$: BehaviorSubject<string[]> = new Behavio
     }
   }
 
-  updateSelectedOptions(vehicles: Vehicle[]){
+  updateSelectedOptions(vehicles: VehicleData[]){
     this.selectedOptions = [];
     const antennaErrorsCheck = this.checkErrorsService.checkVehiclesAntennaErrors(vehicles);
     const antennaPresenceCheck = this.checkRFIDVehicles(vehicles);
@@ -61,8 +61,8 @@ private readonly _filterTableByAntenna$: BehaviorSubject<string[]> = new Behavio
    * @param vehicles veicoli da controllare
    * @returns solo i veicoli con antenna RFID montata
    */
-  checkRFIDVehicles(vehicles: Vehicle[]){
-    return vehicles.filter(vehicle => vehicle.isRFIDReader === true);
+  checkRFIDVehicles(vehiclesData: VehicleData[]){
+    return vehiclesData.filter(obj => obj.vehicle.isRFIDReader === true);
   }
 
   /**

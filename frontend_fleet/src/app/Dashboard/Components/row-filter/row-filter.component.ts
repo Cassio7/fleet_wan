@@ -16,8 +16,8 @@ import { PlateFilterService } from '../../../Common-services/plate-filter/plate-
 import { CantieriFilterService } from '../../../Common-services/cantieri-filter/cantieri-filter.service';
 import { GpsFilterService } from '../../../Common-services/gps-filter/gps-filter.service';
 import { AntennaFilterService } from '../../../Common-services/antenna-filter/antenna-filter.service';
-import { Vehicle } from '../../../Models/Vehicle';
 import { SortService } from '../../../Common-services/sort/sort.service';
+import { VehicleData } from '../../../Models/VehicleData';
 
 @Component({
   selector: 'app-row-filter',
@@ -69,31 +69,43 @@ export class RowFilterComponent implements AfterViewInit{
   }
 
   ngAfterViewInit(): void {
-    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-    //seleziona tutto
-    setTimeout(() => {
+    // Recupero dei dati dal sessionStorage
+    const storedData = this.sessionStorageService.getItem("allData");
+    if (storedData) {
+      const allData: VehicleData[] = JSON.parse(storedData);
+
+      const allVehicles = allData.map((vehicleData: any) => {
+        return vehicleData.vehicle;
+      });
+
       this.cantieriFilterService.updateListaCantieri(allVehicles);
       this.toggleSelectAll();
-    });
+    } else {
+      console.log("No data found in sessionStorage for 'allData'");
+    }
 
-    //sottoscrizione a subject per aggiornare la lista dei cantieri
+    // Sottoscrizione a subject per aggiornare la lista dei cantieri
     this.cantieriFilterService.updateCantieriFilterOptions$
-    .pipe(takeUntil(this.destroy$), skip(1))
-    .subscribe({
-      next: (vehicles: any[]) => {
-        this.cantieriFilterService.updateListaCantieri(vehicles);
-      }
-    });
+      .pipe(takeUntil(this.destroy$), skip(1))
+      .subscribe({
+        next: (vehicles: any[]) => {
+          this.cantieriFilterService.updateListaCantieri(vehicles);
+        }
+      });
 
-    this.gpsFilterService.updateGpsFilterOptions$.pipe(takeUntil(this.destroy$), skip(1))
-    .subscribe({
-      next: (selectedOptions: string[]) => {
-        this.gps.setValue(selectedOptions);
-      }
-    });
+    // Sottoscrizione per il filtro GPS
+    this.gpsFilterService.updateGpsFilterOptions$
+      .pipe(takeUntil(this.destroy$), skip(1))
+      .subscribe({
+        next: (selectedOptions: string[]) => {
+          this.gps.setValue(selectedOptions);
+        }
+      });
 
+    // Aggiornamento del change detection (solitamente solo se ci sono modifiche dirette al DOM)
     this.cd.detectChanges();
   }
+
 
   /**
    * Viene chiamata alla premuta di un qualsiasi checkbox dentro il select per il filtro dei cantieri
@@ -136,7 +148,6 @@ export class RowFilterComponent implements AfterViewInit{
    * @param option opzione selezionata
    */
   selectGps(option: string) {
-    const tableData = this.sessionStorageService.getItem("tableData");
     const selectedGpsStates = this.gps.value || [];
 
     if (option === "Seleziona tutto") {
@@ -265,7 +276,7 @@ export class RowFilterComponent implements AfterViewInit{
    * Aggiorna le opzioni selezionate dei cantieri
    * @param vehicles veicoli da controllare
    */
-  updateAllFiltersSelectedOptions(vehicles: Vehicle[]){
+  updateAllFiltersSelectedOptions(vehicles: VehicleData[]){
     const data = vehicles || JSON.parse(this.sessionStorageService.getItem("tableData"));
     console.log(this.sortService.sortVehiclesByCantiereDesc(data));
     this.cantieri.setValue(["Seleziona tutto", ...this.cantiereFilterService.vehiclesCantieriOnce(this.sortService.sortVehiclesByCantiereDesc(data))]);

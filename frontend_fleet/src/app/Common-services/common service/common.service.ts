@@ -6,8 +6,8 @@ import { Injectable } from '@angular/core';
 export class CommonService {
   private _url: string = "http://10.1.0.102:3001/v0";
 
-  private _dateFrom: Date = new Date("2024-11-29");
-  private _dateTo: Date = new Date("2024-11-30");
+  private _dateFrom: Date = new Date("2025-01-05");
+  private _dateTo: Date = new Date("2025-01-08");
   constructor() { }
 
   public get url(): string {

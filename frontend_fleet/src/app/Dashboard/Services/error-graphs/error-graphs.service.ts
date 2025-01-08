@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
-import { Vehicle } from '../../../Models/Vehicle';
+import { VehicleData } from '../../../Models/VehicleData';
 import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
 
 interface ErrorsData {
@@ -51,7 +51,7 @@ export class ErrorGraphsService{
   * @param vehicles oggetto custom di veicoli
   * @returns oggetto errorsData
   */
-  public loadChartData(vehicles: Vehicle[]) {
+  public loadChartData(vehicles: VehicleData[]) {
     this.errorsData.workingVehicles = [];
     this.errorsData.warningVehicles = [];
     this.errorsData.errorVehicles = [];
@@ -59,13 +59,13 @@ export class ErrorGraphsService{
     this._series = [0, 0, 0]; // [working, warning, error]
 
     //controlli su gps e antenna
-    const gpsCheckResult: Vehicle[][] = this.checkErrorsService.checkVehiclesGpsErrors(vehicles);
-    const antennaCheckResult: Vehicle[][] = this.checkErrorsService.checkVehiclesAntennaErrors(vehicles);
-    const sessionCheckResult: Vehicle[][] = this.checkErrorsService.checkVehiclesSessionErrors(vehicles);
+    const gpsCheckResult: VehicleData[][] = this.checkErrorsService.checkVehiclesGpsErrors(vehicles);
+    const antennaCheckResult: VehicleData[][] = this.checkErrorsService.checkVehiclesAntennaErrors(vehicles);
+    const sessionCheckResult: VehicleData[][] = this.checkErrorsService.checkVehiclesSessionErrors(vehicles);
 
-    const workingVehiclesSet = new Set<Vehicle>();
-    const warningVehiclesSet = new Set<Vehicle>();
-    const errorVehiclesSet = new Set<Vehicle>();
+    const workingVehiclesSet = new Set<VehicleData>();
+    const warningVehiclesSet = new Set<VehicleData>();
+    const errorVehiclesSet = new Set<VehicleData>();
 
     //aggiunta risultati gps
     gpsCheckResult[0].forEach(vehicle => workingVehiclesSet.add(vehicle));
@@ -112,6 +112,7 @@ export class ErrorGraphsService{
         this.sessionStorageService.setItem("errorVehicles", JSON.stringify(this.errorsData.errorVehicles));
         this.firstLoad = false;
     }
+
     this._loadGraphData$.next(this._series); //invio dati per il caricamento dei grafici
     return this.errorsData;
 }
@@ -166,8 +167,8 @@ export class ErrorGraphsService{
    * Controlla se al momento della chiamata uno spicchio del grafico dei blackbox è stato selezionato
    * @returns veicoli sui quali è stato applicato il filtro corrispondente allo spicchio se esiste
   */
-  checkBlackBoxSlice(): Vehicle[] {
-    let vehicles: Vehicle[] = [];
+  checkBlackBoxSlice(): VehicleData[] {
+    let vehicles: VehicleData[] = [];
 
     switch (this.sessionStorageService.getItem("blackboxSlice")) {
       case "blackbox":

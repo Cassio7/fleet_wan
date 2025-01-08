@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
-import { Vehicle } from '../../../Models/Vehicle';
 import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
+import { VehicleData } from '../../../Models/VehicleData';
 
 @Injectable({
   providedIn: 'root'
@@ -18,12 +18,11 @@ export class GpsGraphService {
 
   private _width = 300;
 
-  private readonly _loadChartData$: BehaviorSubject<Vehicle[]> = new BehaviorSubject<Vehicle[]>([]);
+  private readonly _loadChartData$: BehaviorSubject<VehicleData[]> = new BehaviorSubject<VehicleData[]>([]);
 
 
   constructor(
-    private checkErrorsService: CheckErrorsService,
-    private sessionStorageService: SessionStorageService
+    private checkErrorsService: CheckErrorsService
   ) { }
 
   /**
@@ -31,11 +30,11 @@ export class GpsGraphService {
    * @param vehicles veicoli da analizzare
    * @returns array: [workingVehicles, warningVehicles, errorVehicles]
    */
-  public loadChartData(vehicles: Vehicle[]) {
+  public loadChartData(vehicles: VehicleData[]) {
     this._series = [0, 0, 0]; // [working, warning, error]
 
     //controlli su gps e antenna
-    const gpsCheckResult: Vehicle[][] = this.checkErrorsService.checkVehiclesGpsErrors(vehicles);
+    const gpsCheckResult: VehicleData[][] = this.checkErrorsService.checkVehiclesGpsErrors(vehicles);
 
     const workingVehicles = Array.from(gpsCheckResult[0]);
     const warningVehicles = Array.from(gpsCheckResult[1]);
@@ -83,7 +82,7 @@ export class GpsGraphService {
   public set width(value) {
     this._width = value;
   }
-  public get loadChartData$(): Subject<Vehicle[]> {
+  public get loadChartData$(): Subject<VehicleData[]> {
     return this._loadChartData$;
   }
 }

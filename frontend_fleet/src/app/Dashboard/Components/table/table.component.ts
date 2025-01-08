@@ -5,7 +5,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, ViewChild } fro
 import { MatIconModule } from '@angular/material/icon';
 import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Session } from '../../../Models/Session';
-import { forkJoin, skip, Subject, takeUntil, catchError, of, tap, filter } from 'rxjs';
+import { forkJoin, skip, Subject, takeUntil, catchError, of, tap, filter, first } from 'rxjs';
 import { VehiclesApiService } from '../../../Common-services/vehicles api service/vehicles-api.service';
 import { Vehicle } from '../../../Models/Vehicle';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -21,6 +21,7 @@ import { PlateFilterService } from '../../../Common-services/plate-filter/plate-
 import { GpsFilterService } from '../../../Common-services/gps-filter/gps-filter.service';
 import { SessionFilterService } from '../../../Common-services/session-filter/session-filter.service';
 import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
+import { VehicleData } from '../../../Models/VehicleData';
 
 @Component({
   selector: 'app-table',
@@ -42,7 +43,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
 
   private readonly destroy$: Subject<void> = new Subject<void>();
 
-  vehicleTableData = new MatTableDataSource<Vehicle>();
+  vehicleTableData = new MatTableDataSource<VehicleData>();
   tableMaxLength: number = 0;
 
   loadingProgress: number = 0;
@@ -63,29 +64,28 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   constructor(
     private errorGraphService: ErrorGraphsService,
     private blackboxGraphService: BlackboxGraphsService,
-    private vehicleApiService: VehiclesApiService,
     private cantieriFilterService: CantieriFilterService,
     private gpsFilterService: GpsFilterService,
     private antennaFilterService: AntennaFilterService,
     private plateFilterService: PlateFilterService,
     private sessionFilterService: SessionFilterService,
     private sessionStorageService: SessionStorageService,
-    private sessionApiService: SessionApiService,
-    private checkErrorsService: CheckErrorsService,
+    public checkErrorsService: CheckErrorsService,
     private sortService: SortService,
     private cd: ChangeDetectorRef
   ){
   }
 
   ngAfterViewInit(): void {
-    const allVehicles: Vehicle[] = JSON.parse(this.sessionStorageService.getItem("allVehicles")); //array di tutti i veicoli
-
-    this.handlErrorGraphClick(); // Subscribe a click nel grafico degli errori
-    this.handleBlackBoxGraphClick(); // Subscribe a click nel grafico dei blackbox
-    this.handleCantiereFilter(); //Subscribe a scelta nel filtro dei cantieri
-    this.handleGpsFilter();
-    this.handleAntennaFilter();
-    this.handleSessionFilter();
+    const allVehiclesData = JSON.parse(this.sessionStorageService.getItem("allData"));
+    setTimeout(() => {
+      this.handlErrorGraphClick(); // Subscribe a click nel grafico degli errori
+      this.handleBlackBoxGraphClick(); // Subscribe a click nel grafico dei blackbox
+      this.handleCantiereFilter(); //Subscribe a scelta nel filtro dei cantieri
+      this.handleGpsFilter();
+      this.handleAntennaFilter();
+      this.handleSessionFilter();
+    });
 
 
     this.plateFilterService.filterByPlateResearch$.pipe(takeUntil(this.destroy$), skip(1))
@@ -98,7 +98,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
           const blackboxVehicles = JSON.parse(this.sessionStorageService.getItem("blackboxVehicles"));
           this.vehicleTableData.data = this.plateFilterService.filterVehiclesByPlateResearch(research, blackboxVehicles);
         }else{
-          this.vehicleTableData.data = this.plateFilterService.filterVehiclesByPlateResearch(research, allVehicles);
+          this.vehicleTableData.data = this.plateFilterService.filterVehiclesByPlateResearch(research, allVehiclesData);
         }
         this.vehicleTable.renderRows();
         this.loadGraphs(this.vehicleTableData.data);
@@ -106,17 +106,18 @@ export class TableComponent implements OnDestroy, AfterViewInit{
       error: error => console.error("Errore nel filtro delle targhe: ", error)
     });
 
-    if (allVehicles) {
-      this.vehicleTableData.data = allVehicles;
-      this.tableMaxLength = allVehicles.length;
-      this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));
-      this.vehicleTable.renderRows();
-      this.loadGraphs(allVehicles);
-      this.loading = false;
-      this.cd.detectChanges();
-    } else {
-      this.fillTable(); // Riempi la tabella con i dati se non ci sono nel sessionStorage
-    }
+    this.fillTable();
+    // if (allVehiclesData.length>0) {
+    //   this.vehicleTableData.data = allVehiclesData;
+    //   this.tableMaxLength = allVehiclesData.length;
+    //   this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));
+    //   this.vehicleTable.renderRows();
+    //   this.loadGraphs(allVehiclesData);
+    //   this.loading = false;
+    //   this.cd.detectChanges();
+    // } else {
+    //   this.fillTable(); // Riempi la tabella con i dati se non ci sono nel sessionStorage
+    // }
   }
 
   /**
@@ -133,15 +134,18 @@ export class TableComponent implements OnDestroy, AfterViewInit{
 
           if (errorSlice) {
             const errorGraphVehicles = this.blackboxGraphService.checkErrorGraphSlice();
-            vehicles = this.cantieriFilterService.filterVehiclesByCantieri(errorGraphVehicles, cantieri) as Vehicle[];
+            vehicles = this.cantieriFilterService.filterVehiclesByCantieri(errorGraphVehicles, cantieri) as VehicleData[];
           } else if (blackboxSlice) {
             const blackboxgraphVehicles = this.errorGraphService.checkBlackBoxSlice();
-            vehicles = this.cantieriFilterService.filterVehiclesByCantieri(blackboxgraphVehicles, cantieri) as Vehicle[];
+            vehicles = this.cantieriFilterService.filterVehiclesByCantieri(blackboxgraphVehicles, cantieri) as VehicleData[];
           } else {
-            const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+            const allData = JSON.parse(this.sessionStorageService.getItem("allData"))
+            const allVehicles = allData.vehicles.map((vehicleData: any) => {
+              return vehicleData.vehicle;
+            });
             const tableVehicles = JSON.parse(this.sessionStorageService.getItem("tableData"));
             const actualVehicles = (tableVehicles && tableVehicles.length > 0) ? tableVehicles : allVehicles;
-            vehicles = this.cantieriFilterService.filterVehiclesByCantieri(actualVehicles, cantieri) as Vehicle[];
+            vehicles = this.cantieriFilterService.filterVehiclesByCantieri(actualVehicles, cantieri) as VehicleData[];
           }
 
           this.vehicleTableData.data = vehicles;
@@ -165,14 +169,14 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     this.gpsFilterService.filterTableByGps$.pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (selections: string[]) => {
-          const allVehicles: Vehicle[] = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-          const tableVehicles: Vehicle[] = JSON.parse(this.sessionStorageService.getItem("tableData"));
+          const allData = JSON.parse(this.sessionStorageService.getItem("allData"))
+          const tableVehicles: VehicleData[] = JSON.parse(this.sessionStorageService.getItem("tableData"));
 
-          const vehicles = tableVehicles ? tableVehicles : allVehicles;
+          const vehicles = tableVehicles ? tableVehicles : allData;
           const gpsCheckSeries = this.checkErrorsService.checkVehiclesGpsErrors(vehicles); //[0] funzionante [1] warning [2] error
 
-          let selectedVehicles: Vehicle[] = [];
-
+          let selectedVehicles: VehicleData[] = [];
+          console.log("selections: ", selections);
           if (selections.includes("all")) {
             selectedVehicles = vehicles;
           } else {
@@ -180,12 +184,15 @@ export class TableComponent implements OnDestroy, AfterViewInit{
               selectedVehicles = [...selectedVehicles, ...gpsCheckSeries[0]];
             }
             if (selections.includes("Warning")) {
+              console.log("ce sta warning");
               selectedVehicles = [...selectedVehicles, ...gpsCheckSeries[1]];
             }
             if (selections.includes("Errore")) {
               selectedVehicles = [...selectedVehicles, ...gpsCheckSeries[2]];
             }
           }
+
+          selectedVehicles = []; //pulizia selezioni
 
           const filteredVehicles = this.sortService.vehiclesInDefaultOrder(selectedVehicles);
 
@@ -204,14 +211,17 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     this.antennaFilterService.filterTableByAntenna$.pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (selections: string[]) => {
-        const allVehicles: Vehicle[] = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+        const allData = JSON.parse(this.sessionStorageService.getItem("allData"));
+        const allVehicles = allData.map((vehicleData: any) => {
+          return vehicleData.vehicle;
+        });
         const tableVehicles: Vehicle[] = JSON.parse(this.sessionStorageService.getItem("tableData"));
 
         const vehicles = (tableVehicles && tableVehicles.length > 0) ? tableVehicles : allVehicles;
 
         const antennaCheck = this.checkErrorsService.checkVehiclesAntennaErrors(vehicles);
         const vehiclesBlackboxData = this.blackboxGraphService.getAllRFIDVehicles(vehicles);
-        let selectedVehicles: Vehicle[] = [];
+        let selectedVehicles: VehicleData[] = [];
 
         if (selections.includes("all")) {
           selectedVehicles = vehicles;
@@ -246,13 +256,16 @@ handleSessionFilter() {
   this.sessionFilterService.filterTableBySessionStates$.pipe(takeUntil(this.destroy$))
   .subscribe({
     next: (selections: string[]) => {
-      const allVehicles: Vehicle[] = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+      const allData = JSON.parse(this.sessionStorageService.getItem("allData"))
+      const allVehicles = allData.map((vehicleData: any) => {
+        return vehicleData.vehicle;
+      });
       const tableVehicles: Vehicle[] = JSON.parse(this.sessionStorageService.getItem("tableData"));
 
       const vehicles = (tableVehicles && tableVehicles.length > 0) ? tableVehicles : allVehicles;
       const sessionCheck = this.checkErrorsService.checkVehiclesSessionErrors(vehicles); //[0] funzionante [1] errore
 
-      let selectedVehicles: Vehicle[] = [];
+      let selectedVehicles: VehicleData[] = [];
 
       //se "all" è selezionato, aggiungi tutti i veicoli
       if (selections.includes("all")) {
@@ -358,31 +371,31 @@ handleSessionFilter() {
   onSortChange(event: Sort){
     const column = event.active;
     const sortDirection = event.direction;
-    const vehicles = this.vehicleTableData.data;
+    const vehiclesData = this.vehicleTableData.data;
 
     switch (column) {
       case 'cantiere':
         if (sortDirection == "asc") {
-          this.vehicleTableData.data = this.sortService.sortVehiclesByCantiereAsc(vehicles);
+          this.vehicleTableData.data = this.sortService.sortVehiclesByCantiereAsc(vehiclesData);
         } else {
-          this.vehicleTableData.data = this.sortService.sortVehiclesByCantiereDesc(vehicles);
+          this.vehicleTableData.data = this.sortService.sortVehiclesByCantiereDesc(vehiclesData);
         }
         this.vehicleTable.renderRows();
         break;
 
       case 'targa':
         if (sortDirection == "asc") {
-          this.vehicleTableData.data = this.sortService.sortVehiclesByPlateAsc(vehicles);
+          this.vehicleTableData.data = this.sortService.sortVehiclesByPlateAsc(vehiclesData);
         } else {
-          this.vehicleTableData.data = this.sortService.sortVehiclesByPlateDesc(vehicles);
+          this.vehicleTableData.data = this.sortService.sortVehiclesByPlateDesc(vehiclesData);
         }
         this.vehicleTable.renderRows();
         break;
       case 'sessione':
         if (sortDirection == "asc") {
-          this.vehicleTableData.data = this.sortService.sortVehiclesBySessioneAsc(vehicles);
+          this.vehicleTableData.data = this.sortService.sortVehiclesBySessioneAsc(vehiclesData);
         } else {
-          this.vehicleTableData.data = this.sortService.sortVehiclesBySessioneDesc(vehicles);
+          this.vehicleTableData.data = this.sortService.sortVehiclesBySessioneDesc(vehiclesData);
         }
         this.vehicleTable.renderRows();
         break;
@@ -394,85 +407,20 @@ handleSessionFilter() {
    * Riempe la tabella con i dati dei veicoli
    */
   fillTable() {
-    console.log("filltable chiamata!");
     //nascondi i grafici
     this.blackboxGraphService.resetGraphs();
     this.errorGraphService.resetGraphs();
-
     this.vehicleTableData.data = []; //inizializzazione tabella vuota
-    this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));
-    forkJoin({
-      vehicles: this.vehicleApiService.getAllVehicles().pipe(
-        tap(() => {
-          this.loadingProgress+=33.3;
-          this.loadingText = "Caricamento veicoli...";
-          this.cd.detectChanges();
-        }),
-        catchError((error) => {
-          console.error("Errore caricamento vehicles:", error);
-          return of([]);
-        })
-      ),
-      anomaliesVehicles: this.checkErrorsService.checkErrorsAllToday().pipe(
-        tap(() => {
-          this.loadingProgress+=33.3;
-          this.loadingText = "Caricamento veicoli con anomalie...";
-          this.cd.detectChanges();
-        }),
-        catchError((error) => {
-          console.error("Errore caricamento anomaliesVehicles:", error);
-          return of([]);
-        })
-      ),
-      lastValidSessions: this.sessionApiService.getAllVehiclesLastValidSession().pipe(
-        tap(() => {
-          this.loadingProgress+=33.3;
-          this.loadingText = "Caricamento sessioni valide...";
-          this.cd.detectChanges();
-        }),
-        catchError((error) => {
-          console.error("Errore caricamento lastValidSessions:", error);
-          return of([]);
-        })
-      )
-    })
-    .pipe(takeUntil(this.destroy$))
+    this.checkErrorsService.checkErrorsAllToday().pipe(takeUntil(this.destroy$), first())
     .subscribe({
-      next: ({
-        vehicles,
-        anomaliesVehicles,
-        lastValidSessions
-      }: {
-        vehicles: Vehicle[];
-        anomaliesVehicles: any[];
-        lastValidSessions: any[];
-      }) => {
-          console.log("anomaliesVehicles: ", anomaliesVehicles);
-          try {
-          if (vehicles && vehicles.length > 0) {
-            vehicles.forEach((vehicle) => {
-              vehicle.anomalySessions = anomaliesVehicles
-                .filter(anomalyVehicle => anomalyVehicle.veId === vehicle.veId && anomalyVehicle.sessions?.length > 0)
-                .flatMap(anomalyVehicle => anomalyVehicle.sessions || []);
-
-              const anomalyVehicle = anomaliesVehicles.find(anomaly => anomaly.veId === vehicle.veId);
-              vehicle.anomaliaSessione = anomalyVehicle?.anomaliaSessione || "";
-
-              const lastSession = lastValidSessions.find(lastSession => lastSession.veId === vehicle.veId);
-              vehicle.lastValidSession = lastSession ? lastSession.lastValidSession : null;
-            });
-
-            this.vehicleTableData.data = [...this.vehicleTableData.data, ...vehicles];
+      next: (vehiclesData: any) => {
+        try {
+          if (vehiclesData.vehicles && vehiclesData.vehicles.length > 0) {
+            this.vehicleTableData.data = [...vehiclesData.vehicles];  // Assicurati che vehiclesData.vehicles sia un array di veicoli
+            this.sessionStorageService.setItem("allData", JSON.stringify(vehiclesData.vehicles));  // Salva l'array di veicoli
             this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));
-            this.vehicleTable.renderRows();
+            this.vehicleTable.renderRows();  // Rende le righe della tabella
           }
-
-          this.sessionStorageService.setItem("allVehicles", JSON.stringify(vehicles));
-          this.loadGraphs(vehicles);
-          this.loading = false;
-          this.cd.detectChanges();
-          this.tableMaxLength = vehicles.length;
-          this.cd.detectChanges();
         } catch (error) {
           console.error("Error processing vehicles:", error);
         }
@@ -487,7 +435,7 @@ handleSessionFilter() {
    * Carica la tabella con i dati dei veicoli passati per parametro
    * @param vehicles dati dei veicoli
    */
-  fillTableWithVehicles(vehicles: Vehicle[]){
+  fillTableWithVehicles(vehicles: VehicleData[]){
     // Se ci sono veicoli, aggiorna la tabella
     if (vehicles.length > 0) {
       this.vehicleTableData.data = vehicles; // Modifica la tabella
@@ -498,14 +446,14 @@ handleSessionFilter() {
 
   /**
  * Richiama le funzioni per il riempimento della tabella in base al filtro dei grafici (inserendo i nuovi veicoli nel sessionstorage) e la sincronizzazione di quest'ultimi
- * @param vehicles veicoli da caricare
+ * @param vehiclesData veicoli da caricare
  */
-  onGraphClick(vehicles: Vehicle[]){
+  onGraphClick(vehiclesData: VehicleData[]){
     /*filtrare i veicoli per cantiere*/
-    this.sessionStorageService.setItem("tableData", JSON.stringify(vehicles)); //imposta tableData in sessionstorage
-    this.cantieriFilterService.updateCantieriFilterOptions$.next(vehicles); //aggiorna le opzioni del filtro dei cantieri
-    this.fillTableWithVehicles(vehicles); //riempe la tabella
-    this.loadGraphs(vehicles); //carica i grafici
+    this.sessionStorageService.setItem("tableData", JSON.stringify(vehiclesData)); //imposta tableData in sessionstorage
+    this.cantieriFilterService.updateCantieriFilterOptions$.next(vehiclesData); //aggiorna le opzioni del filtro dei cantieri
+    this.fillTableWithVehicles(vehiclesData); //riempe la tabella
+    this.loadGraphs(vehiclesData); //carica i grafici
   }
 
 
@@ -513,7 +461,7 @@ handleSessionFilter() {
    * Richiama le funzioni per il caricamento del grafico degli errori e del grafico dei blackbox
    * @param newVehicles da questi veicoli come input ai grafici per il caricamento
    */
-  loadGraphs(newVehicles: Vehicle[]) {
+  loadGraphs(newVehicles: VehicleData[]) {
     this.errorGraphService.loadChartData(newVehicles);
     this.blackboxGraphService.loadChartData(newVehicles);
   }
@@ -523,7 +471,7 @@ handleSessionFilter() {
    * @param vehicle veicolo da cui prendere l'ultimo evento
    * @returns differenza in giorni: oggi - lastevent
    */
-  calculateSessionErrorDays(vehicle: Vehicle){
+  calculateSessionErrorDays(vehicle: VehicleData){
     return this.checkErrorsService.calculateSessionErrorDays(vehicle);
   }
 
@@ -532,47 +480,11 @@ handleSessionFilter() {
    * @param vehicle veicolo da controllare
    * @returns il nome del cantiere o la non assegnazione a nessuno
    */
-  checkWorksite(vehicle: any) {
-    if (vehicle?.worksite && vehicle.worksite.name) {
-      return vehicle.worksite.name;
+  checkWorksite(vehicleData: VehicleData) {
+    if (vehicleData.vehicle?.worksite && vehicleData.vehicle.worksite.name) {
+      return vehicleData.vehicle.worksite.name;
     } else {
       return "Non assegnato";
     }
   }
-
-  /**
-   * Richiama controllo errore GPS
-   * @param vehicle veicolo da controllare
-   * @returns risultato del controllo sul GPS
-   */
-  checkGpsError(vehicle: any): string | null {
-    return this.checkErrorsService.checkGpsError(vehicle);
-  }
-
-  /**
-   * Richiama controllo errore GPS
-   * @param vehicle veicolo da controllare
-   * @returns risultato del controllo sul GPS
-   */
-  checkGpsWarning(vehicle: any): string | null {
-    return this.checkErrorsService.checkGPSWarning(vehicle);
-  }
-
-  /**
-   * Richiama controllo errore antenna
-   * @param vehicle veicolo da controllare
-   * @returns risultato del controllo sull'antenna
-   */
-  checkAntennaError(vehicle: any): string | null {
-    return this.checkErrorsService.checkAntennaError(vehicle);
-  }
-  /**
-   * Richiama controllo errore sessione
-   * @param vehicle veicolo da controllare
-   * @returns risultato del controllo sulla sessione
-   */
-  checkSessionError(vehicle: any): string | null {
-    return this.checkErrorsService.checkSessionError(vehicle);
-  }
-
 }

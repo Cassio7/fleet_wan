@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { Vehicle } from '../../../Models/Vehicle';
+import { VehicleData } from '../../../Models/VehicleData';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
 
@@ -54,15 +54,15 @@ export class BlackboxGraphsService{
    * @param vehicles oggetto custom di veicoli
    * @returns un oggetto di tipo blackboxData che contiene i veicoli con solo blackbox e con blackbox + antenna
    */
-  public getAllRFIDVehicles(vehicles: any[]) {
+  public getAllRFIDVehicles(vehicles: VehicleData[]) {
     this.blackboxData = {
       sliceSelected: "",
-      blackboxOnly: [] as Vehicle[],
-      blackboxWithAntenna: [] as Vehicle[],
+      blackboxOnly: [] as VehicleData[],
+      blackboxWithAntenna: [] as VehicleData[],
     };
 
     for(const v of vehicles){
-      v.isRFIDReader == true ? this.blackboxData.blackboxWithAntenna.push(v) : this.blackboxData.blackboxOnly.push(v);
+      v.vehicle.isRFIDReader == true ? this.blackboxData.blackboxWithAntenna.push(v) : this.blackboxData.blackboxOnly.push(v);
     }
 
     return this.blackboxData;

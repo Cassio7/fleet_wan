@@ -4,7 +4,7 @@ import { SessionStorageService } from '../../../../Common-services/sessionStorag
 import { NgApexchartsModule } from "ng-apexcharts";
 import { AntennaGraphService } from '../../../Services/antenna-graph/antenna-graph.service';
 import { BlackboxGraphsService } from '../../../Services/blackbox-graphs/blackbox-graphs.service';
-import { Vehicle } from '../../../../Models/Vehicle';
+import { VehicleData } from '../../../../Models/VehicleData';
 import { PlateFilterService } from '../../../../Common-services/plate-filter/plate-filter.service';
 import { CheckErrorsService } from '../../../../Common-services/check-errors/check-errors.service';
 
@@ -108,7 +108,7 @@ export class AntennaGraphComponent {
     console.log("error gps");
   }
 
-  initializeGraph(vehicles: Vehicle[]){
+  initializeGraph(vehicles: VehicleData[]){
     this.chartOptions.series = [];
 
     const antennaCheck = this.checkErrorsService.checkVehiclesAntennaErrors(vehicles);
@@ -136,7 +136,7 @@ export class AntennaGraphComponent {
     });
     this.antennaGraphService.loadChartData$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
-      next: (vehicles: Vehicle[]) => {
+      next: (vehicles: VehicleData[]) => {
         this.initializeGraph(vehicles);
         this.cd.detectChanges();
       },

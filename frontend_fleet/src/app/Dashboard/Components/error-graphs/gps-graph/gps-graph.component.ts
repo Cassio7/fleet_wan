@@ -5,8 +5,8 @@ import { NgApexchartsModule } from "ng-apexcharts";
 import { Subject, skip, takeUntil } from 'rxjs';
 import { SessionStorageService } from '../../../../Common-services/sessionStorage/session-storage.service';
 import { PlateFilterService } from '../../../../Common-services/plate-filter/plate-filter.service';
-import { Vehicle } from '../../../../Models/Vehicle';
 import { CheckErrorsService } from '../../../../Common-services/check-errors/check-errors.service';
+import { VehicleData } from '../../../../Models/VehicleData';
 
 @Component({
   selector: 'app-gps-graph',
@@ -108,10 +108,11 @@ export class GpsGraphComponent implements AfterViewInit{
     console.log("error gps");
   }
 
-  initializeGraph(vehicles: Vehicle[]){
+  initializeGraph(vehicles: VehicleData[]){
     this.chartOptions.series = [];
 
     const gpsCheck = this.checkErrorsService.checkVehiclesGpsErrors(vehicles);
+    console.log("gpsCheck: ", gpsCheck);
 
     const series = [gpsCheck[0].length, gpsCheck[1].length, gpsCheck[2].length];
     this.chartOptions.series = series;
@@ -135,7 +136,7 @@ export class GpsGraphComponent implements AfterViewInit{
     });
     this.gpsGraphService.loadChartData$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
-      next:(vehicles: Vehicle[]) => {
+      next:(vehicles: VehicleData[]) => {
         this.initializeGraph(vehicles);
         this.cd.detectChanges();
       },

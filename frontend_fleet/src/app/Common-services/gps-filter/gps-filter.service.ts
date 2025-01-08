@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { SessionStorageService } from '../sessionStorage/session-storage.service';
-import { Vehicle } from '../../Models/Vehicle';
+import { VehicleData } from '../../Models/VehicleData';
 import { CheckErrorsService } from '../check-errors/check-errors.service';
 
 @Injectable({
@@ -54,7 +53,7 @@ export class GpsFilterService {
    * @param vehicles veicoli da analizzare
    * @returns array di opzioni selezionate
    */
-  updateSelectedOptions(vehicles: Vehicle[]){
+  updateSelectedOptions(vehicles: VehicleData[]){
     this.selectedOptions = [];
     const gpsCheck = this.checkErrorsService.checkVehiclesGpsErrors(vehicles);
 

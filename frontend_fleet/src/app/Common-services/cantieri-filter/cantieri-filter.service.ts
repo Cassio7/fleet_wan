@@ -2,8 +2,9 @@ import { Injectable } from '@angular/core';
 import { BlackboxGraphsService } from '../../Dashboard/Services/blackbox-graphs/blackbox-graphs.service';
 import { ErrorGraphsService } from '../../Dashboard/Services/error-graphs/error-graphs.service';
 import { SessionStorageService } from '../sessionStorage/session-storage.service';
-import { Vehicle } from '../../Models/Vehicle';
+import { VehicleData } from '../../Models/VehicleData';
 import { BehaviorSubject } from 'rxjs';
+import { Vehicle } from '../../Models/Vehicle';
 
 @Injectable({
   providedIn: 'root'
@@ -58,7 +59,10 @@ export class CantieriFilterService{
    * @param worksites cantieri per cui filtrare (se passato un array vuoto, utilizza i cantieri salvati nel sessionstorage)
    * @returns array di veicoli filtrati
    */
-  filterVehiclesByCantieri(vehicles:  Vehicle[], worksites: string[]) {
+  filterVehiclesByCantieri(vehiclesData:  VehicleData[], worksites: string[]) {
+    const vehicles = vehiclesData.map(obj => {
+      return obj.vehicle;
+    });
     const cantieri: string[] = worksites || [];
     const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
 
@@ -101,7 +105,10 @@ export class CantieriFilterService{
    * @param vehicles - Array di veicoli da filtrare.
    * @returns Un array di veicoli che corrispondono ai modelli selezionati.
    */
-  filterVehiclesByModel(selectedModels: string[], vehicles: Vehicle[]): Vehicle[] {
+  filterVehiclesByModel(selectedModels: string[], vehiclesData: VehicleData[]): any[] {
+    const vehicles = vehiclesData.map(obj => {
+      return obj.vehicle;
+    });
     if (!selectedModels || !selectedModels.length) {
       return vehicles; // Return all vehicles if no cantieri are selected.
     }
@@ -119,32 +126,32 @@ export class CantieriFilterService{
    * @param vehicles veicoli dai quali prendere i modelli
    * @returns array di veicoli filtrati
    */
-  filterVehiclesCantieriDuplicates(vehicles: Vehicle[]) {
+  filterVehiclesCantieriDuplicates(vehiclesData: (VehicleData | Vehicle)[]): any[] {
+    const vehicles = vehiclesData.map(obj => {
+      return 'vehicle' in obj ? obj.vehicle : obj; // Prende direttamente il veicolo da VehicleData o Vehicle
+    });
+
     const seenCantieri = new Set<string>(); // Set per tracciare i cantieri unici
+
     return vehicles.filter(vehicle => {
-      if (vehicle.worksite) {
-        if (seenCantieri.has(vehicle.worksite.name)) {
-          return false;
-        }
-        seenCantieri.add(vehicle.worksite.name);
-        return true;
-      } else {
-        // Se il worksite è null o undefined, usa "non assegnato"
-        if (seenCantieri.has("non assegnato")) {
-          return false;
-        }
-        seenCantieri.add("non assegnato");
-        return true;
+      const worksiteName = 'worksite' in vehicle && vehicle.worksite?.name ? vehicle.worksite.name : "non assegnato";
+
+      if (seenCantieri.has(worksiteName)) {
+        return false; // Se il cantiere è già stato visto, lo salta
       }
+
+      seenCantieri.add(worksiteName); // Aggiunge il cantiere al Set
+      return true; // Altrimenti, mantiene il veicolo
     });
   }
+
 
   /**
    * Aggiorna le opzioni presenti nel filtro dei cantieri
    * @param vehicles veicoli da cui prendere i cantieri
    * @returns lista dei cantieri selezionati
    */
-  updateListaCantieri(vehicles: Vehicle[]): string[]{
+  updateListaCantieri(vehicles: VehicleData[]): string[]{
     if (Array.isArray(vehicles) && vehicles.length > 0) {
       const firstElement = this.listaCantieri[0] || null; // Elemento preesistente o null
       const newCantieri = this.fillSelect(vehicles);
