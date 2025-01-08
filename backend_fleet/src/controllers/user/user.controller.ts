@@ -44,8 +44,9 @@ export class UserController {
   async getAllUsers(@Res() res: Response) {
     try {
       const users = await this.userService.getAllUsers();
-      if (users) res.status(200).json(users);
-      else res.status(404).json({ message: 'Nessun utente trovato' });
+      if (!users)
+        return res.status(404).json({ message: 'Nessun utente trovato' });
+      res.status(200).json(users);
     } catch (error) {
       console.error('Errore nel recupero degli utenti:', error);
       res.status(500).json({ message: 'Errore nel recupero degli utenti' });
@@ -99,8 +100,8 @@ export class UserController {
   ) {
     try {
       const user = await this.userService.getUserById(req.user.id);
-      if (user) res.status(200).json(user);
-      else res.status(404).json({ message: 'Utente non trovato' });
+      if (!user) return res.status(404).json({ message: 'Utente non trovato' });
+      return res.status(200).json(user);
     } catch (error) {
       console.error("Errore nel recupero dell'utente:", error);
       res.status(500).json({ message: "Errore nel recupero dell'utente" });
@@ -138,8 +139,10 @@ export class UserController {
       await this.userService.updateUser(user.key, updateUser);
       res.status(200).json({ message: 'Profilo aggiornato con successo' });
     } catch (error) {
-      console.error("Errore nel recupero dell'utente:", error);
-      res.status(500).json({ message: "Errore nel recupero dell'utente" });
+      console.error("Errore nell'aggiornamento dell'utente:", error);
+      res
+        .status(500)
+        .json({ message: "Errore nell'aggiornamento dell'utente" });
     }
   }
   /**
@@ -199,8 +202,8 @@ export class UserController {
   async getUserById(@Res() res: Response, @Param() params: any) {
     try {
       const user = await this.userService.getUserById(params.id);
-      if (user) res.status(200).json(user);
-      else res.status(404).json({ message: 'Utente non trovato' });
+      if (!user) return res.status(404).json({ message: 'Utente non trovato' });
+      res.status(200).json(user);
     } catch (error) {
       console.error("Errore nel recupero dell'utente:", error);
       res.status(500).json({ message: "Errore nel recupero dell'utente" });
@@ -215,6 +218,7 @@ export class UserController {
    */
   @Roles(Role.Admin)
   @Put(':id')
+  @UsePipes(ParseIntPipe)
   async updateUserById(
     @Res() res: Response,
     @Param() params: any,
@@ -271,6 +275,7 @@ export class UserController {
    */
   @Roles(Role.Admin)
   @Delete(':id')
+  @UsePipes(ParseIntPipe)
   async deleteUserById(@Res() res: Response, @Param() params: any) {
     try {
       const user = await this.userRepository.findOne({
@@ -289,8 +294,8 @@ export class UserController {
         message: `Utente con username ${user.username} eliminato!`,
       });
     } catch (error) {
-      console.error("Errore nel recupero dell'utente:", error);
-      res.status(500).json({ message: "Errore nel recupero dell'utente" });
+      console.error("Errore nell'eliminazione dell'utente:", error);
+      res.status(500).json({ message: "Errore nell'eliminazione dell'utente" });
     }
   }
 
@@ -306,9 +311,8 @@ export class UserController {
       const user = await this.userService.getUserByUsername(
         body.username.toLowerCase(),
       );
-      if (user) {
-        res.status(200).json(user);
-      } else res.status(404).json({ message: 'Utente non trovato' });
+      if (!user) return res.status(404).json({ message: 'Utente non trovato' });
+      res.status(200).json(user);
     } catch (error) {
       console.error("Errore nel recupero dell'utente:", error);
       res.status(500).json({ message: "Errore nel recupero dell'utente" });
