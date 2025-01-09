@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {MatListModule} from '@angular/material/list';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -9,7 +9,6 @@ import { KanbanGpsService } from '../../Services/kanban-gps/kanban-gps.service';
 import { MatButtonModule } from '@angular/material/button';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
-import { Vehicle } from '../../../Models/Vehicle';
 import { KanbanFiltersComponent } from "../kanban-filters/kanban-filters.component";
 import { skip, Subject, takeUntil } from 'rxjs';
 import { PlateFilterService } from '../../../Common-services/plate-filter/plate-filter.service';
@@ -31,7 +30,7 @@ import { PlateFilterService } from '../../../Common-services/plate-filter/plate-
   templateUrl: './kanban-gps.component.html',
   styleUrl: './kanban-gps.component.css'
 })
-export class KanbanGpsComponent implements AfterViewInit{
+export class KanbanGpsComponent implements AfterViewInit, OnDestroy{
   private readonly destroy$: Subject<void> = new Subject<void>();
 
   constructor(
@@ -41,15 +40,20 @@ export class KanbanGpsComponent implements AfterViewInit{
     private cd: ChangeDetectorRef
   ){}
 
-  ngAfterViewInit(): void {
-    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-    let kanbanVehicles = allVehicles;
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
+  ngAfterViewInit(): void {
+    const allData = JSON.parse(this.sessionStorageService.getItem("allData"));
+    console.log("allData: ", allData);
+    let kanbanVehicles = allData;
 
     this.plateFilterService.filterByPlateResearch$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (research: string) => {
-        kanbanVehicles = allVehicles;
+        kanbanVehicles = allData;
         kanbanVehicles = this.plateFilterService.filterVehiclesByPlateResearch(research, kanbanVehicles);
         this.kanbanGpsService.setKanbanData(kanbanVehicles);
         this.cd.detectChanges();

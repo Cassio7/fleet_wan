@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectorRef, Component } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -12,8 +12,7 @@ import { KanbanAntennaService } from '../../Services/kanban-antenna/kanban-anten
 import { takeUntil, skip, Subject } from 'rxjs';
 import { PlateFilterService } from '../../../Common-services/plate-filter/plate-filter.service';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
-import { Vehicle } from '../../../Models/Vehicle';
-import { BlackboxGraphsService } from '../../Services/blackbox-graphs/blackbox-graphs.service';
+import { VehicleData } from '../../../Models/VehicleData';
 
 @Component({
   selector: 'app-kanban-antenna',
@@ -32,7 +31,7 @@ import { BlackboxGraphsService } from '../../Services/blackbox-graphs/blackbox-g
   templateUrl: './kanban-antenna.component.html',
   styleUrl: './kanban-antenna.component.css'
 })
-export class KanbanAntennaComponent implements AfterViewInit{
+export class KanbanAntennaComponent implements AfterViewInit, OnDestroy{
   private readonly destroy$: Subject<void> = new Subject<void>();
 
   constructor(
@@ -42,12 +41,17 @@ export class KanbanAntennaComponent implements AfterViewInit{
     private cd: ChangeDetectorRef
   ){}
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   ngAfterViewInit(): void {
-    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-    let kanbanVehicles = allVehicles;
+    const allData = JSON.parse(this.sessionStorageService.getItem("allData"));
+    let kanbanVehicles = allData;
     this.kanbanAntennaService.loadKanbanAntennaVehicles$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
-      next: (vehicles: Vehicle[]) => {
+      next: (vehicles: VehicleData[]) => {
         this.kanbanAntennaService.setKanbanData(vehicles);
       },
       error: error => console.error("Errore nel caricamento del kanban antenna: ", error)
@@ -55,7 +59,7 @@ export class KanbanAntennaComponent implements AfterViewInit{
     this.plateFilterService.filterByPlateResearch$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (research: string) => {
-        kanbanVehicles = allVehicles;
+        kanbanVehicles = allData;
         kanbanVehicles = this.plateFilterService.filterVehiclesByPlateResearch(research, kanbanVehicles);
         this.kanbanAntennaService.setKanbanData(kanbanVehicles);
         this.cd.detectChanges();

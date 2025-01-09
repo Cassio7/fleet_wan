@@ -17,14 +17,14 @@
       <mat-progress-bar mode="determinate" [value]="kanbanAntennaService.workingVehicles.length" class="progress-bar working-bar" color="accent"></mat-progress-bar>
       <div class="scrollable-list">
         <mat-list>
-          <mat-list-item *ngFor="let vehicle of kanbanAntennaService.workingVehicles">
+          <mat-list-item *ngFor="let obj of kanbanAntennaService.workingVehicles">
             <div class="vehicle">
               <div class="info">
                 <p class="type">{{ "tipologia"}}</p>
-                <p class="cantiere">{{ vehicle.worksite?.name ? vehicle.worksite?.name : "non assegnato"}}</p>
+                <p class="cantiere">{{ obj.vehicle.worksite?.name ? obj.vehicle.worksite?.name : "non assegnato"}}</p>
               </div>
               <div class="plate-container">
-                <p class="plate">{{ vehicle.plate }}</p>
+                <p class="plate">{{ obj.vehicle.plate }}</p>
               </div>
             </div>
           </mat-list-item>
@@ -44,14 +44,14 @@
       <mat-progress-bar mode="determinate" [value]="kanbanAntennaService.errorVehicles.length" class="progress-bar"></mat-progress-bar>
       <div class="scrollable-list">
         <mat-list>
-          <mat-list-item *ngFor="let vehicle of kanbanAntennaService.errorVehicles">
+          <mat-list-item *ngFor="let obj of kanbanAntennaService.errorVehicles">
             <div class="vehicle">
               <div class="info">
                 <p class="type">{{ "tipologia"}}</p>
-                <p class="cantiere">{{ vehicle.worksite?.name ? vehicle.worksite?.name : "non assegnato"}}</p>
+                <p class="cantiere">{{ obj.vehicle.worksite?.name ? obj.vehicle.worksite?.name : "non assegnato"}}</p>
               </div>
               <div class="plate-container">
-                <p class="plate">{{ vehicle.plate }}</p>
+                <p class="plate">{{ obj.vehicle.plate }}</p>
               </div>
             </div>
           </mat-list-item>
@@ -71,14 +71,14 @@
       <mat-progress-bar mode="determinate" [value]="kanbanAntennaService.blackboxVehicles.length" class="progress-bar"></mat-progress-bar>
       <div class="scrollable-list">
         <mat-list>
-          <mat-list-item *ngFor="let vehicle of kanbanAntennaService.blackboxVehicles">
+          <mat-list-item *ngFor="let obj of kanbanAntennaService.blackboxVehicles">
             <div class="vehicle">
               <div class="info">
                 <p class="type">{{ "tipologia"}}</p>
-                <p class="cantiere">{{ vehicle.worksite?.name ? vehicle.worksite?.name : "non assegnato"}}</p>
+                <p class="cantiere">{{ obj.vehicle.worksite?.name ? obj.vehicle.worksite?.name : "non assegnato"}}</p>
               </div>
               <div class="plate-container">
-                <p class="plate">{{ vehicle.plate }}</p>
+                <p class="plate">{{ obj.vehicle.plate }}</p>
               </div>
             </div>
           </mat-list-item>

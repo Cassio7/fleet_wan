@@ -16,7 +16,7 @@ import { CantieriFilterService } from '../../../Common-services/cantieri-filter/
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { KanbanAntennaService } from '../../Services/kanban-antenna/kanban-antenna.service';
 import { SortService } from '../../../Common-services/sort/sort.service';
-import { Vehicle } from '../../../Models/Vehicle';
+import { VehicleData } from '../../../Models/VehicleData';
 import { AntennaGraphService } from '../../Services/antenna-graph/antenna-graph.service';
 
 @Component({
@@ -128,7 +128,7 @@ export class KanbanFiltersComponent implements AfterViewInit{
     }
 
     let selectedCantieriCache: string[] = [];
-    const cantieriFilteredVehicles: Vehicle[] = this.cantieriFilterService.filterVehiclesByCantieri(allVehicles, selectedCantieri);
+    const cantieriFilteredVehicles: VehicleData[] = this.cantieriFilterService.filterVehiclesByCantieri(allVehicles, selectedCantieri);
     selectedCantieriCache = selectedCantieri;
     if(this.kanbanGps){
       this.gpsGraphService.loadChartData$.next(cantieriFilteredVehicles);

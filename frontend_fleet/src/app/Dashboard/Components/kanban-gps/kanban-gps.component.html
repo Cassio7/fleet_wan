@@ -17,14 +17,16 @@
       <mat-progress-bar mode="determinate" [value]="kanbanGpsService.workingVehicles.length" class="progress-bar working-bar" color="accent"></mat-progress-bar>
       <div class="scrollable-list">
         <mat-list>
-          <mat-list-item *ngFor="let vehicle of kanbanGpsService.workingVehicles">
+          <mat-list-item *ngFor="let obj of kanbanGpsService.workingVehicles">
             <div class="vehicle">
               <div class="info">
-                <p class="type">{{ "tipologia"}}</p>
-                <p class="cantiere">{{ vehicle.worksite?.name ? vehicle.worksite?.name : "non assegnato"}}</p>
+                <p class="type">{{ "tipologia" }}</p>
+                <p class="cantiere">
+                  {{ obj.vehicle.worksite?.name ? obj.vehicle.worksite?.name : "non assegnato" }}
+                </p>
               </div>
               <div class="plate-container">
-                <p class="plate">{{ vehicle.plate }}</p>
+                <p class="plate">{{ obj.vehicle.plate || "Unknown Plate" }}</p>
               </div>
             </div>
           </mat-list-item>
@@ -44,14 +46,14 @@
       <mat-progress-bar mode="determinate" [value]="kanbanGpsService.warningVehicles.length" class="progress-bar"></mat-progress-bar>
       <div class="scrollable-list">
         <mat-list>
-          <mat-list-item *ngFor="let vehicle of kanbanGpsService.warningVehicles">
+          <mat-list-item *ngFor="let obj of kanbanGpsService.warningVehicles">
             <div class="vehicle">
               <div class="info">
                 <p class="type">{{ "tipologia"}}</p>
-                <p class="cantiere">{{ vehicle.worksite?.name ? vehicle.worksite?.name : "non assegnato"}}</p>
+                <p class="cantiere">{{ obj.vehicle.worksite?.name ? obj.vehicle.worksite?.name : "non assegnato"}}</p>
               </div>
               <div class="plate-container">
-                <p class="plate">{{ vehicle.plate }}</p>
+                <p class="plate">{{ obj.vehicle.plate }}</p>
               </div>
             </div>
           </mat-list-item>
@@ -71,14 +73,14 @@
       <mat-progress-bar mode="determinate" [value]="kanbanGpsService.errorVehicles.length" class="progress-bar"></mat-progress-bar>
       <div class="scrollable-list">
         <mat-list>
-          <mat-list-item *ngFor="let vehicle of kanbanGpsService.errorVehicles">
+          <mat-list-item *ngFor="let obj of kanbanGpsService.errorVehicles">
             <div class="vehicle">
               <div class="info">
                 <p class="type">{{ "tipologia"}}</p>
-                <p class="cantiere">{{ vehicle.worksite?.name ? vehicle.worksite?.name : "non assegnato"}}</p>
+                <p class="cantiere">{{ obj.vehicle.worksite?.name ? obj.vehicle.worksite?.name : "non assegnato"}}</p>
               </div>
               <div class="plate-container">
-                <p class="plate">{{ vehicle.plate }}</p>
+                <p class="plate">{{ obj.vehicle.plate }}</p>
               </div>
             </div>
           </mat-list-item>
