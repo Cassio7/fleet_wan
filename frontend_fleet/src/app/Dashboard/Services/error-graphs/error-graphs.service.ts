@@ -80,6 +80,11 @@ export class ErrorGraphsService{
     sessionCheckResult[0].forEach(vehicle => workingVehiclesSet.add(vehicle));
     sessionCheckResult[1].forEach(vehicle => errorVehiclesSet.add(vehicle));
 
+
+    console.log('GPS Check Result:', gpsCheckResult);
+    console.log('Antenna Check Result:', antennaCheckResult);
+    console.log('Session Check Result:', sessionCheckResult);
+
     //filtri per priorità
 
     warningVehiclesSet.forEach(vehicle => {
@@ -115,7 +120,7 @@ export class ErrorGraphsService{
 
     this._loadGraphData$.next(this._series); //invio dati per il caricamento dei grafici
     return this.errorsData;
-}
+  }
 
 
   /**

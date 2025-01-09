@@ -6,8 +6,8 @@ import { CheckErrorsService } from '../../../Common-services/check-errors/check-
 
 export interface blackboxData {
   sliceSelected: string;
-  blackboxOnly: any[];
-  blackboxWithAntenna: any[];
+  blackboxOnly: VehicleData[];
+  blackboxWithAntenna: VehicleData[];
 }
 
 @Injectable({
@@ -54,14 +54,14 @@ export class BlackboxGraphsService{
    * @param vehicles oggetto custom di veicoli
    * @returns un oggetto di tipo blackboxData che contiene i veicoli con solo blackbox e con blackbox + antenna
    */
-  public getAllRFIDVehicles(vehicles: VehicleData[]) {
+  public getAllRFIDVehicles(vehiclesData: VehicleData[]): blackboxData {
     this.blackboxData = {
       sliceSelected: "",
       blackboxOnly: [] as VehicleData[],
       blackboxWithAntenna: [] as VehicleData[],
     };
 
-    for(const v of vehicles){
+    for(const v of vehiclesData){
       v.vehicle.isRFIDReader == true ? this.blackboxData.blackboxWithAntenna.push(v) : this.blackboxData.blackboxOnly.push(v);
     }
 
