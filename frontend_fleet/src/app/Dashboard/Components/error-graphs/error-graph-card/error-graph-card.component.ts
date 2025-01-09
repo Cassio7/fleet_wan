@@ -31,7 +31,7 @@ import { SessionStorageService } from '../../../../Common-services/sessionStorag
 })
 export class ErrorGraphCardComponent implements AfterViewInit, OnDestroy{
   private destroy$: Subject<void> = new Subject<void>();
-  errorGraphTitle: string = "Errors";
+  @Input() errorGraphTitle!: string;
 
   errorsGraph: boolean = false;
   gpsGraph: boolean = false;
@@ -41,54 +41,12 @@ export class ErrorGraphCardComponent implements AfterViewInit, OnDestroy{
     private kanabanGpsService: KanbanGpsService,
     private kanbanAntennaService: KanbanAntennaService,
     private kanbanTableService: KanbanTableService,
-    private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef
   ){}
 
 
-  async ngAfterViewInit(): Promise<void> {
-    await this.handleKanbansLoading();
-    const section = this.sessionStorageService.getItem("dashboard-section");
-
-    switch(section){
-      case "table":
-        this.changeGraph("Errors");
-        break;
-      case "GPS":
-        this.changeGraph("GPS");
-        break;
-      case "Antenna":
-        this.changeGraph("Antenna");
-        break;
-    }
-  }
-
-  handleKanbansLoading(){
-    this.errorGraphTitle = "Errors";
-    this.changeGraph('Errors');
-    this.cd.detectChanges();
-
-    this.kanabanGpsService.loadKanbanGps$.pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: () => {
-        this.changeGraph('GPS');
-        this.cd.detectChanges();
-      },
-    });
-    this.kanbanAntennaService.loadKanbanAntenna$.pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: () => {
-        this.changeGraph('Antenna');
-        this.cd.detectChanges();
-      },
-    });
-    this.kanbanTableService.loadKabanTable$.pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: () => {
-        this.changeGraph('Errors');
-        this.cd.detectChanges();
-      },
-    });
+  ngAfterViewInit(){
+    this.changeGraph(this.errorGraphTitle);
   }
 
   ngOnDestroy(): void {
