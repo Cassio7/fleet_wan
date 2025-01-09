@@ -72,15 +72,20 @@ export class CheckErrorsService {
     return this.checkVehicleAnomaly(vehicleData)?.session || null;
   }
 
+  /**
+   * Controlla se il veicolo ha giornate con anomalie nell'arco di tempo specificato nel commonService
+   * @param vehicleData dati del veicolo da controllare
+   * @returns oggetto anomalia se presente
+   * @returns null se non sono presenti anomalie
+   */
   checkVehicleAnomaly(vehicleData: VehicleData): Anomaly | null{
-    const dateFrom = new Date(this.commonService.dateFrom);
-    const dateTo = new Date(this.commonService.dateTo);
+    const dateFrom = this.commonService.dateFrom
+    const dateTo = this.commonService.dateTo;
 
     const anomalies: Anomaly[] = vehicleData.anomalies;
-
     //controllo sulla presenza anomalie
     if (!anomalies) {
-      return null;  //restituisci null se anomalies è null o undefined
+      return null;
     }
 
     //ricerca anomalia nell'arco di tempo richiesto
@@ -100,22 +105,25 @@ export class CheckErrorsService {
    * @param vehicle veicolo da cui prendere l'ultimo evento
    * @returns differenza in giorni: oggi - lastevent
    */
-  public calculateSessionErrorDays(vehicle: VehicleData): number {
-    // const todayDate = new Date(); //giorni di oggi
+  public calculateSessionErrorDays(vehicleData: VehicleData): number | null {
+    const anomaly: Anomaly | null = this.checkVehicleAnomaly(vehicleData);
 
-    // //verifica che lastEvent non sia null
-    // if (!vehicle.lastEvent) {
-    //   return -1;
-    // }
+    if (anomaly && anomaly.date) {
+      const anomalyDate: number = new Date(anomaly.date).setHours(0, 0, 0, 0);
 
-    // const vehicleLastEvent = new Date(vehicle.lastEvent); //ultimo evento del veicolo
+      const today = new Date().setHours(0,0,0,0);
 
-    // const differenceInMillis: any[] = todayDate.getTime() - vehicleLastEvent.getTime(); //differenza in millisecondi
-    // const differenceInDays: any[] = Math.floor(differenceInMillis / (1000 * 60 * 60 * 24)); //conversione differenza in giorni
+      const diffInMilliseconds: number = today - anomalyDate;
 
-    // return differenceInDays;
-    return 1;
+      const diffInDays: number = diffInMilliseconds / (1000 * 60 * 60 * 24);
+
+      return diffInDays;
+    }
+
+    return null;
   }
+
+
 
   /**
    * Controlla i gps dei veicoli passati come parametro
@@ -222,10 +230,19 @@ export class CheckErrorsService {
       'Content-Type': 'application/json'
     });
 
-    const body = {
-      dateFrom: dateFrom,
-      dateTo: dateTo
+    const formatDate = (date: Date): string => {
+      const year = date.getFullYear();
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const day = date.getDate().toString().padStart(2, '0');
+      return `${year}-${month}-${day}`;
     };
+
+    const body = {
+      dateFrom: formatDate(dateFrom),
+      dateTo: formatDate(dateTo)
+    };
+
+    console.log("request body: ", body);
 
     return this.http.post(
       `${this.commonService.url}/anomaly`,
@@ -233,6 +250,7 @@ export class CheckErrorsService {
       { headers }
     );
   }
+
 
 
   /**
