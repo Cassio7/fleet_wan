@@ -416,6 +416,7 @@ handleSessionFilter() {
     const dateFrom = this.commonService.dateFrom;
     const dateTo = this.commonService.dateTo;
     this.vehicleTableData.data = []; //inizializzazione tabella vuota
+    this.simulateProgress(0.2, 10);
     this.checkErrorsService.checkErrorsAllRanged(dateFrom, dateTo).pipe(takeUntil(this.destroy$), first())
     .subscribe({
       next: (vehiclesData: any) => {
@@ -435,6 +436,25 @@ handleSessionFilter() {
         console.error("Error loading data:", error);
       }
     });
+  }
+
+  /**
+   * Simula il caricamento della progress bar
+   * @param seconds ogni quanti secondi la progress bar deve progredire
+   * @param progressPerSec di quanto deve progredire
+   */
+  simulateProgress(seconds: number, progressPerSec: number) {
+    let progress = 0;
+    const interval = setInterval(() => {
+      if (progress < 100) {
+        progress += progressPerSec;  // Aumenta di 10% ogni intervallo
+        this.loadingProgress = progress;
+      } else {
+        this.loading = false;
+        clearInterval(interval);  // Ferma l'intervallo quando il progresso raggiunge il 100%
+      }
+      this.cd.detectChanges();
+    }, seconds);  // Ogni secondo incrementa il progresso
   }
 
   /**
