@@ -63,6 +63,7 @@ import { RoleService } from './services/role/role.service';
 import { AssociationService } from './services/association/association.service';
 import { AssociationController } from './controllers/association/association.controller';
 import { WorksiteService } from './services/worksite/worksite.service';
+import { LoggerService } from './log/service/logger.service';
 
 @Global()
 @Module({
@@ -240,6 +241,7 @@ import { WorksiteService } from './services/worksite/worksite.service';
     RoleService,
     AssociationService,
     WorksiteService,
+    LoggerService,
   ],
 })
 export class AppModule {}
