@@ -124,12 +124,12 @@ export class GpsGraphComponent implements AfterViewInit{
   }
 
   ngAfterViewInit(): void {
-    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-    this.initializeGraph(allVehicles);
+    const allData = JSON.parse(this.sessionStorageService.getItem("allData"));
+    this.initializeGraph(allData);
     this.plateFilterService.filterByPlateResearch$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (research: string)=>{
-        const plateFilteredVehicles = this.plateFilterService.filterVehiclesByPlateResearch(research, allVehicles);
+        const plateFilteredVehicles = this.plateFilterService.filterVehiclesByPlateResearch(research, allData);
         this.initializeGraph(plateFilteredVehicles);
       },
       error: error => console.error("Errore nel filtro per la targa: ",error)

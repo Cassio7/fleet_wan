@@ -139,9 +139,6 @@ export class ErrorPieGraphComponent implements AfterViewInit, OnDestroy{
           this.nVehicles += value;
         });
 
-        // if(this.chart){
-        //   this.chart.highlightSeries("Funzionante");
-        // }
         this.cd.detectChanges();
       },
       error: error => console.error(error)
