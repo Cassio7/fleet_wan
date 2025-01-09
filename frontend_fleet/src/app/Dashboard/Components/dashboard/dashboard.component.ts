@@ -39,7 +39,6 @@ import { GpsGraphComponent } from "../error-graphs/gps-graph/gps-graph.component
     MatToolbarModule,
     TableComponent,
     ErrorGraphCardComponent,
-    BlackboxGraphCardComponent,
     RowFilterComponent,
     KebabMenuComponent,
     KanbanGpsComponent,
@@ -78,7 +77,7 @@ export class DashboardComponent implements AfterViewInit{
     .subscribe({
       next: () => {
         this.displaySection("table"); //display del componente scelto dal kebab menu
-        this.errorGraphTitle = this.errorGraphService.graphTitle = "GPS";//impostazione titolo del grafico
+        this.errorGraphTitle = this.errorGraphService.graphTitle = "Errors";//impostazione titolo del grafico
         this.sessionStorageService.setItem("dashboard-section", "table");
       },
       error: error => console.error("Errore nel caricamento del kaban gps: ", error)
@@ -126,6 +125,7 @@ export class DashboardComponent implements AfterViewInit{
         this.kanbanGps = false;
         break;
     }
+
     this.cd.detectChanges();
   }
 

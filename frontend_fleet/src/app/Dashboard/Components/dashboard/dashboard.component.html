@@ -5,8 +5,12 @@
       <p class="graphs-subtitle">Dati aggiornati sul parco mezzi</p>
     </div>
     <div class="graphs" #graphs>
-      <div class="error-graph"><app-error-graph-card></app-error-graph-card></div>
-      <div class="blackbox-graph"><app-blackbox-graph-card *ngIf="table"></app-blackbox-graph-card></div>
+      <div class="table" *ngIf="table">
+        <div class="error-graph"><app-error-graph-card [errorGraphTitle]="'Errors'"></app-error-graph-card></div>
+        <div class="blackbox-graph"><app-error-graph-card [errorGraphTitle]="'Antenna'"></app-error-graph-card></div>
+      </div>
+        <div class="error-graph"><app-error-graph-card [errorGraphTitle]="'GPS'" *ngIf="kanbanGps"></app-error-graph-card></div>
+        <div class="error-graph"><app-error-graph-card [errorGraphTitle]="'Antenna'" *ngIf="kabanAntenna"></app-error-graph-card></div>
     </div>
   </div>
   <div class="right-section">
