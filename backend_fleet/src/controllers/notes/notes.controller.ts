@@ -3,7 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  Logger,
   Param,
   ParseIntPipe,
   Post,
@@ -13,20 +12,24 @@ import {
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
+import { NoteDto } from 'classes/dtos/note.dto';
 import { Role } from 'classes/enum/role.enum';
 import { UserFromToken } from 'classes/interfaces/userToken.interface';
-import { Roles } from 'src/decorators/roles.decorator';
 import { Response } from 'express';
+import { Roles } from 'src/decorators/roles.decorator';
 import { AuthGuard } from 'src/guard/auth.guard';
 import { RolesGuard } from 'src/guard/roles.guard';
+import { LogContext } from 'src/log/logger.types';
+import { LoggerService } from 'src/log/service/logger.service';
 import { NotesService } from 'src/services/notes/notes.service';
-import { NoteDto } from 'classes/dtos/note.dto';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Controller('notes')
 export class NotesController {
-  private logger = new Logger(NotesController.name);
-  constructor(private readonly notesService: NotesService) {}
+  constructor(
+    private readonly notesService: NotesService,
+    private readonly loggerService: LoggerService,
+  ) {}
 
   /**
    * API per recuperare le note associate all'utente loggato
@@ -40,31 +43,42 @@ export class NotesController {
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
   ) {
+    const context: LogContext = {
+      userId: req.user.id,
+      username: req.user.username,
+      resource: 'Notes',
+    };
+
     try {
       const notes = await this.notesService.getAllNotesByUser(req.user.id);
-      if (!notes || notes.length === 0) {
-        this.logger.warn(`Nessuna nota trovata: UserID: ${req.user.id}`);
-        return res.status(404).json({ message: 'Nessuna nota trovata' });
+
+      if (!notes?.length) {
+        this.loggerService.logCrudSuccess(
+          context,
+          'list',
+          'Nessuna nota trovata',
+        );
+        return res.status(404).json({
+          message: 'Nessuna nota trovata',
+        });
       }
-      this.logger.log(
-        `Tutte le note sono state recuperate: UserID: ${req.user.id}`,
+
+      this.loggerService.logCrudSuccess(
+        context,
+        'list',
+        `Recuperate ${notes.length} note`,
       );
       return res.status(200).json(notes);
     } catch (error) {
-      const log = 'Note non recuperate:';
-      if (error.status && error.status < 500) {
-        this.logger.warn(
-          `${log} UserID: ${req.user.id}, Message: ${error.message}`,
-        );
-      } else {
-        this.logger.error(
-          `${log} UserID: ${req.user.id}`,
-          error.stack || error.message,
-        );
-      }
-      res
-        .status(error.status || 500)
-        .json({ message: error.message || 'Errore recupero nota' });
+      this.loggerService.logCrudError({
+        error,
+        context,
+        operation: 'list',
+      });
+
+      return res.status(error.status || 500).json({
+        message: error.message || 'Errore recupero nota',
+      });
     }
   }
 
@@ -79,31 +93,42 @@ export class NotesController {
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
   ) {
+    const context: LogContext = {
+      userId: req.user.id,
+      username: req.user.username,
+      resource: 'Notes (admin)',
+    };
+
     try {
       const notes = await this.notesService.getAllNotes();
-      if (!notes || notes.length === 0) {
-        this.logger.warn(`Nessuna nota trovata admin: UserID: ${req.user.id}`);
-        return res.status(404).json({ message: 'Nessuna nota trovata' });
+
+      if (!notes?.length) {
+        this.loggerService.logCrudSuccess(
+          context,
+          'list',
+          'Nessuna nota trovata',
+        );
+        return res.status(404).json({
+          message: 'Nessuna nota trovata',
+        });
       }
-      this.logger.log(
-        `Tutte le note sono state recuperate admin: UserID: ${req.user.id}`,
+
+      this.loggerService.logCrudSuccess(
+        context,
+        'list',
+        `Recuperate tutte le note (${notes.length})`,
       );
       return res.status(200).json(notes);
     } catch (error) {
-      const log = 'Note non recuperate admin:';
-      if (error.status && error.status < 500) {
-        this.logger.warn(
-          `${log} UserID: ${req.user.id}, Message: ${error.message}`,
-        );
-      } else {
-        this.logger.error(
-          `${log} UserID: ${req.user.id}`,
-          error.stack || error.message,
-        );
-      }
-      res
-        .status(error.status || 500)
-        .json({ message: error.message || 'Errore recupero nota' });
+      this.loggerService.logCrudError({
+        error,
+        context,
+        operation: 'list',
+      });
+
+      return res.status(error.status || 500).json({
+        message: error.message || 'Errore recupero note',
+      });
     }
   }
 
@@ -121,35 +146,47 @@ export class NotesController {
     @Body() body: { veId: number; content: string },
     @Res() res: Response,
   ) {
+    const context: LogContext = {
+      userId: req.user.id,
+      username: req.user.username,
+      resource: 'Notes',
+    };
+
     try {
-      const log = 'Nota creata con successo!';
       const veId = Number(body.veId); // Garantisce che veId sia un numero
 
       if (isNaN(veId)) {
-        return res
-          .status(400)
-          .json({ message: 'Il veId deve essere un numero valido' });
+        this.loggerService.logCrudError({
+          error: new Error('Il veId deve essere un numero valido'),
+          context,
+          operation: 'create',
+        });
+        return res.status(400).json({
+          message: 'Il veId deve essere un numero valido',
+        });
       }
+
       await this.notesService.createNote(req.user.id, veId, body.content);
-      this.logger.log(
-        `${log}: UserID: ${req.user.id}, Contenuto: ${body.content}`,
+
+      this.loggerService.logCrudSuccess(
+        context,
+        'create',
+        `Nota creata con successo: veId=${veId}, Contenuto=${body.content}`,
       );
-      return res.status(200).json({ message: log });
+
+      return res.status(200).json({
+        message: 'Nota creata con successo!',
+      });
     } catch (error) {
-      const log = 'Nota non creata:';
-      if (error.status && error.status < 500) {
-        this.logger.warn(
-          `${log} UserID: ${req.user.id}, Message: ${error.message}`,
-        );
-      } else {
-        this.logger.error(
-          `${log} UserID: ${req.user.id}`,
-          error.stack || error.message,
-        );
-      }
-      res
-        .status(error.status || 500)
-        .json({ message: error.message || 'Errore creazione nota' });
+      this.loggerService.logCrudError({
+        error,
+        context,
+        operation: 'create',
+      });
+
+      return res.status(error.status || 500).json({
+        message: error.message || 'Errore creazione nota',
+      });
     }
   }
 
@@ -163,34 +200,42 @@ export class NotesController {
    */
   @Roles(Role.Admin, Role.Responsabile, Role.Capo)
   @Put(':id')
+  @UsePipes(ParseIntPipe)
   async updateNote(
     @Req() req: Request & { user: UserFromToken },
     @Param('id') noteId: number,
     @Body() body: NoteDto,
     @Res() res: Response,
   ) {
+    const context: LogContext = {
+      userId: req.user.id,
+      username: req.user.username,
+      resource: 'Notes',
+      resourceId: noteId,
+    };
+
     try {
-      const log = 'Nota aggiornata con successo!';
       await this.notesService.updateNote(req.user.id, noteId, body.content);
-      this.logger.log(
-        `${log}: UserID: ${req.user.id}, NoteID: ${noteId}, Contenuto: ${body.content}`,
+
+      this.loggerService.logCrudSuccess(
+        context,
+        'update',
+        `Nota aggiornata con successo: NoteID=${noteId}, Contenuto=${body.content}`,
       );
-      return res.status(200).json({ message: log });
+
+      return res.status(200).json({
+        message: 'Nota aggiornata con successo!',
+      });
     } catch (error) {
-      const log = 'Nota non aggiornata:';
-      if (error.status && error.status < 500) {
-        this.logger.warn(
-          `${log} UserID: ${req.user.id}, NoteID: ${noteId}, Message: ${error.message}`,
-        );
-      } else {
-        this.logger.error(
-          `${log} UserID: ${req.user.id}, NoteID: ${noteId}`,
-          error.stack || error.message,
-        );
-      }
-      res
-        .status(error.status || 500)
-        .json({ message: error.message || 'Errore aggiornamento nota' });
+      this.loggerService.logCrudError({
+        error,
+        context,
+        operation: 'update',
+      });
+
+      return res.status(error.status || 500).json({
+        message: error.message || 'Errore aggiornamento nota',
+      });
     }
   }
 
@@ -210,26 +255,35 @@ export class NotesController {
     @Param('id') noteId: number,
     @Res() res: Response,
   ) {
+    const context: LogContext = {
+      userId: req.user.id,
+      username: req.user.username,
+      resource: 'Notes',
+      resourceId: noteId, // ID della nota da eliminare
+    };
+
     try {
-      const log = 'Nota eliminata con successo!';
       await this.notesService.deleteNote(req.user.id, noteId);
-      this.logger.log(`${log}: UserID: ${req.user.id}, NoteID: ${noteId}`);
-      return res.status(200).json({ message: log });
+
+      this.loggerService.logCrudSuccess(
+        context,
+        'delete',
+        `Nota eliminata con successo: NoteID=${noteId}`,
+      );
+
+      return res.status(200).json({
+        message: 'Nota eliminata con successo!',
+      });
     } catch (error) {
-      const log = 'Nota non eliminata:';
-      if (error.status && error.status < 500) {
-        this.logger.warn(
-          `${log} UserID: ${req.user.id}, NoteID: ${noteId}, Message: ${error.message}`,
-        );
-      } else {
-        this.logger.error(
-          `${log} UserID: ${req.user.id}, NoteID: ${noteId}`,
-          error.stack || error.message,
-        );
-      }
-      res
-        .status(error.status || 500)
-        .json({ message: error.message || 'Errore eliminazione nota' });
+      this.loggerService.logCrudError({
+        error,
+        context,
+        operation: 'delete',
+      });
+
+      return res.status(error.status || 500).json({
+        message: error.message || 'Errore eliminazione nota',
+      });
     }
   }
 }
