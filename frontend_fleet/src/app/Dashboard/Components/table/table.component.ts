@@ -22,6 +22,7 @@ import { GpsFilterService } from '../../../Common-services/gps-filter/gps-filter
 import { SessionFilterService } from '../../../Common-services/session-filter/session-filter.service';
 import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
 import { VehicleData } from '../../../Models/VehicleData';
+import { CommonService } from '../../../Common-services/common service/common.service';
 
 @Component({
   selector: 'app-table',
@@ -70,6 +71,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     private plateFilterService: PlateFilterService,
     private sessionFilterService: SessionFilterService,
     private sessionStorageService: SessionStorageService,
+    private commonService: CommonService,
     public checkErrorsService: CheckErrorsService,
     private sortService: SortService,
     private cd: ChangeDetectorRef
@@ -407,13 +409,17 @@ handleSessionFilter() {
    * Riempe la tabella con i dati dei veicoli
    */
   fillTable() {
+    console.log("CHIAMATO FILL TABLE!");
     //nascondi i grafici
     this.blackboxGraphService.resetGraphs();
     this.errorGraphService.resetGraphs();
+    const dateFrom = this.commonService.dateFrom;
+    const dateTo = this.commonService.dateTo;
     this.vehicleTableData.data = []; //inizializzazione tabella vuota
-    this.checkErrorsService.checkErrorsAllToday().pipe(takeUntil(this.destroy$), first())
+    this.checkErrorsService.checkErrorsAllRanged(dateFrom, dateTo).pipe(takeUntil(this.destroy$), first())
     .subscribe({
       next: (vehiclesData: any) => {
+        console.log("vehiclesData: ", vehiclesData);
         try {
           if (vehiclesData.vehicles && vehiclesData.vehicles.length > 0) {
             this.vehicleTableData.data = [...vehiclesData.vehicles];  // Assicurati che vehiclesData.vehicles sia un array di veicoli
