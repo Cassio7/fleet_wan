@@ -23,10 +23,10 @@ export class CheckErrorsService {
   ) { }
 
   /**
- * Controlla se è presente un errore di GPS nella sessione, nel range temporale , del veicolo preso in input
- * @param vehicle
- * @returns l'anomalia se viene riscontrata, altrimenti "null"
- */
+   * Controlla se è presente un errore di GPS nella sessione, nel range temporale , del veicolo preso in input
+   * @param vehicle
+   * @returns l'anomalia se viene riscontrata, altrimenti "null"
+   */
   checkGpsError(vehicleData: VehicleData): string | null {
     const dateFrom = this.commonService.dateFrom;
     const dateTo = this.commonService.dateTo;
@@ -34,13 +34,18 @@ export class CheckErrorsService {
     const anomalies: Anomaly[] = vehicleData.anomalies ?? [];
 
     const foundAnomaly = anomalies.find(anomalyObj => {
-      const anomaliesDate = new Date(anomalyObj.date);
-      return anomaliesDate >= dateFrom && anomaliesDate <= dateTo && anomalyObj.gps?.includes("TOTALE") || anomalyObj.gps?.includes("totale");
+      const anomalyDate = new Date(anomalyObj.date);
+      anomalyDate.setHours(0,0,0,0);
+      return anomalyDate >= dateFrom && anomalyDate <= dateTo && (anomalyObj.gps?.includes("TOTALE") || anomalyObj.gps?.includes("totale"));
     });
-    return foundAnomaly ? foundAnomaly.session : null;
+    return foundAnomaly ? foundAnomaly.gps : null;
   }
 
-
+  /**
+   * Controlla se è presente un warning di GPS nella sessione, nel range temporale , del veicolo preso in input
+   * @param vehicle
+   * @returns l'anomalia se viene riscontrata, altrimenti "null"
+   */
   checkGPSWarning(vehicleData: VehicleData): string | null{
     const dateFrom = this.commonService.dateFrom;
     const dateTo = this.commonService.dateTo;
@@ -48,10 +53,11 @@ export class CheckErrorsService {
     const anomalies: Anomaly[] = vehicleData.anomalies;
     const foundAnomaly = anomalies.find(anomalyObj => {
       const anomalyDate = new Date(anomalyObj.date);
-      return anomalyDate>=dateFrom && anomalyDate<=dateTo && !anomalyObj.gps?.includes("TOTALE") || !anomalyObj.gps?.includes("totale");
+      anomalyDate.setHours(0,0,0,0);
+      return anomalyDate>=dateFrom && anomalyDate<=dateTo && !(anomalyObj.gps?.includes("TOTALE") || anomalyObj.gps?.includes("totale"));
     });
 
-    return foundAnomaly ? foundAnomaly.antenna : null;
+    return foundAnomaly ? foundAnomaly.gps : null;
   }
 
 
@@ -65,14 +71,20 @@ export class CheckErrorsService {
     const dateFrom = this.commonService.dateFrom;
     const dateTo = this.commonService.dateTo;
 
+    // Azzeriamo l'orario delle date di confronto per comparare solo la parte della data
     const anomalies: Anomaly[] = vehicleData.anomalies;
+
     const foundAnomaly = anomalies.find(anomalyObj => {
       const anomalyDate = new Date(anomalyObj.date);
-      return anomalyDate>=dateFrom && anomalyDate<=dateTo;
+      anomalyDate.setHours(0,0,0,0);
+      return anomalyDate >= dateFrom && anomalyDate <= dateTo;
     });
 
     return foundAnomaly ? foundAnomaly.antenna : null;
   }
+
+
+
 
   /**
    * Controlla se è presente un anomalia di sessione del veicolo preso in input nell'arco di tempo definito nel common service
@@ -86,15 +98,16 @@ export class CheckErrorsService {
 
     const anomalies: Anomaly[] = vehicleData.anomalies;
 
-    // Aggiungi un controllo per verificare che anomalies non sia null o undefined
+    //controllo sulla presenza anomalie
     if (!anomalies) {
-      return null;  // Restituisci null se anomalies è null o undefined
+      return null;  //restituisci null se anomalies è null o undefined
     }
 
-    // Ricerca anomalia nell'arco di tempo richiesto
+    //ricerca anomalia nell'arco di tempo richiesto
     const foundAnomaly: any = Object.values(anomalies).find((anomaliesObj: Anomaly) => {
-      const anomaliesDate = new Date(anomaliesObj.date); // Data delle anomalie
-      return anomaliesDate >= dateFrom && anomaliesDate <= dateTo;
+      const anomalyDate = new Date(anomaliesObj.date); // Data delle anomalie
+      anomalyDate.setHours(0,0,0,0);
+      return anomalyDate >= dateFrom && anomalyDate <= dateTo;
     });
 
     return foundAnomaly ? foundAnomaly.session : null;
@@ -134,19 +147,18 @@ export class CheckErrorsService {
     const warningVehicles: VehicleData[] = [];
     const errorVehicles: VehicleData[] = [];
 
-    vehiclesData.forEach(obj => {
-      const vehicle: any = obj.vehicle;
+    vehiclesData.forEach(vehicleData => {
       //controllo errore gps
-      if (this.checkGpsError(obj)) {
-        errorVehicles.push(vehicle);
+      if (this.checkGpsError(vehicleData)) {
+        errorVehicles.push(vehicleData);
       }
       //controllo warning gps
-      else if (this.checkGPSWarning(obj)) {
-        warningVehicles.push(vehicle);
+      else if (this.checkGPSWarning(vehicleData)) {
+        warningVehicles.push(vehicleData);
       }
       //veicolo in funzionamento corretto
       else {
-        workingVehicles.push(vehicle);
+        workingVehicles.push(vehicleData);
       }
     });
 
@@ -160,17 +172,17 @@ export class CheckErrorsService {
    * @param vehicles veicoli da controllare
    * @returns array formato da: [workingVehicles, errorVehicles]
    */
-  public checkVehiclesAntennaErrors(vEHIVehicleData: VehicleData[]){
+  public checkVehiclesAntennaErrors(vehiclesData: VehicleData[]){
     const workingVehicles: VehicleData[] = [];
     const errorVehicles: VehicleData[] = [];
 
-    vEHIVehicleData.map(vehicleObj => {
-      if(vehicleObj.vehicle.isRFIDReader){
-        const antennaCheck = this.checkAntennaError(vehicleObj);
+    vehiclesData.map(vehicleData => {
+      if(vehicleData.vehicle.isRFIDReader){
+        const antennaCheck = this.checkAntennaError(vehicleData);
         if(antennaCheck){
-          errorVehicles.push(vehicleObj);
+          errorVehicles.push(vehicleData);
         }else{
-          workingVehicles.push(vehicleObj);
+          workingVehicles.push(vehicleData);
         }
       }
     });
@@ -182,34 +194,39 @@ export class CheckErrorsService {
    * @param vehicles veicoli da controllare
    * @returns array formato da: [workingVehicles, errorVehicles]
    */
-  checkVehiclesSessionErrors(vEHIVehicleData: VehicleData[]){
+  checkVehiclesSessionErrors(vehiclesData: VehicleData[]){
     const workingVehicles: VehicleData[] = [];
     const errorVehicles: VehicleData[] = [];
 
-    vEHIVehicleData.map(obj => {
-      const vehicle: any= obj.vehicle;
-      const sessionCheck = this.checkSessionError(vehicle);
+    vehiclesData.map(vehicleData => {
+      const sessionCheck = this.checkSessionError(vehicleData);
       if(sessionCheck){
-        errorVehicles.push(vehicle);
+        errorVehicles.push(vehicleData);
       }else{
-        workingVehicles.push(vehicle);
+        workingVehicles.push(vehicleData);
       }
     });
     return [workingVehicles, errorVehicles];
   }
 
-  getVehicleSessionAnomalyDate(vehicle: VehicleData){
-    const dateFrom = this.commonService.dateFrom;
-    const dateTo = this.commonService.dateTo;
+  getVehicleSessionAnomalyDate(vehicleData: VehicleData){
+      const dateFrom = new Date(this.commonService.dateFrom);
+      const dateTo = new Date(this.commonService.dateTo);
 
-    const anomalies: Anomaly[] = vehicle.anomalies;
+      const anomalies: Anomaly[] = vehicleData.anomalies;
 
-    const foundAnomaly: any = Object.values(anomalies).find((anomaliesObj: Anomaly) => {
-      const anomaliesDate = new Date(anomaliesObj.date); // Data delle anomalie
-      return anomaliesDate >= dateFrom && anomaliesDate <= dateTo;
-    });
+      //controllo sulla presenza anomalie
+      if (!anomalies) {
+        return null;
+      }
 
-    return foundAnomaly ? foundAnomaly.date : null;
+      const foundAnomaly: any = Object.values(anomalies).find((anomaliesObj: Anomaly) => {
+        const anomalyDate = new Date(anomaliesObj.date);
+        anomalyDate.setHours(0,0,0,0);
+        return anomalyDate >= dateFrom && anomalyDate <= dateTo;
+      });
+
+      return foundAnomaly ? foundAnomaly.date : null;
   }
 
   /**
