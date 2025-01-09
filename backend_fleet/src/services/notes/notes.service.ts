@@ -1,31 +1,30 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { NoteDto } from 'classes/dtos/note.dto';
+import { UserDTO } from 'classes/dtos/user.dto';
 import { VehicleDTO } from 'classes/dtos/vehicle.dto';
 import { NoteEntity } from 'classes/entities/note.entity';
-import { UserEntity } from 'classes/entities/user.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { DataSource, In, Repository } from 'typeorm';
 import { AssociationService } from '../association/association.service';
-import { UserDTO } from 'classes/dtos/user.dto';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class NotesService {
   constructor(
     @InjectRepository(NoteEntity, 'readOnlyConnection')
     private readonly noteRepository: Repository<NoteEntity>,
-    @InjectRepository(UserEntity, 'readOnlyConnection')
-    private readonly userRepository: Repository<UserEntity>,
     @InjectDataSource('mainConnection')
     private readonly connection: DataSource,
     private readonly associationService: AssociationService,
+    private readonly userService: UserService,
   ) {}
 
   /**
    * Permette di recuperare tutte le note di ogni veicolo di ogni utente, funzione admin
    * @returns
    */
-  async getAllNotes() {
+  async getAllNotes(): Promise<NoteDto[]> {
     try {
       const notes = await this.noteRepository.find({
         relations: {
@@ -52,13 +51,13 @@ export class NotesService {
    * @param userId id utente
    * @returns
    */
-  async getAllNotesByUser(userId: number): Promise<any> {
+  async getAllNotesByUser(userId: number): Promise<NoteDto[]> {
     const vehicles = (await this.associationService.getVehiclesByUserRole(
       userId,
     )) as VehicleEntity[];
     if (!vehicles || vehicles.length === 0)
       throw new HttpException(
-        'Nessun veicolo associato trovato per questo utente',
+        'Nessun veicolo associato per questo utente',
         HttpStatus.NOT_FOUND,
       );
     try {
@@ -113,14 +112,14 @@ export class NotesService {
       );
     }
 
-    const user = await this.checkUser(userId);
+    const user = await this.userService.checkUser(userId);
 
     const vehicles = (await this.associationService.getVehiclesByUserRole(
       userId,
     )) as VehicleEntity[];
     if (!vehicles || vehicles.length === 0)
       throw new HttpException(
-        'Nessun veicolo associato trovato per questo utente',
+        'Nessun veicolo associato per questo utente',
         HttpStatus.NOT_FOUND,
       );
 
@@ -177,11 +176,7 @@ export class NotesService {
    * @param noteId id della nota da modificare
    * @param updatedContent contenuto modificato
    */
-  async updateNote(
-    userId: number,
-    noteId: number,
-    updatedContent: string,
-  ): Promise<void> {
+  async updateNote(userId: number, noteId: number, updatedContent: string) {
     if (!updatedContent || updatedContent.trim().length === 0)
       throw new HttpException(
         'Il contenuto della nota non può essere vuoto',
@@ -193,7 +188,7 @@ export class NotesService {
         'Il contenuto della nota supera il limite di 500 caratteri',
         HttpStatus.BAD_REQUEST,
       );
-    const user = await this.checkUser(userId);
+    const user = await this.userService.checkUser(userId);
 
     const note = await this.noteRepository.findOne({
       where: {
@@ -251,7 +246,7 @@ export class NotesService {
    * @param noteId id della nota
    */
   async deleteNote(userId: number, noteId: number) {
-    const user = await this.checkUser(userId);
+    const user = await this.userService.checkUser(userId);
     const note = await this.noteRepository.findOne({
       where: {
         id: noteId,
@@ -318,23 +313,5 @@ export class NotesService {
       vehicle: vehicleDTO,
       user: userDTO,
     };
-  }
-
-  /**
-   * controlla se utente loggato esiste
-   * @param userId id utente
-   * @returns ritorna utente
-   */
-  private async checkUser(userId: number): Promise<UserEntity> {
-    const user = await this.userRepository.findOne({
-      where: { id: userId },
-      relations: ['role'],
-    });
-    if (!user)
-      throw new HttpException(
-        `Utente con ID ${userId} non trovato`,
-        HttpStatus.NOT_FOUND,
-      );
-    return user;
   }
 }
