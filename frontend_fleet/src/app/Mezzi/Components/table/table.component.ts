@@ -135,7 +135,6 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
 
           this.sortedVehicles = this.sortService.sortVehiclesByPlateAsc(vehicles);
           this.vehicleTableData.data = this.sortedVehicles;
-          this.sessionStorageService.setItem("allVehicles", JSON.stringify(vehicles));
           this.vehicleTable.renderRows();
           this.selectService.selectVehicles(this.sortedVehicles);
           this.loading = false;
@@ -169,7 +168,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
 
   /**
    * Viene chiamata alla selezione di un checkbox in un menu della colonna delle targhe
-   * @param vehicle veicolo da cui prendere la targa
+   * @param vehicleData dati da cui prendere il veicolo da cui prendere la targa
    * @param $event evento
    */
   selectTarga(vehicle: VehicleData, $event: any){
