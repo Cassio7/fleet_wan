@@ -141,10 +141,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
             const blackboxgraphVehicles = this.errorGraphService.checkBlackBoxSlice();
             vehicles = this.cantieriFilterService.filterVehiclesByCantieri(blackboxgraphVehicles, cantieri) as VehicleData[];
           } else {
-            const allData = JSON.parse(this.sessionStorageService.getItem("allData"))
-            const allVehicles = allData.vehicles.map((vehicleData: any) => {
-              return vehicleData.vehicle;
-            });
+            const allVehicles = JSON.parse(this.sessionStorageService.getItem("allData"))
             const tableVehicles = JSON.parse(this.sessionStorageService.getItem("tableData"));
             const actualVehicles = (tableVehicles && tableVehicles.length > 0) ? tableVehicles : allVehicles;
             vehicles = this.cantieriFilterService.filterVehiclesByCantieri(actualVehicles, cantieri) as VehicleData[];
@@ -168,17 +165,15 @@ export class TableComponent implements OnDestroy, AfterViewInit{
    * Gestisce la sottoscrizione al filtro dei gps, impostando i dati della tabella di conseguenza
    */
   handleGpsFilter() {
-    this.gpsFilterService.filterTableByGps$.pipe(takeUntil(this.destroy$))
+    this.gpsFilterService.filterTableByGps$.pipe(takeUntil(this.destroy$), skip(1))
       .subscribe({
         next: (selections: string[]) => {
-          const allData = JSON.parse(this.sessionStorageService.getItem("allData"))
+          const allVehicles = JSON.parse(this.sessionStorageService.getItem("allData"))
           const tableVehicles: VehicleData[] = JSON.parse(this.sessionStorageService.getItem("tableData"));
 
-          const vehicles = tableVehicles ? tableVehicles : allData;
+          const vehicles = (tableVehicles && tableVehicles.length > 0) ? tableVehicles : allVehicles;
           const gpsCheckSeries = this.checkErrorsService.checkVehiclesGpsErrors(vehicles); //[0] funzionante [1] warning [2] error
-
           let selectedVehicles: VehicleData[] = [];
-          console.log("selections: ", selections);
           if (selections.includes("all")) {
             selectedVehicles = vehicles;
           } else {
@@ -186,15 +181,12 @@ export class TableComponent implements OnDestroy, AfterViewInit{
               selectedVehicles = [...selectedVehicles, ...gpsCheckSeries[0]];
             }
             if (selections.includes("Warning")) {
-              console.log("ce sta warning");
               selectedVehicles = [...selectedVehicles, ...gpsCheckSeries[1]];
             }
             if (selections.includes("Errore")) {
               selectedVehicles = [...selectedVehicles, ...gpsCheckSeries[2]];
             }
           }
-
-          selectedVehicles = []; //pulizia selezioni
 
           const filteredVehicles = this.sortService.vehiclesInDefaultOrder(selectedVehicles);
 
@@ -213,10 +205,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     this.antennaFilterService.filterTableByAntenna$.pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (selections: string[]) => {
-        const allData = JSON.parse(this.sessionStorageService.getItem("allData"));
-        const allVehicles = allData.map((vehicleData: any) => {
-          return vehicleData.vehicle;
-        });
+        const allVehicles = JSON.parse(this.sessionStorageService.getItem("allData"));
         const tableVehicles: Vehicle[] = JSON.parse(this.sessionStorageService.getItem("tableData"));
 
         const vehicles = (tableVehicles && tableVehicles.length > 0) ? tableVehicles : allVehicles;
@@ -420,7 +409,6 @@ handleSessionFilter() {
     this.checkErrorsService.checkErrorsAllRanged(dateFrom, dateTo).pipe(takeUntil(this.destroy$), first())
     .subscribe({
       next: (vehiclesData: any) => {
-        console.log("vehiclesData: ", vehiclesData);
         try {
           if (vehiclesData.vehicles && vehiclesData.vehicles.length > 0) {
             this.vehicleTableData.data = [...vehiclesData.vehicles];  // Assicurati che vehiclesData.vehicles sia un array di veicoli
