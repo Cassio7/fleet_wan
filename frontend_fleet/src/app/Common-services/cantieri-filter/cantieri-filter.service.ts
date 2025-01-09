@@ -37,21 +37,28 @@ export class CantieriFilterService{
    * @param vehicles veicoli da cui prendere i nomi dei cantieri assegnati
    * @returns array di nomi di cantieri
    */
-  vehiclesCantieriOnce(vehicles: any[]): string[] {
-    let seen = new Set<string>();
-    let listaCantieri = vehicles
-      .map(vehicle => {
-        let name = vehicle.worksite?.name?.toLowerCase();
-        return name ? name.charAt(0).toUpperCase() + name.slice(1) : undefined;
+  vehiclesCantieriOnce(vehicles: (VehicleData | Vehicle)[]): string[] {
+    const seen = new Set<string>();
+    const listaCantieri = vehicles
+      .map(item => {
+        //determina il nome del cantiere a seconda del tipo
+        const name =
+          'vehicle' in item //se è di tipo VehicleData
+            ? item.vehicle.worksite?.name?.toLowerCase()
+            : item.worksite?.name?.toLowerCase(); //se è di tipo Vehicle
+
+        return name ? name.charAt(0).toUpperCase() + name.slice(1) : null; //ritorna null invece di undefined
       })
-      .filter(name => {
-        if (!name || seen.has(name)) return false;
-        seen.add(name);
-        return true;
+      .filter((name): name is string => {
+        if (!name || seen.has(name)) return false; //salta duplicati o valori nulli
+        seen.add(name); //aggiunge al Set
+        return true; //mantiene il valore
       });
+
     this.listaCantieri = ["Seleziona tutto", ...listaCantieri];
     return listaCantieri;
   }
+
 
   /**
    * Filtra un array di veicoli in base al valore del filtro sui cantieri
@@ -59,45 +66,53 @@ export class CantieriFilterService{
    * @param worksites cantieri per cui filtrare (se passato un array vuoto, utilizza i cantieri salvati nel sessionstorage)
    * @returns array di veicoli filtrati
    */
-  filterVehiclesByCantieri(vehiclesData:  VehicleData[], worksites: string[]) {
-    const vehicles = vehiclesData.map(obj => {
-      return obj.vehicle;
-    });
+  filterVehiclesByCantieri(vehiclesData: (VehicleData | Vehicle)[], worksites: string[]) {
     const cantieri: string[] = worksites || [];
-    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allData"));
 
+    // Se è stata selezionata l'opzione "Seleziona tutto"
     if (cantieri.includes("Seleziona tutto")) {
-      if(this.errorGraphsService.checkBlackBoxSlice()){
+      if (this.errorGraphsService.checkBlackBoxSlice()) {
         return this.errorGraphsService.checkBlackBoxSlice();
       }
 
-      if(this.blackboxGraphsService.checkErrorGraphSlice()){
+      if (this.blackboxGraphsService.checkErrorGraphSlice()) {
         return this.blackboxGraphsService.checkErrorGraphSlice();
       }
 
-      return allVehicles;// Ritorna tutti i veicoli
+      return allVehicles; // Ritorna tutti i veicoli
     }
 
-    // Se è stata selezionata un'opzione e non è la selezione di tutto, filtra in base all'opzione
+    // Se sono stati selezionati dei cantieri
     if (cantieri.length > 0) {
+      // Prepara l'array dei cantieri selezionati in minuscolo per il confronto
       const cantieriLower = cantieri
         .filter(cantiere => typeof cantiere === "string") // Filtra solo stringhe
-        .map(cantiere => cantiere.toLowerCase()); // Array di cantieri trasformato con lettere tutte minuscole
+        .map(cantiere => cantiere.toLowerCase());
 
-      // Filtro veicoli in base a cantieri selezionati
-      const filteredVehicles = vehicles.filter(veicolo => {
-        const workSiteName = veicolo.worksite?.name;
-        if (typeof workSiteName !== "string") return false; // Salta elementi non validi
-        const workSiteLower = workSiteName.toLowerCase(); // Nome del cantiere di appartenenza del veicolo
-        return cantieriLower.includes(workSiteLower);
+      // Filtro veicoli in base ai cantieri selezionati
+      const filteredVehicles = vehiclesData.filter(item => {
+        let worksiteName: string | undefined;
+
+        if ('vehicle' in item) { // Se è di tipo VehicleData
+          worksiteName = item.vehicle.worksite?.name;
+        } else if ('worksite' in item) { // Se è di tipo Vehicle
+          worksiteName = item.worksite?.name;
+        }
+
+        if (typeof worksiteName !== "string") return false; // Salta veicoli senza nome del cantiere valido
+        const worksiteLower = worksiteName.toLowerCase(); // Nome del cantiere del veicolo in minuscolo
+        return cantieriLower.includes(worksiteLower);
       });
 
-      return filteredVehicles; // Ritorna array di dati filtrati
-    } else {
-      // Se nessuna opzione è stata selezionata
-      return []; // Ritorna un array vuoto
+      return filteredVehicles; // Ritorna i veicoli filtrati
     }
+
+    // Se nessun cantiere è selezionato, ritorna un array vuoto
+    return []; // Ritorna un array vuoto
   }
+
+
 
   /**
    * Filtra i veicoli in base ai modelli dei veicoli selezionati.
@@ -105,21 +120,23 @@ export class CantieriFilterService{
    * @param vehicles - Array di veicoli da filtrare.
    * @returns Un array di veicoli che corrispondono ai modelli selezionati.
    */
-  filterVehiclesByModel(selectedModels: string[], vehiclesData: VehicleData[]): any[] {
-    const vehicles = vehiclesData.map(obj => {
-      return obj.vehicle;
-    });
+  filterVehiclesByModel(selectedModels: string[], vehiclesData: (VehicleData | Vehicle)[]): any[] {
     if (!selectedModels || !selectedModels.length) {
-      return vehicles; // Return all vehicles if no cantieri are selected.
+      return vehiclesData; //return all vehicles if no cantieri are selected.
     }
 
     const modelsSet = new Set(selectedModels);
 
-    return vehicles.filter(vehicle => {
-      const worksiteName = vehicle.worksite?.name;
-      return worksiteName ? modelsSet.has(worksiteName) : false;
+    return vehiclesData.filter(item => {
+      const worksiteName =
+        'vehicle' in item //se è di tipo VehicleData
+          ? item.vehicle.worksite?.name
+          : item.worksite?.name; //se è di tipo Vehicle
+
+      return worksiteName ? modelsSet.has(worksiteName) : false; //verifica se il nome del cantiere è in modelsSet
     });
   }
+
 
   /**
    * Filtra i cantieri duplicati
@@ -127,23 +144,24 @@ export class CantieriFilterService{
    * @returns array di veicoli filtrati
    */
   filterVehiclesCantieriDuplicates(vehiclesData: (VehicleData | Vehicle)[]): any[] {
-    const vehicles = vehiclesData.map(obj => {
-      return 'vehicle' in obj ? obj.vehicle : obj; // Prende direttamente il veicolo da VehicleData o Vehicle
-    });
+    const seenCantieri = new Set<string>();
 
-    const seenCantieri = new Set<string>(); // Set per tracciare i cantieri unici
+    return vehiclesData.filter(item => {
+      const worksiteName =
+        'vehicle' in item //se è di tipo VehicleData
+          ? item.vehicle.worksite?.name ?? "non assegnato"
+          : item.worksite?.name ?? "non assegnato"; //se è di tipo Vehicle
 
-    return vehicles.filter(vehicle => {
-      const worksiteName = 'worksite' in vehicle && vehicle.worksite?.name ? vehicle.worksite.name : "non assegnato";
-
+      //controllo se il cantiere è già stato visto
       if (seenCantieri.has(worksiteName)) {
-        return false; // Se il cantiere è già stato visto, lo salta
+        return false; //skip
       }
 
-      seenCantieri.add(worksiteName); // Aggiunge il cantiere al Set
-      return true; // Altrimenti, mantiene il veicolo
+      seenCantieri.add(worksiteName);
+      return true; //mantenere elemento
     });
   }
+
 
 
   /**
