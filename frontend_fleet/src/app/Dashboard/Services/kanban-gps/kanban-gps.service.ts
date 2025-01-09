@@ -1,6 +1,6 @@
 import { AfterViewInit, Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { Vehicle } from '../../../Models/Vehicle';
+import { VehicleData } from '../../../Models/VehicleData';
 import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
 
 @Injectable({
@@ -9,9 +9,9 @@ import { CheckErrorsService } from '../../../Common-services/check-errors/check-
 export class KanbanGpsService{
   private readonly _loadKanbanGps$: Subject<void> = new Subject<void>();
   private _allSelected: boolean = false;
-  private _workingVehicles: Vehicle[] = [];
-  private _warningVehicles: Vehicle[] = [];
-  private _errorVehicles: Vehicle[] = [];
+  private _workingVehicles: VehicleData[] = [];
+  private _warningVehicles: VehicleData[] = [];
+  private _errorVehicles: VehicleData[] = [];
 
   constructor(
     private checkErrorsService: CheckErrorsService
@@ -29,7 +29,7 @@ export class KanbanGpsService{
    * Aggiunge un item ad una colonna del kanban GPS
    * @param column colonna sulla quale aggiungere
    */
-  addVehicle(column: 'working' | 'warning' | 'error', vehicle: Vehicle) {
+  addVehicle(column: 'working' | 'warning' | 'error', vehicle: VehicleData) {
     switch (column) {
       case 'working':
         this.workingVehicles.push(vehicle);
@@ -60,7 +60,7 @@ export class KanbanGpsService{
    * Imposta i dati delle colonne del kanban
    * @param vehicles elementi con cui riempire le colonne
    */
-  setKanbanData(vehicles: Vehicle[]){
+  setKanbanData(vehicles: VehicleData[]){
     const series = this.checkErrorsService.checkVehiclesGpsErrors(vehicles);//recupero dati dei veicoli controllati
     this.workingVehicles = series[0];
     this.warningVehicles = series[1];
@@ -106,22 +106,22 @@ export class KanbanGpsService{
   public set allSelected(value: boolean) {
     this._allSelected = value;
   }
-  public get workingVehicles(): Vehicle[] {
+  public get workingVehicles(): VehicleData[] {
     return this._workingVehicles;
   }
-  public set workingVehicles(value: Vehicle[]) {
+  public set workingVehicles(value: VehicleData[]) {
     this._workingVehicles = value;
   }
-  public get warningVehicles(): Vehicle[] {
+  public get warningVehicles(): VehicleData[] {
     return this._warningVehicles;
   }
-  public set warningVehicles(value: Vehicle[]) {
+  public set warningVehicles(value: VehicleData[]) {
     this._warningVehicles = value;
   }
-  public get errorVehicles(): Vehicle[] {
+  public get errorVehicles(): VehicleData[] {
     return this._errorVehicles;
   }
-  public set errorVehicles(value: Vehicle[]) {
+  public set errorVehicles(value: VehicleData[]) {
     this._errorVehicles = value;
   }
 }

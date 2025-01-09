@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { Vehicle } from '../../../Models/Vehicle';
+import { VehicleData } from '../../../Models/VehicleData';
 import { BlackboxGraphsService } from '../blackbox-graphs/blackbox-graphs.service';
 import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
 
@@ -9,12 +9,12 @@ import { CheckErrorsService } from '../../../Common-services/check-errors/check-
 })
 export class KanbanAntennaService {
   private readonly _loadKanbanAntenna$: Subject<void> = new Subject<void>();
-  private readonly _loadKanbanAntennaVehicles$: BehaviorSubject<Vehicle[]> = new BehaviorSubject<Vehicle[]>([]);
+  private readonly _loadKanbanAntennaVehicles$: BehaviorSubject<VehicleData[]> = new BehaviorSubject<VehicleData[]>([]);
 
 
-  workingVehicles: Vehicle[] = [];
-  errorVehicles: Vehicle[] = [];
-  blackboxVehicles: Vehicle[] = [];
+  workingVehicles: VehicleData[] = [];
+  errorVehicles: VehicleData[] = [];
+  blackboxVehicles: VehicleData[] = [];
 
   constructor(
     private checkErrorsService: CheckErrorsService,
@@ -34,7 +34,7 @@ export class KanbanAntennaService {
    * Aggiunge un item ad una colonna del kanban GPS
    * @param column colonna sulla quale aggiungere
    */
-  addVehicle(column: 'working' | 'error' | 'blackbox', vehicle: Vehicle) {
+  addVehicle(column: 'working' | 'error' | 'blackbox', vehicle: VehicleData) {
     switch (column) {
       case 'working':
         this.workingVehicles.push(vehicle);
@@ -52,7 +52,7 @@ export class KanbanAntennaService {
    * Imposta i dati delle colonne del kanban delle antenne
    * @param vehicles elementi con cui riempire le colonne
    */
-  setKanbanData(vehicles: Vehicle[]){
+  setKanbanData(vehicles: VehicleData[]){
     const antennaSeries = this.checkErrorsService.checkVehiclesAntennaErrors(vehicles);
     this.workingVehicles = antennaSeries[0];
     this.errorVehicles = antennaSeries[1];
@@ -71,7 +71,7 @@ export class KanbanAntennaService {
   public get loadKanbanAntenna$(): Subject<void> {
     return this._loadKanbanAntenna$;
   }
-  public get loadKanbanAntennaVehicles$(): BehaviorSubject<Vehicle[]> {
+  public get loadKanbanAntennaVehicles$(): BehaviorSubject<VehicleData[]> {
     return this._loadKanbanAntennaVehicles$;
   }
 }
