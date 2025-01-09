@@ -4,6 +4,7 @@ import { Note } from '../../../Models/Note';
 import { CommonService } from '../../../Common-services/common service/common.service';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { firstValueFrom, Observable } from 'rxjs';
+import { VehicleData } from '../../../Models/VehicleData';
 import { Vehicle } from '../../../Models/Vehicle';
 
 @Injectable({
@@ -39,8 +40,10 @@ export class NotesService {
     return initialValue !== currentValue; // Confronta il valore attuale con quello iniziale
   }
 
-  setNoteStatusToModified(vehicle: Vehicle){
-    if(vehicle.note){
+  setNoteStatusToModified(vehicledata: VehicleData | Vehicle): void {
+    const vehicle = 'vehicle' in vehicledata ? vehicledata.vehicle : vehicledata;
+
+    if (vehicle.note) {
       vehicle.note.saved = false;
     }
   }

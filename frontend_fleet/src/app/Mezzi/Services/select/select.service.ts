@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Vehicle } from '../../../Models/Vehicle';
+import { VehicleData } from '../../../Models/VehicleData';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +14,7 @@ export class SelectService {
 
 
 
-  private _selectedVehicles: Vehicle[] = [];
+  private _selectedVehicles: VehicleData[] = [];
 
   constructor() { }
 
@@ -23,31 +23,31 @@ export class SelectService {
    * @param allVehicles tutti i veicoli
    * @param vehicle veicolo da cui prendere il modello da aggiungere, in caso, ai veicoli selezionati
    */
-  updateVehiclesSelectionByModel(allVehicles: Vehicle[], vehicle: Vehicle) {
-    const exists = this.selectedVehicles.some(v => v.model === vehicle.model); //controllo della presenza del veicolo nell'array dei veicoli selezionati
+  updateVehiclesSelectionByModel(allVehicles: VehicleData[], vehicleData: VehicleData) {
+    const exists = this.selectedVehicles.some(v => v.vehicle.model === vehicleData.vehicle.model); //controllo della presenza del veicolo nell'array dei veicoli selezionati
 
     if (!exists) {
-      const addingVehicles = allVehicles.filter(v => v.model === vehicle.model);
+      const addingVehicles = allVehicles.filter(v => v.vehicle.model === vehicleData.vehicle.model);
       this.selectedVehicles = [...this.selectedVehicles, ...addingVehicles]; //aggiunta di tutti i veicoli con il modello del veicolo
     } else {
-      this.selectedVehicles = this.selectedVehicles.filter(v => v.model !== vehicle.model); //rimozione di tutti i veicoli con il modello del veicolo
+      this.selectedVehicles = this.selectedVehicles.filter(v => v.vehicle.model !== vehicleData.vehicle.model); //rimozione di tutti i veicoli con il modello del veicolo
     }
   }
 
 
   /**
    * Aggiorna i veicoli selezionati in base al cantiere di un veicolo
-   * @param allVehicles tutti i veicoli
+   * @param vehiclesData tutti i veicoli
    * @param vehicle veicolo da cui prendere il cantiere da aggiungere, in caso, ai veicoli selezionati
    */
-  updateVehiclesSelectionByCantiere(allVehicles: Vehicle[], vehicle: Vehicle) {
-    const exists = this.selectedVehicles.some(v => v.worksite?.name === vehicle.worksite?.name);
+  updateVehiclesSelectionByCantiere(vehiclesData: VehicleData[], vehicle: VehicleData) {
+    const exists = this.selectedVehicles.some(v => v.vehicle.worksite?.name === vehicle.vehicle.worksite?.name);
 
     if (!exists) {
-      const addingVehicles = allVehicles.filter(v => v.worksite?.name === vehicle.worksite?.name);
+      const addingVehicles = vehiclesData.filter(v => v.vehicle.worksite?.name === vehicle.vehicle.worksite?.name);
       this.selectedVehicles = [...this.selectedVehicles, ...addingVehicles];
     } else {
-      this.selectedVehicles = this.selectedVehicles.filter(v => v.worksite?.name !== vehicle.worksite?.name);
+      this.selectedVehicles = this.selectedVehicles.filter(v => v.vehicle.worksite?.name !== vehicle.vehicle.worksite?.name);
     }
   }
 
@@ -57,21 +57,21 @@ export class SelectService {
    * @param allVehicles tutti i veicoli
    * @param vehicle veicolo da cui prendere la targa da aggiungere, in caso, ai veicoli selezionati
    */
-  updateVehiclesSelectionByPlate(allVehicles: Vehicle[], vehicle: Vehicle) {
-    const exists = this.selectedVehicles.some(v => v.plate === vehicle.plate);
+  updateVehiclesSelectionByPlate(allVehicles: VehicleData[], vehicle: VehicleData) {
+    const exists = this.selectedVehicles.some(v => v.vehicle.plate === vehicle.vehicle.plate);
 
     if (!exists) {
-      const addingVehicles = allVehicles.filter(v => v.plate === vehicle.plate);
+      const addingVehicles = allVehicles.filter(v => v.vehicle.plate === vehicle.vehicle.plate);
       this.selectedVehicles = [...this.selectedVehicles, ...addingVehicles];
     } else {
-      this.selectedVehicles = this.selectedVehicles.filter(v => v.plate !== vehicle.plate);
+      this.selectedVehicles = this.selectedVehicles.filter(v => v.vehicle.plate !== vehicle.vehicle.plate);
     }
   }
 
-  updateVehiclesSelectionByAllestimento(allVehicles: Vehicle[], option: string, selected: boolean): void {
+  updateVehiclesSelectionByAllestimento(allVehicles: VehicleData[], option: string, selected: boolean): void {
     // Seleziona i veicoli con isRFIDReader = false (blackbox) e quelli con isRFIDReader = true (blackbox+antenna)
-    const blackboxVehicles = allVehicles.filter(vehicle => !vehicle.isRFIDReader);
-    const blackboxAntennaVehicles = allVehicles.filter(vehicle => vehicle.isRFIDReader);
+    const blackboxVehicles = allVehicles.filter(vehicle => !vehicle.vehicle.isRFIDReader);
+    const blackboxAntennaVehicles = allVehicles.filter(vehicle => vehicle.vehicle.isRFIDReader);
 
     if(option == "blackbox"){ // è stato premuto l'opzione "blackbox"
       if(selected){ // l'opzione "blackbox" è stata selezionata
@@ -80,7 +80,7 @@ export class SelectService {
       }else{ // l'opzione "blackbox" è stata deselezionata
         this.allestimenti.blackboxOnly = false;
         // Rimuovi i veicoli con isRFIDReader = false
-        this.selectedVehicles = this.selectedVehicles.filter(vehicle => vehicle.isRFIDReader);
+        this.selectedVehicles = this.selectedVehicles.filter(vehicle => vehicle.vehicle.isRFIDReader);
       }
     }else if(option == "blackbox+antenna"){ // è stato premuto l'opzione "blackbox+antenna"
       if(selected){ // l'opzione "blackbox+antenna" è stata selezionata
@@ -89,7 +89,7 @@ export class SelectService {
       }else{ // l'opzione "blackbox+antenna" è stata deselezionata
         this.allestimenti.blackboxWithAntenna = false;
         // Rimuovi i veicoli con isRFIDReader = true
-        this.selectedVehicles = this.selectedVehicles.filter(vehicle => !vehicle.isRFIDReader);
+        this.selectedVehicles = this.selectedVehicles.filter(vehicle => !vehicle.vehicle.isRFIDReader);
       }
     }
   }
@@ -100,7 +100,7 @@ export class SelectService {
    * @param allVehicles tutti i veicoli
    * @param vehicle veicolo da cui prendere il first event da aggiungere, in caso, ai veicoli selezionati
    */
-  updateVehiclesSelectionByFirstEvent(allVehicles: Vehicle[], vehicle: Vehicle) {
+  updateVehiclesSelectionByFirstEvent(allVehicles: VehicleData[], vehicle: VehicleData) {
     //data senza orario
     const getDateWithoutTime = (date: Date | null): string => {
       if (!date) return ''; // Se la data è null, restituisce una stringa vuota
@@ -108,13 +108,13 @@ export class SelectService {
       return actualDate.toISOString().split('T')[0];  // Restituisce solo la parte della data, es. "2024-12-10"
     };
 
-    const exists = this.selectedVehicles.some(v => getDateWithoutTime(v.firstEvent) === getDateWithoutTime(vehicle.firstEvent));
+    const exists = this.selectedVehicles.some(v => getDateWithoutTime(v.vehicle.firstEvent) === getDateWithoutTime(vehicle.vehicle.firstEvent));
 
     if (!exists) {
-      const addingVehicles = allVehicles.filter(v => getDateWithoutTime(v.firstEvent) === getDateWithoutTime(vehicle.firstEvent));
+      const addingVehicles = allVehicles.filter(v => getDateWithoutTime(v.vehicle.firstEvent) === getDateWithoutTime(vehicle.vehicle.firstEvent));
       this.selectedVehicles = [...this.selectedVehicles, ...addingVehicles];
     } else {
-      this.selectedVehicles = this.selectedVehicles.filter(v => getDateWithoutTime(v.firstEvent) !== getDateWithoutTime(vehicle.firstEvent));
+      this.selectedVehicles = this.selectedVehicles.filter(v => getDateWithoutTime(v.vehicle.firstEvent) !== getDateWithoutTime(vehicle.vehicle.firstEvent));
     }
   }
 
@@ -125,7 +125,7 @@ export class SelectService {
    * @returns array di tutti i veicoli se non era tutto selezionato
    * altrimenti un array vuoto
    */
-  selectDeselectAll(allVehicles: Vehicle[], $event: any) {
+  selectDeselectAll(allVehicles: VehicleData[], $event: any) {
     $event.stopPropagation();
 
     //attributo preso a caso, poteva essere qualunque
@@ -145,7 +145,7 @@ export class SelectService {
    * Imposta i veicoli selezionati
    * @param vehicles veicoli da selezionare
    */
-  selectVehicles(vehicles: Vehicle[]) {
+  selectVehicles(vehicles: VehicleData[]) {
     this.selectedVehicles = vehicles;
   }
 
@@ -156,7 +156,7 @@ export class SelectService {
    * a nessun veicolo nell'array di veicoli selezionati
    */
   isPlateSelected(plate: string){
-    const selectedPlates = this.selectedVehicles.map(vehicle => vehicle.plate);
+    const selectedPlates = this.selectedVehicles.map(vehicle => vehicle.vehicle.plate);
     return selectedPlates.includes(plate);
   }
 
@@ -167,7 +167,7 @@ export class SelectService {
    * a nessun veicolo nell'array di veicoli selezionati
    */
   isModelSelected(model: string){
-    const selectedModels = this.selectedVehicles.map(vehicle => vehicle.model);
+    const selectedModels = this.selectedVehicles.map(vehicle => vehicle.vehicle.model);
     return selectedModels.includes(model);
   }
 
@@ -179,7 +179,7 @@ export class SelectService {
    */
   isCantiereSelected(worksite: string | undefined){
     if(worksite){
-      const selectedCantieri = this.selectedVehicles.map(vehicle => vehicle.worksite?.name);
+      const selectedCantieri = this.selectedVehicles.map(vehicle => vehicle.vehicle.worksite?.name);
       return selectedCantieri.includes(worksite);
     }
     return false;
@@ -193,7 +193,7 @@ export class SelectService {
    */
   isFirsteventSelected(firstEvent: Date | null){
     if(firstEvent){
-      const selectedFirstevents = this.selectedVehicles.map(vehicle => vehicle.firstEvent);
+      const selectedFirstevents = this.selectedVehicles.map(vehicle => vehicle.vehicle.firstEvent);
       return selectedFirstevents.includes(firstEvent);
     }
     return false;
@@ -206,8 +206,8 @@ export class SelectService {
    */
   checkAllestimento(type: string){
     return type == "blackbox" ?
-    this.selectedVehicles.some(vehicle => vehicle.isRFIDReader === false) :
-    this.selectedVehicles.some(vehicle => vehicle.isRFIDReader === true);
+    this.selectedVehicles.some(vehicle => vehicle.vehicle.isRFIDReader === false) :
+    this.selectedVehicles.some(vehicle => vehicle.vehicle.isRFIDReader === true);
   }
 
   public get allestimenti() {
@@ -216,10 +216,10 @@ export class SelectService {
   public set allestimenti(value) {
     this._allestimenti = value;
   }
-  public get selectedVehicles(): Vehicle[] {
+  public get selectedVehicles(): VehicleData[] {
     return this._selectedVehicles;
   }
-  public set selectedVehicles(value: Vehicle[]) {
+  public set selectedVehicles(value: VehicleData[]) {
     this._selectedVehicles = value;
   }
   public get allOptionsSelected(): boolean {
