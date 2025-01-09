@@ -18,7 +18,7 @@ export class PlateFilterService {
    * @param vehicles veicoli
    * @returns veicoli filtrati
    */
-  filterVehiclesByPlateResearch(research: string, vehiclesData: VehicleData[]): any[] {
+  filterVehiclesByPlateResearch(research: string, vehiclesData: VehicleData[]): VehicleData[] {
     const searchTextLower = research.toLowerCase().replace(/\s+/g, '');
     return vehiclesData.filter(obj =>
       obj.vehicle.plate.toLowerCase().replace(/\s+/g, '').includes(searchTextLower)
@@ -31,15 +31,10 @@ export class PlateFilterService {
    * @param vehicles - Array di veicoli da filtrare.
    * @returns Un array di veicoli che corrispondono alle targhe selezionate.
    */
-  filterVehiclesByPlates(selectedPlates: string[], vehicles: (Vehicle | VehicleData)[]): any[] {
-    if (!selectedPlates.length) return vehicles;
-
+  filterVehiclesByPlates(selectedPlates: string[], vehiclesData: VehicleData[]): VehicleData[] {
+    if (!selectedPlates.length) return vehiclesData;
     const platesSet = new Set(selectedPlates);
-
-    return vehicles.filter(vehicle => {
-      const plate = 'vehicle' in vehicle ? vehicle.vehicle.plate : vehicle.plate;
-      return platesSet.has(plate);
-    });
+    return vehiclesData.filter(obj => platesSet.has(obj.vehicle.plate));
   }
 
 
