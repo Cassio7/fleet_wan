@@ -270,10 +270,7 @@ export class AnomalyService {
     }
 
     const queryRunner = this.connection.createQueryRunner();
-
     try {
-      await queryRunner.connect();
-      await queryRunner.startTransaction();
       const hash = hashAnomaly();
       const anomaliesQuery = await this.anomalyRepository.findOne({
         where: {
@@ -283,6 +280,8 @@ export class AnomalyService {
           },
         },
       });
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
       if (anomaliesQuery && anomaliesQuery.hash !== hash) {
         if (day.getTime() === today.getTime()) {
           const anomaly = {
@@ -321,10 +320,11 @@ export class AnomalyService {
           });
         await queryRunner.manager.getRepository(AnomalyEntity).save(anomaly);
       }
+      await queryRunner.commitTransaction();
     } catch (error) {
+      await queryRunner.rollbackTransaction();
       console.error('Errore nel inserimento nuova anomalia: ' + error);
     } finally {
-      await queryRunner.commitTransaction();
       await queryRunner.release();
     }
   }
