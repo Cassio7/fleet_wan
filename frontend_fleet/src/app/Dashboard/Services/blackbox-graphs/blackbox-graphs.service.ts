@@ -148,7 +148,7 @@ export class BlackboxGraphsService{
         break;
 
       default:
-        vehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles") || "[]");
+        vehicles = JSON.parse(this.sessionStorageService.getItem("allData") || "[]");
         break;
     }
 

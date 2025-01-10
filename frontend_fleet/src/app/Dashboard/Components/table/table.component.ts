@@ -80,6 +80,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
 
   ngAfterViewInit(): void {
     const allVehiclesData = JSON.parse(this.sessionStorageService.getItem("allData"));
+    const tableData = this.vehicleTableData.data;
     setTimeout(() => {
       this.handlErrorGraphClick(); // Subscribe a click nel grafico degli errori
       this.handleBlackBoxGraphClick(); // Subscribe a click nel grafico dei blackbox
@@ -100,7 +101,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
           const blackboxVehicles = JSON.parse(this.sessionStorageService.getItem("blackboxVehicles"));
           this.vehicleTableData.data = this.plateFilterService.filterVehiclesByPlateResearch(research, blackboxVehicles);
         }else{
-          this.vehicleTableData.data = this.plateFilterService.filterVehiclesByPlateResearch(research, allVehiclesData);
+          this.vehicleTableData.data = this.plateFilterService.filterVehiclesByPlateResearch(research, tableData);
         }
         this.vehicleTable.renderRows();
         this.loadGraphs(this.vehicleTableData.data);
@@ -129,24 +130,23 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     this.cantieriFilterService.filterTableByCantiere$.pipe(takeUntil(this.destroy$), skip(1))
       .subscribe({
         next: (cantieri: string[]) => {
-          let vehicles = [];
+          console.log("handle cantiere filter cantieri: ", cantieri);
+          let vehicles: VehicleData[] = [];
 
-          const errorSlice = this.sessionStorageService.getItem("errorSlice");
-          const blackboxSlice = this.sessionStorageService.getItem("blackboxSlice");
+          // const errorSlice = this.sessionStorageService.getItem("errorSlice");
+          // const blackboxSlice = this.sessionStorageService.getItem("blackboxSlice");
 
-          if (errorSlice) {
-            const errorGraphVehicles = this.blackboxGraphService.checkErrorGraphSlice();
-            vehicles = this.cantieriFilterService.filterVehiclesByCantieri(errorGraphVehicles, cantieri) as VehicleData[];
-          } else if (blackboxSlice) {
-            const blackboxgraphVehicles = this.errorGraphService.checkBlackBoxSlice();
-            vehicles = this.cantieriFilterService.filterVehiclesByCantieri(blackboxgraphVehicles, cantieri) as VehicleData[];
-          } else {
-            const allVehicles = JSON.parse(this.sessionStorageService.getItem("allData"))
-            const tableVehicles = JSON.parse(this.sessionStorageService.getItem("tableData"));
-            const actualVehicles = (tableVehicles && tableVehicles.length > 0) ? tableVehicles : allVehicles;
-            vehicles = this.cantieriFilterService.filterVehiclesByCantieri(actualVehicles, cantieri) as VehicleData[];
-          }
-
+          // if (errorSlice) {
+          //   const errorGraphVehicles = this.blackboxGraphService.checkErrorGraphSlice();
+          //   vehicles = this.cantieriFilterService.filterVehiclesByCantieri(errorGraphVehicles, cantieri) as VehicleData[];
+          // } else if (blackboxSlice) {
+          //   const blackboxgraphVehicles = this.errorGraphService.checkBlackBoxSlice();
+          //   vehicles = this.cantieriFilterService.filterVehiclesByCantieri(blackboxgraphVehicles, cantieri) as VehicleData[];
+          // } else {
+            const allVehicles = JSON.parse(this.sessionStorageService.getItem("allData"));
+            vehicles = this.cantieriFilterService.filterVehiclesByCantieri(allVehicles, cantieri);
+          // }
+          console.log("handle cantieri filter vehcles: ", vehicles);
           this.vehicleTableData.data = vehicles;
 
           this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));

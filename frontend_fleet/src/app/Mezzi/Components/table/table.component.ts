@@ -321,7 +321,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
    * Resetta tutte le selezioni
    */
   resetSelections(){
-    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allData"));
     this.selectService.selectVehicles(allVehicles);
     this.vehicleTableData.data = allVehicles;
     this.selectService.allOptionsSelected = true;
