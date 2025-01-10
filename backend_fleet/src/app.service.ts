@@ -18,6 +18,7 @@ import { AnomalyService } from './services/anomaly/anomaly.service';
 
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import Redis from 'ioredis';
+import { AssociationService } from './services/association/association.service';
 
 @Injectable()
 export class AppService implements OnModuleInit {
@@ -35,18 +36,20 @@ export class AppService implements OnModuleInit {
     private readonly categoryFactoryService: CategoryFactoryService,
     private readonly anomalyService: AnomalyService,
     private readonly realtimeService: RealtimeService,
+    private readonly associationService: AssociationService,
     @InjectRedis() private readonly redis: Redis,
   ) {}
 
   // popolo database all'avvio
   async onModuleInit() {
-    const startDate = '2024-12-19T00:00:00.000Z';
+    const startDate = '2025-01-01T00:00:00.000Z';
     //const endDate = '2024-12-10T00:00:00.000Z';
     const endDate = new Date(
       new Date().getTime() + 2 * 60 * 60 * 1000,
     ).toISOString();
     //await this.putDefaultData();
     //await this.putDbDataBasicForAdvance(startDate, endDate);
+    //await this.associationService.setVehiclesAssociateAllUsersRedis(),
     //await this.putDbData3min();
     //await this.anomalyCheck(startDate, endDate);
     //await this.dailyAnomalyCheck();
@@ -303,23 +306,28 @@ export class AppService implements OnModuleInit {
     const vehicles = await this.vehicleService.getAllVehicles();
     const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
     const now = new Date();
-    const dayBefore = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate() - 1,
-    );
-    const yesterdayAnomalies = await this.anomalyService.getAnomalyByDate(
-      vehicleIds,
-      dayBefore,
-    );
+
     const todayAnomalies = await this.anomalyService.getAnomalyByDate(
       vehicleIds,
       now,
     );
     const lastAnomalies = await this.anomalyService.getLastAnomaly(vehicleIds);
-    await this.anomalyService.setDayBeforeAnomalyRedis(yesterdayAnomalies);
+
     await this.anomalyService.setTodayAnomalyRedis(todayAnomalies);
     await this.anomalyService.setLastAnomalyRedis(lastAnomalies);
+
+    // logica set redis giorno prima al momento dismessa
+
+    // const dayBefore = new Date(
+    //   now.getFullYear(),
+    //   now.getMonth(),
+    //   now.getDate() - 1,
+    // );
+    // const yesterdayAnomalies = await this.anomalyService.getAnomalyByDate(
+    //   vehicleIds,
+    //   dayBefore,
+    // );
+    // await this.anomalyService.setDayBeforeAnomalyRedis(yesterdayAnomalies);
   }
 
   //@Cron('*/5 * * * *')
