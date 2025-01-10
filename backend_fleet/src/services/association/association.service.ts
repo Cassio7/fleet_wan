@@ -1,3 +1,4 @@
+import { InjectRedis } from '@nestjs-modules/ioredis';
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { CommonDTO } from 'classes/common/common.dto';
@@ -7,8 +8,11 @@ import { WorksiteDTO } from 'classes/dtos/worksite.dto';
 import { AssociationEntity } from 'classes/entities/association.entity';
 import { CompanyEntity } from 'classes/entities/company.entity';
 import { UserEntity } from 'classes/entities/user.entity';
+import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { WorksiteEntity } from 'classes/entities/worksite.entity';
+import Redis from 'ioredis';
 import { DataSource, Repository } from 'typeorm';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class AssociationService {
@@ -19,6 +23,8 @@ export class AssociationService {
     private readonly associationRepository: Repository<AssociationEntity>,
     @InjectRepository(UserEntity, 'readOnlyConnection')
     private readonly userRepository: Repository<UserEntity>,
+    @InjectRedis() private readonly redis: Redis,
+    private readonly userService: UserService,
   ) {}
 
   /**
@@ -33,7 +39,7 @@ export class AssociationService {
     userDTO: UserDTO,
     company: CompanyEntity | null,
     worksite: WorksiteEntity | null,
-  ): Promise<any> {
+  ): Promise<boolean> {
     const user = await this.userRepository.findOne({
       where: { id: userDTO.id },
     });
@@ -91,6 +97,7 @@ export class AssociationService {
       await queryRunner.commitTransaction();
       await queryRunner.release();
     }
+    await this.setVehiclesAssociateAllUsersRedis();
     return true;
   }
 
@@ -99,7 +106,7 @@ export class AssociationService {
    * @param id identificativo associazione
    * @returns
    */
-  async deleteAssociation(id: number): Promise<any> {
+  async deleteAssociation(id: number): Promise<boolean> {
     // controllo se esiste
     const exist = await this.associationRepository.findOne({
       where: {
@@ -121,6 +128,7 @@ export class AssociationService {
       await queryRunner.commitTransaction();
       await queryRunner.release();
     }
+    await this.setVehiclesAssociateAllUsersRedis();
     return true;
   }
   /**
@@ -143,14 +151,14 @@ export class AssociationService {
 
   /**
    * Funzione che recupera i veicoli che un utente può visualizzare, in base al suo ruolo di assegnazione
-   * @param id User id
+   * @param userid User id
    * @returns Veicoli
    */
-  async getVehiclesByUserRole(id: number) {
+  async getVehiclesByUserRole(userid: number): Promise<VehicleEntity[]> {
     const associations = await this.associationRepository.find({
       where: {
         user: {
-          id: id,
+          id: userid,
         },
       },
       relations: {
@@ -175,7 +183,7 @@ export class AssociationService {
         },
       },
     });
-    const vehicles = new Set();
+    const vehicles = new Set<VehicleEntity>();
     associations.forEach((association) => {
       // Prendo i veicoli se hanno direttamente associazione con worksite
       if (association.worksite?.vehicle) {
@@ -198,6 +206,55 @@ export class AssociationService {
       }
     });
     return Array.from(vehicles);
+  }
+
+  /**
+   * Recupera i veicoli associati in base all'id utente su redis, se non trova li prende
+   * dalla funzione passando per il db
+   * @param userid id utente
+   * @returns
+   */
+  async getVehiclesAssociateUserRedis(
+    userid: number,
+  ): Promise<VehicleEntity[]> {
+    const key = `vehicleAssociateUser:${userid}`;
+    const data = await this.redis.get(key);
+
+    if (data) {
+      try {
+        return JSON.parse(data) as VehicleEntity[];
+      } catch (error) {
+        console.error('Errore nella conversione dei dati da Redis:', error);
+        return [];
+      }
+    }
+    return await this.getVehiclesByUserRole(userid);
+  }
+
+  /**
+   * imposta su redis tutti i veicoli associati per ogni utente
+   */
+  async setVehiclesAssociateAllUsersRedis() {
+    try {
+      const users = await this.userService.getAllUsers();
+
+      const promises = users.map(async (user) => {
+        const key = `vehicleAssociateUser:${user.id}`;
+        const vehicles = await this.getVehiclesByUserRole(user.id);
+
+        try {
+          await this.redis.set(key, JSON.stringify(vehicles));
+        } catch (error) {
+          console.log(
+            `Errore set Redis associazione veicoli con l'utente ${user.id}:`,
+            error,
+          );
+        }
+      });
+      await Promise.all(promises);
+    } catch (error) {
+      console.log('Errore generale:', error);
+    }
   }
 
   /**
