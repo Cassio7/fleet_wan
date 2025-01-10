@@ -13,6 +13,7 @@ import { takeUntil, skip, Subject } from 'rxjs';
 import { PlateFilterService } from '../../../Common-services/plate-filter/plate-filter.service';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { VehicleData } from '../../../Models/VehicleData';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-kanban-antenna',
@@ -26,6 +27,7 @@ import { VehicleData } from '../../../Models/VehicleData';
     MatProgressBarModule,
     MatIconModule,
     MatListModule,
+    MatTooltipModule,
     KanbanFiltersComponent
   ],
   templateUrl: './kanban-antenna.component.html',

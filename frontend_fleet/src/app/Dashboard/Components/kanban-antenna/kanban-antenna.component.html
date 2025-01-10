@@ -1,6 +1,6 @@
 <div class="container">
   <h2 class="title">Stato Antenna</h2>
-  <p class="subtitle">Monitora lo stato delle </p>
+  <p class="subtitle">Monitora lo stato delle antenne</p>
   <div class="filters">
     <app-kanban-filters></app-kanban-filters>
   </div>
@@ -14,14 +14,21 @@
         </div>
         <span class="nMezzi">{{ kanbanAntennaService.workingVehicles.length }}</span>
       </div>
-      <mat-progress-bar mode="determinate" [value]="kanbanAntennaService.workingVehicles.length" class="progress-bar working-bar" color="accent"></mat-progress-bar>
+      <span>{{ kanbanAntennaService.getVehiclesPercentage(kanbanAntennaService.workingVehicles).toFixed(0) + '%' }}</span>
+      <mat-progress-bar
+        mode="determinate"
+        [matTooltip]="kanbanAntennaService.getVehiclesPercentage(kanbanAntennaService.workingVehicles).toFixed(0) + '%'"
+        [value]="kanbanAntennaService.getVehiclesPercentage(kanbanAntennaService.workingVehicles)"
+        class="progress-bar working-bar"
+        color="accent">
+      </mat-progress-bar>
       <div class="scrollable-list">
         <mat-list>
           <mat-list-item *ngFor="let obj of kanbanAntennaService.workingVehicles">
             <div class="vehicle">
               <div class="info">
-                <p class="type">{{ "tipologia"}}</p>
-                <p class="cantiere">{{ obj.vehicle.worksite?.name ? obj.vehicle.worksite?.name : "non assegnato"}}</p>
+                <p class="type">{{'Tipologia non disponibile' }}</p>
+                <p class="cantiere">{{ obj.vehicle.worksite?.name || 'Non assegnato' }}</p>
               </div>
               <div class="plate-container">
                 <p class="plate">{{ obj.vehicle.plate }}</p>
@@ -41,14 +48,21 @@
         </div>
         <span class="nMezzi">{{ kanbanAntennaService.errorVehicles.length }}</span>
       </div>
-      <mat-progress-bar mode="determinate" [value]="kanbanAntennaService.errorVehicles.length" class="progress-bar"></mat-progress-bar>
+      <span>{{ kanbanAntennaService.getVehiclesPercentage(kanbanAntennaService.errorVehicles).toFixed(0) + '%' }}</span>
+      <mat-progress-bar
+        mode="determinate"
+        [matTooltip]="kanbanAntennaService.getVehiclesPercentage(kanbanAntennaService.errorVehicles).toFixed(0) + '%'"
+        [value]="kanbanAntennaService.getVehiclesPercentage(kanbanAntennaService.errorVehicles)"
+        class="progress-bar error-bar"
+        color="warn">
+      </mat-progress-bar>
       <div class="scrollable-list">
         <mat-list>
           <mat-list-item *ngFor="let obj of kanbanAntennaService.errorVehicles">
             <div class="vehicle">
               <div class="info">
-                <p class="type">{{ "tipologia"}}</p>
-                <p class="cantiere">{{ obj.vehicle.worksite?.name ? obj.vehicle.worksite?.name : "non assegnato"}}</p>
+                <p class="type">{{'Tipologia non disponibile' }}</p>
+                <p class="cantiere">{{ obj.vehicle.worksite?.name || 'Non assegnato' }}</p>
               </div>
               <div class="plate-container">
                 <p class="plate">{{ obj.vehicle.plate }}</p>
@@ -59,7 +73,7 @@
       </div>
     </div>
 
-    <!-- Warning Column -->
+    <!-- No Antenna Column -->
     <div class="blackbox-col">
       <div class="header">
         <div class="blackbox-container">
@@ -68,14 +82,21 @@
         </div>
         <span class="nMezzi">{{ kanbanAntennaService.blackboxVehicles.length }}</span>
       </div>
-      <mat-progress-bar mode="determinate" [value]="kanbanAntennaService.blackboxVehicles.length" class="progress-bar"></mat-progress-bar>
+      <span>{{ kanbanAntennaService.getVehiclesPercentage(kanbanAntennaService.blackboxVehicles).toFixed(0) + '%' }}</span>
+      <mat-progress-bar
+        mode="determinate"
+        [matTooltip]="kanbanAntennaService.getVehiclesPercentage(kanbanAntennaService.blackboxVehicles).toFixed(0) + '%'"
+        [value]="(kanbanAntennaService.blackboxVehicles.length / kanbanAntennaService.getAllKanbanVehicles().length) * 100"
+        class="progress-bar blackbox-bar"
+        color="primary">
+      </mat-progress-bar>
       <div class="scrollable-list">
         <mat-list>
           <mat-list-item *ngFor="let obj of kanbanAntennaService.blackboxVehicles">
             <div class="vehicle">
               <div class="info">
-                <p class="type">{{ "tipologia"}}</p>
-                <p class="cantiere">{{ obj.vehicle.worksite?.name ? obj.vehicle.worksite?.name : "non assegnato"}}</p>
+                <p class="type">{{'Tipologia non disponibile' }}</p>
+                <p class="cantiere">{{ obj.vehicle.worksite?.name || 'Non assegnato' }}</p>
               </div>
               <div class="plate-container">
                 <p class="plate">{{ obj.vehicle.plate }}</p>

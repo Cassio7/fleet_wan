@@ -27,7 +27,7 @@ export class KanbanAntennaService {
    * @returns array di veicoli così formato: [prima colonna, seconda colonna, terza colonna]
    */
   getAllKanbanVehicles(){
-    return [...this.workingVehicles, ...this.errorVehicles, this.blackboxVehicles];
+    return [...this.workingVehicles, ...this.errorVehicles, ...this.blackboxVehicles];
   }
 
   /**
@@ -57,6 +57,15 @@ export class KanbanAntennaService {
     this.workingVehicles = antennaSeries[0];
     this.errorVehicles = antennaSeries[1];
     this.blackboxVehicles = this.blackboxGraphService.getAllRFIDVehicles(vehicles).blackboxOnly;
+  }
+
+  /**
+   * Calcola la percentuale dei veicoli passati in base al totale dei mezzi nel kanaban
+   * @returns risultato del calcolo
+   */
+  getVehiclesPercentage(vehicles: VehicleData[]){
+    const calc = this.getAllKanbanVehicles().length ? (vehicles.length / this.getAllKanbanVehicles().length * 100) : 0;
+    return calc;
   }
 
   /**

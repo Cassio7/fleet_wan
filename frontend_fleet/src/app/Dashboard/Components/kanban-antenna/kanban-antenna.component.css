@@ -30,12 +30,15 @@
   margin-top: 20px;
 }
 
+::ng-deep .progress-bar{
+  background-color: green !important; /*non funziona*/
+}
 .progress-bar {
   margin-bottom: 1vh;
   border-radius: 2px;
   background-color: green !important; /*non funziona*/
+  cursor: pointer;
 }
-
 
 
 .working-col, .blackbox-col, .error-col {
