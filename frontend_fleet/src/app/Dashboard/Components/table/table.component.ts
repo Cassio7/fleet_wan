@@ -80,7 +80,6 @@ export class TableComponent implements OnDestroy, AfterViewInit{
 
   ngAfterViewInit(): void {
     const allVehiclesData = JSON.parse(this.sessionStorageService.getItem("allData"));
-    console.log("allVehiclesData: ", allVehiclesData);
     setTimeout(() => {
       this.handlErrorGraphClick(); // Subscribe a click nel grafico degli errori
       this.handleBlackBoxGraphClick(); // Subscribe a click nel grafico dei blackbox

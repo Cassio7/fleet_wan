@@ -114,7 +114,6 @@ export class AntennaGraphComponent {
     const antennaCheck = this.checkErrorsService.checkVehiclesAntennaErrors(vehicles);
     const blackboxData = this.blackboxGraphService.getAllRFIDVehicles(vehicles);
 
-    console.log([antennaCheck[0].length, antennaCheck[1].length, blackboxData.blackboxOnly.length]);
     this.chartOptions.series = [antennaCheck[0].length, antennaCheck[1].length, blackboxData.blackboxOnly.length];
   }
 

@@ -165,7 +165,7 @@ export class CheckErrorsService {
     const errorVehicles: VehicleData[] = [];
 
     vehiclesData.map(vehicleData => {
-      if(vehicleData.vehicle.isRFIDReader){
+      if(vehicleData.vehicle?.isRFIDReader){
         const antennaCheck = this.checkAntennaError(vehicleData);
         if(antennaCheck){
           errorVehicles.push(vehicleData);
@@ -242,7 +242,6 @@ export class CheckErrorsService {
       dateTo: formatDate(dateTo)
     };
 
-    console.log("request body: ", body);
 
     return this.http.post(
       `${this.commonService.url}/anomaly`,
