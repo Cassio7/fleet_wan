@@ -22,15 +22,7 @@ export class CommonService {
     return this._dateFrom;
   }
 
-  public set dateFrom(value: Date) {
-    this._dateFrom = value;
-  }
-
   public get dateTo(): Date {
     return this._dateTo;
-  }
-
-  public set dateTo(value: Date) {
-    this._dateTo = value;
   }
 }

@@ -47,11 +47,11 @@
   line-height: 1;
 }
 
-.graphs{
+.graphs .table{
   height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 2vh;
+  gap: 5vh;
 }
 
 .right-section{
