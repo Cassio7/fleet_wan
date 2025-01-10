@@ -62,7 +62,7 @@ export class BlackboxGraphsService{
     };
 
     for(const v of vehiclesData){
-      v.vehicle?.isRFIDReader == true ? this.blackboxData.blackboxWithAntenna.push(v) : this.blackboxData.blackboxOnly.push(v);
+      v.vehicle.isRFIDReader == true ? this.blackboxData.blackboxWithAntenna.push(v) : this.blackboxData.blackboxOnly.push(v);
     }
 
     return this.blackboxData;

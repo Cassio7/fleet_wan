@@ -141,6 +141,7 @@ export class AntennaGraphComponent {
       },
       error: error => console.error("Errore nel caricamento del grafico delle antenne: ", error)
     });
+    this.chartOptions.series = [];
     this.cd.detectChanges();
   }
 }

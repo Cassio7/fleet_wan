@@ -23,6 +23,7 @@ import { SessionFilterService } from '../../../Common-services/session-filter/se
 import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
 import { VehicleData } from '../../../Models/VehicleData';
 import { CommonService } from '../../../Common-services/common service/common.service';
+import { AntennaGraphService } from '../../Services/antenna-graph/antenna-graph.service';
 
 @Component({
   selector: 'app-table',
@@ -65,6 +66,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   constructor(
     private errorGraphService: ErrorGraphsService,
     private blackboxGraphService: BlackboxGraphsService,
+    private antennaGraphService: AntennaGraphService,
     private cantieriFilterService: CantieriFilterService,
     private gpsFilterService: GpsFilterService,
     private antennaFilterService: AntennaFilterService,
@@ -93,7 +95,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     this.plateFilterService.filterByPlateResearch$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (research: string) => {
-        let tableData = this.vehicleTableData.data;
+        let tableData = this.vehicleTableData.data; //dati della tabella x input filtro
         if(this.sessionStorageService.getItem("errorSlice")){
           const errorVehicles = JSON.parse(this.sessionStorageService.getItem("errorVehicles"));
           this.vehicleTableData.data = this.plateFilterService.filterVehiclesByPlateResearch(research, errorVehicles);
@@ -103,9 +105,10 @@ export class TableComponent implements OnDestroy, AfterViewInit{
         }else{
           this.vehicleTableData.data = this.plateFilterService.filterVehiclesByPlateResearch(research, tableData);
         }
-        tableData = this.vehicleTableData.data;
+        tableData = this.vehicleTableData.data; //dati della tabella dopo il filtro x sessionStorage
+        this.sessionStorageService.setItem("tableData", JSON.stringify(tableData)); //impostazione su sessionStorage
         this.vehicleTable.renderRows();
-        this.loadGraphs(this.vehicleTableData.data);
+        this.loadGraphs(this.vehicleTableData.data); //caricamento grafici
       },
       error: error => console.error("Errore nel filtro delle targhe: ", error)
     });
@@ -396,7 +399,7 @@ handleSessionFilter() {
   fillTable() {
     console.log("CHIAMATO FILL TABLE!");
     //nascondi i grafici
-    this.blackboxGraphService.resetGraphs();
+    this.antennaGraphService.resetGraph();
     this.errorGraphService.resetGraphs();
     const dateFrom = this.commonService.dateFrom;
     const dateTo = this.commonService.dateTo;
@@ -473,7 +476,7 @@ handleSessionFilter() {
    */
   loadGraphs(newVehicles: VehicleData[]) {
     this.errorGraphService.loadChartData(newVehicles);
-    this.blackboxGraphService.loadChartData(newVehicles);
+    this.antennaGraphService.loadChartData$.next(newVehicles);
   }
 
   /**
