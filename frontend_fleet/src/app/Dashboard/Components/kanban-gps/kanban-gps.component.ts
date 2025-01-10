@@ -47,7 +47,6 @@ export class KanbanGpsComponent implements AfterViewInit, OnDestroy{
 
   ngAfterViewInit(): void {
     const allData = JSON.parse(this.sessionStorageService.getItem("allData"));
-    console.log("allData: ", allData);
     let kanbanVehicles = allData;
 
     this.plateFilterService.filterByPlateResearch$.pipe(takeUntil(this.destroy$), skip(1))

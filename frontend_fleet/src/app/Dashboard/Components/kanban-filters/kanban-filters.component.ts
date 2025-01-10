@@ -71,11 +71,7 @@ export class KanbanFiltersComponent implements AfterViewInit{
 
   ngAfterViewInit(): void {
     const allVehicles = JSON.parse(this.sessionStorageService.getItem("allData"));
-    console.log("kanban all vehiclkes: ", allVehicles);
     this.kanbanCantieri= this.cantieriFilterService.vehiclesCantieriOnce(allVehicles);
-    console.log("this.cantieriFilterService.vehiclesCantieriOnce(allVehicles): ", this.cantieriFilterService.vehiclesCantieriOnce(allVehicles));
-    console.log("this.cantieriFilterService.listaCantieri: ", this.cantieriFilterService.listaCantieri);
-    console.log("this.kanbanCantieri: ", this.kanbanCantieri);
     setTimeout(() => {
       this.cantieriFilterService.allSelected = false;
       this.cantieriFilterService.updateListaCantieri(allVehicles);

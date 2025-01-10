@@ -80,11 +80,6 @@ export class ErrorGraphsService{
     sessionCheckResult[0].forEach(vehicle => workingVehiclesSet.add(vehicle));
     sessionCheckResult[1].forEach(vehicle => errorVehiclesSet.add(vehicle));
 
-
-    console.log('GPS Check Result:', gpsCheckResult);
-    console.log('Antenna Check Result:', antennaCheckResult);
-    console.log('Session Check Result:', sessionCheckResult);
-
     //filtri per priorità
 
     warningVehiclesSet.forEach(vehicle => {
@@ -185,7 +180,7 @@ export class ErrorGraphsService{
         break;
 
       default:
-        vehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles") || "[]");
+        vehicles = JSON.parse(this.sessionStorageService.getItem("allData") || "[]");
         break;
     }
 
