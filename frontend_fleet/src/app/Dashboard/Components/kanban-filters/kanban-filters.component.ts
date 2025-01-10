@@ -45,6 +45,7 @@ export class KanbanFiltersComponent implements AfterViewInit{
   //tracciatori di kanban
   private kanbanGps: boolean = false;
   private kanbanAntenna: boolean = false;
+   kanbanCantieri: string[] = [];
 
   constructor(
     private plateFilterService: PlateFilterService,
@@ -69,7 +70,12 @@ export class KanbanFiltersComponent implements AfterViewInit{
 
 
   ngAfterViewInit(): void {
-    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allData"));
+    console.log("kanban all vehiclkes: ", allVehicles);
+    this.kanbanCantieri= this.cantieriFilterService.vehiclesCantieriOnce(allVehicles);
+    console.log("this.cantieriFilterService.vehiclesCantieriOnce(allVehicles): ", this.cantieriFilterService.vehiclesCantieriOnce(allVehicles));
+    console.log("this.cantieriFilterService.listaCantieri: ", this.cantieriFilterService.listaCantieri);
+    console.log("this.kanbanCantieri: ", this.kanbanCantieri);
     setTimeout(() => {
       this.cantieriFilterService.allSelected = false;
       this.cantieriFilterService.updateListaCantieri(allVehicles);
@@ -106,7 +112,7 @@ export class KanbanFiltersComponent implements AfterViewInit{
    * @param option opzione selezionata
    */
   selectCantiere(option: string) {
-    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allData"));
     let selectedCantieri = this.cantieri.value || [];
 
     if (option === "Seleziona tutto") {
