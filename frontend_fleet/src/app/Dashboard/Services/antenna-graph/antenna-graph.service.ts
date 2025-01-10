@@ -20,6 +20,12 @@ export class AntennaGraphService {
 
   constructor() { }
 
+  /**
+   * Azzera i valori del grafico degli errori
+   */
+  resetGraph(){
+    this.loadChartData$.next([]);
+  }
 
   /*getters & setters*/
   public get graphTitle() {
