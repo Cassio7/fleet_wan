@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { AnomalyEntity } from 'classes/entities/anomaly.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
@@ -7,7 +7,11 @@ import { Between, DataSource, In, Repository } from 'typeorm';
 import { SessionService } from '../session/session.service';
 import { VehicleService } from '../vehicle/vehicle.service';
 import { TagService } from '../tag/tag.service';
-import { getDaysInRange, validateDateRange } from 'src/utils/utils';
+import {
+  getDaysInRange,
+  sortRedisData,
+  validateDateRange,
+} from 'src/utils/utils';
 import { SessionEntity } from 'classes/entities/session.entity';
 import { TagHistoryEntity } from 'classes/entities/tag_history.entity';
 import { InjectRedis } from '@nestjs-modules/ioredis';
@@ -15,6 +19,7 @@ import Redis from 'ioredis';
 import { AnomalyDTO } from 'classes/dtos/anomaly.dto';
 import { VehicleDTO } from 'classes/dtos/vehicle.dto';
 import { WorksiteDTO } from 'classes/dtos/worksite.dto';
+import { AssociationService } from '../association/association.service';
 
 @Injectable()
 export class AnomalyService {
@@ -29,173 +34,278 @@ export class AnomalyService {
     private readonly tagService: TagService,
     private readonly vehicleService: VehicleService,
     @InjectRedis() private readonly redis: Redis,
+    private readonly associationService: AssociationService,
   ) {}
+
   /**
    * Recupera tutte le anomalie salvate
+   * @param userId user id
+   * @returns
    */
-  async getAllAnomalyByVeId(veId: number[] | number): Promise<any> {
-    const veIdArray = Array.isArray(veId) ? veId : [veId];
-    const anomalies = await this.anomalyRepository.find({
-      where: {
-        vehicle: {
-          veId: In(veIdArray),
+  async getAllAnomalyByVeId(userId: number): Promise<any> {
+    const vehicles =
+      await this.associationService.getVehiclesAssociateUserRedis(userId);
+    if (!vehicles || vehicles.length === 0)
+      throw new HttpException(
+        'Nessun veicolo associato per questo utente',
+        HttpStatus.NOT_FOUND,
+      );
+    try {
+      const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
+      const veIdArray = Array.isArray(vehicleIds) ? vehicleIds : [vehicleIds];
+      const anomalies = await this.anomalyRepository.find({
+        where: {
+          vehicle: {
+            veId: In(veIdArray),
+          },
         },
-      },
-      relations: {
-        vehicle: {
-          worksite: true,
+        relations: {
+          vehicle: {
+            worksite: true,
+          },
         },
-      },
-      order: {
-        vehicle: {
-          plate: 'ASC',
+        order: {
+          vehicle: {
+            plate: 'ASC',
+          },
         },
-      },
-    });
-    return this.toDTO(anomalies);
+      });
+      return this.toDTO(anomalies);
+    } catch (error) {
+      throw new HttpException(
+        `Errore durante recupero delle anomalie`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   /**
    * Recupera le anomalia piu recente per ogni veicolo passato come parametro, escludendo
    * la data odierna
-   * @param veId id dei veicoli
+   * @param userId user id
    * @returns
    */
-  async getLastAnomaly(veId: number[] | number): Promise<any> {
-    const veIdArray = Array.isArray(veId) ? veId : [veId];
+  async getLastAnomaly(userId: number): Promise<any> {
+    const vehicles =
+      await this.associationService.getVehiclesAssociateUserRedis(userId);
+    if (!vehicles || vehicles.length === 0)
+      throw new HttpException(
+        'Nessun veicolo associato per questo utente',
+        HttpStatus.NOT_FOUND,
+      );
+    const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
+    const veIdArray = Array.isArray(vehicleIds) ? vehicleIds : [vehicleIds];
 
     const today = new Date();
     today.setUTCHours(0, 0, 0, 0);
+    try {
+      // Recupero le ultime 2 anomalie per ogni veicolo
+      const anomalies = await this.anomalyRepository
+        .createQueryBuilder('anomalies')
+        .innerJoinAndSelect('anomalies.vehicle', 'vehicle')
+        .leftJoinAndSelect('vehicle.worksite', 'worksite')
+        .where('vehicle.veId IN (:...veIdArray)', { veIdArray })
+        .andWhere((qb) => {
+          const subQuery = qb
+            .subQuery()
+            .select('a2.date')
+            .from('anomalies', 'a2')
+            .where('a2.vehicleId = anomalies.vehicleId')
+            .orderBy('a2.date', 'DESC')
+            .limit(2)
+            .getQuery();
+          return `anomalies.date IN (${subQuery})`;
+        })
+        .orderBy('vehicle.plate', 'ASC')
+        .addOrderBy('anomalies.date', 'DESC')
+        .getMany();
 
-    // Recupero le ultime 2 anomalie per ogni veicolo
-    const anomalies = await this.anomalyRepository
-      .createQueryBuilder('anomalies')
-      .innerJoinAndSelect('anomalies.vehicle', 'vehicle')
-      .leftJoinAndSelect('vehicle.worksite', 'worksite')
-      .where('vehicle.veId IN (:...veIdArray)', { veIdArray })
-      .andWhere((qb) => {
-        const subQuery = qb
-          .subQuery()
-          .select('a2.date')
-          .from('anomalies', 'a2')
-          .where('a2.vehicleId = anomalies.vehicleId')
-          .orderBy('a2.date', 'DESC')
-          .limit(2)
-          .getQuery();
-        return `anomalies.date IN (${subQuery})`;
-      })
-      .orderBy('vehicle.plate', 'ASC')
-      .addOrderBy('anomalies.date', 'DESC')
-      .getMany();
+      // Raggruppo le anomalie per veicolo
+      const groupedAnomalies = anomalies.reduce(
+        (acc, anomaly) => {
+          const vehicleId = anomaly.vehicle.id;
+          if (!acc[vehicleId]) {
+            acc[vehicleId] = [];
+          }
+          acc[vehicleId].push(anomaly);
+          return acc;
+        },
+        {} as Record<number, AnomalyEntity[]>,
+      );
 
-    // Raggruppo le anomalie per veicolo
-    const groupedAnomalies = anomalies.reduce(
-      (acc, anomaly) => {
-        const vehicleId = anomaly.vehicle.id;
-        if (!acc[vehicleId]) {
-          acc[vehicleId] = [];
-        }
-        acc[vehicleId].push(anomaly);
-        return acc;
-      },
-      {} as Record<number, AnomalyEntity[]>,
-    );
+      // Recupero l'anomalia piu recente, senza recuperare l'ordierna
+      const filteredAnomalies = Object.values(groupedAnomalies)
+        .map((vehicleAnomalies) => {
+          if (vehicleAnomalies.length === 0) return null;
 
-    // Recupero l'anomalia piu recente, senza recuperare l'ordierna
-    const filteredAnomalies = Object.values(groupedAnomalies)
-      .map((vehicleAnomalies) => {
-        if (vehicleAnomalies.length === 0) return null;
+          const [latest, previous] = vehicleAnomalies;
 
-        const [latest, previous] = vehicleAnomalies;
+          // Se la piu recente è di oggi, prendo la precedente
+          if (latest.date.getTime() === today.getTime() && previous) {
+            return previous;
+          }
 
-        // Se la piu recente è di oggi, prendo la precedente
-        if (latest.date.getTime() === today.getTime() && previous) {
-          return previous;
-        }
-
-        return latest;
-      })
-      .filter(Boolean);
-
-    return this.toDTO(filteredAnomalies);
+          return latest;
+        })
+        .filter(Boolean);
+      return this.toDTO(filteredAnomalies);
+    } catch (error) {
+      throw new HttpException(
+        `Errore durante recupero delle anomalie`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   /**
    * Restituisce le anomalie in base ai veid inseriti e in base al giorno
-   * @param veId Id dei veicoli
+   * @param userId user id
    * @param date data da controllare
    * @returns
    */
-  async getAnomalyByDate(veId: number[] | number, date: Date): Promise<any> {
-    const veIdArray = Array.isArray(veId) ? veId : [veId];
-    date.setHours(0, 0, 0, 0);
-    const anomalies = await this.anomalyRepository.find({
-      where: {
-        vehicle: {
-          veId: In(veIdArray),
+  async getAnomalyByDate(userId: number, date: Date): Promise<any> {
+    const vehicles =
+      await this.associationService.getVehiclesAssociateUserRedis(userId);
+    if (!vehicles || vehicles.length === 0)
+      throw new HttpException(
+        'Nessun veicolo associato per questo utente',
+        HttpStatus.NOT_FOUND,
+      );
+    try {
+      const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
+      const veIdArray = Array.isArray(vehicleIds) ? vehicleIds : [vehicleIds];
+      date.setHours(0, 0, 0, 0);
+      const anomalies = await this.anomalyRepository.find({
+        where: {
+          vehicle: {
+            veId: In(veIdArray),
+          },
+          date: date,
         },
-        date: date,
-      },
-      relations: {
-        vehicle: {
-          worksite: true,
+        relations: {
+          vehicle: {
+            worksite: true,
+          },
         },
-      },
-      order: {
-        vehicle: {
-          plate: 'ASC',
+        order: {
+          vehicle: {
+            plate: 'ASC',
+          },
         },
-      },
-    });
+      });
 
-    return this.toDTO(anomalies);
+      return this.toDTO(anomalies);
+    } catch (error) {
+      throw new HttpException(
+        `Errore durante recupero delle anomalie`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   /**
    * Restituisce le anomalie in base al range temporale di inserimento
-   * @param veId id dei veicoli da recuperare
+   * @param userId user id
    * @param dateFrom data inizio ricerca
    * @param dateTo data fine ricerca
    * @returns
    */
   async getAnomalyByDateRange(
-    veId: number[] | number,
+    userId: number,
     dateFrom: Date,
     dateTo: Date,
   ): Promise<any> {
-    const veIdArray = Array.isArray(veId) ? veId : [veId];
-    dateFrom.setHours(0, 0, 0, 0);
-    dateTo.setHours(0, 0, 0, 0);
-    const anomalies = await this.anomalyRepository.find({
-      where: {
-        vehicle: {
-          veId: In(veIdArray),
+    const vehicles =
+      await this.associationService.getVehiclesAssociateUserRedis(userId);
+    if (!vehicles || vehicles.length === 0)
+      throw new HttpException(
+        'Nessun veicolo associato per questo utente',
+        HttpStatus.NOT_FOUND,
+      );
+    try {
+      const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
+      const veIdArray = Array.isArray(vehicleIds) ? vehicleIds : [vehicleIds];
+      dateFrom.setHours(0, 0, 0, 0);
+      dateTo.setHours(0, 0, 0, 0);
+      const anomalies = await this.anomalyRepository.find({
+        where: {
+          vehicle: {
+            veId: In(veIdArray),
+          },
+          date: Between(dateFrom, dateTo),
         },
-        date: Between(dateFrom, dateTo),
-      },
-      relations: {
-        vehicle: {
-          worksite: true,
+        relations: {
+          vehicle: {
+            worksite: true,
+          },
         },
-      },
-      order: {
-        vehicle: {
-          plate: 'ASC',
+        order: {
+          vehicle: {
+            plate: 'ASC',
+          },
         },
-      },
-    });
-    return this.toDTO(anomalies);
+      });
+      return this.toDTO(anomalies);
+    } catch (error) {
+      throw new HttpException(
+        `Errore durante recupero delle anomalie`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
   /**
    * Imposta le anomalie di ieri su Redis per recupero veloce
    * @param anomalies
    */
-  async setDayBeforeAnomalyRedis(anomalies: any) {
-    for (const anomaly of anomalies) {
-      const key = `dayBeforeAnomaly:${anomaly.vehicle.veId}`;
-      await this.redis.set(key, JSON.stringify(anomaly));
+  // async setDayBeforeAnomalyRedis(anomalies: any) {
+  //   for (const anomaly of anomalies) {
+  //     const key = `dayBeforeAnomaly:${anomaly.vehicle.veId}`;
+  //     await this.redis.set(key, JSON.stringify(anomaly));
+  //   }
+  //   return true;
+  // }
+
+  /**
+   * Recupera le anomalie odierne da redis, se non sono presenti le prende dal database (fallback)
+   * @param userId id utente
+   * @param dateFrom data di quando recuperare
+   * @returns
+   */
+  async getTodayAnomalyRedis(userId: number, dateFrom: Date): Promise<any> {
+    const vehicles =
+      await this.associationService.getVehiclesAssociateUserRedis(userId);
+    if (!vehicles || vehicles.length === 0)
+      throw new HttpException(
+        'Nessun veicolo associato per questo utente',
+        HttpStatus.NOT_FOUND,
+      );
+    const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
+    try {
+      const lastUpdate = await this.redis.get('todayAnomaly:lastUpdate');
+      const redisPromises = vehicleIds.map(async (id) => {
+        const key = `todayAnomaly:${id}`;
+        try {
+          const data = await this.redis.get(key);
+          return data ? JSON.parse(data) : null;
+        } catch (error) {
+          throw new HttpException(
+            `Errore durante recupero delle anomalie da redis`,
+            HttpStatus.INTERNAL_SERVER_ERROR,
+          );
+        }
+      });
+      let anomalies = (await Promise.all(redisPromises)).filter(Boolean);
+      anomalies = sortRedisData(anomalies);
+      if (!anomalies || anomalies.length === 0) {
+        anomalies = await this.getAnomalyByDate(userId, dateFrom);
+      }
+      return { lastUpdate, anomalies };
+    } catch (error) {
+      throw new HttpException(
+        `Errore durante recupero delle anomalie`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
-    return true;
   }
   /**
    * Imposta anomalie di oggi su Redis per recupero veloce
@@ -210,6 +320,47 @@ export class AnomalyService {
     await this.redis.set(key, new Date().toISOString());
     return true;
   }
+
+  /**
+   * Recupera le ultime anomalie da redis, se non trova va in fallback sul database
+   * @param userId user id
+   * @returns
+   */
+  async getLastAnomalyRedis(userId: number): Promise<any> {
+    const vehicles =
+      await this.associationService.getVehiclesAssociateUserRedis(userId);
+    if (!vehicles || vehicles.length === 0)
+      throw new HttpException(
+        'Nessun veicolo associato per questo utente',
+        HttpStatus.NOT_FOUND,
+      );
+    const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
+    try {
+      const redisPromises = vehicleIds.map(async (id) => {
+        const key = `lastAnomaly:${id}`;
+        try {
+          const data = await this.redis.get(key);
+          return data ? JSON.parse(data) : null;
+        } catch (error) {
+          throw new HttpException(
+            `Errore durante recupero delle anomalie da redis`,
+            HttpStatus.INTERNAL_SERVER_ERROR,
+          );
+        }
+      });
+      let anomalies = (await Promise.all(redisPromises)).filter(Boolean);
+      anomalies = sortRedisData(anomalies);
+      if (!anomalies || anomalies.length === 0) {
+        anomalies = await this.getLastAnomaly(userId);
+      }
+      return anomalies;
+    } catch (error) {
+      throw new HttpException(
+        `Errore durante recupero delle anomalie`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
   /**
    * imposta le ultime anomalie su Redis per un recupero veloce
    * @param anomalies
@@ -222,6 +373,7 @@ export class AnomalyService {
     }
     return true;
   }
+
   /**
    * Funzione per creare una anomalia, in base ai dati passati come parametro, vengono salvate
    * pure le anomalie nulle per indicare che il mezzo ha lavorato
@@ -323,7 +475,10 @@ export class AnomalyService {
       await queryRunner.commitTransaction();
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      console.error('Errore nel inserimento nuova anomalia: ' + error);
+      throw new HttpException(
+        'Errore durante la creazione della anomalia',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     } finally {
       await queryRunner.release();
     }
