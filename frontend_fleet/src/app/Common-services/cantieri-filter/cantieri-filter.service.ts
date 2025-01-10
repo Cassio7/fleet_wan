@@ -58,9 +58,7 @@ export class CantieriFilterService{
         return true;
       });
 
-    console.log("let listaCantieri: ", listaCantieri);
     this.listaCantieri = ["Seleziona tutto", ...listaCantieri];
-    console.log("this listaCantieri: ", this.listaCantieri);
 
     return listaCantieri;
 }
@@ -69,48 +67,46 @@ export class CantieriFilterService{
   /**
    * Filtra un array di veicoli in base al valore del filtro sui cantieri
    * @param vehicles veicoli sui quali applicare il filtro
-   * @param worksites cantieri per cui filtrare (se passato un array vuoto, utilizza i cantieri salvati nel sessionstorage)
+   * @param worksites cantieri per cui filtrare (presenza di opzione "Seleziona tutto" gestita)
    * @returns array di veicoli filtrati
    */
-  filterVehiclesByCantieri(vehiclesData:  VehicleData[], worksites: string[]) {
-    const vehicles = vehiclesData.map(obj => {
-      return obj.vehicle;
-    });
+  filterVehiclesByCantieri(vehiclesData: VehicleData[], worksites: string[]): VehicleData[] {
     const cantieri: string[] = worksites || [];
     const allVehicles = JSON.parse(this.sessionStorageService.getItem("allData"));
 
     if (cantieri.includes("Seleziona tutto")) {
-      if(this.errorGraphsService.checkBlackBoxSlice()){
+      if (this.errorGraphsService.checkBlackBoxSlice()) {
         return this.errorGraphsService.checkBlackBoxSlice();
       }
 
-      if(this.blackboxGraphsService.checkErrorGraphSlice()){
+      if (this.blackboxGraphsService.checkErrorGraphSlice()) {
         return this.blackboxGraphsService.checkErrorGraphSlice();
       }
 
-      return allVehicles;// Ritorna tutti i veicoli
+      return allVehicles; // Return all vehicles
     }
 
-    // Se è stata selezionata un'opzione e non è la selezione di tutto, filtra in base all'opzione
+    // If one or more worksite options are selected, filter based on the selected worksites
     if (cantieri.length > 0) {
       const cantieriLower = cantieri
-        .filter(cantiere => typeof cantiere === "string") // Filtra solo stringhe
-        .map(cantiere => cantiere.toLowerCase()); // Array di cantieri trasformato con lettere tutte minuscole
+        .filter(cantiere => typeof cantiere === "string") // Filter out non-string items
+        .map(cantiere => cantiere.toLowerCase()); // Convert worksites to lowercase
 
-      // Filtro veicoli in base a cantieri selezionati
-      const filteredVehicles = vehicles.filter(veicolo => {
-        const workSiteName = veicolo.worksite?.name;
-        if (typeof workSiteName !== "string") return false; // Salta elementi non validi
-        const workSiteLower = workSiteName.toLowerCase(); // Nome del cantiere di appartenenza del veicolo
+      // Filter the VehicleData array based on the selected worksites
+      const filteredVehicles = vehiclesData.filter(vehicleData => {
+        const workSiteName = vehicleData.vehicle.worksite?.name;
+        if (typeof workSiteName !== "string") return false; // Skip invalid worksite names
+        const workSiteLower = workSiteName.toLowerCase(); // Worksite name in lowercase
         return cantieriLower.includes(workSiteLower);
       });
 
-      return filteredVehicles; // Ritorna array di dati filtrati
+      return filteredVehicles; // Return filtered VehicleData array
     } else {
-      // Se nessuna opzione è stata selezionata
-      return []; // Ritorna un array vuoto
+      // If no worksites are selected, return an empty array
+      return []; // Return an empty array
     }
   }
+
 
   /**
    * Filtra i veicoli in base ai modelli dei veicoli selezionati.
