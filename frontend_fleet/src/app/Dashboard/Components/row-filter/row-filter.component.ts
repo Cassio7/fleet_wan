@@ -112,24 +112,25 @@ export class RowFilterComponent implements AfterViewInit{
    * @param option opzione selezionata
    */
   selectCantiere(option: string) {
-    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-    const selectedCantieri = this.cantieri.value || [];
+    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allData"));
+    let selectedCantieri = this.cantieri.value || [];
 
     if (option === "Seleziona tutto") {
       this.toggleSelectAll();
     } else {
-      //rimozione di "Seleziona tutto" solo quando una singola opzione è deselezionata
+      //rimozione seleziona tutto in caso venga deselezionata un opzione diversa da quest'ultimo
+      selectedCantieri = selectedCantieri.filter(selection => selection !== "Seleziona tutto");
+
+      //controllo se i cantieri sono tutti selezionati
       if (this.cantieriFilterService.isCantieriAllSelected()) {
         this.cantieriFilterService.allSelected = false;
-        const updatedSelections = selectedCantieri.filter(selection => selection !== "Seleziona tutto");
-        this.cantieri.setValue(updatedSelections);
+        this.cantieri.setValue(selectedCantieri);
       }
 
       const allOptions = this.cantiereFilterService.vehiclesCantieriOnce(allVehicles);
       const areAllSelected = allOptions.every(option => selectedCantieri.includes(option));
-      console.log("areAllSelected: ", areAllSelected);
 
-      //selezione di "Seleziona tutto" quando tutte le opzioni singole sono selezionate
+      //selezione di seleziona tutto in caso tutte le opzioni vengano selezionate singolarmente, non direttamente da "Seleziona tutto"
       if (areAllSelected && !selectedCantieri.includes("Seleziona tutto")) {
         selectedCantieri.unshift("Seleziona tutto");
         this.cantieri.setValue(selectedCantieri);
@@ -137,7 +138,7 @@ export class RowFilterComponent implements AfterViewInit{
       }
     }
 
-    this.cantieriFilterService.filterTableByCantiere$.next(this.cantieri.value || []); //notifica il filtro alla tabella basato sulle opzioni selezionate
+    this.cantieriFilterService.filterTableByCantiere$.next(this.cantieri.value || []); // Notify the filter to update the table
     this.cd.detectChanges();
   }
 

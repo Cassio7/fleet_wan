@@ -80,7 +80,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
 
   ngAfterViewInit(): void {
     const allVehiclesData = JSON.parse(this.sessionStorageService.getItem("allData"));
-    const tableData = this.vehicleTableData.data;
+    console.log("allVehiclesData: ", allVehiclesData);
     setTimeout(() => {
       this.handlErrorGraphClick(); // Subscribe a click nel grafico degli errori
       this.handleBlackBoxGraphClick(); // Subscribe a click nel grafico dei blackbox
@@ -94,6 +94,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     this.plateFilterService.filterByPlateResearch$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (research: string) => {
+        let tableData = this.vehicleTableData.data;
         if(this.sessionStorageService.getItem("errorSlice")){
           const errorVehicles = JSON.parse(this.sessionStorageService.getItem("errorVehicles"));
           this.vehicleTableData.data = this.plateFilterService.filterVehiclesByPlateResearch(research, errorVehicles);
@@ -103,6 +104,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
         }else{
           this.vehicleTableData.data = this.plateFilterService.filterVehiclesByPlateResearch(research, tableData);
         }
+        tableData = this.vehicleTableData.data;
         this.vehicleTable.renderRows();
         this.loadGraphs(this.vehicleTableData.data);
       },
@@ -127,39 +129,34 @@ export class TableComponent implements OnDestroy, AfterViewInit{
    * Gestisce l'aggiunta di un filtro aggiungendo i dati dei veicoli filtrati alla tabella
    */
   private handleCantiereFilter() {
-    this.cantieriFilterService.filterTableByCantiere$.pipe(takeUntil(this.destroy$), skip(1))
-      .subscribe({
-        next: (cantieri: string[]) => {
-          console.log("handle cantiere filter cantieri: ", cantieri);
-          let vehicles: VehicleData[] = [];
+    this.cantieriFilterService.filterTableByCantiere$.pipe(
+      takeUntil(this.destroy$),
+      skip(1)
+    )
+    .subscribe({
+      next: (cantieri: string[]) => {
+        let vehicles: VehicleData[] = [];
 
-          // const errorSlice = this.sessionStorageService.getItem("errorSlice");
-          // const blackboxSlice = this.sessionStorageService.getItem("blackboxSlice");
+        const allVehicles: VehicleData[] = JSON.parse(this.sessionStorageService.getItem("allData") || '[]') as VehicleData[];
 
-          // if (errorSlice) {
-          //   const errorGraphVehicles = this.blackboxGraphService.checkErrorGraphSlice();
-          //   vehicles = this.cantieriFilterService.filterVehiclesByCantieri(errorGraphVehicles, cantieri) as VehicleData[];
-          // } else if (blackboxSlice) {
-          //   const blackboxgraphVehicles = this.errorGraphService.checkBlackBoxSlice();
-          //   vehicles = this.cantieriFilterService.filterVehiclesByCantieri(blackboxgraphVehicles, cantieri) as VehicleData[];
-          // } else {
-            const allVehicles = JSON.parse(this.sessionStorageService.getItem("allData"));
-            vehicles = this.cantieriFilterService.filterVehiclesByCantieri(allVehicles, cantieri);
-          // }
-          console.log("handle cantieri filter vehcles: ", vehicles);
-          this.vehicleTableData.data = vehicles;
+        vehicles = this.cantieriFilterService.filterVehiclesByCantieri(allVehicles, cantieri);// Filtro veicoli in base ai cantieri
 
-          this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));
+        this.vehicleTableData.data = vehicles;
 
-          this.vehicleTable.renderRows();
-          this.cd.detectChanges();
-          this.loadGraphs(this.vehicleTableData.data);
-        },
-        error: error => {
-          console.error("Error receiving filter for the table: ", error);
-        }
-      });
+        this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));
+
+        this.vehicleTable.renderRows();
+        this.cd.detectChanges();
+
+        this.loadGraphs(this.vehicleTableData.data);
+      },
+      error: error => {
+        console.error("Error receiving filter for the table: ", error);
+      }
+    });
   }
+
+
 
   /**
    * Gestisce la sottoscrizione al filtro dei gps, impostando i dati della tabella di conseguenza
@@ -168,7 +165,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     this.gpsFilterService.filterTableByGps$.pipe(takeUntil(this.destroy$), skip(1))
       .subscribe({
         next: (selections: string[]) => {
-          const allVehicles = JSON.parse(this.sessionStorageService.getItem("allData"))
+          const allVehicles = JSON.parse(this.sessionStorageService.getItem("allData"));
           const tableVehicles: VehicleData[] = JSON.parse(this.sessionStorageService.getItem("tableData"));
 
           const vehicles = (tableVehicles && tableVehicles.length > 0) ? tableVehicles : allVehicles;
