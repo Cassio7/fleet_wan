@@ -97,8 +97,6 @@ export class AnomalyController {
 
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      const yesterday = new Date(today);
-      yesterday.setDate(yesterday.getDate() - 1);
 
       if (!body.dateTo) {
         return res.status(400).json({
@@ -111,6 +109,11 @@ export class AnomalyController {
           message: 'La data di fine deve essere successiva alla data di inizio',
         });
       }
+      // logica set redis giorno prima al momento dismessa
+
+      // const yesterday = new Date(today);
+      // yesterday.setDate(yesterday.getDate() - 1);
+
       // Case 1: Se dateFrom === dateTo e il giorno è oggi usare todayAnomaly
       if (dateFrom.getTime() === dateTo.getTime()) {
         if (dateFrom.getTime() === today.getTime()) {
@@ -129,6 +132,13 @@ export class AnomalyController {
             }
           });
           anomalies = (await Promise.all(redisPromises)).filter(Boolean);
+          anomalies = sortRedisData(anomalies);
+          if (!anomalies || anomalies.length === 0) {
+            anomalies = await this.anomalyService.getAnomalyByDate(
+              vehicleIds,
+              dateFrom,
+            );
+          }
         } else {
           anomalies = await this.anomalyService.getAnomalyByDate(
             vehicleIds,
@@ -136,23 +146,25 @@ export class AnomalyController {
           );
         }
       }
-      // Case 2: Se dateFrom è ieri e il dateTo è oggi usa dayBeforeAnomaly
-      else if (
-        dateFrom.getTime() === yesterday.getTime() &&
-        dateTo.getTime() === today.getTime()
-      ) {
-        const redisPromises = vehicleIds.map(async (id) => {
-          const key = `dayBeforeAnomaly:${id}`;
-          try {
-            const data = await this.redis.get(key);
-            return data ? JSON.parse(data) : null;
-          } catch (error) {
-            console.error(`Errore recupero da redis il veicolo ${id}:`, error);
-            return null;
-          }
-        });
-        anomalies = (await Promise.all(redisPromises)).filter(Boolean);
-      }
+      // logica set redis giorno prima al momento dismessa
+
+      // // Case 2: Se dateFrom è ieri e il dateTo è oggi usa dayBeforeAnomaly
+      // else if (
+      //   dateFrom.getTime() === yesterday.getTime() &&
+      //   dateTo.getTime() === today.getTime()
+      // ) {
+      //   const redisPromises = vehicleIds.map(async (id) => {
+      //     const key = `dayBeforeAnomaly:${id}`;
+      //     try {
+      //       const data = await this.redis.get(key);
+      //       return data ? JSON.parse(data) : null;
+      //     } catch (error) {
+      //       console.error(`Errore recupero da redis il veicolo ${id}:`, error);
+      //       return null;
+      //     }
+      //   });
+      //   anomalies = (await Promise.all(redisPromises)).filter(Boolean);
+      // }
       // Case 3: Se nessuno dei casi è true fa getAnomalyByDateRange
       else {
         anomalies = await this.anomalyService.getAnomalyByDateRange(
@@ -161,7 +173,6 @@ export class AnomalyController {
           dateTo,
         );
       }
-      anomalies = sortRedisData(anomalies);
       // Restituisci il risultato
       return res.status(200).json({
         lastUpdate,
@@ -267,7 +278,8 @@ export class AnomalyController {
       );
       if (!data || data.length === 0)
         return res.status(404).json({ message: 'No data' });
-      const anomalyPromises = data.flatMap((item) => {
+
+      const anomalyPromises = data.flatMap(async (item) => {
         const veId = item.veId;
         let date = null;
         let gps = null;
@@ -281,8 +293,7 @@ export class AnomalyController {
             antenna = item.sessions[0].anomalies.Antenna || null;
           }
         }
-
-        return this.anomalyService.createAnomaly(
+        return await this.anomalyService.createAnomaly(
           veId,
           date,
           gps,
@@ -290,35 +301,39 @@ export class AnomalyController {
           session,
         );
       });
-
       await Promise.all(anomalyPromises);
 
       const todaykeys = await this.redis.keys('todayAnomaly:*');
       if (todaykeys.length > 0) {
         await this.redis.del(todaykeys);
       }
-      const dayBeforekeys = await this.redis.keys('dayBeforeAnomaly:*');
-      if (dayBeforekeys.length > 0) {
-        await this.redis.del(dayBeforekeys);
-      }
+
       const vehicles = await this.vehicleService.getAllVehicles();
       const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
       const now = new Date();
-      const dayBefore = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate() - 1,
-      );
-      const yesterdayAnomalies = await this.anomalyService.getAnomalyByDate(
-        vehicleIds,
-        dayBefore,
-      );
+
       const todayAnomalies = await this.anomalyService.getAnomalyByDate(
         vehicleIds,
         now,
       );
-      await this.anomalyService.setDayBeforeAnomalyRedis(yesterdayAnomalies);
       await this.anomalyService.setTodayAnomalyRedis(todayAnomalies);
+
+      // logica set redis giorno prima al momento dismessa
+
+      // const dayBeforekeys = await this.redis.keys('dayBeforeAnomaly:*');
+      // if (dayBeforekeys.length > 0) {
+      //   await this.redis.del(dayBeforekeys);
+      // }
+      // const dayBefore = new Date(
+      //   now.getFullYear(),
+      //   now.getMonth(),
+      //   now.getDate() - 1,
+      // );
+      // const yesterdayAnomalies = await this.anomalyService.getAnomalyByDate(
+      //   vehicleIds,
+      //   dayBefore,
+      // );
+      // await this.anomalyService.setDayBeforeAnomalyRedis(yesterdayAnomalies);
 
       res.status(200).json({ message: 'Anomalie odierne aggiornate' });
     } catch (error) {
