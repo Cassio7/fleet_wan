@@ -14,7 +14,8 @@
         </div>
         <span class="nMezzi">{{ kanbanGpsService.workingVehicles.length }}</span>
       </div>
-      <mat-progress-bar mode="determinate" [value]="kanbanGpsService.workingVehicles.length" class="progress-bar working-bar" color="accent"></mat-progress-bar>
+      {{kanbanGpsService.getVehiclesPercentage(kanbanGpsService.workingVehicles).toFixed(0) + '%'}}
+      <mat-progress-bar mode="determinate" [value]="kanbanGpsService.getVehiclesPercentage(kanbanGpsService.workingVehicles)" class="progress-bar working-bar" color="accent"></mat-progress-bar>
       <div class="scrollable-list">
         <mat-list>
           <mat-list-item *ngFor="let obj of kanbanGpsService.workingVehicles">
@@ -43,7 +44,8 @@
         </div>
         <span class="nMezzi">{{ kanbanGpsService.warningVehicles.length }}</span>
       </div>
-      <mat-progress-bar mode="determinate" [value]="kanbanGpsService.warningVehicles.length" class="progress-bar"></mat-progress-bar>
+      {{kanbanGpsService.getVehiclesPercentage(kanbanGpsService.warningVehicles).toFixed(0) + '%'}}
+      <mat-progress-bar mode="determinate" [value]="kanbanGpsService.getVehiclesPercentage(kanbanGpsService.warningVehicles)" class="progress-bar"></mat-progress-bar>
       <div class="scrollable-list">
         <mat-list>
           <mat-list-item *ngFor="let obj of kanbanGpsService.warningVehicles">
@@ -70,7 +72,9 @@
         </div>
         <span class="nMezzi">{{ kanbanGpsService.errorVehicles.length }}</span>
       </div>
-      <mat-progress-bar mode="determinate" [value]="kanbanGpsService.errorVehicles.length" class="progress-bar"></mat-progress-bar>
+      {{kanbanGpsService.getVehiclesPercentage(kanbanGpsService.errorVehicles).toFixed(0) + '%'}}
+      <mat-progress-bar mode="determinate" color="warn"
+      [value]="kanbanGpsService.getVehiclesPercentage(kanbanGpsService.errorVehicles)" class="progress-bar"></mat-progress-bar>
       <div class="scrollable-list">
         <mat-list>
           <mat-list-item *ngFor="let obj of kanbanGpsService.errorVehicles">
