@@ -77,34 +77,39 @@ export class FiltersCommonService {
    * @returns veicoli filtrati
    */
   applyAllFiltersOnVehicles(vehicles: VehicleData[], filters: Filters): VehicleData[] {
-    const allData = JSON.parse(this.sessionStorageService.getItem("allData") || "[]");
-
     let filteredVehicles: VehicleData[] = [...vehicles];
     const filterResults: VehicleData[][] = [];
 
-    console.log("apply all filters filters: ", filters.gps.value);
+    console.log("apply all filters filters: ", filters.antenna.value);
 
     // Filtro per targa
     if (filters.plate) {
+      console.log("filter plate");
       const plateFiltered = this.plateFilterService.filterVehiclesByPlateResearch(filters.plate, vehicles);
-      filterResults.push(plateFiltered);
+      if(plateFiltered.length > 0)
+        filterResults.push(plateFiltered);
     }
 
     // Filtro per cantieri
-    if (filters.cantieri.value) {
+    if (filters.cantieri.value && filters.cantieri.value.length > 0) {
+      console.log("filter cantiere");
       const cantieriFiltered = this.cantieriFilterService.filterVehiclesByCantieri(vehicles, filters.cantieri.value);
-      filterResults.push(cantieriFiltered);
+      if(cantieriFiltered.length > 0)
+        filterResults.push(cantieriFiltered);
     }
 
     // Filtro per stato GPS
     if (filters.gps.value) {
+      console.log("filter gps");
       const gpsCheck = this.checkErrorsService.checkVehiclesGpsErrors(vehicles);
       const gpsFiltered = this.filterByStatus(gpsCheck, filters.gps.value, "GPS");
-      filterResults.push(gpsFiltered);
+      if(gpsFiltered.length > 0)
+        filterResults.push(gpsFiltered);
     }
 
     // Filtro per stato antenna
     if (filters.antenna.value) {
+      console.log("filter antenna");
       const antennaCheck = this.checkErrorsService.checkVehiclesAntennaErrors(vehicles);
       const antennaErrors = this.filterByStatus(antennaCheck, filters.antenna.value, "antenna");
       let antennaData = antennaErrors;
@@ -112,14 +117,22 @@ export class FiltersCommonService {
         const blackboxData = this.blackboxGraphService.getAllRFIDVehicles(vehicles);
         antennaData = [...antennaErrors, ...blackboxData.blackboxOnly];
       }
-      filterResults.push(antennaData);
+      if(antennaData.length > 0)
+        filterResults.push(antennaData);
     }
 
     // Filtro per stato sessione
     if (filters.sessione.value) {
+      console.log("filter sessione");
       const sessionCheck = this.checkErrorsService.checkVehiclesSessionErrors(vehicles);
       const sessionFiltered = this.filterByStatus(sessionCheck, filters.sessione.value, "sessione");
-      filterResults.push(sessionFiltered);
+      if(sessionFiltered.length > 0)
+        filterResults.push(sessionFiltered);
+    }
+    console.log("filterResults: ", filterResults);
+
+    if(filterResults.length <= 0){
+      return [];
     }
 
     // Calcolo dell'intersezione solo sui filtri applicati
@@ -131,6 +144,8 @@ export class FiltersCommonService {
     console.log("filteredVehicles: ", filteredVehicles);
     return filteredVehicles;
   }
+
+
 
 
   /**
