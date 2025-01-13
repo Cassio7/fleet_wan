@@ -14,6 +14,8 @@ import { skip, Subject, takeUntil } from 'rxjs';
 import { PlateFilterService } from '../../../Common-services/plate-filter/plate-filter.service';
 import { Filters, FiltersCommonService } from '../../../Common-services/filters-common/filters-common.service';
 import { VehicleData } from '../../../Models/VehicleData';
+import { GpsFilterService } from '../../../Common-services/gps-filter/gps-filter.service';
+import { GpsGraphService } from '../../Services/gps-graph/gps-graph.service';
 
 @Component({
   selector: 'app-kanban-gps',
@@ -39,6 +41,7 @@ export class KanbanGpsComponent implements AfterViewInit, OnDestroy{
     private plateFilterService: PlateFilterService,
     private filtersCommonService: FiltersCommonService,
     private sessionStorageService: SessionStorageService,
+    private gpsGraphService: GpsGraphService,
     private cd: ChangeDetectorRef
   ){}
 
@@ -55,6 +58,7 @@ export class KanbanGpsComponent implements AfterViewInit, OnDestroy{
     .subscribe((filters: Filters)=>{
       kanbanVehicles = this.filtersCommonService.applyAllFiltersOnVehicles(allData, filters);
       this.kanbanGpsService.setKanbanData(kanbanVehicles);
+      this.gpsGraphService.loadChartData$.next(kanbanVehicles);
     });
     this.kanbanGpsService.setKanbanData(kanbanVehicles);
   }

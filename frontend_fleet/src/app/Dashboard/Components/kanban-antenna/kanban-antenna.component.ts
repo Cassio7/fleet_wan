@@ -15,6 +15,8 @@ import { SessionStorageService } from '../../../Common-services/sessionStorage/s
 import { VehicleData } from '../../../Models/VehicleData';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Filters, FiltersCommonService } from '../../../Common-services/filters-common/filters-common.service';
+import { AntennaFilterService } from '../../../Common-services/antenna-filter/antenna-filter.service';
+import { AntennaGraphService } from '../../Services/antenna-graph/antenna-graph.service';
 
 @Component({
   selector: 'app-kanban-antenna',
@@ -41,6 +43,7 @@ export class KanbanAntennaComponent implements AfterViewInit, OnDestroy{
     public kanbanAntennaService: KanbanAntennaService,
     private filtersCommonService: FiltersCommonService,
     private sessionStorageService: SessionStorageService,
+    private antenanGraphService: AntennaGraphService,
     private cd: ChangeDetectorRef
   ){}
 
@@ -57,6 +60,7 @@ export class KanbanAntennaComponent implements AfterViewInit, OnDestroy{
     .subscribe((filters: Filters)=>{
       kanbanVehicles = this.filtersCommonService.applyAllFiltersOnVehicles(allData, filters);
       this.kanbanAntennaService.setKanbanData(kanbanVehicles);
+      this.antenanGraphService.loadChartData$.next(kanbanVehicles);
     });
     this.kanbanAntennaService.setKanbanData(kanbanVehicles);
   }

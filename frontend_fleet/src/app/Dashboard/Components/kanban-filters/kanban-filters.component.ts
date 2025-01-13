@@ -44,10 +44,10 @@ export class KanbanFiltersComponent implements AfterViewInit{
   cantieri = new FormControl<string[]>([]);
   private activeFilters: Filters = {
     plate: '',
-    cantieri: [],
-    gps: null,
-    antenna: null,
-    sessione: null
+    cantieri: this.cantieri,
+    gps: new FormControl(null),
+    antenna: new FormControl(null),
+    sessione: new FormControl(null)
   }
   //tracciatori di kanban
   private kanbanGps: boolean = false;
@@ -103,13 +103,12 @@ export class KanbanFiltersComponent implements AfterViewInit{
    * @param emptyButtonClick se la funzione è stata chiamata dalla premuta del bottone per svuotare il campo
    */
   searchPlates(emptyButtonClick: boolean){
-    let selectedCantieri = this.cantieri.value || [];
     const filters: Filters = {
       plate: this.plate,
-      cantieri: selectedCantieri,
-      gps: null,
-      antenna: null,
-      sessione: null,
+      cantieri: this.cantieri,
+      gps: new FormControl(null),
+      antenna: new FormControl(null),
+      sessione: new FormControl(null),
     }
     //se è stato premuto il bottone per svuotare il campo
     if(emptyButtonClick){
@@ -129,13 +128,6 @@ export class KanbanFiltersComponent implements AfterViewInit{
   selectCantiere(option: string) {
     const allVehicles = JSON.parse(this.sessionStorageService.getItem("allData"));
     let selectedCantieri = this.cantieri.value || [];
-    const filters: Filters = {
-      plate: this.plate,
-      cantieri: selectedCantieri,
-      gps: null,
-      antenna: null,
-      sessione: null,
-    }
 
     if (option === "Seleziona tutto") {
       this.toggleSelectAllCantieri();
@@ -162,6 +154,14 @@ export class KanbanFiltersComponent implements AfterViewInit{
       this.gpsGraphService.loadChartData$.next(cantieriFilteredVehicles);
     }else if(this.kanbanAntenna){
       this.antennaGraphService.loadChartData$.next(cantieriFilteredVehicles);
+    }
+
+    const filters: Filters = {
+      plate: this.plate,
+      cantieri: this.cantieri,
+      gps: new FormControl(null),
+      antenna: new FormControl(null),
+      sessione: new FormControl(null),
     }
 
     this.filtersCommonService.applyFilters$.next(filters);
