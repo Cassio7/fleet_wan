@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { Vehicle } from '../../Models/Vehicle';
 import { BehaviorSubject } from 'rxjs';
 import { VehicleData } from '../../Models/VehicleData';
 
@@ -10,7 +9,8 @@ export class PlateFilterService {
 
   private readonly _filterByPlateResearch$: BehaviorSubject<string> = new BehaviorSubject<string>("");
 
-  constructor() { }
+  constructor(
+  ) { }
 
   /**
    * Filtra i veicoli passati per parametro in base alla targa ed ad un input di ricerca su quest'ultima
@@ -24,6 +24,7 @@ export class PlateFilterService {
       obj.vehicle.plate.toLowerCase().replace(/\s+/g, '').includes(searchTextLower)
     );
   }
+
 
   /**
    * Filtra i veicoli in base alle targhe dei veicoli selezionati.

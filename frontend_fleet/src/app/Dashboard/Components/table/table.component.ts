@@ -103,7 +103,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
           const blackboxVehicles = JSON.parse(this.sessionStorageService.getItem("blackboxVehicles"));
           this.vehicleTableData.data = this.plateFilterService.filterVehiclesByPlateResearch(research, blackboxVehicles);
         }else{
-          this.vehicleTableData.data = this.plateFilterService.filterVehiclesByPlateResearch(research, tableData);
+          this.vehicleTableData.data = this.plateFilterService.filterVehiclesByPlateResearch(research, allVehiclesData);
         }
         tableData = this.vehicleTableData.data; //dati della tabella dopo il filtro x sessionStorage
         this.sessionStorageService.setItem("tableData", JSON.stringify(tableData)); //impostazione su sessionStorage
