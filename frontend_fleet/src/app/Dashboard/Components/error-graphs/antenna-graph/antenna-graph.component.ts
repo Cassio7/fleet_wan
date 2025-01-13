@@ -125,23 +125,14 @@ export class AntennaGraphComponent {
   ngAfterViewInit(): void {
     const allData = JSON.parse(this.sessionStorageService.getItem("allData"));
     this.initializeGraph(allData);
-    this.plateFilterService.filterByPlateResearch$.pipe(takeUntil(this.destroy$), skip(1))
-    .subscribe({
-      next: (research: string)=>{
-        const plateFilteredVehicles = this.plateFilterService.filterVehiclesByPlateResearch(research, allData);
-        this.initializeGraph(plateFilteredVehicles);
-      },
-      error: error => console.error("Errore nel filtro per la targa: ",error)
-    });
     this.antennaGraphService.loadChartData$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
-      next: (vehicles: VehicleData[]) => {
+      next:(vehicles: VehicleData[]) => {
         this.initializeGraph(vehicles);
         this.cd.detectChanges();
       },
-      error: error => console.error("Errore nel caricamento del grafico delle antenne: ", error)
+      error: error => console.error("Errore nel caricamento del grafico GPS: ", error)
     });
-    this.chartOptions.series = [];
     this.cd.detectChanges();
   }
 }

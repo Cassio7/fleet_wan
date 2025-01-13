@@ -130,7 +130,7 @@ export class ErrorPieGraphComponent implements AfterViewInit, OnDestroy{
     //sottoscrizione al subject x caricare i dati del grafico
     this.errorGraphsService.loadGraphData$.pipe(skip(1),takeUntil(this.destroy$))
     .subscribe({
-      next: (series: any[]) => {
+      next: (series: number[]) => {
         this.nVehicles = 0; //azzeramento contatore
         this.chartOptions.series = series; //ottenere i dati del grafico
 

@@ -18,6 +18,7 @@ import { GpsFilterService } from '../../../Common-services/gps-filter/gps-filter
 import { AntennaFilterService } from '../../../Common-services/antenna-filter/antenna-filter.service';
 import { SortService } from '../../../Common-services/sort/sort.service';
 import { VehicleData } from '../../../Models/VehicleData';
+import { Filters, FiltersCommonService } from '../../../Common-services/filters-common/filters-common.service';
 
 @Component({
   selector: 'app-row-filter',
@@ -49,6 +50,7 @@ export class RowFilterComponent implements AfterViewInit{
   sessionStates = new FormControl<string[]>([]);
 
   constructor(
+    private filtersCommonService: FiltersCommonService,
     private plateFilterService: PlateFilterService,
     public cantieriFilterService: CantieriFilterService,
     public gpsFilterService: GpsFilterService,
@@ -81,29 +83,50 @@ export class RowFilterComponent implements AfterViewInit{
       this.cantieriFilterService.updateListaCantieri(allVehicles);
       this.toggleSelectAll();
     } else {
-      console.log("No data found in sessionStorage for 'allData'");
     }
 
-    // Sottoscrizione a subject per aggiornare la lista dei cantieri
-    this.cantieriFilterService.updateCantieriFilterOptions$
-      .pipe(takeUntil(this.destroy$), skip(1))
-      .subscribe({
-        next: (vehicles: any[]) => {
-          this.cantieriFilterService.updateListaCantieri(vehicles);
-        }
-      });
-
-    // Sottoscrizione per il filtro GPS
-    this.gpsFilterService.updateGpsFilterOptions$
-      .pipe(takeUntil(this.destroy$), skip(1))
-      .subscribe({
-        next: (selectedOptions: string[]) => {
-          this.gps.setValue(selectedOptions);
-        }
-      });
+    this.handleAllFiltersOptionsUpdate();
 
     // Aggiornamento del change detection (solitamente solo se ci sono modifiche dirette al DOM)
     this.cd.detectChanges();
+  }
+
+  private handleAllFiltersOptionsUpdate(){
+    // Sottoscrizione a subject per aggiornare la lista dei cantieri
+    this.cantieriFilterService.updateCantieriFilterOptions$
+    .pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next: (vehicles: any[]) => {
+        this.cantieriFilterService.updateListaCantieri(vehicles);
+      }
+    });
+
+    // Sottoscrizione per il filtro GPS
+    this.gpsFilterService.updateGpsFilterOptions$
+    .pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next: (selectedOptions: string[]) => {
+        this.gps.setValue(selectedOptions);
+      }
+    });
+
+    // Sottoscrizione per il filtro antenna
+    this.antennaFilterService.updateAntennaOptions$
+    .pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next: (selectedOptions: string[]) => {
+        this.antenne.setValue(selectedOptions);
+      }
+    });
+
+    // Sottoscrizione per il filtro sessione
+    this.sessionFilterService.updateSessionOptions$
+    .pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next: (selectedOptions: string[]) => {
+        this.sessionStates.setValue(selectedOptions);
+      }
+    });
   }
 
 
@@ -137,8 +160,14 @@ export class RowFilterComponent implements AfterViewInit{
         this.cantieriFilterService.allSelected = true;
       }
     }
-
-    this.cantieriFilterService.filterTableByCantiere$.next(this.cantieri.value || []); // Notify the filter to update the table
+    const filters: Filters = {
+      plate: this.plate,
+      cantieri: this.cantieri,
+      gps: this.gps,
+      antenna: this.antenne,
+      sessione: this.sessionStates
+    }
+    this.filtersCommonService.applyFilters$.next(filters);
     this.cd.detectChanges();
   }
 
@@ -171,7 +200,14 @@ export class RowFilterComponent implements AfterViewInit{
       }
     }
 
-    this.gpsFilterService.filterTableByGps$.next(this.gps.value || []);//notifica il filtro alla tabella basato sulle opzioni selezionate
+    const filters: Filters = {
+      plate: this.plate,
+      cantieri: this.cantieri,
+      gps: this.gps,
+      antenna: this.antenne,
+      sessione: this.sessionStates
+    }
+    this.filtersCommonService.applyFilters$.next(filters);
     this.cd.detectChanges();
   }
 
@@ -201,7 +237,14 @@ export class RowFilterComponent implements AfterViewInit{
         this.antennaFilterService.allSelected = true;
       }
     }
-    this.antennaFilterService.filterTableByAntenna$.next(this.antenne.value || []); //notifica di filtrare tabella in base al filtro delle antenne
+    const filters: Filters = {
+      plate: this.plate,
+      cantieri: this.cantieri,
+      gps: this.gps,
+      antenna: this.antenne,
+      sessione: this.sessionStates
+    }
+    this.filtersCommonService.applyFilters$.next(filters);
     this.cd.detectChanges();
   }
 
@@ -217,7 +260,7 @@ export class RowFilterComponent implements AfterViewInit{
         this.gps.setValue(selectedSessionStates.filter(selection => selection !== "Seleziona tutto"));
       }
 
-      const allOptions = ["Funzionante", "Warning", "Errore"];
+      const allOptions = ["Funzionante", "Errore"];
       const areAllSelected = allOptions.every(option => selectedSessionStates.includes(option));
 
       //selezione di "Seleziona tutto" quando tutte le opzioni singole sono selezionate
@@ -227,8 +270,14 @@ export class RowFilterComponent implements AfterViewInit{
         this.sessionFilterService.allSelected = true;
       }
     }
-
-    this.sessionFilterService.filterTableBySessionStates$.next(this.sessionStates.value || []);//notifica il filtro alla tabella basato sulle opzioni selezionate
+    const filters: Filters = {
+      plate: this.plate,
+      cantieri: this.cantieri,
+      gps: this.gps,
+      antenna: this.antenne,
+      sessione: this.sessionStates
+    }
+    this.filtersCommonService.applyFilters$.next(filters);
     this.cd.detectChanges();
   }
 
@@ -239,16 +288,6 @@ export class RowFilterComponent implements AfterViewInit{
     }else{
       this.sessionStates.setValue([]);
     }
-  }
-
-  /**
-   * Seleziona tutti i filtri del select dei cantieri
-   */
-  toggleSelectAll() {
-    this.cantieri.setValue(this.cantieriFilterService.toggleSelectAllCantieri());
-    this.toggleSelectAllGps()
-    this.toggleSelectAllAntenne();
-    this.toggleSelectAllSession();
   }
 
   /**
@@ -274,15 +313,13 @@ export class RowFilterComponent implements AfterViewInit{
   }
 
   /**
-   * Aggiorna le opzioni selezionate dei cantieri
-   * @param vehicles veicoli da controllare
+   * Seleziona tutti i filtri del select dei cantieri
    */
-  updateAllFiltersSelectedOptions(vehicles: VehicleData[]){
-    const data = vehicles || JSON.parse(this.sessionStorageService.getItem("tableData"));
-    console.log(this.sortService.sortVehiclesByCantiereDesc(data));
-    this.cantieri.setValue(["Seleziona tutto", ...this.cantiereFilterService.vehiclesCantieriOnce(this.sortService.sortVehiclesByCantiereDesc(data))]);
-    this.gps.setValue(["Seleziona tutto", ...this.gpsFilterService.updateSelectedOptions(data)]);
-    this.antenne.setValue(["Seleziona tutto", ...this.antennaFilterService.updateSelectedOptions(data)]);
+  toggleSelectAll() {
+    this.cantieri.setValue(this.cantieriFilterService.toggleSelectAllCantieri());
+    this.toggleSelectAllGps()
+    this.toggleSelectAllAntenne();
+    this.toggleSelectAllSession();
   }
 
   /**
@@ -298,11 +335,25 @@ export class RowFilterComponent implements AfterViewInit{
    * @param emptyButtonClick se la funzione è stata chiamata dalla premuta del bottone per svuotare il campo
    */
   searchPlates(emptyButtonClick: boolean){
+    let filters: Filters;
     if(emptyButtonClick){
-      this.plateFilterService.filterByPlateResearch$.next("");
+      filters = {
+        plate: "",
+        cantieri: new FormControl(null),
+        gps: new FormControl(null),
+        antenna: new FormControl(null),
+        sessione: new FormControl(null)
+      }
       this.plate = "";
     }else{
-      this.plateFilterService.filterByPlateResearch$.next(this.plate);
+      filters = {
+        plate: this.plate,
+        cantieri: this.cantieri,
+        gps: this.gps,
+        antenna: this.antenne,
+        sessione: this.sessionStates
+      }
     }
+    this.filtersCommonService.applyFilters$.next(filters);
   }
 }

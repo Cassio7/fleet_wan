@@ -7,6 +7,7 @@ import { SessionStorageService } from '../../../../Common-services/sessionStorag
 import { PlateFilterService } from '../../../../Common-services/plate-filter/plate-filter.service';
 import { CheckErrorsService } from '../../../../Common-services/check-errors/check-errors.service';
 import { VehicleData } from '../../../../Models/VehicleData';
+import { FiltersCommonService } from '../../../../Common-services/filters-common/filters-common.service';
 
 @Component({
   selector: 'app-gps-graph',
@@ -26,7 +27,7 @@ export class GpsGraphComponent implements AfterViewInit{
   constructor(
     private gpsGraphService: GpsGraphService,
     private checkErrorsService: CheckErrorsService,
-    private errorGraphsService: ErrorGraphsService,
+    private filtersCommonService: FiltersCommonService,
     private plateFilterService: PlateFilterService,
     private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef
@@ -125,14 +126,6 @@ export class GpsGraphComponent implements AfterViewInit{
   ngAfterViewInit(): void {
     const allData = JSON.parse(this.sessionStorageService.getItem("allData"));
     this.initializeGraph(allData);
-    this.plateFilterService.filterByPlateResearch$.pipe(takeUntil(this.destroy$), skip(1))
-    .subscribe({
-      next: (research: string)=>{
-        const plateFilteredVehicles = this.plateFilterService.filterVehiclesByPlateResearch(research, allData);
-        this.initializeGraph(plateFilteredVehicles);
-      },
-      error: error => console.error("Errore nel filtro per la targa: ",error)
-    });
     this.gpsGraphService.loadChartData$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next:(vehicles: VehicleData[]) => {

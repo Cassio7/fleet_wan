@@ -3,15 +3,26 @@ import { BehaviorSubject } from 'rxjs';
 import { CheckErrorsService } from '../check-errors/check-errors.service';
 import { VehicleData } from '../../Models/VehicleData';
 
+export interface blackboxData {
+  sliceSelected: string;
+  blackboxOnly: VehicleData[];
+  blackboxWithAntenna: VehicleData[];
+}
 @Injectable({
   providedIn: 'root'
 })
 export class AntennaFilterService {
 private readonly _filterTableByAntenna$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
+  private readonly _updateAntennaOptions$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
+
   private _allSelected: boolean = false;
   private _allOptions: string[] = ["Funzionante", "Errore", "Blackbox"];
   private _selectedOptions: string[] = [];
-
+  private blackboxData: blackboxData = {
+    sliceSelected: "",
+    blackboxOnly: [] as any[],
+    blackboxWithAntenna: [] as any[]
+  }
   constructor(
     private checkErrorsService: CheckErrorsService
   ) { }
@@ -37,7 +48,7 @@ private readonly _filterTableByAntenna$: BehaviorSubject<string[]> = new Behavio
   updateSelectedOptions(vehicles: VehicleData[]){
     this.selectedOptions = [];
     const antennaErrorsCheck = this.checkErrorsService.checkVehiclesAntennaErrors(vehicles);
-    const antennaPresenceCheck = this.checkRFIDVehicles(vehicles);
+    const antennaPresenceCheck = this.getAllRFIDVehicles(vehicles);
 
     if(antennaErrorsCheck[0].length>0){
       this.selectedOptions.push("Funzionante");
@@ -45,7 +56,7 @@ private readonly _filterTableByAntenna$: BehaviorSubject<string[]> = new Behavio
     if(antennaErrorsCheck[1].length>0){
       this.selectedOptions.push("Errore");
     }
-    if(antennaPresenceCheck.length>0){
+    if(antennaPresenceCheck.blackboxOnly.length>0){
       this.selectedOptions.push("Blackbox");
     }
 
@@ -53,16 +64,28 @@ private readonly _filterTableByAntenna$: BehaviorSubject<string[]> = new Behavio
       this.selectedOptions.push("Seleziona tutto");
     }
 
+    this.updateAntennaOptions$.next(this.selectedOptions);
+
     return this.selectedOptions;
   }
 
   /**
-   * Controlla i veicoli con antenna RFID
-   * @param vehicles veicoli da controllare
-   * @returns solo i veicoli con antenna RFID montata
+   * Prende tutti i veicoli su cui è stata montata un antenna per leggere i tag
+   * @param vehicles oggetto custom di veicoli
+   * @returns un oggetto di tipo blackboxData che contiene i veicoli con solo blackbox e con blackbox + antenna
    */
-  checkRFIDVehicles(vehiclesData: VehicleData[]){
-    return vehiclesData.filter(obj => obj.vehicle.isRFIDReader === true);
+  public getAllRFIDVehicles(vehiclesData: VehicleData[]): blackboxData {
+    this.blackboxData = {
+      sliceSelected: "",
+      blackboxOnly: [] as VehicleData[],
+      blackboxWithAntenna: [] as VehicleData[],
+    };
+
+    for(const v of vehiclesData){
+      v.vehicle.isRFIDReader == true ? this.blackboxData.blackboxWithAntenna.push(v) : this.blackboxData.blackboxOnly.push(v);
+    }
+
+    return this.blackboxData;
   }
 
   /**
@@ -74,6 +97,9 @@ private readonly _filterTableByAntenna$: BehaviorSubject<string[]> = new Behavio
     return this.allSelected;
   }
 
+  public get updateAntennaOptions$(): BehaviorSubject<string[]> {
+    return this._updateAntennaOptions$;
+  }
   public get allOptions(): string[] {
     return this._allOptions;
   }

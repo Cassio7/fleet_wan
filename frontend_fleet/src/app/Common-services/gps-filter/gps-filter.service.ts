@@ -56,7 +56,6 @@ export class GpsFilterService {
   updateSelectedOptions(vehicles: VehicleData[]){
     this.selectedOptions = [];
     const gpsCheck = this.checkErrorsService.checkVehiclesGpsErrors(vehicles);
-
     if(gpsCheck[0].length>0){
       this.selectedOptions.push("Funzionante");
     }
@@ -70,6 +69,8 @@ export class GpsFilterService {
     if(JSON.stringify(this.selectedOptions) == JSON.stringify(["Funzionante", "Warning", "Errore"])){
       this.selectedOptions.push("Seleziona tutto");
     }
+
+    this.updateGpsFilterOptions$.next(this.selectedOptions);
 
     return this.selectedOptions;
   }

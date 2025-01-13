@@ -1,26 +1,30 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { CheckErrorsService } from '../check-errors/check-errors.service';
+import { VehicleData } from '../../Models/VehicleData';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SessionFilterService {
-  private _allOptions: string[] = ["Funzionante", "Errore", "Nessuna sessione"];
+  private _allOptions: string[] = ["Funzionante", "Errore"];
   private _selectedOptions: string[] = [];
   private _allSelected = false;
 
   /**
-   * Trasporta le opzioni selezionate del filtro dei gps e notifica la tabella di filtrare i dati in base ai cantieri ottenuti
+   * Trasporta le opzioni selezionate del filtro della sessione e notifica la tabella di filtrare i dati in base ai cantieri ottenuti
    */
   private readonly _filterTableBySessionStates$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
+  private readonly _updateSessionOptions$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
+
 
   constructor(
-
+    private checkErrorsService: CheckErrorsService
   ) { }
 
 
   /**
-   * Seleziona / deseleziona tutti gli stati dei gps dei veicoli nel select e notifica la tabella di aggiornare i dati
+   * Seleziona / deseleziona tutti gli stati della sessione dei veicoli nel select e notifica la tabella di aggiornare i dati
    * @returns nuovo valore della lista cantieri
    */
   toggleSelectAllSessionsStates(): string{
@@ -38,7 +42,7 @@ export class SessionFilterService {
   }
 
   /**
-   * controlla se sono selezionati tutti gli stati gps
+   * controlla se sono selezionati tutti gli stati delle sessioni
    * @returns true se è tutto selezionato
    * @returns false se non è tutto selezionato
    */
@@ -47,7 +51,7 @@ export class SessionFilterService {
   }
 
   /**
-   * Seleziona / deseleziona tutti gli stati dei gps dei veicoli nel select e notifica la tabella di aggiornare i dati
+   * Seleziona / deseleziona tutti gli stati delle sessioni dei veicoli nel select e notifica la tabella di aggiornare i dati
    * @returns nuovo valore della lista cantieri
    */
   toggleSelectAllSessionStates(): string{
@@ -62,6 +66,29 @@ export class SessionFilterService {
     }
   }
 
+  updateSelectedOptions(vehicles: VehicleData[]){
+    this.selectedOptions = [];
+    const sessionErrorsCheck = this.checkErrorsService.checkVehiclesSessionErrors(vehicles);
+
+    if(sessionErrorsCheck[0].length>0){
+      this.selectedOptions.push("Funzionante");
+    }
+    if(sessionErrorsCheck[1].length>0){
+      this.selectedOptions.push("Errore");
+    }
+
+    if(JSON.stringify(this.selectedOptions) == JSON.stringify(["Funzionante", "Errore"])){
+      this.selectedOptions.push("Seleziona tutto");
+    }
+
+    this.updateSessionOptions$.next(this.selectedOptions);
+
+    return this.selectedOptions;
+  }
+
+  public get updateSessionOptions$(): BehaviorSubject<string[]> {
+    return this._updateSessionOptions$;
+  }
   public get allOptions(): string[] {
     return this._allOptions;
   }

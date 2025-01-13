@@ -4,30 +4,71 @@ import { PlateFilterService } from '../plate-filter/plate-filter.service';
 import { CantieriFilterService } from '../cantieri-filter/cantieri-filter.service';
 import { BehaviorSubject, filter } from 'rxjs';
 import { SessionStorageService } from '../sessionStorage/session-storage.service';
+import { GpsFilterService } from '../gps-filter/gps-filter.service';
+import { CheckErrorsService } from '../check-errors/check-errors.service';
+import { SessionFilterService } from '../session-filter/session-filter.service';
+import { BlackboxGraphsService } from '../../Dashboard/Services/blackbox-graphs/blackbox-graphs.service';
+import { AntennaFilterService } from '../antenna-filter/antenna-filter.service';
+import { FormControl, FormGroup } from '@angular/forms';
 
 export interface Filters {
-  plate: string | null;
-  cantieri: string[] | null;
-  gps: string[] | null;
-  antenna: string[] | null;
-  sessione: string[] | null;
+  plate: string;
+  cantieri: FormControl<string[] | null>;
+  gps: FormControl<string[] | null>;
+  antenna: FormControl<string[] | null>;
+  sessione: FormControl<string[] | null>;
 }
 @Injectable({
   providedIn: 'root'
 })
 export class FiltersCommonService {
   applyFilters$: BehaviorSubject<Filters> = new BehaviorSubject<Filters>({
-    plate: null,
-    cantieri: null,
-    gps: null,
-    antenna: null,
-    sessione: null
+    plate: "",
+    cantieri: new FormControl(null),
+    gps: new FormControl(null),
+    antenna: new FormControl(null),
+    sessione: new FormControl(null),
+  });
+
+  // Utilizza un FormGroup con tipi fortemente tipizzati
+  filtersForm = new FormGroup({
+    plate: new FormControl<string | null>(null),
+    cantieri: new FormControl<string[] | null>(null),
+    gps: new FormControl<string[] | null>(null),
+    antenna: new FormControl<string[] | null>(null),
+    sessione: new FormControl<string[] | null>(null),
   });
   constructor(
     private plateFilterService: PlateFilterService,
     private cantieriFilterService: CantieriFilterService,
+    private blackboxGraphService: BlackboxGraphsService,
+    private checkErrorsService: CheckErrorsService,
+    private gpsFilterService: GpsFilterService,
+    private antennaFilterService: AntennaFilterService,
+    private sessionFilterService: SessionFilterService,
     private sessionStorageService: SessionStorageService
   ) { }
+
+
+  /**
+   * Aggiorna tutte le opzioni di tutti i filtri in base ai veicoli passati
+   * e invia un subject per l'aggiornamento di quest'ultimi nel componente
+   * @param filteredVehicles veicoli da controllare
+   */
+  updateAllFiltersOption(filteredVehicles: VehicleData[]) {
+    const cantieriOptions = this.cantieriFilterService.vehiclesCantieriOnce(filteredVehicles);
+
+    const gpsOptions = this.gpsFilterService.updateSelectedOptions(filteredVehicles);
+    this.gpsFilterService.selectedOptions = gpsOptions;
+
+    const antennaOptions = this.antennaFilterService.updateSelectedOptions(filteredVehicles);
+    this.antennaFilterService.selectedOptions = antennaOptions;
+
+    const sessionOptions = this.sessionFilterService.updateSelectedOptions(filteredVehicles);
+    this.sessionFilterService.selectedOptions = sessionOptions;
+  }
+
+
 
   /**
    * Applica tutti i filtri sui veicoli passati
@@ -36,61 +77,112 @@ export class FiltersCommonService {
    * @returns veicoli filtrati
    */
   applyAllFiltersOnVehicles(vehicles: VehicleData[], filters: Filters): VehicleData[] {
-    console.log("filters from commmon filters service: ", filters);
-    // Array per raccogliere i veicoli filtrati da ogni filtro attivato
-    let filteredVehicles: VehicleData[][] = [];
+    const allData = JSON.parse(this.sessionStorageService.getItem("allData") || "[]");
 
-    // Applica il filtro per targa
+    let filteredVehicles: VehicleData[] = [...vehicles];
+    const filterResults: VehicleData[][] = [];
+
+    console.log("apply all filters filters: ", filters.gps.value);
+
+    // Filtro per targa
     if (filters.plate) {
-      const plateResearch = filters.plate;
-      const plateFilteredVehicles = this.plateFilterService.filterVehiclesByPlateResearch(plateResearch, vehicles);
-      console.log("attivato filtro per targa: ", plateFilteredVehicles);
-      filteredVehicles.push(plateFilteredVehicles);
+      const plateFiltered = this.plateFilterService.filterVehiclesByPlateResearch(filters.plate, vehicles);
+      filterResults.push(plateFiltered);
     }
 
-    // Applica il filtro per cantieri
-    if (filters.cantieri) {
-      const cantieri = filters.cantieri;
-      const cantieriFilteredVehicles = this.cantieriFilterService.filterVehiclesByCantieri(vehicles, cantieri);
-      console.log("attivato filtro per cantieri: ", cantieriFilteredVehicles);
-      filteredVehicles.push(cantieriFilteredVehicles);
+    // Filtro per cantieri
+    if (filters.cantieri.value) {
+      const cantieriFiltered = this.cantieriFilterService.filterVehiclesByCantieri(vehicles, filters.cantieri.value);
+      filterResults.push(cantieriFiltered);
     }
 
-    // Applica il filtro per gps
-    if (filters.gps) {
-      console.log("attivato filtro per gps");
-      const gps = filters.gps;
-      // const gpsFilteredVehicles = this.gpsFilterService.filterVehiclesByGps(vehicles, gps);
-      // filteredVehicles.push(gpsFilteredVehicles);
+    // Filtro per stato GPS
+    if (filters.gps.value) {
+      const gpsCheck = this.checkErrorsService.checkVehiclesGpsErrors(vehicles);
+      const gpsFiltered = this.filterByStatus(gpsCheck, filters.gps.value, "GPS");
+      filterResults.push(gpsFiltered);
     }
 
-    // Applica il filtro per antenna
-    if (filters.antenna) {
-      console.log("attivato filtro per antenna");
-      const antenna = filters.antenna;
-      // const antennaFilteredVehicles = this.antennaFilterService.filterVehiclesByAntenna(vehicles, antenna);
-      // filteredVehicles.push(antennaFilteredVehicles);
+    // Filtro per stato antenna
+    if (filters.antenna.value) {
+      const antennaCheck = this.checkErrorsService.checkVehiclesAntennaErrors(vehicles);
+      const antennaErrors = this.filterByStatus(antennaCheck, filters.antenna.value, "antenna");
+      let antennaData = antennaErrors;
+      if (filters.antenna.value.includes("Blackbox")) {
+        const blackboxData = this.blackboxGraphService.getAllRFIDVehicles(vehicles);
+        antennaData = [...antennaErrors, ...blackboxData.blackboxOnly];
+      }
+      filterResults.push(antennaData);
     }
 
-    // Applica il filtro per sessione
-    if (filters.sessione) {
-      console.log("attivato filtro per sessione");
-      const sessione = filters.sessione;
-      // const sessioneFilteredVehicles = this.sessioneFilterService.filterVehiclesBySessione(vehicles, sessione);
-      // filteredVehicles.push(sessioneFilteredVehicles);
+    // Filtro per stato sessione
+    if (filters.sessione.value) {
+      const sessionCheck = this.checkErrorsService.checkVehiclesSessionErrors(vehicles);
+      const sessionFiltered = this.filterByStatus(sessionCheck, filters.sessione.value, "sessione");
+      filterResults.push(sessionFiltered);
     }
 
-    // Trova l'intersezione tra tutti gli array filtrati
-    const result = filteredVehicles.reduce((intersection, currentArray) => {
-      return intersection.filter(vehicle =>
-        currentArray.some(currentVehicle => currentVehicle.vehicle.id === vehicle.vehicle.id)
-      );
-    }, vehicles);
+    // Calcolo dell'intersezione solo sui filtri applicati
+    if (filterResults.length > 0) {
+      filteredVehicles = filterResults.reduce((acc, curr) => this.intersectVehicles(acc, curr), vehicles);
+    }
 
-    console.log("Veicoli filtrati da tutti i filtri: ", result);
-    filteredVehicles = [];
-    return result;
+    this.updateAllFiltersOption(filteredVehicles);
+    console.log("filteredVehicles: ", filteredVehicles);
+    return filteredVehicles;
   }
 
 
+  /**
+   * Trova l'intersezione tra due array di veicoli
+   * @param firstArray primo array di veicoli
+   * @param secondArray secondo array di veicoli
+   * @returns intersezione tra i due array
+   */
+  private intersectVehicles(firstArray: VehicleData[], secondArray: VehicleData[]): VehicleData[] {
+    return firstArray.filter(firstVehicle =>
+      secondArray.some(secondVehicle => secondVehicle.vehicle.id === firstVehicle.vehicle.id)
+    );
+  }
+
+  /**
+   * Filtra i veicoli in base allo stato
+   * @param errorChecks controllo sugli errori
+   * @param statuses array di stringhe sugli status
+   * @param toCheck di cosa devono essere controllare gli errori
+   * @returns array di veicoli concatenato
+   */
+  private filterByStatus(errorChecks: VehicleData[][], statuses: string[], toCheck: string): VehicleData[] {
+    let result: VehicleData[] = [];
+    switch(toCheck){
+      case "GPS":
+        if (statuses.includes("Funzionante")) {
+          result = result.concat(errorChecks[0]);
+        }
+        if (statuses.includes("Warning") && errorChecks[1]) {
+          result = result.concat(errorChecks[1]);
+        }
+        if (statuses.includes("Errore") && errorChecks[2]) {
+          result = result.concat(errorChecks[2]);
+        }
+        break;
+      case "antenna":
+        if (statuses.includes("Funzionante")) {
+          result = result.concat(errorChecks[0]);
+        }
+        if (statuses.includes("Errore") && errorChecks[1]) {
+          result = result.concat(errorChecks[1]);
+        }
+        break;
+      case "sessione":
+        if (statuses.includes("Funzionante")) {
+          result = result.concat(errorChecks[0]);
+        }
+        if (statuses.includes("Errore") && errorChecks[1]) {
+          result = result.concat(errorChecks[1]);
+        }
+        break;
+    }
+    return result;
+  }
 }
