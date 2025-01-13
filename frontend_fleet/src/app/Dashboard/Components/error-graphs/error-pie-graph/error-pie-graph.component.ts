@@ -1,8 +1,9 @@
-import { ErrorGraphsService } from '../../../Services/error-graphs/error-graphs.service';
+import { ErrorGraphsService, ErrorsData } from '../../../Services/error-graphs/error-graphs.service';
 import { MatCardModule } from '@angular/material/card';
 import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, ViewChild, ViewEncapsulation } from '@angular/core';
 import { ApexChart, ApexNonAxisChartSeries, ApexResponsive, ChartComponent, NgApexchartsModule } from "ng-apexcharts";
 import { skip, Subject, takeUntil } from 'rxjs';
+import { VehicleData } from '../../../../Models/VehicleData';
 
 // export type ChartOptions = {
 //   series: ApexNonAxisChartSeries;
@@ -125,19 +126,25 @@ export class ErrorPieGraphComponent implements AfterViewInit, OnDestroy{
     this.destroy$.complete();
   }
 
+  initializeGraph(vehicles: VehicleData[]){
+    const errorsData: ErrorsData = this.errorGraphsService.loadChartData(vehicles);
+    const series = [errorsData.workingVehicles.length, errorsData.warningVehicles.length, errorsData.errorVehicles.length];
+    this.nVehicles = 0; //azzeramento contatore
+    this.chartOptions.series = series; //ottenere i dati del grafico
+
+    //somma series x ottenere numero di veicoli
+    series.forEach(value => {
+      this.nVehicles += value;
+    });
+  }
+
   ngAfterViewInit(): void {
     this.chartOptions.series = this.errorGraphsService.loadGraphData$.value; //ottenere i dati del grafico
     //sottoscrizione al subject x caricare i dati del grafico
     this.errorGraphsService.loadGraphData$.pipe(skip(1),takeUntil(this.destroy$))
     .subscribe({
-      next: (series: number[]) => {
-        this.nVehicles = 0; //azzeramento contatore
-        this.chartOptions.series = series; //ottenere i dati del grafico
-
-        //somma series x ottenere numero di veicoli
-        series.forEach(value => {
-          this.nVehicles += value;
-        });
+      next: (vehicles: VehicleData[]) => {
+        this.initializeGraph(vehicles);
 
         this.cd.detectChanges();
       },

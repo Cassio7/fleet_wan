@@ -4,7 +4,7 @@ import { SessionStorageService } from '../../../Common-services/sessionStorage/s
 import { VehicleData } from '../../../Models/VehicleData';
 import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
 
-interface ErrorsData {
+export interface ErrorsData {
   workingVehicles: any[];
   warningVehicles: any[];
   errorVehicles: any[];
@@ -113,7 +113,6 @@ export class ErrorGraphsService{
         this.firstLoad = false;
     }
 
-    this._loadGraphData$.next(this._series); //invio dati per il caricamento dei grafici
     return this.errorsData;
   }
 

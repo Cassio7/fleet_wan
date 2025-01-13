@@ -117,10 +117,10 @@ export class TableComponent implements OnDestroy, AfterViewInit{
       next: (filters: Filters) => {
         const filteredVehicles = this.filtersCommonService.applyAllFiltersOnVehicles(allData, filters);
         this.vehicleTableData.data = filteredVehicles;
-        console.log("table filteredVehicles: ", filteredVehicles);
         this.vehicleTable.renderRows();
         this.antennaGraphService.loadChartData$.next(filteredVehicles);
         this.gpsGraphService.loadChartData$.next(filteredVehicles);
+        this.errorGraphService.loadGraphData$.next(filteredVehicles);
       }
     });
   }
