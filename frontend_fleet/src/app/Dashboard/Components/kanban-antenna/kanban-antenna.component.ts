@@ -14,6 +14,7 @@ import { PlateFilterService } from '../../../Common-services/plate-filter/plate-
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { VehicleData } from '../../../Models/VehicleData';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { Filters, FiltersCommonService } from '../../../Common-services/filters-common/filters-common.service';
 
 @Component({
   selector: 'app-kanban-antenna',
@@ -38,7 +39,7 @@ export class KanbanAntennaComponent implements AfterViewInit, OnDestroy{
 
   constructor(
     public kanbanAntennaService: KanbanAntennaService,
-    private plateFilterService: PlateFilterService,
+    private filtersCommonService: FiltersCommonService,
     private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef
   ){}
@@ -49,24 +50,13 @@ export class KanbanAntennaComponent implements AfterViewInit, OnDestroy{
   }
 
   ngAfterViewInit(): void {
-    const allData = JSON.parse(this.sessionStorageService.getItem("allData"));
+    const allData: VehicleData[] = JSON.parse(this.sessionStorageService.getItem("allData"));
     let kanbanVehicles = allData;
-    this.kanbanAntennaService.loadKanbanAntennaVehicles$.pipe(takeUntil(this.destroy$), skip(1))
-    .subscribe({
-      next: (vehicles: VehicleData[]) => {
-        this.kanbanAntennaService.setKanbanData(vehicles);
-      },
-      error: error => console.error("Errore nel caricamento del kanban antenna: ", error)
-    });
-    this.plateFilterService.filterByPlateResearch$.pipe(takeUntil(this.destroy$), skip(1))
-    .subscribe({
-      next: (research: string) => {
-        kanbanVehicles = allData;
-        kanbanVehicles = this.plateFilterService.filterVehiclesByPlateResearch(research, kanbanVehicles);
-        this.kanbanAntennaService.setKanbanData(kanbanVehicles);
-        this.cd.detectChanges();
-      },
-      error: error => console.error("Errore nel filtro delle targhe: ", error)
+
+    this.filtersCommonService.applyFilters$.pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe((filters: Filters)=>{
+      kanbanVehicles = this.filtersCommonService.applyAllFiltersOnVehicles(allData, filters);
+      this.kanbanAntennaService.setKanbanData(kanbanVehicles);
     });
     this.kanbanAntennaService.setKanbanData(kanbanVehicles);
   }

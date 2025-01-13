@@ -54,10 +54,8 @@ export class KanbanGpsComponent implements AfterViewInit, OnDestroy{
     this.filtersCommonService.applyFilters$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe((filters: Filters)=>{
       kanbanVehicles = this.filtersCommonService.applyAllFiltersOnVehicles(allData, filters);
-      console.log("chiamata apply all filters");
       this.kanbanGpsService.setKanbanData(kanbanVehicles);
     });
-    console.log("kanban vehicles: ", kanbanVehicles);
     this.kanbanGpsService.setKanbanData(kanbanVehicles);
   }
 }
