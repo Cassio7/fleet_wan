@@ -58,10 +58,8 @@ export class CantieriFilterService{
         return true;
       });
 
-    this.listaCantieri = ["Seleziona tutto", ...listaCantieri];
-
     return listaCantieri;
-}
+  }
 
 
   /**
@@ -163,7 +161,7 @@ export class CantieriFilterService{
   updateListaCantieri(vehicles: VehicleData[]): string[]{
     if (Array.isArray(vehicles) && vehicles.length > 0) {
       const firstElement = this.listaCantieri[0] || null; // Elemento preesistente o null
-      const newCantieri = this.fillSelect(vehicles);
+      const newCantieri = this.vehiclesCantieriOnce(vehicles) || [];
 
       this.listaCantieri = firstElement ? [firstElement, ...newCantieri] : newCantieri;
       return this.listaCantieri;
@@ -187,14 +185,6 @@ export class CantieriFilterService{
       this.allSelected = true
       return this.listaCantieri;
     }
-  }
-
-  /**
-   * Inizializza il select per i filtri con i nomi di cantieri a cui i veicoli sono assegnati presi una sola volta
-   * @returns array di nomi di cantieri
-   */
-  private fillSelect(vehicles: any[]){
-    return vehicles ? this.vehiclesCantieriOnce(vehicles) : [];
   }
 
   /**
