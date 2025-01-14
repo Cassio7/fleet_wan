@@ -197,25 +197,28 @@ export class CheckErrorsService {
     return [workingVehicles, errorVehicles];
   }
 
-  getVehicleSessionAnomalyDate(vehicleData: VehicleData){
-      const dateFrom = new Date(this.commonService.dateFrom);
-      const dateTo = new Date(this.commonService.dateTo);
+  getVehicleSessionAnomalyDate(vehicleData: VehicleData): Date | null {
+    const dateFrom = new Date(this.commonService.dateFrom);
+    const dateTo = new Date(this.commonService.dateTo);
 
-      const anomalies: Anomaly[] = vehicleData.anomalies;
+    dateFrom.setHours(0, 0, 0, 0);
+    dateTo.setHours(0, 0, 0, 0);
 
-      //controllo sulla presenza anomalie
-      if (!anomalies) {
+    const anomalies: Anomaly[] = vehicleData.anomalies;
+
+    if (!anomalies || !Array.isArray(anomalies)) {
         return null;
-      }
+    }
 
-      const foundAnomaly: any = Object.values(anomalies).find((anomaliesObj: Anomaly) => {
+    const foundAnomaly = anomalies.find((anomaliesObj: Anomaly) => {
         const anomalyDate = new Date(anomaliesObj.date);
-        anomalyDate.setHours(0,0,0,0);
+        anomalyDate.setHours(0, 0, 0, 0);
         return anomalyDate >= dateFrom && anomalyDate <= dateTo;
-      });
+    });
 
-      return foundAnomaly ? foundAnomaly.date : null;
-  }
+    return foundAnomaly ? new Date(foundAnomaly.date) : null;
+}
+
 
   /**
    * Controlla gli errori di tutti i veicoli con sessioni in un determinato arco di tempo
