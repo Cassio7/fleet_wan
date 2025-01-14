@@ -10,7 +10,11 @@
 
   <mat-form-field class="cantieri-filter" appearance="outline">
     <mat-select [formControl]="cantieri" placeholder="Cantiere" multiple class="cantiere-input">
-      <mat-option [value]="cantiere" (click)="selectCantiere(cantiere)" *ngFor="let cantiere of cantieriFilterService.listaCantieri">
+      <mat-option
+      [value]="cantiere"
+      (click)="selectCantiere(cantiere)"
+      *ngFor="let cantiere of cantieriFilterService.listaCantieri"
+      >
         {{ cantiere }}
       </mat-option>
     </mat-select>
@@ -21,7 +25,10 @@
     <mat-select [formControl]="gps" placeholder="Stati GPS" multiple class="GPS-input">
       <mat-option value="Seleziona tutto" (click)="selectGps('Seleziona tutto')">Seleziona tutto</mat-option>
       <mat-divider></mat-divider>
-      <mat-option *ngFor="let option of gpsFilterService.allOptions" [value]="option" (click)="selectGps(option)">
+      <mat-option
+      *ngFor="let option of gpsFilterService.allOptions"
+      [value]="option"
+      (click)="selectGps(option)">
         {{ option }}
       </mat-option>
     </mat-select>
