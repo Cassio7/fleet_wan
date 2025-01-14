@@ -8,6 +8,7 @@ import { PlateFilterService } from '../../../../Common-services/plate-filter/pla
 import { CheckErrorsService } from '../../../../Common-services/check-errors/check-errors.service';
 import { VehicleData } from '../../../../Models/VehicleData';
 import { FiltersCommonService } from '../../../../Common-services/filters-common/filters-common.service';
+import { style } from '@angular/animations';
 
 @Component({
   selector: 'app-gps-graph',
@@ -70,6 +71,9 @@ export class GpsGraphComponent implements AfterViewInit{
             }
           }
         }
+      },
+      legend: {
+        position: "left"
       },
       labels: ["Funzionante", "Warning", "Error"],
       colors: this.gpsGraphService.colors,

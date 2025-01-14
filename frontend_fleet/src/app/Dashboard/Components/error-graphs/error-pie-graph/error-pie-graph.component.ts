@@ -81,6 +81,9 @@ export class ErrorPieGraphComponent implements AfterViewInit, OnDestroy{
           }
         }
       },
+      legend: {
+        position: "left"
+      },
       labels: ["Funzionante", "Warning", "Error"],
       colors: this.errorGraphsService.colors,
       responsive: [

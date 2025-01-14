@@ -70,6 +70,9 @@ export class AntennaGraphComponent {
           }
         }
       },
+      legend: {
+        position: "left"
+      },
       labels: ["Funzionante", "Error", "No antenna"],
       colors: this.antennaGraphService.colors,
       responsive: [
