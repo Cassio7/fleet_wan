@@ -225,7 +225,7 @@ export class AppService implements OnModuleInit {
     let date = null;
     let gps = null;
     let antenna = null;
-    let session = null;
+    const session = null;
 
     if (item.sessions && item.sessions[0]) {
       date = item.sessions[0].date || null;
