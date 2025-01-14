@@ -8,9 +8,15 @@
     <ng-container matColumnDef="tipologia">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Tipologia </th>
       <td mat-cell *matCellDef="let vehicleData">
-        <mat-icon style="cursor: pointer;" matTooltip="Qualche informazione sul veicolo (click per maggiori dettagli)">local_shipping</mat-icon>
-        vehice.tipologia </td>
+        <div class="plate-icon">
+          <mat-icon style="cursor: pointer;" matTooltip="Qualche informazione sul veicolo (click per maggiori dettagli)">
+            local_shipping
+          </mat-icon>
+          <span style="margin-left: 8px;">Camionetta</span> <!-- Puoi aggiungere un po' di spazio tra l'icona e il testo -->
+        </div>
+      </td>
     </ng-container>
+
 
     <!-- Targa Column -->
     <ng-container matColumnDef="targa">

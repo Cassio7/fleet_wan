@@ -49,6 +49,11 @@ td.mat-cell {
 
 /*Stile icone*/
 
+.plate-icon{
+  display: flex;
+  align-items: center;
+}
+
 .OK-container{
   display: inline-flex;
   align-items: center;
