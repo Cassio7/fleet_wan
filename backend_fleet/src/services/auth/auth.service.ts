@@ -68,6 +68,7 @@ export class AuthService {
         access_token: await this.jwtService.signAsync(payload),
       };
     } catch (error) {
+      console.error(error);
       throw new HttpException(
         `Errore durante il login utente`,
         HttpStatus.INTERNAL_SERVER_ERROR,

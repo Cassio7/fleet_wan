@@ -56,6 +56,7 @@ export class UserService {
       return newUser;
     } catch (error) {
       await queryRunner.rollbackTransaction();
+      console.error(error);
       throw new HttpException(
         `Errore durante la creazione del'utente`,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -82,6 +83,7 @@ export class UserService {
       const usersDTO = await this.formatUserDTO(users, true);
       return usersDTO;
     } catch (error) {
+      console.error(error);
       throw new HttpException(
         `Errore durante recupero degli utenti`,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -105,6 +107,7 @@ export class UserService {
       const userDTO = await this.formatUserDTO(user, false);
       return userDTO;
     } catch (error) {
+      console.error(error);
       throw new HttpException(
         `Errore durante recupero dell'utente`,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -129,6 +132,7 @@ export class UserService {
       const userDTO = await this.formatUserDTO(user, false);
       return userDTO;
     } catch (error) {
+      console.error(error);
       throw new HttpException(
         `Errore durante recupero dell'utente`,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -162,6 +166,7 @@ export class UserService {
       await queryRunner.commitTransaction();
     } catch (error) {
       await queryRunner.rollbackTransaction();
+      console.error(error);
       throw new HttpException(
         `Errore durante l'aggiornamento utente`,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -215,6 +220,7 @@ export class UserService {
       await queryRunner.commitTransaction();
     } catch (error) {
       await queryRunner.rollbackTransaction();
+      console.error(error);
       throw new HttpException(
         `Errore durante l'aggiornamento utente`,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -270,6 +276,7 @@ export class UserService {
       await queryRunner.commitTransaction();
     } catch (error) {
       await queryRunner.rollbackTransaction();
+      console.error(error);
       throw new HttpException(
         `Errore durante l'aggiornamento utente`,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -298,6 +305,7 @@ export class UserService {
       await queryRunner.commitTransaction();
     } catch (error) {
       await queryRunner.rollbackTransaction();
+      console.error(error);
       throw new HttpException(
         `Errore durante eliminazione utente`,
         HttpStatus.INTERNAL_SERVER_ERROR,

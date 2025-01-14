@@ -12,7 +12,6 @@ import {
   DataSource,
   In,
   LessThanOrEqual,
-  MoreThan,
   MoreThanOrEqual,
   Not,
   Repository,

@@ -70,6 +70,7 @@ export class AnomalyService {
       });
       return this.toDTO(anomalies);
     } catch (error) {
+      console.error(error);
       throw new HttpException(
         `Errore durante recupero delle anomalie`,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -148,6 +149,7 @@ export class AnomalyService {
         .filter(Boolean);
       return this.toDTO(filteredAnomalies);
     } catch (error) {
+      console.error(error);
       throw new HttpException(
         `Errore durante recupero delle anomalie`,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -194,6 +196,7 @@ export class AnomalyService {
 
       return this.toDTO(anomalies);
     } catch (error) {
+      console.error(error);
       throw new HttpException(
         `Errore durante recupero delle anomalie`,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -245,6 +248,7 @@ export class AnomalyService {
       });
       return this.toDTO(anomalies);
     } catch (error) {
+      console.error(error);
       throw new HttpException(
         `Errore durante recupero delle anomalie`,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -286,6 +290,7 @@ export class AnomalyService {
           const data = await this.redis.get(key);
           return data ? JSON.parse(data) : null;
         } catch (error) {
+          console.error(error);
           throw new HttpException(
             `Errore durante recupero delle anomalie da redis`,
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -299,6 +304,7 @@ export class AnomalyService {
       }
       return { lastUpdate, anomalies };
     } catch (error) {
+      console.error(error);
       throw new HttpException(
         `Errore durante recupero delle anomalie`,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -340,6 +346,7 @@ export class AnomalyService {
           const data = await this.redis.get(key);
           return data ? JSON.parse(data) : null;
         } catch (error) {
+          console.error(error);
           throw new HttpException(
             `Errore durante recupero delle anomalie da redis`,
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -353,6 +360,7 @@ export class AnomalyService {
       }
       return anomalies;
     } catch (error) {
+      console.error(error);
       throw new HttpException(
         `Errore durante recupero delle anomalie`,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -473,6 +481,7 @@ export class AnomalyService {
       await queryRunner.commitTransaction();
     } catch (error) {
       await queryRunner.rollbackTransaction();
+      console.error(error);
       throw new HttpException(
         'Errore durante la creazione della anomalia',
         HttpStatus.INTERNAL_SERVER_ERROR,
