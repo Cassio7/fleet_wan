@@ -1,25 +1,23 @@
+import { InjectRedis } from '@nestjs-modules/ioredis';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { AnomalyDTO } from 'classes/dtos/anomaly.dto';
+import { VehicleDTO } from 'classes/dtos/vehicle.dto';
+import { WorksiteDTO } from 'classes/dtos/worksite.dto';
 import { AnomalyEntity } from 'classes/entities/anomaly.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { createHash } from 'crypto';
-import { Between, DataSource, In, Repository } from 'typeorm';
-import { SessionService } from '../session/session.service';
-import { VehicleService } from '../vehicle/vehicle.service';
-import { TagService } from '../tag/tag.service';
+import Redis from 'ioredis';
 import {
   getDaysInRange,
   sortRedisData,
   validateDateRange,
 } from 'src/utils/utils';
-import { SessionEntity } from 'classes/entities/session.entity';
-import { TagHistoryEntity } from 'classes/entities/tag_history.entity';
-import { InjectRedis } from '@nestjs-modules/ioredis';
-import Redis from 'ioredis';
-import { AnomalyDTO } from 'classes/dtos/anomaly.dto';
-import { VehicleDTO } from 'classes/dtos/vehicle.dto';
-import { WorksiteDTO } from 'classes/dtos/worksite.dto';
+import { Between, DataSource, In, Repository } from 'typeorm';
 import { AssociationService } from '../association/association.service';
+import { SessionService } from '../session/session.service';
+import { TagService } from '../tag/tag.service';
+import { VehicleService } from '../vehicle/vehicle.service';
 
 @Injectable()
 export class AnomalyService {

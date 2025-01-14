@@ -4,7 +4,6 @@ import { NoteDto } from 'classes/dtos/note.dto';
 import { UserDTO } from 'classes/dtos/user.dto';
 import { VehicleDTO } from 'classes/dtos/vehicle.dto';
 import { NoteEntity } from 'classes/entities/note.entity';
-import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { DataSource, In, Repository } from 'typeorm';
 import { AssociationService } from '../association/association.service';
 import { UserService } from '../user/user.service';
