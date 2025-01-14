@@ -12,9 +12,7 @@ import {
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { UserDTO } from 'classes/dtos/user.dto';
-import { UserEntity } from 'classes/entities/user.entity';
 import { Role } from 'classes/enum/role.enum';
 import { UserFromToken } from 'classes/interfaces/userToken.interface';
 import { Response } from 'express';
