@@ -42,7 +42,7 @@ export class AppService implements OnModuleInit {
 
   // popolo database all'avvio
   async onModuleInit() {
-    const startDate = '2025-01-01T00:00:00.000Z';
+    const startDate = '2025-01-12T00:00:00.000Z';
     //const endDate = '2024-12-10T00:00:00.000Z';
     const endDate = new Date(
       new Date().getTime() + 2 * 60 * 60 * 1000,
@@ -303,15 +303,10 @@ export class AppService implements OnModuleInit {
     if (keys.length > 0) {
       await this.redis.del(keys);
     }
-    const vehicles = await this.vehicleService.getAllVehicles();
-    const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
     const now = new Date();
 
-    const todayAnomalies = await this.anomalyService.getAnomalyByDate(
-      vehicleIds,
-      now,
-    );
-    const lastAnomalies = await this.anomalyService.getLastAnomaly(vehicleIds);
+    const todayAnomalies = await this.anomalyService.getAnomalyByDate(1, now);
+    const lastAnomalies = await this.anomalyService.getLastAnomaly(1);
 
     await this.anomalyService.setTodayAnomalyRedis(todayAnomalies);
     await this.anomalyService.setLastAnomalyRedis(lastAnomalies);
