@@ -171,6 +171,21 @@ export class CantieriFilterService{
     }
   }
 
+  updateSelectedCantieri(vehicles: VehicleData[]){
+    const allData = JSON.parse(this.sessionStorageService.getItem("allData"));
+    const allCantieri = this.vehiclesCantieriOnce(allData);
+    const selectedCantieri = this.vehiclesCantieriOnce(vehicles);
+
+    if(JSON.stringify(selectedCantieri) == JSON.stringify(allCantieri)){
+      selectedCantieri.push("Seleziona tutto");
+      this.allSelected = true;
+    }
+
+    this.updateCantieriFilterOptions$.next(selectedCantieri);
+
+    return selectedCantieri;
+  }
+
   /**
    * Seleziona / deseleziona tutti i cantieri dei veicoli nel select e notifica la tabella di aggiornare i dati
    * @returns nuovo valore della lista cantieri

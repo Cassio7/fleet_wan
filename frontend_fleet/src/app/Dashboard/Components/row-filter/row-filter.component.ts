@@ -99,13 +99,15 @@ export class RowFilterComponent implements AfterViewInit{
   }
 
   private handleAllFiltersOptionsUpdate(){
-    // Sottoscrizione a subject per aggiornare la lista dei cantieri
-    this.cantieriFilterService.updateCantieriFilterOptions$
-    .pipe(takeUntil(this.destroy$), skip(1))
+
+    // Sottoscrizione per il filtro cantieri
+    this.cantiereFilterService.updateCantieriFilterOptions$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
-      next: (vehicles: any[]) => {
-        this.cantieriFilterService.updateListaCantieri(vehicles);
-      }
+      next: (selectedCantieri: string[]) => {
+        console.log("selectedCantieri: ", selectedCantieri);
+        this.cantieri.setValue(selectedCantieri);
+      },
+      error: error => console.error("Errore nell'aggiornamento delle opzioni del filtro dei cantieri: ", error)
     });
 
     // Sottoscrizione per il filtro GPS
@@ -114,7 +116,8 @@ export class RowFilterComponent implements AfterViewInit{
     .subscribe({
       next: (selectedOptions: string[]) => {
         this.gps.setValue(selectedOptions);
-      }
+      },
+      error: error => console.error("Errore nell'aggiornamento delle opzioni del filtro dei gps: ", error)
     });
 
     // Sottoscrizione per il filtro antenna
@@ -123,7 +126,8 @@ export class RowFilterComponent implements AfterViewInit{
     .subscribe({
       next: (selectedOptions: string[]) => {
         this.antenne.setValue(selectedOptions);
-      }
+      },
+      error: error => console.error("Errore nell'aggiornamento delle opzioni del filtro delle antenne: ", error)
     });
 
     // Sottoscrizione per il filtro sessione
@@ -132,7 +136,8 @@ export class RowFilterComponent implements AfterViewInit{
     .subscribe({
       next: (selectedOptions: string[]) => {
         this.sessionStates.setValue(selectedOptions);
-      }
+      },
+      error: error => console.error("Errore nell'aggiornamento delle opzioni del filtro delle sessioni: ", error)
     });
   }
 

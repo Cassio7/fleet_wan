@@ -56,7 +56,7 @@ export class FiltersCommonService {
    * @param filteredVehicles veicoli da controllare
    */
   updateAllFiltersOption(filteredVehicles: VehicleData[]) {
-    const cantieriOptions = this.cantieriFilterService.vehiclesCantieriOnce(filteredVehicles);
+    const cantieriOptions = this.cantieriFilterService.updateSelectedCantieri(filteredVehicles);
 
     const gpsOptions = this.gpsFilterService.updateSelectedOptions(filteredVehicles);
     this.gpsFilterService.selectedOptions = gpsOptions;
