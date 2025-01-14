@@ -27,7 +27,7 @@ export class FiltersCommonService {
     cantieri: new FormControl(null),
     gps: new FormControl(null),
     antenna: new FormControl(null),
-    sessione: new FormControl(null),
+    sessione: new FormControl(null)
   });
 
   // Utilizza un FormGroup con tipi fortemente tipizzati
@@ -47,7 +47,8 @@ export class FiltersCommonService {
     private antennaFilterService: AntennaFilterService,
     private sessionFilterService: SessionFilterService,
     private sessionStorageService: SessionStorageService
-  ) { }
+  ) {
+  }
 
 
   /**
@@ -80,10 +81,22 @@ export class FiltersCommonService {
     let filteredVehicles: VehicleData[] = [...vehicles];
     const filterResults: VehicleData[][] = [];
 
+    console.log("filter plate: ", filters.plate)
     console.log("filter cantiere: ", filters.cantieri.value);
     console.log("filter antenna: ", filters.antenna.value);
     console.log("filter sessione: ", filters.sessione.value);
     console.log("filter gps: ", filters.gps.value);
+
+    const allEmpty =
+    filters.plate === "" &&
+    (!filters.cantieri?.value || filters.cantieri.value.length === 0) &&
+    (!filters.antenna?.value || filters.antenna.value.length === 0) &&
+    (!filters.sessione?.value || filters.sessione.value.length === 0) &&
+    (!filters.gps?.value || filters.gps.value.length === 0);
+
+    if(allEmpty){
+      return [];
+    }
 
     // Filtro per targa
     if (filters.plate) {
@@ -128,7 +141,6 @@ export class FiltersCommonService {
       if(sessionFiltered.length > 0)
         filterResults.push(sessionFiltered);
     }
-    console.log("filterResults: ", filterResults);
 
     if(filterResults.length <= 0){
       return [];
@@ -140,7 +152,6 @@ export class FiltersCommonService {
     }
 
     this.updateAllFiltersOption(filteredVehicles);
-    console.log("filteredVehicles: ", filteredVehicles);
     return filteredVehicles;
   }
 

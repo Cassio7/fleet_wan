@@ -69,6 +69,8 @@ export class GpsFilterService {
     if(JSON.stringify(this.selectedOptions) == JSON.stringify(this.allOptions)){
       this.selectedOptions.push("Seleziona tutto");
       this.allSelected = true;
+    }else{
+      this.allSelected = false;
     }
 
     this.updateGpsFilterOptions$.next(this.selectedOptions);

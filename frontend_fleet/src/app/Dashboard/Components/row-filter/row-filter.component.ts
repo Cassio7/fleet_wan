@@ -12,11 +12,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatDividerModule } from '@angular/material/divider';
-import { PlateFilterService } from '../../../Common-services/plate-filter/plate-filter.service';
 import { CantieriFilterService } from '../../../Common-services/cantieri-filter/cantieri-filter.service';
 import { GpsFilterService } from '../../../Common-services/gps-filter/gps-filter.service';
 import { AntennaFilterService } from '../../../Common-services/antenna-filter/antenna-filter.service';
-import { SortService } from '../../../Common-services/sort/sort.service';
 import { VehicleData } from '../../../Models/VehicleData';
 import { Filters, FiltersCommonService } from '../../../Common-services/filters-common/filters-common.service';
 
@@ -48,6 +46,7 @@ export class RowFilterComponent implements AfterViewInit{
   gps = new FormControl<string[]>([]);
   antenne = new FormControl<string[]>([]);
   sessionStates = new FormControl<string[]>([]);
+
   private filters: Filters = {
     plate: this.plate,
     cantieri: this.cantieri,
@@ -57,13 +56,11 @@ export class RowFilterComponent implements AfterViewInit{
   }
 
   constructor(
-    private filtersCommonService: FiltersCommonService,
-    private plateFilterService: PlateFilterService,
+    public filtersCommonService: FiltersCommonService,
     public cantieriFilterService: CantieriFilterService,
     public gpsFilterService: GpsFilterService,
     public antennaFilterService: AntennaFilterService,
     public sessionFilterService: SessionFilterService,
-    private sortService: SortService,
     private cantiereFilterService: CantieriFilterService,
     private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef) {
@@ -141,6 +138,10 @@ export class RowFilterComponent implements AfterViewInit{
     });
   }
 
+  // checkCantiereEnabled(cantiere: string): boolean{
+  //   return this.cantieri.value ? this.cantieri.value.includes(cantiere) : false;
+  // }
+
 
   /**
    * Viene chiamata alla premuta di un qualsiasi checkbox dentro il select per il filtro dei cantieri
@@ -172,6 +173,7 @@ export class RowFilterComponent implements AfterViewInit{
         this.cantieriFilterService.allSelected = true;
       }
     }
+    this.filters.plate = this.plate; //aggiornamento valore del filtro per targa nell'oggetto
     this.filtersCommonService.applyFilters$.next(this.filters);
     this.cd.detectChanges();
   }
@@ -205,6 +207,7 @@ export class RowFilterComponent implements AfterViewInit{
       }
     }
 
+    this.filters.plate = this.plate; //aggiornamento valore del filtro per targa nell'oggetto
     this.filtersCommonService.applyFilters$.next(this.filters);
     this.cd.detectChanges();
   }
@@ -235,15 +238,18 @@ export class RowFilterComponent implements AfterViewInit{
         this.antennaFilterService.allSelected = true;
       }
     }
+
+    this.filters.plate = this.plate; //aggiornamento valore del filtro per targa nell'oggetto
     this.filtersCommonService.applyFilters$.next(this.filters);
     this.cd.detectChanges();
   }
 
   selectSession(option: string) {
     const selectedSessionStates = this.sessionStates.value || [];
+    console.log("selectedSessionStates: ", selectedSessionStates);
 
     if (option === "Seleziona tutto") {
-      this.toggleSelectAllSession();
+      this.toggleSelectAll();
     } else {
       // Rimozione di "Seleziona tutto" quando una singola opzione è deselezionata
       if (this.sessionFilterService.isSessionFilterAllSelected()) {
@@ -264,21 +270,14 @@ export class RowFilterComponent implements AfterViewInit{
       }
     }
 
-    const filters: Filters = {
-      plate: this.plate,
-      cantieri: this.cantieri,
-      gps: this.gps,
-      antenna: this.antenne,
-      sessione: this.sessionStates,
-    };
+    this.filters.plate = this.plate; //aggiornamento valore del filtro per targa nell'oggetto
     this.filtersCommonService.applyFilters$.next(this.filters);
     this.cd.detectChanges();
   }
 
 
   toggleSelectAllSession(){
-    const toggle = this.sessionFilterService.toggleSelectAllSessionStates();
-    if(toggle == "all"){
+    if(this.sessionFilterService.toggleSelectAllSessionStates()){
       this.sessionStates.setValue(["Seleziona tutto", ...this.sessionFilterService.allOptions]);
     }else{
       this.sessionStates.setValue([]);
@@ -300,7 +299,7 @@ export class RowFilterComponent implements AfterViewInit{
    * Seleziona tutti i filtri del select delle antenne
    */
   toggleSelectAllAntenne(){
-    if(this.antennaFilterService.toggleSelectAllAntenne() == "all"){
+    if(this.antennaFilterService.toggleSelectAllAntenne()){
       this.antenne.setValue(["Seleziona tutto", ...this.antennaFilterService.allOptions]);
     }else{
       this.antenne.setValue([]);
@@ -330,9 +329,8 @@ export class RowFilterComponent implements AfterViewInit{
    * @param emptyButtonClick se la funzione è stata chiamata dalla premuta del bottone per svuotare il campo
    */
   searchPlates(emptyButtonClick: boolean){
-    let filters: Filters;
     if(emptyButtonClick){
-      filters = {
+      this.filters = {
         plate: "",
         cantieri: this.cantieri,
         gps: this.gps,
@@ -340,8 +338,9 @@ export class RowFilterComponent implements AfterViewInit{
         sessione: this.sessionStates
       }
       this.plate = "";
+      this.toggleSelectAll();
     }else{
-      filters = {
+      this.filters = {
         plate: this.plate,
         cantieri: this.cantieri,
         gps: this.gps,

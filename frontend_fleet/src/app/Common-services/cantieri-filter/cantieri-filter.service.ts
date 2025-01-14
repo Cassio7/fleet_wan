@@ -179,6 +179,8 @@ export class CantieriFilterService{
     if(JSON.stringify(selectedCantieri) == JSON.stringify(allCantieri)){
       selectedCantieri.push("Seleziona tutto");
       this.allSelected = true;
+    }else{
+      this.allSelected = false;
     }
 
     this.updateCantieriFilterOptions$.next(selectedCantieri);

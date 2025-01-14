@@ -27,18 +27,17 @@ export class SessionFilterService {
    * Seleziona / deseleziona tutti gli stati della sessione dei veicoli nel select e notifica la tabella di aggiornare i dati
    * @returns nuovo valore della lista cantieri
    */
-  toggleSelectAllSessionsStates(): string{
+  toggleSelectAllSessionsStates(): boolean{
     if (this.allSelected) {
       this._filterTableBySessionStates$.next([]);
       this.selectedOptions = this.allOptions;
       this.allSelected = false;
-      return "";
     } else {
       this._filterTableBySessionStates$.next(["all"]);
       this.selectedOptions = [];
       this.allSelected = true;
-      return "all";
     }
+    return this.allSelected;
   }
 
   /**
@@ -80,6 +79,8 @@ export class SessionFilterService {
     if(JSON.stringify(this.selectedOptions) == JSON.stringify(this.allOptions)){
       this.selectedOptions.push("Seleziona tutto");
       this.allSelected = true;
+    }else{
+      this.allSelected = false;
     }
 
     this.updateSessionOptions$.next(this.selectedOptions);

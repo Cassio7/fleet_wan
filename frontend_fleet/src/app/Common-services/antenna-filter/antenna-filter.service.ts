@@ -31,18 +31,17 @@ private readonly _filterTableByAntenna$: BehaviorSubject<string[]> = new Behavio
    * Seleziona / deseleziona tutti gli stati delle antenne dei veicoli nel select e notifica la tabella di aggiornare i dati
    * @returns nuovo valore della lista cantieri
    */
-  toggleSelectAllAntenne(): string{
+  toggleSelectAllAntenne(): boolean{
     if (this.allSelected) {
       this.filterTableByAntenna$.next([]);
       this.selectedOptions = [];
       this.allSelected = false;
-      return "";
     } else {
       this.filterTableByAntenna$.next(["all"]);
       this.selectedOptions = this._allOptions;
       this.allSelected = true;
-      return "all";
     }
+    return this.allSelected;
   }
 
   updateSelectedOptions(vehicles: VehicleData[]){
@@ -63,6 +62,8 @@ private readonly _filterTableByAntenna$: BehaviorSubject<string[]> = new Behavio
     if(JSON.stringify(this.selectedOptions) == JSON.stringify(this.allOptions)){
       this.selectedOptions.push("Seleziona tutto");
       this.allSelected = true;
+    }else{
+      this.allSelected = false;
     }
 
     this.updateAntennaOptions$.next(this.selectedOptions);
