@@ -64,7 +64,7 @@ export class RealtimeService {
           );
           retries -= 1;
 
-          // Delay di 1 secondo tra i tentativi
+          // Delay di 5 secondi tra i tentativi
           await new Promise((resolve) => setTimeout(resolve, 5000));
           continue;
         }
@@ -72,15 +72,14 @@ export class RealtimeService {
           'Tutti i tentativi di connessione sono falliti, saltato controllo:',
           error.message,
         );
+        return false;
       }
     }
+    if (!response) return false;
     const queryRunner = this.connection.createQueryRunner();
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
-      const response = await axios.post(this.serviceUrl, requestXml, {
-        headers,
-      });
       const jsonResult = await parseStringPromise(response.data, {
         explicitArray: false,
       });
