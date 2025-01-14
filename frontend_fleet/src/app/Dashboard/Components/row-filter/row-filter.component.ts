@@ -48,6 +48,13 @@ export class RowFilterComponent implements AfterViewInit{
   gps = new FormControl<string[]>([]);
   antenne = new FormControl<string[]>([]);
   sessionStates = new FormControl<string[]>([]);
+  private filters: Filters = {
+    plate: this.plate,
+    cantieri: this.cantieri,
+    gps: this.gps,
+    antenna: this.antenne,
+    sessione: this.sessionStates
+  }
 
   constructor(
     private filtersCommonService: FiltersCommonService,
@@ -160,14 +167,7 @@ export class RowFilterComponent implements AfterViewInit{
         this.cantieriFilterService.allSelected = true;
       }
     }
-    const filters: Filters = {
-      plate: this.plate,
-      cantieri: this.cantieri,
-      gps: this.gps,
-      antenna: this.antenne,
-      sessione: this.sessionStates
-    }
-    this.filtersCommonService.applyFilters$.next(filters);
+    this.filtersCommonService.applyFilters$.next(this.filters);
     this.cd.detectChanges();
   }
 
@@ -200,14 +200,7 @@ export class RowFilterComponent implements AfterViewInit{
       }
     }
 
-    const filters: Filters = {
-      plate: this.plate,
-      cantieri: this.cantieri,
-      gps: this.gps,
-      antenna: this.antenne,
-      sessione: this.sessionStates
-    }
-    this.filtersCommonService.applyFilters$.next(filters);
+    this.filtersCommonService.applyFilters$.next(this.filters);
     this.cd.detectChanges();
   }
 
@@ -237,49 +230,46 @@ export class RowFilterComponent implements AfterViewInit{
         this.antennaFilterService.allSelected = true;
       }
     }
-    const filters: Filters = {
-      plate: this.plate,
-      cantieri: this.cantieri,
-      gps: this.gps,
-      antenna: this.antenne,
-      sessione: this.sessionStates
-    }
-    this.filtersCommonService.applyFilters$.next(filters);
+    this.filtersCommonService.applyFilters$.next(this.filters);
     this.cd.detectChanges();
   }
 
-  selectSession(option: string){
+  selectSession(option: string) {
     const selectedSessionStates = this.sessionStates.value || [];
 
     if (option === "Seleziona tutto") {
-      this.toggleSelectAll();
+      this.toggleSelectAllSession();
     } else {
-      //rimozione di "Seleziona tutto" quando una singola opzione è deselezionata
+      // Rimozione di "Seleziona tutto" quando una singola opzione è deselezionata
       if (this.sessionFilterService.isSessionFilterAllSelected()) {
         this.sessionFilterService.allSelected = false;
-        this.gps.setValue(selectedSessionStates.filter(selection => selection !== "Seleziona tutto"));
+        this.sessionStates.setValue(
+          selectedSessionStates.filter(selection => selection !== "Seleziona tutto")
+        );
       }
 
       const allOptions = ["Funzionante", "Errore"];
       const areAllSelected = allOptions.every(option => selectedSessionStates.includes(option));
 
-      //selezione di "Seleziona tutto" quando tutte le opzioni singole sono selezionate
+      // Selezione di "Seleziona tutto" quando tutte le opzioni singole sono selezionate
       if (areAllSelected && !selectedSessionStates.includes("Seleziona tutto")) {
         selectedSessionStates.push("Seleziona tutto");
-        this.gps.setValue(selectedSessionStates);
+        this.sessionStates.setValue(selectedSessionStates);
         this.sessionFilterService.allSelected = true;
       }
     }
+
     const filters: Filters = {
       plate: this.plate,
       cantieri: this.cantieri,
       gps: this.gps,
       antenna: this.antenne,
-      sessione: this.sessionStates
-    }
-    this.filtersCommonService.applyFilters$.next(filters);
+      sessione: this.sessionStates,
+    };
+    this.filtersCommonService.applyFilters$.next(this.filters);
     this.cd.detectChanges();
   }
+
 
   toggleSelectAllSession(){
     const toggle = this.sessionFilterService.toggleSelectAllSessionStates();
@@ -339,10 +329,10 @@ export class RowFilterComponent implements AfterViewInit{
     if(emptyButtonClick){
       filters = {
         plate: "",
-        cantieri: new FormControl(null),
-        gps: new FormControl(null),
-        antenna: new FormControl(null),
-        sessione: new FormControl(null)
+        cantieri: this.cantieri,
+        gps: this.gps,
+        antenna: this.antenne,
+        sessione: this.sessionStates
       }
       this.plate = "";
     }else{
@@ -354,6 +344,6 @@ export class RowFilterComponent implements AfterViewInit{
         sessione: this.sessionStates
       }
     }
-    this.filtersCommonService.applyFilters$.next(filters);
+    this.filtersCommonService.applyFilters$.next(this.filters);
   }
 }
