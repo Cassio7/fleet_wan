@@ -407,13 +407,16 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     this.simulateProgress(0.2, 10);
     this.checkErrorsService.checkErrorsAllRanged(dateFrom, dateTo).pipe(takeUntil(this.destroy$), first())
     .subscribe({
-      next: (vehiclesData: any) => {
+      next: (responseObj: any) => {
+        const vehiclesData = responseObj.vehicles;
+        console.log("vehiclesData fetched: ", vehiclesData);
         try {
-          if (vehiclesData.vehicles && vehiclesData.vehicles.length > 0) {
-            this.vehicleTableData.data = [...vehiclesData.vehicles];  // Assicurati che vehiclesData.vehicles sia un array di veicoli
-            this.sessionStorageService.setItem("allData", JSON.stringify(vehiclesData.vehicles));  // Salva l'array di veicoli
+          if (vehiclesData && vehiclesData.length > 0) {
+            this.vehicleTableData.data = [...vehiclesData];  // Assicurati che vehiclesData.vehicles sia un array di veicoli
+            this.sessionStorageService.setItem("allData", JSON.stringify(vehiclesData));  // Salva l'array di veicoli
             this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));
             this.vehicleTable.renderRows();  // Rende le righe della tabella
+            this.loadGraphs(vehiclesData);
           }
         } catch (error) {
           console.error("Error processing vehicles:", error);
@@ -475,7 +478,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
    * @param newVehicles da questi veicoli come input ai grafici per il caricamento
    */
   loadGraphs(newVehicles: VehicleData[]) {
-    this.errorGraphService.loadChartData(newVehicles);
+    this.errorGraphService.loadGraphData$.next(newVehicles);
     this.antennaGraphService.loadChartData$.next(newVehicles);
   }
 
