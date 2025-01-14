@@ -342,14 +342,9 @@ export class AnomalyController {
         await this.redis.del(todaykeys);
       }
 
-      const vehicles = await this.vehicleService.getAllVehicles();
-      const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
       const now = new Date();
 
-      const todayAnomalies = await this.anomalyService.getAnomalyByDate(
-        vehicleIds,
-        now,
-      );
+      const todayAnomalies = await this.anomalyService.getAnomalyByDate(1, now);
       await this.anomalyService.setTodayAnomalyRedis(todayAnomalies);
 
       // logica set redis giorno prima al momento dismessa
@@ -369,6 +364,11 @@ export class AnomalyController {
       // );
       // await this.anomalyService.setDayBeforeAnomalyRedis(yesterdayAnomalies);
 
+      this.loggerService.logCrudSuccess(
+        context,
+        'update',
+        `Aggiornate ${todayAnomalies.length} anomalie `,
+      );
       res.status(200).json({ message: 'Anomalie odierne aggiornate' });
     } catch (error) {
       this.loggerService.logCrudError({
