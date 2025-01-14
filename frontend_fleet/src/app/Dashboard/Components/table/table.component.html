@@ -87,7 +87,7 @@
               Error
             </div>
             <span class="session-date" [matTooltip]="checkErrorsService.checkSessionError(vehicleData)">
-              {{ checkErrorsService.getVehicleSessionAnomalyDate(vehicleData) ? (checkErrorsService.getVehicleSessionAnomalyDate(vehicleData) | date: 'dd/MM/yy hh:mm') : '' }}
+              {{ checkErrorsService.getVehicleSessionAnomalyDate(vehicleData) ? (checkErrorsService.getVehicleSessionAnomalyDate(vehicleData) | date: 'dd/MM/yyyy') : '' }}
             </span>
           </div>
         </ng-template>

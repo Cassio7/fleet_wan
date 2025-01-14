@@ -66,8 +66,9 @@ export class GpsFilterService {
       this.selectedOptions.push("Errore");
     }
 
-    if(JSON.stringify(this.selectedOptions) == JSON.stringify(["Funzionante", "Warning", "Errore"])){
+    if(JSON.stringify(this.selectedOptions) == JSON.stringify(this.allOptions)){
       this.selectedOptions.push("Seleziona tutto");
+      this.allSelected = true;
     }
 
     this.updateGpsFilterOptions$.next(this.selectedOptions);

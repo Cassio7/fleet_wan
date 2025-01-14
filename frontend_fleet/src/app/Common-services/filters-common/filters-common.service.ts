@@ -80,11 +80,14 @@ export class FiltersCommonService {
     let filteredVehicles: VehicleData[] = [...vehicles];
     const filterResults: VehicleData[][] = [];
 
-    console.log("apply all filters filters: ", filters.antenna.value);
+    console.log("filter cantiere: ", filters.cantieri.value);
+    console.log("filter antenna: ", filters.antenna.value);
+    console.log("filter sessione: ", filters.sessione.value);
+    console.log("filter gps: ", filters.gps.value);
 
     // Filtro per targa
     if (filters.plate) {
-      console.log("filter plate");
+      console.log("filter plate: ", filters.plate);
       const plateFiltered = this.plateFilterService.filterVehiclesByPlateResearch(filters.plate, vehicles);
       if(plateFiltered.length > 0)
         filterResults.push(plateFiltered);
@@ -92,7 +95,6 @@ export class FiltersCommonService {
 
     // Filtro per cantieri
     if (filters.cantieri.value && filters.cantieri.value.length > 0) {
-      console.log("filter cantiere");
       const cantieriFiltered = this.cantieriFilterService.filterVehiclesByCantieri(vehicles, filters.cantieri.value);
       if(cantieriFiltered.length > 0)
         filterResults.push(cantieriFiltered);
@@ -100,7 +102,6 @@ export class FiltersCommonService {
 
     // Filtro per stato GPS
     if (filters.gps.value) {
-      console.log("filter gps");
       const gpsCheck = this.checkErrorsService.checkVehiclesGpsErrors(vehicles);
       const gpsFiltered = this.filterByStatus(gpsCheck, filters.gps.value, "GPS");
       if(gpsFiltered.length > 0)
@@ -109,7 +110,6 @@ export class FiltersCommonService {
 
     // Filtro per stato antenna
     if (filters.antenna.value) {
-      console.log("filter antenna");
       const antennaCheck = this.checkErrorsService.checkVehiclesAntennaErrors(vehicles);
       const antennaErrors = this.filterByStatus(antennaCheck, filters.antenna.value, "antenna");
       let antennaData = antennaErrors;
@@ -123,7 +123,6 @@ export class FiltersCommonService {
 
     // Filtro per stato sessione
     if (filters.sessione.value) {
-      console.log("filter sessione");
       const sessionCheck = this.checkErrorsService.checkVehiclesSessionErrors(vehicles);
       const sessionFiltered = this.filterByStatus(sessionCheck, filters.sessione.value, "sessione");
       if(sessionFiltered.length > 0)

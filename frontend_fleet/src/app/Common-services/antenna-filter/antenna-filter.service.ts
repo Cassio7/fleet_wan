@@ -60,8 +60,9 @@ private readonly _filterTableByAntenna$: BehaviorSubject<string[]> = new Behavio
       this.selectedOptions.push("Blackbox");
     }
 
-    if(JSON.stringify(this.selectedOptions) == JSON.stringify(["Funzionante", "Errore", "Blackbox"])){
+    if(JSON.stringify(this.selectedOptions) == JSON.stringify(this.allOptions)){
       this.selectedOptions.push("Seleziona tutto");
+      this.allSelected = true;
     }
 
     this.updateAntennaOptions$.next(this.selectedOptions);

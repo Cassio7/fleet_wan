@@ -77,8 +77,9 @@ export class SessionFilterService {
       this.selectedOptions.push("Errore");
     }
 
-    if(JSON.stringify(this.selectedOptions) == JSON.stringify(["Funzionante", "Errore"])){
+    if(JSON.stringify(this.selectedOptions) == JSON.stringify(this.allOptions)){
       this.selectedOptions.push("Seleziona tutto");
+      this.allSelected = true;
     }
 
     this.updateSessionOptions$.next(this.selectedOptions);
