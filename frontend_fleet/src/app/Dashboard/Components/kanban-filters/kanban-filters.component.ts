@@ -1,7 +1,7 @@
 import { KanbanGpsService } from './../../Services/kanban-gps/kanban-gps.service';
 import { GpsGraphService } from './../../Services/gps-graph/gps-graph.service';
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectorRef, Component } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -19,6 +19,8 @@ import { SortService } from '../../../Common-services/sort/sort.service';
 import { VehicleData } from '../../../Models/VehicleData';
 import { AntennaGraphService } from '../../Services/antenna-graph/antenna-graph.service';
 import { Filters, FiltersCommonService } from '../../../Common-services/filters-common/filters-common.service';
+import { takeUntil, skip, Subject } from 'rxjs';
+import { GpsFilterService } from '../../../Common-services/gps-filter/gps-filter.service';
 
 @Component({
   selector: 'app-kanban-filters',
@@ -38,17 +40,19 @@ import { Filters, FiltersCommonService } from '../../../Common-services/filters-
   templateUrl: './kanban-filters.component.html',
   styleUrl: './kanban-filters.component.css'
 })
-export class KanbanFiltersComponent implements AfterViewInit{
+export class KanbanFiltersComponent implements AfterViewInit, OnDestroy{
+  private readonly destroy$: Subject<void> = new Subject<void>();
   plate: string = "";
   filterForm!: FormGroup;
   cantieri = new FormControl<string[]>([]);
-  private activeFilters: Filters = {
-    plate: '',
+  private filters: Filters = {
+    plate: this.plate,
     cantieri: this.cantieri,
     gps: new FormControl(null),
     antenna: new FormControl(null),
-    sessione: new FormControl(null)
+    sessione: new FormControl(null),
   }
+
   //tracciatori di kanban
   private kanbanGps: boolean = false;
   private kanbanAntenna: boolean = false;
@@ -57,12 +61,9 @@ export class KanbanFiltersComponent implements AfterViewInit{
   constructor(
     private plateFilterService: PlateFilterService,
     public cantieriFilterService: CantieriFilterService,
-    private kanbanGpsService: KanbanGpsService,
-    private kanbanAntennaService: KanbanAntennaService,
     private filtersCommonService: FiltersCommonService,
     private gpsGraphService: GpsGraphService,
     private antennaGraphService: AntennaGraphService,
-    private sortService: SortService,
     private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef
   ){
@@ -74,6 +75,10 @@ export class KanbanFiltersComponent implements AfterViewInit{
         end: new FormControl(new Date())
       })
     });
+  }
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
 
@@ -95,6 +100,15 @@ export class KanbanFiltersComponent implements AfterViewInit{
       }
     });
 
+    // Sottoscrizione per il filtro cantieri
+    this.cantieriFilterService.updateCantieriFilterOptions$.pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next: (selectedCantieri: string[]) => {
+        this.cantieri.setValue(selectedCantieri);
+      },
+      error: error => console.error("Errore nell'aggiornamento delle opzioni del filtro dei cantieri: ", error)
+    });
+
     this.cd.detectChanges();
   }
 
@@ -103,22 +117,13 @@ export class KanbanFiltersComponent implements AfterViewInit{
    * @param emptyButtonClick se la funzione è stata chiamata dalla premuta del bottone per svuotare il campo
    */
   searchPlates(emptyButtonClick: boolean){
-    const filters: Filters = {
-      plate: this.plate,
-      cantieri: this.cantieri,
-      gps: new FormControl(null),
-      antenna: new FormControl(null),
-      sessione: new FormControl(null),
-    }
     //se è stato premuto il bottone per svuotare il campo
     if(emptyButtonClick){
       this.plateFilterService.filterByPlateResearch$.next("");
-      filters.plate = "";
+      this.filters.plate = "";
       this.plate = "";
-    }else{
-      this.plateFilterService.filterByPlateResearch$.next(this.plate); //notifica di filtrare per targa
     }
-    this.filtersCommonService.applyFilters$.next(filters);
+    this.filtersCommonService.applyFilters$.next(this.filters);
   }
 
   /**
@@ -156,15 +161,9 @@ export class KanbanFiltersComponent implements AfterViewInit{
       this.antennaGraphService.loadChartData$.next(cantieriFilteredVehicles);
     }
 
-    const filters: Filters = {
-      plate: this.plate,
-      cantieri: this.cantieri,
-      gps: new FormControl(null),
-      antenna: new FormControl(null),
-      sessione: new FormControl(null),
-    }
+    this.filters.plate = this.plate;
 
-    this.filtersCommonService.applyFilters$.next(filters);
+    this.filtersCommonService.applyFilters$.next(this.filters);
 
     this.cd.detectChanges();
   }

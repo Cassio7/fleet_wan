@@ -20,6 +20,7 @@ export class PlateFilterService {
    */
   filterVehiclesByPlateResearch(research: string, vehiclesData: VehicleData[]): VehicleData[] {
     const searchTextLower = research.toLowerCase().replace(/\s+/g, '');
+
     return vehiclesData.filter(obj =>
       obj.vehicle.plate.toLowerCase().replace(/\s+/g, '').includes(searchTextLower)
     );

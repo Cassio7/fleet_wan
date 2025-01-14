@@ -1,6 +1,6 @@
 import { SessionFilterService } from './../../../Common-services/session-filter/session-filter.service';
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatOptionModule } from '@angular/material/core';
@@ -37,7 +37,7 @@ import { Filters, FiltersCommonService } from '../../../Common-services/filters-
   styleUrl: './row-filter.component.css'
 })
 
-export class RowFilterComponent implements AfterViewInit{
+export class RowFilterComponent implements AfterViewInit, OnDestroy{
   private readonly destroy$: Subject<void> = new Subject<void>();
 
   filterForm!: FormGroup;
@@ -73,6 +73,10 @@ export class RowFilterComponent implements AfterViewInit{
       })
     });
   }
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   ngAfterViewInit(): void {
     // Recupero dei dati dal sessionStorage
@@ -98,13 +102,12 @@ export class RowFilterComponent implements AfterViewInit{
   private handleAllFiltersOptionsUpdate(){
 
     // Sottoscrizione per il filtro cantieri
-    this.cantiereFilterService.updateCantieriFilterOptions$.pipe(takeUntil(this.destroy$), skip(1))
+    this.cantiereFilterService.updateCantieriFilterOptions$
+    .pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (selectedCantieri: string[]) => {
-        console.log("selectedCantieri: ", selectedCantieri);
         this.cantieri.setValue(selectedCantieri);
       },
-      error: error => console.error("Errore nell'aggiornamento delle opzioni del filtro dei cantieri: ", error)
     });
 
     // Sottoscrizione per il filtro GPS
@@ -114,7 +117,6 @@ export class RowFilterComponent implements AfterViewInit{
       next: (selectedOptions: string[]) => {
         this.gps.setValue(selectedOptions);
       },
-      error: error => console.error("Errore nell'aggiornamento delle opzioni del filtro dei gps: ", error)
     });
 
     // Sottoscrizione per il filtro antenna
@@ -124,7 +126,6 @@ export class RowFilterComponent implements AfterViewInit{
       next: (selectedOptions: string[]) => {
         this.antenne.setValue(selectedOptions);
       },
-      error: error => console.error("Errore nell'aggiornamento delle opzioni del filtro delle antenne: ", error)
     });
 
     // Sottoscrizione per il filtro sessione
@@ -134,7 +135,6 @@ export class RowFilterComponent implements AfterViewInit{
       next: (selectedOptions: string[]) => {
         this.sessionStates.setValue(selectedOptions);
       },
-      error: error => console.error("Errore nell'aggiornamento delle opzioni del filtro delle sessioni: ", error)
     });
   }
 
@@ -246,7 +246,6 @@ export class RowFilterComponent implements AfterViewInit{
 
   selectSession(option: string) {
     const selectedSessionStates = this.sessionStates.value || [];
-    console.log("selectedSessionStates: ", selectedSessionStates);
 
     if (option === "Seleziona tutto") {
       this.toggleSelectAll();
