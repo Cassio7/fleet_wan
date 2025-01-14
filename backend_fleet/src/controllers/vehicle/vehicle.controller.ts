@@ -171,10 +171,10 @@ export class VehicleController {
    */
   @Get('/:veId')
   @UsePipes(ParseIntPipe)
-  async getVehicleById(
+  async getVehicleByVeId(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
-    @Param() params: any,
+    @Param('veId') veId: number,
   ) {
     try {
       const vehicles = (await this.associationService.getVehiclesByUserRole(
@@ -184,20 +184,20 @@ export class VehicleController {
       if (!vehicles || !Array.isArray(vehicles)) {
         return res.status(404).json({ message: 'Nessun Veicolo associato' });
       }
-      const vehicle = await this.vehicleService.getVehicleByVeId([params.veId]);
+      const vehicle = await this.vehicleService.getVehicleByVeId([veId]);
       if (!vehicle || vehicle.length === 0) {
         return res.status(404).json({
-          message: 'Nessun veicolo con veId: ' + params.veId + ' trovato.',
+          message: 'Nessun veicolo con veId: ' + veId + ' trovato.',
         });
       }
 
       const vehicleCheck = vehicles.find(
-        (element) => element.veId === Number(params.veId),
+        (element) => element.veId === Number(veId),
       );
 
       if (!vehicleCheck) {
         return res.status(404).json({
-          message: `Non hai i permessi per visualizzare il veicolo con VeId: ${params.veId}`,
+          message: `Non hai i permessi per visualizzare il veicolo con VeId: ${veId}`,
         });
       }
 
