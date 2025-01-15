@@ -27,6 +27,7 @@ import { CantieriFilterService } from '../../../Common-services/cantieri-filter/
 import { ModelFilterService } from '../../../Common-services/model-filter/model-filter.service';
 import { FirstEventsFilterService } from '../../../Common-services/firstEvents-filter/first-events-filter.service';
 import { trigger, state, style, transition, animate } from '@angular/animations';
+import { CookiesService } from '../../../Common-services/cookies service/cookies.service';
 
 @Component({
   selector: 'app-table',
@@ -63,6 +64,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
   vehicleTableData = new MatTableDataSource<Vehicle>();
   sortedVehicles: Vehicle[] = [];
   expandedVehicle: Vehicle | null = null;
+  user: string = "";
 
   displayedColumns: string[] = ["Azienda", "Targa", "Marca&modello", "Cantiere",
   "Anno immatricolazione", "Tipologia attrezzatura", "Allestimento",
@@ -82,7 +84,6 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
     private authService: AuthService,
     private vehicleApiService: VehiclesApiService,
     private sessionStorageService: SessionStorageService,
-    private cookieService: CookieService,
     private cd: ChangeDetectorRef
   ){}
 
@@ -108,7 +109,9 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
   ngAfterViewInit(): void {
     // Riempimento dei dati della tabella, delegato interamente a fillTable
     this.fillTable();
-    console.log(this.vehicleTableData.data[0]);
+    const userInfo = this.authService.getUserInfo();
+    this.user = userInfo.username;
+    this.cd.detectChanges();
   }
 
   /**
@@ -144,11 +147,6 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
         this.loading = false;
       }
     });
-  }
-
-  toggleExpand(vehicle: any, event: MouseEvent): void {
-    event.stopPropagation(); // Prevent row click event from firing when the button is clicked
-    this.expandedVehicle = this.expandedVehicle === vehicle ? null : vehicle;
   }
 
 
@@ -254,7 +252,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
       }
     }
 
-    const userId = this.authService.decodeToken(this.cookieService.get("user")).id; //ottieni e trasforma access token
+    const userId = this.authService.getUserInfo(); //ottieni e trasforma access token
 
     const nota = new Note(content, vehicle, userId);//creazione nuovo oggetto nota
 
@@ -267,6 +265,16 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
       error: error => console.error("errore nel salvataggio della nota nel DB: ", error)
     });
   }
+
+  /**
+   * Controlla l'espansione e la contrazione della sezione commenti di un veicolo.
+   * @param vehicle veicolo di cui espandere la riga.
+   * @returns Il veicolo attualmente espanso, oppure null se nessun veicolo è espanso.
+   */
+  checkVehicleExpansion(vehicle: Vehicle) {
+    return this.expandedVehicle = this.expandedVehicle === vehicle ? null : vehicle;
+  }
+
 
   /**
    * Richiama la funzione nel servizio per verificare se una nota è stata modificata

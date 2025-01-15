@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { jwtDecode } from 'jwt-decode';
+import { CookiesService } from '../cookies service/cookies.service';
 
 
 @Injectable({
@@ -7,7 +8,9 @@ import { jwtDecode } from 'jwt-decode';
 })
 export class AuthService {
 
-  constructor() { }
+  constructor(
+    private cookieService: CookiesService
+  ) { }
 
   /**
    * Decodifica un token JWT
@@ -21,5 +24,14 @@ export class AuthService {
       console.error('Errore durante la decodifica del token:', error);
       return null;
     }
+  }
+
+  /**
+   * Decodifica il token d'accesso con le informazioni dell'utente
+   * @returns l'oggetto contenente le informazioni dell'utente
+   */
+  getUserInfo(){
+    const access_token = this.cookieService.getCookie("user");
+    return this.decodeToken(access_token);
   }
 }

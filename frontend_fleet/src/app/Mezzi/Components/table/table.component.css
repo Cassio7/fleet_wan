@@ -45,6 +45,10 @@ tr.comment-row:not(.example-expanded-row):active {
   display: flex;
 }
 
+.notes-header{
+  display: flex;
+  align-items: center;
+}
 
 
 
