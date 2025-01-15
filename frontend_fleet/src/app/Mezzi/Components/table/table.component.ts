@@ -1,4 +1,4 @@
-import { AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, HostListener, inject, NgZone, OnDestroy, ViewChild } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, HostListener, inject, NgZone, OnDestroy, signal, ViewChild } from '@angular/core';
 import { Vehicle } from '../../../Models/Vehicle';
 import { VehiclesApiService } from '../../../Common-services/vehicles api service/vehicles-api.service';
 import { Subject, takeUntil, filter, forkJoin, take, tap } from 'rxjs';
@@ -26,7 +26,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { CantieriFilterService } from '../../../Common-services/cantieri-filter/cantieri-filter.service';
 import { ModelFilterService } from '../../../Common-services/model-filter/model-filter.service';
 import { FirstEventsFilterService } from '../../../Common-services/firstEvents-filter/first-events-filter.service';
-import { VehicleData } from '../../../Models/VehicleData';
+import { trigger, state, style, transition, animate } from '@angular/animations';
 
 @Component({
   selector: 'app-table',
@@ -42,20 +42,32 @@ import { VehicleData } from '../../../Models/VehicleData';
     MatProgressBarModule,
     MatInputModule,
     MatCheckboxModule,
-    MatTableModule],
+    MatTableModule,
+  ],
   templateUrl: './table.component.html',
-  styleUrl: './table.component.css'
+  styleUrl: './table.component.css',
+  animations: [
+    trigger('detailExpand', [
+      state('collapsed,void', style({height: '0px', minHeight: '0'})),
+      state('expanded', style({height: '*'})),
+      transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+    ]),
+  ],
 })
 export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestroy{
   @ViewChild('vehicleTable') vehicleTable!: MatTable<Session[]>;
   private readonly destroy$: Subject<void> = new Subject<void>();
-
+  readonly panelOpenState = signal(false);
   completedCalls: number = 0;
   loading: boolean = true;
   vehicleTableData = new MatTableDataSource<Vehicle>();
   sortedVehicles: Vehicle[] = [];
+  expandedVehicle: Vehicle | null = null;
 
-  displayedColumns: string[] = ["Azienda", "Targa", "Marca&modello", "Cantiere", "Anno immatricolazione", "Tipologia attrezzatura", "Allestimento", "Data-installazione-fleet", "Data-rimozione-apparato", "Notes"];
+  displayedColumns: string[] = ["Azienda", "Targa", "Marca&modello", "Cantiere",
+  "Anno immatricolazione", "Tipologia attrezzatura", "Allestimento",
+  "Data-installazione-fleet", "Data-rimozione-apparato"];
+  columnsToDisplayWithExpand = [...this.displayedColumns, "expand"];
 
   private snackBar = inject(MatSnackBar);
   snackbarDuration = 2; //durata snackbar in secondi
@@ -96,6 +108,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
   ngAfterViewInit(): void {
     // Riempimento dei dati della tabella, delegato interamente a fillTable
     this.fillTable();
+    console.log(this.vehicleTableData.data[0]);
   }
 
   /**
@@ -133,7 +146,10 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
     });
   }
 
-
+  toggleExpand(vehicle: any, event: MouseEvent): void {
+    event.stopPropagation(); // Prevent row click event from firing when the button is clicked
+    this.expandedVehicle = this.expandedVehicle === vehicle ? null : vehicle;
+  }
 
 
   /**
