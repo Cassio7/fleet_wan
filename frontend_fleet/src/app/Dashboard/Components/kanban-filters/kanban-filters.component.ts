@@ -117,6 +117,7 @@ export class KanbanFiltersComponent implements AfterViewInit, OnDestroy{
    * @param emptyButtonClick se la funzione è stata chiamata dalla premuta del bottone per svuotare il campo
    */
   searchPlates(emptyButtonClick: boolean){
+    this.filters.plate = this.plate;
     //se è stato premuto il bottone per svuotare il campo
     if(emptyButtonClick){
       this.plateFilterService.filterByPlateResearch$.next("");
