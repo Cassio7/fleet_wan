@@ -1,11 +1,19 @@
+import { User } from "./User";
 import { Vehicle } from "./Vehicle";
 
 export class Note{
 
   constructor(
     public content: string,
-    public vehicle: Vehicle,
-    public userId: number,
+    public id: number,
+    public user: {
+      id: number,
+      username: string
+    },
+    public vehicle: {
+      id: number,
+      veId: number
+    },
     public saved: boolean = true
   ){}
 }
