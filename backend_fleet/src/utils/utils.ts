@@ -129,3 +129,18 @@ export function sortRedisData(data: any) {
     return 0;
   });
 }
+
+/**
+ * Mette asterischi sulla password per il log utente, evita password in chiaro
+ * @param body body della richiesta
+ * @returns
+ */
+export function passwordLogMask(
+  body: Record<string, any>,
+): Record<string, any> {
+  const clonedBody = { ...body };
+  if (clonedBody.password) {
+    clonedBody.password = '******'; // Maschera la password
+  }
+  return clonedBody;
+}
