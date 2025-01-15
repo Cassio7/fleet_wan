@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { jwtDecode } from 'jwt-decode';
 import { CookiesService } from '../cookies service/cookies.service';
+import { User } from '../../Models/User';
 
 
 @Injectable({
@@ -30,7 +31,7 @@ export class AuthService {
    * Decodifica il token d'accesso con le informazioni dell'utente
    * @returns l'oggetto contenente le informazioni dell'utente
    */
-  getUserInfo(){
+  getUserInfo(): User{
     const access_token = this.cookieService.getCookie("user");
     return this.decodeToken(access_token);
   }

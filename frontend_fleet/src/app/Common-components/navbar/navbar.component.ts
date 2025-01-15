@@ -13,6 +13,7 @@ import { KanbanAntennaService } from '../../Dashboard/Services/kanban-antenna/ka
 import { KanbanGpsService } from '../../Dashboard/Services/kanban-gps/kanban-gps.service';
 import { KanbanTableService } from '../../Dashboard/Services/kanban-table/kanban-table.service';
 import { CommonModule } from '@angular/common';
+import { User } from '../../Models/User';
 
 @Component({
   selector: 'app-navbar',
@@ -74,10 +75,10 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
   }
 
   ngAfterViewInit(): void {
-    const access_token_raw = this.cookieService.getCookie("user");
-    const access_token = this.authService.decodeToken(access_token_raw);
-    this.username = access_token.username;
-    switch(access_token.role){
+    const access_token = this.cookieService.getCookie("user");
+    const userInfo: User = this.authService.decodeToken(access_token);
+    this.username = userInfo.username;
+    switch(userInfo.role){
       case 1:
         this.role = "Admin";
         break;

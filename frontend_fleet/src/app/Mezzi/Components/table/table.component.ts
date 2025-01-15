@@ -252,7 +252,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
       }
     }
 
-    const userId = this.authService.getUserInfo(); //ottieni e trasforma access token
+    const userId = this.authService.getUserInfo().id; //ottieni e trasforma access token
 
     const nota = new Note(content, vehicle, userId);//creazione nuovo oggetto nota
 
