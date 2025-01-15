@@ -26,36 +26,31 @@ export class AuthService {
     username: string,
     password: string,
   ): Promise<{ access_token: string }> {
-    let user;
-    try {
-      user = await this.userRepository.findOne({
-        where: { username: username },
-      });
-      if (!user) {
-        throw new HttpException(
-          'Credenziali non valide: utente non trovato',
-          HttpStatus.UNAUTHORIZED,
-        );
-      }
-    } catch (error) {
-      throw error;
+    const user = await this.userRepository.findOne({
+      where: { username: username },
+    });
+    if (!user) {
+      throw new HttpException(
+        'Credenziali non valide: utente non trovato',
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
     // Verifica password
-    try {
-      if (!password) {
-        throw new Error('Password invalida per la comparazione');
-      }
-      const isPasswordValid = await bcrypt.compare(password, user.password);
-      if (!isPasswordValid) {
-        throw new HttpException(
-          'Credenziali non valide: password errata',
-          HttpStatus.UNAUTHORIZED,
-        );
-      }
-    } catch (error) {
-      throw error;
+    if (!password) {
+      throw new HttpException(
+        'Password invalida per la comparazione',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      throw new HttpException(
+        'Credenziali non valide: password errata',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
     try {
       const payload: JwtPayload = {
         username: user.username,
