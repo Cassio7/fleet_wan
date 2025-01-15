@@ -511,10 +511,7 @@ export class VehicleService {
    */
   async getVehiclesByReader(): Promise<any> {
     const vehicles = await this.vehicleRepository.find({
-      where: { isRFIDReader: true },
-      relations: {
-        device: true,
-      },
+      where: { allestimento: true },
       order: {
         id: 'ASC',
       },
