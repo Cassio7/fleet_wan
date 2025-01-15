@@ -17,6 +17,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Filters, FiltersCommonService } from '../../../Common-services/filters-common/filters-common.service';
 import { AntennaFilterService } from '../../../Common-services/antenna-filter/antenna-filter.service';
 import { AntennaGraphService } from '../../Services/antenna-graph/antenna-graph.service';
+import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
 
 @Component({
   selector: 'app-kanban-antenna',
@@ -44,6 +45,7 @@ export class KanbanAntennaComponent implements AfterViewInit, OnDestroy{
     private filtersCommonService: FiltersCommonService,
     private sessionStorageService: SessionStorageService,
     private antenanGraphService: AntennaGraphService,
+    public checkErrorsService: CheckErrorsService,
     private cd: ChangeDetectorRef
   ){}
 

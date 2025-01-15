@@ -25,7 +25,7 @@
       <div class="scrollable-list">
         <mat-list>
           <mat-list-item *ngFor="let obj of kanbanAntennaService.workingVehicles">
-            <div class="vehicle">
+            <div class="vehicle" matTooltip="Antenna funzionante">
               <div class="info">
                 <p class="type">{{'Tipologia non disponibile' }}</p>
                 <p class="cantiere">{{ obj.vehicle.worksite?.name || 'Non assegnato' }}</p>
@@ -59,7 +59,7 @@
       <div class="scrollable-list">
         <mat-list>
           <mat-list-item *ngFor="let obj of kanbanAntennaService.errorVehicles">
-            <div class="vehicle">
+            <div class="vehicle" [matTooltip]="checkErrorsService.checkAntennaError(obj)">
               <div class="info">
                 <p class="type">{{'Tipologia non disponibile' }}</p>
                 <p class="cantiere">{{ obj.vehicle.worksite?.name || 'Non assegnato' }}</p>
@@ -92,7 +92,7 @@
       </mat-progress-bar>
       <div class="scrollable-list">
         <mat-list>
-          <mat-list-item *ngFor="let obj of kanbanAntennaService.blackboxVehicles">
+          <mat-list-item *ngFor="let obj of kanbanAntennaService.blackboxVehicles" matTooltip="No antenna">
             <div class="vehicle">
               <div class="info">
                 <p class="type">{{'Tipologia non disponibile' }}</p>
