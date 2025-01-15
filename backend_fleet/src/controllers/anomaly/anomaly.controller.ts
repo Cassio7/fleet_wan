@@ -17,7 +17,6 @@ import { AuthGuard } from 'src/guard/auth.guard';
 import { RolesGuard } from 'src/guard/roles.guard';
 import { LogContext } from 'src/log/logger.types';
 import { LoggerService } from 'src/log/service/logger.service';
-import { VehicleService } from 'src/services/vehicle/vehicle.service';
 import { AnomalyService } from './../../services/anomaly/anomaly.service';
 
 @UseGuards(AuthGuard, RolesGuard)
@@ -26,7 +25,6 @@ import { AnomalyService } from './../../services/anomaly/anomaly.service';
 export class AnomalyController {
   constructor(
     private readonly anomalyService: AnomalyService,
-    private readonly vehicleService: VehicleService,
     @InjectRedis() private readonly redis: Redis,
     private readonly loggerService: LoggerService,
   ) {}
