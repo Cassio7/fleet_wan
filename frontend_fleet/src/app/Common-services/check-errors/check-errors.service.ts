@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, Observable } from 'rxjs';
 import { CommonService } from '../common service/common.service';
 import { Vehicle } from '../../Models/Vehicle';
 import { CookiesService } from '../cookies service/cookies.service';
@@ -219,6 +219,12 @@ export class CheckErrorsService {
     return foundAnomaly ? new Date(foundAnomaly.date) : null;
 }
 
+  private formatDate(date: Date): string {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
 
   /**
    * Controlla gli errori di tutti i veicoli con sessioni in un determinato arco di tempo
@@ -226,31 +232,25 @@ export class CheckErrorsService {
    * @param dateTo data di fine ricerca
    * @returns observable http
    */
-  public checkErrorsAllRanged(dateFrom: Date, dateTo: Date): Observable<any> {
+  public async checkErrorsAllRanged(dateFrom: Date, dateTo: Date): Promise<any> {
     const access_token = this.cookieService.getCookie("user");
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'
     });
 
-    const formatDate = (date: Date): string => {
-      const year = date.getFullYear();
-      const month = (date.getMonth() + 1).toString().padStart(2, '0');
-      const day = date.getDate().toString().padStart(2, '0');
-      return `${year}-${month}-${day}`;
-    };
-
     const body = {
-      dateFrom: formatDate(dateFrom),
-      dateTo: formatDate(dateTo)
+      dateFrom: this.formatDate(dateFrom),
+      dateTo: this.formatDate(dateTo)
     };
 
-
-    return this.http.post(
-      `${this.commonService.url}/anomaly`,
-      body,
-      { headers }
-    );
+    try {
+      const response = await firstValueFrom(this.http.post(`${this.commonService.url}/anomaly`, body, { headers }));
+      return response;
+    } catch (error) {
+      console.error('An error occurred:', error);
+      throw error;
+    }
   }
 
 
@@ -259,7 +259,7 @@ export class CheckErrorsService {
  * Controlla gli errori di tutti i veicoli con sessioni nella giornata di oggi
  * @returns observable http
   */
-  public checkErrorsAllToday(): Observable<any>{
+  public checkErrorsAllToday(): Promise<any>{
     return this.checkErrorsAllRanged(new Date(), new Date());
   }
 
