@@ -36,6 +36,10 @@ export class AnomalyService {
   ) {}
 
   /**
+   * NOTA: al momento allestimento viene inserito dentro isRFIDReader ma nel futuro deve essere cambiato
+   */
+
+  /**
    * Recupera tutte le anomalie salvate
    * @param userId user id
    * @returns
@@ -590,7 +594,7 @@ export class AnomalyService {
                   plate: vehicle.plate,
                   veId: vehicle.veId,
                   isCan: vehicle.isCan,
-                  isRFIDReader: vehicle.isRFIDReader,
+                  isRFIDReader: vehicle.allestimento,
                   day,
                   anomalies,
                 };
@@ -612,7 +616,7 @@ export class AnomalyService {
             plate: vehicle.plate,
             veId: vehicle.veId,
             isCan: vehicle.isCan,
-            isRFIDReader: vehicle.isRFIDReader,
+            isRFIDReader: vehicle.allestimento,
             day,
             anomalies,
           };
@@ -630,7 +634,7 @@ export class AnomalyService {
             plate: item.plate,
             veId: item.veId,
             isCan: item.isCan,
-            isRFIDReader: item.isRFIDReader,
+            isRFIDReader: item.allestimento,
             sessions: [],
           });
         }
@@ -715,7 +719,7 @@ export class AnomalyService {
             plate: vehicle.plate,
             veId: vehicle.veId,
             isCan: vehicle.isCan,
-            isRFIDReader: vehicle.isRFIDReader,
+            isRFIDReader: vehicle.allestimento,
             day,
             anomalies,
           };
@@ -733,7 +737,7 @@ export class AnomalyService {
             plate: item.plate,
             veId: item.veId,
             isCan: item.isCan,
-            isRFIDReader: item.isRFIDReader,
+            isRFIDReader: item.allestimento,
             sessions: [],
           });
         }
@@ -775,7 +779,7 @@ export class AnomalyService {
               plate: vehicle.plate,
               veId: vehicle.veId,
               isCan: vehicle.isCan,
-              isRFIDReader: vehicle.isRFIDReader,
+              isRFIDReader: vehicle.allestimento,
               anomalies: 'Ultima sessione non è stata chiusa correttamente',
             });
           } else if (lastVehicleEventTime > sessionEndTime) {
@@ -783,7 +787,7 @@ export class AnomalyService {
               plate: vehicle.plate,
               veId: vehicle.veId,
               isCan: vehicle.isCan,
-              isRFIDReader: vehicle.isRFIDReader,
+              isRFIDReader: vehicle.allestimento,
               anomalies: 'Presente una sessione nulla',
             });
           }
@@ -957,7 +961,8 @@ export class AnomalyService {
             vehicleDTO.id = anomaly.vehicle.id;
             vehicleDTO.plate = anomaly.vehicle.plate;
             vehicleDTO.veId = anomaly.vehicle.veId;
-            vehicleDTO.isRFIDReader = anomaly.vehicle.isRFIDReader;
+            // per comodità è stato tenuto il nome isRFIDReader per recupero frontend
+            vehicleDTO.isRFIDReader = anomaly.vehicle.allestimento;
 
             // DTO del worksite se esiste
             let worksiteDTO: WorksiteDTO | null = null;
