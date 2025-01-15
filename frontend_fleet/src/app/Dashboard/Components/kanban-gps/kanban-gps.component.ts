@@ -11,11 +11,11 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { KanbanFiltersComponent } from "../kanban-filters/kanban-filters.component";
 import { skip, Subject, takeUntil } from 'rxjs';
-import { PlateFilterService } from '../../../Common-services/plate-filter/plate-filter.service';
 import { Filters, FiltersCommonService } from '../../../Common-services/filters-common/filters-common.service';
 import { VehicleData } from '../../../Models/VehicleData';
-import { GpsFilterService } from '../../../Common-services/gps-filter/gps-filter.service';
 import { GpsGraphService } from '../../Services/gps-graph/gps-graph.service';
+import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-kanban-gps',
@@ -29,6 +29,7 @@ import { GpsGraphService } from '../../Services/gps-graph/gps-graph.service';
     MatProgressBarModule,
     MatIconModule,
     MatListModule,
+    MatTooltipModule,
     KanbanFiltersComponent
 ],
   templateUrl: './kanban-gps.component.html',
@@ -38,11 +39,10 @@ export class KanbanGpsComponent implements AfterViewInit, OnDestroy{
   private readonly destroy$: Subject<void> = new Subject<void>();
   constructor(
     public kanbanGpsService: KanbanGpsService,
-    private plateFilterService: PlateFilterService,
     private filtersCommonService: FiltersCommonService,
     private sessionStorageService: SessionStorageService,
+    public checkErrorsService: CheckErrorsService,
     private gpsGraphService: GpsGraphService,
-    private cd: ChangeDetectorRef
   ){}
 
   ngOnDestroy(): void {

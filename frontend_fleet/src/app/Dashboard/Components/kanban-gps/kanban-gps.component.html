@@ -19,7 +19,7 @@
       <div class="scrollable-list">
         <mat-list>
           <mat-list-item *ngFor="let obj of kanbanGpsService.workingVehicles">
-            <div class="vehicle">
+            <div class="vehicle" matTooltip="GPS funzionante">
               <div class="info">
                 <p class="type">{{ "tipologia" }}</p>
                 <p class="cantiere">
@@ -48,8 +48,8 @@
       <mat-progress-bar mode="determinate" [value]="kanbanGpsService.getVehiclesPercentage(kanbanGpsService.warningVehicles)" class="progress-bar"></mat-progress-bar>
       <div class="scrollable-list">
         <mat-list>
-          <mat-list-item *ngFor="let obj of kanbanGpsService.warningVehicles">
-            <div class="vehicle">
+          <mat-list-item *ngFor="let obj of kanbanGpsService.warningVehicles" >
+            <div class="vehicle" [matTooltip]="checkErrorsService.checkGPSWarning(obj)">
               <div class="info">
                 <p class="type">{{ "tipologia"}}</p>
                 <p class="cantiere">{{ obj.vehicle.worksite?.name ? obj.vehicle.worksite?.name : "non assegnato"}}</p>
@@ -78,7 +78,7 @@
       <div class="scrollable-list">
         <mat-list>
           <mat-list-item *ngFor="let obj of kanbanGpsService.errorVehicles">
-            <div class="vehicle">
+            <div class="vehicle" [matTooltip]="checkErrorsService.checkGpsError(obj)">
               <div class="info">
                 <p class="type">{{ "tipologia"}}</p>
                 <p class="cantiere">{{ obj.vehicle.worksite?.name ? obj.vehicle.worksite?.name : "non assegnato"}}</p>
