@@ -19,7 +19,7 @@ tr, td, th {
   border-radius: 10px;
   height: 70vh;
   margin: 0;
-  width: 100%;
+  width: 90%;
   overflow-y: auto;
   box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
   max-width: 100%;
@@ -32,6 +32,24 @@ tr, td, th {
   color: black;
 }
 
+.content{
+  height: 100%;
+  width: 100%;
+  flex-direction: column;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2vh;
+}
+
+.table-over{
+  width: 90%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  float: left;
+  gap: 1vw;
+}
 
 .filter-menu-container{
   max-height: 50px;

@@ -26,6 +26,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { CantieriFilterService } from '../../../Common-services/cantieri-filter/cantieri-filter.service';
 import { ModelFilterService } from '../../../Common-services/model-filter/model-filter.service';
 import { FirstEventsFilterService } from '../../../Common-services/firstEvents-filter/first-events-filter.service';
+import { VehicleData } from '../../../Models/VehicleData';
 
 @Component({
   selector: 'app-table',
@@ -102,8 +103,6 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
    * Se presenti, utilizza quelli; altrimenti fa una chiamata tramite un servizio all'API.
    */
   fillTable(): void {
-    console.log("fillTable called");
-
     // Parallel API calls to fetch vehicles and notes
     forkJoin({
       vehicles: this.vehicleApiService.getAllVehicles().pipe(takeUntil(this.destroy$)),
@@ -111,6 +110,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
     }).subscribe({
       next: ({ vehicles, notes }: { vehicles: Vehicle[], notes: Note[] }) => {
         console.log("Vehicle table fetched vehicles: ", vehicles);
+        this.sessionStorageService.setItem("allVehicles", JSON.stringify(vehicles));
         // Sort vehicles
         this.sortedVehicles = this.sortService.sortVehiclesByPlateAsc(vehicles) as Vehicle[];
         this.vehicleTableData.data = this.sortedVehicles;
@@ -309,7 +309,8 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
    * Resetta tutte le selezioni
    */
   resetSelections(){
-    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allData"));
+    const allVehicles: Vehicle[] = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+    console.log(allVehicles);
     this.selectService.selectVehicles(allVehicles);
     this.vehicleTableData.data = allVehicles;
     this.selectService.allOptionsSelected = true;
