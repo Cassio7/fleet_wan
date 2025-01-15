@@ -28,6 +28,8 @@ import { ModelFilterService } from '../../../Common-services/model-filter/model-
 import { FirstEventsFilterService } from '../../../Common-services/firstEvents-filter/first-events-filter.service';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { CookiesService } from '../../../Common-services/cookies service/cookies.service';
+import { User } from '../../../Models/User';
+import { NoteSectionComponent } from "../note-section/note-section/note-section.component";
 
 @Component({
   selector: 'app-table',
@@ -44,7 +46,8 @@ import { CookiesService } from '../../../Common-services/cookies service/cookies
     MatInputModule,
     MatCheckboxModule,
     MatTableModule,
-  ],
+    NoteSectionComponent
+],
   templateUrl: './table.component.html',
   styleUrl: './table.component.css',
   animations: [
@@ -64,15 +67,15 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
   vehicleTableData = new MatTableDataSource<Vehicle>();
   sortedVehicles: Vehicle[] = [];
   expandedVehicle: Vehicle | null = null;
-  user: string = "";
+
+  user!: User;
+
 
   displayedColumns: string[] = ["Azienda", "Targa", "Marca&modello", "Cantiere",
   "Anno immatricolazione", "Tipologia attrezzatura", "Allestimento",
   "Data-installazione-fleet", "Data-rimozione-apparato"];
   columnsToDisplayWithExpand = [...this.displayedColumns, "expand"];
 
-  private snackBar = inject(MatSnackBar);
-  snackbarDuration = 2; //durata snackbar in secondi
 
   constructor(
     public selectService: SelectService,
@@ -87,16 +90,6 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
     private cd: ChangeDetectorRef
   ){}
 
-
-  /**
-   * Apre la snackbar per la nota salvata
-   */
-  openSavedNoteSnackbar(): void {
-    this.snackBar.openFromComponent(NoteSnackbarComponent, {
-      duration: this.snackbarDuration * 1000,
-    });
-  }
-
   ngAfterViewChecked(): void {
     this.cd.detectChanges();
   }
@@ -107,10 +100,11 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
   }
 
   ngAfterViewInit(): void {
-    // Riempimento dei dati della tabella, delegato interamente a fillTable
+    const user: User = this.authService.getUserInfo();
+    this.user = user;
+    this.cd.detectChanges();
+    // Riempimento dei dati della tabella
     this.fillTable();
-    const userInfo = this.authService.getUserInfo();
-    this.user = userInfo.username;
     this.cd.detectChanges();
   }
 
@@ -126,6 +120,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
     }).subscribe({
       next: ({ vehicles, notes }: { vehicles: Vehicle[], notes: Note[] }) => {
         console.log("Vehicle table fetched vehicles: ", vehicles);
+        console.log("Vehicle table notes: ", notes);
         this.sessionStorageService.setItem("allVehicles", JSON.stringify(vehicles));
         // Sort vehicles
         this.sortedVehicles = this.sortService.sortVehiclesByPlateAsc(vehicles) as Vehicle[];
@@ -233,39 +228,6 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
     this.vehicleTable.renderRows();
   }
 
-
-  /**
-   * salva una nota nel db
-   * @param vehicle veicolo sul quale salvare la nota
-   * @param content contenuto della nota
-   */
-  saveNote(vehicle: Vehicle, content: string){
-    //se il veicolo possedeva già una nota creata imposta il salvataggio di quest'ultima a true
-    if(vehicle.note){
-      vehicle.note.saved = true;
-    }else{ //altrimenti crea una nuova nota vuota e impostala a true
-      vehicle.note = {
-        saved: true,
-        content: '',
-        vehicle: vehicle,
-        userId: 0,
-      }
-    }
-
-    const userId = this.authService.getUserInfo().id; //ottieni e trasforma access token
-
-    const nota = new Note(content, vehicle, userId);//creazione nuovo oggetto nota
-
-    //salvataggio nota nel database
-    this.notesService.saveNoteInDB(nota).pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: ()=>{
-        this.openSavedNoteSnackbar();
-      },
-      error: error => console.error("errore nel salvataggio della nota nel DB: ", error)
-    });
-  }
-
   /**
    * Controlla l'espansione e la contrazione della sezione commenti di un veicolo.
    * @param vehicle veicolo di cui espandere la riga.
@@ -273,26 +235,6 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
    */
   checkVehicleExpansion(vehicle: Vehicle) {
     return this.expandedVehicle = this.expandedVehicle === vehicle ? null : vehicle;
-  }
-
-
-  /**
-   * Richiama la funzione nel servizio per verificare se una nota è stata modificata
-   * @param vehicle veicolo di cui controllare la nota
-   * @param currentValue valore attuale del campo corrispondente alla nota
-   * @returns chiamata alla funzione per la verifica
-   */
-  isVehicleNoteModified(vehicle: Vehicle, currentValue: string): boolean {
-    return this.notesService.isVehicleNoteModified(vehicle, currentValue);
-  }
-
-  /**
-   *
-   * @param vehicle
-   * @returns
-   */
-  setNoteStatusToModified(vehicle: Vehicle){
-    return this.notesService.setNoteStatusToModified(vehicle);
   }
 
   /**

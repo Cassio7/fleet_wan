@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Note } from '../../../Models/Note';
 import { CommonService } from '../../../Common-services/common service/common.service';
@@ -6,6 +6,7 @@ import { SessionStorageService } from '../../../Common-services/sessionStorage/s
 import { firstValueFrom, Observable } from 'rxjs';
 import { VehicleData } from '../../../Models/VehicleData';
 import { Vehicle } from '../../../Models/Vehicle';
+import { CookiesService } from '../../../Common-services/cookies service/cookies.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +14,8 @@ import { Vehicle } from '../../../Models/Vehicle';
 export class NotesService {
 
   constructor(
+    private sessionStorageService: SessionStorageService,
+    private cookieService: CookiesService,
     private commonService: CommonService,
     private http: HttpClient
   ) { }
@@ -24,7 +27,7 @@ export class NotesService {
    */
   saveNoteInDB(note: Note): Observable<any>{
     const body = {
-      userId: note.userId,
+      userId: note.user.id,
       vehicleId: note.vehicle.veId,
       content: note.content
     }
@@ -32,7 +35,18 @@ export class NotesService {
   }
 
   getAllNotes(): Observable<any>{
-    return this.http.get<any>(`${this.commonService.url}/notes/all`);
+    const access_token = this.cookieService.getCookie("user");
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${access_token}`,
+      'Content-Type': 'application/json'
+    });
+
+    try {
+      return this.http.get<Note[]>(`${this.commonService.url}/notes`, { headers });
+    } catch (error) {
+      console.error('An error occurred:', error);
+      throw error;
+    }
   }
 
   isVehicleNoteModified(vehicle: any, currentValue: string): boolean {

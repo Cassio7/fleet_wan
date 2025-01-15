@@ -1,0 +1,7 @@
+<textarea #noteInput [value]="vehicle.note ? vehicle.note.content : ''" (keydown)="setNoteStatusToModified(vehicle)" name="notes" class="notes" matInput></textarea>
+<button
+  (click)="saveNote(vehicle, noteInput.value)"
+  mat-button>
+  Salva
+  <span *ngIf="isVehicleNoteModified(vehicle, noteInput.value) && !vehicle.note?.saved">*</span>
+</button>

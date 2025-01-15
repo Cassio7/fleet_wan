@@ -210,17 +210,11 @@
               <mat-icon>
                 edit_square
               </mat-icon>
-              <span style="margin-left: 8px;">Nota di {{user}}</span>
+              <span style="margin-left: 8px;">Nota di {{user.username}}</span>
             </div>
             <th mat-header-cell *matHeaderCellDef></th>
             <td>
-              <textarea #noteInput [value]="vehicle.note ? vehicle.note.content : ''" (keydown)="setNoteStatusToModified(vehicle)" name="notes" class="notes" matInput></textarea>
-              <button
-                (click)="saveNote(vehicle, noteInput.value)"
-                mat-button>
-                Salva
-                <span *ngIf="isVehicleNoteModified(vehicle, noteInput.value) && !vehicle.note?.saved">*</span>
-              </button>
+              <app-note-section [vehicle]="vehicle" [user]="user"></app-note-section>
             </td>
           </div>
         </div>
