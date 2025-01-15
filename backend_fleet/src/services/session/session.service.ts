@@ -12,7 +12,6 @@ import {
   DataSource,
   In,
   LessThanOrEqual,
-  MoreThan,
   MoreThanOrEqual,
   Not,
   Repository,
@@ -516,21 +515,15 @@ export class SessionService {
     dateTo: Date,
   ): Promise<any> {
     const sessions = await this.sessionRepository.find({
-      where: [
-        // nel mezzo
+      where:
+        // Sessioni completamente dentro l'intervallo
+        // Sessioni che iniziano prima di period_from e cadono nell intervallo
+        // Sessioni che iniziano prima di period_to e finiscono dopo il period_to
         {
           history: { vehicle: { veId: id } },
-          period_from: MoreThanOrEqual(dateFrom),
-          period_to: LessThanOrEqual(dateTo),
+          period_from: LessThanOrEqual(dateTo),
+          period_to: MoreThanOrEqual(dateFrom),
         },
-        // sessione inizia prima del controllo e finisce dopo lo stesso giorno
-        {
-          history: { vehicle: { veId: id } },
-          period_from: LessThanOrEqual(dateFrom), // La sessione può iniziare prima di dateFrom
-          period_to: MoreThanOrEqual(dateFrom), // La sessione può finire dopo dateFrom
-        },
-      ],
-
       relations: {
         history: true,
       },
@@ -573,6 +566,51 @@ export class SessionService {
     return mappedSessions;
   }
 
+  /**
+   * Recupera alcuni dati di tutte le sessioni e i relativi history di tutti i veicoli passati
+   * in base ad un range temporale inserito
+   * @param vehicleIds lista di veId identificativi veicolo
+   * @param dateFrom data inizio ricerca
+   * @param dateTo data fine ricerca
+   * @returns ritorna una mappa con (veId, session[])
+   */
+  async getAllSessionsByVeIdsAndRange(
+    vehicleIds: number[],
+    dateFrom: Date,
+    dateTo: Date,
+  ): Promise<Map<number, any[]>> {
+    const query = `
+      SELECT
+        s.sequence_id,
+        s.distance,
+        h.latitude,
+        h.longitude,
+        v."veId"
+      FROM session s
+      INNER JOIN history h ON s.id = h."sessionId"
+      INNER JOIN vehicles v ON h."vehicleId" = v.id
+      WHERE v."veId" IN (${vehicleIds.map((_, index) => `$${index + 1}`).join(',')})
+        AND s.period_from <= $${vehicleIds.length + 2}  -- dateTo
+        AND s.period_to >= $${vehicleIds.length + 1}    -- dateFrom
+      ORDER BY v."veId", s.sequence_id DESC;
+    `;
+
+    const params = [...vehicleIds, dateFrom, dateTo];
+    const sessions = await this.sessionRepository.query(query, params);
+
+    // Organizza le sessioni in una mappa per veicolo
+    const sessionMap = new Map<number, any[]>();
+    vehicleIds.forEach((id) => sessionMap.set(id, []));
+
+    sessions.forEach((session) => {
+      const vehicleId = session.veId;
+      if (vehicleId) {
+        sessionMap.get(vehicleId)?.push(session);
+      }
+    });
+
+    return sessionMap;
+  }
   /**
    * Restituisce l'ultima sessione in base al veId del veicolo e al range temporale inserito
    * @param id VeId identificativo Veicolo
@@ -645,6 +683,39 @@ export class SessionService {
       },
     });
     return session;
+  }
+
+  /**
+   * Ritorna alcuni dati dell'ultima sessione registrata in base ad una lista di veicoli
+   * @param vehicleIds lista di veId identificativi veicolo
+   * @returns ritorna una mappa con (veId, session);
+   */
+  async getLastSessionByVeIds(vehicleIds: number[]): Promise<Map<number, any>> {
+    const query = `
+    SELECT DISTINCT ON (v."veId") 
+      s.sequence_id as "sequence_id",
+      s.period_to AS "period_to",
+      v."veId" AS "veId"
+    FROM session s
+    INNER JOIN history h ON s.id = h."sessionId"
+    INNER JOIN vehicles v ON h."vehicleId" = v.id
+    WHERE v."veId" IN (${vehicleIds.map((_, index) => `$${index + 1}`).join(',')})
+    ORDER BY v."veId", s.sequence_id DESC;
+  `;
+
+    const sessions = await this.sessionRepository.query(query, vehicleIds);
+
+    const sessionMap = new Map<number, any>();
+    vehicleIds.forEach((id) => sessionMap.set(id, null));
+
+    sessions.forEach((session) => {
+      const vehicleId = session.veId;
+      if (vehicleId) {
+        sessionMap.set(vehicleId, session);
+      }
+    });
+
+    return sessionMap;
   }
 
   /**

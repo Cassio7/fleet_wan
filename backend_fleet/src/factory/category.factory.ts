@@ -13,7 +13,19 @@ export class CategoryFactoryService {
   async createDefaultCategory(): Promise<CategoryEntity[]> {
     const categories = [
       {
-        name: 'Spazzatrice',
+        name: 'Spazzamento',
+        description: 'Mezzo addetto a ....',
+      },
+      {
+        name: 'Raccolta',
+        description: 'Mezzo addetto a ....',
+      },
+      {
+        name: 'Trasferenza',
+        description: 'Mezzo addetto a ....',
+      },
+      {
+        name: 'Servizi vari',
         description: 'Mezzo addetto a ....',
       },
     ];

@@ -355,6 +355,45 @@ export class TagService {
     });
     return tags;
   }
+
+  /**
+   * Recupera l'ultimo tag letto di ogni veicolo passato come parametro, in base al range temporale inserito
+   * @param vehicleIds lista di veId identificativi veicolo
+   * @param dateFrom data inizio ricerca
+   * @param dateTo data fine ricerca
+   * @returns ritorna una mappa con (veId, tag)
+   */
+  async getLastTagHistoryByVeIdsAndRange(
+    vehicleIds: number[],
+    dateFrom: Date,
+    dateTo: Date,
+  ): Promise<Map<number, any>> {
+    const query = `
+    SELECT DISTINCT ON (v."veId") 
+      t.timestamp,
+      v."veId"
+    FROM tag_history t
+    INNER JOIN vehicles v ON t."vehicleId" = v.id
+    WHERE v."veId" IN (${vehicleIds.map((_, index) => `$${index + 1}`).join(',')})
+      AND t.timestamp BETWEEN $${vehicleIds.length + 1} AND $${vehicleIds.length + 2}
+    ORDER BY v."veId", t.timestamp DESC;
+  `;
+    const params = [...vehicleIds, dateFrom, dateTo];
+    const tags = await this.tagHistoryRepository.query(query, params);
+
+    // Organizza i tag in una mappa per veicolo
+    const tagMap = new Map<number, any>();
+    vehicleIds.forEach((id) => tagMap.set(id, null));
+    tags.forEach((tag) => {
+      const vehicleId = tag.veId;
+      if (vehicleId) {
+        tagMap.set(vehicleId, tag);
+      }
+    });
+
+    return tagMap;
+  }
+
   /**
    * Ritorna l'ultimo tag letto, se esiste, in un determinato range di tempo
    * @param period_from periodo di inizio ricerca

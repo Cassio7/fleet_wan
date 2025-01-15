@@ -8,7 +8,6 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { Role } from 'classes/enum/role.enum';
 import { UserFromToken } from 'classes/interfaces/userToken.interface';
 import { Request, Response } from 'express';
@@ -16,10 +15,9 @@ import Redis from 'ioredis';
 import { Roles } from 'src/decorators/roles.decorator';
 import { AuthGuard } from 'src/guard/auth.guard';
 import { RolesGuard } from 'src/guard/roles.guard';
-import { VehicleService } from 'src/services/vehicle/vehicle.service';
+import { LogContext } from 'src/log/logger.types';
+import { LoggerService } from 'src/log/service/logger.service';
 import { AnomalyService } from './../../services/anomaly/anomaly.service';
-import { AssociationService } from './../../services/association/association.service';
-import { sortRedisData } from 'src/utils/utils';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Controller('anomaly')
@@ -27,38 +25,58 @@ import { sortRedisData } from 'src/utils/utils';
 export class AnomalyController {
   constructor(
     private readonly anomalyService: AnomalyService,
-    private readonly associationService: AssociationService,
-    private readonly vehicleService: VehicleService,
     @InjectRedis() private readonly redis: Redis,
+    private readonly loggerService: LoggerService,
   ) {}
 
   /**
-   * Ritorna tutte le anomalie salvate
-   * @param res oggetto costruito soltanto con le informazioni necessarie
+   * API che ritorna tutte le anomalie salvate
+   * @param req dati utente
+   * @param res
+   * @returns
    */
   @Get()
   async getAllAnomaly(
-    // Necessario per recuperare user dalla richiesta e non dare errore in compilazione
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
   ) {
+    const context: LogContext = {
+      userId: req.user.id,
+      username: req.user.username,
+      resource: 'Anomaly',
+    };
+
     try {
-      const vehicles = (await this.associationService.getVehiclesByUserRole(
+      const anomalies = await this.anomalyService.getAllAnomalyByVeId(
         req.user.id,
-      )) as VehicleEntity[];
-      if (!vehicles || vehicles.length === 0) {
-        return res.status(404).json({ message: 'Nessun Veicolo associato' });
+      );
+      if (!anomalies?.length) {
+        this.loggerService.logCrudSuccess(
+          context,
+          'list',
+          'Nessuna anomalia trovata',
+        );
+        return res.status(404).json({
+          message: 'Nessuna anomalia trovata',
+        });
       }
-      const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
-      const anomalies =
-        await this.anomalyService.getAllAnomalyByVeId(vehicleIds);
-      if (!anomalies || anomalies.length === 0) {
-        return res.status(404).json({ message: 'Nessuna anomalia trovata' });
-      }
+
+      this.loggerService.logCrudSuccess(
+        context,
+        'list',
+        `Recuperate ${anomalies.length} anomalie`,
+      );
       res.status(200).json(anomalies);
     } catch (error) {
-      console.error('Errore nel recupero delle anomalie:', error);
-      res.status(500).json({ message: 'Errore nel recupero delle anomalie' });
+      this.loggerService.logCrudError({
+        error,
+        context,
+        operation: 'list',
+      });
+
+      return res.status(error.status || 500).json({
+        message: error.message || 'Errore recupero anomalie',
+      });
     }
   }
 
@@ -75,102 +93,116 @@ export class AnomalyController {
     @Res() res: Response,
     @Body() body: { dateFrom: string; dateTo: string },
   ) {
+    const context: LogContext = {
+      userId: req.user.id,
+      username: req.user.username,
+      resource: 'Anomaly today',
+    };
+
+    if (!body.dateFrom) {
+      this.loggerService.logCrudError({
+        context,
+        operation: 'list',
+        error: new Error('Inserisci una data di inizio'),
+      });
+      return res.status(400).json({ message: 'Inserisci una data di inizio' });
+    }
+    const dateFrom = new Date(body.dateFrom);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (!body.dateTo) {
+      this.loggerService.logCrudError({
+        context,
+        operation: 'list',
+        error: new Error('Inserisci una data di fine'),
+      });
+      return res.status(400).json({ message: 'Inserisci una data di fine' });
+    }
+
+    const dateTo = new Date(body.dateTo);
+    if (dateTo < dateFrom) {
+      this.loggerService.logCrudError({
+        context,
+        operation: 'list',
+        error: new Error(
+          'La data di fine deve essere successiva alla data di inizio',
+        ),
+      });
+      return res.status(400).json({
+        message: 'La data di fine deve essere successiva alla data di inizio',
+      });
+    }
+
     try {
-      if (!body.dateFrom) {
-        return res
-          .status(400)
-          .json({ message: 'Inserisci una data di inizio' });
-      }
+      // logica set redis giorno prima al momento dismessa
 
-      // Prendo i veicoli dall'utente
-      const vehicles = (await this.associationService.getVehiclesByUserRole(
-        req.user.id,
-      )) as VehicleEntity[];
-      if (!vehicles.length) {
-        return res.status(404).json({ message: 'Nessun veicolo associato' });
-      }
-
-      const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
-      const dateFrom = new Date(body.dateFrom);
+      // const yesterday = new Date(today);
+      // yesterday.setDate(yesterday.getDate() - 1);
       let lastUpdate;
       let anomalies: any[] = [];
-
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const yesterday = new Date(today);
-      yesterday.setDate(yesterday.getDate() - 1);
-
-      if (!body.dateTo) {
-        return res.status(400).json({
-          message: 'Inserisci una data di fine',
-        });
-      }
-      const dateTo = new Date(body.dateTo);
-      if (dateTo < dateFrom) {
-        return res.status(400).json({
-          message: 'La data di fine deve essere successiva alla data di inizio',
-        });
-      }
       // Case 1: Se dateFrom === dateTo e il giorno è oggi usare todayAnomaly
       if (dateFrom.getTime() === dateTo.getTime()) {
         if (dateFrom.getTime() === today.getTime()) {
-          lastUpdate = await this.redis.get('todayAnomaly:lastUpdate');
-          const redisPromises = vehicleIds.map(async (id) => {
-            const key = `todayAnomaly:${id}`;
-            try {
-              const data = await this.redis.get(key);
-              return data ? JSON.parse(data) : null;
-            } catch (error) {
-              console.error(
-                `Errore recupero da redis il veicolo ${id}:`,
-                error,
-              );
-              return null;
-            }
-          });
-          anomalies = (await Promise.all(redisPromises)).filter(Boolean);
+          const anomaliesData = await this.anomalyService.getTodayAnomalyRedis(
+            req.user.id,
+            dateFrom,
+          );
+          lastUpdate = anomaliesData.lastUpdate;
+          anomalies = anomaliesData.anomalies;
         } else {
           anomalies = await this.anomalyService.getAnomalyByDate(
-            vehicleIds,
+            req.user.id,
             dateFrom,
           );
         }
       }
-      // Case 2: Se dateFrom è ieri e il dateTo è oggi usa dayBeforeAnomaly
-      else if (
-        dateFrom.getTime() === yesterday.getTime() &&
-        dateTo.getTime() === today.getTime()
-      ) {
-        const redisPromises = vehicleIds.map(async (id) => {
-          const key = `dayBeforeAnomaly:${id}`;
-          try {
-            const data = await this.redis.get(key);
-            return data ? JSON.parse(data) : null;
-          } catch (error) {
-            console.error(`Errore recupero da redis il veicolo ${id}:`, error);
-            return null;
-          }
-        });
-        anomalies = (await Promise.all(redisPromises)).filter(Boolean);
-      }
+      // logica set redis giorno prima al momento dismessa
+
+      // // Case 2: Se dateFrom è ieri e il dateTo è oggi usa dayBeforeAnomaly
+      // else if (
+      //   dateFrom.getTime() === yesterday.getTime() &&
+      //   dateTo.getTime() === today.getTime()
+      // ) {
+      //   const redisPromises = vehicleIds.map(async (id) => {
+      //     const key = `dayBeforeAnomaly:${id}`;
+      //     try {
+      //       const data = await this.redis.get(key);
+      //       return data ? JSON.parse(data) : null;
+      //     } catch (error) {
+      //       console.error(`Errore recupero da redis il veicolo ${id}:`, error);
+      //       return null;
+      //     }
+      //   });
+      //   anomalies = (await Promise.all(redisPromises)).filter(Boolean);
+      // }
       // Case 3: Se nessuno dei casi è true fa getAnomalyByDateRange
       else {
         anomalies = await this.anomalyService.getAnomalyByDateRange(
-          vehicleIds,
+          req.user.id,
           dateFrom,
           dateTo,
         );
       }
-      anomalies = sortRedisData(anomalies);
-      // Restituisci il risultato
+      const message = anomalies.length
+        ? `Recuperate ${anomalies.length} anomalie`
+        : 'Nessuna anomalia trovata';
+
+      this.loggerService.logCrudSuccess(context, 'list', message);
       return res.status(200).json({
         lastUpdate,
         vehicles: anomalies,
       });
     } catch (error) {
-      console.error('Errore durante il recupero delle anomalie:', error);
-      return res.status(500).json({
-        message: 'Errore durante il recupero delle anomalie',
+      this.loggerService.logCrudError({
+        context,
+        operation: 'list',
+        error,
+      });
+
+      return res.status(error.status || 500).json({
+        message: error.message || 'Errore durante il recupero delle anomalie',
       });
     }
   }
@@ -185,48 +217,45 @@ export class AnomalyController {
    */
   @Get('last')
   async getLastAnomaly(
-    // Necessario per recuperare user dalla richiesta e non dare errore in compilazione
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
   ) {
+    const context: LogContext = {
+      userId: req.user.id,
+      username: req.user.username,
+      resource: 'Anomaly last',
+    };
+
     try {
-      const vehicles = (await this.associationService.getVehiclesByUserRole(
+      const anomalies = await this.anomalyService.getLastAnomalyRedis(
         req.user.id,
-      )) as VehicleEntity[];
-      if (!vehicles || vehicles.length === 0) {
-        return res.status(404).json({ message: 'Nessun Veicolo associato' });
-      }
-      const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
-      let anomalies = [];
-      // Recupero da Redis filtrando i null
-      anomalies = (
-        await Promise.all(
-          vehicleIds.map(async (id) => {
-            const key = `lastAnomaly:${id}`;
-            try {
-              const data = await this.redis.get(key);
-              return data ? JSON.parse(data) : null;
-            } catch (error) {
-              console.error(
-                `Errore recupero da redis il veicolo ${id}:`,
-                error,
-              );
-              return null;
-            }
-          }),
-        )
-      ).filter(Boolean);
-      anomalies = sortRedisData(anomalies);
+      );
+
       if (!anomalies || anomalies.length === 0) {
-        anomalies = await this.anomalyService.getLastAnomaly(vehicleIds);
-      }
-      if (!anomalies || anomalies.length === 0) {
+        this.loggerService.logCrudSuccess(
+          context,
+          'list',
+          'Nessuna anomalia trovata',
+        );
         return res.status(404).json({ message: 'Nessuna anomalia trovata' });
       }
+
+      this.loggerService.logCrudSuccess(
+        context,
+        'list',
+        `Recuperate ${anomalies.length} anomalie `,
+      );
       res.status(200).json({ vehicles: anomalies });
     } catch (error) {
-      console.error('Errore nel recupero delle anomalie:', error);
-      res.status(500).json({ message: 'Errore nel recupero delle anomalie' });
+      this.loggerService.logCrudError({
+        context,
+        operation: 'list',
+        error,
+      });
+
+      res.status(500).json({
+        message: error.message || 'Errore nel recupero delle anomalie',
+      });
     }
   }
 
@@ -255,7 +284,15 @@ export class AnomalyController {
    * @returns
    */
   @Get('updatetoday')
-  async updateTodayAnomaly(@Res() res: Response) {
+  async updateTodayAnomaly(
+    @Req() req: Request & { user: UserFromToken },
+    @Res() res: Response,
+  ) {
+    const context: LogContext = {
+      userId: req.user.id,
+      username: req.user.username,
+      resource: 'Anomaly',
+    };
     try {
       const datefrom = new Date();
       const dateto = new Date(datefrom);
@@ -265,9 +302,16 @@ export class AnomalyController {
         datefrom.toISOString(),
         dateto.toISOString(),
       );
-      if (!data || data.length === 0)
-        return res.status(404).json({ message: 'No data' });
-      const anomalyPromises = data.flatMap((item) => {
+      if (!data || data.length === 0) {
+        this.loggerService.logCrudSuccess(
+          context,
+          'update',
+          'Nessuna dato da salvare',
+        );
+        return res.status(404).json({ message: 'Nessuna dato da salvare' });
+      }
+
+      const anomalyPromises = data.flatMap(async (item) => {
         const veId = item.veId;
         let date = null;
         let gps = null;
@@ -281,8 +325,7 @@ export class AnomalyController {
             antenna = item.sessions[0].anomalies.Antenna || null;
           }
         }
-
-        return this.anomalyService.createAnomaly(
+        return await this.anomalyService.createAnomaly(
           veId,
           date,
           gps,
@@ -290,44 +333,50 @@ export class AnomalyController {
           session,
         );
       });
-
       await Promise.all(anomalyPromises);
 
       const todaykeys = await this.redis.keys('todayAnomaly:*');
       if (todaykeys.length > 0) {
         await this.redis.del(todaykeys);
       }
-      const dayBeforekeys = await this.redis.keys('dayBeforeAnomaly:*');
-      if (dayBeforekeys.length > 0) {
-        await this.redis.del(dayBeforekeys);
-      }
-      const vehicles = await this.vehicleService.getAllVehicles();
-      const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
+
       const now = new Date();
-      const dayBefore = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate() - 1,
-      );
-      const yesterdayAnomalies = await this.anomalyService.getAnomalyByDate(
-        vehicleIds,
-        dayBefore,
-      );
-      const todayAnomalies = await this.anomalyService.getAnomalyByDate(
-        vehicleIds,
-        now,
-      );
-      await this.anomalyService.setDayBeforeAnomalyRedis(yesterdayAnomalies);
+
+      const todayAnomalies = await this.anomalyService.getAnomalyByDate(1, now);
       await this.anomalyService.setTodayAnomalyRedis(todayAnomalies);
 
+      // logica set redis giorno prima al momento dismessa
+
+      // const dayBeforekeys = await this.redis.keys('dayBeforeAnomaly:*');
+      // if (dayBeforekeys.length > 0) {
+      //   await this.redis.del(dayBeforekeys);
+      // }
+      // const dayBefore = new Date(
+      //   now.getFullYear(),
+      //   now.getMonth(),
+      //   now.getDate() - 1,
+      // );
+      // const yesterdayAnomalies = await this.anomalyService.getAnomalyByDate(
+      //   vehicleIds,
+      //   dayBefore,
+      // );
+      // await this.anomalyService.setDayBeforeAnomalyRedis(yesterdayAnomalies);
+
+      this.loggerService.logCrudSuccess(
+        context,
+        'update',
+        `Aggiornate ${todayAnomalies.length} anomalie `,
+      );
       res.status(200).json({ message: 'Anomalie odierne aggiornate' });
     } catch (error) {
-      console.error(
-        'Errore durante aggiornamento delle anomalie odierne:',
+      this.loggerService.logCrudError({
+        context,
+        operation: 'update',
         error,
-      );
-      return res.status(500).json({
-        message: 'Errore durante aggiornamento delle anomalie odierne',
+      });
+
+      res.status(500).json({
+        message: error.message || 'Errore nel recupero delle anomalie',
       });
     }
   }

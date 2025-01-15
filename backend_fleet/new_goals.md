@@ -18,16 +18,17 @@
 - [x] integrazione con Redis per ridurre tempo risoluzione chiamate risoluzione posizione e altro
 - [x] gestito errore 502 _AxiosError_ per il recupero dei dati, riprova 3 volte prima di saltare
 - [x] manca ANOMALIES come aggiornamento sul pdf del database
+- [x] assegnare tutti i cantieri ai nuovi veicoli
+- [x] dare un formato di risposta corretto a tutte le API
+- [x] aggiungere campo azienda appartenenza mezzo (relevant_company)
 - [ ] succede che vengono letti anche i tag di oggetti che non sono contenitori, tipo capi della Decathlon, 3 opzioni
   1. funzione che valida gli epc;
   2. recupero i tag validi da un altra parte, come tabella da kevin,
   3. salvo comunque tutto comunque.
 - [ ] integrazione dei DTO
 - [ ] rimuovere codice non utilizzato
-- [x] aggiungere campo azienda appartenenza mezzo (relevant_company)
-- [ ] dare un formato di risposta corretto a tutte le API
 - [ ] segnare la posizione dei cantieri con circonferenza, layer comunali
 - [ ] implementazione della connessione ed invio email, per alert e recupero dati
-- [x] assegnare tutti i cantieri ai nuovi veicoli
-- [ ] utilizzare un canale realtime message tramite redis per gli eventi
+- [ ] log centralizzato
+- [ ] gestione degli errori corretta tramite HttpException
 - [ ] capire cosa fare con le posizioni in tempo real con lat 0 e lon 0 per mappa frontend

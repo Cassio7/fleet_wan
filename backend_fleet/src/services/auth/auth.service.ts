@@ -1,11 +1,11 @@
-import { JwtPayload } from './../../../node_modules/@types/jsonwebtoken/index.d';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { UserEntity } from 'classes/entities/user.entity';
-import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { JwtPayload } from './../../../node_modules/@types/jsonwebtoken/index.d';
 
 @Injectable()
 export class AuthService {
@@ -27,36 +27,48 @@ export class AuthService {
     password: string,
   ): Promise<{ access_token: string }> {
     const user = await this.userRepository.findOne({
-      where: {
-        username: username,
-      },
+      where: { username: username },
     });
-    // Se l'utente non esiste
     if (!user) {
-      throw new UnauthorizedException(
+      throw new HttpException(
         'Credenziali non valide: utente non trovato',
+        HttpStatus.UNAUTHORIZED,
       );
     }
+
+    // Verifica password
     if (!password) {
-      throw new Error('Password invalida per la comparazione');
+      throw new HttpException(
+        'Password invalida per la comparazione',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    // se password non uguale
     if (!isPasswordValid) {
-      throw new UnauthorizedException(
+      throw new HttpException(
         'Credenziali non valide: password errata',
+        HttpStatus.UNAUTHORIZED,
       );
     }
-    const payload: JwtPayload = {
-      username: user.username,
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      surname: user.surname,
-    };
-    return {
-      access_token: await this.jwtService.signAsync(payload),
-    };
+
+    try {
+      const payload: JwtPayload = {
+        username: user.username,
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        surname: user.surname,
+      };
+      return {
+        access_token: await this.jwtService.signAsync(payload),
+      };
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        `Errore durante il login utente`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   /**
@@ -71,15 +83,20 @@ export class AuthService {
       });
     } catch (error) {
       if (error.name === 'TokenExpiredError') {
-        throw new UnauthorizedException(
+        throw new HttpException(
           'Il token è scaduto. Effettua di nuovo accesso.',
+          HttpStatus.UNAUTHORIZED,
         );
       } else if (error.name === 'JsonWebTokenError') {
-        throw new UnauthorizedException(
+        throw new HttpException(
           'Il token è invalido. Potrebbe essere stato modificato.',
+          HttpStatus.UNAUTHORIZED,
         );
       }
-      throw new UnauthorizedException('Errore di autenticazione.');
+      throw new HttpException(
+        'Errore di autenticazione.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }

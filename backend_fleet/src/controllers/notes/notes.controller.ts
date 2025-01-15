@@ -1,58 +1,289 @@
-import { Controller, Post, Body, Get, Param, Put, Delete, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put,
+  Req,
+  Res,
+  UseGuards,
+  UsePipes,
+} from '@nestjs/common';
 import { NoteDto } from 'classes/dtos/note.dto';
+import { Role } from 'classes/enum/role.enum';
+import { UserFromToken } from 'classes/interfaces/userToken.interface';
+import { Response } from 'express';
+import { Roles } from 'src/decorators/roles.decorator';
+import { AuthGuard } from 'src/guard/auth.guard';
+import { RolesGuard } from 'src/guard/roles.guard';
+import { LogContext } from 'src/log/logger.types';
+import { LoggerService } from 'src/log/service/logger.service';
 import { NotesService } from 'src/services/notes/notes.service';
 
+@UseGuards(AuthGuard, RolesGuard)
 @Controller('notes')
 export class NotesController {
-    constructor(private readonly notesService: NotesService) {}
+  constructor(
+    private readonly notesService: NotesService,
+    private readonly loggerService: LoggerService,
+  ) {}
 
-    /**
-     * Prende tutte le note salvate nel db
-     * @param res 
-     * @returns 
-     */
-    @Get('/all')
-    async getAllNotes(@Res() res: any){
-        const notes = await this.notesService.getAllNotes();
-        return notes ? res.status(200).json(notes) : res.status(200).send("Errore nella ricerca di tutte le note");
+  /**
+   * API per recuperare le note associate all'utente loggato
+   * @param req utente loggato
+   * @param res
+   * @returns
+   */
+  @Roles(Role.Admin, Role.Responsabile, Role.Capo)
+  @Get()
+  async getAllNotesByUser(
+    @Req() req: Request & { user: UserFromToken },
+    @Res() res: Response,
+  ) {
+    const context: LogContext = {
+      userId: req.user.id,
+      username: req.user.username,
+      resource: 'Notes',
+    };
+
+    try {
+      const notes = await this.notesService.getAllNotesByUser(req.user.id);
+
+      if (!notes?.length) {
+        this.loggerService.logCrudSuccess(
+          context,
+          'list',
+          'Nessuna nota trovata',
+        );
+        return res.status(404).json({
+          message: 'Nessuna nota trovata',
+        });
+      }
+
+      this.loggerService.logCrudSuccess(
+        context,
+        'list',
+        `Recuperate ${notes.length} note`,
+      );
+      return res.status(200).json(notes);
+    } catch (error) {
+      this.loggerService.logCrudError({
+        error,
+        context,
+        operation: 'list',
+      });
+
+      return res.status(error.status || 500).json({
+        message: error.message || 'Errore recupero nota',
+      });
     }
-    
-    /*OPERAZIONI CRUD */
-    /**
-     * Crea una nuova nota
-     * @param noteDto - The data to create a new note
-     * @returns The created note entity
-     */
-    @Post('/create')
-    async create(@Body() noteDto: NoteDto, @Res() res: any) {
-        return res.json(this.notesService.createNote(noteDto));
+  }
+
+  /**
+   * API per prendere tutte le note salvate nel db solo admin
+   * @param res
+   * @returns
+   */
+  @Roles(Role.Admin)
+  @Get('admin')
+  async getAllNotes(
+    @Req() req: Request & { user: UserFromToken },
+    @Res() res: Response,
+  ) {
+    const context: LogContext = {
+      userId: req.user.id,
+      username: req.user.username,
+      resource: 'Notes (admin)',
+    };
+
+    try {
+      const notes = await this.notesService.getAllNotes();
+
+      if (!notes?.length) {
+        this.loggerService.logCrudSuccess(
+          context,
+          'list',
+          'Nessuna nota trovata',
+        );
+        return res.status(404).json({
+          message: 'Nessuna nota trovata',
+        });
+      }
+
+      this.loggerService.logCrudSuccess(
+        context,
+        'list',
+        `Recuperate tutte le note (${notes.length})`,
+      );
+      return res.status(200).json(notes);
+    } catch (error) {
+      this.loggerService.logCrudError({
+        error,
+        context,
+        operation: 'list',
+      });
+
+      return res.status(error.status || 500).json({
+        message: error.message || 'Errore recupero note',
+      });
     }
+  }
 
-    /**
-     * Aggiorna una nota esistente
-     * @param body corpo della richiesta
-     * @param res 
-     * @returns 
-     */
-    @Post("/update")
-    update(@Body() body: any, @Res() res){
-        const vehicleId = body.vehicleId;
-        const userId = body.userId;
-        const newContent = body.content;
+  /**
+   * API per la creazione di una nuova nota
+   * @param req per recuperare utente e lista veicoli
+   * @param body il veId del veicolo e il contenuto del messaggio
+   * @param res
+   * @returns
+   */
+  @Roles(Role.Admin, Role.Responsabile, Role.Capo)
+  @Post()
+  async createNote(
+    @Req() req: Request & { user: UserFromToken },
+    @Body() body: { veId: number; content: string },
+    @Res() res: Response,
+  ) {
+    const context: LogContext = {
+      userId: req.user.id,
+      username: req.user.username,
+      resource: 'Notes',
+    };
 
-        return res.json(this.notesService.updateNote(userId, vehicleId, newContent));
+    try {
+      const veId = Number(body.veId); // Garantisce che veId sia un numero
+
+      if (isNaN(veId)) {
+        this.loggerService.logCrudError({
+          error: new Error('Il veId deve essere un numero valido'),
+          context,
+          operation: 'create',
+        });
+        return res.status(400).json({
+          message: 'Il veId deve essere un numero valido',
+        });
+      }
+
+      await this.notesService.createNote(req.user.id, veId, body.content);
+
+      this.loggerService.logCrudSuccess(
+        context,
+        'create',
+        `Nota creata con successo: veId=${veId}, Contenuto=${body.content}`,
+      );
+
+      return res.status(200).json({
+        message: 'Nota creata con successo!',
+      });
+    } catch (error) {
+      this.loggerService.logCrudError({
+        error,
+        context,
+        operation: 'create',
+      });
+
+      return res.status(error.status || 500).json({
+        message: error.message || 'Errore creazione nota',
+      });
     }
+  }
 
-    /**
-     * Elimina una nota
-     * @param params id della nota da cancellare
-     * @param res 
-     * @returns 
-     */
-    @Post('/delete/:id')
-    async delete(@Param() params: any, @Res() res){
-        const noteId = params.id;
-        return res.json(this.notesService.deleteNote(noteId));
+  /**
+   * API per aggiornare una nota dato un utente e id della nota
+   * @param req utente loggato
+   * @param noteId id della nota
+   * @param body contenuto da aggiornare
+   * @param res
+   * @returns
+   */
+  @Roles(Role.Admin, Role.Responsabile, Role.Capo)
+  @Put(':id')
+  @UsePipes(ParseIntPipe)
+  async updateNote(
+    @Req() req: Request & { user: UserFromToken },
+    @Param('id') noteId: number,
+    @Body() body: NoteDto,
+    @Res() res: Response,
+  ) {
+    const context: LogContext = {
+      userId: req.user.id,
+      username: req.user.username,
+      resource: 'Notes',
+      resourceId: noteId,
+    };
+
+    try {
+      await this.notesService.updateNote(req.user.id, noteId, body.content);
+
+      this.loggerService.logCrudSuccess(
+        context,
+        'update',
+        `Nota aggiornata con successo: NoteID=${noteId}, Contenuto=${body.content}`,
+      );
+
+      return res.status(200).json({
+        message: 'Nota aggiornata con successo!',
+      });
+    } catch (error) {
+      this.loggerService.logCrudError({
+        error,
+        context,
+        operation: 'update',
+      });
+
+      return res.status(error.status || 500).json({
+        message: error.message || 'Errore aggiornamento nota',
+      });
     }
+  }
 
+  /**
+   * API per eliminare una nota, se utente è admin può eliminare tutte, se user normale può
+   * eliminare solo quelle create da lui
+   * @param req utente loggato
+   * @param noteId id della nota
+   * @param res
+   * @returns
+   */
+  @Roles(Role.Admin, Role.Responsabile, Role.Capo)
+  @Delete(':id')
+  @UsePipes(ParseIntPipe)
+  async deleteNote(
+    @Req() req: Request & { user: UserFromToken },
+    @Param('id') noteId: number,
+    @Res() res: Response,
+  ) {
+    const context: LogContext = {
+      userId: req.user.id,
+      username: req.user.username,
+      resource: 'Notes',
+      resourceId: noteId, // ID della nota da eliminare
+    };
+
+    try {
+      await this.notesService.deleteNote(req.user.id, noteId);
+
+      this.loggerService.logCrudSuccess(
+        context,
+        'delete',
+        `Nota eliminata con successo: NoteID=${noteId}`,
+      );
+
+      return res.status(200).json({
+        message: 'Nota eliminata con successo!',
+      });
+    } catch (error) {
+      this.loggerService.logCrudError({
+        error,
+        context,
+        operation: 'delete',
+      });
+
+      return res.status(error.status || 500).json({
+        message: error.message || 'Errore eliminazione nota',
+      });
+    }
+  }
 }

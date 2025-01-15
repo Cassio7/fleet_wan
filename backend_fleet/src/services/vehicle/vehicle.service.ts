@@ -68,7 +68,7 @@ export class VehicleService {
           );
           retries -= 1;
 
-          // Delay di 1 secondo tra i tentativi
+          // Delay di 5 secondi tra i tentativi
           await new Promise((resolve) => setTimeout(resolve, 5000));
           continue;
         }
@@ -76,15 +76,15 @@ export class VehicleService {
           'Tutti i tentativi di connessione sono falliti, saltato controllo:',
           error.message,
         );
+        return false;
       }
     }
+    if (!response) return false;
     const queryRunner = this.connection.createQueryRunner();
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
-      const response = await axios.post(this.serviceUrl, requestXml, {
-        headers,
-      });
+
       const jsonResult = await parseStringPromise(response.data, {
         explicitArray: false,
       });
@@ -100,23 +100,6 @@ export class VehicleService {
         return false; // se item.list non esiste, salto elemento
       }
       const newVehicles = await this.putAllVehicle(lists);
-      // const newGroups = [];
-      // const groupquery = await queryRunner.manager
-      //   .getRepository(GroupEntity)
-      //   .findOne({
-      //     where: { vgId: vgId },
-      //   });
-      // // if null
-      // if (!groupquery) {
-      //   await queryRunner.rollbackTransaction();
-      //   await queryRunner.release();
-      //   throw new Error(`Gruppo con id ${vgId} non trovato`);
-      // }
-
-      // const vehicleIds = lists.map((vehicle) => vehicle.id);
-      // const vehicles = await this.vehicleRepository.findBy({
-      //   veId: In(vehicleIds),
-      // });
 
       await queryRunner.commitTransaction();
       await queryRunner.release();
@@ -205,7 +188,6 @@ export class VehicleService {
       const deviceMap = new Map(
         devices.map((device) => [device.device_id, device]),
       );
-      let flag = 0;
       const newVehicles = [];
       const updatedVehicles = [];
 
@@ -252,7 +234,6 @@ export class VehicleService {
             hash: vehicle.hash,
           });
         }
-        flag++;
       }
 
       // Salva i nuovi veicoli
@@ -530,10 +511,7 @@ export class VehicleService {
    */
   async getVehiclesByReader(): Promise<any> {
     const vehicles = await this.vehicleRepository.find({
-      where: { isRFIDReader: true },
-      relations: {
-        device: true,
-      },
+      where: { allestimento: true },
       order: {
         id: 'ASC',
       },
