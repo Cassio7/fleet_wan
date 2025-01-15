@@ -171,7 +171,7 @@ export class NotesController {
       this.loggerService.logCrudSuccess(
         context,
         'create',
-        `Nota creata con successo: veId=${veId}, Contenuto=${body.content}`,
+        `Nota creata con successo: veId = ${veId}, Contenuto = ${body.content}`,
       );
 
       return res.status(200).json({
@@ -200,10 +200,9 @@ export class NotesController {
    */
   @Roles(Role.Admin, Role.Responsabile, Role.Capo)
   @Put(':id')
-  @UsePipes(ParseIntPipe)
   async updateNote(
     @Req() req: Request & { user: UserFromToken },
-    @Param('id') noteId: number,
+    @Param('id', ParseIntPipe) noteId: number,
     @Body() body: NoteDto,
     @Res() res: Response,
   ) {
@@ -220,7 +219,7 @@ export class NotesController {
       this.loggerService.logCrudSuccess(
         context,
         'update',
-        `Nota aggiornata con successo: NoteID=${noteId}, Contenuto=${body.content}`,
+        `Nota aggiornata con successo: NoteID = ${noteId}, Contenuto = ${body.content}`,
       );
 
       return res.status(200).json({
@@ -268,7 +267,7 @@ export class NotesController {
       this.loggerService.logCrudSuccess(
         context,
         'delete',
-        `Nota eliminata con successo: NoteID=${noteId}`,
+        `Nota eliminata con successo: NoteID = ${noteId}`,
       );
 
       return res.status(200).json({
