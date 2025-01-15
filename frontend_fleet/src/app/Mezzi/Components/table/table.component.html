@@ -31,8 +31,8 @@
           <mat-divider></mat-divider>
           <!-- Checkbox per ogni veicolo -->
           <button mat-menu-item *ngFor="let vehicle of sortedVehicles" (click)="selectTarga(vehicle, $event)">
-            <mat-checkbox [checked]="selectService.isPlateSelected(vehicle.vehicle.plate)">
-              {{ vehicle.vehicle.plate }}
+            <mat-checkbox [checked]="selectService.isPlateSelected(vehicle.plate)">
+              {{ vehicle.plate }}
             </mat-checkbox>
           </button>
         </mat-menu>

@@ -375,9 +375,9 @@ export class TableComponent implements OnDestroy, AfterViewInit{
 
       case 'targa':
         if (sortDirection == "asc") {
-          this.vehicleTableData.data = this.sortService.sortVehiclesByPlateAsc(vehiclesData);
+          this.vehicleTableData.data = this.sortService.sortVehiclesByPlateAsc(vehiclesData) as VehicleData[];
         } else {
-          this.vehicleTableData.data = this.sortService.sortVehiclesByPlateDesc(vehiclesData);
+          this.vehicleTableData.data = this.sortService.sortVehiclesByPlateDesc(vehiclesData) as VehicleData[];
         }
         this.vehicleTable.renderRows();
         break;
@@ -405,27 +405,22 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     const dateTo = this.commonService.dateTo;
     this.vehicleTableData.data = []; //inizializzazione tabella vuota
     this.simulateProgress(0.2, 10);
-    this.checkErrorsService.checkErrorsAllRanged(dateFrom, dateTo).pipe(takeUntil(this.destroy$), first())
-    .subscribe({
-      next: (responseObj: any) => {
-        const vehiclesData = responseObj.vehicles;
-        console.log("vehiclesData fetched: ", vehiclesData);
-        try {
-          if (vehiclesData && vehiclesData.length > 0) {
-            this.vehicleTableData.data = [...vehiclesData];  // Assicurati che vehiclesData.vehicles sia un array di veicoli
-            this.sessionStorageService.setItem("allData", JSON.stringify(vehiclesData));  // Salva l'array di veicoli
-            this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));
-            this.vehicleTable.renderRows();  // Rende le righe della tabella
-            this.loadGraphs(vehiclesData);
-          }
-        } catch (error) {
-          console.error("Error processing vehicles:", error);
+    this.checkErrorsService.checkErrorsAllRanged(dateFrom, dateTo)
+    .then((responseObj: any) => {
+      const vehiclesData = responseObj.vehicles;
+      console.log("vehiclesData fetched: ", vehiclesData);
+      try {
+        if (vehiclesData && vehiclesData.length > 0) {
+          this.vehicleTableData.data = [...vehiclesData];  // Assicurati che vehiclesData.vehicles sia un array di veicoli
+          this.sessionStorageService.setItem("allData", JSON.stringify(vehiclesData));  // Salva l'array di veicoli
+          this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));
+          this.vehicleTable.renderRows();  // Rende le righe della tabella
+          this.loadGraphs(vehiclesData);
         }
-      },
-      error: (error) => {
-        console.error("Error loading data:", error);
+      } catch (error) {
+        console.error("Error processing vehicles:", error);
       }
-    });
+    }).catch(error => console.error("Errore nel caricamento iniziale dei dati: ", error));
   }
 
   /**

@@ -26,14 +26,17 @@ export class ModelFilterService {
    * @param vehicles veicoli dai quali prendere i modelli
    * @returns array di veicoli filtrati
    */
-  filterVehiclesModelsDuplicates(vehicles: VehicleData[]) {
+  filterVehiclesModelsDuplicates(vehicles: (Vehicle | VehicleData)[]) {
     const seenModels = new Set<string>(); // Set per tracciare i modelli unici
     return vehicles.filter(vehicle => {
-      if (seenModels.has(vehicle.vehicle.model)) {
-        return false;
+      // Determina se l'oggetto è di tipo VehicleData o Vehicle e ottiene il modello corrispondente
+      const model = 'vehicle' in vehicle ? vehicle.vehicle.model : vehicle.model;
+
+      if (seenModels.has(model)) {
+        return false; // Se il modello è già stato visto, escludi il veicolo
       }
-      seenModels.add(vehicle.vehicle.model);
-      return true;
+      seenModels.add(model); // Aggiungi il modello al set dei modelli visti
+      return true; // Includi il veicolo nell'array filtrato
     });
   }
 }

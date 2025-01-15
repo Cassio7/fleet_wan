@@ -41,7 +41,7 @@ export class SortService {
    * @param vehicles array di veicoli da ordinare
    * @returns array di veicoli ordinato
    */
-  sortVehiclesByPlateAsc(vehicles: (VehicleData | Vehicle)[]): any[] {
+  sortVehiclesByPlateAsc(vehicles: (VehicleData | Vehicle)[]): (VehicleData | Vehicle)[] {
     return [...vehicles].sort((a, b) => {
       //determinare il tipo di oggetto passato come parametro
       if ('plate' in a && 'plate' in b) { //caso in cui sia di tipo Vehicle[]
@@ -59,7 +59,7 @@ export class SortService {
    * @param vehicles array di veicoli da ordinare
    * @returns array di veicoli ordinato
    */
-  sortVehiclesByPlateDesc(vehicles: (VehicleData | Vehicle)[]): any[] {
+  sortVehiclesByPlateDesc(vehicles: (VehicleData | Vehicle)[]): (VehicleData | Vehicle)[] {
     return [...vehicles].sort((a, b) => {
       const plateA = 'vehicle' in a ? a.vehicle.plate : a.plate;
       const plateB = 'vehicle' in b ? b.vehicle.plate : b.plate;
