@@ -15,6 +15,7 @@ import { RolesGuard } from 'src/guard/roles.guard';
 import { LogContext } from 'src/log/logger.types';
 import { LoggerService } from 'src/log/service/logger.service';
 import { AuthService } from 'src/services/auth/auth.service';
+import { Request } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -28,7 +29,12 @@ export class AuthController {
    * @param body username e password
    */
   @Post('login')
-  async logIn(@Body() body: Record<string, any>, @Res() res: any) {
+  async logIn(
+    @Req() req: Request,
+    @Body() body: Record<string, any>,
+    @Res() res: any,
+  ) {
+    this.loggerService.logClientData(req);
     const context: LogContext = {
       userId: 0,
       username: body.username,

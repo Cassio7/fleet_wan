@@ -7,10 +7,14 @@ import {
 } from '@nestjs/common';
 import { extractTokenFromHeader } from 'src/utils/utils';
 import { AuthService } from 'src/services/auth/auth.service';
+import { LoggerService } from 'src/log/service/logger.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly loggerService: LoggerService,
+  ) {}
 
   /**
    * Funzione Guard che serve come middleware per validare la sessione utente
@@ -20,6 +24,7 @@ export class AuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const token = extractTokenFromHeader(request);
+    this.loggerService.logClientData(request);
     if (!token) {
       throw new UnauthorizedException('Token non fornito.');
     }
