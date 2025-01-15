@@ -17,6 +17,7 @@ import { GpsFilterService } from '../../../Common-services/gps-filter/gps-filter
 import { AntennaFilterService } from '../../../Common-services/antenna-filter/antenna-filter.service';
 import { VehicleData } from '../../../Models/VehicleData';
 import { Filters, FiltersCommonService } from '../../../Common-services/filters-common/filters-common.service';
+import { KanbanTableService } from '../../Services/kanban-table/kanban-table.service';
 
 @Component({
   selector: 'app-row-filter',
@@ -60,6 +61,7 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
     public cantieriFilterService: CantieriFilterService,
     public gpsFilterService: GpsFilterService,
     public antennaFilterService: AntennaFilterService,
+    private kanabanTableService: KanbanTableService,
     public sessionFilterService: SessionFilterService,
     private cantiereFilterService: CantieriFilterService,
     private sessionStorageService: SessionStorageService,
@@ -90,8 +92,12 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
 
       this.cantieriFilterService.updateListaCantieri(allVehicles);
       this.toggleSelectAll();
-    } else {
     }
+
+    this.kanabanTableService.loadKabanTable$.pipe(takeUntil(this.destroy$))
+    .subscribe(() => {
+      this.toggleSelectAll();
+    });
 
     this.handleAllFiltersOptionsUpdate();
 
@@ -100,7 +106,6 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
   }
 
   private handleAllFiltersOptionsUpdate(){
-
     // Sottoscrizione per il filtro cantieri
     this.cantiereFilterService.updateCantieriFilterOptions$
     .pipe(takeUntil(this.destroy$), skip(1))
@@ -281,6 +286,7 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
     }else{
       this.sessionStates.setValue([]);
     }
+
   }
 
   /**
@@ -313,6 +319,7 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
     this.toggleSelectAllGps()
     this.toggleSelectAllAntenne();
     this.toggleSelectAllSession();
+    console.log("togglato tutto!");
   }
 
   /**
