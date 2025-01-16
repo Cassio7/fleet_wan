@@ -1,0 +1,17 @@
+.notes-input{
+  border-color: green;
+}
+
+.error{
+  color: red;
+  font-size: 12px;
+}
+
+button{
+  border: 1px solid green;
+  color: green;
+}
+
+.buttons{
+  display: flex;
+}

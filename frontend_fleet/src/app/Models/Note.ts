@@ -1,6 +1,3 @@
-import { User } from "./User";
-import { Vehicle } from "./Vehicle";
-
 export class Note{
 
   constructor(
@@ -14,6 +11,5 @@ export class Note{
       id: number,
       veId: number
     },
-    public saved: boolean = true
   ){}
 }

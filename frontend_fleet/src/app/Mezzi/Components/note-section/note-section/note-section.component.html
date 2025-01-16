@@ -1,7 +1,15 @@
-<textarea #noteInput [value]="vehicle.note ? vehicle.note.content : ''" (keydown)="setNoteStatusToModified(vehicle)" name="notes" class="notes" matInput></textarea>
-<button
-  (click)="saveNote(vehicle, noteInput.value)"
-  mat-button>
-  Salva
-  <span *ngIf="isVehicleNoteModified(vehicle, noteInput.value) && !vehicle.note?.saved">*</span>
+<textarea #noteInput [value]="vehicle.note ? vehicle.note.content : ''" (keyup)="notesService.isNoteModified(noteInput.value, vehicle)" name="notes" class="notes-input" matInput></textarea>
+<div *ngIf="vehicle.note">
+  <div class="buttons">
+    <button (click)="deleteNote(vehicle)" *ngIf="eliminatedBtn && !createdBtn" mat-button>Elimina</button>
+    <button (click)="updateNote(vehicle, noteInput.value)" *ngIf="updatedBtn && !createdBtn" mat-raised-button>
+      Aggiorna
+      <span *ngIf="modified">*</span>
+    </button>
+  </div>
+</div>
+<button *ngIf="createdBtn && !eliminatedBtn && !updatedBtn" (click)="createNote(vehicle, noteInput.value)" mat-raised-button>
+  Crea
+  <span *ngIf="modified">*</span>
 </button>
+<p *ngIf="error" class="error">{{error}}</p>

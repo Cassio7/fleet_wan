@@ -34,7 +34,67 @@ export class NotesService {
     return this.http.post<any>(`${this.commonService.url}/notes/update`, body);
   }
 
-  getAllNotes(): Observable<any>{
+  /**
+    * Crea una nota associata a un veicolo.
+   * @param vehicle - Il veicolo a cui associare la nota.
+   * @param content - Il contenuto della nota.
+   * @returns Un Observable della risposta HTTP.
+   */
+  createNote(vehicle: Vehicle, content: string): Observable<Note>{
+    const access_token = this.cookieService.getCookie("user");
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${access_token}`,
+      'Content-Type': 'application/json'
+    });
+    const body = {
+      content: content,
+      veId: vehicle.veId
+    }
+    return this.http.post<Note>(`${this.commonService.url}/notes`, body, {headers});
+  }
+
+  /**
+  * Aggiorna una nota associata a un veicolo.
+  * @param vehicle - Il veicolo a cui la nota è associata.
+  * @param content - Il nuovo contenuto della nota.
+  * @returns Un Observable della risposta HTTP.
+  */
+  updateNote(vehicle: Vehicle, content: string){
+    const noteId = vehicle.note.id;
+    const access_token = this.cookieService.getCookie("user");
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${access_token}`,
+      'Content-Type': 'application/json'
+    });
+
+    const body = {
+      content: content
+    }
+
+    return this.http.put(`${this.commonService.url}/notes/${noteId}`,body, { headers });
+  }
+
+  /**
+  * Elimina una nota associata a un veicolo.
+  * @param vehicle - Il veicolo a cui la nota è associata.
+  * @returns Un Observable della risposta HTTP.
+  */
+  deleteNote(vehicle: Vehicle){
+    const noteId = vehicle.note.id;
+    const access_token = this.cookieService.getCookie("user");
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${access_token}`,
+      'Content-Type': 'application/json'
+    });
+
+    return this.http.delete(`${this.commonService.url}/notes/${noteId}`, { headers });
+  }
+
+  /**
+  * Recupera tutte le note.
+  * @returns Un Observable di array di note.
+  */
+  getAllNotes(): Observable<Note[]>{
     const access_token = this.cookieService.getCookie("user");
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${access_token}`,
@@ -44,21 +104,28 @@ export class NotesService {
     try {
       return this.http.get<Note[]>(`${this.commonService.url}/notes`, { headers });
     } catch (error) {
-      console.error('An error occurred:', error);
       throw error;
     }
   }
 
-  isVehicleNoteModified(vehicle: any, currentValue: string): boolean {
-    const initialValue = vehicle.note ? vehicle.note.content : ''; // Se note è null, considera una stringa vuota
-    return initialValue !== currentValue; // Confronta il valore attuale con quello iniziale
-  }
 
-  setNoteStatusToModified(vehicledata: VehicleData | Vehicle): void {
-    const vehicle = 'vehicle' in vehicledata ? vehicledata.vehicle : vehicledata;
-
-    if (vehicle.note) {
-      vehicle.note.saved = false;
+  /**
+   * controlla se una nota è stata modificata in base al valore iniziale
+   * @param currentContent contenuto attuale all'interno del campo di inserimento
+   * @param vehicle veicolo da cui prendere il valore della nota salvato in precedenza
+   * @returns true se la nota è stata modificata,
+   * @returns false se la nota non è stata modificata
+   */
+  isNoteModified(currentContent: string, vehicle: Vehicle): boolean{
+    const note: Note = vehicle.note;
+    if(note){
+      if(note.content == currentContent){
+        return false;
+      }else{
+        return true;
+      }
+    }else{
+      return true;
     }
   }
 }
