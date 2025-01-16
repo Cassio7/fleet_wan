@@ -166,7 +166,11 @@ export class NotesController {
         });
       }
 
-      await this.notesService.createNote(req.user.id, veId, body.content);
+      const note = await this.notesService.createNote(
+        req.user.id,
+        veId,
+        body.content,
+      );
 
       this.loggerService.logCrudSuccess(
         context,
@@ -174,9 +178,7 @@ export class NotesController {
         `Nota creata con successo: veId = ${veId}, Contenuto = ${body.content}`,
       );
 
-      return res.status(200).json({
-        message: 'Nota creata con successo!',
-      });
+      return res.status(200).json(note);
     } catch (error) {
       this.loggerService.logCrudError({
         error,

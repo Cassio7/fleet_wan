@@ -97,7 +97,11 @@ export class NotesService {
    * @param veId veId identificativo veicolo
    * @param content contenuto della nota
    */
-  async createNote(userId: number, veId: number, content: string) {
+  async createNote(
+    userId: number,
+    veId: number,
+    content: string,
+  ): Promise<NoteDto> {
     if (!content || content.trim().length === 0) {
       throw new HttpException(
         'Il contenuto della nota non può essere vuoto',
@@ -157,6 +161,7 @@ export class NotesService {
       });
       await queryRunner.manager.getRepository(NoteEntity).save(newNote);
       await queryRunner.commitTransaction();
+      return this.toDTO(newNote);
     } catch (error) {
       await queryRunner.rollbackTransaction();
       console.error(error);
