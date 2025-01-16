@@ -10,14 +10,14 @@ import {
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
-import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { Role } from 'classes/enum/role.enum';
 import { UserFromToken } from 'classes/interfaces/userToken.interface';
 import { Response } from 'express';
 import { Roles } from 'src/decorators/roles.decorator';
 import { AuthGuard } from 'src/guard/auth.guard';
 import { RolesGuard } from 'src/guard/roles.guard';
-import { AssociationService } from 'src/services/association/association.service';
+import { LogContext } from 'src/log/logger.types';
+import { LoggerService } from 'src/log/service/logger.service';
 import { VehicleService } from 'src/services/vehicle/vehicle.service';
 
 @UseGuards(AuthGuard, RolesGuard)
@@ -25,8 +25,8 @@ import { VehicleService } from 'src/services/vehicle/vehicle.service';
 @Roles(Role.Admin, Role.Responsabile, Role.Capo)
 export class VehicleController {
   constructor(
-    private readonly associationService: AssociationService,
     private readonly vehicleService: VehicleService,
+    private readonly loggerService: LoggerService,
   ) {}
 
   /**
@@ -40,24 +40,41 @@ export class VehicleController {
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
   ) {
+    const context: LogContext = {
+      userId: req.user.id,
+      username: req.user.username,
+      resource: 'Vehicle All',
+    };
     try {
-      const vehicles = (await this.associationService.getVehiclesByUserRole(
+      const vehicles = await this.vehicleService.getAllVehicleByUser(
         req.user.id,
-      )) as VehicleEntity[];
-      if (!vehicles || vehicles.length === 0) {
-        return res.status(404).json({ message: 'Nessun Veicolo associato' });
+      );
+      if (!vehicles?.length) {
+        this.loggerService.logCrudSuccess(
+          context,
+          'list',
+          'Nessun veicolo trovato',
+        );
+        return res.status(404).json({
+          message: 'Nessun veicolo trovato',
+        });
       }
-      const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
-      const vehiclesOutput =
-        await this.vehicleService.getVehicleByVeId(vehicleIds);
-      if (!vehiclesOutput || vehiclesOutput.length === 0)
-        return res.status(404).json({ message: 'Nessun veicolo trovato' });
-      res.status(200).json(vehiclesOutput);
+      this.loggerService.logCrudSuccess(
+        context,
+        'list',
+        `Recuperati ${vehicles.length} Veicoli`,
+      );
+      return res.status(200).json(vehicles);
     } catch (error) {
-      console.error('Errore nel recupero dei veicoli:', error);
-      res
-        .status(500)
-        .json({ message: 'Errore durante il recupero dei veicoli' });
+      this.loggerService.logCrudError({
+        error,
+        context,
+        operation: 'list',
+      });
+
+      return res.status(error.status || 500).json({
+        message: error.message || 'Errore recupero veicolo',
+      });
     }
   }
   /**
@@ -66,99 +83,50 @@ export class VehicleController {
    * @param body
    */
   @Post()
-  async getVehicleByPlate(@Res() res: Response, @Body() body: any) {
+  async getVehicleByPlate(
+    @Req() req: Request & { user: UserFromToken },
+    @Res() res: Response,
+    @Body() body: any,
+  ) {
+    const context: LogContext = {
+      userId: req.user.id,
+      username: req.user.username,
+      resource: 'Vehicle plate',
+      resourceId: body.plate,
+    };
     try {
       const plateNumber = body.plate;
-      const vehicle = await this.vehicleService.getVehicleByPlate(plateNumber);
+      const vehicle = await this.vehicleService.getVehicleByPlate(
+        req.user.id,
+        plateNumber,
+      );
 
-      if (vehicle) {
-        res.status(200).json(vehicle);
-      } else {
-        res.status(404).json({
-          message: `Veicolo con targa: ${plateNumber} non trovato.`,
+      if (!vehicle) {
+        this.loggerService.logCrudSuccess(
+          context,
+          'list',
+          'Nessun veicolo trovato',
+        );
+        return res.status(404).json({
+          message: 'Nessun veicolo trovato',
         });
       }
+      this.loggerService.logCrudSuccess(
+        context,
+        'list',
+        `Recuperato Veicolo veId: ${vehicle.veId} - targa: ${vehicle.plate}`,
+      );
+      return res.status(200).json(vehicle);
     } catch (error) {
-      console.error('Errore nel recupero del veicolo:', error);
-      res
-        .status(500)
-        .json({ message: 'Errore durante il recupero del veicolo' });
-    }
-  }
-  /**
-   * Ritorna tutti i veicoli dove l'RFID reader è stato montato
-   * @param res
-   */
-  @Get('reader')
-  async getVehiclesByReader(@Res() res: Response) {
-    try {
-      const vehicles = await this.vehicleService.getVehiclesByReader();
-      if (vehicles.length > 0) res.status(200).json(vehicles);
-      else
-        res.status(404).json({ message: 'Nessun veicolo RFID reader trovato' });
-    } catch (error) {
-      console.error('Errore nel recupero dei veicoli:', error);
-      res
-        .status(500)
-        .json({ message: 'Errore durante il recupero dei veicoli' });
-    }
-  }
+      this.loggerService.logCrudError({
+        error,
+        context,
+        operation: 'list',
+      });
 
-  /**
-   * Ritorna tutti i veicoli dove l'RFID reader NON è stato montato
-   * @param res
-   */
-  @Get('noreader')
-  async getVehiclesWithNoReader(@Res() res: Response) {
-    try {
-      const vehicles = await this.vehicleService.getVehiclesWithNoReader();
-      if (vehicles.length > 0) res.status(200).json(vehicles);
-      else
-        res
-          .status(404)
-          .json({ message: 'Nessun veicolo NO RFID reader trovato' });
-    } catch (error) {
-      console.error('Errore nel recupero dei veicoli:', error);
-      res
-        .status(500)
-        .json({ message: 'Errore durante il recupero dei veicoli' });
-    }
-  }
-
-  /**
-   * Ritorna tutti i veicoli "can", ovvero con l'antenna collegata al contachilometri
-   * @param res
-   */
-  @Get('can')
-  async getCanVehicles(@Res() res: Response) {
-    try {
-      const vehicles = await this.vehicleService.getCanVehicles();
-      if (vehicles.length > 0) res.status(200).json(vehicles);
-      else res.status(404).json({ message: "Nessun veicolo 'can' trovato." });
-    } catch (error) {
-      console.error('Errore nel recupero dei veicoli:', error);
-      res
-        .status(500)
-        .json({ message: 'Errore durante il recupero dei veicoli' });
-    }
-  }
-
-  /**
-   * Ritorna tutti i veicoli non "can", ovvero con l'antenna non collegata al contachilometri
-   * @param res
-   */
-  @Get('nocan')
-  async getNonCanVehicles(@Res() res: Response) {
-    try {
-      const vehicles = await this.vehicleService.getNonCanVehicles();
-      if (vehicles.length > 0) res.status(200).json(vehicles);
-      else
-        res.status(404).json({ message: "Nessun veicolo non 'can' trovato." });
-    } catch (error) {
-      console.error('Errore nel recupero dei veicoli:', error);
-      res
-        .status(500)
-        .json({ message: 'Errore durante il recupero dei veicoli' });
+      return res.status(error.status || 500).json({
+        message: error.message || 'Errore recupero veicolo',
+      });
     }
   }
 
@@ -169,44 +137,51 @@ export class VehicleController {
    * @param params VeId identificativo veicoli
    * @returns
    */
-  @Get('/:veId')
+  @Get(':veId')
   @UsePipes(ParseIntPipe)
   async getVehicleByVeId(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
     @Param('veId') veId: number,
   ) {
+    const context: LogContext = {
+      userId: req.user.id,
+      username: req.user.username,
+      resource: 'Vehicle veId',
+      resourceId: veId,
+    };
     try {
-      const vehicles = (await this.associationService.getVehiclesByUserRole(
+      const vehicle = await this.vehicleService.getVehicleByVeId(
         req.user.id,
-      )) as VehicleEntity[];
-
-      if (!vehicles || !Array.isArray(vehicles)) {
-        return res.status(404).json({ message: 'Nessun Veicolo associato' });
-      }
-      const vehicle = await this.vehicleService.getVehicleByVeId([veId]);
-      if (!vehicle || vehicle.length === 0) {
-        return res.status(404).json({
-          message: 'Nessun veicolo con veId: ' + veId + ' trovato.',
-        });
-      }
-
-      const vehicleCheck = vehicles.find(
-        (element) => element.veId === Number(veId),
+        veId,
       );
-
-      if (!vehicleCheck) {
+      if (!vehicle) {
+        this.loggerService.logCrudSuccess(
+          context,
+          'list',
+          'Nessun veicolo trovato',
+        );
         return res.status(404).json({
-          message: `Non hai i permessi per visualizzare il veicolo con VeId: ${veId}`,
+          message: 'Nessun veicolo trovato',
         });
       }
 
-      res.status(200).json(vehicle);
+      this.loggerService.logCrudSuccess(
+        context,
+        'list',
+        `Recuperato Veicolo veId: ${vehicle.veId} - targa: ${vehicle.plate}`,
+      );
+      return res.status(200).json(vehicle);
     } catch (error) {
-      console.error('Errore nel recupero del veicolo:', error);
-      res
-        .status(500)
-        .json({ message: 'Errore durante il recupero del veicolo' });
+      this.loggerService.logCrudError({
+        error,
+        context,
+        operation: 'list',
+      });
+
+      return res.status(error.status || 500).json({
+        message: error.message || 'Errore recupero veicolo',
+      });
     }
   }
 }
