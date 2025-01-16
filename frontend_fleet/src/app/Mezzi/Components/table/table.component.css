@@ -16,7 +16,7 @@
 
 tr, td, th {
   text-align: center;
-  width: 200px;
+  width: 100px;
   word-wrap: break-word;
 }
 
@@ -26,6 +26,7 @@ tr, td, th {
   margin: 0;
   width: 100%;
   overflow-y: auto;
+  overflow-x: hidden;
   box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
   max-width: 100%;
 }
