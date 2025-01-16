@@ -1,7 +1,7 @@
 import { AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, HostListener, inject, NgZone, OnDestroy, signal, ViewChild } from '@angular/core';
 import { Vehicle } from '../../../Models/Vehicle';
 import { VehiclesApiService } from '../../../Common-services/vehicles api service/vehicles-api.service';
-import { Subject, takeUntil, filter, forkJoin, take, tap } from 'rxjs';
+import { Subject, takeUntil, filter, forkJoin, take, tap, skip } from 'rxjs';
 import { Session } from '../../../Models/Session';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { CommonModule } from '@angular/common';
@@ -102,10 +102,12 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
   }
 
   ngAfterViewInit(): void {
+    //recupero utente da access token
     const user: User = this.authService.getUserInfo();
     this.user = user;
     this.cd.detectChanges();
-    // Riempimento dei dati della tabella
+
+    //riempimento dei dati della tabella
     this.fillTable();
     this.cd.detectChanges();
   }
@@ -137,10 +139,10 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
 
     forkJoin({ vehicles: vehicles$, notes: notes$ }).subscribe({
       next: ({ vehicles, notes }: { vehicles: Vehicle[], notes: Note[] }) => {
+        this.notesService.vehicleNotes = notes;
         this.sessionStorageService.setItem("allVehicles", JSON.stringify(vehicles));
         this.sortedVehicles = this.sortService.sortVehiclesByPlateAsc(vehicles) as Vehicle[];
-
-        this.mergeVehiclesWithNotes(vehicles, notes);
+        this.sortedVehicles = this.notesService.mergeVehiclesWithNotes(this.sortedVehicles, notes);
 
         this.loadingProgress = 100;
 
@@ -153,26 +155,6 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
       error: (error) => {
         console.error("Error fetching vehicles or notes: ", error);
       }
-    });
-  }
-
-
-
-  /**
-   * Accorpa i veicoli alla propria nota corrispondente
-   * @param vehiclesData array di dati dei veicoli
-   * @param notes array di note
-   */
-  private mergeVehiclesWithNotes(vehicles: Vehicle[], notes: Note[] | Note): void {
-    const notesArray = Array.isArray(notes) ? notes : [notes]; // Rende sempre un array anche se la nota è singola
-
-    // Accorpamento delle note nei veicoli
-    vehicles.forEach((v) => {
-      notesArray.forEach(note => {
-        if (note && note.vehicle.veId === v.veId) {
-          v.note = note; // Associa la nota al veicolo corrispondente
-        }
-      });
     });
   }
 
@@ -289,9 +271,8 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
    */
   resetSelections(){
     const allVehicles: Vehicle[] = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-    console.log(allVehicles);
-    this.selectService.selectVehicles(allVehicles);
-    this.vehicleTableData.data = allVehicles;
+    const mergedVehicles: Vehicle[] = this.notesService.mergeVehiclesWithNotes(allVehicles, this.notesService.vehicleNotes);
+    this.vehicleTableData.data = mergedVehicles;
     this.selectService.allOptionsSelected = true;
     this.cd.detectChanges();
   }

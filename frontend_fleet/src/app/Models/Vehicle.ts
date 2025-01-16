@@ -9,7 +9,7 @@ export class Vehicle {
     public veId: number,
     public isRFIDReader: boolean,
     public firstEvent: Date,
-    public note: Note,
+    public note: Note | null,
     public worksite?: WorkSite
   ) {}
 }

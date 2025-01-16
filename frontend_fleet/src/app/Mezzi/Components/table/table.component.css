@@ -3,6 +3,12 @@
   color: gray;
 }
 
+.reset-btn{
+  background-color: var(--sidebar-color);
+  border-radius: 5px;
+  color: white;
+}
+
 .nVeicoli {
   margin: 0;
   font-size: 16px;

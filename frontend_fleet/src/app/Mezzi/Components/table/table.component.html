@@ -1,6 +1,6 @@
 <div class="content">
 <div class="table-over">
-  <button mat-raised-button (click)="resetSelections()">Reimposta filtri</button>
+  <button mat-raised-button (click)="resetSelections()" class="reset-btn">Reimposta filtri</button>
   <p class="nVeicoli">Numero di veicoli: {{vehicleTableData.data.length}}</p>
 </div>
 <div class="loading-progress" *ngIf="loadingProgress < 101">

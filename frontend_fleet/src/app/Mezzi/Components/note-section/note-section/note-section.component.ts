@@ -68,18 +68,13 @@ export class NoteSectionComponent implements AfterViewInit, OnDestroy{
       .subscribe({
         next: (newNote: Note) => {
           this.vehicle.note = newNote;
+          this.notesService.vehicleNotes.push(newNote);
           this.modified = false;
-          this.openNoteSnackbar("Nota creata ✔");
           this.updatedBtn = true;
-          console.log('updatedBtn set to:', this.updatedBtn);
-
           this.eliminatedBtn = true;
-          console.log('eliminatedBtn set to:', this.eliminatedBtn);
-
           this.createdBtn = false;
-          console.log('createdBtn set to:', this.createdBtn);
-
-          this.cd.detectChanges()
+          this.openNoteSnackbar("Nota creata ✔");
+          this.cd.detectChanges();
         },
         error: error => console.error("Errore nella creazione della nota: ", error)
       });
@@ -109,6 +104,10 @@ export class NoteSectionComponent implements AfterViewInit, OnDestroy{
           this.eliminatedBtn= true;
           this.createdBtn = false;
           this.modified = false;
+          //modifica dell'array di note nel servizio x bottone reset
+          // this.notesService.vehicleNotes.map(note => {
+          //   if(note.id == )
+          // });
           this.cd.detectChanges()
         },
         error: error => console.error("Errore nell'aggiornamento della nota: ", error)
@@ -133,6 +132,11 @@ export class NoteSectionComponent implements AfterViewInit, OnDestroy{
         this.updatedBtn = false;
         this.eliminatedBtn= false;
         this.modified = false;
+        vehicle.note = null;
+        //modifica dell'array di note nel servizio x bottone reset
+        // this.notesService.vehicleNotes.map(note => {
+        //   if(note.id == )
+        // });
         this.cd.detectChanges();
       },
       error: error => console.error("Errore nella cancellazione della nota: ", error)

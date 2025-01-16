@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Note } from '../../../Models/Note';
 import { CommonService } from '../../../Common-services/common service/common.service';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
-import { firstValueFrom, Observable } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, Observable, throwError } from 'rxjs';
 import { VehicleData } from '../../../Models/VehicleData';
 import { Vehicle } from '../../../Models/Vehicle';
 import { CookiesService } from '../../../Common-services/cookies service/cookies.service';
@@ -12,6 +12,7 @@ import { CookiesService } from '../../../Common-services/cookies service/cookies
   providedIn: 'root'
 })
 export class NotesService {
+  private _vehicleNotes: Note[] = [];
 
   constructor(
     private sessionStorageService: SessionStorageService,
@@ -59,7 +60,11 @@ export class NotesService {
   * @param content - Il nuovo contenuto della nota.
   * @returns Un Observable della risposta HTTP.
   */
-  updateNote(vehicle: Vehicle, content: string){
+  updateNote(vehicle: Vehicle, content: string): Observable<any> {
+    if (!vehicle.note || !vehicle.note.id) {
+      return throwError(() => new Error('No note associated with this vehicle.'));
+    }
+
     const noteId = vehicle.note.id;
     const access_token = this.cookieService.getCookie("user");
     const headers = new HttpHeaders({
@@ -67,11 +72,9 @@ export class NotesService {
       'Content-Type': 'application/json'
     });
 
-    const body = {
-      content: content
-    }
+    const body = { content };
 
-    return this.http.put(`${this.commonService.url}/notes/${noteId}`,body, { headers });
+    return this.http.put(`${this.commonService.url}/notes/${noteId}`, body, { headers });
   }
 
   /**
@@ -79,7 +82,11 @@ export class NotesService {
   * @param vehicle - Il veicolo a cui la nota è associata.
   * @returns Un Observable della risposta HTTP.
   */
-  deleteNote(vehicle: Vehicle){
+  deleteNote(vehicle: Vehicle): Observable<any> {
+    if (!vehicle.note || !vehicle.note.id) {
+      return throwError(() => new Error('No note associated with this vehicle to delete.'));
+    }
+
     const noteId = vehicle.note.id;
     const access_token = this.cookieService.getCookie("user");
     const headers = new HttpHeaders({
@@ -108,6 +115,26 @@ export class NotesService {
     }
   }
 
+  /**
+   * Accorpa i veicoli alla propria nota corrispondente
+   * @param vehiclesData array di dati dei veicoli
+   * @param notes array di note
+   * @returns array di veicoli accorpato con le note
+   */
+  mergeVehiclesWithNotes(vehicles: Vehicle[], notes: Note[] | Note): Vehicle[] {
+    const notesArray = Array.isArray(notes) ? notes : [notes]; // Rende sempre un array anche se la nota è singola
+
+    // Accorpamento delle note nei veicoli
+    vehicles.forEach((v) => {
+      notesArray.forEach(note => {
+        if (note && note.vehicle.veId === v.veId) {
+          v.note = note; // Associa la nota al veicolo corrispondente
+        }
+      });
+    });
+    return vehicles;
+  }
+
 
   /**
    * controlla se una nota è stata modificata in base al valore iniziale
@@ -117,7 +144,7 @@ export class NotesService {
    * @returns false se la nota non è stata modificata
    */
   isNoteModified(currentContent: string, vehicle: Vehicle): boolean{
-    const note: Note = vehicle.note;
+    const note: Note | null = vehicle.note;
     if(note){
       if(note.content == currentContent){
         return false;
@@ -127,5 +154,12 @@ export class NotesService {
     }else{
       return true;
     }
+  }
+
+  public get vehicleNotes(): Note[] {
+    return this._vehicleNotes;
+  }
+  public set vehicleNotes(value: Note[]) {
+    this._vehicleNotes = value;
   }
 }
