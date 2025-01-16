@@ -1,4 +1,4 @@
-<textarea #noteInput [value]="vehicle.note ? vehicle.note.content : ''" (keyup)="notesService.isNoteModified(noteInput.value, vehicle)" name="notes" class="notes-input" matInput></textarea>
+<textarea #noteInput [value]="vehicle.note ? vehicle.note.content : ''" (keyup)="isNoteModified(noteInput.value, vehicle)" name="notes" class="notes-input" matInput></textarea>
 <div *ngIf="vehicle.note">
   <div class="buttons">
     <button (click)="deleteNote(vehicle)" *ngIf="eliminatedBtn && !createdBtn" mat-button>Elimina</button>

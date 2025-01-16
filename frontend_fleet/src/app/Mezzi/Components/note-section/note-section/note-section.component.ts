@@ -139,6 +139,11 @@ export class NoteSectionComponent implements AfterViewInit, OnDestroy{
     });
   }
 
+  isNoteModified(content: string, vehicle: Vehicle){
+    this.modified = this.notesService.isNoteModified(content, vehicle);
+    this.cd.detectChanges();
+  }
+
   /**
    * Apre la snackbar per la nota
    */
