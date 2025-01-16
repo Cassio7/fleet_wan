@@ -45,11 +45,26 @@ tr.comment-row:not(.example-expanded-row):active {
   display: flex;
 }
 
+.comment-section-content{
+  padding: 50px;
+}
+
 .notes-header{
   display: flex;
   align-items: center;
 }
 
+.notes-header .note-icon{
+  color: var(--sidebar-color);
+}
+
+.expand-btn{
+  color: var(--sidebar-color);
+}
+
+.comment-icon{
+  color: var(--sidebar-color);
+}
 
 
 .filter-menu-btn {

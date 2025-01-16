@@ -139,6 +139,9 @@ export class NoteSectionComponent implements AfterViewInit, OnDestroy{
     });
   }
 
+  /**
+   * Richiama la funzione nel servizio noteservice
+  */
   isNoteModified(content: string, vehicle: Vehicle){
     this.modified = this.notesService.isNoteModified(content, vehicle);
     this.cd.detectChanges();

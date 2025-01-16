@@ -1,15 +1,35 @@
-.notes-input{
-  border-color: green;
+.content{
+  padding: 20px;
+}
+
+.note-input{
+  border-color: var(--sidebar-color);
+  border-radius: 5px;
+  height: 100px;
+  width: 300px;
+}
+
+.buttons{
+  display: flex;
+  gap: .5vw;
+  border-radius: 5px;
+}
+
+.create-btn, .update-btn{
+  border: 1px solid var(--sidebar-color);
+  background-color: var(--sidebar-color);
+  color: white;
+}
+
+.delete-btn{
+  border: 1px solid var(--sidebar-color);
+  background-color: white;
+  color: black;
 }
 
 .error{
   color: red;
   font-size: 12px;
-}
-
-button{
-  border: 1px solid green;
-  color: green;
 }
 
 .buttons{
