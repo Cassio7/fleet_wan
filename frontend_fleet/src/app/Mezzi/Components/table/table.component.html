@@ -3,9 +3,9 @@
   <button mat-raised-button (click)="resetSelections()">Reimposta filtri</button>
   <p class="nVeicoli">Numero di veicoli: {{vehicleTableData.data.length}}</p>
 </div>
-<div class="loading-progress" *ngIf="loading">
-  <p class="loading-p">Caricamento dei dati dei veicoli...</p>
-  <mat-progress-bar mode="determinate" [value]="completedCalls" class="loading-bar"></mat-progress-bar>
+<div class="loading-progress" *ngIf="loadingProgress < 101">
+  <p class="loading-p">{{loadingText}}</p>
+  <mat-progress-bar mode="determinate" [value]="loadingProgress" class="loading-bar"></mat-progress-bar>
 </div>
 <div class="table-container">
   <table mat-table [dataSource]="vehicleTableData" #vehicleTable class="mat-elevation-z8" multiTemplateDataRows>
@@ -190,7 +190,8 @@
     <ng-container matColumnDef="expand">
       <th mat-header-cell *matHeaderCellDef aria-label="row actions">&nbsp;</th>
       <td mat-cell *matCellDef="let vehicle">
-        <button mat-icon-button aria-label="expand row" (click)="checkVehicleExpansion(vehicle); $event.stopPropagation()">
+        <mat-icon class="comment-icon" *ngIf="vehicle.note">comment</mat-icon>
+        <button mat-icon-button class="expand-btn" aria-label="expand row" (click)="checkVehicleExpansion(vehicle); $event.stopPropagation()">
           @if (this.expandedVehicle === vehicle) {
             <mat-icon>keyboard_arrow_up</mat-icon>
           } @else {
@@ -207,10 +208,10 @@
           [@detailExpand]="vehicle.veId === expandedVehicle?.veId ? 'expanded' : 'collapsed'">
           <div class="comment-section-content">
             <div class="notes-header">
-              <mat-icon>
+              <mat-icon class="note-icon">
                 edit_square
               </mat-icon>
-              <span style="margin-left: 8px;">Nota di {{user.username}}</span>
+              <span style="margin-left: 8px;">Nota di <strong>{{user.username}}</strong></span>
             </div>
             <th mat-header-cell *matHeaderCellDef></th>
             <td>

@@ -62,9 +62,11 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
   @ViewChild('vehicleTable') vehicleTable!: MatTable<Session[]>;
   private readonly destroy$: Subject<void> = new Subject<void>();
   readonly panelOpenState = signal(false);
-  completedCalls: number = 0;
-  loading: boolean = true;
+  loadingProgress: number = 0;
+  loadingText: string = "";
+
   vehicleTableData = new MatTableDataSource<Vehicle>();
+
   sortedVehicles: Vehicle[] = [];
   expandedVehicle: Vehicle | null = null;
 
@@ -109,40 +111,51 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
   }
 
   /**
-   * Esegue il riempimento della tabella controllando prima i dati nel sessionStorage.
-   * Se presenti, utilizza quelli; altrimenti fa una chiamata tramite un servizio all'API.
+   * Esegue il riempimento della tabella.
    */
   fillTable(): void {
-    // Parallel API calls to fetch vehicles and notes
-    forkJoin({
-      vehicles: this.vehicleApiService.getAllVehicles().pipe(takeUntil(this.destroy$)),
-      notes: this.notesService.getAllNotes().pipe(takeUntil(this.destroy$))
-    }).subscribe({
-      next: ({ vehicles, notes }: { vehicles: Vehicle[], notes: Note[] }) => {
-        console.log("Vehicle table fetched vehicles: ", vehicles);
-        console.log("Vehicle table notes: ", notes);
-        this.sessionStorageService.setItem("allVehicles", JSON.stringify(vehicles));
-        // Sort vehicles
-        this.sortedVehicles = this.sortService.sortVehiclesByPlateAsc(vehicles) as Vehicle[];
-        this.vehicleTableData.data = this.sortedVehicles;
+    this.loadingProgress = 0;
 
-        // Merge notes with vehicles
+    const totalOperations = 2;
+    const incrementPerOperation = 100 / totalOperations;
+
+    const vehicles$ = this.vehicleApiService.getAllVehicles().pipe(
+      tap(() => {
+        this.loadingText = "Caricamento dei veicoli...";
+        this.loadingProgress += incrementPerOperation;
+      }),
+      takeUntil(this.destroy$)
+    );
+
+    const notes$ = this.notesService.getAllNotes().pipe(
+      tap(() => {
+        this.loadingText = "Caricamento delle note...";
+        this.loadingProgress += incrementPerOperation;
+      }),
+      takeUntil(this.destroy$)
+    );
+
+    forkJoin({ vehicles: vehicles$, notes: notes$ }).subscribe({
+      next: ({ vehicles, notes }: { vehicles: Vehicle[], notes: Note[] }) => {
+        this.sessionStorageService.setItem("allVehicles", JSON.stringify(vehicles));
+        this.sortedVehicles = this.sortService.sortVehiclesByPlateAsc(vehicles) as Vehicle[];
+
         this.mergeVehiclesWithNotes(vehicles, notes);
 
-        // Update and render table
-        this.vehicleTable.renderRows();
-        this.selectService.selectVehicles(this.sortedVehicles); // Optionally select vehicles
+        this.loadingProgress = 100;
 
-        this.loading = false;
-        this.cd.detectChanges(); // Trigger change detection
-        console.log("Vehicles and notes fetched and processed.");
+        this.loadingProgress++;
+        this.vehicleTableData.data = this.sortedVehicles;
+        this.vehicleTable.renderRows();
+        this.selectService.selectVehicles(this.sortedVehicles);
+        this.cd.detectChanges();
       },
       error: (error) => {
         console.error("Error fetching vehicles or notes: ", error);
-        this.loading = false;
       }
     });
   }
+
 
 
   /**
