@@ -19,7 +19,7 @@
   </mat-drawer>
   <mat-drawer-content>
     <mat-drawer-container class="drawer-container" style="height: 100vh" [ngClass]="{'bg-image': isLoginPage}">
-      <mat-drawer #drawer mode="side" class="sidebar">
+      <mat-drawer #drawer mode="over" class="sidebar">
         <div class="drawer-content">
           <button mat-button class="menu-btn" (click)="toggleDrawer()"><mat-icon>menu</mat-icon></button>
           <img class="sidebar-logo" src="assets/logo.png" alt="Logo">
