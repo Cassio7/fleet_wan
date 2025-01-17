@@ -634,7 +634,7 @@ export class AnomalyService {
             plate: item.plate,
             veId: item.veId,
             isCan: item.isCan,
-            isRFIDReader: item.allestimento,
+            isRFIDReader: item.isRFIDReader,
             sessions: [],
           });
         }
@@ -737,7 +737,7 @@ export class AnomalyService {
             plate: item.plate,
             veId: item.veId,
             isCan: item.isCan,
-            isRFIDReader: item.allestimento,
+            isRFIDReader: item.isRFIDReader,
             sessions: [],
           });
         }
