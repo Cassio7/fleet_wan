@@ -26,6 +26,7 @@ import { CommonService } from '../../../Common-services/common service/common.se
 import { AntennaGraphService } from '../../Services/antenna-graph/antenna-graph.service';
 import { Filters, FiltersCommonService } from '../../../Common-services/filters-common/filters-common.service';
 import { GpsGraphService } from '../../Services/gps-graph/gps-graph.service';
+import {MatSlideToggleChange, MatSlideToggleModule} from '@angular/material/slide-toggle';
 
 @Component({
   selector: 'app-table',
@@ -37,7 +38,8 @@ import { GpsGraphService } from '../../Services/gps-graph/gps-graph.service';
     MatButtonModule,
     MatTooltipModule,
     MatProgressBarModule,
-    MatSortModule
+    MatSortModule,
+    MatSlideToggleModule
 ],
   templateUrl: './table.component.html',
   styleUrl: './table.component.css'
@@ -54,8 +56,6 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   loadingText: string = "";
   loading: boolean = true;
 
-
-
   displayedColumns: string[] = ['tipologia','targa','cantiere', 'GPS', 'antenna', 'sessione'];
 
 
@@ -71,10 +71,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     private antennaGraphService: AntennaGraphService,
     private gpsGraphService: GpsGraphService,
     private cantieriFilterService: CantieriFilterService,
-    private gpsFilterService: GpsFilterService,
-    private antennaFilterService: AntennaFilterService,
-    private plateFilterService: PlateFilterService,
-    private sessionFilterService: SessionFilterService,
+    private sessionApiService: SessionApiService,
     private sessionStorageService: SessionStorageService,
     private commonService: CommonService,
     private filtersCommonService: FiltersCommonService,
@@ -85,36 +82,34 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   }
 
   ngAfterViewInit(): void {
-    const allVehiclesData = JSON.parse(this.sessionStorageService.getItem("allData"));
     setTimeout(() => {
       this.handlErrorGraphClick(); // Subscribe a click nel grafico degli errori
       this.handleBlackBoxGraphClick(); // Subscribe a click nel grafico dei blackbox
-      // this.handleCantiereFilter(); //Subscribe a scelta nel filtro dei cantieri
-      // this.handleGpsFilter();
-      // this.handleAntennaFilter();
-      // this.handleSessionFilter();
       this.handleAllFilters();
     });
 
+    this.checkErrorsService.switchCheckDay$.pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next: (switchTo: string) => {
+        if(switchTo == "today"){
+          this.fillTable();
+        }else if(switchTo == "last"){
+          this.getAllLastSession();
+        }else{
+          console.error("Cambio controllo a periodo sconosciuto");
+        }
+      },
+      error: error => console.error("Errore nel cambio del giorno di controllo: ", error)
+    });
+
     this.fillTable();
-    // if (allVehiclesData.length>0) {
-    //   this.vehicleTableData.data = allVehiclesData;
-    //   this.tableMaxLength = allVehiclesData.length;
-    //   this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));
-    //   this.vehicleTable.renderRows();
-    //   this.loadGraphs(allVehiclesData);
-    //   this.loading = false;
-    //   this.cd.detectChanges();
-    // } else {
-    //   this.fillTable(); // Riempi la tabella con i dati se non ci sono nel sessionStorage
-    // }
   }
 
   private handleAllFilters(){
-    const allData = JSON.parse(this.sessionStorageService.getItem("allData"));
-    this.filtersCommonService.applyFilters$.pipe(takeUntil(this.destroy$))
+    this.filtersCommonService.applyFilters$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (filters: Filters) => {
+        const allData = JSON.parse(this.sessionStorageService.getItem("allData"));
         const filteredVehicles = this.filtersCommonService.applyAllFiltersOnVehicles(allData, filters);
         this.vehicleTableData.data = filteredVehicles;
         this.vehicleTable.renderRows();
@@ -122,164 +117,6 @@ export class TableComponent implements OnDestroy, AfterViewInit{
         this.gpsGraphService.loadChartData$.next(filteredVehicles);
         this.errorGraphService.loadGraphData$.next(filteredVehicles);
       }
-    });
-  }
-
-
-
-  /**
-   * Gestisce l'aggiunta di un filtro aggiungendo i dati dei veicoli filtrati alla tabella
-   */
-  private handleCantiereFilter() {
-    this.cantieriFilterService.filterTableByCantiere$.pipe(
-      takeUntil(this.destroy$),
-      skip(1)
-    )
-    .subscribe({
-      next: (cantieri: string[]) => {
-        let vehicles: VehicleData[] = [];
-
-        const allVehicles: VehicleData[] = JSON.parse(this.sessionStorageService.getItem("allData") || '[]') as VehicleData[];
-
-        vehicles = this.cantieriFilterService.filterVehiclesByCantieri(allVehicles, cantieri);// Filtro veicoli in base ai cantieri
-
-        this.vehicleTableData.data = vehicles;
-
-        this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));
-
-        this.vehicleTable.renderRows();
-        this.cd.detectChanges();
-
-        this.loadGraphs(this.vehicleTableData.data);
-      },
-      error: error => {
-        console.error("Error receiving filter for the table: ", error);
-      }
-    });
-  }
-
-
-
-  /**
-   * Gestisce la sottoscrizione al filtro dei gps, impostando i dati della tabella di conseguenza
-   */
-  private handleGpsFilter() {
-    this.gpsFilterService.filterTableByGps$.pipe(takeUntil(this.destroy$), skip(1))
-      .subscribe({
-        next: (selections: string[]) => {
-          const allVehicles = JSON.parse(this.sessionStorageService.getItem("allData"));
-          const tableVehicles: VehicleData[] = JSON.parse(this.sessionStorageService.getItem("tableData"));
-
-          const vehicles = (tableVehicles && tableVehicles.length > 0) ? tableVehicles : allVehicles;
-          const gpsCheckSeries = this.checkErrorsService.checkVehiclesGpsErrors(vehicles); //[0] funzionante [1] warning [2] error
-          let selectedVehicles: VehicleData[] = [];
-          if (selections.includes("all")) {
-            selectedVehicles = vehicles;
-          } else {
-            if (selections.includes("Funzionante")) {
-              selectedVehicles = [...selectedVehicles, ...gpsCheckSeries[0]];
-            }
-            if (selections.includes("Warning")) {
-              selectedVehicles = [...selectedVehicles, ...gpsCheckSeries[1]];
-            }
-            if (selections.includes("Errore")) {
-              selectedVehicles = [...selectedVehicles, ...gpsCheckSeries[2]];
-            }
-          }
-
-          const filteredVehicles = this.sortService.vehiclesInDefaultOrder(selectedVehicles);
-
-          this.vehicleTableData.data = filteredVehicles.length > 0 ? filteredVehicles : [];
-
-          this.vehicleTable.renderRows();
-          this.loadGraphs(this.vehicleTableData.data);
-        },
-
-        error: error => console.error("Errore nel filtro dei gps: ", error)
-      });
-  }
-
-
-  private handleAntennaFilter() {
-    this.antennaFilterService.filterTableByAntenna$.pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: (selections: string[]) => {
-        const allVehicles = JSON.parse(this.sessionStorageService.getItem("allData"));
-        const tableVehicles: Vehicle[] = JSON.parse(this.sessionStorageService.getItem("tableData"));
-
-        const vehicles = (tableVehicles && tableVehicles.length > 0) ? tableVehicles : allVehicles;
-
-        const antennaCheck = this.checkErrorsService.checkVehiclesAntennaErrors(vehicles);
-        const vehiclesBlackboxData = this.blackboxGraphService.getAllRFIDVehicles(vehicles);
-        let selectedVehicles: VehicleData[] = [];
-
-        if (selections.includes("all")) {
-          selectedVehicles = vehicles;
-        } else {
-          if (selections.includes("Blackbox")) {
-            selectedVehicles = [...selectedVehicles, ...vehiclesBlackboxData.blackboxOnly];
-          }
-          if (selections.includes("Blackbox+antenna")) {
-            selectedVehicles = [...selectedVehicles, ...vehiclesBlackboxData.blackboxWithAntenna];
-          }
-          if (selections.includes("Funzionante")) {
-            selectedVehicles = [...selectedVehicles, ...antennaCheck[0]];
-          }
-          if (selections.includes("Errore")) {
-            selectedVehicles = [...selectedVehicles, ...antennaCheck[1]];
-          }
-        }
-
-        const filteredVehicles = this.sortService.vehiclesInDefaultOrder(selectedVehicles);
-
-        this.vehicleTableData.data = filteredVehicles.length > 0 ? filteredVehicles : [];
-
-        this.vehicleTable.renderRows();
-        this.loadGraphs(this.vehicleTableData.data);
-      },
-      error: error => console.error("Errore nel filtro delle antenne: ", error)
-    });
-  }
-
-
-  private handleSessionFilter() {
-    this.sessionFilterService.filterTableBySessionStates$.pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: (selections: string[]) => {
-        const allData = JSON.parse(this.sessionStorageService.getItem("allData"))
-        const allVehicles = allData.map((vehicleData: any) => {
-          return vehicleData.vehicle;
-        });
-        const tableVehicles: Vehicle[] = JSON.parse(this.sessionStorageService.getItem("tableData"));
-
-        const vehicles = (tableVehicles && tableVehicles.length > 0) ? tableVehicles : allVehicles;
-        const sessionCheck = this.checkErrorsService.checkVehiclesSessionErrors(vehicles); //[0] funzionante [1] errore
-
-        let selectedVehicles: VehicleData[] = [];
-
-        //se "all" è selezionato, aggiungi tutti i veicoli
-        if (selections.includes("all")) {
-          selectedVehicles = vehicles;
-        } else {
-          //selezione dei veicoli in base alle opzioni
-          if (selections.includes("Funzionante")) {
-            selectedVehicles = [...selectedVehicles, ...sessionCheck[0]];
-          }
-          if (selections.includes("Errore")) {
-            selectedVehicles = [...selectedVehicles, ...sessionCheck[1]];
-          }
-        }
-
-        //filtrare allVehicles per includere solo i veicoli selezionati
-        const filteredVehicles = this.sortService.vehiclesInDefaultOrder(selectedVehicles);
-
-        //impostare i dati della tabella con i veicoli filtrati
-        this.vehicleTableData.data = filteredVehicles.length > 0 ? filteredVehicles : [];
-
-        this.vehicleTable.renderRows();
-        this.loadGraphs(this.vehicleTableData.data);
-      },
-      error: error => console.error("Errore nel filtro per gli stati di sessione: ", error)
     });
   }
 
@@ -397,15 +234,14 @@ export class TableComponent implements OnDestroy, AfterViewInit{
    * Riempe la tabella con i dati dei veicoli
    */
   fillTable() {
+    this.sessionStorageService.clear();
     console.log("CHIAMATO FILL TABLE!");
     //nascondi i grafici
     this.antennaGraphService.resetGraph();
     this.errorGraphService.resetGraphs();
-    const dateFrom = this.commonService.dateFrom;
-    const dateTo = this.commonService.dateTo;
     this.vehicleTableData.data = []; //inizializzazione tabella vuota
     this.simulateProgress(0.2, 10);
-    this.checkErrorsService.checkErrorsAllRanged(dateFrom, dateTo)
+    this.checkErrorsService.checkErrorsAllRanged(new Date(), new Date())
     .then((responseObj: any) => {
       const vehiclesData = responseObj.vehicles;
       console.log("vehiclesData fetched: ", vehiclesData);
@@ -413,7 +249,6 @@ export class TableComponent implements OnDestroy, AfterViewInit{
         if (vehiclesData && vehiclesData.length > 0) {
           this.vehicleTableData.data = [...vehiclesData];  // Assicurati che vehiclesData.vehicles sia un array di veicoli
           this.sessionStorageService.setItem("allData", JSON.stringify(vehiclesData));  // Salva l'array di veicoli
-          this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));
           this.vehicleTable.renderRows();  // Rende le righe della tabella
           this.loadGraphs(vehiclesData);
         }
@@ -421,6 +256,37 @@ export class TableComponent implements OnDestroy, AfterViewInit{
         console.error("Error processing vehicles:", error);
       }
     }).catch(error => console.error("Errore nel caricamento iniziale dei dati: ", error));
+  }
+
+  /**
+   * Riempie la tabella con i dati delle ultime sessioni dei veicoli
+   */
+  getAllLastSession() {
+    this.sessionStorageService.clear();
+    console.log("CHIAMATO GET ALL LAST SESSION!");
+    this.antennaGraphService.resetGraph();
+    this.errorGraphService.resetGraphs();
+
+    this.vehicleTableData.data = [];
+
+    this.sessionApiService.getAllLastSession().pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (responseObj: any) => {
+          const vehiclesData: VehicleData[] = responseObj.vehicles;
+          console.log("Last session vehiclesData fetched: ", vehiclesData);
+          try {
+            if (vehiclesData && vehiclesData.length > 0) {
+              this.vehicleTableData.data = [...vehiclesData];
+              this.sessionStorageService.setItem("allData", JSON.stringify(vehiclesData));
+              this.vehicleTable.renderRows();
+              this.loadGraphs(vehiclesData);
+            }
+          } catch (error) {
+            console.error("Error processing last session vehicles:", error);
+          }
+        },
+        error: error => console.error("Errore nel recupero delle ultime sessioni dei veicoli: ", error)
+      });
   }
 
   /**
@@ -453,6 +319,8 @@ export class TableComponent implements OnDestroy, AfterViewInit{
       this.vehicleTable.renderRows();
     }
   }
+
+
 
 
   /**
