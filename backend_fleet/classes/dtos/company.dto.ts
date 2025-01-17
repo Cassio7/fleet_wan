@@ -1,7 +1,6 @@
 import { IsNumber, IsOptional, IsString } from 'class-validator';
-export class CompanyDTO {
-  @IsNumber()
-  id: number;
+import { CommonDTO } from 'classes/common/common.dto';
+export class CompanyDTO extends CommonDTO {
   @IsNumber()
   suId: number;
   @IsOptional()

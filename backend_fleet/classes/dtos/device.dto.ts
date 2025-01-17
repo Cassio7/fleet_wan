@@ -5,8 +5,9 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
+import { CommonDTO } from 'classes/common/common.dto';
 
-export class DeviceDTO {
+export class DeviceDTO extends CommonDTO {
   @IsNumber()
   device_id: number;
   @IsNumber()

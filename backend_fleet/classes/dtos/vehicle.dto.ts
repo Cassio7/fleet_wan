@@ -5,10 +5,9 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
+import { CommonDTO } from 'classes/common/common.dto';
 
-export class VehicleDTO {
-  @IsNumber()
-  id: number;
+export class VehicleDTO extends CommonDTO {
   @IsNumber()
   veId: number;
   @IsBoolean()

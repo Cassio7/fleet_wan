@@ -1,6 +1,7 @@
 import { IsDate, IsOptional, IsString } from 'class-validator';
+import { CommonDTO } from 'classes/common/common.dto';
 
-export class AnomalyDTO {
+export class AnomalyDTO extends CommonDTO {
   @IsDate()
   date: Date;
   @IsOptional()

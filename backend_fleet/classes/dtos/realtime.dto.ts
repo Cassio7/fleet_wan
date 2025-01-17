@@ -1,6 +1,7 @@
 import { IsDate, IsNumber } from 'class-validator';
+import { CommonDTO } from 'classes/common/common.dto';
 
-export class RealtimeDTO {
+export class RealtimeDTO extends CommonDTO {
   @IsDate()
   timestamp: Date;
   @IsNumber()
