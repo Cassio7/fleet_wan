@@ -303,6 +303,7 @@ export class NotesService {
   private toDTO(note: NoteEntity) {
     const noteDTO = new NoteDto();
     noteDTO.id = note.id;
+    noteDTO.updatedAt = note.updatedAt;
     noteDTO.content = note.content;
     const vehicleDTO = new VehicleDTO();
     vehicleDTO.id = note.vehicle.id;
