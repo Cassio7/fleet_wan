@@ -10,19 +10,11 @@ export class RoleService {
     private readonly roleRepository: Repository<RoleEntity>,
   ) {}
   /**
-   * Recupera tutti i ruoli presenti
+   * Recupera un ruolo in base al nome associato soltanto dentro server
+   * @param name nome del ruolo
    * @returns
    */
-  async getAllRoles(): Promise<any> {
-    const roles = await this.roleRepository.find();
-    return roles;
-  }
-  /**
-   * Recupera un ruolo in base al nome associato
-   * @param name
-   * @returns
-   */
-  async getRoleByName(name: string): Promise<any> {
+  async getRoleByName(name: string): Promise<RoleEntity> {
     const role = await this.roleRepository.findOne({
       where: {
         name: name,
