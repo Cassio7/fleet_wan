@@ -31,8 +31,7 @@ import { CheckErrorsService } from '../../../Common-services/check-errors/check-
     MatProgressBarModule,
     MatIconModule,
     MatListModule,
-    MatTooltipModule,
-    KanbanFiltersComponent
+    MatTooltipModule
   ],
   templateUrl: './kanban-antenna.component.html',
   styleUrl: './kanban-antenna.component.css'

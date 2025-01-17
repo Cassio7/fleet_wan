@@ -4,7 +4,6 @@
 }
 
 .columns {
-  margin-top: 2vh;
   display: flex;
   justify-content: space-between;
   gap: 16px;
@@ -24,10 +23,6 @@
   font-style: italic;
   line-height: 1;
   margin: 0;
-}
-
-.filters{
-  margin-top: 20px;
 }
 
 .progress-bar {
