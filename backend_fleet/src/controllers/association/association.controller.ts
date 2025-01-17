@@ -22,7 +22,7 @@ import { UserService } from 'src/services/user/user.service';
 import { WorksiteService } from 'src/services/worksite/worksite.service';
 
 @UseGuards(AuthGuard, RolesGuard)
-@Controller('association')
+@Controller('associations')
 export class AssociationController {
   constructor(
     private readonly associationService: AssociationService,
