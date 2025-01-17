@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, firstValueFrom, Observable } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, Observable, Subject } from 'rxjs';
 import { CommonService } from '../common service/common.service';
 import { Vehicle } from '../../Models/Vehicle';
 import { CookiesService } from '../cookies service/cookies.service';
@@ -14,7 +14,8 @@ export class CheckErrorsService {
   /**
    * Trasporta i dati dei veicoli nel caso uno spicchio venga deselezionato
    */
-  private _fillTable$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
+  private readonly _fillTable$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
+  private readonly _switchCheckDay$: BehaviorSubject<string> = new BehaviorSubject<string>("");
 
   constructor(
     private http: HttpClient,
@@ -79,9 +80,6 @@ export class CheckErrorsService {
    * @returns null se non sono presenti anomalie
    */
   checkVehicleAnomaly(vehicleData: VehicleData): Anomaly | null{
-    const dateFrom = this.commonService.dateFrom
-    const dateTo = this.commonService.dateTo;
-
     const anomalies: Anomaly[] = vehicleData.anomalies;
     //controllo sulla presenza anomalie
     if (!anomalies) {
@@ -92,7 +90,7 @@ export class CheckErrorsService {
     const foundAnomaly: any = Object.values(anomalies).find((anomaliesObj: Anomaly) => {
       const anomalyDate = new Date(anomaliesObj.date); // Data delle anomalie
       anomalyDate.setHours(0,0,0,0);
-      return anomalyDate >= dateFrom && anomalyDate <= dateTo;
+      return anomalyDate;
     });
 
     return foundAnomaly ? foundAnomaly : null;
@@ -198,26 +196,16 @@ export class CheckErrorsService {
   }
 
   getVehicleSessionAnomalyDate(vehicleData: VehicleData): Date | null {
-    const dateFrom = new Date(this.commonService.dateFrom);
-    const dateTo = new Date(this.commonService.dateTo);
-
-    dateFrom.setHours(0, 0, 0, 0);
-    dateTo.setHours(0, 0, 0, 0);
-
     const anomalies: Anomaly[] = vehicleData.anomalies;
 
     if (!anomalies || !Array.isArray(anomalies)) {
         return null;
     }
 
-    const foundAnomaly = anomalies.find((anomaliesObj: Anomaly) => {
-        const anomalyDate = new Date(anomaliesObj.date);
-        anomalyDate.setHours(0, 0, 0, 0);
-        return anomalyDate >= dateFrom && anomalyDate <= dateTo;
-    });
+    const foundAnomaly = anomalies[0];
 
     return foundAnomaly ? new Date(foundAnomaly.date) : null;
-}
+  }
 
   private formatDate(date: Date): string {
     const year = date.getFullYear();
@@ -266,5 +254,8 @@ export class CheckErrorsService {
 
   public get fillTable$(): BehaviorSubject<any[]> {
     return this._fillTable$;
+  }
+  public get switchCheckDay$(): BehaviorSubject<string> {
+    return this._switchCheckDay$;
   }
 }
