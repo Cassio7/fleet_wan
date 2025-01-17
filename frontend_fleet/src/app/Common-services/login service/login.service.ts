@@ -3,6 +3,7 @@ import { Observable, Subject } from 'rxjs';
 import { CookiesService } from '../cookies service/cookies.service';
 import { HttpClient } from '@angular/common/http';
 import { CommonService } from '../common service/common.service';
+import { SessionStorageService } from '../sessionStorage/session-storage.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +14,7 @@ export class LoginService {
   constructor(
     private http: HttpClient,
     private commonService: CommonService,
+    private sessionStorageService: SessionStorageService,
     private cookieService: CookiesService
   ) { }
 
@@ -26,6 +28,7 @@ export class LoginService {
 
   logout(){
     localStorage.removeItem("user");
+    this.sessionStorageService.clear();
   }
 
   public get login$(): Subject<void> {

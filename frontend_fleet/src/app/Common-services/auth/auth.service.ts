@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { jwtDecode } from 'jwt-decode';
 import { CookiesService } from '../cookies service/cookies.service';
 import { User } from '../../Models/User';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { CommonService } from '../common service/common.service';
 
 
 @Injectable({
@@ -10,7 +12,9 @@ import { User } from '../../Models/User';
 export class AuthService {
 
   constructor(
-    private cookieService: CookiesService
+    private commonService: CommonService,
+    private cookieService: CookiesService,
+    private http: HttpClient
   ) { }
 
   /**
@@ -27,11 +31,24 @@ export class AuthService {
     }
   }
 
+  getUserInfo(){
+    const access_token = this.cookieService.getCookie("user");
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${access_token}`,
+      'Content-Type': 'application/json'
+    });
+
+
+    return this.http.get<User>(`${this.commonService.url}/user/me`, {headers});
+  }
+
+
+
   /**
    * Decodifica il token d'accesso con le informazioni dell'utente
    * @returns l'oggetto contenente le informazioni dell'utente
    */
-  getUserInfo(): User{
+  getParsedAccessToken(): User{
     const access_token = this.cookieService.getCookie("user");
     return this.decodeToken(access_token);
   }

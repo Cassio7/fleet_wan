@@ -35,7 +35,8 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
   currentPage: string = '';
   isKanban: boolean = false;
   icon: string = '';
-  username: string = "";
+  name: string = "";
+  surname: string = "";
   role: string = "";
 
   constructor(
@@ -75,14 +76,17 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
   }
 
   ngAfterViewInit(): void {
-    const access_token = this.cookieService.getCookie("user");
-    const userInfo: User = this.authService.decodeToken(access_token);
-    this.username = userInfo.username;
-    switch(userInfo.role){
-      case 1:
-        this.role = "Admin";
-        break;
-    }
+    this.cd.detectChanges();
+    this.authService.getUserInfo().pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (user: User) => {
+        this.name = user.name;
+        this.surname = user.surname;
+        this.role = user.role;
+        this.cd.detectChanges();
+      },
+      error: error => console.error("Errore nella ricezione dei dat dell'utente: ", error)
+    });
     merge(
       this.kanbanAntennaService.loadKanbanAntenna$.pipe(takeUntil(this.destroy$)),
       this.kanbanGpsService.loadKanbanGps$.pipe(takeUntil(this.destroy$))
