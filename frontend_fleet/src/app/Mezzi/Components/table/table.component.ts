@@ -103,7 +103,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
 
   ngAfterViewInit(): void {
     //recupero utente da access token
-    const user: User = this.authService.getUserInfo();
+    const user: User = this.authService.getParsedAccessToken();
     this.user = user;
     this.cd.detectChanges();
 
@@ -139,7 +139,6 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
 
     forkJoin({ vehicles: vehicles$, notes: notes$ }).subscribe({
       next: ({ vehicles, notes }: { vehicles: Vehicle[], notes: Note[] }) => {
-        this.notesService.vehicleNotes = notes;
         this.sessionStorageService.setItem("allVehicles", JSON.stringify(vehicles));
         this.sortedVehicles = this.sortService.sortVehiclesByPlateAsc(vehicles) as Vehicle[];
         this.sortedVehicles = this.notesService.mergeVehiclesWithNotes(this.sortedVehicles, notes);
@@ -270,10 +269,19 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
    * Resetta tutte le selezioni
    */
   resetSelections(){
-    const allVehicles: Vehicle[] = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-    const mergedVehicles: Vehicle[] = this.notesService.mergeVehiclesWithNotes(allVehicles, this.notesService.vehicleNotes);
-    this.vehicleTableData.data = mergedVehicles;
-    this.selectService.allOptionsSelected = true;
-    this.cd.detectChanges();
+    //2 seconds progress bar loading
+
+    //recupero di tutte le note dal db
+    this.notesService.getAllNotes().pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (notes: Note[]) => {
+        const allVehicles: Vehicle[] = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+        const mergedVehicles: Vehicle[] = this.notesService.mergeVehiclesWithNotes(allVehicles, notes);
+        this.vehicleTableData.data = mergedVehicles;
+        this.selectService.allOptionsSelected = true;
+        this.cd.detectChanges();
+      },
+      error: error => console.error("Errore nel recupero delle note per il reset dei filtri: ", error)
+    });
   }
 }

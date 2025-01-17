@@ -12,10 +12,8 @@ import { CookiesService } from '../../../Common-services/cookies service/cookies
   providedIn: 'root'
 })
 export class NotesService {
-  private _vehicleNotes: Note[] = [];
 
   constructor(
-    private sessionStorageService: SessionStorageService,
     private cookieService: CookiesService,
     private commonService: CommonService,
     private http: HttpClient
@@ -99,7 +97,7 @@ export class NotesService {
 
   /**
   * Recupera tutte le note.
-  * @returns Un Observable di array di note.
+  * @returns observable
   */
   getAllNotes(): Observable<Note[]>{
     const access_token = this.cookieService.getCookie("user");
@@ -154,12 +152,5 @@ export class NotesService {
     }else{
       return true;
     }
-  }
-
-  public get vehicleNotes(): Note[] {
-    return this._vehicleNotes;
-  }
-  public set vehicleNotes(value: Note[]) {
-    this._vehicleNotes = value;
   }
 }

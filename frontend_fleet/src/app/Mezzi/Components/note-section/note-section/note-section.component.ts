@@ -68,7 +68,6 @@ export class NoteSectionComponent implements AfterViewInit, OnDestroy{
       .subscribe({
         next: (newNote: Note) => {
           this.vehicle.note = newNote;
-          this.notesService.vehicleNotes.push(newNote);
           this.modified = false;
           this.updatedBtn = true;
           this.eliminatedBtn = true;
@@ -104,10 +103,7 @@ export class NoteSectionComponent implements AfterViewInit, OnDestroy{
           this.eliminatedBtn= true;
           this.createdBtn = false;
           this.modified = false;
-          //modifica dell'array di note nel servizio x bottone reset
-          // this.notesService.vehicleNotes.map(note => {
-          //   if(note.id == )
-          // });
+
           this.cd.detectChanges()
         },
         error: error => console.error("Errore nell'aggiornamento della nota: ", error)
