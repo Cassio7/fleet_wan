@@ -8,7 +8,7 @@
     <mat-icon matSuffix *ngIf="!targa.value">search</mat-icon>
   </mat-form-field>
 
-  <mat-form-field class="cantieri-filter" appearance="outline">
+  <mat-form-field class="cantieri-filter filter" appearance="outline">
     <mat-select [formControl]="cantieri" placeholder="Cantiere" multiple class="cantiere-input">
       <mat-option
       [value]="cantiere"
@@ -21,7 +21,7 @@
     <mat-icon matSuffix>engineering</mat-icon>
   </mat-form-field>
 
-  <mat-form-field class="GPS-state-filter" appearance="outline">
+  <mat-form-field class="GPS-state-filter filter" appearance="outline">
     <mat-select [formControl]="gps" placeholder="Stati GPS" multiple class="GPS-input">
       <mat-option value="Seleziona tutto" (click)="selectGps('Seleziona tutto')">Seleziona tutto</mat-option>
       <mat-divider></mat-divider>
@@ -35,7 +35,7 @@
     <mat-icon matSuffix>location_on</mat-icon>
   </mat-form-field>
 
-  <mat-form-field class="antenna-filter" appearance="outline">
+  <mat-form-field class="antenna-filter filter" appearance="outline">
     <mat-select [formControl]="antenne" placeholder="Stati antenna" multiple class="antenna-input">
       <mat-option value="Seleziona tutto" (click)="selectAntenna('Seleziona tutto')">Seleziona tutto</mat-option>
       <mat-divider></mat-divider>
@@ -46,7 +46,7 @@
     <mat-icon matSuffix>wifi</mat-icon>
   </mat-form-field>
 
-  <mat-form-field class="session-filter" appearance="outline">
+  <mat-form-field class="session-filter filter" appearance="outline">
     <mat-select [formControl]="sessionStates" placeholder="Stati sessione" multiple class="antenna-input">
       <mat-option value="Seleziona tutto" (click)="selectSession('Seleziona tutto')">Seleziona tutto</mat-option>
       <mat-divider></mat-divider>

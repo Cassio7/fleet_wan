@@ -81,7 +81,7 @@
           <div class="OK-container" *ngIf="!checkErrorsService.checkSessionError(vehicleData) && checkErrorsService.getVehicleSessionAnomalyDate(vehicleData)" matTooltip="Sessione corretta">
             OK
           </div>
-          {{ checkErrorsService.getVehicleSessionAnomalyDate(vehicleData) ? (checkErrorsService.getVehicleSessionAnomalyDate(vehicleData) | date: 'dd/MM/yy hh:mm') : '' }}
+          {{ checkErrorsService.getVehicleSessionAnomalyDate(vehicleData) ? (checkErrorsService.getVehicleSessionAnomalyDate(vehicleData) | date: 'dd/MM/yy') : '' }}
         </span>
         <!-- se c'è errore  -->
         <ng-template #sessionError>

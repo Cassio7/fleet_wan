@@ -1,3 +1,6 @@
+.fixed-drawer-container{
+  border-radius: 0px;
+}
 .fixed-drawer-content {
   width: 100%;
   height: 100vh;
@@ -13,13 +16,8 @@
   width: 100%;
   background-color: transparent;
   border: transparent;
-  color: white;
-  transition: background-color 0.3s ease;
+  border-radius: 0px;
   cursor: pointer;
-}
-
-.fixed-drawer-content button:hover {
-  background-color: rgba(255, 255, 255, 0.2);
 }
 
 
@@ -93,8 +91,9 @@
 
 .sidebar {
   padding: clamp(10px, 2vw, 20px);
-  width: 300px;
+  width: 10%;
   background-color: var(--sidebar-color);
+  border-radius: 0px;
 }
 
 .drawer-content {
@@ -149,4 +148,9 @@ hr {
   color: red; /* Change color when hovered */
 }
 
-
+.main-actions button{
+  background-color: transparent;
+  width: 100%;
+  border-radius: 0px;
+  color: white;
+}
