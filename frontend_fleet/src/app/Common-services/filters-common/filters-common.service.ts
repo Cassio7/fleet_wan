@@ -84,7 +84,6 @@ export class FiltersCommonService {
     // Filtro per targa
     if (filters.plate) {
         const plateFiltered = this.plateFilterService.filterVehiclesByPlateResearch(filters.plate, vehicles);
-        if (plateFiltered.length > 0)
             filterResults.push(plateFiltered);
         console.log("filtrato per  plate: ", plateFiltered);
       }
@@ -92,15 +91,15 @@ export class FiltersCommonService {
     // Filtro per cantieri
     if (filters.cantieri && filters.cantieri.value) {
         const cantieriFiltered = this.cantieriFilterService.filterVehiclesByCantieri(vehicles, filters.cantieri.value);
-        if (cantieriFiltered.length > 0)
             filterResults.push(cantieriFiltered);
     }
 
     // Filtro per stato GPS
     if (filters.gps && filters.gps.value) {
         const gpsCheck = this.checkErrorsService.checkVehiclesGpsErrors(vehicles);
+        console.log("gpsCheck: ", gpsCheck);
         const gpsFiltered = this.filterByStatus(gpsCheck, filters.gps.value, "GPS");
-        if (gpsFiltered.length > 0)
+        console.log("gpsFiltered: ", gpsFiltered);
             filterResults.push(gpsFiltered);
         console.log("filtrato per  gps: ", gpsFiltered);
     }
@@ -114,7 +113,6 @@ export class FiltersCommonService {
             const blackboxData = this.blackboxGraphService.getAllRFIDVehicles(vehicles);
             antennaData = [...antennaErrors, ...blackboxData.blackboxOnly];
         }
-        if (antennaData.length > 0)
             filterResults.push(antennaData);
         console.log("filtrato per  antenna: ", antennaData);
     }
@@ -123,7 +121,6 @@ export class FiltersCommonService {
     if (filters.sessione && filters.sessione.value) {
         const sessionCheck = this.checkErrorsService.checkVehiclesSessionErrors(vehicles);
         const sessionFiltered = this.filterByStatus(sessionCheck, filters.sessione.value, "sessione");
-        if (sessionFiltered.length > 0)
             filterResults.push(sessionFiltered);
         console.log("filtrato per  session: ", sessionFiltered);
     }
@@ -135,12 +132,10 @@ export class FiltersCommonService {
 
     filteredVehicles = filterResults.reduce((acc, curr) => this.intersectVehicles(acc, curr), vehicles); //calcolo intersezione tra i veicoli filtrati
 
+    console.log("filteredVehicles: ", filteredVehicles);
     this.updateAllFiltersOption(filteredVehicles);
     return filteredVehicles;
   }
-
-
-
 
 
   /**
