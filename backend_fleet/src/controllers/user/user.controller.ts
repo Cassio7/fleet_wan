@@ -24,7 +24,7 @@ import { LoggerService } from 'src/log/service/logger.service';
 import { UserService } from 'src/services/user/user.service';
 
 @UseGuards(AuthGuard, RolesGuard)
-@Controller('user')
+@Controller('users')
 export class UserController {
   constructor(
     private readonly userService: UserService,
