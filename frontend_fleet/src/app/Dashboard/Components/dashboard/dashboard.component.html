@@ -14,23 +14,28 @@
     </div>
   </div>
   <div class="right-section">
-    <div class="kebab-menu">
-      <app-kebab-menu></app-kebab-menu>
+    <div class="header">
+      <div class="header-left">
+        <div class="section-name">
+          <h2 class="title">{{pageName}}</h2>
+          <p class="subtitle">{{subtitle}}</p>
+        </div>
+        <mat-slide-toggle class="example-margin" [checked]="checked" [disabled]="disabled" (change)="dataSwitch($event)"> {{switchText}} </mat-slide-toggle>
+      </div>
+      <div class="kebab-menu">
+        <app-kebab-menu></app-kebab-menu>
+      </div>
     </div>
     <div class="table-content" *ngIf="table">
-      <h2 class="title">Dashboard</h2>
-      <p class="subtitle">Monitora i tuoi veicoli</p>
-      <div class="filters">
-        <app-row-filter></app-row-filter>
-      </div>
-      <div class="table">
-        <app-table></app-table>
-      </div>
+      <app-row-filter></app-row-filter>
+      <app-table></app-table>
     </div>
     <div class="kabangps-content" *ngIf="kanbanGps">
+      <app-kanban-filters></app-kanban-filters>
       <app-kanban-gps></app-kanban-gps>
     </div>
     <div class="kabanAntenna-content" *ngIf="kabanAntenna">
+      <app-kanban-filters></app-kanban-filters>
       <app-kanban-antenna></app-kanban-antenna>
     </div>
   </div>

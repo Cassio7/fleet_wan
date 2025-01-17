@@ -21,6 +21,10 @@ import { KanbanAntennaService } from '../../Services/kanban-antenna/kanban-anten
 import { KanbanTableService } from '../../Services/kanban-table/kanban-table.service';
 import { ErrorGraphsService } from '../../Services/error-graphs/error-graphs.service';
 import { GpsGraphComponent } from "../error-graphs/gps-graph/gps-graph.component";
+import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { SessionApiService } from '../../Services/session/session-api.service';
+import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
+import { KanbanFiltersComponent } from "../kanban-filters/kanban-filters.component";
 
 @Component({
   selector: 'app-dashboard',
@@ -42,7 +46,9 @@ import { GpsGraphComponent } from "../error-graphs/gps-graph/gps-graph.component
     RowFilterComponent,
     KebabMenuComponent,
     KanbanGpsComponent,
-    KanbanAntennaComponent
+    MatSlideToggleModule,
+    KanbanAntennaComponent,
+    KanbanFiltersComponent
 ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
@@ -52,6 +58,13 @@ export class DashboardComponent implements AfterViewInit{
   private readonly destroy$: Subject<void> = new Subject<void>();
 
   errorGraphTitle: string = "GPS";
+
+  checked = true;
+  disabled = false;
+  switchText: string = "Oggi";
+
+  pageName = "Dashboard";
+  subtitle = "Monitora i tuoi veicoli";
 
   private _table: boolean = true;
   private _kanbanGps: boolean = false;
@@ -63,6 +76,7 @@ export class DashboardComponent implements AfterViewInit{
     private errorGraphService: ErrorGraphsService,
     private KanbanAntennaService: KanbanAntennaService,
     private kanbanTableService: KanbanTableService,
+    private checkErrorsService: CheckErrorsService,
     private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef
   ){
@@ -77,6 +91,8 @@ export class DashboardComponent implements AfterViewInit{
     .subscribe({
       next: () => {
         this.displaySection("table"); //display del componente scelto dal kebab menu
+        this.pageName = "Dashboard";
+        this.subtitle = "Monitora i tuoi veicoli";
         this.errorGraphTitle = this.errorGraphService.graphTitle = "Errors";//impostazione titolo del grafico
         this.sessionStorageService.setItem("dashboard-section", "table");
       },
@@ -86,6 +102,8 @@ export class DashboardComponent implements AfterViewInit{
     .subscribe({
       next: () => {
         this.displaySection("GPS"); //display del componente scelto dal kebab menu
+        this.pageName = "GPS";
+        this.subtitle = "Monitora lo stato dei GPS";
         this.errorGraphTitle = this.errorGraphService.graphTitle = "GPS";//impostazione titolo del grafico
         this.sessionStorageService.setItem("dashboard-section", "GPS");
       },
@@ -95,6 +113,8 @@ export class DashboardComponent implements AfterViewInit{
     .subscribe({
       next: () => {
         this.displaySection("Antenna"); //display del componente scelto dal kebab menu
+        this.pageName = "Antenna";
+        this.subtitle = "Monitora lo stato delle antenne";
         this.errorGraphTitle = this.errorGraphService.graphTitle = "Antenna";
         this.sessionStorageService.setItem("dashboard-section", "Antenna");
       },
@@ -127,6 +147,16 @@ export class DashboardComponent implements AfterViewInit{
     }
 
     this.cd.detectChanges();
+  }
+
+  dataSwitch(event: MatSlideToggleChange){
+    if(event.checked){
+      this.switchText = "Oggi";
+      this.checkErrorsService.switchCheckDay$.next("today");
+    }else{
+      this.switchText = "Ultimo andamento"
+      this.checkErrorsService.switchCheckDay$.next("last");
+    }
   }
 
   public get table(): boolean {
