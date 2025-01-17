@@ -80,48 +80,65 @@ export class FiltersCommonService {
     console.log("session.value: ", filters.sessione.value);
     let filteredVehicles: VehicleData[] = [...vehicles];
     const filterResults: VehicleData[][] = [];
+    let plateFiltered: VehicleData[] = [];
+    let cantieriFiltered: VehicleData[] = [];
 
     // Filtro per targa
-    if (filters.plate) {
-        const plateFiltered = this.plateFilterService.filterVehiclesByPlateResearch(filters.plate, vehicles);
-            filterResults.push(plateFiltered);
-        console.log("filtrato per  plate: ", plateFiltered);
-      }
+    plateFiltered = this.plateFilterService.filterVehiclesByPlateResearch(filters.plate, vehicles);
+    filterResults.push(plateFiltered);
+    console.log("filtrato per  plate: ", plateFiltered);
+
+    if(filters.plate){
+      const updatedCantieri = this.cantieriFilterService.updateSelectedCantieri(plateFiltered);
+      filters.cantieri.setValue(updatedCantieri);
+      filters.gps.setValue(this.gpsFilterService.updateSelectedOptions(plateFiltered));
+      filters.antenna.setValue(this.antennaFilterService.updateSelectedOptions(plateFiltered));
+      filters.sessione.setValue(this.sessionFilterService.updateSelectedOptions(plateFiltered));
+    }else{
+      const allCantieri = this.cantieriFilterService.vehiclesCantieriOnce(plateFiltered);
+      filters.cantieri.setValue(allCantieri);
+    }
 
     // Filtro per cantieri
     if (filters.cantieri && filters.cantieri.value) {
-        const cantieriFiltered = this.cantieriFilterService.filterVehiclesByCantieri(vehicles, filters.cantieri.value);
-            filterResults.push(cantieriFiltered);
+        if(plateFiltered){
+          console.log("entro su plateFiltered: ", plateFiltered);
+          cantieriFiltered = this.cantieriFilterService.filterVehiclesByCantieri(plateFiltered, filters.cantieri.value);
+        }else{
+          cantieriFiltered = this.cantieriFilterService.filterVehiclesByCantieri(vehicles, filters.cantieri.value);
+        }
+        console.log("cantieriFiltered: ", cantieriFiltered);
+        filterResults.push(cantieriFiltered);
     }
 
     // Filtro per stato GPS
     if (filters.gps && filters.gps.value) {
-        const gpsCheck = this.checkErrorsService.checkVehiclesGpsErrors(vehicles);
+        const gpsCheck = this.checkErrorsService.checkVehiclesGpsErrors(cantieriFiltered);
         console.log("gpsCheck: ", gpsCheck);
         const gpsFiltered = this.filterByStatus(gpsCheck, filters.gps.value, "GPS");
         console.log("gpsFiltered: ", gpsFiltered);
-            filterResults.push(gpsFiltered);
+        filterResults.push(gpsFiltered);
         console.log("filtrato per  gps: ", gpsFiltered);
     }
 
     // Filtro per stato antenna
     if (filters.antenna && filters.antenna.value) {
-        const antennaCheck = this.checkErrorsService.checkVehiclesAntennaErrors(vehicles);
+        const antennaCheck = this.checkErrorsService.checkVehiclesAntennaErrors(cantieriFiltered);
         const antennaErrors = this.filterByStatus(antennaCheck, filters.antenna.value, "antenna");
         let antennaData = antennaErrors;
         if (filters.antenna.value.includes("Blackbox")) {
-            const blackboxData = this.blackboxGraphService.getAllRFIDVehicles(vehicles);
+            const blackboxData = this.blackboxGraphService.getAllRFIDVehicles(cantieriFiltered);
             antennaData = [...antennaErrors, ...blackboxData.blackboxOnly];
         }
-            filterResults.push(antennaData);
+        filterResults.push(antennaData);
         console.log("filtrato per  antenna: ", antennaData);
     }
 
     // Filtro per stato sessione
     if (filters.sessione && filters.sessione.value) {
-        const sessionCheck = this.checkErrorsService.checkVehiclesSessionErrors(vehicles);
+        const sessionCheck = this.checkErrorsService.checkVehiclesSessionErrors(cantieriFiltered);
         const sessionFiltered = this.filterByStatus(sessionCheck, filters.sessione.value, "sessione");
-            filterResults.push(sessionFiltered);
+        filterResults.push(sessionFiltered);
         console.log("filtrato per  session: ", sessionFiltered);
     }
 
@@ -146,7 +163,7 @@ export class FiltersCommonService {
    */
   private intersectVehicles(firstArray: VehicleData[], secondArray: VehicleData[]): VehicleData[] {
     return firstArray.filter(firstVehicle =>
-      secondArray.some(secondVehicle => secondVehicle.vehicle.id === firstVehicle.vehicle.id)
+      secondArray.some(secondVehicle => secondVehicle.vehicle.veId === firstVehicle.vehicle.veId)
     );
   }
 
