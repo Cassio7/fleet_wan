@@ -7,7 +7,7 @@ import { MatOptionModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
-import { skip, Subject, takeUntil } from 'rxjs';
+import { forkJoin, skip, Subject, take, takeUntil } from 'rxjs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
@@ -18,6 +18,8 @@ import { AntennaFilterService } from '../../../Common-services/antenna-filter/an
 import { VehicleData } from '../../../Models/VehicleData';
 import { Filters, FiltersCommonService } from '../../../Common-services/filters-common/filters-common.service';
 import { KanbanTableService } from '../../Services/kanban-table/kanban-table.service';
+import { KanbanGpsService } from '../../Services/kanban-gps/kanban-gps.service';
+import { KanbanAntennaService } from '../../Services/kanban-antenna/kanban-antenna.service';
 
 @Component({
   selector: 'app-row-filter',
@@ -62,6 +64,8 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
     public gpsFilterService: GpsFilterService,
     public antennaFilterService: AntennaFilterService,
     private kanabanTableService: KanbanTableService,
+    private kanbanGpsService: KanbanGpsService,
+    private kanbanAntennaService: KanbanAntennaService,
     public sessionFilterService: SessionFilterService,
     private cantiereFilterService: CantieriFilterService,
     private sessionStorageService: SessionStorageService,
@@ -81,23 +85,22 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
   }
 
   ngAfterViewInit(): void {
-    // Recupero dei dati dal sessionStorage
-    const storedData = this.sessionStorageService.getItem("allData");
-    if (storedData) {
-      const allData: VehicleData[] = JSON.parse(storedData);
 
-      const allVehicles = allData.map((vehicleData: any) => {
-        return vehicleData.vehicle;
-      });
+    this.toggleSelectAll();
 
-      this.cantieriFilterService.updateListaCantieri(allVehicles);
-      this.toggleSelectAll();
-    }
-
-    this.kanabanTableService.loadKabanTable$.pipe(takeUntil(this.destroy$))
+    this.kanabanTableService.loadKabanTable$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe(() => {
       this.toggleSelectAll();
     });
+    this.kanbanGpsService.loadKanbanGps$.pipe(takeUntil(this.destroy$))
+    .subscribe(()=>{
+      this.toggleSelectAll();
+    });
+    this.kanbanAntennaService.loadKanbanAntenna$.pipe(takeUntil(this.destroy$))
+    .subscribe(() => {
+      this.toggleSelectAll();
+    });
+
 
     this.handleAllFiltersOptionsUpdate();
 
@@ -315,10 +318,21 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
    * Seleziona tutti i filtri del select dei cantieri
    */
   toggleSelectAll() {
-    this.cantieri.setValue(this.cantieriFilterService.toggleSelectAllCantieri());
+    // Recupero dei dati dal sessionStorage
+    const storedData = this.sessionStorageService.getItem("allData");
+    if (storedData) {
+      const allData: VehicleData[] = JSON.parse(storedData);
+
+      const allVehicles = allData.map((vehicleData: any) => {
+        return vehicleData.vehicle;
+      });
+
+      this.cantieri.setValue(this.cantieriFilterService.updateListaCantieri(allVehicles));
+    }
     this.toggleSelectAllGps()
     this.toggleSelectAllAntenne();
     this.toggleSelectAllSession();
+    this.cd.detectChanges();
     console.log("togglato tutto!");
   }
 
