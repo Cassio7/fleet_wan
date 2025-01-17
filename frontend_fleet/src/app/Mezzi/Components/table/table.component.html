@@ -7,7 +7,7 @@
   <p class="loading-p">{{loadingText}}</p>
   <mat-progress-bar mode="determinate" [value]="loadingProgress" class="loading-bar"></mat-progress-bar>
 </div>
-<p class="loading-p" *ngIf="notesLoading">Caricamento note...</p>
+<p class="loading-p" *ngIf="resetLoading">Ricaricamento veicoli...</p>
 <div class="table-container">
   <table mat-table [dataSource]="vehicleTableData" #vehicleTable class="mat-elevation-z8" multiTemplateDataRows>
 

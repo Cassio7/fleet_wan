@@ -62,7 +62,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
   @ViewChild('vehicleTable') vehicleTable!: MatTable<Session[]>;
   private readonly destroy$: Subject<void> = new Subject<void>();
   readonly panelOpenState = signal(false);
-  notesLoading = false;
+  resetLoading = false;
   loadingProgress: number = 0;
   loadingText: string = "";
 
@@ -271,7 +271,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
    */
   resetSelections(){
     //2 seconds progress bar loading
-    this.notesLoading = true;
+    this.resetLoading = true;
     this.vehicleTableData.data = [];
     this.cd.detectChanges();
     this.vehicleTable.renderRows();
@@ -284,7 +284,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
           const mergedVehicles: Vehicle[] = this.notesService.mergeVehiclesWithNotes(allVehicles, notes);
           this.vehicleTableData.data = mergedVehicles;
           this.selectService.allOptionsSelected = true;
-          this.notesLoading = false;
+          this.resetLoading = false;
           this.cd.detectChanges();
         },
         error: error => console.error("Errore nel recupero delle note per il reset dei filtri: ", error)
