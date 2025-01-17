@@ -1,8 +1,11 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { catchError, Observable} from 'rxjs';
+import { catchError, Observable, Subject} from 'rxjs';
 import { Session } from '../../../Models/Session';
 import { CommonService } from '../../../Common-services/common service/common.service';
+import { VehicleData } from '../../../Models/VehicleData';
+import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
+import { CookiesService } from '../../../Common-services/cookies service/cookies.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,6 +13,7 @@ import { CommonService } from '../../../Common-services/common service/common.se
 export class SessionApiService {
   constructor(
     private http: HttpClient,
+    private cookieService: CookiesService,
     private commonService: CommonService
   ) { }
 
@@ -19,6 +23,16 @@ export class SessionApiService {
    */
   public getAllSessions(): Observable<Session[]>{
     return this.http.get<Session[]>(`${this.commonService.url}/sessions`);
+  }
+
+  public getAllLastSession(): Observable<any>{
+    const access_token = this.cookieService.getCookie("user");
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${access_token}`,
+      'Content-Type': 'application/json'
+    });
+
+    return this.http.get(`${this.commonService.url}/anomaly/last`, {headers});
   }
 
   /**
@@ -52,7 +66,7 @@ export class SessionApiService {
    * @returns observable post http
    */
   public getTodaySessions(){
-    return this.getAllSessionsRanged(this.commonService.dateFrom, this.commonService.dateTo); //da cambiare in data di ieri e attuale
+    return this.getAllSessionsRanged(new Date(), new Date()); //da cambiare in data di ieri e attuale
   }
 
   /**
