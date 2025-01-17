@@ -19,8 +19,8 @@ export class UserFactoryService {
     const role = await this.roleRepository.find();
     const users = [
       {
-        name: null,
-        surname: null,
+        name: 'admin',
+        surname: 'admin',
         username: 'admin',
         email: this.configService.get<string>('ADMIN_EMAIL'),
         password: this.configService.get<string>('USER_PASSWORD'),
