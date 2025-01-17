@@ -80,8 +80,7 @@ export class UserService {
           id: 'ASC',
         },
       });
-      const usersDTO = await this.formatUserDTO(users, true);
-      return usersDTO;
+      return await this.formatUserDTO(users, true);
     } catch (error) {
       console.error(error);
       throw new HttpException(
@@ -104,8 +103,7 @@ export class UserService {
         },
       });
       if (!user) return null;
-      const userDTO = await this.formatUserDTO(user, false);
-      return userDTO;
+      return await this.formatUserDTO(user, false);
     } catch (error) {
       console.error(error);
       throw new HttpException(
@@ -129,8 +127,7 @@ export class UserService {
         },
       });
       if (!user) return null;
-      const userDTO = await this.formatUserDTO(user, false);
-      return userDTO;
+      return await this.formatUserDTO(user, false);
     } catch (error) {
       console.error(error);
       throw new HttpException(
@@ -340,7 +337,6 @@ export class UserService {
         userDTO.role = user.role.name;
         return userDTO;
       } else {
-        userDTO.id = user.id;
         userDTO.email = user.email;
         userDTO.name = user.name;
         userDTO.surname = user.surname;
@@ -360,7 +356,9 @@ export class UserService {
   async checkUser(userId: number): Promise<UserEntity> {
     const user = await this.userRepository.findOne({
       where: { id: userId },
-      relations: ['role'],
+      relations: {
+        role: true,
+      },
     });
     if (!user)
       throw new HttpException(
