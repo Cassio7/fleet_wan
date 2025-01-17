@@ -62,6 +62,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
   @ViewChild('vehicleTable') vehicleTable!: MatTable<Session[]>;
   private readonly destroy$: Subject<void> = new Subject<void>();
   readonly panelOpenState = signal(false);
+  notesLoading = false;
   loadingProgress: number = 0;
   loadingText: string = "";
 
@@ -270,18 +271,24 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
    */
   resetSelections(){
     //2 seconds progress bar loading
-
-    //recupero di tutte le note dal db
-    this.notesService.getAllNotes().pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: (notes: Note[]) => {
-        const allVehicles: Vehicle[] = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-        const mergedVehicles: Vehicle[] = this.notesService.mergeVehiclesWithNotes(allVehicles, notes);
-        this.vehicleTableData.data = mergedVehicles;
-        this.selectService.allOptionsSelected = true;
-        this.cd.detectChanges();
-      },
-      error: error => console.error("Errore nel recupero delle note per il reset dei filtri: ", error)
-    });
+    this.notesLoading = true;
+    this.vehicleTableData.data = [];
+    this.cd.detectChanges();
+    this.vehicleTable.renderRows();
+    setTimeout(() => {
+      //recupero di tutte le note dal db
+      this.notesService.getAllNotes().pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (notes: Note[]) => {
+          const allVehicles: Vehicle[] = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+          const mergedVehicles: Vehicle[] = this.notesService.mergeVehiclesWithNotes(allVehicles, notes);
+          this.vehicleTableData.data = mergedVehicles;
+          this.selectService.allOptionsSelected = true;
+          this.notesLoading = false;
+          this.cd.detectChanges();
+        },
+        error: error => console.error("Errore nel recupero delle note per il reset dei filtri: ", error)
+      });
+    }, 1000);
   }
 }
