@@ -30,6 +30,7 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
 import { CookiesService } from '../../../Common-services/cookies service/cookies.service';
 import { User } from '../../../Models/User';
 import { NoteSectionComponent } from "../note-section/note-section/note-section.component";
+import { MezziFiltersService } from '../../Services/mezzi-filters/mezzi-filters.service';
 
 @Component({
   selector: 'app-table',
@@ -90,6 +91,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
     private authService: AuthService,
     private vehicleApiService: VehiclesApiService,
     private sessionStorageService: SessionStorageService,
+    private mezziFilterService: MezziFiltersService,
     private cd: ChangeDetectorRef
   ){}
 
@@ -107,6 +109,16 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
     const user: User = this.authService.getParsedAccessToken();
     this.user = user;
     this.cd.detectChanges();
+
+    //ascolto dei filtri su tabella
+    this.mezziFilterService.filterTable$.pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (vehicles: Vehicle[]) => {
+        this.vehicleTableData.data = vehicles;
+        this.vehicleTable.renderRows();
+      },
+      error: error => console.error("Errore nel filtro della tabella: ", error)
+    });
 
     //riempimento dei dati della tabella
     this.fillTable();
