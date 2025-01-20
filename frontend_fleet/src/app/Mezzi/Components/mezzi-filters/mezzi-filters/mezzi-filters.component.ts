@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatOptionModule } from '@angular/material/core';
@@ -13,7 +13,7 @@ import { VehicleData } from '../../../../Models/VehicleData';
 import { PlateFilterService } from '../../../../Common-services/plate-filter/plate-filter.service';
 import { NotesService } from '../../../Services/notes/notes.service';
 import { Note } from '../../../../Models/Note';
-import { Subject, takeUntil } from 'rxjs';
+import { skip, Subject, takeUntil } from 'rxjs';
 import { Vehicle } from '../../../../Models/Vehicle';
 import { MezziFilters, MezziFiltersService } from '../../../Services/mezzi-filters/mezzi-filters.service';
 
@@ -32,7 +32,7 @@ import { MezziFilters, MezziFiltersService } from '../../../Services/mezzi-filte
     ReactiveFormsModule
   ],
   templateUrl: './mezzi-filters.component.html',
-  styleUrl: './mezzi-filters.component.css'
+  styleUrl: './mezzi-filters.component.css',
 })
 export class MezziFiltersComponent implements AfterViewInit, OnDestroy{
   private readonly destroy$: Subject<void> = new Subject<void>();
@@ -65,16 +65,24 @@ export class MezziFiltersComponent implements AfterViewInit, OnDestroy{
       this.cantieri.setValue(this.cantieriFilterService.updateListaCantieri(allVehicles));
     }
     this.loadFiltersObj();
+
+    this.mezziFilterService.filterTable$.pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next: (vehicles: Vehicle[]) => {
+        this.cantieri.setValue(this.cantieriFilterService.updateSelectedCantieri(vehicles));
+      },
+      error: error => console.error("Errore nell'aggiornamento delle opzioni del filtro per cantieri: ", error)
+    });
   }
 
   selectCantiere(option: string){
     const allVehicles: Vehicle[] = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
     if(option == "Seleziona tutto"){
       const cantieriToggle = this.cantieriFilterService.toggleSelectAllCantieri();
+      console.log("cantieriToggle: ", cantieriToggle);
       this.cantieri.setValue(cantieriToggle);
       this.loadFiltersObj();
-      const tableVehicles = cantieriToggle.length > 0 ? allVehicles : [];
-      this.mezziFilterService.filterTable$.next(tableVehicles);
+      this.mezziFilterService.filterTable$.next(cantieriToggle.length > 0 ? allVehicles : []);
     }else{
       const filteredVehicles: Vehicle[] = this.mezziFilterService.filterVehicles(allVehicles);
 
@@ -83,8 +91,9 @@ export class MezziFiltersComponent implements AfterViewInit, OnDestroy{
   }
 
   searchPlates(){
-    this.mezziFilterService.mezziFilters.plate = this.plate; //aggiornamento del valore della targa nell'oggetto dei filtri
+    this.loadFiltersObj();
     console.log("this.mezziFilterService.mezziFilters.plate : ", this.plate);
+
     const allVehicles: Vehicle[] = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
 
     const filteredVehicles: Vehicle[] = this.mezziFilterService.filterVehicles(allVehicles);
@@ -108,6 +117,8 @@ export class MezziFiltersComponent implements AfterViewInit, OnDestroy{
         next: (notes: Note[]) => {
           const allVehicles: Vehicle[] = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
           const mergedVehicles: Vehicle[] = this.notesService.mergeVehiclesWithNotes(allVehicles, notes);
+          this.plate = "";
+          this.mezziFilterService.mezziFilters.plate = this.plate;
           this.mezziFilterService.filterTable$.next(mergedVehicles);
           this.cd.detectChanges();
         },

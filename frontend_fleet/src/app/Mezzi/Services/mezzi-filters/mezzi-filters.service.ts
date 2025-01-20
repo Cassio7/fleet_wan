@@ -36,14 +36,8 @@ export class MezziFiltersService {
       mainVehicles = allVehicles;
     }
     if(this.mezziFilters.cantieri.value){
-      console.log("this.cantieriFilterService.filterVehiclesByCantieri(mainVehicles, this.mezziFilters.cantieri.value) as Vehicle[]: ", this.cantieriFilterService.filterVehiclesByCantieri(mainVehicles, this.mezziFilters.cantieri.value) as Vehicle[]);
       mainVehicles = this.cantieriFilterService.filterVehiclesByCantieri(mainVehicles, this.mezziFilters.cantieri.value) as Vehicle[];
     }
-
-    console.log("this.mezziFilters.plate: ", this.mezziFilters.plate);
-    console.log("this.mezziFilters.cantieri: ", this.mezziFilters.cantieri.value);
-    console.log("vehicles: ", vehicles);
-    console.log("mainVehicles: ", mainVehicles);
 
     return mainVehicles;
   }
