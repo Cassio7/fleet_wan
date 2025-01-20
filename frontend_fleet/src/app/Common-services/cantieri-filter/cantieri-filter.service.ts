@@ -165,7 +165,7 @@ export class CantieriFilterService{
   }
 
 
-  updateSelectedCantieri(vehicles: VehicleData[]){
+  updateSelectedCantieri(vehicles: (VehicleData | Vehicle)[]): string[]{
     const allData = JSON.parse(this.sessionStorageService.getItem("allData"));
     const allCantieri = this.vehiclesCantieriOnce(allData);
     const selectedCantieri = this.vehiclesCantieriOnce(vehicles);
