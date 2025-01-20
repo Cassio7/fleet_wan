@@ -42,13 +42,13 @@ export class AppService implements OnModuleInit {
 
   // popolo database all'avvio
   async onModuleInit() {
-    const startDate = '2025-01-12T00:00:00.000Z';
+    const startDate = '2025-01-01T00:00:00.000Z';
     //const endDate = '2024-12-10T00:00:00.000Z';
     const endDate = new Date(
       new Date().getTime() + 2 * 60 * 60 * 1000,
     ).toISOString();
     //await this.putDefaultData();
-    //await this.putDbDataBasicForAdvance(startDate, endDate);
+    //await this.putDbData(startDate, endDate);
     //await this.associationService.setVehiclesAssociateAllUsersRedis(),
     //await this.putDbData3min();
     //await this.anomalyCheck(startDate, endDate);
@@ -73,7 +73,7 @@ export class AppService implements OnModuleInit {
   /**
    * IL PRESCELTO
    */
-  async putDbDataBasicForAdvance(start: string, end: string) {
+  async putDbData(start: string, end: string) {
     const startDate = start;
     const endDate = end;
 
@@ -90,7 +90,9 @@ export class AppService implements OnModuleInit {
     const daysInRange = getDaysInRange(dateFrom_new, dateTo_new); // Funzione che restituisce un array di giorni
 
     const vehicles = await this.vehicleService.getAllVehicles();
-    await this.worksiteFactoryService.createDefaultVehicleWorksite();
+
+    // da commentare dopo primo run
+    //await this.worksiteFactoryService.createDefaultVehicleWorksite();
 
     // Creazione della mappa delle compagnie
     const companyMap = new Map();
@@ -100,7 +102,6 @@ export class AppService implements OnModuleInit {
         companyMap.set(vehicle.veId, company);
       }
     }
-
     for (const vehicle of vehicles) {
       console.log(
         `${vehicle.veId} con targa: ${vehicle.plate} - ${vehicle.id}`,
