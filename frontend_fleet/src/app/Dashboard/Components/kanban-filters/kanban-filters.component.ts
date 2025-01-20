@@ -154,7 +154,7 @@ export class KanbanFiltersComponent implements AfterViewInit, OnDestroy{
     }
 
     let selectedCantieriCache: string[] = [];
-    const cantieriFilteredVehicles: VehicleData[] = this.cantieriFilterService.filterVehiclesByCantieri(allVehicles, selectedCantieri);
+    const cantieriFilteredVehicles: VehicleData[] = this.cantieriFilterService.filterVehiclesByCantieri(allVehicles, selectedCantieri) as VehicleData[];
     selectedCantieriCache = selectedCantieri;
     if(this.kanbanGps){
       this.gpsGraphService.loadChartData$.next(cantieriFilteredVehicles);

@@ -84,7 +84,7 @@ export class FiltersCommonService {
     let cantieriFiltered: VehicleData[] = [];
 
     // Filtro per targa
-    plateFiltered = this.plateFilterService.filterVehiclesByPlateResearch(filters.plate, vehicles);
+    plateFiltered = this.plateFilterService.filterVehiclesByPlateResearch(filters.plate, vehicles) as VehicleData[];
     filterResults.push(plateFiltered);
     console.log("filtrato per  plate: ", plateFiltered);
 
@@ -103,9 +103,9 @@ export class FiltersCommonService {
     if (filters.cantieri && filters.cantieri.value) {
         if(plateFiltered){
           console.log("entro su plateFiltered: ", plateFiltered);
-          cantieriFiltered = this.cantieriFilterService.filterVehiclesByCantieri(plateFiltered, filters.cantieri.value);
+          cantieriFiltered = this.cantieriFilterService.filterVehiclesByCantieri(plateFiltered, filters.cantieri.value) as VehicleData[];
         }else{
-          cantieriFiltered = this.cantieriFilterService.filterVehiclesByCantieri(vehicles, filters.cantieri.value);
+          cantieriFiltered = this.cantieriFilterService.filterVehiclesByCantieri(vehicles, filters.cantieri.value) as VehicleData[];
         }
         console.log("cantieriFiltered: ", cantieriFiltered);
         filterResults.push(cantieriFiltered);
