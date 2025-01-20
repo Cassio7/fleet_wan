@@ -348,8 +348,8 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
    * Invia il subject per filtrare le targhe in base all'input inserito
    * @param emptyButtonClick se la funzione è stata chiamata dalla premuta del bottone per svuotare il campo
    */
-  searchPlates(emptyButtonClick: boolean){
-    if(emptyButtonClick){
+  searchPlates(){
+    if(!this.plate){
       this.filters = {
         plate: "",
         cantieri: this.cantieri,
@@ -357,7 +357,6 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
         antenna: this.antenne,
         sessione: this.sessionStates
       }
-      this.plate = "";
       this.toggleSelectAll();
     }else{
       this.filters = {

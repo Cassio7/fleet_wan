@@ -21,6 +21,7 @@ import { AntennaGraphService } from '../../Services/antenna-graph/antenna-graph.
 import { Filters, FiltersCommonService } from '../../../Common-services/filters-common/filters-common.service';
 import { takeUntil, skip, Subject } from 'rxjs';
 import { GpsFilterService } from '../../../Common-services/gps-filter/gps-filter.service';
+import { MatOptionModule } from '@angular/material/core';
 
 @Component({
   selector: 'app-kanban-filters',
@@ -33,6 +34,7 @@ import { GpsFilterService } from '../../../Common-services/gps-filter/gps-filter
     MatIconModule,
     MatSelectModule,
     MatDividerModule,
+    MatOptionModule,
     FormsModule,
     MatCheckboxModule,
     MatButtonModule
@@ -87,7 +89,6 @@ export class KanbanFiltersComponent implements AfterViewInit, OnDestroy{
     this.kanbanCantieri= this.cantieriFilterService.vehiclesCantieriOnce(allVehicles);
     setTimeout(() => {
       this.cantieriFilterService.allSelected = false;
-      this.cantieriFilterService.updateListaCantieri(allVehicles);
       this.toggleSelectAllCantieri();
 
       const section =  this.sessionStorageService.getItem("dashboard-section");
@@ -116,14 +117,8 @@ export class KanbanFiltersComponent implements AfterViewInit, OnDestroy{
    * Invia il subject per filtrare le targhe in base all'input inserito
    * @param emptyButtonClick se la funzione è stata chiamata dalla premuta del bottone per svuotare il campo
    */
-  searchPlates(emptyButtonClick: boolean){
+  searchPlates(){
     this.filters.plate = this.plate;
-    //se è stato premuto il bottone per svuotare il campo
-    if(emptyButtonClick){
-      this.plateFilterService.filterByPlateResearch$.next("");
-      this.filters.plate = "";
-      this.plate = "";
-    }
     this.filtersCommonService.applyFilters$.next(this.filters);
   }
 
