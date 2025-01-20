@@ -5,6 +5,7 @@ import { RoleEntity } from 'classes/entities/role.entity';
 import { UserEntity } from 'classes/entities/user.entity';
 import { DataSource, Repository } from 'typeorm';
 import { RoleService } from '../role/role.service';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -185,7 +186,6 @@ export class UserService {
     newPassword: string,
   ) {
     const user = await this.checkUser(userId);
-    const bcrypt = require('bcrypt');
 
     const isPasswordMatch = await bcrypt.compare(
       currentPassword,
@@ -242,7 +242,6 @@ export class UserService {
     const role = await this.roleService.getRoleByName(userDTO.role);
     if (!role)
       throw new HttpException('Ruolo non trovato', HttpStatus.NOT_FOUND);
-    const bcrypt = require('bcrypt');
     const salt = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(userDTO.password, salt);
     const regex = /\d/;
