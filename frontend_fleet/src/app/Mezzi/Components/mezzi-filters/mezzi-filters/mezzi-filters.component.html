@@ -1,0 +1,24 @@
+<div class="content">
+  <button mat-raised-button (click)="resetSelections()" class="reset-btn">Reimposta filtri</button>
+  <mat-form-field class="targa-filter" appearance="outline">
+    <mat-label>Targa</mat-label>
+    <input matInput type="text" placeholder="Targa" #targa class="targa-input" [(ngModel)]="plate" (input)="searchPlates(false)">
+    <button *ngIf="targa.value" matSuffix mat-icon-button aria-label="Clear" (click)="searchPlates(true)">
+      <mat-icon>close</mat-icon>
+    </button>
+    <mat-icon matSuffix *ngIf="!targa.value">search</mat-icon>
+  </mat-form-field>
+
+  <mat-form-field class="cantieri-filter filter" appearance="outline">
+    <mat-select [formControl]="cantieri" placeholder="Cantiere" multiple class="cantiere-input">
+      <mat-option
+      [value]="cantiere"
+      (click)="selectCantiere(cantiere)"
+      *ngFor="let cantiere of cantieriFilterService.listaCantieri"
+      >
+        {{ cantiere }}
+      </mat-option>
+    </mat-select>
+    <mat-icon matSuffix>engineering</mat-icon>
+  </mat-form-field>
+</div>

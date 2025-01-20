@@ -37,4 +37,16 @@ html, body {
   margin: 0;
   margin-bottom: 20px;
 }
-
+app-mezzi-filters{
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  float: left;
+  margin: 0;
+  padding: 0;
+}
+app-table{
+  margin: 0;
+  padding: 0;
+}

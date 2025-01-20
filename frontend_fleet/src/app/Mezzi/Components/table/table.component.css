@@ -3,12 +3,6 @@
   color: gray;
 }
 
-.reset-btn{
-  background-color: var(--sidebar-color);
-  border-radius: 5px;
-  color: white;
-}
-
 .nVeicoli {
   margin: 0;
   font-size: 16px;
@@ -94,10 +88,9 @@ tr.comment-row:not(.example-expanded-row):active {
 .table-over{
   width: 100%;
   display: flex;
-  justify-content: flex-start;
+  justify-content: flex-end;
   align-items: center;
-  float: left;
-  gap: 1vw;
+  float: right;
 }
 
 .filter-menu-container{

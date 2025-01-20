@@ -1,0 +1,11 @@
+.content{
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 2vw;
+}
+.reset-btn{
+  background-color: var(--sidebar-color);
+  border-radius: 5px;
+  color: white;
+}
