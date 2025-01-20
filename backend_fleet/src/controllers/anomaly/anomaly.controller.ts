@@ -151,6 +151,13 @@ export class AnomalyController {
           );
           lastUpdate = anomaliesData.lastUpdate;
           anomalies = anomaliesData.anomalies;
+          // se redis vuoto per qualche motivo
+          if (!lastUpdate) {
+            anomalies = await this.anomalyService.getAnomalyByDate(
+              req.user.id,
+              dateFrom,
+            );
+          }
         } else {
           anomalies = await this.anomalyService.getAnomalyByDate(
             req.user.id,
