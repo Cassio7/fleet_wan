@@ -21,7 +21,7 @@ export class CantieriFilterService{
    */
   private readonly _filterTableByCantiere$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
-  private _allSelected: boolean = false;
+  private _allSelected: boolean = true;
 
   listaCantieri: string[] = ["Seleziona tutto"];
 
@@ -65,45 +65,38 @@ export class CantieriFilterService{
   /**
    * Filtra un array di veicoli in base al valore del filtro sui cantieri
    * @param vehicles veicoli sui quali applicare il filtro
-   * @param worksites cantieri per cui filtrare (presenza di opzione "Seleziona tutto" gestita)
+   * @param worksites cantieri per cui filtrare
    * @returns array di veicoli filtrati
    */
-  filterVehiclesByCantieri(vehiclesData: VehicleData[], worksites: string[]): VehicleData[] {
+  filterVehiclesByCantieri(vehiclesData: (VehicleData | Vehicle)[], worksites: string[]): (VehicleData | Vehicle)[] {
     const cantieri: string[] = worksites || [];
-    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allData"));
 
-    if (cantieri.includes("Seleziona tutto")) {
-      if (this.errorGraphsService.checkBlackBoxSlice()) {
-        return this.errorGraphsService.checkBlackBoxSlice();
-      }
-
-      if (this.blackboxGraphsService.checkErrorGraphSlice()) {
-        return this.blackboxGraphsService.checkErrorGraphSlice();
-      }
-
-      return allVehicles; // Return all vehicles
+    if (cantieri.length === 0) {
+      // If no worksites are selected, return the original array or an empty array
+      return vehiclesData;
     }
 
-    // If one or more worksite options are selected, filter based on the selected worksites
-    if (cantieri.length > 0) {
-      const cantieriLower = cantieri
-        .filter(cantiere => typeof cantiere === "string") // Filter out non-string items
-        .map(cantiere => cantiere.toLowerCase()); // Convert worksites to lowercase
+    const cantieriLower = cantieri
+      .filter(cantiere => typeof cantiere === "string") // Filter out non-string items
+      .map(cantiere => cantiere.toLowerCase()); // Convert worksites to lowercase
 
-      // Filter the VehicleData array based on the selected worksites
-      const filteredVehicles = vehiclesData.filter(vehicleData => {
-        const workSiteName = vehicleData.vehicle.worksite?.name;
-        if (typeof workSiteName !== "string") return false; // Skip invalid worksite names
-        const workSiteLower = workSiteName.toLowerCase(); // Worksite name in lowercase
-        return cantieriLower.includes(workSiteLower);
-      });
+    return vehiclesData.filter(vehicle => {
+      // Determine the worksite name based on the type of vehicle object
+      let workSiteName: string | undefined;
+      if ('vehicle' in vehicle && vehicle.vehicle.worksite) {
+        workSiteName = vehicle.vehicle.worksite.name;
+      } else if ('worksite' in vehicle && vehicle.worksite) {
+        workSiteName = vehicle.worksite.name;
+      }
 
-      return filteredVehicles; // Return filtered VehicleData array
-    } else {
-      // If no worksites are selected, return an empty array
-      return []; // Return an empty array
-    }
+      if (typeof workSiteName !== 'string') {
+        return false; // Skip if worksite name is invalid or not present
+      }
+
+      return cantieriLower.includes(workSiteName.toLowerCase());
+    });
   }
+
 
 
   /**
@@ -158,18 +151,19 @@ export class CantieriFilterService{
    * @param vehicles veicoli da cui prendere i cantieri
    * @returns lista dei cantieri selezionati
    */
-  updateListaCantieri(vehicles: VehicleData[]): string[]{
-    if (Array.isArray(vehicles) && vehicles.length > 0) {
-      const firstElement = this.listaCantieri[0] || null; // Elemento preesistente o null
-      const newCantieri = this.vehiclesCantieriOnce(vehicles) || [];
-
-      this.listaCantieri = firstElement ? [firstElement, ...newCantieri] : newCantieri;
-      return this.listaCantieri;
-    } else {
-      console.error("Array di veicoli non valido o vuoto:", vehicles);
+  updateListaCantieri(vehicles: (VehicleData | Vehicle)[]): string[] {
+    if (!vehicles.length) {
+      console.error("Array di veicoli è vuoto:", vehicles);
       return [];
     }
+
+    const firstElement = this.listaCantieri[0] || null;
+    const newCantieri = this.vehiclesCantieriOnce(vehicles) || [];
+
+    this.listaCantieri = firstElement ? [firstElement, ...newCantieri] : newCantieri;
+    return this.listaCantieri;
   }
+
 
   updateSelectedCantieri(vehicles: VehicleData[]){
     const allData = JSON.parse(this.sessionStorageService.getItem("allData"));

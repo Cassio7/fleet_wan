@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { VehicleData } from '../../Models/VehicleData';
+import { Vehicle } from '../../Models/Vehicle';
+import { SessionStorageService } from '../sessionStorage/session-storage.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,6 +12,7 @@ export class PlateFilterService {
   private readonly _filterByPlateResearch$: BehaviorSubject<string> = new BehaviorSubject<string>("");
 
   constructor(
+    private sessionStorageService: SessionStorageService
   ) { }
 
   /**
@@ -18,12 +21,20 @@ export class PlateFilterService {
    * @param vehicles veicoli
    * @returns veicoli filtrati
    */
-  filterVehiclesByPlateResearch(research: string, vehiclesData: VehicleData[]): VehicleData[] {
+  filterVehiclesByPlateResearch(research: string, vehiclesData: (VehicleData | Vehicle)[]): (VehicleData | Vehicle)[] {
     const searchTextLower = research.toLowerCase().replace(/\s+/g, '');
 
-    return vehiclesData.filter(obj =>
-      obj.vehicle.plate.toLowerCase().replace(/\s+/g, '').includes(searchTextLower)
-    );
+    let plate = '';
+
+    return vehiclesData.filter(vehicle => {
+      if ('plate' in vehicle) {
+        plate = vehicle.plate;
+      } else if ('vehicle' in vehicle && 'plate' in vehicle.vehicle) {
+        plate = vehicle.vehicle.plate;
+      }
+
+      return plate.toLowerCase().replace(/\s+/g, '').includes(searchTextLower);
+    });
   }
 
 
