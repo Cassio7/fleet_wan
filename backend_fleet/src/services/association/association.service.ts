@@ -1,5 +1,11 @@
 import { InjectRedis } from '@nestjs-modules/ioredis';
-import { Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { CommonDTO } from 'classes/common/common.dto';
 import { CompanyDTO } from 'classes/dtos/company.dto';
@@ -23,7 +29,12 @@ export class AssociationService {
     private readonly associationRepository: Repository<AssociationEntity>,
     @InjectRepository(UserEntity, 'readOnlyConnection')
     private readonly userRepository: Repository<UserEntity>,
+    @InjectRepository(CompanyEntity, 'readOnlyConnection')
+    private readonly companyRepository: Repository<CompanyEntity>,
+    @InjectRepository(WorksiteEntity, 'readOnlyConnection')
+    private readonly worksiteRepository: Repository<WorksiteEntity>,
     @InjectRedis() private readonly redis: Redis,
+    @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
   ) {}
 
@@ -31,74 +42,160 @@ export class AssociationService {
    * Crea una nuova associazione nel database rispettando i criteri dei ruoli e controllando
    * se esiste di gia
    * @param userDTO Utente a cui dare associazione
-   * @param company Oggetto società oppure null
-   * @param worksite Oggetto cantiere oppure null
+   * @param worksiteIds lista di id che riguardando cantieri o null
+   * @param companyIds lista di id che riguardando società o null
    * @returns
    */
   async createAssociation(
     userDTO: UserDTO,
-    company: CompanyEntity | null,
-    worksite: WorksiteEntity | null,
-  ): Promise<boolean> {
+    worksiteIds: number[] | null,
+    companyIds: number[] | null,
+  ): Promise<AssociationEntity[]> {
+    // recupero utente
     const user = await this.userRepository.findOne({
       where: { id: userDTO.id },
+      relations: {
+        role: true,
+      },
     });
-    // se company non è null allora utente è admin o responsabile
-    if (company) {
-      const exist = await this.associationRepository.findOne({
-        where: {
-          user: {
-            key: user.key,
-          },
-          company: {
-            key: company.key,
-          },
-        },
-      });
-      // se esiste non inserisco
-      if (exist) return null;
+    if (!user)
+      throw new HttpException('Utente non trovato', HttpStatus.NOT_FOUND);
+    const companies: CompanyEntity[] = [];
+    const worksites: WorksiteEntity[] = [];
+    // se utente admin o resposabile si possono aggiungere solo company
+    if (user.role.name === 'Admin' || user.role.name === 'Responsabile') {
+      if (worksiteIds && worksiteIds.length > 0) {
+        throw new HttpException(
+          'Non puoi inserire il cantiere per questo utente',
+          HttpStatus.FORBIDDEN,
+        );
+      }
+      if (companyIds && companyIds.length > 0) {
+        for (const companyId of companyIds) {
+          const company = await this.companyRepository.findOne({
+            where: {
+              id: companyId,
+            },
+          });
+          if (!company)
+            throw new HttpException(
+              `Società con id: ${companyId} non trovata`,
+              HttpStatus.NOT_FOUND,
+            );
+          companies.push(company);
+        }
+      } else
+        throw new HttpException(
+          `Inserisci almeno 1 società`,
+          HttpStatus.BAD_REQUEST,
+        );
     }
-    // se company è null e worksite non null allora utente capo cantiere
-    else if (worksite) {
-      const exist = await this.associationRepository.findOne({
-        where: {
-          user: {
-            key: user.key,
-          },
-          worksite: {
-            key: worksite.key,
-          },
-        },
-      });
-      // se esiste non inserisco
-      if (exist) return null;
+    // se utente capo cantiere si puo soltanto aggiungere un nuovo cantiere
+    else if (user.role.name === 'Capo Cantiere') {
+      if (companyIds && companyIds.length > 0) {
+        throw new HttpException(
+          'Non puoi inserire una società per questo utente',
+          HttpStatus.FORBIDDEN,
+        );
+      }
+      if (worksiteIds && worksiteIds.length > 0) {
+        for (const worksiteId of worksiteIds) {
+          const worksite = await this.worksiteRepository.findOne({
+            where: {
+              id: worksiteId,
+            },
+          });
+          if (!worksite)
+            throw new HttpException(
+              `Cantiere con id: ${worksiteId} non trovato`,
+              HttpStatus.NOT_FOUND,
+            );
+          worksites.push(worksite);
+        }
+      } else
+        throw new HttpException(
+          `Inserisci almeno 1 cantiere`,
+          HttpStatus.BAD_REQUEST,
+        );
     }
     const queryRunner = this.connection.createQueryRunner();
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
       // creo nuova associazione
-      const newAssociation = await queryRunner.manager
-        .getRepository(AssociationEntity)
-        .create({
-          user: user,
-          company: company,
-          worksite: worksite,
-        });
+      const newAssociations: AssociationEntity[] = [];
+      if (worksites && worksites.length > 0) {
+        for (const worksite of worksites) {
+          const exist = await this.associationRepository.findOne({
+            where: {
+              user: {
+                id: user.id,
+              },
+              worksite: {
+                id: worksite.id,
+              },
+            },
+          });
+          if (exist) {
+            throw new HttpException(
+              `Utente già associato al cantiere: ${worksite.name}`,
+              HttpStatus.CONFLICT,
+            );
+          }
+          const newAssociation = await queryRunner.manager
+            .getRepository(AssociationEntity)
+            .create({
+              user: user,
+              company: null,
+              worksite: worksite,
+            });
+          newAssociations.push(newAssociation);
+        }
+      } else if (companies && companies.length > 0) {
+        for (const company of companies) {
+          const exist = await this.associationRepository.findOne({
+            where: {
+              user: {
+                id: user.id,
+              },
+              company: {
+                id: company.id,
+              },
+            },
+          });
+          if (exist) {
+            throw new HttpException(
+              `Utente già associato alla società : ${company.name}`,
+              HttpStatus.CONFLICT,
+            );
+          }
+          const newAssociation = await queryRunner.manager
+            .getRepository(AssociationEntity)
+            .create({
+              user: user,
+              company: company,
+              worksite: null,
+            });
+          newAssociations.push(newAssociation);
+        }
+      }
       // salvo nuova associazione
-      await queryRunner.manager
+      const save = await queryRunner.manager
         .getRepository(AssociationEntity)
-        .save(newAssociation);
-    } catch (error) {
-      console.error('Errore inserimento nuova associazione: ' + error);
-      await queryRunner.rollbackTransaction();
-      await queryRunner.release();
-    } finally {
+        .save(newAssociations);
       await queryRunner.commitTransaction();
+      await this.setVehiclesAssociateAllUsersRedis();
+      return save;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      if (error instanceof HttpException) throw error;
+      throw new HttpException(
+        `Errore durante inserimento nuova associazione`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    } finally {
       await queryRunner.release();
     }
-    await this.setVehiclesAssociateAllUsersRedis();
-    return true;
   }
 
   /**
@@ -106,47 +203,60 @@ export class AssociationService {
    * @param id identificativo associazione
    * @returns
    */
-  async deleteAssociation(id: number): Promise<boolean> {
+  async deleteAssociation(id: number) {
     // controllo se esiste
     const exist = await this.associationRepository.findOne({
       where: {
         id: id,
       },
     });
-    // se non esiste ritorno null, se esiste faccio remove
-    if (!exist) return null;
+    if (!exist)
+      throw new HttpException(
+        `Associazione con ID ${id} non trovata`,
+        HttpStatus.NOT_FOUND,
+      );
     const queryRunner = this.connection.createQueryRunner();
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
       await queryRunner.manager.getRepository(AssociationEntity).remove(exist);
-    } catch (error) {
-      console.error('Errore eliminazione associazione: ' + error);
-      await queryRunner.rollbackTransaction();
-      await queryRunner.release();
-    } finally {
       await queryRunner.commitTransaction();
+      await this.setVehiclesAssociateAllUsersRedis();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      console.error(error);
+      throw new HttpException(
+        `Errore durante eliminazione associazione`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    } finally {
       await queryRunner.release();
     }
-    await this.setVehiclesAssociateAllUsersRedis();
-    return true;
   }
+
   /**
    * Recupera tutte le associazioni dal database
    * @returns
    */
   async getAllAssociation(): Promise<AssociationEntity[]> {
-    const associations = await this.associationRepository.find({
-      relations: {
-        user: {
-          role: true,
+    try {
+      const associations = await this.associationRepository.find({
+        relations: {
+          user: {
+            role: true,
+          },
+          company: true,
+          worksite: true,
         },
-        company: true,
-        worksite: true,
-      },
-    });
-
-    return associations.map((association) => this.toDTO(association));
+      });
+      return associations.map((association) => this.toDTO(association));
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        `Errore durante il recupero delle associazioni`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   /**
@@ -236,6 +346,11 @@ export class AssociationService {
    */
   async setVehiclesAssociateAllUsersRedis() {
     try {
+      const keys = await this.redis.keys('vehicleAssociateUser:*');
+      if (keys.length > 0) {
+        await this.redis.del(keys);
+      }
+
       const users = await this.userService.getAllUsers();
 
       const promises = users.map(async (user) => {
