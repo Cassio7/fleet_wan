@@ -111,10 +111,15 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
     this.cd.detectChanges();
 
     //ascolto dei filtri su tabella
-    this.mezziFilterService.filterTable$.pipe(takeUntil(this.destroy$))
+    this.mezziFilterService.filterTable$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (vehicles: Vehicle[]) => {
-        this.vehicleTableData.data = vehicles;
+        this.vehicleTableData.data = [];
+
+        if (vehicles && vehicles.length > 0) {
+          this.vehicleTableData.data = vehicles;
+        }
+
         this.vehicleTable.renderRows();
       },
       error: error => console.error("Errore nel filtro della tabella: ", error)
@@ -159,6 +164,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
         this.loadingProgress = 100;
 
         this.loadingProgress++;
+        this.sessionStorageService.setItem("allVehicles", JSON.stringify(vehicles));
         this.vehicleTableData.data = this.sortedVehicles;
         this.vehicleTable.renderRows();
         this.selectService.selectVehicles(this.sortedVehicles);
