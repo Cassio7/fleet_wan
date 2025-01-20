@@ -38,7 +38,7 @@ html, body {
   margin-bottom: 20px;
 }
 app-mezzi-filters{
-  width: 100%;
+  width: 98%;
   display: flex;
   justify-content: flex-start;
   align-items: center;
@@ -47,6 +47,7 @@ app-mezzi-filters{
   padding: 0;
 }
 app-table{
+  width: 98%;
   margin: 0;
   padding: 0;
 }
