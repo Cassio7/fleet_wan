@@ -113,6 +113,11 @@ export class AnomalyService {
             worksite: true,
           },
         },
+        order: {
+          date: 'DESC',
+        },
+        take: 15,
+        skip: 0,
       });
       return this.toDTO(anomalies);
     } catch (error) {

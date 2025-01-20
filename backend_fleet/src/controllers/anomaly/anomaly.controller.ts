@@ -215,7 +215,7 @@ export class AnomalyController {
   }
 
   /**
-   * API per il recupero di tutte le anomalie in base al veId passato
+   * API per il recupero delle prime 15 anomalie in base al veId passato
    * @param req user token data
    * @param res
    * @param body veid del veicolo
