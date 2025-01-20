@@ -1,20 +1,32 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import * as bcrypt from 'bcrypt';
 import { UserDTO } from 'classes/dtos/user.dto';
+import { AssociationEntity } from 'classes/entities/association.entity';
 import { RoleEntity } from 'classes/entities/role.entity';
 import { UserEntity } from 'classes/entities/user.entity';
 import { DataSource, Repository } from 'typeorm';
 import { RoleService } from '../role/role.service';
-import * as bcrypt from 'bcrypt';
+import { AssociationService } from '../association/association.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(UserEntity, 'readOnlyConnection')
     private readonly userRepository: Repository<UserEntity>,
+    @InjectRepository(AssociationEntity, 'readOnlyConnection')
+    private readonly associationRepository: Repository<AssociationEntity>,
+    private readonly roleService: RoleService,
+    @Inject(forwardRef(() => AssociationService))
+    private readonly associationService: AssociationService,
     @InjectDataSource('mainConnection')
     private readonly connection: DataSource,
-    private readonly roleService: RoleService,
   ) {}
 
   /**
@@ -270,6 +282,20 @@ export class UserService {
         updateUser,
       );
       await queryRunner.commitTransaction();
+      // se il ruolo è stato cambiato rimuovo tutte le associazioni del vecchio ruolo
+      if (user.role.id !== role.id) {
+        const associationsRemove = await this.associationRepository.find({
+          where: {
+            user: {
+              id: user.id,
+            },
+          },
+        });
+        await queryRunner.manager
+          .getRepository(AssociationEntity)
+          .remove(associationsRemove);
+        await this.associationService.setVehiclesAssociateAllUsersRedis();
+      }
     } catch (error) {
       await queryRunner.rollbackTransaction();
       console.error(error);
