@@ -37,9 +37,10 @@ export class AssociationFactoryService {
       where: { username: 'l.neri' },
     });
     if (!user) throw new Error('User "Luca Neri" not found');
+    // Pallotta
     const worksite = await this.worksiteRepository.findOne({
       where: {
-        id: 1,
+        id: 8,
       },
     });
     const associationUser = new AssociationEntity();
