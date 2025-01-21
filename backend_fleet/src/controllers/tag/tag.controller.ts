@@ -77,7 +77,7 @@ export class TagController {
     // controllo data valida
     const validation = validateDateRange(dateFrom, dateTo);
     if (!validation.isValid) {
-      return res.status(400).json(validation.message);
+      return res.status(400).json({ message: validation.message });
     }
     const dateFrom_new = new Date(dateFrom);
     const dateTo_new = new Date(dateTo);
