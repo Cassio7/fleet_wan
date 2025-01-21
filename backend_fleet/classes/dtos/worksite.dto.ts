@@ -1,7 +1,6 @@
-import { IsNumber, IsOptional, IsString } from 'class-validator';
-export class WorksiteDTO {
-  @IsNumber()
-  id: number;
+import { IsOptional, IsString } from 'class-validator';
+import { CommonDTO } from 'classes/common/common.dto';
+export class WorksiteDTO extends CommonDTO {
   @IsOptional()
   @IsString()
   name?: string | null;

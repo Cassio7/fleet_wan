@@ -44,7 +44,7 @@ export class AnomalyService {
    * @param userId user id
    * @returns
    */
-  async getAllAnomalyByVeId(userId: number): Promise<any> {
+  async getAllAnomalyByUserId(userId: number): Promise<any> {
     const vehicles =
       await this.associationService.getVehiclesAssociateUserRedis(userId);
     if (!vehicles || vehicles.length === 0)
@@ -82,6 +82,52 @@ export class AnomalyService {
     }
   }
 
+  /**
+   * Recupera tutte le anomalie dato un mezzo inserito, controllando che utente abbia l'accesso
+   * @param userId user id
+   * @param veId veid del veicolo
+   * @returns
+   */
+  async getAllAnomalyByVeId(userId: number, veId: number): Promise<any> {
+    const vehicles =
+      await this.associationService.getVehiclesAssociateUserRedis(userId);
+    if (!vehicles || vehicles.length === 0)
+      throw new HttpException(
+        'Nessun veicolo associato per questo utente',
+        HttpStatus.NOT_FOUND,
+      );
+    if (!vehicles.find((v) => v.veId === veId))
+      throw new HttpException(
+        'Non hai il permesso per visualizzare le anomalie di questo veicolo',
+        HttpStatus.FORBIDDEN,
+      );
+    try {
+      const anomalies = await this.anomalyRepository.find({
+        where: {
+          vehicle: {
+            veId: veId,
+          },
+        },
+        relations: {
+          vehicle: {
+            worksite: true,
+          },
+        },
+        order: {
+          date: 'DESC',
+        },
+        take: 15,
+        skip: 0,
+      });
+      return this.toDTO(anomalies);
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        `Errore durante recupero delle anomalie`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
   /**
    * Recupera le anomalia piu recente per ogni veicolo passato come parametro, escludendo
    * la data odierna
@@ -634,7 +680,7 @@ export class AnomalyService {
             plate: item.plate,
             veId: item.veId,
             isCan: item.isCan,
-            isRFIDReader: item.allestimento,
+            isRFIDReader: item.isRFIDReader,
             sessions: [],
           });
         }
@@ -737,7 +783,7 @@ export class AnomalyService {
             plate: item.plate,
             veId: item.veId,
             isCan: item.isCan,
-            isRFIDReader: item.allestimento,
+            isRFIDReader: item.isRFIDReader,
             sessions: [],
           });
         }

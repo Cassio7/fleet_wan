@@ -1,5 +1,14 @@
 import { InjectRedis } from '@nestjs-modules/ioredis';
-import { Controller, Get, Param, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import axios from 'axios';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { Role } from 'classes/enum/role.enum';
@@ -77,7 +86,8 @@ export class RealtimeController {
       const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
       for (const id of vehicleIds) {
         const key = `realtime:${id}`;
-        latestRealtimes.push(JSON.parse(await this.redis.get(key)));
+        const data = JSON.parse(await this.redis.get(key));
+        if (data) latestRealtimes.push(data);
       }
       // Verifica se `latestRealtimes` è vuoto
       if (latestRealtimes.length === 0) {
@@ -141,11 +151,11 @@ export class RealtimeController {
    * @param res
    * @param params veId Identificativo del veicolo
    */
-  @Get('/:veId')
+  @Post()
   async getTimeByVeId(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
-    @Param() params: any,
+    @Body() body: { veId: number },
   ) {
     try {
       const vehicles = (await this.associationService.getVehiclesByUserRole(
@@ -155,20 +165,20 @@ export class RealtimeController {
       if (!vehicles || !Array.isArray(vehicles)) {
         return res.status(404).json({ message: 'Nessun Veicolo associato' });
       }
-      const times = await this.realtimeService.getTimesByVeId([params.veId]);
+      const times = await this.realtimeService.getTimesByVeId([body.veId]);
       if (!times || times.length === 0) {
         return res.status(404).json({
-          message: `Nessun realtime recuperato per Veicolo: ${params.veId}`,
+          message: `Nessun realtime recuperato per Veicolo: ${body.veId}`,
         });
       }
 
       const vehicle = vehicles.find(
-        (element) => element.veId === Number(params.veId),
+        (element) => element.veId === Number(body.veId),
       );
 
       if (!vehicle) {
         return res.status(404).json({
-          message: `Non hai i permessi per visualizzare il veicolo con VeId: ${params.veId}`,
+          message: `Non hai i permessi per visualizzare il veicolo con VeId: ${body.veId}`,
         });
       }
 

@@ -1,15 +1,18 @@
-import { WorksiteDTO } from './../../../classes/dtos/worksite.dto';
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import axios from 'axios';
+import { DeviceDTO } from 'classes/dtos/device.dto';
+import { VehicleDTO } from 'classes/dtos/vehicle.dto';
 import { DeviceEntity } from 'classes/entities/device.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { createHash } from 'crypto';
 import { convertHours } from 'src/utils/utils';
 import { DataSource, In, Repository } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
-import { VehicleDTO } from 'classes/dtos/vehicle.dto';
-import { DeviceDTO } from 'classes/dtos/device.dto';
+import { AssociationService } from '../association/association.service';
+import { WorksiteDTO } from './../../../classes/dtos/worksite.dto';
+import { CompanyDTO } from 'classes/dtos/company.dto';
+import { GroupDTO } from 'classes/dtos/group.dto';
 
 @Injectable()
 export class VehicleService {
@@ -18,10 +21,9 @@ export class VehicleService {
   constructor(
     @InjectRepository(VehicleEntity, 'readOnlyConnection')
     private readonly vehicleRepository: Repository<VehicleEntity>,
-    @InjectRepository(DeviceEntity, 'readOnlyConnection')
-    private readonly deviceRepository: Repository<DeviceEntity>,
     @InjectDataSource('mainConnection')
     private readonly connection: DataSource,
+    private readonly associationService: AssociationService,
   ) {}
   // Prepara la richiesta SOAP
   private buildSoapRequest(methodName, suId, vgId) {
@@ -396,10 +398,9 @@ export class VehicleService {
    * Recupera tutti i veicoli dal database in ordine, viene usata dentro il server
    * @returns
    */
-  async getAllVehicles(): Promise<any> {
+  async getAllVehicles(): Promise<VehicleEntity[]> {
     const vehicles = await this.vehicleRepository.find({
       relations: {
-        device: true,
         worksite: true,
       },
       order: {
@@ -409,107 +410,149 @@ export class VehicleService {
     return vehicles;
   }
   /**
-   * Recupera tutti i veicoli dal database in ordine, crea un oggetto DTO da restituire per la chiamata API
+   * Recupera una lista di veicoli in base all utente loggato
+   * @param userId id dell utente
    * @returns
    */
-  async getAllVehiclesDTO(): Promise<any> {
-    const vehicles = await this.vehicleRepository.find({
-      relations: {
-        device: true,
-        worksite: true,
-      },
-      order: {
-        plate: 'ASC',
-      },
-    });
-
-    return vehicles.map((vehicle) => this.toDTO(vehicle));
+  async getAllVehicleByUser(userId: number): Promise<VehicleDTO[] | null> {
+    const vehicles =
+      await this.associationService.getVehiclesAssociateUserRedis(userId);
+    if (!vehicles || vehicles.length === 0)
+      throw new HttpException(
+        'Nessun veicolo associato per questo utente',
+        HttpStatus.NOT_FOUND,
+      );
+    try {
+      const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
+      const veIdArray = Array.isArray(vehicleIds) ? vehicleIds : [vehicleIds];
+      const vehiclesDB = await this.vehicleRepository.find({
+        where: { veId: In(veIdArray) },
+        relations: {
+          device: true,
+          worksite: {
+            worksite_group: {
+              group: {
+                company: true,
+              },
+            },
+          },
+        },
+        order: {
+          plate: 'ASC',
+        },
+      });
+      return vehiclesDB
+        ? vehiclesDB.map((vehicle) => this.toDTO(vehicle))
+        : null;
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new HttpException(
+        `Errore durante recupero dei veicoli`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   /**
-   *
-   * @param plateNumber
-   * @returns
+   * Recupera un veicolo e controlla se utente ha i permessi per accederci
+   * @param userId user id
+   * @param plateNumber targa del veicolo
+   * @returns ritorna un oggetto DTO oppure null
    */
-  async getVehicleByPlate(plateNumber: string) {
-    const vehicle = await this.vehicleRepository.findOne({
-      where: {
-        plate: plateNumber,
-      },
-      relations: {
-        device: true,
-        worksite: true,
-      },
-      order: {
-        plate: 'ASC',
-      },
-    });
-    return this.toDTO(vehicle);
+  async getVehicleByPlate(
+    userId: number,
+    plateNumber: string,
+  ): Promise<VehicleDTO | null> {
+    const vehicles =
+      await this.associationService.getVehiclesAssociateUserRedis(userId);
+    if (!vehicles || vehicles.length === 0)
+      throw new HttpException(
+        'Nessun veicolo associato per questo utente',
+        HttpStatus.NOT_FOUND,
+      );
+
+    try {
+      const vehicle = await this.vehicleRepository.findOne({
+        where: {
+          plate: plateNumber,
+        },
+        relations: {
+          device: true,
+          worksite: true,
+        },
+      });
+      if (!vehicle)
+        throw new HttpException('Veicolo non trovato', HttpStatus.NOT_FOUND);
+      if (!vehicles.find((v) => v.plate === plateNumber))
+        throw new HttpException(
+          'Non hai il permesso per visualizzare questo veicolo',
+          HttpStatus.FORBIDDEN,
+        );
+      return vehicle ? this.toDTO(vehicle) : null;
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new HttpException(
+        `Errore durante recupero dei veicoli`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   /**
-   * Recupera un veicolo in base all VeId passato
-   * @param veId VeId
-   * @returns
+   * Recupera un veicolo e controlla se utente ha i permessi per accederci
+   * @param userId user id
+   * @param veId veid veicolo
+   * @returns ritorna un oggetto DTO oppure null
    */
-  async getVehicleByVeId(veId: number[] | number): Promise<any> {
-    const veIdArray = Array.isArray(veId) ? veId : [veId];
-    const vehicles = await this.vehicleRepository.find({
-      where: { veId: In(veIdArray) },
-      relations: {
-        device: true,
-        worksite: true,
-      },
-      order: {
-        plate: 'ASC',
-      },
-    });
-    return vehicles.map((vehicle) => this.toDTO(vehicle));
+  async getVehicleByVeId(
+    userId: number,
+    veId: number,
+  ): Promise<VehicleDTO | null> {
+    const vehicles =
+      await this.associationService.getVehiclesAssociateUserRedis(userId);
+    if (!vehicles || vehicles.length === 0)
+      throw new HttpException(
+        'Nessun veicolo associato per questo utente',
+        HttpStatus.NOT_FOUND,
+      );
+    try {
+      const vehicle = await this.vehicleRepository.findOne({
+        where: {
+          veId: veId,
+        },
+        relations: {
+          device: true,
+          worksite: {
+            worksite_group: {
+              group: {
+                company: true,
+              },
+            },
+          },
+        },
+      });
+      if (!vehicle)
+        throw new HttpException('Veicolo non trovato', HttpStatus.NOT_FOUND);
+      if (!vehicles.find((v) => v.veId === veId))
+        throw new HttpException(
+          'Non hai il permesso per visualizzare questo veicolo',
+          HttpStatus.FORBIDDEN,
+        );
+      return vehicle ? this.toDTO(vehicle) : null;
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new HttpException(
+        `Errore durante recupero del veicolo`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   /**
-   * Ritorna tutti i veicoli "can", ovvero con l'antenna collegata al contachilometri
+   * Recupera tutti i veicoli che sono RFID Reader, chiamato solo dentro server
    * @returns
    */
-  async getCanVehicles(): Promise<any> {
-    const vehicles = await this.vehicleRepository.find({
-      where: {
-        isCan: true,
-      },
-      relations: {
-        device: true,
-      },
-      order: {
-        id: 'ASC',
-      },
-    });
-    return vehicles;
-  }
-
-  /**
-   * Ritorna tutti i veicoli non "can", ovverocon l'antenna non collegata al contachilometri
-   * @returns
-   */
-  async getNonCanVehicles(): Promise<any> {
-    const vehicles = await this.vehicleRepository.find({
-      where: {
-        isCan: false,
-      },
-      relations: {
-        device: true,
-      },
-      order: {
-        id: 'ASC',
-      },
-    });
-    return vehicles;
-  }
-
-  /**
-   * Recupera tutti i veicoli che sono RFID Reader in ordine
-   * @returns
-   */
-  async getVehiclesByReader(): Promise<any> {
+  async getVehiclesByReader(): Promise<VehicleEntity[]> {
     const vehicles = await this.vehicleRepository.find({
       where: { allestimento: true },
       order: {
@@ -520,47 +563,10 @@ export class VehicleService {
   }
 
   /**
-   * Recupera tutti i veicoli nei quali l'RFID reader è mancante
-   * @returns
+   * Dato un veicolo crea il suo ritorno DTO
+   * @param vehicle VehicleEntity
+   * @returns oggetto formattato
    */
-  async getVehiclesWithNoReader(): Promise<any> {
-    const vehicles = await this.vehicleRepository.find({
-      where: {
-        isRFIDReader: false,
-      },
-      relations: {
-        device: true,
-      },
-      order: {
-        id: 'ASC',
-      },
-    });
-    return vehicles;
-  }
-  /**
-   * Recupera tutti i dispositivi
-   * @returns
-   */
-  async getAllDevice(): Promise<any> {
-    const devices = await this.deviceRepository.find({
-      order: {
-        id: 'ASC',
-      },
-    });
-    return devices;
-  }
-  /**
-   * Recupera il dispositivo in base al device_id
-   * @param id device_id
-   * @returns
-   */
-  async getDeviceById(id): Promise<any> {
-    const devices = await this.deviceRepository.findOne({
-      where: { device_id: id },
-    });
-    return devices;
-  }
-
   private toDTO(vehicle: VehicleEntity): any {
     // Crea VehicleDTO
     const vehicleDTO = new VehicleDTO();
@@ -605,11 +611,31 @@ export class VehicleService {
       worksiteDTO.name = vehicle.worksite.name;
     }
 
+    let groupDTO: GroupDTO | null = null;
+    if (vehicle.worksite.worksite_group) {
+      for (const item of vehicle.worksite.worksite_group) {
+        if (item.group.name && !item.group.name.includes('COMUNI')) {
+          groupDTO = new GroupDTO();
+          groupDTO.vgId = item.group.vgId;
+          groupDTO.name = item.group.name;
+          break;
+        }
+      }
+    }
+
+    let companyDTO: CompanyDTO | null = null;
+    if (vehicle.worksite.worksite_group[0].group.company) {
+      companyDTO = new CompanyDTO();
+      companyDTO.suId = vehicle.worksite.worksite_group[0].group.company.suId;
+      companyDTO.name = vehicle.worksite.worksite_group[0].group.company.name;
+    }
     // Restituisci l'oggetto combinato
     return {
       ...vehicleDTO,
       device: deviceDTO,
       worksite: worksiteDTO,
+      group: groupDTO,
+      company: companyDTO,
     };
   }
 }

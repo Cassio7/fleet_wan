@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import axios from 'axios';
 import { HistoryDTO } from 'classes/dtos/history.dto';
@@ -17,6 +17,7 @@ import {
   Repository,
 } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
+import { AssociationService } from '../association/association.service';
 
 @Injectable()
 export class SessionService {
@@ -28,6 +29,7 @@ export class SessionService {
     private readonly sessionRepository: Repository<SessionEntity>,
     @InjectDataSource('mainConnection')
     private readonly connection: DataSource,
+    private readonly associationService: AssociationService,
   ) {}
   // Costruisce la richiesta SOAP
   private buildSoapRequest(
@@ -485,90 +487,49 @@ export class SessionService {
   }
 
   /**
-   * Ritorna la lista completa delle sessione in base al VeId del veicolo
+   *
    * @param id VeId identificativo Veicolo
    * @returns
    */
-  async getAllSessionByVeId(id: number): Promise<any> {
-    const session = await this.sessionRepository.find({
-      where: { history: { vehicle: { veId: id } } },
-      relations: {
-        history: true,
-      },
-      order: {
-        period_to: 'DESC',
-      },
-    });
-    return session;
-  }
-
-  /**
-   * Restituisce le sessioni in base al VeId del veicolo e al range temporale inserito
-   * @param id VeId identificativo Veicolo
-   * @param dateFrom Data inizio ricerca sessione
-   * @param dateTo Data fine ricerca sessione
-   * @returns
-   */
-  async getAllSessionByVeIdRanged(
-    id: number,
-    dateFrom: Date,
-    dateTo: Date,
-  ): Promise<any> {
-    const sessions = await this.sessionRepository.find({
-      where:
-        // Sessioni completamente dentro l'intervallo
-        // Sessioni che iniziano prima di period_from e cadono nell intervallo
-        // Sessioni che iniziano prima di period_to e finiscono dopo il period_to
-        {
-          history: { vehicle: { veId: id } },
-          period_from: LessThanOrEqual(dateTo),
-          period_to: MoreThanOrEqual(dateFrom),
+  async getAllSessionByVeId(
+    userId: number,
+    veId: number,
+  ): Promise<SessionDTO[]> {
+    const vehicles =
+      await this.associationService.getVehiclesAssociateUserRedis(userId);
+    if (!vehicles || vehicles.length === 0)
+      throw new HttpException(
+        'Nessun veicolo associato per questo utente',
+        HttpStatus.NOT_FOUND,
+      );
+    if (!vehicles.find((v) => v.veId === veId))
+      throw new HttpException(
+        'Non hai il permesso per visualizzare questo veicolo',
+        HttpStatus.FORBIDDEN,
+      );
+    try {
+      const sessions = await this.sessionRepository.find({
+        where: { history: { vehicle: { veId: veId } } },
+        relations: {
+          history: true,
         },
-      relations: {
-        history: true,
-      },
-    });
-    // Mappare i dati manualmente in SessionDTO senza class-transformer
-    const mappedSessions = sessions.map((session) => {
-      const sessionDto: SessionDTO = {
-        id: session.id,
-        period_from: session.period_from,
-        period_to: session.period_to,
-        sequence_id: session.sequence_id,
-        closed: session.closed,
-        distance: session.distance,
-        engine_drive: session.engine_drive,
-        engine_stop: session.engine_stop,
-      };
-
-      // Mappare anche i dati di history dentro ogni sessione
-      sessionDto['history'] = session.history.map((history) => {
-        const historyDTO: HistoryDTO = {
-          id: history.id,
-          timestamp: history.timestamp,
-          status: history.status,
-          latitude: history.latitude,
-          longitude: history.longitude,
-          nav_mode: history.nav_mode,
-          speed: history.speed,
-          direction: history.direction,
-          tot_distance: history.tot_distance,
-          tot_consumption: history.tot_consumption,
-          fuel: history.fuel,
-          brushes: history.brushes,
-        };
-        return historyDTO;
+        order: {
+          period_to: 'DESC',
+        },
       });
-
-      return sessionDto;
-    });
-
-    return mappedSessions;
+      return sessions.map((session) => this.toDTOSession(session));
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new HttpException(
+        `Errore durante recupero delle sessioni veId con range temporale`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   /**
    * Recupera alcuni dati di tutte le sessioni e i relativi history di tutti i veicoli passati
-   * in base ad un range temporale inserito
+   * in base ad un range temporale inserito, si utilizza soltanto internamente
    * @param vehicleIds lista di veId identificativi veicolo
    * @param dateFrom data inizio ricerca
    * @param dateTo data fine ricerca
@@ -611,6 +572,57 @@ export class SessionService {
 
     return sessionMap;
   }
+
+  /**
+   * Ritorna la lista completa delle sessione in base al VeId del veicolo
+   * @param userId Serve per controllare se utente può visualizzare il veicolo
+   * @param veId Veid veicolo
+   * @param dateFrom data inizio ricerca
+   * @param dateTo data fine ricerca
+   * @returns oggetto DTO
+   */
+  async getAllSessionsByVeIdAndRange(
+    userId: number,
+    veId: number,
+    dateFrom: Date,
+    dateTo: Date,
+  ): Promise<SessionDTO[]> {
+    const vehicles =
+      await this.associationService.getVehiclesAssociateUserRedis(userId);
+    if (!vehicles || vehicles.length === 0)
+      throw new HttpException(
+        'Nessun veicolo associato per questo utente',
+        HttpStatus.NOT_FOUND,
+      );
+    if (!vehicles.find((v) => v.veId === veId))
+      throw new HttpException(
+        'Non hai il permesso per visualizzare questo veicolo',
+        HttpStatus.FORBIDDEN,
+      );
+    try {
+      const sessions = await this.sessionRepository.find({
+        where:
+          // Sessioni completamente dentro l'intervallo
+          // Sessioni che iniziano prima di period_from e cadono nell intervallo
+          // Sessioni che iniziano prima di period_to e finiscono dopo il period_to
+          {
+            history: { vehicle: { veId: veId } },
+            period_from: LessThanOrEqual(dateTo),
+            period_to: MoreThanOrEqual(dateFrom),
+          },
+        relations: {
+          history: true,
+        },
+      });
+      return sessions.map((session) => this.toDTOSession(session));
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new HttpException(
+        `Errore durante recupero delle sessioni veId con range temporale`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
   /**
    * Restituisce l'ultima sessione in base al veId del veicolo e al range temporale inserito
    * @param id VeId identificativo Veicolo
@@ -640,49 +652,42 @@ export class SessionService {
   }
 
   /**
-   * Restituisce l'ultima sessione di ogni veicolo in base al range temporale inserito
-   * @param id VeId identificativo Veicolo
-   * @param dateFrom Data inizio ricerca sessione
-   * @param dateTo Data fine ricerca sessione
-   * @returns
-   */
-  async getAllVehiclesLastSessionByVeIdRanged(
-    dateFrom: Date,
-    dateTo: Date,
-  ): Promise<any> {
-    const session = await this.sessionRepository.findOne({
-      where: {
-        period_from: MoreThanOrEqual(dateFrom),
-        period_to: LessThanOrEqual(dateTo),
-      },
-      relations: {
-        history: true,
-      },
-      order: {
-        sequence_id: 'DESC',
-      },
-    });
-    return session;
-  }
-
-  /**
    * Ritorna l'ultima sessione registrata di un veicolo in base al VeId
-   * @param id VeId identificativo Veicolo
-   * @returns
+   * @param userId verifica se il mezzo è visualizzabile dall utente
+   * @param veId veid del veicolo
+   * @returns sessionDTO
    */
-  async getLastSession(id): Promise<any> {
-    const session = await this.sessionRepository.findOne({
-      where: { history: { vehicle: { veId: id } } },
-      relations: {
-        history: {
-          vehicle: true,
+  async getLastSession(userId: number, veId: number): Promise<SessionDTO> {
+    const vehicles =
+      await this.associationService.getVehiclesAssociateUserRedis(userId);
+    if (!vehicles || vehicles.length === 0)
+      throw new HttpException(
+        'Nessun veicolo associato per questo utente',
+        HttpStatus.NOT_FOUND,
+      );
+    if (!vehicles.find((v) => v.veId === veId))
+      throw new HttpException(
+        'Non hai il permesso per visualizzare questo veicolo',
+        HttpStatus.FORBIDDEN,
+      );
+    try {
+      const session = await this.sessionRepository.findOne({
+        where: { history: { vehicle: { veId: veId } } },
+        relations: {
+          history: true,
         },
-      },
-      order: {
-        sequence_id: 'DESC',
-      },
-    });
-    return session;
+        order: {
+          sequence_id: 'DESC',
+        },
+      });
+      return this.toDTOSession(session);
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new HttpException(
+        `Errore durante recupero delle sessioni veId con range temporale`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   /**
@@ -793,5 +798,41 @@ export class SessionService {
       select: { distance: true, period_from: true, period_to: true },
     });
     return distances;
+  }
+
+  private toDTOSession(session: SessionEntity): any {
+    const sessionDTO = new SessionDTO();
+    sessionDTO.id = session.id;
+    sessionDTO.period_from = session.period_from;
+    sessionDTO.period_to = session.period_to;
+    sessionDTO.sequence_id = session.sequence_id;
+    sessionDTO.closed = session.closed;
+    sessionDTO.distance = session.distance;
+    sessionDTO.engine_drive = session.engine_drive;
+    sessionDTO.engine_stop = session.engine_stop;
+    const history: HistoryDTO[] = [];
+    if (session.history) {
+      session.history.forEach((item) => {
+        history.push(this.toDTOHistory(item));
+      });
+    }
+    sessionDTO.history = history;
+    return sessionDTO;
+  }
+  private toDTOHistory(history: HistoryEntity): HistoryDTO {
+    const historyDTO = new HistoryDTO();
+    historyDTO.id = history.id;
+    historyDTO.timestamp = history.timestamp;
+    historyDTO.status = history.status;
+    historyDTO.latitude = history.latitude;
+    historyDTO.longitude = history.longitude;
+    historyDTO.nav_mode = history.nav_mode;
+    historyDTO.speed = history.speed;
+    historyDTO.direction = history.direction;
+    historyDTO.tot_distance = history.tot_distance;
+    historyDTO.tot_consumption = history.tot_consumption;
+    historyDTO.fuel = history.fuel;
+    historyDTO.brushes = history.brushes;
+    return historyDTO;
   }
 }

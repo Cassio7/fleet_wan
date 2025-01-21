@@ -47,7 +47,7 @@ export class AnomalyController {
     };
 
     try {
-      const anomalies = await this.anomalyService.getAllAnomalyByVeId(
+      const anomalies = await this.anomalyService.getAllAnomalyByUserId(
         req.user.id,
       );
       if (!anomalies?.length) {
@@ -66,7 +66,7 @@ export class AnomalyController {
         'list',
         `Recuperate ${anomalies.length} anomalie`,
       );
-      res.status(200).json(anomalies);
+      return res.status(200).json(anomalies);
     } catch (error) {
       this.loggerService.logCrudError({
         error,
@@ -151,6 +151,13 @@ export class AnomalyController {
           );
           lastUpdate = anomaliesData.lastUpdate;
           anomalies = anomaliesData.anomalies;
+          // se redis vuoto per qualche motivo
+          if (!lastUpdate) {
+            anomalies = await this.anomalyService.getAnomalyByDate(
+              req.user.id,
+              dateFrom,
+            );
+          }
         } else {
           anomalies = await this.anomalyService.getAnomalyByDate(
             req.user.id,
@@ -194,6 +201,70 @@ export class AnomalyController {
         lastUpdate,
         vehicles: anomalies,
       });
+    } catch (error) {
+      this.loggerService.logCrudError({
+        context,
+        operation: 'list',
+        error,
+      });
+
+      return res.status(error.status || 500).json({
+        message: error.message || 'Errore durante il recupero delle anomalie',
+      });
+    }
+  }
+
+  /**
+   * API per il recupero delle prime 15 anomalie in base al veId passato
+   * @param req user token data
+   * @param res
+   * @param body veid del veicolo
+   * @returns
+   */
+  @Post('veId')
+  async getAllAnomalyVeId(
+    @Req() req: Request & { user: UserFromToken },
+    @Res() res: Response,
+    @Body() body: { veId: number; last: boolean },
+  ) {
+    const context: LogContext = {
+      userId: req.user.id,
+      username: req.user.username,
+      resource: 'Anomaly',
+      resourceId: body.veId,
+    };
+    if (!body.veId) {
+      this.loggerService.logCrudError({
+        context,
+        operation: 'list',
+        error: new Error('Inserisci un numero'),
+      });
+      return res.status(400).json({ message: 'Inserisci un numero' });
+    }
+    const last: boolean = body.last || false;
+    try {
+      if (!last) {
+        const anomalies = await this.anomalyService.getAllAnomalyByVeId(
+          req.user.id,
+          body.veId,
+        );
+        if (!anomalies?.length) {
+          this.loggerService.logCrudSuccess(
+            context,
+            'list',
+            'Nessuna anomalia trovata',
+          );
+          return res.status(404).json({ message: 'Nessuna anomalia trovata' });
+        }
+        this.loggerService.logCrudSuccess(
+          context,
+          'list',
+          `Recuperate ${anomalies[0].anomalies.length} anomalie`,
+        );
+        return res.status(200).json(anomalies);
+      } else if (last) {
+        return res.status(200).json(true);
+      }
     } catch (error) {
       this.loggerService.logCrudError({
         context,

@@ -1,8 +1,9 @@
 import { IsNumber, IsString } from 'class-validator';
 import { CommonDTO } from 'classes/common/common.dto';
-export class CompanyDTO extends CommonDTO {
+
+export class GroupDTO extends CommonDTO {
   @IsNumber()
-  suId: number;
+  vgId: number;
   @IsString()
   name: string;
 }

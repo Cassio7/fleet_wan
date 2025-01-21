@@ -1,15 +1,8 @@
 import { Exclude } from 'class-transformer';
-import { IsEmail, IsNumber, IsString, IsDate } from 'class-validator';
+import { IsEmail, IsString } from 'class-validator';
+import { CommonDTO } from 'classes/common/common.dto';
 
-export class UserDTO {
-  @IsNumber()
-  id: number;
-  @IsDate()
-  createdAt: Date;
-  @IsDate()
-  updatedAt: Date;
-  @IsNumber()
-  version: number;
+export class UserDTO extends CommonDTO {
   @IsString()
   name: string;
   @IsString()

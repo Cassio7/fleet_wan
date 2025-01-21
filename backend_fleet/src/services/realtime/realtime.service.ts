@@ -91,26 +91,50 @@ export class RealtimeService {
 
       // flatMap permette di appiattire il risultato interno per evitare doppio [[]]
       const filteredData = lists.flatMap((item: any) => {
-        if (!item.list) {
-          return []; // se item.list non esiste, salto elemento
+        // Verifica se item.list è un array
+        if (Array.isArray(item.list)) {
+          return item.list.map((inside: any) => {
+            return {
+              row_number: inside['rowNumber'],
+              timestamp:
+                typeof inside['timestamp'] === 'object'
+                  ? null
+                  : convertHours(inside['timestamp']),
+              status: inside['status'],
+              latitude: inside['latitude'],
+              longitude: inside['longitude'],
+              nav_mode: inside['navMode'],
+              speed: inside['speed'],
+              direction: inside['direction'],
+              veId: item['veId'],
+            };
+          });
         }
-        return item.list.map((inside: any) => {
-          return {
-            row_number: inside['rowNumber'],
-            timestamp:
-              typeof inside['timestamp'] === 'object'
-                ? null
-                : convertHours(inside['timestamp']),
-            status: inside['status'],
-            latitude: inside['latitude'],
-            longitude: inside['longitude'],
-            nav_mode: inside['navMode'],
-            speed: inside['speed'],
-            direction: inside['direction'],
-            veId: item['veId'],
-          };
-        });
+
+        // Se item.list è un oggetto, trasformalo in array e processalo
+        if (item.list && typeof item.list === 'object') {
+          return [
+            {
+              row_number: item.list['rowNumber'],
+              timestamp:
+                typeof item.list['timestamp'] === 'object'
+                  ? null
+                  : convertHours(item.list['timestamp']),
+              status: item.list['status'],
+              latitude: item.list['latitude'],
+              longitude: item.list['longitude'],
+              nav_mode: item.list['navMode'],
+              speed: item.list['speed'],
+              direction: item.list['direction'],
+              veId: item['veId'],
+            },
+          ];
+        }
+
+        // Se item.list non esiste o non è valido, ritorna un array vuoto
+        return [];
       });
+
       const vehiclequery_list = await queryRunner.manager
         .getRepository(VehicleEntity)
         .find();

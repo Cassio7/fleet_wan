@@ -1,19 +1,32 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import * as bcrypt from 'bcrypt';
 import { UserDTO } from 'classes/dtos/user.dto';
+import { AssociationEntity } from 'classes/entities/association.entity';
 import { RoleEntity } from 'classes/entities/role.entity';
 import { UserEntity } from 'classes/entities/user.entity';
 import { DataSource, Repository } from 'typeorm';
 import { RoleService } from '../role/role.service';
+import { AssociationService } from '../association/association.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(UserEntity, 'readOnlyConnection')
     private readonly userRepository: Repository<UserEntity>,
+    @InjectRepository(AssociationEntity, 'readOnlyConnection')
+    private readonly associationRepository: Repository<AssociationEntity>,
+    private readonly roleService: RoleService,
+    @Inject(forwardRef(() => AssociationService))
+    private readonly associationService: AssociationService,
     @InjectDataSource('mainConnection')
     private readonly connection: DataSource,
-    private readonly roleService: RoleService,
   ) {}
 
   /**
@@ -56,9 +69,9 @@ export class UserService {
       return newUser;
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      console.error(error);
+      if (error instanceof HttpException) throw error;
       throw new HttpException(
-        `Errore durante la creazione del'utente`,
+        `Errore durante la creazione dell'utente`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     } finally {
@@ -80,10 +93,9 @@ export class UserService {
           id: 'ASC',
         },
       });
-      const usersDTO = await this.formatUserDTO(users, true);
-      return usersDTO;
+      return await this.formatUserDTO(users, true);
     } catch (error) {
-      console.error(error);
+      if (error instanceof HttpException) throw error;
       throw new HttpException(
         `Errore durante recupero degli utenti`,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -104,10 +116,9 @@ export class UserService {
         },
       });
       if (!user) return null;
-      const userDTO = await this.formatUserDTO(user, false);
-      return userDTO;
+      return await this.formatUserDTO(user, false);
     } catch (error) {
-      console.error(error);
+      if (error instanceof HttpException) throw error;
       throw new HttpException(
         `Errore durante recupero dell'utente`,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -129,10 +140,9 @@ export class UserService {
         },
       });
       if (!user) return null;
-      const userDTO = await this.formatUserDTO(user, false);
-      return userDTO;
+      return await this.formatUserDTO(user, false);
     } catch (error) {
-      console.error(error);
+      if (error instanceof HttpException) throw error;
       throw new HttpException(
         `Errore durante recupero dell'utente`,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -166,7 +176,7 @@ export class UserService {
       await queryRunner.commitTransaction();
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      console.error(error);
+      if (error instanceof HttpException) throw error;
       throw new HttpException(
         `Errore durante l'aggiornamento utente`,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -188,7 +198,6 @@ export class UserService {
     newPassword: string,
   ) {
     const user = await this.checkUser(userId);
-    const bcrypt = require('bcrypt');
 
     const isPasswordMatch = await bcrypt.compare(
       currentPassword,
@@ -220,7 +229,7 @@ export class UserService {
       await queryRunner.commitTransaction();
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      console.error(error);
+      if (error instanceof HttpException) throw error;
       throw new HttpException(
         `Errore durante l'aggiornamento utente`,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -245,7 +254,6 @@ export class UserService {
     const role = await this.roleService.getRoleByName(userDTO.role);
     if (!role)
       throw new HttpException('Ruolo non trovato', HttpStatus.NOT_FOUND);
-    const bcrypt = require('bcrypt');
     const salt = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(userDTO.password, salt);
     const regex = /\d/;
@@ -274,9 +282,23 @@ export class UserService {
         updateUser,
       );
       await queryRunner.commitTransaction();
+      // se il ruolo è stato cambiato rimuovo tutte le associazioni del vecchio ruolo
+      if (user.role.id !== role.id) {
+        const associationsRemove = await this.associationRepository.find({
+          where: {
+            user: {
+              id: user.id,
+            },
+          },
+        });
+        await queryRunner.manager
+          .getRepository(AssociationEntity)
+          .remove(associationsRemove);
+        await this.associationService.setVehiclesAssociateAllUsersRedis();
+      }
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      console.error(error);
+      if (error instanceof HttpException) throw error;
       throw new HttpException(
         `Errore durante l'aggiornamento utente`,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -305,7 +327,7 @@ export class UserService {
       await queryRunner.commitTransaction();
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      console.error(error);
+      if (error instanceof HttpException) throw error;
       throw new HttpException(
         `Errore durante eliminazione utente`,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -340,7 +362,6 @@ export class UserService {
         userDTO.role = user.role.name;
         return userDTO;
       } else {
-        userDTO.id = user.id;
         userDTO.email = user.email;
         userDTO.name = user.name;
         userDTO.surname = user.surname;
@@ -360,7 +381,9 @@ export class UserService {
   async checkUser(userId: number): Promise<UserEntity> {
     const user = await this.userRepository.findOne({
       where: { id: userId },
-      relations: ['role'],
+      relations: {
+        role: true,
+      },
     });
     if (!user)
       throw new HttpException(

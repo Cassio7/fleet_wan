@@ -24,7 +24,7 @@ import { LoggerService } from 'src/log/service/logger.service';
 import { UserService } from 'src/services/user/user.service';
 
 @UseGuards(AuthGuard, RolesGuard)
-@Controller('user')
+@Controller('users')
 export class UserController {
   constructor(
     private readonly userService: UserService,
@@ -120,10 +120,9 @@ export class UserController {
         context,
         operation: 'create',
       });
-
-      return res
-        .status(500)
-        .json({ message: 'Errore nella registrazione del nuovo utente' });
+      return res.status(error.status || 500).json({
+        message: error.message || 'Errore nella registrazione del nuovo utente',
+      });
     }
   }
 
@@ -169,10 +168,9 @@ export class UserController {
         context,
         operation: 'read',
       });
-
-      return res
-        .status(500)
-        .json({ message: "Errore nel recupero dell'utente" });
+      return res.status(error.status || 500).json({
+        message: error.message || 'Errore nel recupero dell utente',
+      });
     }
   }
 
@@ -222,9 +220,9 @@ export class UserController {
         operation: 'read',
       });
 
-      return res
-        .status(500)
-        .json({ message: "Errore nel recupero dell'utente" });
+      return res.status(error.status || 500).json({
+        message: error.message || 'Errore nel recupero dell utente',
+      });
     }
   }
 
@@ -238,11 +236,10 @@ export class UserController {
    */
   @Roles(Role.Admin)
   @Put(':id')
-  @UsePipes(ParseIntPipe)
   async updateUserById(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
-    @Param('id') userId: number,
+    @Param('id', ParseIntPipe) userId: number,
     @Body() userDTO: UserDTO,
   ) {
     const context: LogContext = {
@@ -269,8 +266,9 @@ export class UserController {
         context,
         operation: 'update',
       });
-
-      return res.status(500).json({ message: 'Errore aggiornamento utente' });
+      return res.status(error.status || 500).json({
+        message: error.message || 'Errore aggiornamento utente',
+      });
     }
   }
 
