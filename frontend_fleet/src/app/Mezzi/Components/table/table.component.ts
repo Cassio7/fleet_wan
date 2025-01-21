@@ -31,6 +31,7 @@ import { CookiesService } from '../../../Common-services/cookies service/cookies
 import { User } from '../../../Models/User';
 import { NoteSectionComponent } from "../note-section/note-section/note-section.component";
 import { MezziFiltersService } from '../../Services/mezzi-filters/mezzi-filters.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-table',
@@ -92,6 +93,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
     private vehicleApiService: VehiclesApiService,
     private sessionStorageService: SessionStorageService,
     private mezziFilterService: MezziFiltersService,
+    private router: Router,
     private cd: ChangeDetectorRef
   ){}
 
@@ -283,6 +285,11 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
   filterFirstEventsDuplicates(){
     return this.sortService.sortVehiclesByFirstEventAsc(this.firstEventsFilterService.filterFirstEventsDuplicates(this.sortedVehicles));
   }
+
+  showVehicleDetail(vehicleId: number){
+    this.router.navigate(['/dettaglio-mezzo'], { queryParams: { id: vehicleId } });
+  }
+
 
   /**
    * Resetta tutte le selezioni

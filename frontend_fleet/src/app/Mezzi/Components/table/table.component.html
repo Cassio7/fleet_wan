@@ -227,7 +227,7 @@
 
     <!-- Definizione righe della tabella -->
     <tr mat-header-row *matHeaderRowDef="columnsToDisplayWithExpand; sticky: true"></tr>
-    <tr mat-row *matRowDef="let row; columns: columnsToDisplayWithExpand;"></tr>
+    <tr mat-row *matRowDef="let vehicle; columns: columnsToDisplayWithExpand;" (click)="showVehicleDetail(vehicle.veId)"></tr>
     <tr
     mat-row
     *matRowDef="let row; columns: ['comment-section']"

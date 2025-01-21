@@ -1,0 +1,28 @@
+<div class="content">
+
+<h2 class="go-back"><button mat-button (click)="goBack()"><mat-icon>arrow_back</mat-icon></button>Torna al parco mezzi</h2>
+<p class="subtitle">In questa sezione sono presenti le informazioni dettagliate del mezzo</p>
+
+<mat-card class="general-info">
+  <mat-card-header>
+    <mat-card-title><mat-icon>local_shipping</mat-icon>Camion differenziata</mat-card-title>
+    <mat-card-subtitle>ID: {{vehicle.veId}} — Dismesso: no</mat-card-subtitle>
+  </mat-card-header>
+  <mat-divider></mat-divider>
+  <mat-card-content class="general-lists">
+    <mat-list>
+      <mat-list-item><span>Targa</span><span>{{vehicle.plate}}</span></mat-list-item>
+      <mat-list-item><span>Modello</span><span>{{vehicle.model}}</span></mat-list-item>
+    </mat-list>
+    <mat-list>
+      <mat-list-item><span>Cantiere</span><span>{{vehicle.worksite?.name}}</span></mat-list-item>
+      <mat-list-item><span>Comune</span>comune</mat-list-item>
+    </mat-list>
+    <mat-list>
+      <mat-list-item><span>Azienda</span>azienda</mat-list-item>
+      <mat-list-item><span>Società</span>società</mat-list-item>
+    </mat-list>
+  </mat-card-content>
+</mat-card>
+
+</div>

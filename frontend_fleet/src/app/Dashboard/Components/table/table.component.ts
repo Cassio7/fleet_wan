@@ -356,8 +356,6 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   }
 
 
-
-
   /**
  * Richiama le funzioni per il riempimento della tabella in base al filtro dei grafici (inserendo i nuovi veicoli nel sessionstorage) e la sincronizzazione di quest'ultimi
  * @param vehiclesData veicoli da caricare

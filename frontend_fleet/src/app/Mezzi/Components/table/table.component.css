@@ -37,6 +37,10 @@ tr.comment-row:not(.example-expanded-row):active {
   background: #efefef;
 }
 
+td {
+  cursor: pointer;
+}
+
 .vehicle-row td {
   border-bottom-width: 0;
 }
