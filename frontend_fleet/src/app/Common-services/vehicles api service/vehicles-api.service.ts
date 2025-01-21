@@ -46,6 +46,22 @@ export class VehiclesApiService {
     );
   }
 
+  /**
+   * Ricerca i dati del veicolo con uno specifico veId
+   * @param veId veId del veicolo da ricercare
+   * @returns observable http
+   */
+  public getVehicleByVeId(veId: number): Observable<Vehicle> {
+    const access_token = this.cookieService.getCookie("user");
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${access_token}`
+    });
+
+    return this.http.get<Vehicle>(
+      `${this.commonService.url}/vehicles/${veId}`,
+      { headers }
+    );
+  }
 
   /**
    * Controlla il GPS di un veicolo
