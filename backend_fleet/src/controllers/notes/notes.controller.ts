@@ -52,16 +52,16 @@ export class NotesController {
     try {
       const notes = await this.notesService.getAllNotesByUser(req.user.id);
 
-      if (!notes?.length) {
-        this.loggerService.logCrudSuccess(
-          context,
-          'list',
-          'Nessuna nota trovata',
-        );
-        return res.status(404).json({
-          message: 'Nessuna nota trovata',
-        });
-      }
+      // if (!notes?.length) {
+      //   this.loggerService.logCrudSuccess(
+      //     context,
+      //     'list',
+      //     'Nessuna nota trovata',
+      //   );
+      //   return res.status(404).json({
+      //     message: 'Nessuna nota trovata',
+      //   });
+      // }
 
       this.loggerService.logCrudSuccess(
         context,
