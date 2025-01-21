@@ -86,7 +86,8 @@ export class RealtimeController {
       const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
       for (const id of vehicleIds) {
         const key = `realtime:${id}`;
-        latestRealtimes.push(JSON.parse(await this.redis.get(key)));
+        const data = JSON.parse(await this.redis.get(key));
+        if (data) latestRealtimes.push(data);
       }
       // Verifica se `latestRealtimes` è vuoto
       if (latestRealtimes.length === 0) {
