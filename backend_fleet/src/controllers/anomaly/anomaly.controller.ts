@@ -225,7 +225,7 @@ export class AnomalyController {
   async getAllAnomalyVeId(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
-    @Body() body: { veId: number },
+    @Body() body: { veId: number; last: boolean },
   ) {
     const context: LogContext = {
       userId: req.user.id,
@@ -241,26 +241,30 @@ export class AnomalyController {
       });
       return res.status(400).json({ message: 'Inserisci un numero' });
     }
-
+    const last: boolean = body.last || false;
     try {
-      const anomalies = await this.anomalyService.getAllAnomalyByVeId(
-        req.user.id,
-        body.veId,
-      );
-      if (!anomalies?.length) {
+      if (!last) {
+        const anomalies = await this.anomalyService.getAllAnomalyByVeId(
+          req.user.id,
+          body.veId,
+        );
+        if (!anomalies?.length) {
+          this.loggerService.logCrudSuccess(
+            context,
+            'list',
+            'Nessuna anomalia trovata',
+          );
+          return res.status(404).json({ message: 'Nessuna anomalia trovata' });
+        }
         this.loggerService.logCrudSuccess(
           context,
           'list',
-          'Nessuna anomalia trovata',
+          `Recuperate ${anomalies[0].anomalies.length} anomalie`,
         );
-        return res.status(404).json({ message: 'Nessuna anomalia trovata' });
+        return res.status(200).json(anomalies);
+      } else if (last) {
+        return res.status(200).json(true);
       }
-      this.loggerService.logCrudSuccess(
-        context,
-        'list',
-        `Recuperate ${anomalies[0].anomalies.length} anomalie`,
-      );
-      return res.status(200).json(anomalies);
     } catch (error) {
       this.loggerService.logCrudError({
         context,
