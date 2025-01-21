@@ -63,8 +63,8 @@ export class DashboardComponent implements AfterViewInit{
 
   errorGraphTitle: string = "GPS";
 
-  checked = true;
-  disabled = false;
+  today = true;
+  lastSession = false;
   switchText: string = "Oggi";
 
   pageName = "Dashboard";
@@ -156,12 +156,12 @@ export class DashboardComponent implements AfterViewInit{
 
   dataSwitch(event: MatSlideToggleChange){
     if(event.checked){
-      this.checked = true;
+      this.today = true;
       this.switchText = "Oggi";
       this.checkErrorsService.switchCheckDay$.next("today");
     }else{
-      this.checked = false;
-      this.disabled = true;
+      this.today = false;
+      this.lastSession = true;
       this.switchText = "Ultimo andamento"
       this.checkErrorsService.switchCheckDay$.next("last");
     }

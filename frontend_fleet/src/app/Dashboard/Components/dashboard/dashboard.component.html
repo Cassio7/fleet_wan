@@ -16,7 +16,8 @@
       <p class="map-title">Mappa</p>
       <p class="map-subtitle">Visualizza i mezzi nella mappa</p>
     </div>
-    <app-map class="map" *ngIf="checked"></app-map>
+    <app-map class="map" *ngIf="today"></app-map>
+    <mat-error *ngIf="!today">Mappa non disponibile.</mat-error>
   </div>
   <div class="right-section">
     <div class="header">
@@ -25,7 +26,7 @@
           <h2 class="title">{{pageName}}</h2>
           <p class="subtitle">{{subtitle}}</p>
         </div>
-        <mat-slide-toggle class="example-margin" [checked]="checked" [disabled]="disabled" (change)="dataSwitch($event)"> {{switchText}} </mat-slide-toggle>
+        <mat-slide-toggle class="example-margin" [checked]="today"  (change)="dataSwitch($event)"> {{switchText}} </mat-slide-toggle>
       </div>
       <div class="kebab-menu">
         <app-kebab-menu></app-kebab-menu>
