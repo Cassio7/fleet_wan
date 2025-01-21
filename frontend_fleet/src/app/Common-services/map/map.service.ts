@@ -54,16 +54,18 @@ export class MapService {
    * @returns marker Lea Flet
    */
   createMarker(lat: number, long: number, msg: string): L.Marker<any>{
-    const marker = L.marker([lat, long]);
+    const marker = L.marker([lat, long]); //creazione del marker
     marker.bindPopup(msg, { autoClose: false });
 
-    marker.on('mouseover', () => {
+    //Apre il popup quando il marker viene aggiunto
+    marker.on('add', () => {
+      marker.openPopup();
+    });
+    //Apre il popup quando si passa sopra al marker
+    marker.on('mouseover', () =>{
       marker.openPopup();
     });
 
-    marker.on('mouseout', () => {
-      marker.closePopup();
-    });
     return marker;
   }
 
