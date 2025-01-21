@@ -1,3 +1,4 @@
+import * as bcrypt from 'bcrypt';
 import { CommonEntity } from 'classes/common/common.entity';
 import { UserInterface } from 'classes/interfaces/user.interface';
 import {
@@ -11,6 +12,7 @@ import {
 import { AssociationEntity } from './association.entity';
 import { NoteEntity } from './note.entity';
 import { RoleEntity } from './role.entity';
+
 @Entity('users')
 export class UserEntity extends CommonEntity implements UserInterface {
   @Column({ nullable: true })
@@ -31,7 +33,6 @@ export class UserEntity extends CommonEntity implements UserInterface {
   // funzione per hashare password prima dell'inserimento nel db
   @BeforeInsert()
   async setPassword(password: string) {
-    const bcrypt = require('bcrypt');
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(password || this.password, salt);
   }
