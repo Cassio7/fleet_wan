@@ -224,7 +224,7 @@ export class AssociationService {
       await this.setVehiclesAssociateAllUsersRedis();
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      console.error(error);
+      if (error instanceof HttpException) throw error;
       throw new HttpException(
         `Errore durante eliminazione associazione`,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -251,7 +251,7 @@ export class AssociationService {
       });
       return associations.map((association) => this.toDTO(association));
     } catch (error) {
-      console.error(error);
+      if (error instanceof HttpException) throw error;
       throw new HttpException(
         `Errore durante il recupero delle associazioni`,
         HttpStatus.INTERNAL_SERVER_ERROR,

@@ -38,7 +38,7 @@ export class NotesService {
       });
       return notes.map((note) => this.toDTO(note));
     } catch (error) {
-      console.error(error);
+      if (error instanceof HttpException) throw error;
       throw new HttpException(
         `Errore durante recupero delle note admin`,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -83,7 +83,7 @@ export class NotesService {
       });
       return notes.map((note) => this.toDTO(note));
     } catch (error) {
-      console.error(error);
+      if (error instanceof HttpException) throw error;
       throw new HttpException(
         `Errore durante recupero delle note`,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -164,7 +164,7 @@ export class NotesService {
       return this.toDTO(newNote);
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      console.error(error);
+      if (error instanceof HttpException) throw error;
       throw new HttpException(
         'Errore durante la creazione della nota',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -234,7 +234,7 @@ export class NotesService {
       await queryRunner.commitTransaction();
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      console.error(error);
+      if (error instanceof HttpException) throw error;
       throw new HttpException(
         `Errore durante l'aggiornamento della nota`,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -287,7 +287,7 @@ export class NotesService {
       await queryRunner.commitTransaction();
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      console.error(error);
+      if (error instanceof HttpException) throw error;
       throw new HttpException(
         `Errore durante l'eliminazione della nota`,
         HttpStatus.INTERNAL_SERVER_ERROR,
