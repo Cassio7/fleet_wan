@@ -1,10 +1,14 @@
 import { Injectable } from '@angular/core';
 import L from 'leaflet';
+import { BehaviorSubject, map, Subject } from 'rxjs';
+import { VehicleData } from '../../Models/VehicleData';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MapService {
+  private readonly _loadMap$: BehaviorSubject<VehicleData|null> = new BehaviorSubject<VehicleData|null>(null);
+
   constructor() { }
 
   /**
@@ -15,7 +19,7 @@ export class MapService {
   initMap(map: L.Map, lat: number, long: number): L.Map {
     map = L.map('map', {
       center: [lat, long],
-      zoom: 15
+      zoom: 14
     });
 
     const tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -26,6 +30,12 @@ export class MapService {
 
     tiles.addTo(map);
     return map;
+  }
+
+  removeMap(map: L.Map){
+    if(map){
+      map.remove();
+    }
   }
 
   /**
@@ -55,5 +65,9 @@ export class MapService {
       marker.closePopup();
     });
     return marker;
+  }
+
+  public get loadMap$(): BehaviorSubject<VehicleData|null> {
+    return this._loadMap$;
   }
 }

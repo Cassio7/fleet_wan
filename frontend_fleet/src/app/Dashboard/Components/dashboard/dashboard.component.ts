@@ -25,7 +25,9 @@ import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/sl
 import { SessionApiService } from '../../Services/session/session-api.service';
 import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
 import { KanbanFiltersComponent } from "../kanban-filters/kanban-filters.component";
-import { MapComponent } from "../../../Common-components/map/map/map.component";
+import { MapComponent } from '../../../Common-components/map/map.component';
+import { RealtimeApiService } from '../../../Common-services/realtime-api/realtime-api.service';
+import { RealtimeData } from '../../../Models/RealtimeData';
 
 @Component({
   selector: 'app-dashboard',
@@ -84,6 +86,7 @@ export class DashboardComponent implements AfterViewInit{
   ){
 
   }
+
   ngAfterViewInit(): void {
     this.errorGraphTitle = this.errorGraphService.graphTitle;
     const currentSection = this.sessionStorageService.getItem("dashboard-section");
@@ -153,9 +156,12 @@ export class DashboardComponent implements AfterViewInit{
 
   dataSwitch(event: MatSlideToggleChange){
     if(event.checked){
+      this.checked = true;
       this.switchText = "Oggi";
       this.checkErrorsService.switchCheckDay$.next("today");
     }else{
+      this.checked = false;
+      this.disabled = true;
       this.switchText = "Ultimo andamento"
       this.checkErrorsService.switchCheckDay$.next("last");
     }
