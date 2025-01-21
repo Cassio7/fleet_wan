@@ -11,6 +11,8 @@ import { DataSource, In, Repository } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
 import { AssociationService } from '../association/association.service';
 import { WorksiteDTO } from './../../../classes/dtos/worksite.dto';
+import { CompanyDTO } from 'classes/dtos/company.dto';
+import { GroupDTO } from 'classes/dtos/group.dto';
 
 @Injectable()
 export class VehicleService {
@@ -427,7 +429,13 @@ export class VehicleService {
         where: { veId: In(veIdArray) },
         relations: {
           device: true,
-          worksite: true,
+          worksite: {
+            worksite_group: {
+              group: {
+                company: true,
+              },
+            },
+          },
         },
         order: {
           plate: 'ASC',
@@ -437,7 +445,7 @@ export class VehicleService {
         ? vehiclesDB.map((vehicle) => this.toDTO(vehicle))
         : null;
     } catch (error) {
-      console.error(error);
+      if (error instanceof HttpException) throw error;
       throw new HttpException(
         `Errore durante recupero dei veicoli`,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -514,7 +522,13 @@ export class VehicleService {
         },
         relations: {
           device: true,
-          worksite: true,
+          worksite: {
+            worksite_group: {
+              group: {
+                company: true,
+              },
+            },
+          },
         },
       });
       if (!vehicle)
@@ -597,11 +611,31 @@ export class VehicleService {
       worksiteDTO.name = vehicle.worksite.name;
     }
 
+    let groupDTO: GroupDTO | null = null;
+    if (vehicle.worksite.worksite_group) {
+      for (const item of vehicle.worksite.worksite_group) {
+        if (item.group.name && !item.group.name.includes('COMUNI')) {
+          groupDTO = new GroupDTO();
+          groupDTO.vgId = item.group.vgId;
+          groupDTO.name = item.group.name;
+          break;
+        }
+      }
+    }
+
+    let companyDTO: CompanyDTO | null = null;
+    if (vehicle.worksite.worksite_group[0].group.company) {
+      companyDTO = new CompanyDTO();
+      companyDTO.suId = vehicle.worksite.worksite_group[0].group.company.suId;
+      companyDTO.name = vehicle.worksite.worksite_group[0].group.company.name;
+    }
     // Restituisci l'oggetto combinato
     return {
       ...vehicleDTO,
       device: deviceDTO,
       worksite: worksiteDTO,
+      group: groupDTO,
+      company: companyDTO,
     };
   }
 }
