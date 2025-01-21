@@ -12,6 +12,11 @@
         <div class="error-graph"><app-error-graph-card [errorGraphTitle]="'GPS'" *ngIf="kanbanGps"></app-error-graph-card></div>
         <div class="error-graph"><app-error-graph-card [errorGraphTitle]="'Antenna'" *ngIf="kabanAntenna"></app-error-graph-card></div>
     </div>
+    <div class="map-header">
+      <p class="map-title">Mappa</p>
+      <p class="map-subtitle">Visualizza i mezzi nella mappa</p>
+    </div>
+    <app-map class="map"></app-map>
   </div>
   <div class="right-section">
     <div class="header">

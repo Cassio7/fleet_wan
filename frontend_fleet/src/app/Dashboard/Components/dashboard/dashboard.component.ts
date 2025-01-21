@@ -25,6 +25,7 @@ import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/sl
 import { SessionApiService } from '../../Services/session/session-api.service';
 import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
 import { KanbanFiltersComponent } from "../kanban-filters/kanban-filters.component";
+import { MapComponent } from "../../../Common-components/map/map/map.component";
 
 @Component({
   selector: 'app-dashboard',
@@ -48,7 +49,8 @@ import { KanbanFiltersComponent } from "../kanban-filters/kanban-filters.compone
     KanbanGpsComponent,
     MatSlideToggleModule,
     KanbanAntennaComponent,
-    KanbanFiltersComponent
+    KanbanFiltersComponent,
+    MapComponent
 ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'

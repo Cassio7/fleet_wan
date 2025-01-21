@@ -12,8 +12,7 @@ export class AntennaGraphService {
 
   private _colors = ["#5C9074", "#d12717", "#000000"];
 
-  private _height = 400;
-
+  private _height = 140;
   private _width = 300;
 
   private readonly _loadChartData$: BehaviorSubject<VehicleData[]> = new BehaviorSubject<VehicleData[]>([]);

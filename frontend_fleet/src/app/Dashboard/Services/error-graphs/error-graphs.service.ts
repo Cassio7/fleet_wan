@@ -27,7 +27,7 @@ export class ErrorGraphsService{
   private _graphTitle = "GPS";
   private _series = [0,0,0];//[funzionante, warning, error]
   private _colors = ["#5C9074", "#ffcc00", "#d12717"];
-  private _height = 400;
+  private _height = 140;
   private _width = 300;
 
 
