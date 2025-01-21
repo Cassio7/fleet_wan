@@ -1,8 +1,7 @@
 import { IsDate, IsNumber } from 'class-validator';
+import { CommonDTO } from 'classes/common/common.dto';
 
-export class HistoryDTO {
-  @IsNumber()
-  id: number;
+export class HistoryDTO extends CommonDTO {
   @IsDate()
   timestamp: Date;
   @IsNumber()

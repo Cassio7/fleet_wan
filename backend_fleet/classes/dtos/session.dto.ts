@@ -1,8 +1,8 @@
 import { IsBoolean, IsDate, IsNumber } from 'class-validator';
+import { CommonDTO } from 'classes/common/common.dto';
+import { HistoryDTO } from './history.dto';
 
-export class SessionDTO {
-  @IsNumber()
-  id: number;
+export class SessionDTO extends CommonDTO {
   @IsDate()
   period_from: Date;
   @IsDate()
@@ -17,4 +17,5 @@ export class SessionDTO {
   engine_drive: number;
   @IsNumber()
   engine_stop: number;
+  history: HistoryDTO[] | HistoryDTO;
 }
