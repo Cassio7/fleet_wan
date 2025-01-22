@@ -16,6 +16,8 @@ export type ChartOptions = {
   series: ApexNonAxisChartSeries;
   chart: ApexChart;
   responsive: ApexResponsive[];
+  colors: string[];
+  legend: any;
   labels: any;
   plotOptions: any;
 };
@@ -34,7 +36,7 @@ export type ChartOptions = {
 
 export class ErrorPieGraphComponent implements AfterViewInit, OnDestroy{
   private readonly destroy$: Subject<void> = new Subject<void>();
-  public chartOptions: any;
+  public chartOptions: Partial<ChartOptions>;
 
   public nVehicles: number = 0;
 

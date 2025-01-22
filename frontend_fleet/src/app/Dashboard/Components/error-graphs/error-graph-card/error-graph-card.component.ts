@@ -1,18 +1,15 @@
-import { ErrorGraphsService } from '../../../Services/error-graphs/error-graphs.service';
-import { AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
-import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { MatSelect, MatSelectModule } from '@angular/material/select';
+import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
 import { ErrorPieGraphComponent } from '../error-pie-graph/error-pie-graph.component';
-import { first, skip, Subject, take, takeUntil } from 'rxjs';
+import { Subject } from 'rxjs';
 import { GpsGraphComponent } from "../gps-graph/gps-graph.component";
 import { KanbanGpsService } from '../../../Services/kanban-gps/kanban-gps.service';
 import { KanbanAntennaService } from '../../../Services/kanban-antenna/kanban-antenna.service';
 import { KanbanTableService } from '../../../Services/kanban-table/kanban-table.service';
 import { AntennaGraphComponent } from "../antenna-graph/antenna-graph.component";
-import { SessionStorageService } from '../../../../Common-services/sessionStorage/session-storage.service';
 
 @Component({
   selector: 'app-error-graph-card',

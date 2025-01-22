@@ -84,7 +84,11 @@ export class FiltersCommonService {
     let cantieriFiltered: VehicleData[] = [];
 
     // Filtro per targa
-    plateFiltered = this.plateFilterService.filterVehiclesByPlateResearch(filters.plate, vehicles) as VehicleData[];
+    if(filters.plate){
+      plateFiltered = this.plateFilterService.filterVehiclesByPlateResearch(filters.plate, vehicles) as VehicleData[];
+    }else{
+      plateFiltered = vehicles;
+    }
     filterResults.push(plateFiltered);
     console.log("filtrato per  plate: ", plateFiltered);
 
