@@ -11,6 +11,7 @@ export class Vehicle {
     public model: string,
     public veId: number,
     public isRFIDReader: boolean,
+    public allestimento: boolean,
     public firstEvent: Date,
     public note: Note | null,
     public group: Group,
