@@ -13,11 +13,56 @@
 .subtitle{
   line-height: 0;
 }
+mat-card{
+  background-color: white !important;
+}
 .general-info{
-  width: 30vw;
+  width: 20vw;
+  height: auto;
+}
+.general-info mat-card-header{
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+.device-info mat-card-header{
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
 }
 .general-lists{
   width: 100%;
   display: flex;
+  align-items: center;
+}
+.device-lists{
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+.device-info{
+  width: auto;
+  height: auto;
 }
 
+mat-list{
+  width: 100%;
+}
+mat-list-item{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center !important;
+  line-height: 1;
+  margin: 0;
+}
+
+.list-label{
+  color: var(--sidebar-color);
+}
+mat-divider {
+  border-top-width: 2px;
+  border-top-color: var(--background-color);
+}

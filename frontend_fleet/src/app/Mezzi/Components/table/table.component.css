@@ -34,7 +34,7 @@ tr.comment-row:not(.example-expanded-row):hover {
 }
 
 tr.comment-row:not(.example-expanded-row):active {
-  background: #efefef;
+  background: var(--background-color);
 }
 
 td {
