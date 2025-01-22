@@ -1,6 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import axios from 'axios';
+import { DetectionTagDTO } from 'classes/dtos/detection_tag.dto';
+import { TagDTO } from 'classes/dtos/tag.dto';
+import { TagHistoryDTO } from 'classes/dtos/tag_history.dto';
 import { DetectionTagEntity } from 'classes/entities/detection_tag.entity';
 import { TagEntity } from 'classes/entities/tag.entity';
 import { TagHistoryEntity } from 'classes/entities/tag_history.entity';
@@ -8,14 +11,14 @@ import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { createHash } from 'crypto';
 import { convertHours } from 'src/utils/utils';
 import {
-  Between,
   DataSource,
   In,
   LessThanOrEqual,
   MoreThanOrEqual,
-  Repository,
+  Repository
 } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
+import { AssociationService } from '../association/association.service';
 
 @Injectable()
 export class TagService {
@@ -25,6 +28,7 @@ export class TagService {
     private readonly tagHistoryRepository: Repository<TagHistoryEntity>,
     @InjectDataSource('mainConnection')
     private readonly connection: DataSource,
+    private readonly associationService: AssociationService,
   ) {}
   // Costruisce la richiesta SOAP
   private buildSoapRequest(
@@ -288,72 +292,92 @@ export class TagService {
   }
 
   /**
-   * Ritorna i tag history in base all VeId
+   * Funzione che recupera tutti i tag history e relativi dati in base al veicolo passato
+   * @param userId user id
+   * @param veId veid veicolo
+   * @returns DTO
    */
-  async getTagHistoryByVeId(id: number): Promise<any> {
-    const tags = await this.tagHistoryRepository.find({
-      where: { vehicle: { veId: id } },
-      relations: {
-        detectiontag: {
-          tag: true,
+  async getAllTagHistoryByVeId(
+    userId: number,
+    veId: number,
+  ): Promise<TagHistoryDTO[]> {
+    const vehicles =
+      await this.associationService.getVehiclesAssociateUserRedis(userId);
+    if (!vehicles || vehicles.length === 0)
+      throw new HttpException(
+        'Nessun veicolo associato per questo utente',
+        HttpStatus.NOT_FOUND,
+      );
+    if (!vehicles.find((v) => v.veId === veId))
+      throw new HttpException(
+        'Non hai il permesso per visualizzare questo veicolo',
+        HttpStatus.FORBIDDEN,
+      );
+    try {
+      const tags = await this.tagHistoryRepository.find({
+        where: { vehicle: { veId: veId } },
+        relations: {
+          detectiontag: {
+            tag: true,
+          },
         },
-      },
-    });
-    return tags;
+      });
+      return tags.map((tag) => this.toDTOTagHistory(tag));
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new HttpException(
+        `Errore durante recupero dei tag`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   /**
    * Ritorna i tag history in base all VeId e al range di date specificato
-   * @param id VeId Veicolo
-   * @param dateFrom Data inizio ricerca tag history
-   * @param dateTo  Data fine ricerca tag history
-   * @returns
-   */
-  async getTagHistoryByVeIdRanged(
-    id: number,
-    dateFrom: Date,
-    dateTo: Date,
-  ): Promise<any> {
-    const tags = await this.tagHistoryRepository.find({
-      where: {
-        vehicle: { veId: id },
-        timestamp: MoreThanOrEqual(dateFrom) && LessThanOrEqual(dateTo),
-      },
-      relations: {
-        detectiontag: {
-          tag: true,
-        },
-      },
-    });
-    return tags;
-  }
-
-  /**
-   * @param id VeId Veicolo
+   * @param userId user id
+   * @param veId VeId Veicolo
    * @param dateFrom Data inizio ricerca tag history
    * @param dateTo Data fine ricerca tag history
-   * @returns
+   * @returns DTO
    */
-  async getLastTagHistoryByVeIdRanged(
-    id: number,
+  async getTagHistoryByVeIdRanged(
+    userId: number,
+    veId: number,
     dateFrom: Date,
     dateTo: Date,
   ): Promise<any> {
-    const tags = await this.tagHistoryRepository.findOne({
-      where: {
-        vehicle: { veId: id },
-        timestamp: Between(dateFrom, dateTo),
-      },
-      relations: {
-        detectiontag: {
-          tag: true,
+    const vehicles =
+      await this.associationService.getVehiclesAssociateUserRedis(userId);
+    if (!vehicles || vehicles.length === 0)
+      throw new HttpException(
+        'Nessun veicolo associato per questo utente',
+        HttpStatus.NOT_FOUND,
+      );
+    if (!vehicles.find((v) => v.veId === veId))
+      throw new HttpException(
+        'Non hai il permesso per visualizzare questo veicolo',
+        HttpStatus.FORBIDDEN,
+      );
+    try {
+      const tags = await this.tagHistoryRepository.find({
+        where: {
+          vehicle: { veId: veId },
+          timestamp: MoreThanOrEqual(dateFrom) && LessThanOrEqual(dateTo),
         },
-      },
-      order: {
-        timestamp: 'DESC',
-      },
-    });
-    return tags;
+        relations: {
+          detectiontag: {
+            tag: true,
+          },
+        },
+      });
+      return tags.map((tag) => this.toDTOTagHistory(tag));
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new HttpException(
+        `Errore durante recupero delle sessioni veId con range temporale`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   /**
@@ -395,78 +419,167 @@ export class TagService {
   }
 
   /**
-   * Ritorna l'ultimo tag letto, se esiste, in un determinato range di tempo
-   * @param period_from periodo di inizio ricerca
-   * @param period_to periodo di fine ricerca
-   * @returns
+   * Ritorna soltanto l'ultimo tag letto in base al veicolo passato
+   * @param userId user id
+   * @param veId veid veicolo
+   * @returns DTO
    */
-  async getLastTagInTimeRange(
-    period_from: Date,
-    period_to: Date,
-    vehicleId: number,
-  ) {
-    const tags = await this.tagHistoryRepository.findOne({
-      where: {
-        vehicle: {
-          veId: vehicleId,
+  async getLastTagHistoryByVeId(
+    userId: number,
+    veId: number,
+  ): Promise<TagHistoryDTO | null> {
+    const vehicles =
+      await this.associationService.getVehiclesAssociateUserRedis(userId);
+    if (!vehicles || vehicles.length === 0)
+      throw new HttpException(
+        'Nessun veicolo associato per questo utente',
+        HttpStatus.NOT_FOUND,
+      );
+    if (!vehicles.find((v) => v.veId === veId))
+      throw new HttpException(
+        'Non hai il permesso per visualizzare questo veicolo',
+        HttpStatus.FORBIDDEN,
+      );
+    try {
+      const tag = await this.tagHistoryRepository.findOne({
+        where: {
+          vehicle: { veId: veId },
         },
-        timestamp: LessThanOrEqual(period_to) && MoreThanOrEqual(period_from),
-      },
-      relations: {
-        detectiontag: {
-          tag: true,
+        relations: {
+          detectiontag: {
+            tag: true,
+          },
         },
-      },
-      order: {
-        timestamp: 'DESC',
-      },
-    });
-    return tags;
+        order: {
+          timestamp: 'DESC',
+        },
+      });
+      return tag ? this.toDTOTagHistory(tag) : null;
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new HttpException(
+        `Errore durante recupero dell'ultimo tag`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   /**
-   * Ritorna soltanto l'ultimo tag history registrato in base al timestamp e al VeId
-   * @param id VeId
+   * Funzione che ritorna i detection quality in base al veicolo inserito divisi per ora,
+   * creando una media di ora in ora
+   * @param userId id utente
+   * @param veId veid veicolo
    * @returns
    */
-  async getLastTagHistoryByVeId(id: number): Promise<any> {
-    const tags = await this.tagHistoryRepository.findOne({
-      where: {
-        vehicle: { veId: id },
-      },
-      relations: {
-        detectiontag: {
-          tag: true,
+  async getDetectionQualityBiVeId(userId: number, veId: number): Promise<any> {
+    const vehicles =
+      await this.associationService.getVehiclesAssociateUserRedis(userId);
+    if (!vehicles || vehicles.length === 0)
+      throw new HttpException(
+        'Nessun veicolo associato per questo utente',
+        HttpStatus.NOT_FOUND,
+      );
+    if (!vehicles.find((v) => v.veId === veId))
+      throw new HttpException(
+        'Non hai il permesso per visualizzare questo veicolo',
+        HttpStatus.FORBIDDEN,
+      );
+    try {
+      const detections = await this.tagHistoryRepository.find({
+        select: {
+          timestamp: true,
+          detectiontag: {
+            detection_quality: true,
+          },
         },
-      },
-      order: {
-        timestamp: 'DESC',
-      },
-    });
-    return tags;
+        where: {
+          vehicle: {
+            veId: veId,
+          },
+        },
+        relations: {
+          detectiontag: true,
+        },
+        order: {
+          timestamp: 'ASC',
+        },
+      });
+      // Definizione del tipo per il valore dell'accumulatore
+      type GroupedData = {
+        totalQuality: number;
+        count: number;
+      };
+
+      // Raggruppo per ora e calcolo la somma e il conteggio dei detection tag
+      const groupedByHour = detections.reduce<Record<string, GroupedData>>(
+        (acc, item) => {
+          const hourKey =
+            new Date(item.timestamp).toISOString().slice(0, 13) + ':00:00.000Z'; // Arrotonda a inizio ora
+
+          if (!acc[hourKey]) {
+            acc[hourKey] = { totalQuality: 0, count: 0 };
+          }
+
+          const detectionSum = item.detectiontag.reduce(
+            (sum, tag) => sum + tag.detection_quality,
+            0,
+          );
+          acc[hourKey].totalQuality += detectionSum;
+          acc[hourKey].count += item.detectiontag.length;
+
+          return acc;
+        },
+        {},
+      );
+      // Trasformo il risultato in un array con media per ogni ora
+      const result = Object.entries(groupedByHour).map(([hour, data]) => {
+        const avgQuality = parseFloat(
+          (data.totalQuality / data.count).toFixed(1),
+        ); // Arrotonda alla prima cifra decimale
+        return {
+          timestamp: hour, // Timestamp arrotondato a inizio ora
+          detection_quality: avgQuality,
+        };
+      });
+
+      return result;
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new HttpException(
+        `Errore durante recupero dei detection tag`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
-  /**
-   * Funzione che ritorna tutti i detection quality e il timestamp in base al veicolo
-   * @param id veId identificativo del veicolo
-   * @returns
-   */
-  async getDetectionQualityBiVeId(id: number): Promise<any> {
-    const detections = await this.tagHistoryRepository.find({
-      select: {
-        timestamp: true,
-        detectiontag: {
-          detection_quality: true,
-        },
-      },
-      where: {
-        vehicle: {
-          veId: id,
-        },
-      },
-      relations: {
-        detectiontag: true,
-      },
-    });
-    return detections;
+
+  private toDTOTagHistory(taghistory: TagHistoryEntity): any {
+    const tagHistoryDTO = new TagHistoryDTO();
+    tagHistoryDTO.id = taghistory.id;
+    tagHistoryDTO.timestamp = taghistory.timestamp;
+    tagHistoryDTO.latitude = taghistory.latitude;
+    tagHistoryDTO.longitude = taghistory.longitude;
+    tagHistoryDTO.nav_mode = taghistory.nav_mode;
+    tagHistoryDTO.geozone = taghistory.geozone;
+    const detection_tag: DetectionTagDTO[] = [];
+    if (taghistory.detectiontag) {
+      taghistory.detectiontag.forEach((item) => {
+        detection_tag.push(this.toDTODetectionTag(item));
+      });
+    }
+    tagHistoryDTO.detection_tag = detection_tag;
+    return tagHistoryDTO;
+  }
+
+  private toDTODetectionTag(detectiontag: DetectionTagEntity): DetectionTagDTO {
+    const detectionTagDTO = new DetectionTagDTO();
+    detectionTagDTO.id = detectiontag.id;
+    detectionTagDTO.tid = detectiontag.tid;
+    detectionTagDTO.detection_quality = detectiontag.detection_quality;
+    if (detectiontag.tag) {
+      detectionTagDTO.tag = new TagDTO();
+      detectionTagDTO.tag.id = detectiontag.tag.id;
+      detectionTagDTO.tag.epc = detectiontag.tag.epc;
+    }
+    return detectionTagDTO;
   }
 }
