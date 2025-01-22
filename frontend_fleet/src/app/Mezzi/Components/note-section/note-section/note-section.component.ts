@@ -26,7 +26,6 @@ export class NoteSectionComponent implements AfterViewInit, OnDestroy{
   private readonly destroy$: Subject<void> = new Subject<void>();
   @ViewChild('noteInput') noteInput!: ElementRef;
   @Input() vehicle!: Vehicle;
-  @Input() user!: User;
   private snackBar = inject(MatSnackBar);
   createdBtn: boolean = false;
   updatedBtn: boolean = false;
@@ -47,13 +46,15 @@ export class NoteSectionComponent implements AfterViewInit, OnDestroy{
   }
 
   ngAfterViewInit(): void {
-    if(this.vehicle.note){
-      this.updatedBtn = true;
-      this.eliminatedBtn = true;
-    }else{
-      this.createdBtn = true;
-    }
-    this.cd.detectChanges();
+    setTimeout(() => {
+      if(this.vehicle.note){
+        this.updatedBtn = true;
+        this.eliminatedBtn = true;
+      }else{
+        this.createdBtn = true;
+      }
+      this.cd.detectChanges();
+    });
   }
 
   /**
