@@ -1,7 +1,12 @@
+.header{
+  padding-top: 2vw;
+  padding-left: 2vw;
+}
 .content{
   width: 100%;
   height: 100%;
-  padding: 10px;
+  display: flex;
+  padding: 2vw;
 }
 .go-back{
   font-size: 20px;
@@ -13,20 +18,80 @@
 .subtitle{
   line-height: 0;
 }
-mat-card{
+.left-section{
+  display: flex;
+  gap: 1vw;
+  flex: 1;
+}
+.right-section{
+  flex: 1;
+}
+.anomalies{
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1vh;
+  flex: 1;
+}
+.anomalies mat-card{
+  width: 6vw;
+  height: 10vh;
+}
+.anomalies mat-card mat-card-content {
+  color: white;
+  height: 100%;
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end; /* Allinea il contenuto verticalmente in basso */
+  align-items: flex-start; /* Allinea il contenuto orizzontalmente a sinistra */
+}
+.cards{
+  flex: 3;
+}
+.working{
+  width: 100px;
+  height: 100px;
+  background-color: var(--sidebar-color);
+}
+.warning{
+  width: 100px;
+  height: 100px;
+  background-color: var(--yellow);
+}
+.error{
+  width: 100px;
+  height: 100px;
+  background-color: var(--red);
+}
+.working,.warning,.error{
+  display: flex;
+  align-items: flex-end;
+  text-wrap: no-wrap;
+  font-size: 15px;
+}
+.generalInfo-card, .deviceInfo-card, .fleetSetup-card, .graph-card, .notes-card{
   background-color: white !important;
 }
-.general-info{
+.generalInfo-card{
   width: 20vw;
   height: auto;
 }
-.general-info mat-card-header{
+.fleetSetup-card{
+  width: 30vw;
+  height: auto;
+}
+.deviceInfo-card{
+  width: 55vw;
+  height: auto;
+}
+.generalInfo-card mat-card-header{
   width: 100%;
   height: 100%;
   display: flex;
   align-items: center;
 }
-.device-info mat-card-header{
+.deviceInfo-card mat-card-header{
   width: 100%;
   height: 100%;
   display: flex;
@@ -42,9 +107,10 @@ mat-card{
   display: flex;
   align-items: center;
 }
-.device-info{
-  width: auto;
-  height: auto;
+.fleet-lists{
+  width: 100%;
+  display: flex;
+  align-items: center;
 }
 
 mat-list{
@@ -65,4 +131,11 @@ mat-list-item{
 mat-divider {
   border-top-width: 2px;
   border-top-color: var(--background-color);
+}
+.notes-header{
+  display: flex;
+  align-items: center;
+}
+.notes-header mat-icon{
+  color: var(--sidebar-color);
 }

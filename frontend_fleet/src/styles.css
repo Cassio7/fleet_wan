@@ -17,6 +17,8 @@ html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 :root {
   --sidebar-color: #5C9074;
+  --yellow: #C5D026;
+  --red: #d12717;
   --background-color: #F8F7F2;
   --navbar-height: 7vh;
   --navbarANDstats-brackground: #F0EFE5;

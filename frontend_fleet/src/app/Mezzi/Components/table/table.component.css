@@ -59,6 +59,10 @@ td {
   align-items: center;
 }
 
+.notes-header mat-icon{
+  color: var(--sidebar-color);
+}
+
 .notes-header .note-icon{
   color: var(--sidebar-color);
 }
