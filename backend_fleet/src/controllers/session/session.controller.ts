@@ -17,7 +17,6 @@ import { RolesGuard } from 'src/guard/roles.guard';
 import { LogContext } from 'src/log/logger.types';
 import { LoggerService } from 'src/log/service/logger.service';
 import { SessionService } from 'src/services/session/session.service';
-import { VehicleService } from 'src/services/vehicle/vehicle.service';
 import { validateDateRange } from 'src/utils/utils';
 
 @UseGuards(AuthGuard, RolesGuard)
@@ -26,7 +25,6 @@ import { validateDateRange } from 'src/utils/utils';
 export class SessionController {
   constructor(
     private readonly sessionService: SessionService,
-    private readonly vehicleService: VehicleService,
     private readonly loggerService: LoggerService,
   ) {}
 
@@ -145,7 +143,7 @@ export class SessionController {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
-      resource: 'Session',
+      resource: 'Session ranged',
       resourceId: body.veId,
     };
     const veId = Number(body.veId); // Garantisce che veId sia un numero
@@ -166,6 +164,11 @@ export class SessionController {
     // controllo data valida
     const validation = validateDateRange(dateFrom, dateTo);
     if (!validation.isValid) {
+      this.loggerService.logCrudError({
+        error: new Error(validation.message),
+        context,
+        operation: 'list',
+      });
       return res.status(400).json({ message: validation.message });
     }
     const dateFrom_new = new Date(dateFrom);
@@ -184,7 +187,7 @@ export class SessionController {
           'list',
           'Nessuna sessione trovata',
         );
-        return res.status(404).json({ message: 'Nessuna sessione trovata' });
+        return res.status(204).json({ message: 'Nessuna sessione trovata' });
       }
       this.loggerService.logCrudSuccess(
         context,
@@ -249,7 +252,7 @@ export class SessionController {
           'read',
           'Ultima sessione non trovata',
         );
-        return res.status(404).json({ message: 'Ultima sessione non trovata' });
+        return res.status(204).json({ message: 'Ultima sessione non trovata' });
       }
       0;
       this.loggerService.logCrudSuccess(
