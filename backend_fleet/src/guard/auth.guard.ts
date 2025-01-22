@@ -24,7 +24,7 @@ export class AuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const token = extractTokenFromHeader(request);
-    this.loggerService.logClientData(request);
+    //this.loggerService.logClientData(request);
     if (!token) {
       throw new UnauthorizedException('Token non fornito.');
     }
