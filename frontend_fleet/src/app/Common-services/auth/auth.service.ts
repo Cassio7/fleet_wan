@@ -39,7 +39,7 @@ export class AuthService {
     });
 
 
-    return this.http.get<User>(`${this.commonService.url}/user/me`, {headers});
+    return this.http.get<User>(`${this.commonService.url}/users/me`, {headers});
   }
 
 
