@@ -52,15 +52,18 @@ export class DettaglioMezzoComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.route.params.pipe(takeUntil(this.destroy$)).
-    subscribe(params => {
-      this.veId = parseInt(params['id']);
-      this.vehicle = JSON.parse(this.sessionStorageService.getItem("detail"));
-      if(!this.vehicle){
-        this.fetchVehicle();
-      }
-    });
+    this.vehicle = JSON.parse(this.sessionStorageService.getItem("detail"));
     this.user = this.authService.getParsedAccessToken();
+    if(!this.vehicle){
+      this.route.params.pipe(takeUntil(this.destroy$)).
+      subscribe(params => {
+        this.veId = parseInt(params['id']);
+        console.log("veId ripreso: ", this.veId);
+        this.fetchVehicle();
+        console.log("veicolo visualizzato: ", this.vehicle);
+      });
+    }
+    console.log("this.vehicle: ", this.vehicle);
   }
 
   private fetchVehicle(): void {
@@ -69,8 +72,8 @@ export class DettaglioMezzoComponent implements OnInit, OnDestroy {
         next: (vehicle: Vehicle) => {
           this.vehicle = vehicle;
           this.sessionStorageService.setItem("detail", JSON.stringify(this.vehicle));
-          this.fetchVehicleNote();
           this.cd.detectChanges();
+          // this.fetchVehicleNote();
         },
         error: (error) => {
           console.error("Errore nella ricerca del veicolo: ", error);
@@ -79,13 +82,16 @@ export class DettaglioMezzoComponent implements OnInit, OnDestroy {
   }
 
   private fetchVehicleNote(){
+    console.log("chiamata la funzione per accorpare nota!");
     this.notesService.getNoteByVeId(this.vehicle.veId).pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (note: Note) => {
         if(note){
           this.vehicle.note = note;
+          this.sessionStorageService.setItem("detail", JSON.stringify(this.vehicle));
+          console.log("accorpata nota con veicolo: ", this.vehicle);
+          this.cd.detectChanges();
         }
-        this.sessionStorageService.setItem("detail", JSON.stringify(this.vehicle));
       },
       error: error => console.error("Errore nella ricerca della nota del veicolo: ", error)
     });
