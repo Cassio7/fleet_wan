@@ -1,4 +1,4 @@
-import { Vehicle } from './VehicleData';
+import { VehicleData } from './VehicleData';
 
 export class RealtimePosition {
   constructor(
@@ -10,7 +10,7 @@ export class RealtimePosition {
     public nav_mode: number,
     public speed: number,
     public direction: number,
-    public vehicle: Vehicle,
+    public vehicle: VehicleData,
     public hash: string
   ) {}
 }
