@@ -12,7 +12,7 @@ export class GpsGraphService {
 
   private _series = [50,20,60];//[funzionante, warning, error]
 
-  private _colors = ["#5C9074", "#ffcc00", "#d12717"];
+  private _colors = ["#5C9074", "#C5D026", "#d12717"];
 
   private _height = 400;
 

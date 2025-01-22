@@ -10,7 +10,7 @@ export class AntennaGraphService {
 
   private _series = [50,20,60];//[funzionante, warning, error]
 
-  private _colors = ["#5C9074", "#d12717", "#000000"];
+  private _colors = ["#5C9074", "#C5D026", "#000000"];
 
   private _height = 140;
   private _width = 300;
