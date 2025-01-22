@@ -106,11 +106,19 @@ export class NotesService {
       'Content-Type': 'application/json'
     });
 
-    try {
-      return this.http.get<Note[]>(`${this.commonService.url}/notes`, { headers });
-    } catch (error) {
-      throw error;
+    return this.http.get<Note[]>(`${this.commonService.url}/notes`, { headers });
+  }
+
+  getNoteByVeId(veId: number): Observable<Note>{
+    const access_token = this.cookieService.getCookie("user");
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${access_token}`,
+      'Content-Type': 'application/json'
+    });
+    const body = {
+      veId: veId
     }
+    return this.http.post<Note>(`${this.commonService.url}/notes/veId`, body, {headers});
   }
 
   /**
