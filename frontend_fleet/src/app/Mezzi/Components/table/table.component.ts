@@ -1,7 +1,7 @@
 import { AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, HostListener, inject, NgZone, OnDestroy, signal, ViewChild } from '@angular/core';
 import { Vehicle } from '../../../Models/Vehicle';
 import { VehiclesApiService } from '../../../Common-services/vehicles api service/vehicles-api.service';
-import { Subject, takeUntil, filter, forkJoin, take, tap, skip } from 'rxjs';
+import { Subject, takeUntil, filter, forkJoin, take, tap, skip, catchError, EMPTY } from 'rxjs';
 import { Session } from '../../../Models/Session';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { CommonModule } from '@angular/common';
@@ -108,8 +108,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
 
   ngAfterViewInit(): void {
     //recupero utente da access token
-    const user: User = this.authService.getParsedAccessToken();
-    this.user = user;
+    this.user = this.authService.getParsedAccessToken();
     this.cd.detectChanges();
 
     //ascolto dei filtri su tabella
@@ -133,47 +132,64 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
   }
 
   /**
-   * Esegue il riempimento della tabella.
+   * Esegue il riempimento della tabella
    */
   fillTable(): void {
-    this.loadingProgress = 0;
+    this.loadVehicles();
+  }
 
-    const totalOperations = 2;
-    const incrementPerOperation = 100 / totalOperations;
-
+  /**
+   * Ricerca tutti i veicoli
+   * facendo una chiamata API
+   */
+  loadVehicles(): void {
     const vehicles$ = this.vehicleApiService.getAllVehicles().pipe(
       tap(() => {
         this.loadingText = "Caricamento dei veicoli...";
-        this.loadingProgress += incrementPerOperation;
+        this.loadingProgress += 50;
+      }),
+      catchError(error => {
+        console.error("Error fetching vehicles: ", error);
+        return EMPTY;
       }),
       takeUntil(this.destroy$)
     );
 
+    vehicles$.subscribe(vehicles => {
+      this.sessionStorageService.setItem("allVehicles", JSON.stringify(vehicles));
+      this.sortedVehicles = this.sortService.sortVehiclesByPlateAsc(vehicles) as Vehicle[];
+      this.vehicleTableData.data = this.sortedVehicles;
+      this.vehicleTable.renderRows();
+      this.selectService.selectVehicles(this.sortedVehicles);
+      this.loadNotes();
+      this.cd.detectChanges();
+    });
+  }
+
+  /**
+   * Ricerca la nota associata a ciuscun veicolo
+   * facendo una chiamata API
+   */
+  loadNotes(): void {
     const notes$ = this.notesService.getAllNotes().pipe(
       tap(() => {
         this.loadingText = "Caricamento delle note...";
-        this.loadingProgress += incrementPerOperation;
+        this.loadingProgress += 50;
+      }),
+      catchError(error => {
+        console.error("Error fetching notes: ", error);
+        return EMPTY;
       }),
       takeUntil(this.destroy$)
     );
 
-    forkJoin({ vehicles: vehicles$, notes: notes$ }).subscribe({
-      next: ({ vehicles, notes }: { vehicles: Vehicle[], notes: Note[] }) => {
-        this.sessionStorageService.setItem("allVehicles", JSON.stringify(vehicles));
-        this.sortedVehicles = this.sortService.sortVehiclesByPlateAsc(vehicles) as Vehicle[];
+    notes$.subscribe(notes => {
+      if (this.sortedVehicles) {
         this.sortedVehicles = this.notesService.mergeVehiclesWithNotes(this.sortedVehicles, notes);
-
-        this.loadingProgress = 100;
-
-        this.loadingProgress++;
-        this.sessionStorageService.setItem("allVehicles", JSON.stringify(vehicles));
         this.vehicleTableData.data = this.sortedVehicles;
         this.vehicleTable.renderRows();
         this.selectService.selectVehicles(this.sortedVehicles);
         this.cd.detectChanges();
-      },
-      error: (error) => {
-        console.error("Error fetching vehicles or notes: ", error);
       }
     });
   }
@@ -286,8 +302,12 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
     return this.sortService.sortVehiclesByFirstEventAsc(this.firstEventsFilterService.filterFirstEventsDuplicates(this.sortedVehicles));
   }
 
+  /**
+   * Naviga alla pagina di dettaglio del veicolo
+   * @param vehicleId id del veicolo del quale visualizzare il dettaglio
+   */
   showVehicleDetail(vehicleId: number){
-    this.router.navigate(['/dettaglio-mezzo'], { queryParams: { id: vehicleId } });
+    this.router.navigate(['/dettaglio-mezzo', vehicleId]);
   }
 
 
