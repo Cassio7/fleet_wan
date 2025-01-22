@@ -88,7 +88,11 @@ export class AnomalyService {
    * @param veId veid del veicolo
    * @returns
    */
-  async getAllAnomalyByVeId(userId: number, veId: number): Promise<any> {
+  async getAllAnomalyByVeId(
+    userId: number,
+    veId: number,
+    count: number,
+  ): Promise<any> {
     const vehicles =
       await this.associationService.getVehiclesAssociateUserRedis(userId);
     if (!vehicles || vehicles.length === 0)
@@ -102,24 +106,43 @@ export class AnomalyService {
         HttpStatus.FORBIDDEN,
       );
     try {
-      const anomalies = await this.anomalyRepository.find({
-        where: {
-          vehicle: {
-            veId: veId,
+      if (count === 0) {
+        const anomalies = await this.anomalyRepository.find({
+          where: {
+            vehicle: {
+              veId: veId,
+            },
           },
-        },
-        relations: {
-          vehicle: {
-            worksite: true,
+          relations: {
+            vehicle: {
+              worksite: true,
+            },
           },
-        },
-        order: {
-          date: 'DESC',
-        },
-        take: 15,
-        skip: 0,
-      });
-      return this.toDTO(anomalies);
+          order: {
+            date: 'DESC',
+          },
+        });
+        return this.toDTO(anomalies);
+      } else {
+        const anomalies = await this.anomalyRepository.find({
+          where: {
+            vehicle: {
+              veId: veId,
+            },
+          },
+          relations: {
+            vehicle: {
+              worksite: true,
+            },
+          },
+          order: {
+            date: 'DESC',
+          },
+          take: count,
+          skip: 0,
+        });
+        return this.toDTO(anomalies);
+      }
     } catch (error) {
       console.error(error);
       throw new HttpException(
