@@ -107,7 +107,6 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     });
 
     this.fillTable();
-    this.getLastRealtime();
   }
 
   private handleAllFilters(){
@@ -261,33 +260,41 @@ export class TableComponent implements OnDestroy, AfterViewInit{
         console.error("Error processing vehicles:", error);
       }
     }).catch(error => console.error("Errore nel caricamento iniziale dei dati: ", error));
+    this.getLastRealtime();
   }
 
+  /**
+   * chiamata dal servizio
+   */
   private getLastRealtime() {
     this.realtimeApiService.getLastRealtime().pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: (realtimeDataObj: RealtimeData[]) => {
-        console.log("realtimeDataObj: ", realtimeDataObj);
-        const tableVehicles: VehicleData[] = this.vehicleTableData.data;
-        tableVehicles.forEach(vehicleData => {
-          const matchedRealtimeData = realtimeDataObj.find(realtimeData => {
-            if(realtimeData){
-              return parseInt(realtimeData.vehicle.veId) === vehicleData.vehicle.veId;
-            }else{
-              return false;
-            }
-          });
-          if (matchedRealtimeData) {
-            vehicleData.realtime = matchedRealtimeData.realtime;
-          }
-        });
-        console.log("tableVehicles after realtime accorpation: ", tableVehicles);
-        this.vehicleTableData.data = tableVehicles;
-        this.vehicleTable.renderRows();
-      },
-      error: error => console.error("Errore nel caricamento dei dati realtime: ", error)
-    });
+      .subscribe({
+        next: (realtimeDataObj: RealtimeData[]) => {
+          const tableVehicles: VehicleData[] = this.mergeRealtimeData(this.vehicleTableData.data, realtimeDataObj);
+          this.vehicleTableData.data = tableVehicles;
+          this.sessionStorageService.setItem("allData", JSON.stringify(tableVehicles));  // Salva l'array di veicoli
+          this.vehicleTable.renderRows();
+        },
+        error: error => console.error("Errore nel caricamento dei dati realtime: ", error)
+      });
   }
+
+  private mergeRealtimeData(tableVehicles: VehicleData[], realtimeData: RealtimeData[]): VehicleData[] {
+    tableVehicles.forEach(vehicleData => {
+      const matchedRealtimeData = realtimeData.find(realtimeData => {
+        if(realtimeData){
+          return parseInt(realtimeData.vehicle.veId) === vehicleData.vehicle.veId;
+        }else{
+          return false;
+        }
+      });
+      if (matchedRealtimeData) {
+        vehicleData.realtime = matchedRealtimeData.realtime;
+      }
+    });
+    return tableVehicles;
+  }
+
 
   /**
    * Riempie la tabella con i dati delle ultime sessioni dei veicoli

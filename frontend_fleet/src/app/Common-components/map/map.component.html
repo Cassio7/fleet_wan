@@ -1,6 +1,8 @@
 <div class="map-container">
-  <div class="map-frame">
-    <p *ngIf="!initialized">Mappa non disponibile</p>
-    <div id="map"></div>
+  <div class="error">
+    <mat-error *ngIf="!initialized">Mappa non disponibile</mat-error>
+  </div>
+  <div class="map-frame" *ngIf="initialized">
+    <div id="map" *ngIf="initialized"></div>
   </div>
 </div>

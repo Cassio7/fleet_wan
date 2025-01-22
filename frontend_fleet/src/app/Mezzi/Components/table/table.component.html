@@ -2,7 +2,7 @@
 <div class="table-over">
   <p class="nVeicoli">Numero di veicoli: {{vehicleTableData.data.length == 0 ?  '-' : vehicleTableData.data.length}}</p>
 </div>
-<div class="loading-progress" *ngIf="loadingProgress < 101">
+<div class="loading-progress" *ngIf="loadingProgress < 100">
   <p class="loading-p">{{loadingText}}</p>
   <mat-progress-bar mode="determinate" [value]="loadingProgress" class="loading-bar"></mat-progress-bar>
 </div>

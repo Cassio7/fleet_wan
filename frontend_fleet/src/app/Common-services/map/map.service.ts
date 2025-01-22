@@ -12,9 +12,9 @@ export class MapService {
   constructor() { }
 
   /**
-   * Inizializza
-   * @param lat
-   * @param long
+   * Inizializza una mappa
+   * @param lat latitudine
+   * @param long longitudine
    */
   initMap(map: L.Map, lat: number, long: number): L.Map {
     map = L.map('map', {
@@ -32,6 +32,10 @@ export class MapService {
     return map;
   }
 
+  /**
+   * rimuove una mappa, se esiste
+   * @param map mappa da rimuovere
+   */
   removeMap(map: L.Map){
     if(map){
       map.remove();
