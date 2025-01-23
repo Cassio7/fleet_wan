@@ -40,7 +40,7 @@
 .left-section {
   height: calc(100vh - var(--navbar-height));
   width: 17vw;
-  background-color: var(--navbarANDstats-brackground);
+  background-color: var(--navbarANDstats-background);
   padding: 2vw;
   padding-left: 50px;
   display: flex;

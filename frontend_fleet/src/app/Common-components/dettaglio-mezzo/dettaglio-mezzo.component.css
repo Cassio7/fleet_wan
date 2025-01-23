@@ -1,12 +1,28 @@
+.all-page{
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+.actual-content{
+  display: flex;
+  flex-direction: column;
+}
+.placeholder{
+  flex: 1;
+}
 .header{
-  padding-top: 2vw;
+  height: 100%;
+  padding-top: .5vh;
   padding-left: 2vw;
+  padding-bottom: 1vh;
+  margin: 0;
+  background-color: var(--navbarANDstats-background);
+  flex: 3;
 }
 .content{
   width: 100%;
   height: 100%;
   display: flex;
-  padding: 2vw;
 }
 .go-back{
   font-size: 20px;
@@ -22,8 +38,10 @@
   display: flex;
   gap: 1vw;
   flex: 1;
+  background-color: var(--navbarANDstats-background);
 }
 .right-section{
+  background-color: var(--background-color);
   flex: 1;
 }
 .anomalies{
@@ -31,6 +49,7 @@
   display: flex;
   flex-direction: column;
   gap: 1vh;
+  padding-left: 2vw;
   flex: 1;
 }
 .anomalies mat-card{
@@ -53,6 +72,10 @@
   align-items: flex-start; /* Allinea il contenuto orizzontalmente a sinistra */
 }
 .cards{
+  display: flex;
+  flex-direction: column;
+  gap: 2vh;
+  margin-right: 2vw;
   flex: 3;
 }
 .working{
@@ -80,15 +103,15 @@
   background-color: white !important;
 }
 .generalInfo-card{
-  width: 20vw;
+  width: 100%;
   height: auto;
 }
 .fleetSetup-card{
-  width: 30vw;
+  width: 100%;
   height: auto;
 }
 .deviceInfo-card{
-  width: 55vw;
+  width: 100%;
   height: auto;
 }
 .generalInfo-card mat-card-header{
