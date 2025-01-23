@@ -1,25 +1,21 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCard, MatCardModule } from '@angular/material/card';
+import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
-import { VehicleData } from '../../../Models/VehicleData';
 import { VehiclesApiService } from '../../../Common-services/vehicles api service/vehicles-api.service';
 import { Subject, takeUntil } from 'rxjs';
 import { Vehicle } from '../../../Models/Vehicle';
 import { CommonModule } from '@angular/common';
-import { NotesService } from '../../../Mezzi/Services/notes/notes.service';
+import { NotesService } from '../../../Common-services/notes/notes.service';
 import { Note } from '../../../Models/Note';
 import { User } from '../../../Models/User';
 import { AuthService } from '../../../Common-services/auth/auth.service';
 import { DetectionGraphComponent } from "../../../Mezzi/Components/detection-graph/detection-graph.component";
 import { NoteSectionComponent } from "../../note-section/note-section.component";
-import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
-import { VehicleAnomalies } from '../../../Models/VehicleAnomalies';
-import { ErrorGraphsService } from '../../../Dashboard/Services/error-graphs/error-graphs.service';
 import { SessionHystoriesComponent } from "../session-hystories/session-hystories.component";
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AnomaliesComponent } from "../anomalies/anomalies.component";
@@ -61,7 +57,6 @@ export class DettaglioMezzoComponent implements OnInit, OnDestroy {
     private router: Router,
     private route: ActivatedRoute,
     private vehiclesApiService: VehiclesApiService,
-    private errorGraphsService: ErrorGraphsService,
     private notesService: NotesService,
     private authService: AuthService,
     private sessionStorageService: SessionStorageService,
@@ -102,6 +97,7 @@ export class DettaglioMezzoComponent implements OnInit, OnDestroy {
         if(note){
           this.vehicle.note = note;
           this.sessionStorageService.setItem("detail", JSON.stringify(this.vehicle));
+          this.notesService.refreshNoteOptions$.next();
           this.cd.detectChanges();
         }
       },

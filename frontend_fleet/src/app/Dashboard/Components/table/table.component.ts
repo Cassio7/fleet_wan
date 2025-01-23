@@ -118,7 +118,6 @@ export class TableComponent implements OnDestroy, AfterViewInit{
         this.vehicleTableData.data = filteredVehicles;
         this.vehicleTable.renderRows();
         this.antennaGraphService.loadChartData$.next(filteredVehicles);
-        this.gpsGraphService.loadChartData$.next(filteredVehicles);
         this.errorGraphService.loadGraphData$.next(filteredVehicles);
       }
     });

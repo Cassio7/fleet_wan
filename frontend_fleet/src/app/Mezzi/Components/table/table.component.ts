@@ -16,7 +16,7 @@ import { FormsModule } from '@angular/forms';
 import { SelectService } from '../../Services/select/select.service';
 import { SortService } from '../../../Common-services/sort/sort.service';
 import { CookieService } from 'ngx-cookie-service';
-import { NotesService } from '../../Services/notes/notes.service';
+import { NotesService } from '../../../Common-services/notes/notes.service';
 import { Note } from '../../../Models/Note';
 import { MatTableModule, MatTable, MatTableDataSource } from '@angular/material/table';
 import { NoteSnackbarComponent } from '../note-snackbar/note-snackbar.component';
@@ -186,6 +186,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
     notes$.subscribe(notes => {
       if (this.sortedVehicles) {
         this.sortedVehicles = this.notesService.mergeVehiclesWithNotes(this.sortedVehicles, notes);
+        this.sessionStorageService.setItem("allVehicles", JSON.stringify(this.sortedVehicles));
         this.vehicleTableData.data = this.sortedVehicles;
         this.vehicleTable.renderRows();
         this.selectService.selectVehicles(this.sortedVehicles);

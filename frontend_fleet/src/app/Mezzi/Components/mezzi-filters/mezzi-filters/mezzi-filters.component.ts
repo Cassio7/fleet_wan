@@ -11,7 +11,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { SessionStorageService } from '../../../../Common-services/sessionStorage/session-storage.service';
 import { VehicleData } from '../../../../Models/VehicleData';
 import { PlateFilterService } from '../../../../Common-services/plate-filter/plate-filter.service';
-import { NotesService } from '../../../Services/notes/notes.service';
+import { NotesService } from '../../../../Common-services/notes/notes.service';
 import { Note } from '../../../../Models/Note';
 import { skip, Subject, takeUntil } from 'rxjs';
 import { Vehicle } from '../../../../Models/Vehicle';
