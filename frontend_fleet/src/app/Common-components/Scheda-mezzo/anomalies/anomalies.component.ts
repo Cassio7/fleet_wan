@@ -7,6 +7,7 @@ import { ErrorGraphsService } from '../../../Dashboard/Services/error-graphs/err
 import { Vehicle } from '../../../Models/Vehicle';
 import { Subject, takeUntil } from 'rxjs';
 import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-anomalies',
@@ -14,7 +15,9 @@ import { CheckErrorsService } from '../../../Common-services/check-errors/check-
   imports: [
     CommonModule,
     MatIconModule,
-    MatCardModule],
+    MatCardModule,
+    MatTooltipModule
+  ],
   templateUrl: './anomalies.component.html',
   styleUrl: './anomalies.component.css'
 })
@@ -24,6 +27,10 @@ export class AnomaliesComponent implements OnInit, AfterViewInit{
   gpsStatus!: string;
   antennaStatus!: string;
   sessionStatus!: string;
+
+  gpsAnomaly!: string | null;
+  antennaAnomaly!: string | null;
+  sessionAnomaly!: string | null;
 
   workingColor!: string;
   warningColor!: string;
@@ -55,11 +62,16 @@ export class AnomaliesComponent implements OnInit, AfterViewInit{
         console.log("vehicleAnomalies: ", vehicleAnomalies);
         if(vehicleAnomalies){
           const todayAnomalies = vehicleAnomalies.anomalies[0];
+          this.gpsAnomaly = todayAnomalies.gps || "Funzionante" ;
+          this.antennaAnomaly = todayAnomalies.antenna || "Funzionante";
+          this.sessionAnomaly =todayAnomalies.session || "Funzionante";
+
           this.gpsStatus = this.checkErrorsService.checkGPSAnomalyType(todayAnomalies.gps);
           if(this.vehicle.allestimento){
             this.antennaStatus = todayAnomalies.antenna ? "Errore" : "Funzionante";
           }else{
             this.antennaStatus = "Blackbox";
+            this.antennaAnomaly = "No antenna";
           }
           this.sessionStatus = todayAnomalies.session ? "Errore" : "Funzionante";
         }
