@@ -32,7 +32,7 @@ export class DetectionGraphService {
     const body = {
       veId: veId
     };
-    return this.http.post<DetectionQuality[]>(`http://10.1.0.102:3002/v0/tag/detection`, body, {headers});
+    return this.http.post<DetectionQuality[]>(`http://10.1.0.102:3002/v0/tags/detection`, body, {headers});
   }
 
   public get colors(): string[] {

@@ -1,122 +1,124 @@
-<div *ngIf="vehicle && user">
-  <div class="header">
-    <h2 class="go-back"><button mat-button (click)="goBack()"><mat-icon>arrow_back</mat-icon></button>Torna al parco mezzi</h2>
-    <p class="subtitle">In questa sezione sono presenti le informazioni dettagliate del mezzo</p>
-  </div>
-  <div class="content">
-    <div class="left-section">
-      <div class="anomalies">
-        <mat-card class="working">
-          <mat-card-header><mat-icon >location_on</mat-icon></mat-card-header>
-          <mat-card-content>
-            <p>Funzionante</p>
-          </mat-card-content>
-        </mat-card>
-        <mat-card class="warning">
-          <mat-card-header><mat-icon >location_on</mat-icon></mat-card-header>
-          <mat-card-content>
-            <p>Warning</p>
-          </mat-card-content>
-        </mat-card>
-        <mat-card class="error">
-          <mat-card-header><mat-icon >location_on</mat-icon></mat-card-header>
-          <mat-card-content>
-            <p>Errore</p>
-          </mat-card-content>
-        </mat-card>
-      </div>
-      <div class="cards">
-        <mat-card class="generalInfo-card">
-          <mat-card-header>
-            <mat-card-title><mat-icon>local_shipping</mat-icon>Camion differenziata</mat-card-title>
-            <mat-card-subtitle>ID: {{vehicle.veId}} — Dismesso: no</mat-card-subtitle>
-          </mat-card-header>
-          <mat-divider></mat-divider>
-          <mat-card-content class="general-lists">
-            <mat-list>
-              <mat-list-item><span class="list-label">Targa</span><p>{{vehicle.plate}}</p></mat-list-item>
-              <mat-divider></mat-divider>
-              <mat-list-item><span class="list-label">Modello</span><p>{{vehicle.model}}</p></mat-list-item>
-            </mat-list>
-            <mat-list>
-              <mat-list-item><span class="list-label">Cantiere</span><p>{{vehicle.worksite?.name}}</p></mat-list-item>
-              <mat-divider></mat-divider>
-              <mat-list-item><span class="list-label">Comune</span><p>{{vehicle.group.name}}</p></mat-list-item>
-            </mat-list>
-            <mat-list>
-              <mat-list-item><span class="list-label">Azienda</span><p>{{vehicle.relevant_company ? vehicle.relevant_company : "No azienda"}}</p></mat-list-item>
-              <mat-divider></mat-divider>
-              <mat-list-item><span class="list-label">Società</span><p>{{vehicle.company.name}}</p></mat-list-item>
-            </mat-list>
-          </mat-card-content>
-        </mat-card>
-        <mat-card class="fleetSetup-card">
-          <mat-card-content class="fleet-lists">
-            <mat-list>
-              <mat-list-item><span class="list-label">Allestimento</span><p>{{vehicle.allestimento ? "Blackbox + Antenna" : "Blackbox"}}</p></mat-list-item>
-            </mat-list>
-            <mat-list>
-              <mat-list-item><span class="list-label">Immatricolazione</span><p>{{vehicle.relevant_company ? vehicle.relevant_company : "No azienda"}}</p></mat-list-item>
-            </mat-list>
-            <mat-list>
-              <mat-list-item><span class="list-label">Data installazione fleet</span><p>{{vehicle.firstEvent | date: 'dd/MM/yyyy'}}</p></mat-list-item>
-            </mat-list>
-          </mat-card-content>
-        </mat-card>
-        <mat-card class="deviceInfo-card">
-          <mat-card-header>
-            <mat-card-title><mat-icon>display_settings</mat-icon>Informazioni sul dispositivo</mat-card-title>
-          </mat-card-header>
-          <mat-divider></mat-divider>
-          <mat-card-content class="device-lists">
-            <mat-list>
-              <mat-list-item><span class="list-label">Numero di serie</span><p>{{vehicle.plate}}</p></mat-list-item>
-              <mat-divider></mat-divider>
-              <mat-list-item><span class="list-label">Data costruzione</span><p>{{vehicle.model}}</p></mat-list-item>
-            </mat-list>
-            <mat-divider></mat-divider>
-            <mat-list>
-              <mat-list-item><span class="list-label">Aggiornamenti firmware</span><p>{{vehicle.device.fw_upgrade_disable}}</p></mat-list-item>
-              <mat-divider></mat-divider>
-              <mat-list-item><span class="list-label">Ultimo aggiornamento firmware</span><p>{{vehicle.device.fw_update}}</p></mat-list-item>
-            </mat-list>
-            <mat-divider></mat-divider>
-            <mat-list>
-              <mat-list-item><span class="list-label">Numero di aggiornamenti firmware</span><p>{{vehicle.device.fw_upgrade_received}}</p></mat-list-item>
-              <mat-divider></mat-divider>
-              <mat-list-item><span class="list-label">Errore batteria RTC</span><p>{{vehicle.device.rtc_battery_fail}}</p></mat-list-item>
-            </mat-list>
-            <mat-list>
-              <mat-list-item><span class="list-label">Numero di errori di accensione</span><p>{{vehicle.device.power_fail_detected}}</p></mat-list-item>
-              <mat-divider></mat-divider>
-              <mat-list-item><span class="list-label">Errore di accensioni/spegnimento</span><p>{{vehicle.device.power_on_off_detected}}</p></mat-list-item>
-            </mat-list>
-          </mat-card-content>
-        </mat-card>
-        <mat-card class="notes-card">
-          <mat-card-header>
-            <div class="notes-header">
-              <mat-icon class="note-icon">
-                edit_square
-              </mat-icon>
-              <span style="margin-left: 8px;">Nota di <strong>{{user.username}}</strong></span>
-            </div>
-          </mat-card-header>
-          <mat-card-content>
-            <app-note-section [vehicle]="vehicle"></app-note-section>
-          </mat-card-content>
-        </mat-card>
-        <mat-card class="graph-card">
-          <mat-card-content>
-            <app-detection-graph [vehicle]="vehicle" *ngIf="vehicle.allestimento"></app-detection-graph>
-            <div class="disabled-graph" *ngIf="!vehicle.allestimento">
-              <p>Il grafico per la qualità delle letture non disponibile, perché il veicolo non è dotato di antenna RFID</p>
-            </div>
-          </mat-card-content>
-        </mat-card>
-      </div>
+<div *ngIf="vehicle && user" class="all-page">
+  <div class="actual-content">
+    <div class="header">
+      <h2 class="go-back"><button mat-button (click)="goBack()"><mat-icon>arrow_back</mat-icon></button>Torna al parco mezzi</h2>
+      <p class="subtitle">In questa sezione sono presenti le informazioni dettagliate del mezzo</p>
     </div>
-    <div class="right-section"></div>
+    <div class="content">
+      <div class="left-section">
+        <div class="anomalies">
+          <mat-card class="working">
+            <mat-card-header><mat-icon >location_on</mat-icon></mat-card-header>
+            <mat-card-content>
+              <p>Funzionante</p>
+            </mat-card-content>
+          </mat-card>
+          <mat-card class="warning">
+            <mat-card-header><mat-icon >location_on</mat-icon></mat-card-header>
+            <mat-card-content>
+              <p>Warning</p>
+            </mat-card-content>
+          </mat-card>
+          <mat-card class="error">
+            <mat-card-header><mat-icon >location_on</mat-icon></mat-card-header>
+            <mat-card-content>
+              <p>Errore</p>
+            </mat-card-content>
+          </mat-card>
+        </div>
+        <div class="cards">
+          <mat-card class="generalInfo-card">
+            <mat-card-header>
+              <mat-card-title><mat-icon>local_shipping</mat-icon>Camion differenziata</mat-card-title>
+              <mat-card-subtitle>ID: {{vehicle.veId}} — Dismesso: no</mat-card-subtitle>
+            </mat-card-header>
+            <mat-divider></mat-divider>
+            <mat-card-content class="general-lists">
+              <mat-list>
+                <mat-list-item><span class="list-label">Targa</span><p>{{vehicle.plate}}</p></mat-list-item>
+                <mat-divider></mat-divider>
+                <mat-list-item><span class="list-label">Modello</span><p>{{vehicle.model}}</p></mat-list-item>
+              </mat-list>
+              <mat-list>
+                <mat-list-item><span class="list-label">Cantiere</span><p>{{vehicle.worksite?.name}}</p></mat-list-item>
+                <mat-divider></mat-divider>
+                <mat-list-item><span class="list-label">Comune</span><p>{{vehicle.group.name}}</p></mat-list-item>
+              </mat-list>
+              <mat-list>
+                <mat-list-item><span class="list-label">Azienda</span><p>{{vehicle.relevant_company ? vehicle.relevant_company : "No azienda"}}</p></mat-list-item>
+                <mat-divider></mat-divider>
+                <mat-list-item><span class="list-label">Società</span><p>{{vehicle.company.name}}</p></mat-list-item>
+              </mat-list>
+            </mat-card-content>
+          </mat-card>
+          <mat-card class="fleetSetup-card">
+            <mat-card-content class="fleet-lists">
+              <mat-list>
+                <mat-list-item><span class="list-label">Allestimento</span><p>{{vehicle.allestimento ? "Blackbox + Antenna" : "Blackbox"}}</p></mat-list-item>
+              </mat-list>
+              <mat-list>
+                <mat-list-item><span class="list-label">Immatricolazione</span><p>{{vehicle.relevant_company ? vehicle.relevant_company : "No azienda"}}</p></mat-list-item>
+              </mat-list>
+              <mat-list>
+                <mat-list-item><span class="list-label">Data installazione fleet</span><p>{{vehicle.firstEvent | date: 'dd/MM/yyyy'}}</p></mat-list-item>
+              </mat-list>
+            </mat-card-content>
+          </mat-card>
+          <mat-card class="deviceInfo-card">
+            <mat-card-header>
+              <mat-card-title><mat-icon>display_settings</mat-icon>Informazioni sul dispositivo</mat-card-title>
+            </mat-card-header>
+            <mat-divider></mat-divider>
+            <mat-card-content class="device-lists">
+              <mat-list>
+                <mat-list-item><span class="list-label">Numero di serie</span><p>{{vehicle.plate}}</p></mat-list-item>
+                <mat-divider></mat-divider>
+                <mat-list-item><span class="list-label">Data costruzione</span><p>{{vehicle.model}}</p></mat-list-item>
+              </mat-list>
+              <mat-divider></mat-divider>
+              <mat-list>
+                <mat-list-item><span class="list-label">Aggiornamenti firmware</span><p>{{vehicle.device.fw_upgrade_disable}}</p></mat-list-item>
+                <mat-divider></mat-divider>
+                <mat-list-item><span class="list-label">Ultimo aggiornamento firmware</span><p>{{vehicle.device.fw_update}}</p></mat-list-item>
+              </mat-list>
+              <mat-divider></mat-divider>
+              <mat-list>
+                <mat-list-item><span class="list-label">Numero di aggiornamenti firmware</span><p>{{vehicle.device.fw_upgrade_received}}</p></mat-list-item>
+                <mat-divider></mat-divider>
+                <mat-list-item><span class="list-label">Errore batteria RTC</span><p>{{vehicle.device.rtc_battery_fail}}</p></mat-list-item>
+              </mat-list>
+              <mat-list>
+                <mat-list-item><span class="list-label">Numero di errori di accensione</span><p>{{vehicle.device.power_fail_detected}}</p></mat-list-item>
+                <mat-divider></mat-divider>
+                <mat-list-item><span class="list-label">Errore di accensioni/spegnimento</span><p>{{vehicle.device.power_on_off_detected}}</p></mat-list-item>
+              </mat-list>
+            </mat-card-content>
+          </mat-card>
+          <mat-card class="notes-card">
+            <mat-card-header>
+              <div class="notes-header">
+                <mat-icon class="note-icon">
+                  edit_square
+                </mat-icon>
+                <span style="margin-left: 8px;">Nota di <strong>{{user.username}}</strong></span>
+              </div>
+            </mat-card-header>
+            <mat-card-content>
+              <app-note-section [vehicle]="vehicle"></app-note-section>
+            </mat-card-content>
+          </mat-card>
+          <mat-card class="graph-card">
+            <mat-card-content>
+              <app-detection-graph [vehicle]="vehicle" *ngIf="vehicle.allestimento"></app-detection-graph>
+              <div class="disabled-graph" *ngIf="!vehicle.allestimento">
+                <p>Il grafico per la qualità delle letture non disponibile, perché il veicolo non è dotato di antenna RFID</p>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+      <div class="right-section"></div>
+    </div>
+    <div class="placeholder"></div>
   </div>
-
 </div>
