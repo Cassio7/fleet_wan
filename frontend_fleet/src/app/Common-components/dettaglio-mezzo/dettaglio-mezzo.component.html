@@ -6,25 +6,42 @@
     </div>
     <div class="content">
       <div class="left-section">
-        <div class="anomalies">
-          <mat-card class="working">
-            <mat-card-header><mat-icon >location_on</mat-icon></mat-card-header>
-            <mat-card-content>
-              <p>Funzionante</p>
-            </mat-card-content>
-          </mat-card>
-          <mat-card class="warning">
-            <mat-card-header><mat-icon >location_on</mat-icon></mat-card-header>
-            <mat-card-content>
-              <p>Warning</p>
-            </mat-card-content>
-          </mat-card>
-          <mat-card class="error">
-            <mat-card-header><mat-icon >location_on</mat-icon></mat-card-header>
-            <mat-card-content>
-              <p>Errore</p>
-            </mat-card-content>
-          </mat-card>
+        <div class="anomalies-container">
+          <p class="anomalies-title"><strong>Anomalie</strong></p>
+          <div class="anomalies" *ngIf="vehicleAnomalies">
+            <mat-card class="working" #GPSCard
+            [ngStyle]="{'background-color': checkGPSAnomalyColor()}"
+            >
+              <mat-card-header><mat-icon >location_on</mat-icon></mat-card-header>
+              <mat-card-content>
+                <p *ngIf="gpsStatus == 'Funzionante'">Funzionante</p>
+                <p *ngIf="gpsStatus == 'Warning'">Warning</p>
+                <p *ngIf="gpsStatus == 'Errore'">Errore</p>
+              </mat-card-content>
+            </mat-card>
+            <mat-card class="warning" #antennaCard
+            [ngStyle]="{'background-color': antennaStatus == 'Blackbox' ? 'black' : antennaStatus=='Funzionante' ? workingColor : errorColor }"
+            >
+              <mat-card-header><mat-icon >wifi_on</mat-icon></mat-card-header>
+              <mat-card-content>
+                <p *ngIf="antennaStatus == 'Funzionante'">Funzionante</p>
+                <p *ngIf="antennaStatus == 'Errore'">Errore</p>
+                <p *ngIf="antennaStatus == 'Blackbox'">No antenna</p>
+              </mat-card-content>
+            </mat-card>
+            <mat-card class="error" #sessionCard
+            [ngStyle]="{'background-color' : sessionStatus == 'Funzionante' ? workingColor : errorColor}"
+            >
+              <mat-card-header><mat-icon matSuffix>settings_backup_restore</mat-icon></mat-card-header>
+              <mat-card-content>
+                <p *ngIf="sessionStatus == 'Funzionante'">Funzionante</p>
+                <p *ngIf="sessionStatus == 'Errore'">Errore</p>
+              </mat-card-content>
+            </mat-card>
+          </div>
+          <div class="no-anomalies" *ngIf="!vehicleAnomalies">
+            NO DATA
+          </div>
         </div>
         <div class="cards">
           <mat-card class="generalInfo-card">
@@ -97,10 +114,8 @@
           <mat-card class="notes-card">
             <mat-card-header>
               <div class="notes-header">
-                <mat-icon class="note-icon">
-                  edit_square
-                </mat-icon>
-                <span style="margin-left: 8px;">Nota di <strong>{{user.username}}</strong></span>
+                <p class="note-author"><mat-icon class="note-icon">edit_square</mat-icon>Nota di <strong>{{ user.username }}</strong></p>
+                <p class="note-date">{{ vehicle.note?.updatedAt | date: 'dd/MM/yyyy' }}</p>
               </div>
             </mat-card-header>
             <mat-card-content>

@@ -6,6 +6,7 @@ import { Vehicle } from '../../Models/Vehicle';
 import { CookiesService } from '../cookies service/cookies.service';
 import { VehicleData} from '../../Models/VehicleData';
 import { Anomaly } from '../../Models/Anomaly';
+import { VehicleAnomalies } from '../../Models/VehicleAnomalies';
 
 @Injectable({
   providedIn: 'root'
@@ -214,6 +215,18 @@ export class CheckErrorsService {
     return `${year}-${month}-${day}`;
   }
 
+  checkGPSAnomalyType(anomaly: string | null): string{
+    if(anomaly){
+      if(anomaly.includes("TOTALE") || anomaly.includes("Totale") || anomaly.includes("totale")){
+        return "Errore";
+      }else{
+        return "Warning";
+      }
+    }else{
+      return "Funzionante";
+    }
+  }
+
   /**
    * Controlla gli errori di tutti i veicoli con sessioni in un determinato arco di tempo
    * @param dateFrom data di inizio ricerca
@@ -240,6 +253,28 @@ export class CheckErrorsService {
       throw error;
     }
   }
+
+  /**
+   * Permette di eseguire una chiamata al database che ritorna le anomalie di GPS, antenna e sessione di un veicolo
+   * @param veId veId del veicolo di cui ricercare le anomalie
+   * @param count numero di giornate, a partire da oggi, di cui prendere le anomalie
+   * @returns oggetto VehicleAnomalies con numero di elementi nell'array anomalies quanto il valore di "count"
+   */
+  public checkAnomaliesByVeId(veId: number, count: number): Observable<VehicleAnomalies>{
+    const access_token = this.cookieService.getCookie("user");
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${access_token}`,
+      'Content-Type': 'application/json'
+    });
+
+    const body = {
+      veId: veId,
+      count: count
+    };
+
+    return this.http.post<VehicleAnomalies>(`${this.commonService.url}/anomaly/veId`, body, {headers});
+  }
+
 
 
 
