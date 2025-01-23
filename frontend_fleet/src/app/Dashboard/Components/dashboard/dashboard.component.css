@@ -105,6 +105,7 @@
   height: 100vh;
   display: flex;
   flex-direction: column;
+  background-color: var(--background-color);
   padding: 20px;
 }
 
