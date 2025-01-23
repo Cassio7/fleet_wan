@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, Input } from '@angular/core';
-import { ApexAxisChartSeries, ApexChart, ApexXAxis, ApexDataLabels, ApexGrid, ApexStroke, ApexTitleSubtitle } from 'ng-apexcharts';
+import { ApexAxisChartSeries, ApexChart, ApexXAxis, ApexDataLabels, ApexGrid, ApexStroke, ApexTitleSubtitle, ApexYAxis } from 'ng-apexcharts';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { DetectionGraphService } from '../../Services/detection-graph/detection-graph.service';
 import { Vehicle } from '../../../Models/Vehicle';
@@ -10,6 +10,7 @@ export type ChartOptions = {
   series: ApexAxisChartSeries;
   chart: ApexChart;
   xaxis: ApexXAxis;
+  yaxis: ApexYAxis;
   dataLabels: ApexDataLabels;
   grid: ApexGrid;
   colors: string[];
@@ -36,7 +37,7 @@ export class DetectionGraphComponent implements AfterViewInit{
       series: [
       ],
       chart: {
-        height: 350,
+        height: 320,
         type: "line",
         zoom: {
           enabled: false,
@@ -56,13 +57,19 @@ export class DetectionGraphComponent implements AfterViewInit{
       grid: {
         row: {
           colors: ["#f3f3f3", "transparent"],
-          opacity: 0.5,
+          opacity: 0.2,
         },
+      },
+      yaxis: {
+        title: {
+          text: 'Qualità lettura'
+        },
+        min: 0, // Aggiunta dei due punti (:) dopo 'min'
+        max: 60
       },
       xaxis: {
         type: "datetime",
         categories: [
-          // Dates should be formatted or handled appropriately if used in categories
         ],
       },
     };
@@ -71,16 +78,28 @@ export class DetectionGraphComponent implements AfterViewInit{
     this.detectionGraphService.getDetectionQualityByVeId(this.vehicle.veId).pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (detectionQualities: DetectionQuality[]) => {
-        if(detectionQualities){
           console.log("detectionQualities fetched: ", detectionQualities);
+        if(detectionQualities){
           const data: any = [];
+          let minY = Infinity;
+          let maxY = -Infinity;
+
           detectionQualities.forEach(detection => {
             if(detection){
-              const newDataEl = { x: new Date(detection.timestamp).getTime(), y: detection.detection_quality };
+              const yValue = detection.detection_quality * -1;
+              minY = Math.min(minY, yValue);
+              maxY = Math.max(maxY, yValue);
+
+              const newDataEl = { x: new Date(detection.timestamp).getTime(), y: yValue };
               data.push(newDataEl);
             }
           });
+
           this.chartOptions.series?.push({name: "detection", data});
+
+          this.chartOptions.yaxis = {
+            ...this.chartOptions.yaxis,
+          };
         }
       },
       error: error => console.error("Errore nella ricerca delle qualità di lettura: ", error)
