@@ -22,7 +22,6 @@ import { VehicleService } from 'src/services/vehicle/vehicle.service';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Controller('vehicles')
-@Roles(Role.Admin, Role.Responsabile, Role.Capo)
 export class VehicleController {
   constructor(
     private readonly vehicleService: VehicleService,
@@ -30,11 +29,12 @@ export class VehicleController {
   ) {}
 
   /**
-   * Ritorna tutti i veicoli in base all utente token utente che fa la richiesta
+   * Ritorna tutti i veicoli associati in base all utente token utente che fa la richiesta
    * @param req User token
    * @param res
    * @returns
    */
+  @Roles(Role.Admin, Role.Responsabile, Role.Capo)
   @Get()
   async getAllVehicles(
     @Req() req: Request & { user: UserFromToken },
@@ -55,9 +55,53 @@ export class VehicleController {
           'list',
           'Nessun veicolo trovato',
         );
-        return res.status(404).json({
-          message: 'Nessun veicolo trovato',
-        });
+        return res.status(204).json();
+      }
+      this.loggerService.logCrudSuccess(
+        context,
+        'list',
+        `Recuperati ${vehicles.length} Veicoli`,
+      );
+      return res.status(200).json(vehicles);
+    } catch (error) {
+      this.loggerService.logCrudError({
+        error,
+        context,
+        operation: 'list',
+      });
+
+      return res.status(error.status || 500).json({
+        message: error.message || 'Errore recupero veicolo',
+      });
+    }
+  }
+
+  /**
+   * API per il recupero di tutti i veicoli presenti nel db
+   * @param req user data
+   * @param res
+   * @returns
+   */
+  @Roles(Role.Admin)
+  @Get('admin')
+  async getAllVehiclesAdmin(
+    @Req() req: Request & { user: UserFromToken },
+    @Res() res: Response,
+  ) {
+    const context: LogContext = {
+      userId: req.user.id,
+      username: req.user.username,
+      resource: 'Vehicle All Admin',
+    };
+    try {
+      const vehicles = await this.vehicleService.getAllVehiclesAdmin();
+      if (!vehicles?.length) {
+        this.loggerService.logCrudSuccess(
+          context,
+          'list',
+          'Nessun veicolo trovato',
+        );
+        return res.status(204).json();
       }
       this.loggerService.logCrudSuccess(
         context,
@@ -82,6 +126,7 @@ export class VehicleController {
    * @param res
    * @param body
    */
+  @Roles(Role.Admin, Role.Responsabile, Role.Capo)
   @Post()
   async getVehicleByPlate(
     @Req() req: Request & { user: UserFromToken },
@@ -137,6 +182,7 @@ export class VehicleController {
    * @param params VeId identificativo veicoli
    * @returns
    */
+  @Roles(Role.Admin, Role.Responsabile, Role.Capo)
   @Get(':veId')
   @UsePipes(ParseIntPipe)
   async getVehicleByVeId(

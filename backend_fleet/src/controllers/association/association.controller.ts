@@ -55,9 +55,7 @@ export class AssociationController {
           'list',
           'Nessuna associazione trovata',
         );
-        return res
-          .status(404)
-          .json({ message: 'Nessuna associazione trovata' });
+        return res.status(204).json();
       }
 
       this.loggerService.logCrudSuccess(

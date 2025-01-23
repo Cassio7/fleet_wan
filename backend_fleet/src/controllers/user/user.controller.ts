@@ -58,9 +58,7 @@ export class UserController {
           'list',
           'Nessun utente trovato',
         );
-        return res.status(404).json({
-          message: 'Nessun utente trovato',
-        });
+        return res.status(204).json();
       }
 
       this.loggerService.logCrudSuccess(

@@ -1,7 +1,9 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import axios from 'axios';
+import { CompanyDTO } from 'classes/dtos/company.dto';
 import { DeviceDTO } from 'classes/dtos/device.dto';
+import { GroupDTO } from 'classes/dtos/group.dto';
 import { VehicleDTO } from 'classes/dtos/vehicle.dto';
 import { DeviceEntity } from 'classes/entities/device.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
@@ -11,8 +13,6 @@ import { DataSource, In, Repository } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
 import { AssociationService } from '../association/association.service';
 import { WorksiteDTO } from './../../../classes/dtos/worksite.dto';
-import { CompanyDTO } from 'classes/dtos/company.dto';
-import { GroupDTO } from 'classes/dtos/group.dto';
 
 @Injectable()
 export class VehicleService {
@@ -409,6 +409,24 @@ export class VehicleService {
     });
     return vehicles;
   }
+
+  async getAllVehiclesAdmin(): Promise<VehicleDTO[] | null> {
+    const vehicles = await this.vehicleRepository.find({
+      relations: {
+        worksite: {
+          worksite_group: {
+            group: {
+              company: true,
+            },
+          },
+        },
+      },
+      order: {
+        plate: 'ASC',
+      },
+    });
+    return vehicles ? vehicles.map((vehicle) => this.toDTO(vehicle)) : null;
+  }
   /**
    * Recupera una lista di veicoli in base all utente loggato
    * @param userId id dell utente
@@ -610,25 +628,28 @@ export class VehicleService {
       worksiteDTO.id = vehicle.worksite.id;
       worksiteDTO.name = vehicle.worksite.name;
     }
-
     let groupDTO: GroupDTO | null = null;
-    if (vehicle.worksite.worksite_group) {
-      for (const item of vehicle.worksite.worksite_group) {
-        if (item.group.name && !item.group.name.includes('COMUNI')) {
-          groupDTO = new GroupDTO();
-          groupDTO.vgId = item.group.vgId;
-          groupDTO.name = item.group.name;
-          break;
+    let companyDTO: CompanyDTO | null = null;
+
+    if (vehicle.worksite) {
+      if (vehicle.worksite.worksite_group) {
+        for (const item of vehicle.worksite.worksite_group) {
+          if (item.group.name && !item.group.name.includes('COMUNI')) {
+            groupDTO = new GroupDTO();
+            groupDTO.vgId = item.group.vgId;
+            groupDTO.name = item.group.name;
+            break;
+          }
         }
+      }
+
+      if (vehicle.worksite.worksite_group[0].group.company) {
+        companyDTO = new CompanyDTO();
+        companyDTO.suId = vehicle.worksite.worksite_group[0].group.company.suId;
+        companyDTO.name = vehicle.worksite.worksite_group[0].group.company.name;
       }
     }
 
-    let companyDTO: CompanyDTO | null = null;
-    if (vehicle.worksite.worksite_group[0].group.company) {
-      companyDTO = new CompanyDTO();
-      companyDTO.suId = vehicle.worksite.worksite_group[0].group.company.suId;
-      companyDTO.name = vehicle.worksite.worksite_group[0].group.company.name;
-    }
     // Restituisci l'oggetto combinato
     return {
       ...vehicleDTO,

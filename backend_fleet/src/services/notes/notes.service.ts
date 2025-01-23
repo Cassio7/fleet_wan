@@ -92,6 +92,50 @@ export class NotesService {
   }
 
   /**
+   * Recupera la nota associata all'utente e al veicolo passato, se esiste
+   * @param userId id utente
+   * @param veId veid del veicolo
+   * @returns DTO nota oppure null
+   */
+  async getNoteByVeId(userId: number, veId: number): Promise<NoteDto | null> {
+    const vehicles =
+      await this.associationService.getVehiclesAssociateUserRedis(userId);
+    if (!vehicles || vehicles.length === 0)
+      throw new HttpException(
+        'Nessun veicolo associato per questo utente',
+        HttpStatus.NOT_FOUND,
+      );
+    if (!vehicles.find((v) => v.veId === veId))
+      throw new HttpException(
+        'Non hai il permesso per visualizzare questo veicolo',
+        HttpStatus.FORBIDDEN,
+      );
+    try {
+      const note = await this.noteRepository.findOne({
+        relations: {
+          vehicle: true,
+          user: true,
+        },
+        where: {
+          vehicle: {
+            veId: veId,
+          },
+          user: {
+            id: userId,
+          },
+        },
+      });
+      return note ? this.toDTO(note) : null;
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new HttpException(
+        `Errore durante recupero delle note`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  /**
    * Permette di creare una nuova nota, associata ad un utente ed un veicolo
    * @param userId id utente
    * @param veId veId identificativo veicolo

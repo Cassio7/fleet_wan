@@ -56,9 +56,7 @@ export class AnomalyController {
           'list',
           'Nessuna anomalia trovata',
         );
-        return res.status(404).json({
-          message: 'Nessuna anomalia trovata',
-        });
+        return res.status(204).json();
       }
 
       this.loggerService.logCrudSuccess(
@@ -215,17 +213,18 @@ export class AnomalyController {
   }
 
   /**
-   * API per il recupero delle prime 15 anomalie in base al veId passato
+   * API per il recupero delle anomalie associate al veicolo passato e in base al numero del count, se 0 recupero tutte le anomalie salvate,
+   * se viene inserito un numero recupero la quantità indicata, partendo dalla piu recente
    * @param req user token data
    * @param res
-   * @param body veid del veicolo
+   * @param body veid del veicolo, count per identificare il numero di anomalie da recuperare
    * @returns
    */
   @Post('veId')
   async getAllAnomalyVeId(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
-    @Body() body: { veId: number; last: boolean },
+    @Body() body: { veId: number; count: number },
   ) {
     const context: LogContext = {
       userId: req.user.id,
@@ -233,38 +232,51 @@ export class AnomalyController {
       resource: 'Anomaly',
       resourceId: body.veId,
     };
-    if (!body.veId) {
+    const veId = Number(body.veId); // Garantisce che veId sia un numero
+
+    if (isNaN(veId)) {
       this.loggerService.logCrudError({
+        error: new Error('Il veId deve essere un numero valido'),
         context,
         operation: 'list',
-        error: new Error('Inserisci un numero'),
       });
-      return res.status(400).json({ message: 'Inserisci un numero' });
+      return res.status(400).json({
+        message: 'Il veId deve essere un numero valido',
+      });
     }
-    const last: boolean = body.last || false;
+    const count: number = body.count || 0;
+
+    if (isNaN(count)) {
+      this.loggerService.logCrudError({
+        error: new Error('Il count deve essere un numero valido'),
+        context,
+        operation: 'list',
+      });
+      return res.status(400).json({
+        message: 'Il count deve essere un numero valido',
+      });
+    }
+
     try {
-      if (!last) {
-        const anomalies = await this.anomalyService.getAllAnomalyByVeId(
-          req.user.id,
-          body.veId,
-        );
-        if (!anomalies?.length) {
-          this.loggerService.logCrudSuccess(
-            context,
-            'list',
-            'Nessuna anomalia trovata',
-          );
-          return res.status(404).json({ message: 'Nessuna anomalia trovata' });
-        }
+      const anomalies = await this.anomalyService.getAllAnomalyByVeId(
+        req.user.id,
+        veId,
+        count,
+      );
+      if (!anomalies?.length) {
         this.loggerService.logCrudSuccess(
           context,
           'list',
-          `Recuperate ${anomalies[0].anomalies.length} anomalie`,
+          'Nessuna anomalia trovata',
         );
-        return res.status(200).json(anomalies);
-      } else if (last) {
-        return res.status(200).json(true);
+        return res.status(204).json();
       }
+      this.loggerService.logCrudSuccess(
+        context,
+        'list',
+        `Recuperate ${anomalies[0].anomalies.length} anomalie`,
+      );
+      return res.status(200).json(anomalies[0]);
     } catch (error) {
       this.loggerService.logCrudError({
         context,
@@ -308,7 +320,7 @@ export class AnomalyController {
           'list',
           'Nessuna anomalia trovata',
         );
-        return res.status(404).json({ message: 'Nessuna anomalia trovata' });
+        return res.status(204).json();
       }
 
       this.loggerService.logCrudSuccess(
@@ -344,7 +356,7 @@ export class AnomalyController {
     if (data) {
       res.status(200).json(data);
     } else {
-      res.status(404).json({ message: 'No data' });
+      return res.status(204).json();
     }
   }
 
@@ -379,7 +391,7 @@ export class AnomalyController {
           'update',
           'Nessuna dato da salvare',
         );
-        return res.status(404).json({ message: 'Nessuna dato da salvare' });
+        return res.status(204).json();
       }
 
       const anomalyPromises = data.flatMap(async (item) => {
