@@ -3,7 +3,7 @@ import { LoginComponent } from './Common-components/login/login.component';
 import { SignUpComponent } from './Common-components/sign-up/sign-up.component';
 import { DashboardComponent } from './Dashboard/Components/dashboard/dashboard.component';
 import { HomeMezziComponent } from './Mezzi/Components/home-mezzi/home-mezzi.component';
-import { DettaglioMezzoComponent } from './Common-components/dettaglio-mezzo/dettaglio-mezzo.component';
+import { DettaglioMezzoComponent } from './Common-components/Scheda-mezzo/dettaglio-mezzo/dettaglio-mezzo.component';
 
 export const routes: Routes = [
     {path: 'login', component: LoginComponent},

@@ -44,41 +44,7 @@
   background-color: var(--background-color);
   flex: 1;
 }
-.anomalies-container{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.anomalies-title{
-  font-size: 20px;
-}
-.anomalies{
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 1vh;
-  padding-left: 2vw;
-  flex: 1;
-}
-.anomalies mat-card{
-  width: 6vw;
-  height: 10vh;
-}
-.anomalies mat-card mat-card-header{
-  width: 80%;
-  display: flex;
-  align-items: flex-start;
-  color: white;
-}
-.anomalies mat-card mat-card-content {
-  color: white;
-  height: 100%;
-  width: 80%;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end; /* Allinea il contenuto verticalmente in basso */
-  align-items: flex-start; /* Allinea il contenuto orizzontalmente a sinistra */
-}
+
 .cards{
   display: flex;
   flex-direction: column;
