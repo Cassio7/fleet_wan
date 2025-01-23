@@ -1,15 +1,17 @@
 <div class="content">
   <textarea #noteInput [value]="vehicle.note ? vehicle.note.content : ''" (keyup)="isNoteModified(noteInput.value, vehicle)" name="notes" class="note-input" matInput></textarea>
-  <div class="buttons" *ngIf="vehicle.note">
+  <div class="updateBtns-container" *ngIf="vehicle.note">
     <button (click)="deleteNote(vehicle)" *ngIf="eliminatedBtn && !createdBtn" mat-button class="delete-btn">Elimina</button>
     <button (click)="updateNote(vehicle, noteInput.value)" *ngIf="updatedBtn && !createdBtn" mat-raised-button class="update-btn">
       Aggiorna
       <span *ngIf="modified">*</span>
     </button>
   </div>
-  <button *ngIf="createdBtn && !eliminatedBtn && !updatedBtn" (click)="createNote(vehicle, noteInput.value)" mat-raised-button class="create-btn">
-    Crea
-    <span *ngIf="modified">*</span>
-  </button>
+  <div class="createBtn-container">
+    <button *ngIf="createdBtn && !eliminatedBtn && !updatedBtn" (click)="createNote(vehicle, noteInput.value)" mat-raised-button class="create-btn">
+      Crea
+      <span *ngIf="modified">*</span>
+    </button>
+  </div>
   <p *ngIf="error" class="error">{{error}}</p>
 </div>

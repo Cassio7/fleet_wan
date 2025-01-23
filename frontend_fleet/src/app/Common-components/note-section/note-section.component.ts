@@ -3,9 +3,9 @@ import { Component, AfterViewInit, OnDestroy, ViewChild, ElementRef, Input, inje
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
 import { MatSnackBarModule, MatSnackBar } from "@angular/material/snack-bar";
-import { Subject, takeUntil } from "rxjs";
+import { skip, Subject, takeUntil } from "rxjs";
 import { NoteSnackbarComponent } from "../../Mezzi/Components/note-snackbar/note-snackbar.component";
-import { NotesService } from "../../Mezzi/Services/notes/notes.service";
+import { NotesService } from "../../Common-services/notes/notes.service";
 import { Note } from "../../Models/Note";
 import { Vehicle } from "../../Models/Vehicle";
 import { User } from "../../Models/User";
@@ -47,14 +47,34 @@ export class NoteSectionComponent implements AfterViewInit, OnDestroy{
 
   ngAfterViewInit(): void {
     setTimeout(() => {
-      if(this.vehicle.note){
-        this.updatedBtn = true;
-        this.eliminatedBtn = true;
-      }else{
-        this.createdBtn = true;
-      }
-      this.cd.detectChanges();
+      this.refreshOptions();
+
     });
+    setTimeout(() => {
+      this.refreshOptions();
+      this.notesService.refreshNoteOptions$.pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.refreshOptions();
+        },
+        error: error => console.error("Errore nell'aggiornamento delle opzioni della nota: ", error)
+      });
+    });
+  }
+
+  refreshOptions(){
+    if(this.vehicle.note){
+      console.log("ce sta la note");
+      this.updatedBtn = true;
+      this.eliminatedBtn = true;
+      this.createdBtn = false;
+      console.log
+    }else{
+      this.updatedBtn = false;
+      this.eliminatedBtn = false;
+      this.createdBtn = true;
+    }
+    this.cd.detectChanges();
   }
 
   /**
@@ -96,19 +116,23 @@ export class NoteSectionComponent implements AfterViewInit, OnDestroy{
    */
   updateNote(vehicle: Vehicle, content: string){
     if(content){
-      this.notesService.updateNote(vehicle, content).pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: () => {
-          this.openNoteSnackbar("Nota aggiornata ✔");
-          this.updatedBtn = true;
-          this.eliminatedBtn= true;
-          this.createdBtn = false;
-          this.modified = false;
+      if(content && vehicle.note?.content != content){
+        this.notesService.updateNote(vehicle, content).pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            this.openNoteSnackbar("Nota aggiornata ✔");
+            this.updatedBtn = true;
+            this.eliminatedBtn= true;
+            this.createdBtn = false;
+            this.modified = false;
 
-          this.cd.detectChanges()
-        },
-        error: error => console.error("Errore nell'aggiornamento della nota: ", error)
-      });
+            this.cd.detectChanges()
+          },
+          error: error => console.error("Errore nell'aggiornamento della nota: ", error)
+        });
+      }else{
+        this.openNoteSnackbar("Contenuto della nota invariato ⚠");
+      }
     }else{
       this.deleteNote(vehicle);
     }
@@ -123,7 +147,7 @@ export class NoteSectionComponent implements AfterViewInit, OnDestroy{
     this.notesService.deleteNote(vehicle).pipe(takeUntil(this.destroy$))
     .subscribe({
       next: () => {
-        this.openNoteSnackbar("Nota eliminata X");
+        this.openNoteSnackbar("Nota eliminata ❌");
         this.noteInput.nativeElement.value = "";
         this.createdBtn = true;
         this.updatedBtn = false;
