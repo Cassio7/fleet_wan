@@ -29,9 +29,9 @@ import { FirstEventsFilterService } from '../../../Common-services/firstEvents-f
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { CookiesService } from '../../../Common-services/cookies service/cookies.service';
 import { User } from '../../../Models/User';
-import { NoteSectionComponent } from "../note-section/note-section/note-section.component";
 import { MezziFiltersService } from '../../Services/mezzi-filters/mezzi-filters.service';
 import { Router } from '@angular/router';
+import { NoteSectionComponent } from "../../../Common-components/note-section/note-section.component";
 
 @Component({
   selector: 'app-table',
