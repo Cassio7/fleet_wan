@@ -20,6 +20,7 @@ import { NoteSectionComponent } from "../note-section/note-section.component";
 import { CheckErrorsService } from '../../Common-services/check-errors/check-errors.service';
 import { VehicleAnomalies } from '../../Models/VehicleAnomalies';
 import { ErrorGraphsService } from '../../Dashboard/Services/error-graphs/error-graphs.service';
+import { SessionHystoriesComponent } from "../session-hystories/session-hystories.component";
 
 
 @Component({
@@ -34,6 +35,7 @@ import { ErrorGraphsService } from '../../Dashboard/Services/error-graphs/error-
     MatButtonModule,
     DetectionGraphComponent,
     NoteSectionComponent,
+    SessionHystoriesComponent
 ],
   templateUrl: './dettaglio-mezzo.component.html',
   styleUrl: './dettaglio-mezzo.component.css'
