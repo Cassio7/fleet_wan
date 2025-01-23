@@ -1,17 +1,18 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Note } from '../../../Models/Note';
-import { CommonService } from '../../../Common-services/common service/common.service';
-import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
-import { BehaviorSubject, firstValueFrom, Observable, throwError } from 'rxjs';
-import { VehicleData } from '../../../Models/VehicleData';
-import { Vehicle } from '../../../Models/Vehicle';
-import { CookiesService } from '../../../Common-services/cookies service/cookies.service';
+import { Note } from '../../Models/Note';
+import { CommonService } from '../common service/common.service';
+import { SessionStorageService } from '../sessionStorage/session-storage.service';
+import { BehaviorSubject, firstValueFrom, Observable, Subject, throwError } from 'rxjs';
+import { VehicleData } from '../../Models/VehicleData';
+import { Vehicle } from '../../Models/Vehicle';
+import { CookiesService } from '../cookies service/cookies.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class NotesService {
+  private readonly _refreshNoteOptions$: Subject<void> = new Subject<void>();
 
   constructor(
     private cookieService: CookiesService,
@@ -160,5 +161,9 @@ export class NotesService {
     }else{
       return true;
     }
+  }
+
+  public get refreshNoteOptions$(): Subject<void> {
+    return this._refreshNoteOptions$;
   }
 }
