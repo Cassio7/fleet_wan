@@ -463,4 +463,101 @@ export class AnomalyController {
       });
     }
   }
+
+  /**
+   * API che restituisce le anomalie in base al veid passato e al range temporale
+   * @param req user data
+   * @param res
+   * @param body veId del veicolo, date per la ricerca
+   * @returns
+   */
+  @Post('veId/ranged')
+  async getAnomalyVeIdRanged(
+    @Req() req: Request & { user: UserFromToken },
+    @Res() res: Response,
+    @Body() body: { veId: number; dateFrom: string; dateTo: string },
+  ) {
+    const context: LogContext = {
+      userId: req.user.id,
+      username: req.user.username,
+      resource: 'Anomaly',
+      resourceId: body.veId,
+    };
+    const veId = Number(body.veId); // Garantisce che veId sia un numero
+
+    if (isNaN(veId)) {
+      this.loggerService.logCrudError({
+        error: new Error('Il veId deve essere un numero valido'),
+        context,
+        operation: 'list',
+      });
+      return res.status(400).json({
+        message: 'Il veId deve essere un numero valido',
+      });
+    }
+    if (!body.dateFrom) {
+      this.loggerService.logCrudError({
+        context,
+        operation: 'list',
+        error: new Error('Inserisci una data di inizio'),
+      });
+      return res.status(400).json({ message: 'Inserisci una data di inizio' });
+    }
+    const dateFrom = new Date(body.dateFrom);
+
+    if (!body.dateTo) {
+      this.loggerService.logCrudError({
+        context,
+        operation: 'list',
+        error: new Error('Inserisci una data di fine'),
+      });
+      return res.status(400).json({ message: 'Inserisci una data di fine' });
+    }
+
+    const dateTo = new Date(body.dateTo);
+    if (dateTo < dateFrom) {
+      this.loggerService.logCrudError({
+        context,
+        operation: 'list',
+        error: new Error(
+          'La data di fine deve essere successiva alla data di inizio',
+        ),
+      });
+      return res.status(400).json({
+        message: 'La data di fine deve essere successiva alla data di inizio',
+      });
+    }
+    try {
+      const anomalies = await this.anomalyService.getAnomalyVeIdByDateRange(
+        req.user.id,
+        veId,
+        dateFrom,
+        dateTo,
+      );
+      if (!anomalies?.length) {
+        this.loggerService.logCrudSuccess(
+          context,
+          'list',
+          'Nessuna anomalia trovata',
+        );
+        return res.status(204).json();
+      }
+      this.loggerService.logCrudSuccess(
+        context,
+        'list',
+        `Recuperate ${anomalies[0].anomalies.length} anomalie`,
+      );
+      return res.status(200).json(anomalies[0]);
+    } catch (error) {
+      this.loggerService.logCrudError({
+        context,
+        operation: 'list',
+        error,
+      });
+
+      return res.status(error.status || 500).json({
+        message: error.message || 'Errore durante il recupero delle anomalie',
+      });
+    }
+  }
 }
