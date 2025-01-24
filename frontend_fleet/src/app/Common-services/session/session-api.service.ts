@@ -1,16 +1,19 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { catchError, Observable, Subject} from 'rxjs';
-import { Session } from '../../../Models/Session';
-import { CommonService } from '../../../Common-services/common service/common.service';
-import { VehicleData } from '../../../Models/VehicleData';
-import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
-import { CookiesService } from '../../../Common-services/cookies service/cookies.service';
+import { BehaviorSubject, catchError, Observable, Subject} from 'rxjs';
+import { Session } from '../../Models/Session';
+import { CommonService } from '../common service/common.service';
+import { VehicleData } from '../../Models/VehicleData';
+import { SessionStorageService } from '../sessionStorage/session-storage.service';
+import { CookiesService } from '../cookies service/cookies.service';
+import { VehicleAnomalies } from '../../Models/VehicleAnomalies';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SessionApiService {
+  private readonly _loadAnomalySessionDays$: BehaviorSubject<Date[]> = new BehaviorSubject<Date[]>([]);
+
   constructor(
     private http: HttpClient,
     private cookieService: CookiesService,
@@ -18,13 +21,17 @@ export class SessionApiService {
   ) { }
 
   /**
-   * Prende i dati di tutte le sessioni dall'api gestita nel backend
+   * Permette di prendere i dati di tutte le sessioni dall'api gestita nel backend
    * @returns observable get http
    */
   public getAllSessions(): Observable<Session[]>{
     return this.http.get<Session[]>(`${this.commonService.url}/sessions`);
   }
 
+  /**
+   * Permette di prendere le anomalie dell'ultimo andamento di ogni veicolo
+   * @returns observable get http
+   */
   public getAllLastSessionAnomalies(): Observable<any>{
     const access_token = this.cookieService.getCookie("user");
     const headers = new HttpHeaders({
@@ -33,6 +40,38 @@ export class SessionApiService {
     });
 
     return this.http.get(`${this.commonService.url}/anomaly/last`, {headers});
+  }
+
+  /**
+   * Permette di prendere i dati delle anomalie nelle giornate in base ad un range
+   * @param veId veId del veicolo
+   * @param dateFrom data di inizio
+   * @param dateTo data di fine
+   * @returns observable<VehicleAnomalies> http post
+   */
+  public getAnomaliesRangedByVeid(veId: number, dateFrom: Date, dateTo: Date): Observable<VehicleAnomalies>{
+    const access_token = this.cookieService.getCookie("user");
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${access_token}`,
+      'Content-Type': 'application/json'
+    });
+
+    const body = {
+      veId: veId,
+      dateFrom: this.formatDate(dateFrom),
+      dateTo: this.formatDate(dateTo)
+    }
+
+    console.log("request body: ", body);
+
+    return this.http.post<VehicleAnomalies>(`${this.commonService.url}/anomaly/veId/ranged`, body, {headers});
+  }
+
+  private formatDate(date: Date): string {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   /**
@@ -94,4 +133,7 @@ export class SessionApiService {
     return this.http.get<any[]>(`${this.commonService.url}/session/lastvalidnohistory/all`);
   }
 
+  public get loadAnomalySessionDays$(): BehaviorSubject<Date[]> {
+    return this._loadAnomalySessionDays$;
+  }
 }
