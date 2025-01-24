@@ -13,7 +13,6 @@ import {
   In,
   LessThanOrEqual,
   MoreThanOrEqual,
-  Not,
   Repository,
 } from 'typeorm';
 import { parseStringPromise } from 'xml2js';

@@ -1,11 +1,4 @@
-import {
-  Body,
-  Controller,
-  Post,
-  Req,
-  Res,
-  UseGuards
-} from '@nestjs/common';
+import { Body, Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { Role } from 'classes/enum/role.enum';
 import { UserFromToken } from 'classes/interfaces/userToken.interface';
 import { Response } from 'express';

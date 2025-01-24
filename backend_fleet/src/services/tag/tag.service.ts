@@ -15,7 +15,7 @@ import {
   In,
   LessThanOrEqual,
   MoreThanOrEqual,
-  Repository
+  Repository,
 } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
 import { AssociationService } from '../association/association.service';
