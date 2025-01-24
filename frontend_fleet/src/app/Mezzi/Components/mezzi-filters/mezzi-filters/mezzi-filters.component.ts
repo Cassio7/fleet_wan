@@ -65,27 +65,19 @@ export class MezziFiltersComponent implements AfterViewInit, OnDestroy{
       this.cantieri.setValue(this.cantieriFilterService.updateListaCantieri(allVehicles));
     }
     this.loadFiltersObj();
-
-    this.mezziFilterService.filterTable$.pipe(takeUntil(this.destroy$), skip(1))
-    .subscribe({
-      next: (vehicles: Vehicle[]) => {
-        this.cantieri.setValue(this.cantieriFilterService.updateSelectedCantieri(vehicles));
-      },
-      error: error => console.error("Errore nell'aggiornamento delle opzioni del filtro per cantieri: ", error)
-    });
   }
 
   selectCantiere(option: string){
+    console.log("lista caniteri: ", this.cantieriFilterService.listaCantieri);
     const allVehicles: Vehicle[] = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
     if(option == "Seleziona tutto"){
       const cantieriToggle = this.cantieriFilterService.toggleSelectAllCantieri();
       console.log("cantieriToggle: ", cantieriToggle);
       this.cantieri.setValue(cantieriToggle);
-      this.loadFiltersObj();
+      this.cd.detectChanges();
       this.mezziFilterService.filterTable$.next(cantieriToggle.length > 0 ? allVehicles : []);
     }else{
       const filteredVehicles: Vehicle[] = this.mezziFilterService.filterVehicles(allVehicles);
-
       this.mezziFilterService.filterTable$.next(filteredVehicles);
     }
   }
@@ -95,6 +87,9 @@ export class MezziFiltersComponent implements AfterViewInit, OnDestroy{
     console.log("this.mezziFilterService.mezziFilters.plate : ", this.plate);
 
     const allVehicles: Vehicle[] = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+
+    const plateFilteredVehicles: Vehicle[] = this.plateFilterService.filterVehiclesByPlateResearch(this.plate, allVehicles) as Vehicle[];
+    this.cantieri.setValue(this.cantieriFilterService.updateSelectedCantieri(plateFilteredVehicles));
 
     const filteredVehicles: Vehicle[] = this.mezziFilterService.filterVehicles(allVehicles);
 
