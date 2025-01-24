@@ -19,7 +19,7 @@ import { SessionService } from 'src/services/session/session.service';
 import { validateDateRange } from 'src/utils/utils';
 
 @UseGuards(AuthGuard, RolesGuard)
-@Controller('session')
+@Controller('sessions')
 @Roles(Role.Admin, Role.Responsabile, Role.Capo)
 export class SessionController {
   constructor(
@@ -33,7 +33,7 @@ export class SessionController {
    * @param req user data
    * @returns
    */
-  @Post()
+  @Post('veId')
   async getAllSessionByVeId(
     @Res() res: Response,
     @Body() body: { veId: number },
@@ -98,7 +98,7 @@ export class SessionController {
    * @param req user data
    * @returns
    */
-  @Post('ranged')
+  @Post('veId/ranged')
   async getAllSessionByVeIdRanged(
     @Res() res: Response,
     @Body() body: { veId: number; dateFrom: string; dateTo: string },
@@ -181,7 +181,7 @@ export class SessionController {
    * @param body VeId veicolo
    * @returns
    */
-  @Post('lastvalid')
+  @Post('veId/lastvalid')
   async getLastSession(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
@@ -291,7 +291,7 @@ export class SessionController {
    * @param body veId del veicolo
    * @returns
    */
-  @Post('active')
+  @Post('veId/active')
   async getActiveSessionByVeId(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
