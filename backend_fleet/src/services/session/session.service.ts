@@ -13,7 +13,6 @@ import {
   In,
   LessThanOrEqual,
   MoreThanOrEqual,
-  Not,
   Repository,
 } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
@@ -466,30 +465,10 @@ export class SessionService {
   }
 
   /**
-   * Ritorna le sessioni, se esiste, in un range di tempo specificato
-   * @param from_time data di inizio ricerca
-   * @param to_time data di fine ricerca
-   * @returns
-   */
-  async getSessionInTimeRange(from_time: Date, to_time: Date) {
-    const session = await this.sessionRepository.find({
-      where: {
-        period_from: LessThanOrEqual(to_time),
-        period_to: MoreThanOrEqual(from_time),
-      },
-      relations: {
-        history: {
-          vehicle: true,
-        },
-      },
-    });
-    return session;
-  }
-
-  /**
-   *
-   * @param id VeId identificativo Veicolo
-   * @returns
+   * Recupera tutte le sessioni in base al veid passato
+   * @param userId user id
+   * @param veId veid del veicolo
+   * @returns sessione DTO
    */
   async getAllSessionByVeId(
     userId: number,
@@ -623,33 +602,6 @@ export class SessionService {
       );
     }
   }
-  /**
-   * Restituisce l'ultima sessione in base al veId del veicolo e al range temporale inserito
-   * @param id VeId identificativo Veicolo
-   * @param dateFrom Data inizio ricerca sessione
-   * @param dateTo Data fine ricerca sessione
-   * @returns
-   */
-  async getLastSessionByVeIdRanged(
-    id: number,
-    dateFrom: Date,
-    dateTo: Date,
-  ): Promise<any> {
-    const session = await this.sessionRepository.findOne({
-      where: {
-        history: { vehicle: { veId: id } },
-        period_from: MoreThanOrEqual(dateFrom),
-        period_to: LessThanOrEqual(dateTo),
-      },
-      relations: {
-        history: true,
-      },
-      order: {
-        sequence_id: 'DESC',
-      },
-    });
-    return session;
-  }
 
   /**
    * Ritorna l'ultima sessione registrata di un veicolo in base al VeId
@@ -680,7 +632,7 @@ export class SessionService {
           sequence_id: 'DESC',
         },
       });
-      return this.toDTOSession(session);
+      return session ? this.toDTOSession(session) : null;
     } catch (error) {
       if (error instanceof HttpException) throw error;
       throw new HttpException(
@@ -707,11 +659,8 @@ export class SessionService {
     WHERE v."veId" IN (${vehicleIds.map((_, index) => `$${index + 1}`).join(',')})
     ORDER BY v."veId", s.sequence_id DESC;
   `;
-
     const sessions = await this.sessionRepository.query(query, vehicleIds);
-
     const sessionMap = new Map<number, any>();
-    vehicleIds.forEach((id) => sessionMap.set(id, null));
 
     sessions.forEach((session) => {
       const vehicleId = session.veId;
@@ -724,31 +673,91 @@ export class SessionService {
   }
 
   /**
-   * Ritorna l'ultima sessione di un veicolo registrata in base all'id
-   * che ha percorso più di 0 metri di distanza
-   * la session è durata almeno 2 minuti (quindi valida)
-   * @param id VeId identificativo Veicolo
-   * @returns
+   * Ritorna tutte le sessioni attive, quelle con sequence_id = 0 in base all utente connesso
+   * @param userId user id
+   * @returns ritorno veId e active a true
    */
-  async getLastValidSession(id: number) {
-    const session = await this.sessionRepository.findOne({
-      where: {
-        history: {
-          vehicle: {
-            veId: id,
-          },
-        },
-        distance: Not(0), //controllo distanza maggiore di 0
-      },
-      relations: {
-        history: true,
-      },
-      order: {
-        sequence_id: 'DESC',
-      },
-    });
+  async getAllActiveSession(
+    userId: number,
+  ): Promise<{ veid: number; active: boolean }[] | null> {
+    const vehicles =
+      await this.associationService.getVehiclesAssociateUserRedis(userId);
+    if (!vehicles || vehicles.length === 0)
+      throw new HttpException(
+        'Nessun veicolo associato per questo utente',
+        HttpStatus.NOT_FOUND,
+      );
+    try {
+      const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
+      const veIdArray = Array.isArray(vehicleIds) ? vehicleIds : [vehicleIds];
 
-    return session;
+      const rawQuery = `
+        WITH ranked_sessions AS (
+          SELECT 
+          s.id AS session_id, 
+          s.sequence_id, 
+          s.period_to, 
+          v."veId",
+          v.plate,  
+            ROW_NUMBER() OVER (PARTITION BY v."veId" ORDER BY s.period_to DESC) AS rank
+          FROM 
+            session s
+          INNER JOIN 
+            history h ON h."sessionId" = s.id
+          INNER JOIN 
+            vehicles v ON h."vehicleId" = v.id
+          WHERE 
+            v."veId" = ANY($1)
+            AND s.sequence_id = 0
+        )
+        SELECT *
+        FROM ranked_sessions
+        WHERE rank = 1;
+      `;
+
+      const sessions = await this.sessionRepository.query(rawQuery, [
+        veIdArray,
+      ]);
+
+      const sessionMap = new Map<number, any>();
+
+      sessions.forEach((session) => {
+        const vehicleId = session.veId;
+        if (vehicleId) {
+          sessionMap.set(vehicleId, session);
+        }
+      });
+      if (!sessionMap) {
+        return null;
+      }
+      const lastSession = await this.getLastSessionByVeIds(veIdArray);
+      if (!lastSession) {
+        return null;
+      }
+      const activeSessions = [];
+
+      sessionMap.forEach((session, vehicleId) => {
+        const lastSessionEntry = lastSession.get(vehicleId);
+        if (lastSessionEntry) {
+          const sessionPeriodTo = new Date(session.period_to);
+          const lastSessionPeriodTo = new Date(lastSessionEntry.period_to);
+
+          if (sessionPeriodTo > lastSessionPeriodTo) {
+            activeSessions.push({
+              veId: vehicleId,
+              active: true,
+            });
+          }
+        }
+      });
+      return activeSessions;
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new HttpException(
+        `Errore durante delle sessioni attive`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   /**
@@ -756,48 +765,34 @@ export class SessionService {
    * @param id VeId identificativo Veicolo
    * @returns
    */
-  async getActiveSessionByVeId(id): Promise<any> {
-    const session = await this.sessionRepository.findOne({
-      where: { history: { vehicle: { veId: id } }, sequence_id: 0 },
-      relations: {
-        history: true,
-      },
-    });
-    return session;
-  }
-
-  /**
-   * Ritorna tutte le sessioni attive, quelle con sequence_id = 0
-   * @returns
-   */
-  async getAllActiveSession(): Promise<any> {
-    const sessions = await this.sessionRepository
-      .createQueryBuilder('session')
-      .distinctOn(['session.id']) // Distinct ON per session.id
-      .innerJoin('session.history', 'history')
-      .innerJoin('history.vehicle', 'vehicle')
-      .where('session.sequence_id = :sequenceId', { sequenceId: 0 })
-      .select([
-        'session', // tutti i campi di session
-        'vehicle.id', // campo id di vehicle
-        'vehicle.veId', // campo veId di vehicle
-      ])
-      .getRawMany();
-
-    return sessions;
-  }
-
-  /**
-   * Ritorna tutte le distanze registrate di tutte le sessioni di un veicolo in base al VeId
-   * @param id VeId identificativo Veicolo
-   * @returns
-   */
-  async getDistanceSession(id): Promise<any> {
-    const distances = await this.sessionRepository.find({
-      where: { history: { vehicle: { veId: id } } },
-      select: { distance: true, period_from: true, period_to: true },
-    });
-    return distances;
+  async getActiveSessionByVeId(userId: number, veId: number): Promise<any> {
+    const vehicles =
+      await this.associationService.getVehiclesAssociateUserRedis(userId);
+    if (!vehicles || vehicles.length === 0)
+      throw new HttpException(
+        'Nessun veicolo associato per questo utente',
+        HttpStatus.NOT_FOUND,
+      );
+    if (!vehicles.find((v) => v.veId === veId))
+      throw new HttpException(
+        'Non hai il permesso per visualizzare questo veicolo',
+        HttpStatus.FORBIDDEN,
+      );
+    try {
+      const session = await this.sessionRepository.findOne({
+        where: { history: { vehicle: { veId: veId } }, sequence_id: 0 },
+        order: {
+          period_to: 'DESC',
+        },
+      });
+      return session ? this.toDTOSession(session) : null;
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new HttpException(
+        `Errore durante recupero della sessione attiva`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   private toDTOSession(session: SessionEntity): any {

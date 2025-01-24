@@ -74,7 +74,7 @@ export class AnomalyService {
       });
       return this.toDTO(anomalies);
     } catch (error) {
-      console.error(error);
+      if (error instanceof HttpException) throw error;
       throw new HttpException(
         `Errore durante recupero delle anomalie`,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -144,7 +144,7 @@ export class AnomalyService {
         return this.toDTO(anomalies);
       }
     } catch (error) {
-      console.error(error);
+      if (error instanceof HttpException) throw error;
       throw new HttpException(
         `Errore durante recupero delle anomalie`,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -222,7 +222,7 @@ export class AnomalyService {
         .filter(Boolean);
       return this.toDTO(filteredAnomalies);
     } catch (error) {
-      console.error(error);
+      if (error instanceof HttpException) throw error;
       throw new HttpException(
         `Errore durante recupero delle anomalie`,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -269,7 +269,7 @@ export class AnomalyService {
 
       return this.toDTO(anomalies);
     } catch (error) {
-      console.error(error);
+      if (error instanceof HttpException) throw error;
       throw new HttpException(
         `Errore durante recupero delle anomalie`,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -321,13 +321,95 @@ export class AnomalyService {
       });
       return this.toDTO(anomalies);
     } catch (error) {
-      console.error(error);
+      if (error instanceof HttpException) throw error;
       throw new HttpException(
         `Errore durante recupero delle anomalie`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
+
+  /**
+   * Ricerca anomalie in base al veid e range temporale
+   * @param userId user id per check autorizzazione
+   * @param veId veId del veicolo
+   * @param dateFrom data inizio ricerca
+   * @param dateTo data fine ricerca
+   * @returns
+   */
+  async getAnomalyVeIdByDateRange(
+    userId: number,
+    veId: number,
+    dateFrom: Date,
+    dateTo: Date,
+  ) {
+    const vehicles =
+      await this.associationService.getVehiclesAssociateUserRedis(userId);
+    if (!vehicles || vehicles.length === 0)
+      throw new HttpException(
+        'Nessun veicolo associato per questo utente',
+        HttpStatus.NOT_FOUND,
+      );
+    if (!vehicles.find((v) => v.veId === veId))
+      throw new HttpException(
+        'Non hai il permesso per visualizzare le anomalie di questo veicolo',
+        HttpStatus.FORBIDDEN,
+      );
+    dateFrom.setHours(0, 0, 0, 0);
+    dateTo.setHours(0, 0, 0, 0);
+    try {
+      // se le date sono uguali ricerca soltanto per giorno
+      if (dateFrom.getTime() === dateTo.getTime()) {
+        const anomalies = await this.anomalyRepository.find({
+          where: {
+            vehicle: {
+              veId: veId,
+            },
+            date: dateFrom,
+          },
+          relations: {
+            vehicle: {
+              worksite: true,
+            },
+          },
+          order: {
+            vehicle: {
+              plate: 'ASC',
+            },
+          },
+        });
+        return this.toDTO(anomalies);
+      } else {
+        // ricerca between
+        const anomalies = await this.anomalyRepository.find({
+          where: {
+            vehicle: {
+              veId: veId,
+            },
+            date: Between(dateFrom, dateTo),
+          },
+          relations: {
+            vehicle: {
+              worksite: true,
+            },
+          },
+          order: {
+            vehicle: {
+              plate: 'ASC',
+            },
+          },
+        });
+        return this.toDTO(anomalies);
+      }
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new HttpException(
+        `Errore durante recupero delle anomalie`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   /**
    * Imposta le anomalie di ieri su Redis per recupero veloce
    * @param anomalies
@@ -363,7 +445,7 @@ export class AnomalyService {
           const data = await this.redis.get(key);
           return data ? JSON.parse(data) : null;
         } catch (error) {
-          console.error(error);
+          if (error instanceof HttpException) throw error;
           throw new HttpException(
             `Errore durante recupero delle anomalie da redis`,
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -377,7 +459,7 @@ export class AnomalyService {
       }
       return { lastUpdate, anomalies };
     } catch (error) {
-      console.error(error);
+      if (error instanceof HttpException) throw error;
       throw new HttpException(
         `Errore durante recupero delle anomalie`,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -419,7 +501,7 @@ export class AnomalyService {
           const data = await this.redis.get(key);
           return data ? JSON.parse(data) : null;
         } catch (error) {
-          console.error(error);
+          if (error instanceof HttpException) throw error;
           throw new HttpException(
             `Errore durante recupero delle anomalie da redis`,
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -433,7 +515,7 @@ export class AnomalyService {
       }
       return anomalies;
     } catch (error) {
-      console.error(error);
+      if (error instanceof HttpException) throw error;
       throw new HttpException(
         `Errore durante recupero delle anomalie`,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -554,7 +636,7 @@ export class AnomalyService {
       await queryRunner.commitTransaction();
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      console.error(error);
+      if (error instanceof HttpException) throw error;
       throw new HttpException(
         'Errore durante la creazione della anomalia',
         HttpStatus.INTERNAL_SERVER_ERROR,
