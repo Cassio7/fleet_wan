@@ -12,7 +12,7 @@ import { CookiesService } from '../cookies service/cookies.service';
   providedIn: 'root'
 })
 export class NotesService {
-  private readonly _refreshNoteOptions$: Subject<void> = new Subject<void>();
+  private readonly _loadNote$: Subject<void> = new Subject<void>();
 
   constructor(
     private cookieService: CookiesService,
@@ -163,7 +163,7 @@ export class NotesService {
     }
   }
 
-  public get refreshNoteOptions$(): Subject<void> {
-    return this._refreshNoteOptions$;
+  public get loadNote$(): Subject<void> {
+    return this._loadNote$;
   }
 }

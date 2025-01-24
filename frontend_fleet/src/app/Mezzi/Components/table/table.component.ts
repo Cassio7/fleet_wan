@@ -156,6 +156,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
     );
 
     vehicles$.subscribe(vehicles => {
+      console.log("fetched vehicles: ", vehicles);
       this.sessionStorageService.setItem("allVehicles", JSON.stringify(vehicles));
       this.sortedVehicles = this.sortService.sortVehiclesByPlateAsc(vehicles) as Vehicle[];
       this.vehicleTableData.data = this.sortedVehicles;
@@ -266,6 +267,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
    * @returns Il veicolo attualmente espanso, oppure null se nessun veicolo è espanso.
    */
   checkVehicleExpansion(vehicle: Vehicle) {
+    this.notesService.loadNote$.next();
     return this.expandedVehicle = this.expandedVehicle === vehicle ? null : vehicle;
   }
 

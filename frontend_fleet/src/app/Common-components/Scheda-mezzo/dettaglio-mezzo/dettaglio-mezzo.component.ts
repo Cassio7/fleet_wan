@@ -97,7 +97,7 @@ export class DettaglioMezzoComponent implements OnInit, OnDestroy {
         if(note){
           this.vehicle.note = note;
           this.sessionStorageService.setItem("detail", JSON.stringify(this.vehicle));
-          this.notesService.refreshNoteOptions$.next();
+          this.notesService.loadNote$.next();
           this.cd.detectChanges();
         }
       },
