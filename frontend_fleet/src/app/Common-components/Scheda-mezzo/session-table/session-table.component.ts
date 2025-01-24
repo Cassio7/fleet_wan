@@ -12,6 +12,7 @@ import { Anomaly } from '../../../Models/Anomaly';
 import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { Session } from '../../../Models/Session';
 
 @Component({
   selector: 'app-session-table',
@@ -38,11 +39,17 @@ export class SessionTableComponent implements AfterViewInit{
   private readonly destroy$: Subject<void> = new Subject<void>();
 
   @ViewChild('anomaliesTable') anomaliesTable!: MatTable<Anomaly>;
+  @ViewChild('sessionsTable') sessionsTable!: MatTable<Session>;
+
   @Input() vehicle!: Vehicle;
+  sessionsTableData = new MatTableDataSource<Session>();
   anomaliesTableData = new MatTableDataSource<Anomaly>();
-  columnsToDisplay = ['Data', 'Stato GPS', 'Stato Antenna', 'Sessione'];
-  columnsToDisplayWithExpand = [...this.columnsToDisplay, 'expand'];
-  expandedElement: any;
+
+  daysColumnsToDisplay = ['Data', 'Stato GPS', 'Stato Antenna', 'Sessione'];
+  daysColumnsToDisplayWithExpand = [...this.daysColumnsToDisplay, 'expand'];
+  expandedDay: any;
+
+  sessionColumnsToDisplay = ['Id', 'Sequence ID', 'Inizio', 'Fine', 'Distanza'];
 
   dateSelected: boolean = false;
   data: boolean = true;
@@ -89,6 +96,24 @@ export class SessionTableComponent implements AfterViewInit{
         }
       },
       error: error => console.error("Errore nella notifica x il caricamento delle anomalie per giornata: ", error)
+    });
+  }
+
+  handleRowExpansion(anomaly: any, event: MouseEvent): void {
+    this.expandedDay = this.expandedDay === anomaly ? null : anomaly;
+    event.stopPropagation();
+    this.handleGetSessionsByVeIdRanged();
+  }
+
+  private handleGetSessionsByVeIdRanged(){
+    this.sessionApiService.getSessionsByVeIdRanged(this.vehicle.veId, this.dateFrom, this.dateTo).pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (sessions: Session[]) => {
+        console.log("sessions fetched: ", sessions);
+        this.sessionsTableData.data = sessions;
+        this.sessionsTable.renderRows();
+      },
+      error: error => console.error("Errore durante la ricerca delle sessioni del veicolo nell'arco di tempo: ", error)
     });
   }
 }

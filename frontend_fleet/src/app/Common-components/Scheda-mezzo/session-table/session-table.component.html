@@ -96,10 +96,9 @@
   <ng-container matColumnDef="expand">
     <th mat-header-cell *matHeaderCellDef aria-label="row actions">&nbsp;</th>
     <td mat-cell *matCellDef="let anomaly">
-      <button mat-icon-button aria-label="expand row"
-              (click)="expandedElement = expandedElement === anomaly ? null : anomaly; $event.stopPropagation()">
+      <button mat-icon-button aria-label="expand row" (click)="handleRowExpansion(anomaly, $event)">
         <mat-icon>
-          {{ expandedElement === anomaly ? 'remove' : 'add' }}
+          {{ expandedDay === anomaly ? 'remove' : 'add' }}
         </mat-icon>
       </button>
     </td>
@@ -108,31 +107,62 @@
   <!-- Expanded detail row -->
   <ng-container matColumnDef="expandedDetail">
     <td mat-cell *matCellDef="let anomaly"
-        [attr.colspan]="columnsToDisplayWithExpand.length">
+        [attr.colspan]="daysColumnsToDisplayWithExpand.length">
       <div class="example-element-detail"
-           [@detailExpand]="anomaly === expandedElement ? 'expanded' : 'collapsed'">
-        <div class="example-element-diagram">
-          <div class="example-element-position"> {{ anomaly.position }} </div>
-          <div class="example-element-symbol"> {{ anomaly.symbol }} </div>
-          <div class="example-element-name"> {{ anomaly.name }} </div>
-          <div class="example-element-weight"> {{ anomaly.weight }} </div>
-        </div>
-        <div class="example-element-description">
-          {{ anomaly.description }}
-          <span class="example-element-description-attribution"> -- Wikipedia </span>
-        </div>
+           [@detailExpand]="anomaly === expandedDay ? 'expanded' : 'collapsed'">
+           <table mat-table
+           [dataSource]="sessionsTableData"
+           multiTemplateDataRows
+           class="mat-elevation-z8"
+           #sessionsTable>
+
+     <!-- Id Column -->
+     <ng-container matColumnDef="Id">
+      <th mat-header-cell *matHeaderCellDef> Id </th>
+      <td mat-cell *matCellDef="let session"> {{session.id}} </td>  <!-- i + 1 per partire da 1 -->
+      </ng-container>
+
+     <!-- Sequence ID Column -->
+     <ng-container matColumnDef="Sequence ID">
+       <th mat-header-cell *matHeaderCellDef> Sequence ID </th>
+       <td mat-cell *matCellDef="let session"> {{session.sequence_id}} </td>
+     </ng-container>
+
+     <!-- Inizio (Start) Column -->
+     <ng-container matColumnDef="Inizio">
+       <th mat-header-cell *matHeaderCellDef> Inizio </th>
+       <td mat-cell *matCellDef="let session"> {{session.period_from | date: "dd/MM/yyyy"}} </td>
+     </ng-container>
+
+     <!-- Fine (End) Column -->
+     <ng-container matColumnDef="Fine">
+       <th mat-header-cell *matHeaderCellDef> Fine </th>
+       <td mat-cell *matCellDef="let session"> {{session.period_to | date: "dd/MM/yyyy"}} </td>
+     </ng-container>
+
+     <!-- Distanza (Distance) Column -->
+     <ng-container matColumnDef="Distanza">
+       <th mat-header-cell *matHeaderCellDef> Distanza </th>
+       <td mat-cell *matCellDef="let session"> {{session.distance}} km </td>
+     </ng-container>
+
+     <!-- Header and Row Definitions -->
+     <tr mat-header-row *matHeaderRowDef="sessionColumnsToDisplay"></tr>
+     <tr mat-row *matRowDef="let row; columns: sessionColumnsToDisplay;"></tr>
+   </table>
+
       </div>
     </td>
   </ng-container>
 
   <!-- Header row -->
-  <tr mat-header-row *matHeaderRowDef="columnsToDisplayWithExpand"></tr>
+  <tr mat-header-row *matHeaderRowDef="daysColumnsToDisplayWithExpand"></tr>
 
   <!-- Data rows -->
-  <tr mat-row *matRowDef="let anomaly; columns: columnsToDisplayWithExpand;"
+  <tr mat-row *matRowDef="let anomaly; columns: daysColumnsToDisplayWithExpand;"
       class="example-element-row"
-      [class.example-expanded-row]="expandedElement === anomaly"
-      (click)="expandedElement = expandedElement === anomaly ? null : anomaly">
+      [class.example-expanded-row]="expandedDay === anomaly"
+      (click)="expandedDay = expandedDay === anomaly ? null : anomaly">
   </tr>
 
   <!-- Expanded detail row -->
