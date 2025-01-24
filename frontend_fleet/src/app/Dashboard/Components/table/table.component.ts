@@ -30,6 +30,7 @@ import {MatSlideToggleChange, MatSlideToggleModule} from '@angular/material/slid
 import { RealtimeData } from '../../../Models/RealtimeData';
 import { RealtimeApiService } from '../../../Common-services/realtime-api/realtime-api.service';
 import { MapService } from '../../../Common-services/map/map.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-table',
@@ -73,7 +74,6 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     private errorGraphService: ErrorGraphsService,
     private blackboxGraphService: BlackboxGraphsService,
     private antennaGraphService: AntennaGraphService,
-    private gpsGraphService: GpsGraphService,
     private cantieriFilterService: CantieriFilterService,
     private sessionApiService: SessionApiService,
     private sessionStorageService: SessionStorageService,
@@ -81,6 +81,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     private filtersCommonService: FiltersCommonService,
     private mapService: MapService,
     private sortService: SortService,
+    private router: Router,
     private cd: ChangeDetectorRef
   ){
   }
@@ -98,7 +99,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
         if(switchTo == "today"){
           this.fillTable();
         }else if(switchTo == "last"){
-          this.getAllLastSession();
+          this.getAllLastSessionAnomalies();
         }else{
           console.error("Cambio controllo a periodo sconosciuto");
         }
@@ -298,7 +299,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   /**
    * Riempie la tabella con i dati delle ultime sessioni dei veicoli
    */
-  getAllLastSession() {
+  getAllLastSessionAnomalies() {
     this.sessionStorageService.clear();
     console.log("CHIAMATO GET ALL LAST SESSION!");
     this.antennaGraphService.resetGraph();
@@ -306,7 +307,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
 
     this.vehicleTableData.data = [];
 
-    this.sessionApiService.getAllLastSession().pipe(takeUntil(this.destroy$))
+    this.sessionApiService.getAllLastSessionAnomalies().pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (responseObj: any) => {
           const vehiclesData: VehicleData[] = responseObj.vehicles;
@@ -355,6 +356,10 @@ export class TableComponent implements OnDestroy, AfterViewInit{
       this.vehicleTableData.data = vehicles; // Modifica la tabella
       this.vehicleTable.renderRows();
     }
+  }
+
+  displayVehicleDetail(veId: number){
+    this.router.navigate(['/dettaglio-mezzo', veId]);
   }
 
   onVehicleClick(vehicleData: VehicleData){

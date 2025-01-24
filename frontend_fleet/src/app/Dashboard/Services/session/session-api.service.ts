@@ -25,7 +25,7 @@ export class SessionApiService {
     return this.http.get<Session[]>(`${this.commonService.url}/sessions`);
   }
 
-  public getAllLastSession(): Observable<any>{
+  public getAllLastSessionAnomalies(): Observable<any>{
     const access_token = this.cookieService.getCookie("user");
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${access_token}`,
