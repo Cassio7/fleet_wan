@@ -25,7 +25,33 @@ export class SessionApiService {
    * @returns observable get http
    */
   public getAllSessions(): Observable<Session[]>{
-    return this.http.get<Session[]>(`${this.commonService.url}/sessions`);
+    const access_token = this.cookieService.getCookie("user");
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${access_token}`,
+      'Content-Type': 'application/json'
+    });
+    return this.http.get<Session[]>(`${this.commonService.url}/sessions`, {headers});
+  }
+
+  /**
+   * Permette di prendere le sessioni di un veicolo tramite un veId
+   * @param veId veId del veicolo di cui prendere le sessioni
+   * @param dateFrom data di inizio ricerca
+   * @param dateTo data di fine ricerca
+   * @returns array di sessioni effettuate dal mezzo a cui appartiene il veId nel range di tempo specificato
+   */
+  public getSessionsByVeIdRanged(veId: number, dateFrom: Date, dateTo: Date): Observable<Session[]>{
+    const access_token = this.cookieService.getCookie("user");
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${access_token}`,
+      'Content-Type': 'application/json'
+    });
+    const body={
+      veId: veId,
+      dateFrom: dateFrom,
+      dateTo: dateTo
+    }
+    return this.http.post<Session[]>(`${this.commonService.url}/sessions/veId/ranged`, body, {headers});
   }
 
   /**
@@ -75,7 +101,7 @@ export class SessionApiService {
   }
 
   /**
-   * Prende i dati di tutte le sessioni che sono avvenute nel range di tempo preso come parametri
+   * Prende i dati di tutte le sessioni di un veicolo che sono avvenute nel range di tempo preso come parametri
    * @param start_date data di inizio del periodo
    * @param end_date data di fine del periodo
    * @returns observable post http
