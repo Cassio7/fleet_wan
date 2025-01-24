@@ -9,7 +9,7 @@
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Tipologia </th>
       <td mat-cell *matCellDef="let vehicleData">
         <div class="plate-icon">
-          <mat-icon style="cursor: pointer;" matTooltip="Qualche informazione sul veicolo (click per maggiori dettagli)">
+          <mat-icon style="cursor: pointer;" matTooltip="Qualche informazione sul veicolo (click per maggiori dettagli)" (click)="displayVehicleDetail(vehicleData.vehicle.veId)">
             local_shipping
           </mat-icon>
           <span style="margin-left: 8px;">Camionetta</span>

@@ -31,6 +31,12 @@
   gap: .5vw;
   font-weight: bold;
 }
+.go-back button{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: black;
+}
 .subtitle{
   line-height: 0;
 }

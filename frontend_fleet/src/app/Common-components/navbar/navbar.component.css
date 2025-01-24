@@ -22,14 +22,14 @@
 }
 
 .page-p {
-  display: inline-flex;
+  display: flex;
+  align-items: center;
 }
 
 .logo {
   height: 50px;
   width: 50px;
   border-radius: 50%;
-  background-image: url("/assets/logo-noname.png");
   background-size: cover;
   cursor: pointer;
 }
