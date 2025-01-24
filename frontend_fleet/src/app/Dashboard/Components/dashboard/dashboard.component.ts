@@ -20,14 +20,11 @@ import { KanbanAntennaComponent } from "../kanban-antenna/kanban-antenna.compone
 import { KanbanAntennaService } from '../../Services/kanban-antenna/kanban-antenna.service';
 import { KanbanTableService } from '../../Services/kanban-table/kanban-table.service';
 import { ErrorGraphsService } from '../../Services/error-graphs/error-graphs.service';
-import { GpsGraphComponent } from "../error-graphs/gps-graph/gps-graph.component";
 import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { SessionApiService } from '../../Services/session/session-api.service';
 import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
 import { KanbanFiltersComponent } from "../kanban-filters/kanban-filters.component";
 import { MapComponent } from '../../../Common-components/map/map.component';
-import { RealtimeApiService } from '../../../Common-services/realtime-api/realtime-api.service';
-import { RealtimeData } from '../../../Models/RealtimeData';
+
 
 @Component({
   selector: 'app-dashboard',

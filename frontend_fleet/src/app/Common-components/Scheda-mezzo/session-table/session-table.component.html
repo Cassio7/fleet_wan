@@ -1,48 +1,146 @@
 <table mat-table
-    [dataSource]="dataSource" multiTemplateDataRows
-    class="mat-elevation-z8">
-    @for (column of columnsToDisplay; track column) {
-    <ng-container matColumnDef="{{column}}">
-    <th mat-header-cell *matHeaderCellDef> {{column}} </th>
-    <td mat-cell *matCellDef="let element"> {{element[column]}} </td>
-    </ng-container>
-    }
-    <ng-container matColumnDef="expand">
+       [dataSource]="anomaliesTableData"
+       multiTemplateDataRows
+       class="mat-elevation-z8"
+      #anomaliesTable>
+
+  <!-- Colonna Data -->
+  <ng-container matColumnDef="Data">
+    <th mat-header-cell *matHeaderCellDef> Data </th>
+    <td mat-cell *matCellDef="let anomaly"> {{ anomaly.date | date: "dd/MM/yyyy"}} </td>
+  </ng-container>
+
+  <!-- Colonna Stato GPS -->
+  <ng-container matColumnDef="Stato GPS">
+    <th mat-header-cell *matHeaderCellDef> Stato GPS </th>
+    <td mat-cell *matCellDef="let anomaly">
+      <div class="OK-container" matTooltip="GPS funzionante" *ngIf="!checkErrorsService.checkGpsError(anomaly.gps) && !checkErrorsService.checkGpsWarning(anomaly.gps)">
+        <mat-icon class="gpsIcon-OK">location_on</mat-icon>
+        OK
+      </div>
+      <div class="warning-container" *ngIf="checkErrorsService.checkGpsWarning(anomaly.gps)" [matTooltip]="checkErrorsService.checkGpsWarning(anomaly.gps)">
+        <mat-icon class="gpsIcon-warning">location_on</mat-icon>
+        Warning
+      </div>
+      <div class="error-container" *ngIf="checkErrorsService.checkGpsError(anomaly.gps)" [matTooltip]="checkErrorsService.checkGpsError(anomaly.gps)">
+        <mat-icon class="errorIcon-error">location_on</mat-icon>
+        Error
+      </div>
+    </td>
+  </ng-container>
+
+  <!-- Colonna Stato Antenna -->
+  <ng-container matColumnDef="Stato Antenna">
+    <th mat-header-cell *matHeaderCellDef> Stato Antenna </th>
+    <td mat-cell *matCellDef="let anomaly">
+      <!-- OK Container -->
+      <div
+        class="OK-container"
+        *ngIf="!anomaly.antenna && vehicle.allestimento"
+        matTooltip="Antenna funzionante"
+      >
+        <mat-icon class="antennaIcon-OK">wifi</mat-icon>
+        OK
+      </div>
+
+      <!-- No RFID Container -->
+      <div
+        class="noRFID-container"
+        *ngIf="!vehicle.allestimento"
+        matTooltip="Non ha un'antenna RFID"
+      >
+        <mat-icon class="noAntennA-icon">wifi_off</mat-icon>
+        No Antenna
+      </div>
+
+      <!-- Error Container -->
+      <div
+        class="error-container"
+        *ngIf="vehicle.allestimento && anomaly.antenna"
+        [matTooltip]="anomaly.antenna ? anomaly.antenna : 'Error'"
+      >
+        <mat-icon class="errorIcon-error">wifi_off</mat-icon>
+        Error
+      </div>
+    </td>
+  </ng-container>
+
+
+  <!-- Colonna Sessione -->
+  <ng-container matColumnDef="Sessione">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header> Sessione </th>
+    <td mat-cell *matCellDef="let anomaly">
+      <!-- se non c'è errore, data nera -->
+      <span *ngIf="!anomaly.session; else sessionError">
+        <!-- icone -->
+        <div class="OK-container" matTooltip="Sessione corretta">
+          OK
+        </div>
+        {{ checkErrorsService.getSessionAnomalyDate(anomaly) ? (checkErrorsService.getSessionAnomalyDate(anomaly) | date: 'dd/MM/yy') : '' }}
+      </span>
+      <!-- se c'è errore  -->
+      <ng-template #sessionError>
+        <div class="session-error" *ngIf="anomaly.session">
+          <div class="error-container" [matTooltip]="anomaly.session">
+            Error
+          </div>
+          <span class="session-date" [matTooltip]="anomaly.session">
+            {{ checkErrorsService.getSessionAnomalyDate(anomaly) ? (checkErrorsService.getSessionAnomalyDate(anomaly) | date: 'dd/MM/yyyy') : '' }}
+          </span>
+        </div>
+      </ng-template>
+    </td>
+  </ng-container>
+
+  <!-- Colonna Expand -->
+  <ng-container matColumnDef="expand">
     <th mat-header-cell *matHeaderCellDef aria-label="row actions">&nbsp;</th>
-    <td mat-cell *matCellDef="let element">
-    <button mat-icon-button aria-label="expand row" (click)="(expandedElement = expandedElement === element ? null : element); $event.stopPropagation()">
-      @if (expandedElement === element) {
-        <mat-icon>keyboard_arrow_up</mat-icon>
-      } @else {
-        <mat-icon>keyboard_arrow_down</mat-icon>
-      }
-    </button>
+    <td mat-cell *matCellDef="let anomaly">
+      <button mat-icon-button aria-label="expand row"
+              (click)="expandedElement = expandedElement === anomaly ? null : anomaly; $event.stopPropagation()">
+        <mat-icon>
+          {{ expandedElement === anomaly ? 'remove' : 'add' }}
+        </mat-icon>
+      </button>
     </td>
-    </ng-container>
+  </ng-container>
 
-    <ng-container matColumnDef="expandedDetail">
-    <td mat-cell *matCellDef="let element" [attr.colspan]="columnsToDisplayWithExpand.length">
-    <div class="example-element-detail"
-          [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">
-      <div class="example-element-diagram">
-        <div class="example-element-position"> {{element.position}} </div>
-        <div class="example-element-symbol"> {{element.symbol}} </div>
-        <div class="example-element-name"> {{element.name}} </div>
-        <div class="example-element-weight"> {{element.weight}} </div>
+  <!-- Expanded detail row -->
+  <ng-container matColumnDef="expandedDetail">
+    <td mat-cell *matCellDef="let anomaly"
+        [attr.colspan]="columnsToDisplayWithExpand.length">
+      <div class="example-element-detail"
+           [@detailExpand]="anomaly === expandedElement ? 'expanded' : 'collapsed'">
+        <div class="example-element-diagram">
+          <div class="example-element-position"> {{ anomaly.position }} </div>
+          <div class="example-element-symbol"> {{ anomaly.symbol }} </div>
+          <div class="example-element-name"> {{ anomaly.name }} </div>
+          <div class="example-element-weight"> {{ anomaly.weight }} </div>
+        </div>
+        <div class="example-element-description">
+          {{ anomaly.description }}
+          <span class="example-element-description-attribution"> -- Wikipedia </span>
+        </div>
       </div>
-      <div class="example-element-description">
-        {{element.description}}
-        <span class="example-element-description-attribution"> -- Wikipedia </span>
-      </div>
-    </div>
     </td>
-    </ng-container>
+  </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="columnsToDisplayWithExpand"></tr>
-    <tr mat-row *matRowDef="let element; columns: columnsToDisplayWithExpand;"
-    class="example-element-row"
-    [class.example-expanded-row]="expandedElement === element"
-    (click)="expandedElement = expandedElement === element ? null : element">
-    </tr>
-    <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="example-detail-row"></tr>
+  <!-- Header row -->
+  <tr mat-header-row *matHeaderRowDef="columnsToDisplayWithExpand"></tr>
+
+  <!-- Data rows -->
+  <tr mat-row *matRowDef="let anomaly; columns: columnsToDisplayWithExpand;"
+      class="example-element-row"
+      [class.example-expanded-row]="expandedElement === anomaly"
+      (click)="expandedElement = expandedElement === anomaly ? null : anomaly">
+  </tr>
+
+  <!-- Expanded detail row -->
+  <tr mat-row *matRowDef="let row; columns: ['expandedDetail']"
+      class="example-detail-row">
+  </tr>
 </table>
+<div class="disclaimers">
+  <mat-error *ngIf="!dateSelected">Nessuna data selezionata</mat-error>
+  <mat-error *ngIf="!data">Nessuna sessione trovata nell'arco di tempo {{dateFrom | date: "dd-MM-yyyy"}} - {{dateTo | date: "dd-MM-yyyy"}}</mat-error>
+</div>

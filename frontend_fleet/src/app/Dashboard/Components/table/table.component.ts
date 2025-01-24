@@ -1,5 +1,5 @@
 import { AntennaFilterService } from './../../../Common-services/antenna-filter/antenna-filter.service';
-import { SessionApiService } from './../../Services/session/session-api.service';
+import { SessionApiService } from '../../../Common-services/session/session-api.service';
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, ViewChild } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';

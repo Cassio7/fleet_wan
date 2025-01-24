@@ -49,7 +49,7 @@ export class SessionApiService {
    * @param dateTo data di fine
    * @returns observable<VehicleAnomalies> http post
    */
-  public getAnomaliesRangedByVeid(veId: number, dateFrom: Date, dateTo: Date): Observable<VehicleAnomalies>{
+  public getDaysAnomaliesRangedByVeid(veId: number, dateFrom: Date, dateTo: Date): Observable<VehicleAnomalies>{
     const access_token = this.cookieService.getCookie("user");
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${access_token}`,

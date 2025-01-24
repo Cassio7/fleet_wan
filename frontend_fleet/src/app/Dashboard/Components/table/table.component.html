@@ -38,11 +38,11 @@
     <ng-container matColumnDef="GPS">
       <th mat-header-cell *matHeaderCellDef> GPS </th>
       <td mat-cell *matCellDef="let vehicleData">
-        <div class="OK-container" matTooltip="GPS funzionante" *ngIf="!checkErrorsService.checkGpsError(vehicleData) && !checkErrorsService.checkGPSWarning(vehicleData)">
+        <div class="OK-container" matTooltip="GPS funzionante" *ngIf="!checkErrorsService.checkGpsError(vehicleData) && !checkErrorsService.checkVehicleGPSWarning(vehicleData)">
           <mat-icon class="gpsIcon-OK">location_on</mat-icon>
           OK
         </div>
-        <div class="warning-container" *ngIf="checkErrorsService.checkGPSWarning(vehicleData)" [matTooltip]="checkErrorsService.checkGPSWarning(vehicleData)">
+        <div class="warning-container" *ngIf="checkErrorsService.checkVehicleGPSWarning(vehicleData)" [matTooltip]="checkErrorsService.checkVehicleGPSWarning(vehicleData)">
           <mat-icon class="gpsIcon-warning">location_on</mat-icon>
           Warning
         </div>
@@ -57,14 +57,14 @@
     <ng-container matColumnDef="antenna">
       <th mat-header-cell *matHeaderCellDef> Antenna </th>
       <td mat-cell *matCellDef="let vehicleData">
-        <div class="OK-container" *ngIf="!checkErrorsService.checkAntennaError(vehicleData) && vehicleData.vehicle.isRFIDReader" matTooltip="Antenna funzionante">
+        <div class="OK-container" *ngIf="!checkErrorsService.checkVehicleAntennaError(vehicleData) && vehicleData.vehicle.isRFIDReader" matTooltip="Antenna funzionante">
           <mat-icon class="gpsIcon-OK">wifi</mat-icon>
           OK
         </div>
         <div class="noRFID-container" matTooltip="Non ha un'antenna RFID" *ngIf="!vehicleData.vehicle.isRFIDReader">
           <mat-icon class="noAntennA-icon">wifi_off</mat-icon>
         </div>
-        <div class="error-container" *ngIf="vehicleData.vehicle.isRFIDReader && checkErrorsService.checkAntennaError(vehicleData)" [matTooltip]="checkErrorsService.checkAntennaError(vehicleData) ? checkErrorsService.checkAntennaError(vehicleData) : 'Anomalia antenna RFID'">
+        <div class="error-container" *ngIf="vehicleData.vehicle.isRFIDReader && checkErrorsService.checkVehicleAntennaError(vehicleData)" [matTooltip]="checkErrorsService.checkVehicleAntennaError(vehicleData) ? checkErrorsService.checkVehicleAntennaError(vehicleData) : 'Anomalia antenna RFID'">
           <mat-icon class="errorIcon-error">wifi</mat-icon>
           Error
         </div>
@@ -76,28 +76,27 @@
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Sessione </th>
       <td mat-cell *matCellDef="let vehicleData">
         <!-- se non c'è errore, data nera -->
-        <span *ngIf="!checkErrorsService.checkSessionError(vehicleData) && checkErrorsService.getVehicleSessionAnomalyDate(vehicleData); else sessionError">
+        <span *ngIf="!checkErrorsService.checkVehicleSessionError(vehicleData) && checkErrorsService.getVehicleSessionAnomalyDate(vehicleData); else sessionError">
           <!-- icone -->
-          <div class="OK-container" *ngIf="!checkErrorsService.checkSessionError(vehicleData) && checkErrorsService.getVehicleSessionAnomalyDate(vehicleData)" matTooltip="Sessione corretta">
+          <div class="OK-container" *ngIf="!checkErrorsService.checkVehicleSessionError(vehicleData) && checkErrorsService.getVehicleSessionAnomalyDate(vehicleData)" matTooltip="Sessione corretta">
             OK
           </div>
           {{ checkErrorsService.getVehicleSessionAnomalyDate(vehicleData) ? (checkErrorsService.getVehicleSessionAnomalyDate(vehicleData) | date: 'dd/MM/yy') : '' }}
         </span>
         <!-- se c'è errore  -->
         <ng-template #sessionError>
-          <div class="session-error" *ngIf="checkErrorsService.checkSessionError(vehicleData)">
-            <div class="error-container" [matTooltip]="checkErrorsService.checkSessionError(vehicleData)">
-              {{calculateSessionErrorDays(vehicleData)}} gg
+          <div class="session-error" *ngIf="checkErrorsService.checkVehicleSessionError(vehicleData)">
+            <div class="error-container" [matTooltip]="checkErrorsService.checkVehicleSessionError(vehicleData)">
+              {{checkErrorsService.calculateSessionErrorDays(vehicleData)}} gg
             </div>
-            <div class="error-container" [matTooltip]="checkErrorsService.checkSessionError(vehicleData)">
+            <div class="error-container" [matTooltip]="checkErrorsService.checkVehicleSessionError(vehicleData)">
               Error
             </div>
-            <span class="session-date" [matTooltip]="checkErrorsService.checkSessionError(vehicleData)">
+            <span class="session-date" [matTooltip]="checkErrorsService.checkVehicleSessionError(vehicleData)">
               {{ checkErrorsService.getVehicleSessionAnomalyDate(vehicleData) ? (checkErrorsService.getVehicleSessionAnomalyDate(vehicleData) | date: 'dd/MM/yyyy') : '' }}
             </span>
           </div>
         </ng-template>
-
       </td>
     </ng-container>
 

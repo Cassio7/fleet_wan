@@ -1,0 +1,136 @@
+table {
+  width: 100%;
+}
+
+tr.example-detail-row {
+  height: 0;
+}
+
+tr.example-element-row:not(.example-expanded-row):hover {
+  background: whitesmoke;
+}
+
+tr.example-element-row:not(.example-expanded-row):active {
+  background: #efefef;
+}
+
+.example-element-row td {
+  border-bottom-width: 0;
+}
+
+.example-element-detail {
+  overflow: hidden;
+  display: flex;
+}
+
+.example-element-diagram {
+  min-width: 80px;
+  border: 2px solid black;
+  padding: 8px;
+  font-weight: lighter;
+  margin: 8px 0;
+  height: 104px;
+}
+
+.example-element-symbol {
+  font-weight: bold;
+  font-size: 40px;
+  line-height: normal;
+}
+
+.example-element-description {
+  padding: 16px;
+}
+
+.example-element-description-attribution {
+  opacity: 0.5;
+}
+.OK-container{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: white;
+  background-color: var(--sidebar-color);
+  padding: 3%;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.OK-container mat-icon{
+  font-size: 20px;
+}
+
+.warning-container{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  color: white;
+  background-color: #C5D026;
+  padding: 3%;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.warning-container mat-icon{
+  font-size: 20px;
+}
+
+.error-container{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  color: white;
+  background-color: #d12717;
+  padding: 3%;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.error-container mat-icon{
+  font-size: 20px;
+}
+
+.noRFID-container mat-icon{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  color: white;
+  background-color: #000000;
+  padding: 3%;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 20px;
+}
+
+
+.session-error{
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.session-date{
+  color: red;
+}
+
+.antenna-icon, .close-icon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-size: 24px;
+  line-height: 24px;
+  padding: 20px;
+}
+
+.close-icon {
+  color: #d12717;
+}
+
+.warning-icon, .error-icon, .check-icon, .antenna-icon, .close-icon, .noAntenna-icon {
+  cursor: pointer;
+  transition: transform 0.2s;
+}
