@@ -62,16 +62,20 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
       switch(url){
         case '/dashboard':
           this.currentPage = "Dashboard";
+          this.isKanban = true;
           this.icon = "dashboard";
           break;
         case '/home-mezzi':
           this.currentPage = "Parco mezzi";
+          this.isKanban = false;
           this.icon = "local_shipping";
           break;
         default:
           this.currentPage = "Dashboard";
+          this.isKanban = true;
           this.icon = "dashboard";
       }
+      this.cd.detectChanges();
     });
   }
 

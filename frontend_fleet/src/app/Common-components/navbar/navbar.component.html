@@ -5,8 +5,13 @@
   <div class="right-side">
     <!-- <button mat-button class="notifications-btn"><mat-icon>notifications</mat-icon></button> -->
     <div class="profile-info">
-      <p class="username">{{name}} {{surname}}</p>
-      <p class="role">{{role}}</p>
+      @if(name == "admin"){
+        <p class="username">{{name}}</p>
+        <p class="role">{{role}}</p>
+      }@else {
+        <p class="username">{{name}} {{surname}}</p>
+        <p class="role">{{role}}</p>
+      }
     </div>
     <button mat-button [matMenuTriggerFor]="menu" class="account-circle-btn"><div mat-card-avatar class="account-circle"></div></button>
     <mat-menu #menu="matMenu">
