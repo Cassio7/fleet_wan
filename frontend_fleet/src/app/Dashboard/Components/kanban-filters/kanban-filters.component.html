@@ -1,5 +1,5 @@
 <div class="filters-container">
-  <mat-form-field class="targa-filter" appearance="outline">
+  <mat-form-field class="targa-filter filter" appearance="outline">
     <mat-label>Targa</mat-label>
     <input matInput type="text" placeholder="Targa" #targa class="targa-input" [(ngModel)]="plate" (input)="searchPlates()">
     <button *ngIf="targa.value" matSuffix mat-icon-button aria-label="Clear" (click)="plate='';searchPlates()">
@@ -7,14 +7,11 @@
     </button>
     <mat-icon matSuffix *ngIf="!targa.value">search</mat-icon>
   </mat-form-field>
-  <mat-form-field class="cantieri-filter" appearance="outline">
+  <mat-form-field class="cantieri-filter filter" appearance="outline">
     <mat-select [formControl]="cantieri" placeholder="Cantiere" multiple class="cantiere-input">
       <mat-option [value]="cantiere" (click)="selectCantiere(cantiere)" *ngFor="let cantiere of this.kanbanCantieri">
         {{ cantiere }}
       </mat-option>
     </mat-select>
   </mat-form-field>
-  <div class="button-container">
-    <button mat-raised-button color="primary" class="filters-btn">Aggiorna i dati</button>
-  </div>
 </div>

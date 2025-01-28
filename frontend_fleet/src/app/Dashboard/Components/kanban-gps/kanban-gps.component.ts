@@ -10,13 +10,15 @@ import { MatButtonModule } from '@angular/material/button';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { KanbanFiltersComponent } from "../kanban-filters/kanban-filters.component";
-import { skip, Subject, takeUntil } from 'rxjs';
+import { skip, Subject, take, takeUntil } from 'rxjs';
 import { Filters, FiltersCommonService } from '../../../Common-services/filters-common/filters-common.service';
 import { VehicleData } from '../../../Models/VehicleData';
 import { GpsGraphService } from '../../Services/gps-graph/gps-graph.service';
 import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MapService } from '../../../Common-services/map/map.service';
+import { RealtimeApiService } from '../../../Common-services/realtime-api/realtime-api.service';
+import { RealtimeData } from '../../../Models/RealtimeData';
 
 @Component({
   selector: 'app-kanban-gps',
@@ -43,8 +45,9 @@ export class KanbanGpsComponent implements AfterViewInit, OnDestroy{
     private filtersCommonService: FiltersCommonService,
     private sessionStorageService: SessionStorageService,
     public checkErrorsService: CheckErrorsService,
+    private realtimeApiService: RealtimeApiService,
     private mapService: MapService,
-    private gpsGraphService: GpsGraphService,
+    private gpsGraphService: GpsGraphService
   ){}
 
   ngOnDestroy(): void {
@@ -55,6 +58,25 @@ export class KanbanGpsComponent implements AfterViewInit, OnDestroy{
   ngAfterViewInit(): void {
     const allData: VehicleData[] = JSON.parse(this.sessionStorageService.getItem("allData"));
     let kanbanVehicles = allData;
+    this.kanbanGpsService.setKanbanData(kanbanVehicles);
+
+    this.checkErrorsService.updateAnomalies$.pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: () => {
+        this.checkErrorsService.checkErrorsAllToday().pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (responseObj: any) => {
+            this.kanbanGpsService.setKanbanData([]);
+            setTimeout(() => {
+              const vehiclesData = responseObj.vehicles;
+              this.loadRealtimeVehicles(vehiclesData);
+            }, 2000);
+          },
+          error: error => console.error("Errore nell'aggiornamento delle anomalie: ", error)
+        });
+      },
+      error: error => console.error("Errore nella notifica di aggiornamento delle anomalie del kanban: ", error)
+    });
 
     this.filtersCommonService.applyFilters$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe((filters: Filters)=>{
@@ -62,7 +84,43 @@ export class KanbanGpsComponent implements AfterViewInit, OnDestroy{
       this.kanbanGpsService.setKanbanData(kanbanVehicles);
       this.gpsGraphService.loadChartData$.next(kanbanVehicles);
     });
-    this.kanbanGpsService.setKanbanData(kanbanVehicles);
+  }
+
+  /**
+   * Recupera i dati del realtime dalla chiamata API e unisce i risultati con i veicoli passati
+   * @returns veicoli accorpati con ultima posizione
+   */
+  private loadRealtimeVehicles(vehicles: VehicleData[]): VehicleData[] {
+    this.realtimeApiService.getLastRealtime().pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (realtimeDataObj: RealtimeData[]) => {
+          const realtimeVehicles: VehicleData[] = this.mergeRealtimeData(vehicles, realtimeDataObj);
+          this.kanbanGpsService.setKanbanData(realtimeVehicles);
+          this.gpsGraphService.loadChartData$.next(realtimeVehicles);
+          this.sessionStorageService.setItem("allData", JSON.stringify(realtimeVehicles));
+          return realtimeVehicles;
+        },
+        error: error => console.error("Errore nel caricamento dei dati realtime: ", error)
+      });
+    return [];
+  }
+
+  /**
+   * Unisce un array di veicoli con uno di dati realtime
+   * @param tableVehicles array di veicoli
+   * @param realtimeData dati realtime
+   * @returns veicoli accorpati
+   */
+  private mergeRealtimeData(tableVehicles: VehicleData[], realtimeData: RealtimeData[]): VehicleData[] {
+    tableVehicles.forEach(vehicleData => {
+      const matchedRealtimeData = realtimeData.find(realtimeData => {
+        return parseInt(realtimeData.vehicle.veId) === vehicleData.vehicle.veId;
+      });
+      if (matchedRealtimeData) {
+        vehicleData.realtime = matchedRealtimeData.realtime;
+      }
+    });
+    return tableVehicles;
   }
 
   showMap(vehicleData: VehicleData) {

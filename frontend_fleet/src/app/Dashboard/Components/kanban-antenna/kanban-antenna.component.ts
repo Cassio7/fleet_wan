@@ -17,6 +17,8 @@ import { AntennaGraphService } from '../../Services/antenna-graph/antenna-graph.
 import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
 import { KanbanFiltersComponent } from "../kanban-filters/kanban-filters.component";
 import { MapService } from '../../../Common-services/map/map.service';
+import { RealtimeApiService } from '../../../Common-services/realtime-api/realtime-api.service';
+import { RealtimeData } from '../../../Models/RealtimeData';
 
 @Component({
   selector: 'app-kanban-antenna',
@@ -44,6 +46,7 @@ export class KanbanAntennaComponent implements AfterViewInit, OnDestroy{
     private filtersCommonService: FiltersCommonService,
     private sessionStorageService: SessionStorageService,
     private antenanGraphService: AntennaGraphService,
+    private realtimeApiService: RealtimeApiService,
     private mapService: MapService,
     public checkErrorsService: CheckErrorsService
   ){}
@@ -56,6 +59,26 @@ export class KanbanAntennaComponent implements AfterViewInit, OnDestroy{
   ngAfterViewInit(): void {
     const allData: VehicleData[] = JSON.parse(this.sessionStorageService.getItem("allData"));
     let kanbanVehicles = allData;
+    this.kanbanAntennaService.setKanbanData(kanbanVehicles);
+
+    this.checkErrorsService.updateAnomalies$.pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: () => {
+        this.checkErrorsService.checkErrorsAllToday().pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (responseObj: any) => {
+            this.kanbanAntennaService.setKanbanData([]);
+            setTimeout(() => {
+              const vehiclesData = responseObj.vehicles;
+              console.log("Kanban vehicles fetched: ", vehiclesData);
+              this.loadRealtimeVehicles(vehiclesData);
+            }, 2000);
+          },
+          error: error => console.error("Errore nell'aggiornamento delle anomalie: ", error)
+        });
+      },
+      error: error => console.error("Errore nella notifica di aggiornamento delle anomalie del kanban: ", error)
+    });
 
     this.filtersCommonService.applyFilters$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe((filters: Filters)=>{
@@ -63,7 +86,45 @@ export class KanbanAntennaComponent implements AfterViewInit, OnDestroy{
       this.kanbanAntennaService.setKanbanData(kanbanVehicles);
       this.antenanGraphService.loadChartData$.next(kanbanVehicles);
     });
-    this.kanbanAntennaService.setKanbanData(kanbanVehicles);
+  }
+
+
+  /**
+   * Recupera i dati del realtime dalla chiamata API e unisce i risultati con i veicoli passati
+   * @returns veicoli accorpati con ultima posizione realtime
+   */
+  private loadRealtimeVehicles(vehicles: VehicleData[]): VehicleData[] {
+    this.realtimeApiService.getLastRealtime().pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (realtimeDataObj: RealtimeData[]) => {
+          const realtimeVehicles: VehicleData[] = this.mergeRealtimeData(vehicles, realtimeDataObj);
+          this.kanbanAntennaService.setKanbanData(realtimeVehicles);
+          this.sessionStorageService.setItem("allData", JSON.stringify(realtimeVehicles));
+          this.kanbanAntennaService.setKanbanData(realtimeVehicles);
+          this.antenanGraphService.loadChartData$.next(realtimeVehicles);
+          return realtimeVehicles;
+        },
+        error: error => console.error("Errore nel caricamento dei dati realtime: ", error)
+      });
+    return [];
+  }
+
+  /**
+   * Unisce un array di veicoli con uno di dati realtime
+   * @param tableVehicles array di veicoli
+   * @param realtimeData dati realtime
+   * @returns veicoli accorpati
+   */
+  private mergeRealtimeData(tableVehicles: VehicleData[], realtimeData: RealtimeData[]): VehicleData[] {
+    tableVehicles.forEach(vehicleData => {
+      const matchedRealtimeData = realtimeData.find(realtimeData => {
+        return parseInt(realtimeData.vehicle.veId) === vehicleData.vehicle.veId;
+      });
+      if (matchedRealtimeData) {
+        vehicleData.realtime = matchedRealtimeData.realtime;
+      }
+    });
+    return tableVehicles;
   }
 
   showMap(vehicleData: VehicleData) {
