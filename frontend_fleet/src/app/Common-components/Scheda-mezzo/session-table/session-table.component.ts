@@ -63,7 +63,6 @@ export class SessionTableComponent implements AfterViewInit{
   ){}
 
   ngAfterViewInit(): void {
-    console.log("vehicle: ", this.vehicle);
     this.sessionApiService.loadAnomalySessionDays$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (range: Date[]) => {
@@ -99,19 +98,24 @@ export class SessionTableComponent implements AfterViewInit{
     });
   }
 
-  handleRowExpansion(anomaly: any, event: MouseEvent): void {
+  handleRowExpansion(anomaly: Anomaly, event: MouseEvent): void {
     this.expandedDay = this.expandedDay === anomaly ? null : anomaly;
     event.stopPropagation();
-    this.handleGetSessionsByVeIdRanged();
+    if(this.expandedDay){
+      this.handleGetSessionsByVeIdRanged(anomaly.date);
+    }
   }
 
-  private handleGetSessionsByVeIdRanged(){
-    this.sessionApiService.getSessionsByVeIdRanged(this.vehicle.veId, this.dateFrom, this.dateTo).pipe(takeUntil(this.destroy$))
+  private handleGetSessionsByVeIdRanged(date: Date){
+    const dateTo = new Date(date);
+    dateTo.setDate(dateTo.getDate() + 1);
+
+    this.sessionApiService.getSessionsByVeIdRanged(this.vehicle.veId, date, dateTo).pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (sessions: Session[]) => {
-        console.log("sessions fetched: ", sessions);
         this.sessionsTableData.data = sessions;
         this.sessionsTable.renderRows();
+        this.cd.detectChanges();
       },
       error: error => console.error("Errore durante la ricerca delle sessioni del veicolo nell'arco di tempo: ", error)
     });

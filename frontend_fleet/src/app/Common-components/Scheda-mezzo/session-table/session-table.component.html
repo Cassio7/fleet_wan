@@ -104,56 +104,59 @@
     </td>
   </ng-container>
 
-  <!-- Expanded detail row -->
-  <ng-container matColumnDef="expandedDetail">
-    <td mat-cell *matCellDef="let anomaly"
-        [attr.colspan]="daysColumnsToDisplayWithExpand.length">
-      <div class="example-element-detail"
-           [@detailExpand]="anomaly === expandedDay ? 'expanded' : 'collapsed'">
-           <table mat-table
-           [dataSource]="sessionsTableData"
-           multiTemplateDataRows
-           class="mat-elevation-z8"
-           #sessionsTable>
+  <!-- Riga dettagli espansi -->
+<ng-container matColumnDef="expandedDetail">
+  <td mat-cell *matCellDef="let anomaly"
+      [attr.colspan]="daysColumnsToDisplayWithExpand.length">
+    <div class="example-element-detail"
+         [@detailExpand]="anomaly === expandedDay ? 'expanded' : 'collapsed'">
 
-     <!-- Id Column -->
-     <ng-container matColumnDef="Id">
-      <th mat-header-cell *matHeaderCellDef> Id </th>
-      <td mat-cell *matCellDef="let session"> {{session.id}} </td>  <!-- i + 1 per partire da 1 -->
-      </ng-container>
+      <!-- Tabella delle sessioni -->
+      <table mat-table
+             [dataSource]="sessionsTableData"
+             multiTemplateDataRows
+             class="mat-elevation-z8"
+             #sessionsTable>
 
-     <!-- Sequence ID Column -->
-     <ng-container matColumnDef="Sequence ID">
-       <th mat-header-cell *matHeaderCellDef> Sequence ID </th>
-       <td mat-cell *matCellDef="let session"> {{session.sequence_id}} </td>
-     </ng-container>
+        <!-- Colonna Id -->
+        <ng-container matColumnDef="Id">
+          <th mat-header-cell *matHeaderCellDef> Id </th>
+          <td mat-cell *matCellDef="let session"> {{session.id}} </td>
+        </ng-container>
 
-     <!-- Inizio (Start) Column -->
-     <ng-container matColumnDef="Inizio">
-       <th mat-header-cell *matHeaderCellDef> Inizio </th>
-       <td mat-cell *matCellDef="let session"> {{session.period_from | date: "dd/MM/yyyy"}} </td>
-     </ng-container>
+        <!-- Colonna Sequence ID -->
+        <ng-container matColumnDef="Sequence ID">
+          <th mat-header-cell *matHeaderCellDef> Sequence ID </th>
+          <td mat-cell *matCellDef="let session"> {{session.sequence_id}} </td>
+        </ng-container>
 
-     <!-- Fine (End) Column -->
-     <ng-container matColumnDef="Fine">
-       <th mat-header-cell *matHeaderCellDef> Fine </th>
-       <td mat-cell *matCellDef="let session"> {{session.period_to | date: "dd/MM/yyyy"}} </td>
-     </ng-container>
+        <!-- Colonna Inizio -->
+        <ng-container matColumnDef="Inizio">
+          <th mat-header-cell *matHeaderCellDef> Inizio </th>
+          <td mat-cell *matCellDef="let session"> {{session.period_from | date: "dd/MM/yyyy"}} </td>
+        </ng-container>
 
-     <!-- Distanza (Distance) Column -->
-     <ng-container matColumnDef="Distanza">
-       <th mat-header-cell *matHeaderCellDef> Distanza </th>
-       <td mat-cell *matCellDef="let session"> {{session.distance}} km </td>
-     </ng-container>
+        <!-- Colonna Fine -->
+        <ng-container matColumnDef="Fine">
+          <th mat-header-cell *matHeaderCellDef> Fine </th>
+          <td mat-cell *matCellDef="let session"> {{session.period_to | date: "dd/MM/yyyy"}} </td>
+        </ng-container>
 
-     <!-- Header and Row Definitions -->
-     <tr mat-header-row *matHeaderRowDef="sessionColumnsToDisplay"></tr>
-     <tr mat-row *matRowDef="let row; columns: sessionColumnsToDisplay;"></tr>
-   </table>
+        <!-- Colonna Distanza -->
+        <ng-container matColumnDef="Distanza">
+          <th mat-header-cell *matHeaderCellDef> Distanza </th>
+          <td mat-cell *matCellDef="let session"> {{session.distance}} km </td>
+        </ng-container>
 
-      </div>
-    </td>
-  </ng-container>
+        <!-- Definizione intestazioni e righe della tabella -->
+        <tr mat-header-row *matHeaderRowDef="sessionColumnsToDisplay"></tr>
+        <tr mat-row *matRowDef="let row; columns: sessionColumnsToDisplay;"></tr>
+      </table>
+
+    </div>
+  </td>
+</ng-container>
+
 
   <!-- Header row -->
   <tr mat-header-row *matHeaderRowDef="daysColumnsToDisplayWithExpand"></tr>
