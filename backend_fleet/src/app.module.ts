@@ -36,6 +36,12 @@ import { TagService } from './services/tag/tag.service';
 import { AuthService } from './services/auth/auth.service';
 import { UserService } from './services/user/user.service';
 import { CompanyService } from './services/company/company.service';
+import { AnomalyService } from './services/anomaly/anomaly.service';
+import { RoleService } from './services/role/role.service';
+import { AssociationService } from './services/association/association.service';
+import { WorksiteService } from './services/worksite/worksite.service';
+import { LoggerService } from './log/service/logger.service';
+import { NotesService } from './services/notes/notes.service';
 
 // importo i controller
 import { GroupController } from './controllers/group/group.controller';
@@ -47,6 +53,8 @@ import { CompanyController } from './controllers/company/company.controller';
 import { AuthController } from './controllers/auth/auth.controller';
 import { UserController } from './controllers/user/user.controller';
 import { AnomalyController } from './controllers/anomaly/anomaly.controller';
+import { AssociationController } from './controllers/association/association.controller';
+import { NotesController } from './controllers/notes/notes.controller';
 
 // importo i factory
 import { UserFactoryService } from './factory/user.factory';
@@ -54,16 +62,8 @@ import { CompanyFactoryService } from './factory/company.factory';
 import { WorksiteFactoryService } from './factory/worksite.factory';
 import { GroupFactoryService } from './factory/group.factory';
 import { WorksiteGroupFactoryService } from './factory/worksite_group.factory';
-import { NotesService } from './services/notes/notes.service';
-import { NotesController } from './controllers/notes/notes.controller';
 import { AssociationFactoryService } from './factory/association.factory';
 import { CategoryFactoryService } from './factory/category.factory';
-import { AnomalyService } from './services/anomaly/anomaly.service';
-import { RoleService } from './services/role/role.service';
-import { AssociationService } from './services/association/association.service';
-import { AssociationController } from './controllers/association/association.controller';
-import { WorksiteService } from './services/worksite/worksite.service';
-import { LoggerService } from './log/service/logger.service';
 
 @Global()
 @Module({
