@@ -154,9 +154,14 @@ export class DashboardComponent implements AfterViewInit{
     this.cd.detectChanges();
   }
 
+  /**
+   * Notifica di passare dai dati di oggi a quelli dell'ultimo andamento o viceversa
+   * @param event evento toggle
+   */
   dataSwitch(event: MatSlideToggleChange){
     if(event.checked){
       this.today = true;
+      this.lastSession = false;
       this.switchText = "Oggi";
       this.checkErrorsService.switchCheckDay$.next("today");
     }else{
@@ -165,6 +170,19 @@ export class DashboardComponent implements AfterViewInit{
       this.switchText = "Ultimo andamento"
       this.checkErrorsService.switchCheckDay$.next("last");
     }
+  }
+
+  /**
+   * Aggiorna i dati di oggi
+   */
+  updateData(){
+    this.checkErrorsService.updateAnomalies().pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: () => {
+        this.checkErrorsService.updateAnomalies$.next();
+      },
+      error: error => console.error("Errore nell'aggiornamento delle anomalie: ", error)
+    });
   }
 
   public get table(): boolean {

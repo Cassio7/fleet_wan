@@ -20,6 +20,18 @@
   gap: 2vw;
 }
 
+.header-right{
+  display: flex;
+  align-items: center;
+  gap: 1vw;
+}
+
+.header-right .updateData-btn{
+  background-color: var(--sidebar-color);
+  border-radius: 5px;
+  color: white;
+}
+
 .section-name {
   width: 100%;
   display: flex;
