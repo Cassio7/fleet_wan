@@ -134,3 +134,9 @@ tr.example-element-row:not(.example-expanded-row):active {
   cursor: pointer;
   transition: transform 0.2s;
 }
+.disclaimers{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
