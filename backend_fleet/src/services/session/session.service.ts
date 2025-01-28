@@ -161,7 +161,7 @@ export class SessionService {
           period_to: convertHours(item['periodTo']),
           sequence_id: item['sequenceId'],
           closed: item['closed'],
-          distance: item['distance'].split('.').join(''),
+          distance: item['distance'],
           engine_drive: item['engineDriveSec'],
           engine_stop: item['engineNoDriveSec'],
           lists: item['list'],

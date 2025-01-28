@@ -20,7 +20,7 @@ export class SessionEntity extends CommonEntity implements SessionInterface {
   @Column({ type: 'boolean' })
   closed: boolean;
 
-  @Column()
+  @Column({ type: 'double precision' })
   @Index()
   distance: number;
 
