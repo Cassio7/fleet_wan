@@ -7,17 +7,15 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { KanbanFiltersComponent } from '../kanban-filters/kanban-filters.component';
 import { KanbanAntennaService } from '../../Services/kanban-antenna/kanban-antenna.service';
 import { takeUntil, skip, Subject } from 'rxjs';
-import { PlateFilterService } from '../../../Common-services/plate-filter/plate-filter.service';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { VehicleData } from '../../../Models/VehicleData';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Filters, FiltersCommonService } from '../../../Common-services/filters-common/filters-common.service';
-import { AntennaFilterService } from '../../../Common-services/antenna-filter/antenna-filter.service';
 import { AntennaGraphService } from '../../Services/antenna-graph/antenna-graph.service';
 import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
+import { KanbanFiltersComponent } from "../kanban-filters/kanban-filters.component";
 
 @Component({
   selector: 'app-kanban-antenna',
@@ -31,8 +29,9 @@ import { CheckErrorsService } from '../../../Common-services/check-errors/check-
     MatProgressBarModule,
     MatIconModule,
     MatListModule,
-    MatTooltipModule
-  ],
+    MatTooltipModule,
+    KanbanFiltersComponent
+],
   templateUrl: './kanban-antenna.component.html',
   styleUrl: './kanban-antenna.component.css'
 })

@@ -48,8 +48,7 @@ import { MapComponent } from '../../../Common-components/map/map.component';
     KanbanGpsComponent,
     MatSlideToggleModule,
     KanbanAntennaComponent,
-    KanbanFiltersComponent,
-    MapComponent
+    MapComponent,
 ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
@@ -89,6 +88,11 @@ export class DashboardComponent implements AfterViewInit{
     const currentSection = this.sessionStorageService.getItem("dashboard-section");
     this.displaySection(currentSection);
 
+    this.handleKanbanLoading();
+    this.cd.detectChanges();
+  }
+
+  private handleKanbanLoading(){
     this.kanbanTableService.loadKabanTable$.pipe(takeUntil(this.destroy$))
     .subscribe({
       next: () => {
@@ -122,7 +126,6 @@ export class DashboardComponent implements AfterViewInit{
       },
       error: error => console.error("Errore nel caricamento del kaban gps: ", error)
     });
-    this.cd.detectChanges();
   }
 
   /**

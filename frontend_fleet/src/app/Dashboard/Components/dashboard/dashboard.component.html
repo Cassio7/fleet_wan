@@ -14,7 +14,7 @@
     </div>
     <div class="map-header">
       <p class="map-title">Mappa</p>
-      <p class="map-subtitle">Visualizza i mezzi nella mappa</p>
+      <p class="map-subtitle">Ultima posizione registrata del mezzo</p>
     </div>
     <app-map class="map" *ngIf="today"></app-map>
     <mat-error *ngIf="!today">Mappa non disponibile per ultimo andamento.</mat-error>
@@ -32,17 +32,17 @@
         <app-kebab-menu></app-kebab-menu>
       </div>
     </div>
-    <div class="table-content" *ngIf="table">
-      <app-row-filter></app-row-filter>
-      <app-table></app-table>
-    </div>
-    <div class="kabangps-content" *ngIf="kanbanGps">
-      <app-kanban-filters></app-kanban-filters>
-      <app-kanban-gps></app-kanban-gps>
-    </div>
-    <div class="kabanAntenna-content" *ngIf="kabanAntenna">
-      <app-kanban-filters></app-kanban-filters>
-      <app-kanban-antenna></app-kanban-antenna>
+    <div class="main-content">
+      <div class="table-content" *ngIf="table">
+        <app-row-filter></app-row-filter>
+        <app-table></app-table>
+      </div>
+      <div class="kabangps-content" *ngIf="kanbanGps">
+        <app-kanban-gps></app-kanban-gps>
+      </div>
+      <div class="kabanAntenna-content" *ngIf="kabanAntenna">
+        <app-kanban-antenna></app-kanban-antenna>
+      </div>
     </div>
   </div>
 </div>

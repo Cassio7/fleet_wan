@@ -30,6 +30,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatIconModule,
     MatListModule,
     MatTooltipModule,
+    KanbanFiltersComponent
 ],
   templateUrl: './kanban-gps.component.html',
   styleUrl: './kanban-gps.component.css'

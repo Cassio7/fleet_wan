@@ -14,7 +14,6 @@
   font-size: 40px;
   font-weight: bold;
   line-height: 1;
-  margin: 0;
 }
 
 .subtitle {
@@ -22,11 +21,9 @@
   color: gray;
   font-style: italic;
   line-height: 1;
-  margin: 0;
 }
 
 .progress-bar {
-  margin-bottom: 1vh;
   border-radius: 2px;
   background-color: green !important; /*non funziona*/
   cursor: pointer;
@@ -50,7 +47,6 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1vh;
 }
 
 .OK-container, .warning-container, .error-container {
@@ -69,11 +65,11 @@
 }
 
 .warning-container {
-  background-color: #ffcc00;
+  background-color: var(--yellow);
 }
 
 .error-container {
-  background-color: #d12717;
+  background-color: var(--red);
 }
 
 .vehicle {
@@ -95,7 +91,6 @@
 
 mat-form-field {
   width: 100%;
-  margin-bottom: 16px;
 }
 
 input[matInput] {
@@ -105,7 +100,6 @@ input[matInput] {
 
 button {
   width: 100%;
-  margin-top: 8px;
 }
 
 mat-list-item {
@@ -126,22 +120,20 @@ mat-list-item:hover {
   cursor: pointer;
 }
 .scrollable-list {
-  max-height: 500px; /* Set max height for the scrollable area */
-  overflow-y: auto; /* Enable vertical scrolling */
-  margin-top: 10px; /* Optional: add some space above the list */
-  padding-right: 20px; /* To add space on the right for the scrollbar */
-  padding-left: 10px; /* Add space on the left side for the scrollbar */
+  max-height: 500px;
+  overflow-y: auto;
+  padding-right: 20px;
+  padding-left: 10px;
 }
 
-/* Custom scrollbar styles (optional) */
+
 .scrollable-list::-webkit-scrollbar {
-  width: 10px; /* Adjust width of the scrollbar */
+  width: 10px;
   background-color: transparent;
 }
 
 .scrollable-list::-webkit-scrollbar-thumb {
   background-color: green;
-  margin-left: 50px;
   border-radius: 10px;
 }
 

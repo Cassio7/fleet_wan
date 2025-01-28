@@ -120,6 +120,11 @@ mat-list-item {
   align-items: center;
   padding: 8px;
   border-bottom: 1px solid #ddd;
+  height: auto !important;
+}
+
+mat-icon-button {
+  color: #f44336;
 }
 
 mat-list-item:hover {
@@ -130,12 +135,10 @@ mat-list-item:hover {
 .scrollable-list {
   max-height: 500px;
   overflow-y: auto;
-  margin-top: 10px;
   padding-right: 20px;
   padding-left: 10px;
 }
 
-/* Custom scrollbar styles for WebKit browsers */
 .scrollable-list::-webkit-scrollbar {
   width: 10px;
   background-color: transparent;

@@ -6,35 +6,35 @@
 
 .header {
   width: 100%;
-  height: 100%;
+  height: auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 20px;
+  margin-bottom: 0;
 }
 
-.header-left{
+.header-left {
   display: flex;
   align-items: center;
   gap: 2vw;
 }
 
-.section-name{
+.section-name {
   width: 100%;
 }
 
-.title{
+.title {
   font-size: 40px;
   font-weight: bold;
   line-height: 1;
-  margin: 0;
 }
 
-.subtitle{
+.subtitle {
   font-size: 20px;
   color: gray;
   font-style: italic;
   line-height: 1;
-  margin: 0;
 }
 
 .left-section {
@@ -61,23 +61,21 @@
   font-size: 30px;
   font-weight: bold;
   line-height: 1;
-  margin: 0;
 }
 
 .graphs-subtitle {
   font-size: 20px;
   line-height: 1;
-  margin-top: 5;
 }
 
-.graphs .table{
+.graphs .table {
   height: 100%;
   display: flex;
   flex-direction: column;
   gap: 1vh;
 }
 
-.map-header{
+.map-header {
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -86,10 +84,11 @@
   gap: 1vh;
 }
 
-.map-title{
+.map-title {
   font-weight: bold;
   font-size: 30px;
 }
+
 .graphs-subtitle {
   font-size: 20px;
 }
@@ -100,23 +99,41 @@
   position: relative;
 }
 
-.right-section{
+.right-section {
   width: 100%;
   height: 100vh;
   display: flex;
   flex-direction: column;
   background-color: var(--background-color);
-  padding: 20px;
+  padding: 0;
+  margin: 0;
 }
 
-.kebab-menu{
+.kebab-menu {
   width: 100%;
   display: flex;
   justify-content: flex-end;
 }
 
-.filters{
-  margin: 0;
+.main-content {
+  padding: 0;
+  margin-top: 0;
+}
+
+.table-content {
+  display: flex;
+  flex-direction: column;
+  margin-top: 0;
+  padding: 0;
+}
+
+.kabangps-content,
+.kabanAntenna-content {
+  margin-top: 0;
+  padding: 0;
+}
+
+.filters {
   padding: 0;
 }
 
@@ -124,4 +141,3 @@
   height: 100vh;
   width: 100%;
 }
-

@@ -1,4 +1,5 @@
 <div class="container">
+  <app-kanban-filters></app-kanban-filters>
   <div class="columns">
     <!-- Working Column -->
     <div class="working-col">
@@ -44,7 +45,7 @@
       <div class="scrollable-list">
         <mat-list>
           <mat-list-item *ngFor="let obj of kanbanGpsService.warningVehicles" >
-            <div class="vehicle" [matTooltip]="checkErrorsService.checkGPSWarning(obj)">
+            <div class="vehicle" [matTooltip]="checkErrorsService.checkVehicleGPSWarning(obj)">
               <div class="info">
                 <p class="type">{{ "tipologia"}}</p>
                 <p class="cantiere">{{ obj.vehicle.worksite?.name ? obj.vehicle.worksite?.name : "non assegnato"}}</p>
@@ -73,7 +74,7 @@
       <div class="scrollable-list">
         <mat-list>
           <mat-list-item *ngFor="let obj of kanbanGpsService.errorVehicles">
-            <div class="vehicle" [matTooltip]="checkErrorsService.checkGpsError(obj)">
+            <div class="vehicle" [matTooltip]="checkErrorsService.checkVehicleGpsError(obj)">
               <div class="info">
                 <p class="type">{{ "tipologia"}}</p>
                 <p class="cantiere">{{ obj.vehicle.worksite?.name ? obj.vehicle.worksite?.name : "non assegnato"}}</p>
