@@ -84,7 +84,6 @@ export class TableComponent implements OnDestroy, AfterViewInit {
 
   ngAfterViewInit(): void {
     setTimeout(() => {
-      this.handlErrorGraphClick(); // Subscribe a click nel grafico degli errori
       this.handleAllFilters(); //subscribe all'applicazione di tutti i filtri
     });
 
@@ -100,6 +99,15 @@ export class TableComponent implements OnDestroy, AfterViewInit {
         }
       },
       error: error => console.error("Errore nel cambio del giorno di controllo: ", error)
+    });
+
+    this.checkErrorsService.updateAnomalies$.pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: () => {
+        this.vehicleTableData.data = [];
+        this.fillTable();
+      },
+      error: error => console.error("Errore nella notifica di aggiornamento della anomalie: ", error)
     });
 
     this.fillTable();
@@ -119,43 +127,6 @@ export class TableComponent implements OnDestroy, AfterViewInit {
         this.antennaGraphService.loadChartData$.next(filteredVehicles);
         this.errorGraphService.loadGraphData$.next(filteredVehicles);
       }
-    });
-  }
-
-  /**
-   * Gestisce le sottoscrizioni ai click sul grafico degli errori
-   */
-  private handlErrorGraphClick() {
-    this.checkErrorsService.fillTable$.pipe(takeUntil(this.destroy$), skip(1))
-    .subscribe({
-      next: (tableVehicles: any[]) => {
-        this.onGraphClick(tableVehicles);
-      },
-      error: error => console.error("Errore nel caricamento dei dati dal grafico degli errori: ", error)
-    });
-
-    this.errorGraphService.loadFunzionanteData$.pipe(takeUntil(this.destroy$), skip(1))
-    .subscribe({
-      next: (workingVehicles: any[]) => {
-        this.onGraphClick(workingVehicles);
-      },
-      error: error => console.error("Errore nel caricamento dei dati dal grafico degli errori: ", error)
-    });
-
-    this.errorGraphService.loadWarningData$.pipe(takeUntil(this.destroy$), skip(1))
-    .subscribe({
-      next: (warningVehicles: any[]) => {
-        this.onGraphClick(warningVehicles);
-      },
-      error: error => console.error("Errore nel caricamento dei dati dal grafico degli errori: ", error)
-    });
-
-    this.errorGraphService.loadErrorData$.pipe(takeUntil(this.destroy$), skip(1))
-    .subscribe({
-      next: (errorVehicles: any[]) => {
-        this.onGraphClick(errorVehicles);
-      },
-      error: error => console.error("Errore nel caricamento dei dati dal grafico degli errori: ", error)
     });
   }
 
@@ -335,6 +306,7 @@ export class TableComponent implements OnDestroy, AfterViewInit {
    * @param vehicleData veicolo di cui mostrare l'ultima posizione registrata
    */
   showMap(vehicleData: VehicleData) {
+    console.log("chiamata ShowMap()");
     this.mapService.loadMap$.next(vehicleData);
   }
 
@@ -343,7 +315,6 @@ export class TableComponent implements OnDestroy, AfterViewInit {
    * @param vehiclesData dati dei veicoli
    */
   onGraphClick(vehiclesData: VehicleData[]) {
-    this.sessionStorageService.setItem("tableData", JSON.stringify(vehiclesData));
     this.cantieriFilterService.updateCantieriFilterOptions$.next(vehiclesData);
     this.fillTableWithVehicles(vehiclesData);
     this.loadGraphs(vehiclesData);

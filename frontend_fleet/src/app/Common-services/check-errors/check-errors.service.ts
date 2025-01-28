@@ -17,6 +17,8 @@ export class CheckErrorsService {
    */
   private readonly _fillTable$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
   private readonly _switchCheckDay$: BehaviorSubject<string> = new BehaviorSubject<string>("");
+  private readonly _updateAnomalies$: Subject<void> = new Subject<void>();
+
 
   constructor(
     private http: HttpClient,
@@ -34,6 +36,12 @@ export class CheckErrorsService {
     return this.checkGpsError(gpsAnomaly);
   }
 
+  /**
+   * Controlla se l'anomalia di GPS è un GPS
+   * @param anomaly anomalia di gps
+   * @returns anomalia nel caso sia un errore
+   * @returns null se l'anomalia non è un errore
+   */
   checkGpsError(anomaly: string | null | undefined): string | null {
     if (typeof anomaly === 'string' && (anomaly.includes("TOTALE") || anomaly.includes("totale") || anomaly.includes("Totale"))) {
       return anomaly;
@@ -52,6 +60,12 @@ export class CheckErrorsService {
     return this.checkGpsWarning(gpsAnomaly);
   }
 
+  /**
+   * Controlla se l'anomalia di GPS è uno warning
+   * @param anomaly anomalia di gps
+   * @returns anomalia nel caso sia uno warning
+   * @returns null se l'anomalia non è uno warning
+   */
   checkGpsWarning(anomaly: string | null | undefined): string | null {
     if (typeof anomaly === 'string' && !(anomaly.includes("TOTALE") || anomaly.includes("totale") || anomaly.includes("Totale"))) {
       return anomaly;
@@ -289,8 +303,19 @@ export class CheckErrorsService {
     return this.http.post<VehicleAnomalies>(`${this.commonService.url}/anomaly/veId`, body, {headers});
   }
 
+  /**
+   * Richiama l'API per l'aggiornamento delle anomalie ad oggi
+   * @returns observable http get
+   */
+  updateAnomalies(): Observable<any>{
+    const access_token = this.cookieService.getCookie("user");
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${access_token}`,
+      'Content-Type': 'application/json'
+    });
 
-
+    return this.http.get(`${this.commonService.url}/anomaly/updatetoday`, {headers});
+  }
 
   /**
  * Controlla gli errori di tutti i veicoli con sessioni nella giornata di oggi
@@ -300,7 +325,9 @@ export class CheckErrorsService {
     return this.checkErrorsAllRanged(new Date(), new Date());
   }
 
-
+  public get updateAnomalies$(): Subject<void> {
+    return this._updateAnomalies$;
+  }
   public get fillTable$(): BehaviorSubject<any[]> {
     return this._fillTable$;
   }
