@@ -105,7 +105,11 @@ export class TableComponent implements OnDestroy, AfterViewInit {
     .subscribe({
       next: () => {
         this.vehicleTableData.data = [];
-        this.fillTable();
+        this.simulateProgress(1);
+        this.cd.detectChanges();
+        setTimeout(() => {
+          this.fillTable();
+        }, 2000);
       },
       error: error => console.error("Errore nella notifica di aggiornamento della anomalie: ", error)
     });
@@ -173,13 +177,13 @@ export class TableComponent implements OnDestroy, AfterViewInit {
   /**
    * Riempe la tabella con i dati recuperati dalla chiamata API
    */
-  private fillTable() {
+  private async fillTable() {
     this.sessionStorageService.clear();
     console.log("CHIAMATO FILL TABLE!");
     this.antennaGraphService.resetGraph();
     this.errorGraphService.resetGraphs();
     this.vehicleTableData.data = [];
-    this.simulateProgress(0.2, 10);
+    await this.simulateProgress(1.5);
     this.checkErrorsService.checkErrorsAllToday().subscribe({
       next: (responseObj: any) => {
         const vehiclesData = responseObj.vehicles;
@@ -270,21 +274,28 @@ export class TableComponent implements OnDestroy, AfterViewInit {
   /**
    * Simula il progresso di un caricamento
    * @param seconds durata totale in secondi del caricamento
-   * @param progressPerSec progresso per secondo
    */
-  simulateProgress(seconds: number, progressPerSec: number) {
+  async simulateProgress(seconds: number): Promise<void> {
+    this.loading = true;
+    this.loadingProgress = 0;
+    this.cd.detectChanges();
     let progress = 0;
-    const interval = setInterval(() => {
-      if (progress < 100) {
-        progress += progressPerSec;
-        this.loadingProgress = progress;
-      } else {
-        this.loading = false;
-        clearInterval(interval);
-      }
-      this.cd.detectChanges();
-    }, seconds);
-  }
+    const progressPerSec = 100 / seconds;
+    return new Promise((resolve) => {
+        const interval = setInterval(() => {
+            if (progress < 100) {
+                progress += progressPerSec;
+                this.loadingProgress = Math.min(progress, 100);
+            } else {
+                this.loading = false;
+                clearInterval(interval);
+                resolve();
+            }
+            this.cd.detectChanges();
+        }, 1000);
+    });
+}
+
 
   /**
    * Riempe la tabella con i veicoli passati
