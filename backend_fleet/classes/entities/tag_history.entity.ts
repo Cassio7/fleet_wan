@@ -10,6 +10,7 @@ export class TagHistoryEntity
   implements TagHistoryInterface
 {
   @Column({ type: 'timestamptz', nullable: true })
+  @Index()
   timestamp: Date;
 
   @Column('double precision')
