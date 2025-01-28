@@ -11,6 +11,7 @@ import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { createHash } from 'crypto';
 import { convertHours } from 'src/utils/utils';
 import {
+  Between,
   DataSource,
   In,
   LessThanOrEqual,
@@ -380,8 +381,51 @@ export class TagService {
     }
   }
 
+  async noAPIgetTagHistoryByVeIdRanged(
+    veId: number[],
+    dateFrom: Date,
+    dateTo: Date,
+  ): Promise<any> {
+    try {
+      const tags = await this.tagHistoryRepository
+        .createQueryBuilder('tag_history')
+        .leftJoinAndSelect('tag_history.vehicle', 'vehicle')
+        .leftJoinAndSelect('tag_history.detectiontag', 'detectiontag')
+        .select([
+          'tag_history.id',
+          'vehicle.veId',
+          'detectiontag.detection_quality',
+        ])
+        .where('vehicle.veId IN (:...veId)', { veId })
+        .andWhere('tag_history.timestamp BETWEEN :dateFrom AND :dateTo', {
+          dateFrom,
+          dateTo,
+        })
+        .getMany();
+      const tagMap = new Map<number, number[]>(); // Mappa veId -> detection_quality[]
+      veId.forEach((id) => tagMap.set(id, [])); // Prepara array vuoti
+
+      tags.forEach((tag) => {
+        const vehicleId = tag.vehicle.veId;
+        if (vehicleId) {
+          const vehicleQualities = tagMap.get(vehicleId);
+          if (vehicleQualities) {
+            tag.detectiontag.forEach((detection) => {
+              if (detection.detection_quality != null) {
+                vehicleQualities.push(detection.detection_quality);
+              }
+            });
+          }
+        }
+      });
+      return tagMap;
+    } catch (error) {
+      console.error(error);
+    }
+  }
   /**
    * Recupera l'ultimo tag letto di ogni veicolo passato come parametro, in base al range temporale inserito
+   * Funzione richiamata solo dentro il server
    * @param vehicleIds lista di veId identificativi veicolo
    * @param dateFrom data inizio ricerca
    * @param dateTo data fine ricerca
