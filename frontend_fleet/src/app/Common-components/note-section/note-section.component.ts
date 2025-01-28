@@ -46,6 +46,7 @@ export class NoteSectionComponent implements AfterViewInit, OnDestroy{
   }
 
   ngAfterViewInit(): void {
+    this.refreshOptions();
     setTimeout(() => {
       this.notesService.loadNote$.pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -62,7 +63,6 @@ export class NoteSectionComponent implements AfterViewInit, OnDestroy{
       this.updatedBtn = true;
       this.eliminatedBtn = true;
       this.createdBtn = false;
-      console.log
     }else{
       this.updatedBtn = false;
       this.eliminatedBtn = false;
