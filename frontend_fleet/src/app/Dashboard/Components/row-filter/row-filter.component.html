@@ -1,8 +1,8 @@
 <div class="filter-container">
   <mat-form-field class="targa-filter filter" appearance="outline">
     <mat-label>Targa</mat-label>
-    <input matInput type="text" placeholder="Targa" #targa class="targa-input" [(ngModel)]="plate" (input)="searchPlates()">
-    <button *ngIf="targa.value" matSuffix mat-icon-button aria-label="Clear" (click)="plate='';searchPlates()">
+    <input matInput type="text" placeholder="Targa" #targa class="targa-input" [(ngModel)]="filters.plate" (input)="searchPlates()">
+    <button *ngIf="targa.value" matSuffix mat-icon-button aria-label="Clear" (click)="filters.plate='';searchPlates()">
       <mat-icon>close</mat-icon>
     </button>
     <mat-icon matSuffix *ngIf="!targa.value">search</mat-icon>

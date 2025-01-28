@@ -1,3 +1,4 @@
+import { ErrorGraphsService } from './../../Services/error-graphs/error-graphs.service';
 import { SessionFilterService } from './../../../Common-services/session-filter/session-filter.service';
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
@@ -7,7 +8,7 @@ import { MatOptionModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
-import { forkJoin, skip, Subject, take, takeUntil } from 'rxjs';
+import { forkJoin, merge, skip, Subject, take, takeUntil } from 'rxjs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
@@ -20,6 +21,7 @@ import { Filters, FiltersCommonService } from '../../../Common-services/filters-
 import { KanbanTableService } from '../../Services/kanban-table/kanban-table.service';
 import { KanbanGpsService } from '../../Services/kanban-gps/kanban-gps.service';
 import { KanbanAntennaService } from '../../Services/kanban-antenna/kanban-antenna.service';
+import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
 
 @Component({
   selector: 'app-row-filter',
@@ -44,19 +46,19 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
   private readonly destroy$: Subject<void> = new Subject<void>();
 
   filterForm!: FormGroup;
-  plate: string = "";
   cantieri = new FormControl<string[]>([]);
   gps = new FormControl<string[]>([]);
   antenne = new FormControl<string[]>([]);
   sessionStates = new FormControl<string[]>([]);
 
-  private filters: Filters = {
-    plate: this.plate,
+  private _filters: Filters = {
+    plate: "",
     cantieri: this.cantieri,
     gps: this.gps,
     antenna: this.antenne,
     sessione: this.sessionStates
-  }
+  };
+
 
   constructor(
     public filtersCommonService: FiltersCommonService,
@@ -68,6 +70,8 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
     private kanbanAntennaService: KanbanAntennaService,
     public sessionFilterService: SessionFilterService,
     private cantiereFilterService: CantieriFilterService,
+    private checkErrorsService: CheckErrorsService,
+    private errorGraphService: ErrorGraphsService,
     private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef) {
     this.filterForm = new FormGroup({
@@ -88,6 +92,16 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
 
     this.toggleSelectAll();
 
+    this.handleKanbanChange();
+
+    this.handleAllFiltersOptionsUpdate();
+    this.handleErrorGraphClick();
+
+    // Aggiornamento del change detection (solitamente solo se ci sono modifiche dirette al DOM)
+    this.cd.detectChanges();
+  }
+
+  private handleKanbanChange(){
     this.kanabanTableService.loadKabanTable$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe(() => {
       this.toggleSelectAll();
@@ -100,12 +114,6 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
     .subscribe(() => {
       this.toggleSelectAll();
     });
-
-
-    this.handleAllFiltersOptionsUpdate();
-
-    // Aggiornamento del change detection (solitamente solo se ci sono modifiche dirette al DOM)
-    this.cd.detectChanges();
   }
 
   private handleAllFiltersOptionsUpdate(){
@@ -146,6 +154,27 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
     });
   }
 
+  /**
+   * Gestisce le sottoscrizioni ai click sul grafico degli errori
+   */
+  private handleErrorGraphClick() {
+    merge(
+      this.checkErrorsService.fillTable$,
+      this.errorGraphService.loadFunzionanteData$,
+      this.errorGraphService.loadWarningData$,
+      this.errorGraphService.loadErrorData$
+    )
+    .pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next: () => {
+        this.filtersCommonService.applyFilters$.next(this.filters);
+      },
+      error: (error) => {
+        console.error("Errore nel caricamento dei dati dal grafico degli errori: ", error);
+      }
+    });
+  }
+
   // checkCantiereEnabled(cantiere: string): boolean{
   //   return this.cantieri.value ? this.cantieri.value.includes(cantiere) : false;
   // }
@@ -181,7 +210,6 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
         this.cantieriFilterService.allSelected = true;
       }
     }
-    this.filters.plate = this.plate; //aggiornamento valore del filtro per targa nell'oggetto
     this.filtersCommonService.applyFilters$.next(this.filters);
     this.cd.detectChanges();
   }
@@ -215,7 +243,6 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
       }
     }
 
-    this.filters.plate = this.plate; //aggiornamento valore del filtro per targa nell'oggetto
     this.filtersCommonService.applyFilters$.next(this.filters);
     this.cd.detectChanges();
   }
@@ -247,7 +274,6 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
       }
     }
 
-    this.filters.plate = this.plate; //aggiornamento valore del filtro per targa nell'oggetto
     this.filtersCommonService.applyFilters$.next(this.filters);
     this.cd.detectChanges();
   }
@@ -277,7 +303,6 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
       }
     }
 
-    this.filters.plate = this.plate; //aggiornamento valore del filtro per targa nell'oggetto
     this.filtersCommonService.applyFilters$.next(this.filters);
     this.cd.detectChanges();
   }
@@ -349,24 +374,16 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
    * @param emptyButtonClick se la funzione è stata chiamata dalla premuta del bottone per svuotare il campo
    */
   searchPlates(){
-    if(!this.plate){
-      this.filters = {
-        plate: "",
-        cantieri: this.cantieri,
-        gps: this.gps,
-        antenna: this.antenne,
-        sessione: this.sessionStates
-      }
+    if(!this.filters.plate){
       this.toggleSelectAll();
-    }else{
-      this.filters = {
-        plate: this.plate,
-        cantieri: this.cantieri,
-        gps: this.gps,
-        antenna: this.antenne,
-        sessione: this.sessionStates
-      }
     }
+
     this.filtersCommonService.applyFilters$.next(this.filters);
+  }
+  public get filters(): Filters {
+    return this._filters;
+  }
+  public set filters(value: Filters) {
+    this._filters = value;
   }
 }
