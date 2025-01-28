@@ -180,21 +180,25 @@ export class TableComponent implements OnDestroy, AfterViewInit {
     this.errorGraphService.resetGraphs();
     this.vehicleTableData.data = [];
     this.simulateProgress(0.2, 10);
-    this.checkErrorsService.checkErrorsAllRanged(new Date(), new Date())
-    .then((responseObj: any) => {
-      const vehiclesData = responseObj.vehicles;
-      console.log("vehiclesData fetched: ", vehiclesData);
-      try {
-        if (vehiclesData && vehiclesData.length > 0) {
-          this.vehicleTableData.data = [...vehiclesData];
-          this.sessionStorageService.setItem("allData", JSON.stringify(vehiclesData));
-          this.vehicleTable.renderRows();
-          this.loadGraphs(vehiclesData);
+    this.checkErrorsService.checkErrorsAllToday().subscribe({
+      next: (responseObj: any) => {
+        const vehiclesData = responseObj.vehicles;
+        console.log("vehiclesData fetched: ", vehiclesData);
+        try {
+          if (vehiclesData && vehiclesData.length > 0) {
+            this.vehicleTableData.data = [...vehiclesData];
+            this.sessionStorageService.setItem("allData", JSON.stringify(vehiclesData));
+            this.vehicleTable.renderRows();
+            this.loadGraphs(vehiclesData);
+          }
+        } catch (error) {
+          console.error("Error processing vehicles:", error);
         }
-      } catch (error) {
-        console.error("Error processing vehicles:", error);
+      },
+      error: (err) => {
+        console.error("Errore nel caricamento iniziale dei dati: ", err);
       }
-    }).catch(error => console.error("Errore nel caricamento iniziale dei dati: ", error));
+    });
     this.getLastRealtime();
   }
 

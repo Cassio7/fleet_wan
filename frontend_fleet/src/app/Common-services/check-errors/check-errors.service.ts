@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, firstValueFrom, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, catchError, firstValueFrom, Observable, Subject, throwError } from 'rxjs';
 import { CommonService } from '../common service/common.service';
 import { Vehicle } from '../../Models/Vehicle';
 import { CookiesService } from '../cookies service/cookies.service';
@@ -171,6 +171,22 @@ export class CheckErrorsService {
     return [workingVehicles, warningVehicles, errorVehicles];
   }
 
+  /**
+   * Controlla il tipo di anomalia di GPS
+   * @param gpsAnomaly anomalia di GPS
+   * @returns "Errore", "Warning" in base al tipo di anomalia e "Funzionante"
+   * nel caso non sia presente anomalia
+   */
+  checkGPSAnomalyType(gpsAnomaly: string | null){
+    if(this.checkGpsError(gpsAnomaly)){
+      return "Errore";
+    }else if(this.checkGpsWarning(gpsAnomaly)){
+      return "Warning";
+    }else{
+      return "Funzionante";
+    }
+  }
+
 
 
   /**
@@ -232,10 +248,21 @@ export class CheckErrorsService {
     return foundAnomaly ? new Date(foundAnomaly.date) : null;
   }
 
-  getSessionAnomalyDate(anomaly: Anomaly): Date | null{
+  /**
+   * Estrae la data di una anomalia
+   * @param anomaly anomalia
+   * @returns data dell'anomalia
+   * @returns null se la data non è presente
+   */
+  getAnomalyDate(anomaly: Anomaly): Date | null{
     return anomaly ? new Date(anomaly.date) : null;
   }
 
+  /**
+   * Formatta una data nel formato yyyy/MM/dd
+   * @param date data da formattare
+   * @returns data formattata sottoforma di stringa
+   */
   private formatDate(date: Date): string {
     const year = date.getFullYear();
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -243,44 +270,6 @@ export class CheckErrorsService {
     return `${year}-${month}-${day}`;
   }
 
-  checkGPSAnomalyType(anomaly: string | null): string{
-    if(anomaly){
-      if(anomaly.includes("TOTALE") || anomaly.includes("Totale") || anomaly.includes("totale")){
-        return "Errore";
-      }else{
-        return "Warning";
-      }
-    }else{
-      return "Funzionante";
-    }
-  }
-
-  /**
-   * Controlla gli errori di tutti i veicoli con sessioni in un determinato arco di tempo
-   * @param dateFrom data di inizio ricerca
-   * @param dateTo data di fine ricerca
-   * @returns observable http
-   */
-  public async checkErrorsAllRanged(dateFrom: Date, dateTo: Date): Promise<any> {
-    const access_token = this.cookieService.getCookie("user");
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${access_token}`,
-      'Content-Type': 'application/json'
-    });
-
-    const body = {
-      dateFrom: this.formatDate(dateFrom),
-      dateTo: this.formatDate(dateTo)
-    };
-
-    try {
-      const response = await firstValueFrom(this.http.post(`${this.commonService.url}/anomaly`, body, { headers }));
-      return response;
-    } catch (error) {
-      console.error('An error occurred:', error);
-      throw error;
-    }
-  }
 
   /**
    * Permette di eseguire una chiamata al database che ritorna le anomalie di GPS, antenna e sessione di un veicolo
@@ -303,6 +292,7 @@ export class CheckErrorsService {
     return this.http.post<VehicleAnomalies>(`${this.commonService.url}/anomaly/veId`, body, {headers});
   }
 
+
   /**
    * Richiama l'API per l'aggiornamento delle anomalie ad oggi
    * @returns observable http get
@@ -317,11 +307,38 @@ export class CheckErrorsService {
     return this.http.get(`${this.commonService.url}/anomaly/updatetoday`, {headers});
   }
 
+
+  /**
+   * Controlla gli errori di tutti i veicoli con sessioni in un determinato arco di tempo
+   * @param dateFrom data di inizio ricerca
+   * @param dateTo data di fine ricerca
+   * @returns observable http
+   */
+  public checkErrorsAllRanged(dateFrom: Date, dateTo: Date): Observable<any> {
+    const access_token = this.cookieService.getCookie("user");
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${access_token}`,
+      'Content-Type': 'application/json'
+    });
+
+    const body = {
+      dateFrom: this.formatDate(dateFrom),
+      dateTo: this.formatDate(dateTo)
+    };
+
+    return this.http.post(`${this.commonService.url}/anomaly`, body, { headers }).pipe(
+      catchError((error) => {
+        console.error('An error occurred:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
   /**
  * Controlla gli errori di tutti i veicoli con sessioni nella giornata di oggi
  * @returns observable http
   */
-  public checkErrorsAllToday(): Promise<any>{
+  public checkErrorsAllToday(): Observable<any>{
     return this.checkErrorsAllRanged(new Date(), new Date());
   }
 

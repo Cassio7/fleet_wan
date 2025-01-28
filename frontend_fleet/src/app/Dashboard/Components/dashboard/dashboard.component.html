@@ -1,8 +1,8 @@
 <div class="content">
   <div class="left-section">
-    <div class="graphs-header">
-      <p class="graphs-title">Statistiche</p>
-      <p class="graphs-subtitle">Dati aggiornati sul parco mezzi</p>
+    <div class="left-header">
+      <p class="left-title">Statistiche</p>
+      <p class="left-subtitle">Dati aggiornati sul parco mezzi</p>
     </div>
     <div class="graphs" #graphs>
       <div class="table" *ngIf="table">
@@ -26,7 +26,7 @@
           <h2 class="title">{{pageName}}</h2>
           <p class="subtitle">{{subtitle}}</p>
         </div>
-        <mat-slide-toggle class="example-margin" [checked]="today"  (change)="dataSwitch($event)"> {{switchText}} </mat-slide-toggle>
+        <mat-slide-toggle [checked]="today" (change)="dataSwitch($event)"> {{switchText}} </mat-slide-toggle>
       </div>
       <div class="header-right">
         <button mat-raised-button class="updateData-btn" (click)="updateData()"><mat-icon>refresh</mat-icon> Aggiorna dati</button>

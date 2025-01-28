@@ -76,7 +76,7 @@
         <div class="OK-container" matTooltip="Sessione corretta">
           OK
         </div>
-        {{ checkErrorsService.getSessionAnomalyDate(anomaly) ? (checkErrorsService.getSessionAnomalyDate(anomaly) | date: 'dd/MM/yy') : '' }}
+        {{ checkErrorsService.getAnomalyDate(anomaly) ? (checkErrorsService.getAnomalyDate(anomaly) | date: 'dd/MM/yy') : '' }}
       </span>
       <!-- se c'è errore  -->
       <ng-template #sessionError>
@@ -85,7 +85,7 @@
             Error
           </div>
           <span class="session-date" [matTooltip]="anomaly.session">
-            {{ checkErrorsService.getSessionAnomalyDate(anomaly) ? (checkErrorsService.getSessionAnomalyDate(anomaly) | date: 'dd/MM/yyyy') : '' }}
+            {{ checkErrorsService.getAnomalyDate(anomaly) ? (checkErrorsService.getAnomalyDate(anomaly) | date: 'dd/MM/yyyy') : '' }}
           </span>
         </div>
       </ng-template>
