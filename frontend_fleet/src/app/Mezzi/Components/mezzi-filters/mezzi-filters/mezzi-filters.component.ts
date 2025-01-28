@@ -105,12 +105,19 @@ export class MezziFiltersComponent implements AfterViewInit, OnDestroy{
    * Resetta tutte le selezioni
    */
   resetSelections(){
+    this.mezziFilterService.filterTable$.next([]); //svuotamento tabella
+    const allVehicles: Vehicle[] = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+    //reimpostazione della riga dei filtri
+    const allCantieri = this.cantieriFilterService.vehiclesCantieriOnce(allVehicles);
+    this.cantieri.setValue(["Seleziona tutto", ...allCantieri]);
+    this.plate = "";
+    this.cd.detectChanges();
+    //reimpostazione dei filtri sugli header della tabella
     setTimeout(() => {
       //recupero di tutte le note dal db
       this.notesService.getAllNotes().pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (notes: Note[]) => {
-          const allVehicles: Vehicle[] = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
           const mergedVehicles: Vehicle[] = this.notesService.mergeVehiclesWithNotes(allVehicles, notes);
           this.plate = "";
           this.mezziFilterService.mezziFilters.plate = this.plate;
