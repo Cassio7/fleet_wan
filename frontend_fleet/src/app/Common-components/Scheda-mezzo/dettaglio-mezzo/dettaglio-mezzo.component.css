@@ -33,6 +33,21 @@
   font-weight: bold;
 }
 .go-back button{
+  height: 50px;
+  width: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.go-back button mat-icon{
+  width: 100%;
+  height: 100%;
+  font-size: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.go-back button{
   display: flex;
   align-items: center;
   justify-content: center;

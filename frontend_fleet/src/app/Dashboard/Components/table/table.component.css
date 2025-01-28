@@ -167,6 +167,9 @@ td.mat-cell {
 .map-icon {
   font-size: 32px;
   color: var(--sidebar-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   height: 100%;
 }
@@ -174,6 +177,10 @@ td.mat-cell {
 /*fine stile icone*/
 
 .loading-progress{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   margin-bottom: 2vh;
 }
 
