@@ -1,7 +1,7 @@
 import { ErrorGraphsService, ErrorsData } from '../../../Services/error-graphs/error-graphs.service';
 import { MatCardModule } from '@angular/material/card';
 import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, ViewChild, ViewEncapsulation } from '@angular/core';
-import { ApexChart, ApexNonAxisChartSeries, ApexResponsive, ChartComponent, NgApexchartsModule } from "ng-apexcharts";
+import { ApexChart, ApexDataLabels, ApexNonAxisChartSeries, ApexResponsive, ChartComponent, NgApexchartsModule } from "ng-apexcharts";
 import { skip, Subject, takeUntil } from 'rxjs';
 import { VehicleData } from '../../../../Models/VehicleData';
 
@@ -18,6 +18,7 @@ export type ChartOptions = {
   responsive: ApexResponsive[];
   colors: string[];
   legend: any;
+  dataLabels: ApexDataLabels;
   labels: any;
   plotOptions: any;
 };

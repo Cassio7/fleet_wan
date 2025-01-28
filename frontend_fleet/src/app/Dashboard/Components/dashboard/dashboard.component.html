@@ -14,7 +14,7 @@
     </div>
     <div class="map-header">
       <p class="map-title">Mappa</p>
-      <p class="map-subtitle">Ultima posizione registrata del mezzo</p>
+      <p class="map-subtitle">Ultima posizione registrata</p>
     </div>
     <app-map class="map" *ngIf="today"></app-map>
     <mat-error *ngIf="!today">Mappa non disponibile per ultimo andamento.</mat-error>
@@ -28,9 +28,7 @@
         </div>
         <mat-slide-toggle class="example-margin" [checked]="today"  (change)="dataSwitch($event)"> {{switchText}} </mat-slide-toggle>
       </div>
-      <div class="kebab-menu">
-        <app-kebab-menu></app-kebab-menu>
-      </div>
+      <app-kebab-menu></app-kebab-menu>
     </div>
     <div class="main-content">
       <div class="table-content" *ngIf="table">

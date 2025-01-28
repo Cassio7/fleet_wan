@@ -44,11 +44,11 @@ import { Router } from '@angular/router';
     MatProgressBarModule,
     MatSortModule,
     MatSlideToggleModule
-],
+  ],
   templateUrl: './table.component.html',
-  styleUrl: './table.component.css'
+  styleUrls: ['./table.component.css']
 })
-export class TableComponent implements OnDestroy, AfterViewInit{
+export class TableComponent implements OnDestroy, AfterViewInit {
   @ViewChild('vehicleTable') vehicleTable!: MatTable<Session[]>;
 
   private readonly destroy$: Subject<void> = new Subject<void>();
@@ -60,9 +60,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   loadingText: string = "";
   loading: boolean = true;
 
-  displayedColumns: string[] = ['tipologia','targa','cantiere', 'GPS', 'antenna', 'sessione'];
-
-
+  displayedColumns: string[] = ['tipologia','targa','cantiere', 'GPS', 'antenna', 'sessione', 'map'];
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -72,7 +70,6 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   constructor(
     public checkErrorsService: CheckErrorsService,
     private errorGraphService: ErrorGraphsService,
-    private blackboxGraphService: BlackboxGraphsService,
     private antennaGraphService: AntennaGraphService,
     private cantieriFilterService: CantieriFilterService,
     private sessionApiService: SessionApiService,
@@ -83,14 +80,12 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     private sortService: SortService,
     private router: Router,
     private cd: ChangeDetectorRef
-  ){
-  }
+  ) {}
 
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.handlErrorGraphClick(); // Subscribe a click nel grafico degli errori
-      this.handleBlackBoxGraphClick(); // Subscribe a click nel grafico dei blackbox
-      this.handleAllFilters();
+      this.handleAllFilters(); //subscribe all'applicazione di tutti i filtri
     });
 
     this.checkErrorsService.switchCheckDay$.pipe(takeUntil(this.destroy$), skip(1))
@@ -98,9 +93,9 @@ export class TableComponent implements OnDestroy, AfterViewInit{
       next: (switchTo: string) => {
         if(switchTo == "today"){
           this.fillTable();
-        }else if(switchTo == "last"){
+        } else if(switchTo == "last"){
           this.getAllLastSessionAnomalies();
-        }else{
+        } else {
           console.error("Cambio controllo a periodo sconosciuto");
         }
       },
@@ -110,7 +105,10 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     this.fillTable();
   }
 
-  private handleAllFilters(){
+  /**
+   * Gestisce la sottoscrizione all'applicazione di tutti i filtri
+   */
+  private handleAllFilters() {
     this.filtersCommonService.applyFilters$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (filters: Filters) => {
@@ -124,22 +122,18 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     });
   }
 
-
-
   /**
-   * Gestisce il click sul grafico degli errori, riempendo la tabella e caricando il grafico dei blackbox di conseguenza
+   * Gestisce le sottoscrizioni ai click sul grafico degli errori
    */
-  private handlErrorGraphClick(){
+  private handlErrorGraphClick() {
     this.checkErrorsService.fillTable$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (tableVehicles: any[]) => {
-        //if(blackbox vehicles)
         this.onGraphClick(tableVehicles);
       },
       error: error => console.error("Errore nel caricamento dei dati dal grafico degli errori: ", error)
     });
 
-    //riempre la tabella con solo veicoli funzionanti
     this.errorGraphService.loadFunzionanteData$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (workingVehicles: any[]) => {
@@ -148,7 +142,6 @@ export class TableComponent implements OnDestroy, AfterViewInit{
       error: error => console.error("Errore nel caricamento dei dati dal grafico degli errori: ", error)
     });
 
-    //riempre la tabella con solo veicoli che presentano warning
     this.errorGraphService.loadWarningData$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (warningVehicles: any[]) => {
@@ -157,7 +150,6 @@ export class TableComponent implements OnDestroy, AfterViewInit{
       error: error => console.error("Errore nel caricamento dei dati dal grafico degli errori: ", error)
     });
 
-    //riempre la tabella con solo veicoli che presentano errori
     this.errorGraphService.loadErrorData$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (errorVehicles: any[]) => {
@@ -168,38 +160,11 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   }
 
   /**
-   * Gestisce il click sul grafico dei blackbox, riempendo la tabella e caricando il grafico degli errori di conseguenza
-   */
-  private handleBlackBoxGraphClick(){
-    this.checkErrorsService.fillTable$.pipe(takeUntil(this.destroy$), skip(1))
-    .subscribe({
-      next: (allVehicles: any[]) => {
-        this.onGraphClick(allVehicles);
-      },
-      error: error => console.error("Errore nel caricamento dei dati dal grafico dei blackbox: ", error)
-    });
-    this.blackboxGraphService.loadBlackBoxData$.pipe(takeUntil(this.destroy$), skip(1))
-    .subscribe({
-      next: (blackBoxVehicles: any[]) => {
-        this.onGraphClick(blackBoxVehicles);
-      },
-      error: error => console.error("Errore nel caricamento dei dati dal grafico dei blackbox: ", error)
-    });
-    this.blackboxGraphService.loadBlackBoxAntennaData$.pipe(takeUntil(this.destroy$), skip(1))
-    .subscribe({
-      next: (blackBoxAntennaVehicles: any[]) => {
-        this.onGraphClick(blackBoxAntennaVehicles);
-      },
-      error: error => console.error("Errore nel caricamento dei dati dal grafico dei blackbox: ", error)
-    });
-  }
-
-  /**
    * Funzione per ordinamento della tabella in base a colonne (cantiere, targa, session)
    * DA FIXARE PER targa E DA FARE PER session
    * @param event evento da cui prende nome colonna e direzione ordinamento
    */
-  onSortChange(event: Sort){
+  onSortChange(event: Sort) {
     const column = event.active;
     const sortDirection = event.direction;
     const vehiclesData = this.vehicleTableData.data;
@@ -235,15 +200,14 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   }
 
   /**
-   * Riempe la tabella con i dati dei veicoli
+   * Riempe la tabella con i dati recuperati dalla chiamata API
    */
   private fillTable() {
     this.sessionStorageService.clear();
     console.log("CHIAMATO FILL TABLE!");
-    //nascondi i grafici
     this.antennaGraphService.resetGraph();
     this.errorGraphService.resetGraphs();
-    this.vehicleTableData.data = []; //inizializzazione tabella vuota
+    this.vehicleTableData.data = [];
     this.simulateProgress(0.2, 10);
     this.checkErrorsService.checkErrorsAllRanged(new Date(), new Date())
     .then((responseObj: any) => {
@@ -251,9 +215,9 @@ export class TableComponent implements OnDestroy, AfterViewInit{
       console.log("vehiclesData fetched: ", vehiclesData);
       try {
         if (vehiclesData && vehiclesData.length > 0) {
-          this.vehicleTableData.data = [...vehiclesData];  // Assicurati che vehiclesData.vehicles sia un array di veicoli
-          this.sessionStorageService.setItem("allData", JSON.stringify(vehiclesData));  // Salva l'array di veicoli
-          this.vehicleTable.renderRows();  // Rende le righe della tabella
+          this.vehicleTableData.data = [...vehiclesData];
+          this.sessionStorageService.setItem("allData", JSON.stringify(vehiclesData));
+          this.vehicleTable.renderRows();
           this.loadGraphs(vehiclesData);
         }
       } catch (error) {
@@ -264,7 +228,7 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   }
 
   /**
-   * chiamata dal servizio
+   * Recupera i dati del realtime dalla chiamata API e unisce i risultati con i veicoli della tabella
    */
   private getLastRealtime() {
     this.realtimeApiService.getLastRealtime().pipe(takeUntil(this.destroy$))
@@ -272,21 +236,23 @@ export class TableComponent implements OnDestroy, AfterViewInit{
         next: (realtimeDataObj: RealtimeData[]) => {
           const tableVehicles: VehicleData[] = this.mergeRealtimeData(this.vehicleTableData.data, realtimeDataObj);
           this.vehicleTableData.data = tableVehicles;
-          this.sessionStorageService.setItem("allData", JSON.stringify(tableVehicles));  // Salva l'array di veicoli
+          this.sessionStorageService.setItem("allData", JSON.stringify(tableVehicles));
           this.vehicleTable.renderRows();
         },
         error: error => console.error("Errore nel caricamento dei dati realtime: ", error)
       });
   }
 
+  /**
+   * Unisce un array di veicoli con uno di dati realtime
+   * @param tableVehicles array di veicoli
+   * @param realtimeData dati realtime
+   * @returns veicoli accorpati
+   */
   private mergeRealtimeData(tableVehicles: VehicleData[], realtimeData: RealtimeData[]): VehicleData[] {
     tableVehicles.forEach(vehicleData => {
       const matchedRealtimeData = realtimeData.find(realtimeData => {
-        if(realtimeData){
-          return parseInt(realtimeData.vehicle.veId) === vehicleData.vehicle.veId;
-        }else{
-          return false;
-        }
+        return parseInt(realtimeData.vehicle.veId) === vehicleData.vehicle.veId;
       });
       if (matchedRealtimeData) {
         vehicleData.realtime = matchedRealtimeData.realtime;
@@ -295,9 +261,8 @@ export class TableComponent implements OnDestroy, AfterViewInit{
     return tableVehicles;
   }
 
-
   /**
-   * Riempie la tabella con i dati delle ultime sessioni dei veicoli
+   * Ottiene i dati dell'ultimo andamento di ciscun veicolo
    */
   getAllLastSessionAnomalies() {
     this.sessionStorageService.clear();
@@ -328,61 +293,65 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   }
 
   /**
-   * Simula il caricamento della progress bar
-   * @param seconds ogni quanti secondi la progress bar deve progredire
-   * @param progressPerSec di quanto deve progredire
+   * Simula il progresso di un caricamento
+   * @param seconds durata totale in secondi del caricamento
+   * @param progressPerSec progresso per secondo
    */
   simulateProgress(seconds: number, progressPerSec: number) {
     let progress = 0;
     const interval = setInterval(() => {
       if (progress < 100) {
-        progress += progressPerSec;  // Aumenta di 10% ogni intervallo
+        progress += progressPerSec;
         this.loadingProgress = progress;
       } else {
         this.loading = false;
-        clearInterval(interval);  // Ferma l'intervallo quando il progresso raggiunge il 100%
+        clearInterval(interval);
       }
       this.cd.detectChanges();
-    }, seconds);  // Ogni secondo incrementa il progresso
+    }, seconds);
   }
 
   /**
-   * Carica la tabella con i dati dei veicoli passati per parametro
-   * @param vehicles dati dei veicoli
+   * Riempe la tabella con i veicoli passati
+   * @param vehicles
    */
-  fillTableWithVehicles(vehicles: VehicleData[]){
-    // Se ci sono veicoli, aggiorna la tabella
+  fillTableWithVehicles(vehicles: VehicleData[]) {
     if (vehicles.length > 0) {
-      this.vehicleTableData.data = vehicles; // Modifica la tabella
+      this.vehicleTableData.data = vehicles;
       this.vehicleTable.renderRows();
     }
   }
 
-  displayVehicleDetail(veId: number){
+  /**
+   * Mostra il dettaglio di un veicolo navigando alla sua scheda mezzo
+   * @param veId
+   */
+  displayVehicleDetail(veId: number) {
     this.router.navigate(['/dettaglio-mezzo', veId]);
   }
 
-  onVehicleClick(vehicleData: VehicleData){
+  /**
+   * Mostra la mappa con l'ultima posizione del veicolo specificato
+   * @param vehicleData veicolo di cui mostrare l'ultima posizione registrata
+   */
+  showMap(vehicleData: VehicleData) {
     this.mapService.loadMap$.next(vehicleData);
   }
 
-
   /**
- * Richiama le funzioni per il riempimento della tabella in base al filtro dei grafici (inserendo i nuovi veicoli nel sessionstorage) e la sincronizzazione di quest'ultimi
- * @param vehiclesData veicoli da caricare
- */
-  onGraphClick(vehiclesData: VehicleData[]){
-    /*filtrare i veicoli per cantiere*/
-    this.sessionStorageService.setItem("tableData", JSON.stringify(vehiclesData)); //imposta tableData in sessionstorage
-    this.cantieriFilterService.updateCantieriFilterOptions$.next(vehiclesData); //aggiorna le opzioni del filtro dei cantieri
-    this.fillTableWithVehicles(vehiclesData); //riempe la tabella
-    this.loadGraphs(vehiclesData); //carica i grafici
+   * Comportamento al click su un grafico
+   * @param vehiclesData dati dei veicoli
+   */
+  onGraphClick(vehiclesData: VehicleData[]) {
+    this.sessionStorageService.setItem("tableData", JSON.stringify(vehiclesData));
+    this.cantieriFilterService.updateCantieriFilterOptions$.next(vehiclesData);
+    this.fillTableWithVehicles(vehiclesData);
+    this.loadGraphs(vehiclesData);
   }
 
-
   /**
-   * Richiama le funzioni per il caricamento del grafico degli errori e del grafico dei blackbox
-   * @param newVehicles da questi veicoli come input ai grafici per il caricamento
+   * Carica il grafico degli errori e delle antenne
+   * @param newVehicles veicoli con cui caricare i grafici
    */
   loadGraphs(newVehicles: VehicleData[]) {
     this.errorGraphService.loadGraphData$.next(newVehicles);
@@ -390,18 +359,10 @@ export class TableComponent implements OnDestroy, AfterViewInit{
   }
 
   /**
-   * Calcola da quanti giorni le sessioni di un veicolo sono in errore
-   * @param vehicle veicolo da cui prendere l'ultimo evento
-   * @returns differenza in giorni: oggi - lastevent
-   */
-  calculateSessionErrorDays(vehicle: VehicleData){
-    return this.checkErrorsService.calculateSessionErrorDays(vehicle);
-  }
-
-  /**
-   * Controlla se si conosce l'appartenenza di un veicolo ad un cantiere
-   * @param vehicle veicolo da controllare
-   * @returns il nome del cantiere o la non assegnazione a nessuno
+   * Controlla se è stato assegnato un cantiere ad un veicolo
+   * @param vehicleData veicolo da controllare
+   * @returns "Non assegnato" se non è stato assegnato alcun cantiere al veicolo
+   * @returns nome del cantiere se il veicolo ha un cantiere assegnato
    */
   checkWorksite(vehicleData: VehicleData) {
     if (vehicleData.vehicle?.worksite && vehicleData.vehicle.worksite.name) {
