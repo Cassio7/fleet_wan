@@ -1,20 +1,20 @@
-import { CompanyFactoryService } from './factory/company.factory';
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { VehicleService } from './services/vehicle/vehicle.service';
-import { SessionService } from './services/session/session.service';
 import { Cron } from '@nestjs/schedule';
-import { TagService } from './services/tag/tag.service';
-import { CompanyService } from './services/company/company.service';
+import { CompanyFactoryService } from './factory/company.factory';
+import { GroupFactoryService } from './factory/group.factory';
 import { UserFactoryService } from './factory/user.factory';
 import { WorksiteFactoryService } from './factory/worksite.factory';
-import { GroupFactoryService } from './factory/group.factory';
 import { WorksiteGroupFactoryService } from './factory/worksite_group.factory';
+import { CompanyService } from './services/company/company.service';
 import { RealtimeService } from './services/realtime/realtime.service';
+import { SessionService } from './services/session/session.service';
+import { TagService } from './services/tag/tag.service';
+import { VehicleService } from './services/vehicle/vehicle.service';
 
-import { getDaysInRange } from './utils/utils';
 import { AssociationFactoryService } from './factory/association.factory';
 import { CategoryFactoryService } from './factory/category.factory';
 import { AnomalyService } from './services/anomaly/anomaly.service';
+import { getDaysInRange } from './utils/utils';
 
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import Redis from 'ioredis';
@@ -81,7 +81,7 @@ export class AppService implements OnModuleInit {
     const batchSize = 100;
 
     await this.vehicleService.getVehicleList(254, 313); //Gesenu principale
-    await this.vehicleService.getVehicleList(254, 683); //Gesenu dismessi
+    //await this.vehicleService.getVehicleList(254, 683); //Gesenu dismessi
     await this.vehicleService.getVehicleList(305, 650); //TSA principale
     await this.vehicleService.getVehicleList(324, 688); //Fiumicino principale
 
@@ -226,6 +226,7 @@ export class AppService implements OnModuleInit {
     let date = null;
     let gps = null;
     let antenna = null;
+    let detection_quality_avg = null;
     const session = null;
 
     if (item.sessions && item.sessions[0]) {
@@ -233,12 +234,15 @@ export class AppService implements OnModuleInit {
       if (item.sessions[0].anomalies) {
         gps = item.sessions[0].anomalies.GPS || null;
         antenna = item.sessions[0].anomalies.Antenna || null;
+        detection_quality_avg =
+          item.sessions[0].anomalies.detection_quality_avg || null;
       }
       return this.anomalyService.createAnomaly(
         veId,
         date,
         gps,
         antenna,
+        detection_quality_avg,
         session,
       );
     }
@@ -263,6 +267,7 @@ export class AppService implements OnModuleInit {
           let date = null;
           let gps = null;
           let antenna = null;
+          let detection_quality_avg = null;
           const session = item.anomaliaSessione || null;
 
           if (item.sessions && item.sessions[0]) {
@@ -270,6 +275,8 @@ export class AppService implements OnModuleInit {
             if (item.sessions[0].anomalies) {
               gps = item.sessions[0].anomalies.GPS || null;
               antenna = item.sessions[0].anomalies.Antenna || null;
+              detection_quality_avg =
+                item.sessions[0].anomalies.detection_quality_avg || null;
             }
           }
 
@@ -278,6 +285,7 @@ export class AppService implements OnModuleInit {
             date,
             gps,
             antenna,
+            detection_quality_avg,
             session,
           );
         });
