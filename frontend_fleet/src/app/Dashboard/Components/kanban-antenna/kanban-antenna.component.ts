@@ -16,6 +16,7 @@ import { Filters, FiltersCommonService } from '../../../Common-services/filters-
 import { AntennaGraphService } from '../../Services/antenna-graph/antenna-graph.service';
 import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
 import { KanbanFiltersComponent } from "../kanban-filters/kanban-filters.component";
+import { MapService } from '../../../Common-services/map/map.service';
 
 @Component({
   selector: 'app-kanban-antenna',
@@ -43,8 +44,8 @@ export class KanbanAntennaComponent implements AfterViewInit, OnDestroy{
     private filtersCommonService: FiltersCommonService,
     private sessionStorageService: SessionStorageService,
     private antenanGraphService: AntennaGraphService,
-    public checkErrorsService: CheckErrorsService,
-    private cd: ChangeDetectorRef
+    private mapService: MapService,
+    public checkErrorsService: CheckErrorsService
   ){}
 
   ngOnDestroy(): void {
@@ -63,5 +64,9 @@ export class KanbanAntennaComponent implements AfterViewInit, OnDestroy{
       this.antenanGraphService.loadChartData$.next(kanbanVehicles);
     });
     this.kanbanAntennaService.setKanbanData(kanbanVehicles);
+  }
+
+  showMap(vehicleData: VehicleData) {
+    this.mapService.loadMap$.next(vehicleData);
   }
 }

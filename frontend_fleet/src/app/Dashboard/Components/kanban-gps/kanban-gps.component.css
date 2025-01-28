@@ -83,6 +83,22 @@
   flex-direction: column;
 }
 
+.vehicle .right-container{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.vehicle .right-container .map-btn{
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.vehicle .right-container .map-btn mat-icon{
+  color: var(--sidebar-color);
+}
 .plate {
   text-align: right;
   background-color: #EFEEE4;
