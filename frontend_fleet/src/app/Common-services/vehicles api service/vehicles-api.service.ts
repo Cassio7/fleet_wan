@@ -41,7 +41,7 @@ export class VehiclesApiService {
     });
 
     return this.http.get<Vehicle>(
-      `http://10.1.0.102:3001/vehicles/fetchplate/${plate}`,
+      `${this.commonService.url}/vehicles/fetchplate/${plate}`,
       { headers }
     );
   }
@@ -75,7 +75,7 @@ export class VehiclesApiService {
       dateTo: "2024-11-01"
     };
 
-    return this.http.post(`http://10.1.0.102:3001/session/checkgps/${veId}`, body);
+    return this.http.post(`${this.commonService.url}/session/checkgps/${veId}`, body);
   }
 
   /**
@@ -89,7 +89,7 @@ export class VehiclesApiService {
       dateFrom: dateFrom,
       dateTo: dateTo
     }
-    return this.http.post<Vehicle[]>("http://10.1.0.102:3001/session/checkgps/all", body);
+    return this.http.post<Vehicle[]>(`${this.commonService.url}/session/checkgps/all`, body);
   }
 
   /**

@@ -3,7 +3,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { NavigationEnd, Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router, RouterModule } from '@angular/router';
 import { Subject, filter, merge, takeUntil } from 'rxjs';
 import { CommonService } from '../../Common-services/common service/common.service';
 import { LoginService } from '../../Common-services/login service/login.service';
@@ -46,6 +46,7 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
     private kanbanAntennaService: KanbanAntennaService,
     private kanbanGpsService: KanbanGpsService,
     private kanabanTableService: KanbanTableService,
+    private activatedRoute: ActivatedRoute,
     private router: Router,
     private cd: ChangeDetectorRef
   ){}
@@ -56,10 +57,23 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
   }
 
   ngOnInit(): void {
-    this.router.events.pipe(filter(event => event instanceof NavigationEnd))
-    .subscribe(()=>{
-      const url = this.router.url;
-      switch(url){
+  this.router.events.pipe(
+    filter(event => event instanceof NavigationEnd)
+  ).subscribe(() => {
+    const url = this.router.url;
+    console.log('URL corrente:', url);
+
+    // Gestisci il caso di /dettaglio-mezzo/:id
+    const regex = /\/dettaglio-mezzo\/(\d+)/;
+    const match = url.match(regex);
+
+    if (match) {
+      const id = match[1]; // Estrai l'id dalla URL
+      this.currentPage = `Dettaglio Mezzo/${id}`;
+      this.isKanban = false;
+      this.icon = "directions_car";
+    } else {
+      switch (url) {
         case '/dashboard':
           this.currentPage = "Dashboard";
           this.isKanban = true;
@@ -75,9 +89,12 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
           this.isKanban = true;
           this.icon = "dashboard";
       }
-      this.cd.detectChanges();
-    });
-  }
+    }
+
+    this.cd.detectChanges(); // Assicurati che la vista si aggiorni
+  });
+}
+
 
   ngAfterViewInit(): void {
     this.cd.detectChanges();

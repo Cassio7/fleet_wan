@@ -64,8 +64,6 @@ export class DetectionGraphComponent implements AfterViewInit{
         title: {
           text: 'Qualità lettura'
         },
-        min: 0, // Aggiunta dei due punti (:) dopo 'min'
-        max: 60
       },
       xaxis: {
         type: "datetime",
@@ -86,7 +84,7 @@ export class DetectionGraphComponent implements AfterViewInit{
 
           detectionQualities.forEach(detection => {
             if(detection){
-              const yValue = detection.detection_quality * -1;
+              const yValue = detection.detection_quality;
               minY = Math.min(minY, yValue);
               maxY = Math.max(maxY, yValue);
 
