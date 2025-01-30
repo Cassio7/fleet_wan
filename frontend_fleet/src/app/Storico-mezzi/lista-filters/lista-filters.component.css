@@ -1,0 +1,17 @@
+.filters-container {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 1vw;
+}
+
+.filter{
+  width: 70%;
+}
+
+
+.filters-btn{
+  background-color: var(--sidebar-color);
+  border-radius: 5px !important;
+  color: white;
+}

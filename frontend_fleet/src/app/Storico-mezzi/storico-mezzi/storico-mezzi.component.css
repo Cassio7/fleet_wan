@@ -1,0 +1,81 @@
+/* Stili comuni */
+.content {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: row;
+  box-sizing: border-box;
+}
+
+.section {
+  flex: 1;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.header {
+  width: 100%;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  text-align: center;
+}
+
+.title {
+  font-weight: bold;
+  font-size: 28px;
+  line-height: 1.2;
+}
+
+.subtitle {
+  color: gray;
+  font-style: italic;
+  line-height: 1.4;
+  font-size: 14px;
+}
+
+/* Stili specifici */
+.mezzi-list, .map{
+  background-color: var(--navbarANDstats-background);
+}
+
+.sessions-table {
+  background-color: var(--background-color);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+}
+
+.sessions-table {
+  flex: 2;
+}
+
+.sessions-table .table-content {
+  width: 100%;
+  height: auto;
+}
+
+.map {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  height: 100%; /* Imposta l'altezza al 100% per occupare lo spazio disponibile */
+}
+
+.map-content {
+  width: 100%;
+  height: 60%; /* Imposta l'altezza al 100% per permettere alla mappa di adattarsi */
+}
+
+.mezzi-content {
+  width: 100%;
+  overflow-x: auto; /* Per abilitarlo lo scroll orizzontale se necessario */
+}
