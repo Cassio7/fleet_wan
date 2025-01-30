@@ -3,7 +3,7 @@
 
     <ng-container matColumnDef="icon">
       <th mat-header-cell *matHeaderCellDef></th>
-      <td mat-cell *matCellDef="let vehicle"><mat-icon>local_shipping</mat-icon></td>
+      <td mat-cell *matCellDef="let vehicle"><button mat-button (click)="showDetail(vehicle.veId)"><mat-icon>local_shipping</mat-icon></button></td>
     </ng-container>
 
     <ng-container matColumnDef="Targa">

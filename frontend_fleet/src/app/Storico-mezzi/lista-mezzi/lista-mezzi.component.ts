@@ -12,6 +12,7 @@ import { RealtimeData } from '../../Models/RealtimeData';
 import { MatButtonModule } from '@angular/material/button';
 import { SessionApiService } from '../../Common-services/session/session-api.service';
 import { SessionStorageService } from '../../Common-services/sessionStorage/session-storage.service';
+import { Router } from '@angular/router';
 
 export interface PeriodicElement {
   name: string;
@@ -46,7 +47,7 @@ export class ListaMezziComponent implements AfterViewInit, OnDestroy{
     private vehiclesApiService: VehiclesApiService,
     private sessionApiService: SessionApiService,
     private realtimeApiService: RealtimeApiService,
-    private sessionStorageService: SessionStorageService,
+    private router: Router,
     private mapService: MapService
   ){}
 
@@ -97,6 +98,10 @@ export class ListaMezziComponent implements AfterViewInit, OnDestroy{
 
   setVehicleSelection(vehicle: Vehicle){
     this.selectVehicle.emit(vehicle);
+  }
+
+  showDetail(veId: number){
+    this.router.navigate(['/dettaglio-mezzo', veId]);
   }
 
   showMap(vehicle: Vehicle){
