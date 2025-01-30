@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import L from 'leaflet';
 import { BehaviorSubject, map, Subject } from 'rxjs';
-import { VehicleData } from '../../Models/VehicleData';
+import { RealtimeData } from '../../Models/RealtimeData';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MapService {
-  private readonly _loadMap$: BehaviorSubject<VehicleData|null> = new BehaviorSubject<VehicleData|null>(null);
+  private readonly _loadMap$: BehaviorSubject<RealtimeData|null> = new BehaviorSubject<RealtimeData|null>(null);
 
   constructor() { }
 
@@ -73,7 +73,7 @@ export class MapService {
     return marker;
   }
 
-  public get loadMap$(): BehaviorSubject<VehicleData|null> {
+  public get loadMap$(): BehaviorSubject<RealtimeData|null> {
     return this._loadMap$;
   }
 }

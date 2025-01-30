@@ -2,6 +2,7 @@ import { Company } from "./Company";
 import { Device } from "./Device";
 import { Group } from "./Group";
 import { Note } from "./Note";
+import { Realtime } from "./Realtime";
 import { WorkSite } from "./Worksite";
 
 export class Vehicle {
@@ -17,8 +18,9 @@ export class Vehicle {
     public group: Group,
     public company: Company,
     public device: Device,
+    public realtime: Realtime,
     public relevant_company?: string,
-    public worksite?: WorkSite
+    public worksite?: WorkSite,
   ) {}
 }
 

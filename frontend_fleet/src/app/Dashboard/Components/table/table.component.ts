@@ -213,31 +213,13 @@ export class TableComponent implements OnDestroy, AfterViewInit {
     this.realtimeApiService.getLastRealtime().pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (realtimeDataObj: RealtimeData[]) => {
-          const tableVehicles: VehicleData[] = this.mergeRealtimeData(this.vehicleTableData.data, realtimeDataObj);
+          const tableVehicles: VehicleData[] = this.realtimeApiService.mergeVehiclesWithRealtime(this.vehicleTableData.data, realtimeDataObj) as VehicleData[];
           this.vehicleTableData.data = tableVehicles;
           this.sessionStorageService.setItem("allData", JSON.stringify(tableVehicles));
           this.vehicleTable.renderRows();
         },
         error: error => console.error("Errore nel caricamento dei dati realtime: ", error)
       });
-  }
-
-  /**
-   * Unisce un array di veicoli con uno di dati realtime
-   * @param tableVehicles array di veicoli
-   * @param realtimeData dati realtime
-   * @returns veicoli accorpati
-   */
-  private mergeRealtimeData(tableVehicles: VehicleData[], realtimeData: RealtimeData[]): VehicleData[] {
-    tableVehicles.forEach(vehicleData => {
-      const matchedRealtimeData = realtimeData.find(realtimeData => {
-        return parseInt(realtimeData.vehicle.veId) === vehicleData.vehicle.veId;
-      });
-      if (matchedRealtimeData) {
-        vehicleData.realtime = matchedRealtimeData.realtime;
-      }
-    });
-    return tableVehicles;
   }
 
   /**
@@ -322,7 +304,14 @@ export class TableComponent implements OnDestroy, AfterViewInit {
    */
   showMap(vehicleData: VehicleData) {
     console.log("chiamata ShowMap()");
-    this.mapService.loadMap$.next(vehicleData);
+    const realtimeData: RealtimeData = {
+      vehicle: {
+        plate: vehicleData.vehicle.plate,
+        veId: vehicleData.vehicle.veId
+      },
+      realtime: vehicleData.realtime
+    }
+    this.mapService.loadMap$.next(realtimeData);
   }
 
   /**

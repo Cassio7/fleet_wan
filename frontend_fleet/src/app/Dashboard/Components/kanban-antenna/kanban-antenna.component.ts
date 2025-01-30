@@ -118,7 +118,7 @@ export class KanbanAntennaComponent implements AfterViewInit, OnDestroy{
   private mergeRealtimeData(tableVehicles: VehicleData[], realtimeData: RealtimeData[]): VehicleData[] {
     tableVehicles.forEach(vehicleData => {
       const matchedRealtimeData = realtimeData.find(realtimeData => {
-        return parseInt(realtimeData.vehicle.veId) === vehicleData.vehicle.veId;
+        return realtimeData.vehicle.veId === vehicleData.vehicle.veId;
       });
       if (matchedRealtimeData) {
         vehicleData.realtime = matchedRealtimeData.realtime;
