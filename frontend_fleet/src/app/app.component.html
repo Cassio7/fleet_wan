@@ -5,6 +5,7 @@
         <button class="menu-btn" (click)="toggleDrawer()"><mat-icon>menu</mat-icon></button>
         <button routerLink="dashboard" #dashboardBtn><mat-icon>dashboard</mat-icon></button>
         <button routerLink="home-mezzi" #mezziBtn><mat-icon>local_shipping</mat-icon></button>
+        <button routerLink="storico-mezzi" #storicoBtn><mat-icon>inventory_2</mat-icon></button>
         <button><mat-icon>map</mat-icon></button>
         <button><mat-icon>manage_accounts</mat-icon></button>
         <button><mat-icon>settings</mat-icon></button>
@@ -32,6 +33,9 @@
             </button>
             <button mat-button class="mezzi-btn button" routerLink="home-mezzi">
               <mat-icon>local_shipping</mat-icon>Mezzi
+            </button>
+            <button mat-button class="session-history-btn button">
+              <mat-icon>inventory_2</mat-icon>Storico mezzi
             </button>
             <button mat-button class="dettaglio-mezzi-btn button">
               <mat-icon>search</mat-icon><mat-icon>local_shipping</mat-icon>Dettaglio mezzi

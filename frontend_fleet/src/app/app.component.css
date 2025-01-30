@@ -21,6 +21,9 @@
   cursor: pointer;
 }
 
+.fixed-drawer-content button:hover{
+  opacity: .5;
+}
 
 .fixed-main-actions {
   margin-top: clamp(10px, 2vh, 20px);
