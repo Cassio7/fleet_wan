@@ -175,5 +175,5 @@
 </table>
 <div class="disclaimers">
   <mat-error *ngIf="!dateSelected">Nessuna data selezionata</mat-error>
-  <mat-error *ngIf="!data">Nessuna sessione trovata nell'arco di tempo {{dateFrom | date: "dd-MM-yyyy"}} - {{dateTo | date: "dd-MM-yyyy"}}</mat-error>
+  <mat-error *ngIf="!data">Nessuna sessione trovata nell'arco di tempo {{lastDateFrom | date: "dd-MM-yyyy"}} - {{lastDateTo | date: "dd-MM-yyyy"}}</mat-error>
 </div>

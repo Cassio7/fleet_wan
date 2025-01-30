@@ -12,7 +12,7 @@ import { VehicleAnomalies } from '../../Models/VehicleAnomalies';
   providedIn: 'root'
 })
 export class SessionApiService {
-  private readonly _loadAnomalySessionDays$: BehaviorSubject<Date[]> = new BehaviorSubject<Date[]>([]);
+  private readonly _loadAnomalySessionDays$ = new BehaviorSubject<Date[]>([]);
 
   constructor(
     private http: HttpClient,

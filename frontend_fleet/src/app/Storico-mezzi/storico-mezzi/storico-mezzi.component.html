@@ -4,9 +4,11 @@
       <div class="title">Cerca un mezzo</div>
       <div class="subtitle">Seleziona un mezo dalla lista per accedere ai dati</div>
     </div>
+
+      <p>veicolo selezionato {{selectedVehicle && selectedVehicle.veId ? selectedVehicle.veId : "no selection"}}</p>
       <app-lista-filters></app-lista-filters>
       <div class="mezzi-content">
-      <app-lista-mezzi></app-lista-mezzi>
+      <app-lista-mezzi (selectVehicle)="onVehicleSelection($event)"></app-lista-mezzi>
     </div>
   </div>
   <div class="sessions-table section">
@@ -15,7 +17,7 @@
       <div class="subtitle">Visualizza i dati del mezzo che hai selezionato</div>
     </div>
     <div class="table-content">
-      <app-session-hystories></app-session-hystories>
+      <app-session-hystories [vehicle]="selectedVehicle"></app-session-hystories>
     </div>
   </div>
   <div class="map section">

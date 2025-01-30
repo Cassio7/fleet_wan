@@ -48,8 +48,12 @@ export class SessionFiltersComponent implements OnInit{
     const endDate = this.range.get('end')?.value;
 
     if (startDate && endDate) {
+      const dateRange: Date[] = [startDate, endDate];
+
       console.log("Selezionate entrambe le date:", startDate, endDate);
-      this.sessionApiService.loadAnomalySessionDays$.next([startDate, endDate]);
+
+      this.sessionApiService.loadAnomalySessionDays$.next(dateRange);
     }
   }
+
 }
