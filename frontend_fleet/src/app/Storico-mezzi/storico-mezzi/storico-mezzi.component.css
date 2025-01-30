@@ -67,15 +67,51 @@
   display: flex;
   flex-direction: column;
   gap: 15px;
-  height: 100%; /* Imposta l'altezza al 100% per occupare lo spazio disponibile */
+  height: 100%;
 }
 
 .map-content {
   width: 100%;
-  height: 60%; /* Imposta l'altezza al 100% per permettere alla mappa di adattarsi */
+  height: 60%;
 }
 
 .mezzi-content {
   width: 100%;
-  overflow-x: auto; /* Per abilitarlo lo scroll orizzontale se necessario */
+  overflow-x: auto;
 }
+.table-content .table-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2vw;
+}
+
+.info {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 2vw;
+}
+
+.info{
+  padding: 20px;
+  background-color: white;
+}
+.info > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.title {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.small-title{
+  color: var(--sidebar-color);
+}
+

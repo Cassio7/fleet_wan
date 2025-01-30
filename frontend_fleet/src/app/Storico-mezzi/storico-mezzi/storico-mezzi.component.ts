@@ -8,11 +8,23 @@ import { SessionApiService } from '../../Common-services/session/session-api.ser
 import { SessionFiltersComponent } from "../../Common-components/Scheda-mezzo/session-filters/session-filters.component";
 import { ListaFiltersComponent } from "../lista-filters/lista-filters.component";
 import { Vehicle } from '../../Models/Vehicle';
+import { MatListModule } from '@angular/material/list';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-storico-mezzi',
   standalone: true,
-  imports: [MapComponent, SessionHystoriesComponent, ListaMezziComponent, ListaFiltersComponent],
+  imports: [
+    MapComponent,
+    SessionHystoriesComponent,
+    ListaMezziComponent,
+    ListaFiltersComponent,
+    MatListModule,
+    MatCardModule,
+    MatIconModule,
+    SessionFiltersComponent
+],
   templateUrl: './storico-mezzi.component.html',
   styleUrl: './storico-mezzi.component.css'
 })
