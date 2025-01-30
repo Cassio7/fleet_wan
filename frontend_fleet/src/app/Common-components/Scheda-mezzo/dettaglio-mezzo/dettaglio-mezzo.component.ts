@@ -19,6 +19,7 @@ import { NoteSectionComponent } from "../../note-section/note-section.component"
 import { SessionHystoriesComponent } from "../session-hystories/session-hystories.component";
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AnomaliesComponent } from "../anomalies/anomalies.component";
+import { SessionFiltersComponent } from "../session-filters/session-filters.component";
 
 
 @Component({
@@ -35,7 +36,8 @@ import { AnomaliesComponent } from "../anomalies/anomalies.component";
     DetectionGraphComponent,
     NoteSectionComponent,
     SessionHystoriesComponent,
-    AnomaliesComponent
+    AnomaliesComponent,
+    SessionFiltersComponent
 ],
   templateUrl: './dettaglio-mezzo.component.html',
   styleUrl: './dettaglio-mezzo.component.css'
