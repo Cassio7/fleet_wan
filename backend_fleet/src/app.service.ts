@@ -42,7 +42,7 @@ export class AppService implements OnModuleInit {
 
   // popolo database all'avvio
   async onModuleInit() {
-    const startDate = '2025-01-01T00:00:00.000Z';
+    const startDate = '2025-01-28T00:00:00.000Z';
     //const endDate = '2024-12-10T00:00:00.000Z';
     const endDate = new Date(
       new Date().getTime() + 2 * 60 * 60 * 1000,
@@ -78,7 +78,7 @@ export class AppService implements OnModuleInit {
     const endDate = end;
 
     console.log('Data inizio: ' + startDate + ' Data fine: ' + endDate);
-    const batchSize = 100;
+    const batchSize = 20;
 
     await this.vehicleService.getVehicleList(254, 313); //Gesenu principale
     //await this.vehicleService.getVehicleList(254, 683); //Gesenu dismessi
@@ -139,6 +139,8 @@ export class AppService implements OnModuleInit {
         console.log(company);
       }
     }
+    const vehicleIds = vehicles.map((v) => v.veId);
+    await this.sessionService.getLastSessionByVeIds(vehicleIds);
   }
 
   //@Cron('*/3 * * * *')
