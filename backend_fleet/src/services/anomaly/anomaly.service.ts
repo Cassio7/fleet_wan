@@ -917,8 +917,11 @@ export class AnomalyService {
       const vehicleIds = vehicles.map((v) => v.veId);
 
       // Recupero le ultime sessioni per tutti i veicoli in parallelo
-      const sessionsMap =
-        await this.sessionService.getLastSessionByVeIds(vehicleIds);
+      let sessionsMap =
+        await this.sessionService.getLastSessionRedis(vehicleIds);
+      if (!sessionsMap)
+        sessionsMap =
+          await this.sessionService.getLastSessionByVeIds(vehicleIds);
       const brokenVehicles = vehicles.reduce((acc, vehicle) => {
         const lastSession = sessionsMap.get(vehicle.veId) || null;
         if (lastSession) {
