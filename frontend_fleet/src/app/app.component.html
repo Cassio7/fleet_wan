@@ -1,8 +1,11 @@
-<mat-drawer-container>
+<mat-drawer-container class="main-drawer">
   <mat-drawer #fixedDrawer mode="side" class="fixed-drawer-container" opened *ngIf="!drawer.opened" [style.display]="isLoginPage ? 'none' : 'block'">
     <div class="fixed-drawer-content">
       <div class="fixed-main-actions">
-        <button class="menu-btn" (click)="toggleDrawer()"><mat-icon>menu</mat-icon></button>
+        <button class="menu-btn" (click)="toggleDrawer()"><svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M12.8855 6H20.8855V8H12.8855V6ZM4.88547 16H12.8855V18H4.88547V16ZM20.8855 11H4.88547V13H20.8855V11Z" fill="white"/>
+</svg>
+</button>
         <button routerLink="dashboard" #dashboardBtn><mat-icon>dashboard</mat-icon></button>
         <button routerLink="home-mezzi" #mezziBtn><mat-icon>local_shipping</mat-icon></button>
         <button routerLink="storico-mezzi" #storicoBtn><mat-icon>inventory_2</mat-icon></button>
@@ -19,37 +22,28 @@
     </div>
   </mat-drawer>
   <mat-drawer-content>
-    <mat-drawer-container class="drawer-container" style="height: 100vh" [ngClass]="{'bg-image': isLoginPage}">
+    <mat-drawer-container class="drawer-container" [ngClass]="{'bg-image': isLoginPage}">
       <mat-drawer #drawer mode="over" class="sidebar">
         <div class="drawer-content">
-          <button mat-button class="menu-btn" (click)="toggleDrawer()"><mat-icon>menu</mat-icon></button>
-          <img class="sidebar-logo" src="assets/logo.png" alt="Logo">
-
-          <hr> <!--linea di separazione-->
-
-          <div class="main-actions">
-            <button mat-button class="dashboard-btn button" routerLink="dashboard">
-              <mat-icon>dashboard</mat-icon>Dashboard
-            </button>
-            <button mat-button class="mezzi-btn button" routerLink="home-mezzi">
-              <mat-icon>local_shipping</mat-icon>Mezzi
-            </button>
-            <button mat-button class="session-history-btn button">
-              <mat-icon>inventory_2</mat-icon>Storico mezzi
-            </button>
-            <button mat-button class="dettaglio-mezzi-btn button">
-              <mat-icon>search</mat-icon><mat-icon>local_shipping</mat-icon>Dettaglio mezzi
-            </button>
-          </div>
-
-          <div class="settings">
-            <button mat-raised-button class="gestione-btn button">
-              <mat-icon>manage_accounts</mat-icon>Gestione utente
-            </button>
-            <button mat-raised-button class="settings-btn button">
-              <mat-icon>settings</mat-icon>Impostazioni
-            </button>
-          </div>
+            <button mat-button class="menu-btn" (click)="toggleDrawer()"><svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M12.8855 6H20.8855V8H12.8855V6ZM4.88547 16H12.8855V18H4.88547V16ZM20.8855 11H4.88547V13H20.8855V11Z" fill="white"/>
+</svg>
+</button>
+              <button mat-button class="dashboard-btn button" routerLink="dashboard">
+                <mat-icon>dashboard</mat-icon><span class="drawerIcon-text">Dashboard</span>
+              </button>
+              <button mat-button class="mezzi-btn button" routerLink="home-mezzi">
+                <mat-icon>local_shipping</mat-icon><span class="drawerIcon-text">Mezzi</span>
+              </button>
+              <button mat-button class="session-history-btn button">
+                <mat-icon>inventory_2</mat-icon><span class="drawerIcon-text">Storico mezzi</span>
+              </button>
+              <button mat-button class="dettaglio-mezzi-btn button">
+                <mat-icon>search</mat-icon><mat-icon>local_shipping</mat-icon><span class="drawerIcon-text">Dettaglio mezzi</span>
+              </button>
+              <div style="height: 100%; display: flex; align-items: flex-end;">
+                <button mat-button><mat-icon>power_settings_new</mat-icon><span class="drawerIcon-text">Esci</span></button>
+              </div>
         </div>
       </mat-drawer>
 
@@ -59,7 +53,6 @@
           <router-outlet></router-outlet>
         </div>
       </div>
-      <!-- <app-footer></app-footer> -->
     </mat-drawer-container>
   </mat-drawer-content>
 </mat-drawer-container>

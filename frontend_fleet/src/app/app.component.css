@@ -1,7 +1,8 @@
-
-.fixed-drawer-container{
+/* fixed drawer */
+.fixed-drawer-container {
   border-radius: 0px;
 }
+
 .fixed-drawer-content {
   width: 100%;
   height: 100vh;
@@ -21,7 +22,7 @@
   cursor: pointer;
 }
 
-.fixed-drawer-content button:hover{
+.fixed-drawer-content button:hover {
   opacity: .5;
 }
 
@@ -31,7 +32,7 @@
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start; /* Align the menu buttons to the left */
   gap: clamp(5px, 1vh, 10px);
 }
 
@@ -39,15 +40,13 @@
   border-left: 5px solid white !important;
 }
 
-
-
 .fixed-main-actions mat-icon,
 .log-out mat-icon {
-  transform: scale(1.5);
+  transform: scale(1.2);
   color: white;
 }
 
-.fixed-main-actions button, .log-out button{
+.fixed-main-actions button, .log-out button {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -74,6 +73,8 @@
   overflow: hidden;
 }
 
+/* dynamic drawer */
+
 .mat-drawer-content {
   margin-left: 0;
   display: flex;
@@ -95,17 +96,54 @@
 
 .sidebar {
   padding: clamp(10px, 2vw, 20px);
-  width: 10%;
+  width: auto;
   background-color: var(--sidebar-color);
   border-radius: 0px;
 }
 
 .drawer-content {
-  display: flex;
-  flex-direction: column;
   height: 100%;
+  width: auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex-direction: column;
+  gap: 2vh;
   overflow: hidden;
 }
+
+.drawer-content button {
+  color: white;
+  width: auto;
+  display: flex;
+  align-items: center;
+  justify-content:center;
+  padding: 10px 20px;
+  box-sizing: border-box;
+}
+
+.drawerLogout-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+
+
+.drawer-content button mat-icon {
+  transform: scale(1.2);
+  margin-right: 10px;
+}
+
+.drawerIcon-text {
+  font-size: 15px;
+  display: inline-block; /* Mantiene il testo in una sola linea */
+  white-space: nowrap; /* Evita il wrapping del testo */
+  overflow: hidden;
+  text-overflow: ellipsis; /* Aggiunge i puntini di sospensione se il testo è troppo lungo */
+}
+
 
 .sidebar-logo {
   width: clamp(50%, 70%, 70%);
@@ -121,40 +159,64 @@ hr {
   width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: flex-start; /* Align the main action buttons to the left */
   gap: clamp(5px, 1vh, 10px);
 }
 
-.settings {
+.main-actions button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.main-actions mat-icon {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: scale(1.2);
+}
+
+/* Drawer Logout Container - Align button to the bottom and left */
+.drawerLogout-container {
   margin: 0;
   width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-end;
+  align-items: flex-start; /* Align the logout button to the left */
+  justify-content: flex-start; /* Align all content to the top */
   gap: clamp(5px, 1vh, 10px);
   flex-grow: 1;
   overflow: hidden;
 }
 
-.button {
-  color: rgb(0, 0, 0) !important;
-  font-size: clamp(16px, 2vw, 20px);
-  text-align: left;
+.drawerLogout-btn {
+  width: 100%;
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* Ensures content inside button is aligned left */
+  color: white;
 }
+
+.drawer-logoutText {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: flex-start; /* Aligns text inside button to the left */
+  color: white;
+  padding: 20px;
+}
+
 .log-out mat-icon {
-  display: inline-block; /* Necessary for the animation */
-  transition: transform 0.5s ease-in-out, color 0.3s ease; /* Smooth transition for both */
+  display: inline-block;
+  transition: transform 0.5s ease-in-out, color 0.3s ease;
 }
 
 .log-out mat-icon:hover {
-  transform: rotate(360deg); /* Rotate the icon */
-  color: red; /* Change color when hovered */
-}
-
-.main-actions button{
-  background-color: transparent;
-  width: 100%;
-  border-radius: 0px;
-  color: white;
+  transform: rotate(360deg);
+  color: red;
 }
