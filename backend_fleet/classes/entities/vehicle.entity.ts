@@ -17,6 +17,7 @@ import { TagHistoryEntity } from './tag_history.entity';
 import { WorksiteEntity } from './worksite.entity';
 import { CategoryEntity } from './category.entity';
 import { AnomalyEntity } from './anomaly.entity';
+import { WorkzoneEntity } from './workzone.entity';
 
 @Entity('vehicles')
 export class VehicleEntity extends CommonEntity implements VehicleInterface {
@@ -93,6 +94,11 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
     nullable: true,
   })
   worksite: WorksiteEntity | null;
+
+  @ManyToOne(() => WorkzoneEntity, (workzone) => workzone.vehicle, {
+    nullable: true,
+  })
+  workzone: WorkzoneEntity | null;
 
   @OneToMany(() => AnomalyEntity, (anomaly) => anomaly.vehicle)
   anomaly: AnomalyEntity[];

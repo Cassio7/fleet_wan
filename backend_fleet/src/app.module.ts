@@ -64,6 +64,7 @@ import { GroupFactoryService } from './factory/group.factory';
 import { WorksiteGroupFactoryService } from './factory/worksite_group.factory';
 import { AssociationFactoryService } from './factory/association.factory';
 import { CategoryFactoryService } from './factory/category.factory';
+import { WorkzoneEntity } from 'classes/entities/workzone.entity';
 
 @Global()
 @Module({
@@ -102,6 +103,7 @@ import { CategoryFactoryService } from './factory/category.factory';
           NoteEntity,
           CategoryEntity,
           AnomalyEntity,
+          WorkzoneEntity,
         ],
         synchronize: true,
         //dropSchema: true, // if true drop db
@@ -127,6 +129,7 @@ import { CategoryFactoryService } from './factory/category.factory';
         NoteEntity,
         CategoryEntity,
         AnomalyEntity,
+        WorkzoneEntity,
       ],
       'mainConnection',
     ),
@@ -160,6 +163,7 @@ import { CategoryFactoryService } from './factory/category.factory';
           NoteEntity,
           CategoryEntity,
           AnomalyEntity,
+          WorkzoneEntity,
         ],
         synchronize: false,
       }),
@@ -184,6 +188,7 @@ import { CategoryFactoryService } from './factory/category.factory';
         NoteEntity,
         CategoryEntity,
         AnomalyEntity,
+        WorkzoneEntity,
       ],
       'readOnlyConnection',
     ),
