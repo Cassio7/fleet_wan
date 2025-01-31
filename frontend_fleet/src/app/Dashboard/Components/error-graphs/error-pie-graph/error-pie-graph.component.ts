@@ -5,13 +5,7 @@ import { ApexChart, ApexDataLabels, ApexNonAxisChartSeries, ApexResponsive, Char
 import { skip, Subject, takeUntil } from 'rxjs';
 import { VehicleData } from '../../../../Models/VehicleData';
 
-// export type ChartOptions = {
-//   series: ApexNonAxisChartSeries;
-//   chart: ApexChart;
-//   responsive: ApexResponsive[];
-//   labels: any;
-//   colors?: string[];
-// };
+
 export type ChartOptions = {
   series: ApexNonAxisChartSeries;
   chart: ApexChart;
@@ -83,6 +77,9 @@ export class ErrorPieGraphComponent implements AfterViewInit, OnDestroy{
             }
           }
         }
+      },
+      dataLabels: {
+        enabled: false
       },
       legend: {
         position: "left"

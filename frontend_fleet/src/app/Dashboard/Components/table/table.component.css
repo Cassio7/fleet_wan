@@ -38,10 +38,6 @@ tr:hover {
   background-color: var(--background-color);
 }
 
-td {
-  cursor: pointer;
-}
-
 
 td.mat-cell {
   display: flex;
@@ -53,7 +49,7 @@ td.mat-cell {
 }
 
 .plate-container{
-  padding: 3%;
+  padding: 2%;
   background-color: #EFEEE4;
 }
 
@@ -71,7 +67,7 @@ td.mat-cell {
   gap: 2px;
   color: white;
   background-color: var(--sidebar-color);
-  padding: 3%;
+  padding: 2%;
   cursor: pointer;
   border-radius: 5px;
 }
@@ -87,7 +83,7 @@ td.mat-cell {
   gap: 5px;
   color: white;
   background-color: #C5D026;
-  padding: 3%;
+  padding: 2%;
   cursor: pointer;
   border-radius: 5px;
 }
@@ -103,7 +99,7 @@ td.mat-cell {
   gap: 5px;
   color: white;
   background-color: #d12717;
-  padding: 3%;
+  padding: 2%;
   cursor: pointer;
   border-radius: 5px;
 }
@@ -118,8 +114,8 @@ td.mat-cell {
   justify-content: center;
   gap: 5px;
   color: white;
-  background-color: #000000;
-  padding: 3%;
+  background-color: var(--black);
+  padding: 2%;
   cursor: pointer;
   border-radius: 5px;
   font-size: 20px;

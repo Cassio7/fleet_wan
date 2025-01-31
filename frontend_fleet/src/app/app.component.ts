@@ -34,6 +34,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
   //botti dentro sidebar fissa
   @ViewChild('dashboardBtn', { static: false }) dashboardBtn!: ElementRef;
   @ViewChild('mezziBtn', { static: false }) mezziBtn!: ElementRef;
+  @ViewChild('storicoBtn', { static: false }) storicoBtn!: ElementRef;
 
   @ViewChild('drawer') drawer!: MatDrawer; //sidebar mobile
   @ViewChild('fixedDrawer') fixedDrawer!: MatDrawer; //sidebar fissa
@@ -115,11 +116,14 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
     if (this.dashboardBtn && this.mezziBtn) {
       const isDashboard = selectedUrl === '/dashboard';
       const isMezzi = selectedUrl === '/home-mezzi';
+      const isStorico = selectedUrl == '/storico-mezzi'
       this.dashboardBtn.nativeElement.classList.toggle('btnSelected', isDashboard);
       this.mezziBtn.nativeElement.classList.toggle('btnSelected', isMezzi);
+      this.storicoBtn.nativeElement.classList.toggle('btnSelected', isStorico)
     }
     this.cd.detectChanges();
   }
+
 
   logout(){
     this.loginService.logout();

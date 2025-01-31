@@ -64,11 +64,13 @@ export class AntennaGraphComponent {
                 label: "mezzi",
                 fontSize: "18px",
                 fontWeight: 600,
-                color: "#000",
               }
             }
           }
         }
+      },
+      dataLabels: {
+        enabled: false
       },
       legend: {
         position: "left"

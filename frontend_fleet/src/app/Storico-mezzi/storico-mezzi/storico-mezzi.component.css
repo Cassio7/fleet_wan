@@ -9,6 +9,7 @@
 
 .section {
   flex: 1;
+  height: 100%;
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -59,7 +60,7 @@
 
 .sessions-table .table-content {
   width: 100%;
-  height: auto;
+  max-height: 100%;
 }
 
 .map {

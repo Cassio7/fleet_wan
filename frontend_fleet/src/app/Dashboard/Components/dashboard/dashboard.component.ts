@@ -59,11 +59,13 @@ export class DashboardComponent implements AfterViewInit{
 
   errorGraphTitle: string = "GPS";
 
+  todayDate: Date = new Date;
+  dashboard = false;
   today = true;
   lastSession = false;
   switchText: string = "Oggi";
 
-  pageName = "Dashboard";
+  pageName = "Riepilogo parco mezzi";
   subtitle = "Monitora i tuoi veicoli";
 
   private _table: boolean = true;
@@ -96,8 +98,9 @@ export class DashboardComponent implements AfterViewInit{
     this.kanbanTableService.loadKabanTable$.pipe(takeUntil(this.destroy$))
     .subscribe({
       next: () => {
+        this.dashboard = true;
         this.displaySection("table"); //display del componente scelto dal kebab menu
-        this.pageName = "Dashboard";
+        this.pageName = "Riepilogo parco mezzi";
         this.subtitle = "Monitora i tuoi veicoli";
         this.errorGraphTitle = this.errorGraphService.graphTitle = "Errors";//impostazione titolo del grafico
         this.sessionStorageService.setItem("dashboard-section", "table");

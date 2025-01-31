@@ -32,6 +32,7 @@ import { User } from '../../../Models/User';
 import { MezziFiltersService } from '../../Services/mezzi-filters/mezzi-filters.service';
 import { Router } from '@angular/router';
 import { NoteSectionComponent } from "../../../Common-components/note-section/note-section.component";
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-table',
@@ -48,6 +49,7 @@ import { NoteSectionComponent } from "../../../Common-components/note-section/no
     MatInputModule,
     MatCheckboxModule,
     MatTableModule,
+    MatTooltipModule,
     NoteSectionComponent
 ],
   templateUrl: './table.component.html',

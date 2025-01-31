@@ -58,7 +58,7 @@ export class TableComponent implements OnDestroy, AfterViewInit {
 
   loadingProgress: number = 0;
   loadingText: string = "";
-  loading: boolean = true;
+  loading: boolean = false;
 
   displayedColumns: string[] = ['tipologia','targa','cantiere', 'GPS', 'antenna', 'sessione', 'map'];
 
@@ -105,7 +105,6 @@ export class TableComponent implements OnDestroy, AfterViewInit {
     .subscribe({
       next: () => {
         this.vehicleTableData.data = [];
-        this.simulateProgress(1);
         this.cd.detectChanges();
         setTimeout(() => {
           this.fillTable();
@@ -183,7 +182,6 @@ export class TableComponent implements OnDestroy, AfterViewInit {
     this.antennaGraphService.resetGraph();
     this.errorGraphService.resetGraphs();
     this.vehicleTableData.data = [];
-    await this.simulateProgress(1.5);
     this.checkErrorsService.checkErrorsAllToday().subscribe({
       next: (responseObj: any) => {
         const vehiclesData = responseObj.vehicles;

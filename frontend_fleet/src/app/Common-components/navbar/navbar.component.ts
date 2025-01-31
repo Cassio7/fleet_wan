@@ -75,7 +75,7 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
     } else {
       switch (url) {
         case '/dashboard':
-          this.currentPage = "Dashboard";
+          this.currentPage = "Riepilogo";
           this.isKanban = true;
           this.icon = "dashboard";
           break;
@@ -83,6 +83,10 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
           this.currentPage = "Parco mezzi";
           this.isKanban = false;
           this.icon = "local_shipping";
+          break;
+        case '/storico-mezzi':
+          this.currentPage = "Storico mezzi"
+          this.icon = "inventory_2"
           break;
         default:
           this.currentPage = "Dashboard";

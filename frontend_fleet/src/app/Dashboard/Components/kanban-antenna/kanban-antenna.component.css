@@ -1,6 +1,7 @@
 .container {
   display: flex;
   flex-direction: column;
+  margin-top: 3vh;
 }
 
 .columns {
@@ -75,11 +76,11 @@
 }
 
 .blackbox-container {
-  background-color: black;
+  background-color: var(--black);
 }
 
 .error-container {
-  background-color: #d12717;
+  background-color: var(--red);
 }
 
 .vehicle {

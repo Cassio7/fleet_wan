@@ -2,3 +2,28 @@ tr{
   cursor: pointer
 }
 
+.vehiclesTable {
+  max-height: 500px;
+  overflow-y: auto;
+  padding-right: 20px;
+  padding-left: 10px;
+}
+
+.vehiclesTable{
+  overflow-y: auto;
+}
+
+.vehiclesTable::-webkit-scrollbar {
+  width: 10px !important;
+  background-color: transparent !important;
+}
+
+.vehiclesTable::-webkit-scrollbar-thumb {
+  background-color: green !important;
+  border-radius: 10px !important;
+}
+
+.vehiclesTable::-webkit-scrollbar-thumb:hover {
+  background-color: #555 !important;
+}
+

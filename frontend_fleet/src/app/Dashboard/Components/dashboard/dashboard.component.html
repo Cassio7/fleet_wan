@@ -1,8 +1,8 @@
 <div class="content">
   <div class="left-section">
     <div class="left-header">
-      <p class="left-title">Statistiche</p>
-      <p class="left-subtitle">Dati aggiornati sul parco mezzi</p>
+      <h4 class="title">Statistiche</h4>
+      <p class="subtitle">Dati aggiornati sul parco mezzi</p>
     </div>
     <div class="graphs" #graphs>
       <div class="table" *ngIf="table">
@@ -13,8 +13,8 @@
         <div class="error-graph"><app-error-graph-card [errorGraphTitle]="'Antenna'" *ngIf="kabanAntenna"></app-error-graph-card></div>
     </div>
     <div class="map-header">
-      <p class="map-title">Mappa</p>
-      <p class="map-subtitle">Ultima posizione registrata</p>
+      <h4 class="title">Mappa</h4>
+      <p class="subtitle">Ultima posizione registrata</p>
     </div>
     <app-map class="map" *ngIf="today"></app-map>
     <mat-error *ngIf="!today">Mappa non disponibile per ultimo andamento.</mat-error>
@@ -23,14 +23,14 @@
     <div class="header">
       <div class="header-left">
         <div class="section-name">
-          <h2 class="title">{{pageName}}</h2>
+          <h2 class="title">{{ pageName }}</h2>
           <p class="subtitle">{{subtitle}}</p>
         </div>
-        <mat-slide-toggle [checked]="today" (change)="dataSwitch($event)"> {{switchText}} </mat-slide-toggle>
+        <mat-slide-toggle [checked]="today" (change)="dataSwitch($event)"> <p class="switch-text">{{switchText}}<span *ngIf="today" class="main-date">{{ todayDate | date: 'yyyy/MM/dd' }}</span></p>  </mat-slide-toggle>
       </div>
       <div class="header-right">
-        <button mat-raised-button class="updateData-btn" (click)="updateData()"><mat-icon>refresh</mat-icon> Aggiorna dati</button>
         <app-kebab-menu></app-kebab-menu>
+        <button mat-raised-button class="updateData-btn" (click)="updateData()"><mat-icon>refresh</mat-icon> Aggiorna dati</button>
       </div>
     </div>
     <div class="main-content">

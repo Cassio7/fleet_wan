@@ -1,6 +1,7 @@
 .container {
   display: flex;
   flex-direction: column;
+  margin-top: 3vh;
 }
 
 .columns {
@@ -132,7 +133,7 @@ mat-list-item {
 }
 
 mat-icon-button {
-  color: #f44336;
+  color: var(--red);
 }
 
 mat-list-item:hover {
