@@ -187,6 +187,10 @@ export class AppService implements OnModuleInit {
         );
       }
     }
+
+    // inserire il calcolo dell ultima sessione valida
+    // const vehicleIds = vehicles.map((v) => v.veId);
+    // await this.sessionService.getLastSessionByVeIds(vehicleIds);
   }
 
   async anomalyCheck(start: string, end: string) {
