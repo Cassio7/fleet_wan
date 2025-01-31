@@ -1,3 +1,4 @@
+import { InjectRedis } from '@nestjs-modules/ioredis';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import axios from 'axios';
@@ -7,6 +8,7 @@ import { HistoryEntity } from 'classes/entities/history.entity';
 import { SessionEntity } from 'classes/entities/session.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { createHash } from 'crypto';
+import Redis from 'ioredis';
 import { convertHours } from 'src/utils/utils';
 import {
   DataSource,
@@ -17,8 +19,6 @@ import {
 } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
 import { AssociationService } from '../association/association.service';
-import Redis from 'ioredis';
-import { InjectRedis } from '@nestjs-modules/ioredis';
 
 @Injectable()
 export class SessionService {
