@@ -3,9 +3,9 @@
   padding: 0;
   height: 100vh;
   width: 100%;
-  font-family: Arial, sans-serif;
   background-color: #f9f9f3;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
 }
@@ -29,39 +29,63 @@
   color: grey;
 }
 
-.left-section {
+.left-container{
+  height: 100%;
   width: 100%;
   flex: 1;
   display: flex;
+  flex-direction: column;
   justify-content: flex-start;
-  align-items: center;
+  align-items: flex-start;
   background-color: #ffffff;
+  box-sizing: border-box;
   padding: 1vw;
+}
+
+.left-section {
+  height: 100%;
+  width: 100%;
+  flex: 1;
+  display: flex;
+  align-items: center;
   box-sizing: border-box;
 }
 
 .login-form {
-  width: 100%;
   display: flex;
   flex-direction: column;
-  max-width: 80%;
+  max-width: 90%;
 }
 
-.form-title, .form-title + p {
-  margin: 0;
-  padding: 0;
+.section-header{
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: .5vh;
+}
+
+.login-eader{
+  display: flex;
+  flex-direction: column;
+  gap: .5vh;
 }
 
 .form-title {
-  font-size: 2vw;
+  font-size: 1.6vw;
   text-align: left;
+  line-height: 1;
+  font-weight: bold;
+  margin: 0;
 }
 
-.form-title + p {
-  font-size: 1vw;
+.subtitle {
+  font-size: .8vw;
   text-align: left;
   color: gray;
   margin-bottom: 2vh;
+  line-height: 1;
+  margin-top: 0;
 }
 
 .credentials-warning,
@@ -71,15 +95,35 @@
   margin-bottom: 1rem;
 }
 
+.submit-container{
+  display: flex;
+  flex-direction: column;
+  gap: 2vh;
+}
+
 .submit-btn {
   width: 100%;
   margin-top: 1rem;
   font-size: 1vw;
+  background-color: var(--sidebar-color);
+  border-radius: 5px;
+  color: white;
+  margin: 0;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease, opacity 0.3s ease;
 }
+
+.submit-btn:disabled {
+  background-color: #a0a0a0;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 
 .right-section {
   flex: 1;
-  background-image: url('https://www.netmaps.net/wp-content/uploads/2015/03/tashkent-vector-map.jpg');
+  background-image: url('/assets/login-img.jpg');
   background-size: cover;
   background-position: center;
 }
@@ -99,81 +143,7 @@
 
 .copyright{
   color: gray;
-  font-size: .8vw;
+  line-height: 1;
+  font-size: 12px;
 }
 
-/* schermi tra 1024px e 768px */
-@media (max-width: 1024px) {
-  .sections-container {
-    width: 90%;
-  }
-
-  .left-section {
-    padding-left: 5vw;
-  }
-
-  .login-form {
-    max-width: 90%;
-  }
-
-  .form-title {
-    font-size: 3vw;
-  }
-
-  .form-title + p {
-    font-size: 2vw;
-  }
-
-  .submit-btn {
-    font-size: 2vw;
-  }
-}
-
-/* Schermi tra 768px e 480px */
-@media (max-width: 768px) {
-  .sections-container {
-    flex-direction: column;
-    height: auto;
-  }
-
-  .left-section,
-  .right-section {
-    width: 100%;
-    padding-left: 0;
-  }
-
-  .login-form {
-    padding: 5%;
-  }
-
-  .form-title {
-    font-size: 4vw;
-  }
-
-  .form-title + p {
-    font-size: 3vw;
-  }
-
-  .submit-btn {
-    font-size: 3vw;
-  }
-}
-
-/* Schermi più piccoli di 480px */
-@media (max-width: 480px) {
-  .form-title {
-    font-size: 5vw;
-  }
-
-  .form-title + p {
-    font-size: 4vw;
-  }
-
-  .submit-btn {
-    font-size: 4vw;
-  }
-
-  .sections-container {
-    width: 100%;
-  }
-}

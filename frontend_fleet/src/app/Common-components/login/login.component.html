@@ -1,72 +1,85 @@
 <div class="content">
   <div class="sections-container">
     <!-- Sezione sinistra: Form di login -->
-    <div class="left-section">
-      <form [formGroup]="loginForm" class="login-form" (submit)="login()">
+    <div class="left-container">
+      <div class="section-header">
         <img src="assets/logo.png" alt="logo gesenu" class="logo">
         <p class="version">Versione 1.0.0</p>
-        <h1 class="form-title">ACCEDI</h1>
-        <p>Inserisci le tue credenziali</p>
-        <!-- Warnings -->
-        <p *ngIf="credentialsWarning" class="credentials-warning">
-          ATTENZIONE: 1 tentativo rimanente prima del blocco
-        </p>
-        <p *ngIf="isCapsActive" class="caps-lock-warning">
-          Blocco maiuscolo attivo <mat-icon>keyboard_capslock_badge</mat-icon>
-        </p>
+      </div>
+      <div class="left-section">
+        <div class="left-content">
+          <div class="login-header">
+            <h1 class="form-title">Accedi</h1>
+            <p class="subtitle">Inserisci le tue credenziali</p>
+          </div>
+          <form [formGroup]="loginForm" class="login-form" (submit)="login()">
 
-        <!-- Username -->
-        <mat-form-field appearance="outline">
-          <mat-label>Username</mat-label>
-          <input matInput
-                 (keydown)="checkCapslock($event)"
-                 formControlName="username"
-                 placeholder="Username" />
-          <button mat-icon-button matSuffix type="button">
-            <mat-icon>person</mat-icon>
-          </button>
-          <mat-error *ngIf="loginForm.controls['username'].errors?.['required']">
-            L'username è obbligatorio.
-          </mat-error>
-        </mat-form-field>
+            <!-- Warnings -->
+            <p *ngIf="credentialsWarning" class="credentials-warning">
+              ATTENZIONE: 1 tentativo rimanente prima del blocco
+            </p>
+            <p *ngIf="isCapsActive" class="caps-lock-warning">
+              Blocco maiuscolo attivo <mat-icon>keyboard_capslock_badge</mat-icon>
+            </p>
 
-        <!-- Password -->
-        <mat-form-field appearance="outline">
-          <mat-label>Password</mat-label>
-          <input matInput
-                 [type]="showPassword ? 'text' : 'password'"
-                 (keydown)="checkCapslock($event)"
-                 formControlName="password"
-                 placeholder="Password" />
-          <button mat-icon-button matSuffix type="button" (click)="showPassword = !showPassword">
-            <mat-icon>{{ showPassword ? 'visibility' : 'visibility_off' }}</mat-icon>
-          </button>
-          <mat-error *ngIf="loginForm.controls['password'].errors?.['required']">
-            La password è obbligatoria.
-          </mat-error>
-        </mat-form-field>
+            <!-- Username -->
+            <mat-form-field appearance="outline">
+              <mat-label>Username</mat-label>
+              <input matInput
+                     (keydown)="checkCapslock($event)"
+                     formControlName="username"
+                     placeholder="Username" />
+              <button mat-icon-button matSuffix type="button">
+                <mat-icon>person</mat-icon>
+              </button>
+              <mat-error *ngIf="loginForm.controls['username'].errors?.['required']">
+                L'username è obbligatorio.
+              </mat-error>
+            </mat-form-field>
 
-        <!-- Messaggi di stato -->
-        <p *ngIf="loginSuccess" class="login-success">
-          Accesso... <mat-spinner mode="indeterminate" class="success-spinner"></mat-spinner>
-        </p>
-        <mat-error *ngIf="credentialsError">Credenziali non valide</mat-error>
-        <mat-error *ngIf="timeoutCountdown > 1">Troppi tentativi: prossimo tentativo fra {{ timeoutCountdown / 1000 | number:'1.0-0' }} secondi</mat-error>
+            <!-- Password -->
+            <mat-form-field appearance="outline">
+              <mat-label>Password</mat-label>
+              <input matInput
+                     [type]="showPassword ? 'text' : 'password'"
+                     (keydown)="checkCapslock($event)"
+                     formControlName="password"
+                     placeholder="Password" />
+              <button mat-icon-button matSuffix type="button" (click)="showPassword = !showPassword">
+                <mat-icon>{{ showPassword ? 'visibility' : 'visibility_off' }}</mat-icon>
+              </button>
+              <mat-error *ngIf="loginForm.controls['password'].errors?.['required']">
+                La password è obbligatoria.
+              </mat-error>
+            </mat-form-field>
 
-        <!-- Submit -->
-        <button mat-raised-button
-                color="primary"
-                type="submit"
-                [disabled]="loginForm.invalid || credentialsError"
-                class="submit-btn">
-          Accedi
-        </button>
-        <p class="copyright">Copyright © Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-      </form>
+            <!-- Messaggi di stato -->
+            <p *ngIf="loginSuccess" class="login-success">
+              Accesso... <mat-spinner mode="indeterminate" class="success-spinner"></mat-spinner>
+            </p>
+            <mat-error *ngIf="credentialsError">Credenziali non valide</mat-error>
+            <mat-error *ngIf="timeoutCountdown > 1">Prossimo tentativo fra {{ timeoutCountdown / 1000 | number:'1.0-0' }} secondi</mat-error>
+
+            <!-- Submit -->
+             <div class="submit-container">
+              <button mat-raised-button
+              color="primary"
+              type="submit"
+              [disabled]="loginForm.invalid || credentialsError"
+              class="submit-btn">
+        Accedi
+      </button>
+      <p class="copyright">© 2025 GSA. Tutti i diritti riservati.
+
+        L'uso di questa applicazione è soggetto ai Termini e Condizioni di GSA. È vietata qualsiasi riproduzione non autorizzata.</p>
+             </div>
+          </form>
+        </div>
+      </div>
     </div>
 
 
-    <!-- Sezione destra: Immagine decorativa -->
+    <!-- Sezione destra: Immagine -->
     <div class="right-section"></div>
   </div>
 
