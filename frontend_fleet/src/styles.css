@@ -6,20 +6,21 @@ html, body {
 
 body {
   margin: 0;
-  font-family: 'Roboto' !important;
+  font-family: 'Inter' !important;
 }
 
 html, body, h1, h2, h3, h4, h5, h6, th, td, mat-card-title{
-  font-family: 'Roboto' !important;
+  font-family: 'Inter' !important;
 }
 
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+body { margin: 0; font-family: "Inter", sans-serif; }
 :root {
   --sidebar-color: #5C9074;
   --yellow: #C5D026;
-  --red: #d12717;
+  --red: #D02626;
+  --black: #484848;
   --background-color: #F8F7F2;
   --navbar-height: 7vh;
-  --navbarANDstats-background: #F0EFE5;
+  --navbarANDstats-background: #F1F0E6;
 }
