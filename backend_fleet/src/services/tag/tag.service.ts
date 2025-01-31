@@ -509,13 +509,18 @@ export class TagService {
   }
 
   /**
-   * Funzione che ritorna i detection quality in base al veicolo inserito divisi per ora,
-   * creando una media di ora in ora
+   * Funzione che ritorna i detection quality in base al veicolo inserito, in base al mese o giorno.
+   * Una volta stabilito il range corretto, le letture vengono prese e viene fatta una media giornaliera e vengono tornati
    * @param userId id utente
    * @param veId veid veicolo
    * @returns
    */
-  async getDetectionQualityBiVeId(userId: number, veId: number): Promise<any> {
+  async getDetectionQualityByVeId(
+    userId: number,
+    veId: number,
+    months: number,
+    days: number,
+  ): Promise<any> {
     const vehicles =
       await this.associationService.getVehiclesAssociateUserRedis(userId);
     if (!vehicles || vehicles.length === 0)
@@ -529,59 +534,118 @@ export class TagService {
         HttpStatus.FORBIDDEN,
       );
     try {
-      const detections = await this.tagHistoryRepository.find({
-        select: {
-          timestamp: true,
-          detectiontag: {
-            detection_quality: true,
+      let detections = [];
+      // tutto a 0 o vuoto prendo i dati di sempre
+      if (!months && !days) {
+        detections = await this.tagHistoryRepository.find({
+          select: {
+            timestamp: true,
+            detectiontag: {
+              detection_quality: true,
+            },
           },
-        },
-        where: {
-          vehicle: {
-            veId: veId,
+          where: {
+            vehicle: {
+              veId: veId,
+            },
           },
-        },
-        relations: {
-          detectiontag: true,
-        },
-        order: {
-          timestamp: 'ASC',
-        },
-      });
+          relations: {
+            detectiontag: true,
+          },
+          order: {
+            timestamp: 'ASC',
+          },
+        });
+      }
+      // giorno diverso da 0 e mese a 0, da priorità al giorno
+      else if (!months && days) {
+        const dateFrom = new Date();
+        const dateTo = new Date();
+        dateTo.setDate(dateTo.getDate() - days);
+        console.log(dateFrom);
+        console.log(dateTo);
+        detections = await this.tagHistoryRepository.find({
+          select: {
+            timestamp: true,
+            detectiontag: {
+              detection_quality: true,
+            },
+          },
+          where: {
+            vehicle: {
+              veId: veId,
+            },
+            timestamp: Between(dateTo, dateFrom),
+          },
+          relations: {
+            detectiontag: true,
+          },
+          order: {
+            timestamp: 'ASC',
+          },
+        });
+      }
+      // da priorità al mese
+      else {
+        const dateFrom = new Date();
+        const dateTo = new Date();
+        dateTo.setMonth(dateTo.getMonth() - months);
+        detections = await this.tagHistoryRepository.find({
+          select: {
+            timestamp: true,
+            detectiontag: {
+              detection_quality: true,
+            },
+          },
+          where: {
+            vehicle: {
+              veId: veId,
+            },
+            timestamp: Between(dateTo, dateFrom),
+          },
+          relations: {
+            detectiontag: true,
+          },
+          order: {
+            timestamp: 'ASC',
+          },
+        });
+      }
       // Definizione del tipo per il valore dell'accumulatore
       type GroupedData = {
         totalQuality: number;
         count: number;
       };
 
-      // Raggruppo per ora e calcolo la somma e il conteggio dei detection tag
-      const groupedByHour = detections.reduce<Record<string, GroupedData>>(
+      // Raggruppo per giorno e calcolo la somma e il conteggio dei detection tag
+      const groupedByDay = detections.reduce<Record<string, GroupedData>>(
         (acc, item) => {
-          const hourKey =
-            new Date(item.timestamp).toISOString().slice(0, 13) + ':00:00.000Z'; // Arrotonda a inizio ora
+          const dayKey = new Date(item.timestamp).toISOString().slice(0, 10); // Arrotonda alla data (YYYY-MM-DD)
 
-          if (!acc[hourKey]) {
-            acc[hourKey] = { totalQuality: 0, count: 0 };
+          if (!acc[dayKey]) {
+            acc[dayKey] = { totalQuality: 0, count: 0 };
           }
 
           const detectionSum = item.detectiontag.reduce(
             (sum, tag) => sum + tag.detection_quality,
             0,
           );
-          acc[hourKey].totalQuality += detectionSum;
-          acc[hourKey].count += item.detectiontag.length;
+
+          acc[dayKey].totalQuality += detectionSum;
+          acc[dayKey].count += item.detectiontag.length;
 
           return acc;
         },
         {},
       );
-      // Trasformo il risultato in un array con media per ogni ora
-      const result = Object.entries(groupedByHour).map(([hour, data]) => {
+
+      // Trasformo il risultato in un array con media per ogni giorno
+      const result = Object.entries(groupedByDay).map(([day, data]) => {
         const avgQuality = parseFloat(
           (data.totalQuality / data.count).toFixed(1),
         ); // Arrotonda alla prima cifra decimale
         return {
-          timestamp: hour, // Timestamp arrotondato a inizio ora
+          timestamp: `${day}T00:00:00.000Z`, // Normalizzo il timestamp a inizio giorno
           detection_quality: avgQuality,
         };
       });
