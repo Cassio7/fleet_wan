@@ -13,6 +13,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { SessionApiService } from '../../Common-services/session/session-api.service';
 import { SessionStorageService } from '../../Common-services/sessionStorage/session-storage.service';
 import { Router } from '@angular/router';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 export interface PeriodicElement {
   name: string;
@@ -29,6 +30,7 @@ export interface PeriodicElement {
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
+    MatTooltipModule,
     MatIconModule
 ],
   templateUrl: './lista-mezzi.component.html',

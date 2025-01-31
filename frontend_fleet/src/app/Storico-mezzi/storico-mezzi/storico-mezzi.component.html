@@ -17,18 +17,22 @@
     <div class="table-content">
       <div class="table-row">
         <div class="info">
-          <div class="targa">
-            <span class="small-title">Targa</span>
-            <span>{{selectedVehicle && selectedVehicle.plate}}</span>
-          </div>
-          <div class="cantiere">
-            <span class="small-title">Cantiere</span>
-            <span>{{selectedVehicle ? selectedVehicle.worksite ? selectedVehicle.worksite.name : "non assegnato" : ""}}</span>
-          </div>
-          <div class="tipologia">
-            <span class="small-title">Tipologia</span>
-            <span>tipo</span>
-          </div>
+            @if(selectedVehicle){
+              <div class="targa">
+                <span class="small-title">Targa</span>
+                <span>{{selectedVehicle && selectedVehicle.plate}}</span>
+              </div>
+              <div class="cantiere">
+                <span class="small-title">Cantiere</span>
+                <span>{{selectedVehicle ? selectedVehicle.worksite ? selectedVehicle.worksite.name : "non assegnato" : ""}}</span>
+              </div>
+              <div class="tipologia">
+                <span class="small-title">Tipologia</span>
+                <span>tipo</span>
+              </div>
+            }@else {
+              Nessun veicolo selezionato
+            }
         </div>
         <app-session-filters></app-session-filters>
       </div>
