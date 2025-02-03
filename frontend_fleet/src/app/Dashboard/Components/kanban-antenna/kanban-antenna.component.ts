@@ -82,7 +82,7 @@ export class KanbanAntennaComponent implements AfterViewInit, OnDestroy{
 
     this.filtersCommonService.applyFilters$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe((filters: Filters)=>{
-      kanbanVehicles = this.filtersCommonService.applyAllFiltersOnVehicles(allData, filters);
+      kanbanVehicles = this.filtersCommonService.applyAllFiltersOnVehicles(allData, filters) as VehicleData[];
       this.kanbanAntennaService.setKanbanData(kanbanVehicles);
       this.antenanGraphService.loadChartData$.next(kanbanVehicles);
     });

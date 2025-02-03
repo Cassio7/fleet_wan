@@ -124,7 +124,7 @@ export class TableComponent implements OnDestroy, AfterViewInit {
     .subscribe({
       next: (filters: Filters) => {
         const allData = JSON.parse(this.sessionStorageService.getItem("allData"));
-        const filteredVehicles = this.filtersCommonService.applyAllFiltersOnVehicles(allData, filters);
+        const filteredVehicles = this.filtersCommonService.applyAllFiltersOnVehicles(allData, filters) as VehicleData[];
         this.vehicleTableData.data = filteredVehicles;
         this.vehicleTable.renderRows();
         this.antennaGraphService.loadChartData$.next(filteredVehicles);

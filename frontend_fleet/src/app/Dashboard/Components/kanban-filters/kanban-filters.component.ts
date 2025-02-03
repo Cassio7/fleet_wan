@@ -47,6 +47,7 @@ export class KanbanFiltersComponent implements AfterViewInit, OnDestroy{
   plate: string = "";
   filterForm!: FormGroup;
   cantieri = new FormControl<string[]>([]);
+  allSelected: boolean = false;
   private filters: Filters = {
     plate: this.plate,
     cantieri: this.cantieri,
@@ -88,8 +89,8 @@ export class KanbanFiltersComponent implements AfterViewInit, OnDestroy{
     const allVehicles = JSON.parse(this.sessionStorageService.getItem("allData"));
     this.kanbanCantieri= this.cantieriFilterService.vehiclesCantieriOnce(allVehicles);
     setTimeout(() => {
-      this.cantieriFilterService.allSelected = false;
-      this.toggleSelectAllCantieri();
+      this.allSelected = !this.allSelected;
+      this.toggleSelectAllCantieri(this.allSelected);
 
       const section =  this.sessionStorageService.getItem("dashboard-section");
       if(section == "GPS"){
@@ -109,6 +110,8 @@ export class KanbanFiltersComponent implements AfterViewInit, OnDestroy{
       },
       error: error => console.error("Errore nell'aggiornamento delle opzioni del filtro dei cantieri: ", error)
     });
+
+    this.allSelected = true;
 
     this.cd.detectChanges();
   }
@@ -131,7 +134,8 @@ export class KanbanFiltersComponent implements AfterViewInit, OnDestroy{
     let selectedCantieri = this.cantieri.value || [];
 
     if (option === "Seleziona tutto") {
-      this.toggleSelectAllCantieri();
+      this.allSelected = !this.allSelected;
+      this.toggleSelectAllCantieri(this.allSelected);
     } else {
       if (this.cantieriFilterService.allSelected) {
         this.cantieriFilterService.allSelected = false;
@@ -167,7 +171,7 @@ export class KanbanFiltersComponent implements AfterViewInit, OnDestroy{
   /**
    * Seleziona tutti i filtri del select dei cantieri
    */
-  toggleSelectAllCantieri() {
-    this.cantieri.setValue(this.cantieriFilterService.toggleSelectAllCantieri());
+  toggleSelectAllCantieri(allSelected: boolean) {
+    this.cantieri.setValue(this.cantieriFilterService.toggleSelectAllCantieri(allSelected));
   }
 }

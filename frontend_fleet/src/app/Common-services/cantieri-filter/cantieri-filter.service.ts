@@ -184,16 +184,20 @@ export class CantieriFilterService{
 
   /**
    * Seleziona / deseleziona tutti i cantieri dei veicoli nel select e notifica la tabella di aggiornare i dati
+   * @param selectionState
    * @returns nuovo valore della lista cantieri
    */
-  toggleSelectAllCantieri(){
-    if (this.allSelected) {
+  toggleSelectAllCantieri(selectionState: boolean){
+    console.log("selectionState: ", selectionState);
+    if (selectionState) {
       this.filterTableByCantiere$.next([]);
-      this.allSelected = false
+      selectionState = false
+      console.log([]);
       return [];
     } else {
       this.filterTableByCantiere$.next(this.listaCantieri);
-      this.allSelected = true
+      selectionState = true
+      console.log(this.listaCantieri);
       return this.listaCantieri;
     }
   }
