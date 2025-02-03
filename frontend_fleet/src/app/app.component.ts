@@ -11,6 +11,7 @@ import { LoginService } from './Common-services/login service/login.service';
 import { CommonModule } from '@angular/common';
 import { CookiesService } from './Common-services/cookies service/cookies.service';
 import { MatMenuModule } from '@angular/material/menu';
+import { NavigationService } from './Common-services/navigation/navigation.service';
 
 @Component({
   selector: 'app-root',
@@ -49,6 +50,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
     private router: Router,
     private loginService: LoginService,
     private cookiesService: CookiesService,
+    private navigationService: NavigationService, //servizio importato per farlo caricare ad inizio applicazione
     private cd: ChangeDetectorRef
   ){}
 

@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
@@ -20,6 +20,7 @@ import { SessionHystoriesComponent } from "../session-hystories/session-hystorie
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AnomaliesComponent } from "../anomalies/anomalies.component";
 import { SessionFiltersComponent } from "../session-filters/session-filters.component";
+import { NavigationService } from '../../../Common-services/navigation/navigation.service';
 
 
 @Component({
@@ -42,13 +43,15 @@ import { SessionFiltersComponent } from "../session-filters/session-filters.comp
   templateUrl: './dettaglio-mezzo.component.html',
   styleUrl: './dettaglio-mezzo.component.css'
 })
-export class DettaglioMezzoComponent implements OnInit, OnDestroy {
+export class DettaglioMezzoComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly destroy$: Subject<void> = new Subject<void>();
 
   private veId!: number;
   user!: User;
   vehicle!: Vehicle;
 
+  previous_url: string = "/dashboard";
+  goBack_text: string = "Torna alla dashboard";
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -61,11 +64,15 @@ export class DettaglioMezzoComponent implements OnInit, OnDestroy {
     private vehiclesApiService: VehiclesApiService,
     private notesService: NotesService,
     private authService: AuthService,
+    private navigationService: NavigationService,
     private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
+    this.previous_url = this.navigationService.getPreviousUrl() || "/dashboard";
+    console.log("this.previous_url: ", this.previous_url);
+
     this.vehicle = JSON.parse(this.sessionStorageService.getItem("detail"));
     this.user = this.authService.getParsedAccessToken();
     if(!this.vehicle){
@@ -75,6 +82,21 @@ export class DettaglioMezzoComponent implements OnInit, OnDestroy {
         this.fetchVehicle();
       });
     }
+  }
+
+  ngAfterViewInit(): void {
+    switch(this.previous_url){
+      case "/dashboard":
+        this.goBack_text = "Torna alla dashboard";
+        break;
+      case "/home-mezzi":
+        this.goBack_text = "Torna al parco mezzi";
+        break;
+      case "/storico-mezzi":
+        this.goBack_text = "Torna allo storico mezzi";
+        break;
+    }
+    this.cd.detectChanges();
   }
 
   private fetchVehicle(): void {
@@ -108,7 +130,8 @@ export class DettaglioMezzoComponent implements OnInit, OnDestroy {
   }
 
   goBack(): void {
-    this.router.navigate(['/home-mezzi']); // Consider using a dynamic return path if necessary
+    const url = this.navigationService.getPreviousUrl() ? this.navigationService.getPreviousUrl() : "/dashboard";
+    this.router.navigate([url]);
     this.sessionStorageService.removeItem("detail");
   }
 }

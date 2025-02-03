@@ -61,7 +61,6 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
     filter(event => event instanceof NavigationEnd)
   ).subscribe(() => {
     const url = this.router.url;
-    console.log('URL corrente:', url);
 
     // Gestisci il caso di /dettaglio-mezzo/:id
     const regex = /\/dettaglio-mezzo\/(\d+)/;
