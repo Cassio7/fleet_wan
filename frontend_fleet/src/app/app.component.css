@@ -1,4 +1,7 @@
 /* fixed drawer */
+.main-drawer{
+  height: 100%;
+}
 .fixed-drawer-container {
   border-radius: 0px;
 }

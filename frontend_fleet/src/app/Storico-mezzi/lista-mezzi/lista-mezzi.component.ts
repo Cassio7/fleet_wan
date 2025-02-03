@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, EventEmitter, OnDestroy, Output, ViewChild, ViewEncapsulation } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, OnDestroy, Output, ViewChild, ViewEncapsulation } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -14,6 +14,7 @@ import { SessionApiService } from '../../Common-services/session/session-api.ser
 import { SessionStorageService } from '../../Common-services/sessionStorage/session-storage.service';
 import { Router } from '@angular/router';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { CommonModule } from '@angular/common';
 
 export interface PeriodicElement {
   name: string;
@@ -26,6 +27,7 @@ export interface PeriodicElement {
   selector: 'app-lista-mezzi',
   standalone: true,
   imports: [
+    CommonModule,
     MatTableModule,
     MatFormFieldModule,
     MatInputModule,
@@ -45,12 +47,15 @@ export class ListaMezziComponent implements AfterViewInit, OnDestroy{
   displayedColumns: string[] = ['icon', 'Targa', 'Cantiere', 'map'];
   vehiclesListData = new MatTableDataSource<Vehicle>();
 
+  selectedVehicle!: Vehicle;
+
   constructor(
     private vehiclesApiService: VehiclesApiService,
     private sessionApiService: SessionApiService,
     private realtimeApiService: RealtimeApiService,
     private router: Router,
-    private mapService: MapService
+    private mapService: MapService,
+    private cd: ChangeDetectorRef
   ){}
 
   ngOnDestroy(): void {
@@ -99,6 +104,8 @@ export class ListaMezziComponent implements AfterViewInit, OnDestroy{
   }
 
   setVehicleSelection(vehicle: Vehicle){
+    this.selectedVehicle = vehicle;
+    this.cd.detectChanges();
     this.selectVehicle.emit(vehicle);
   }
 
@@ -116,4 +123,5 @@ export class ListaMezziComponent implements AfterViewInit, OnDestroy{
     }
     this.mapService.loadMap$.next(realtimeData);
   }
+
 }
