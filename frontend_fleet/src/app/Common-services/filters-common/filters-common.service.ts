@@ -63,8 +63,6 @@ export class FiltersCommonService {
     this.sessionFilterService.updateSelectedOptions(filteredVehicles);
   }
 
-
-
   /**
    * Applica tutti i filtri sui veicoli passati
    * @param vehicles veicoli da filtrare
@@ -72,92 +70,161 @@ export class FiltersCommonService {
    * @returns veicoli filtrati
    */
   applyAllFiltersOnVehicles(vehicles: VehicleData[], filters: Filters): VehicleData[] {
-    console.log("filtrat tutto! ");
-    console.log("plate.value: ", filters.plate);
-    console.log("cantieri.value: ", filters.cantieri.value);
-    console.log("antenna.value: ", filters.antenna.value);
-    console.log("gps.value: ", filters.gps.value);
-    console.log("session.value: ", filters.sessione.value);
-    let filteredVehicles: VehicleData[] = [...vehicles];
-    const filterResults: VehicleData[][] = [];
-    let plateFiltered: VehicleData[] = [];
-    let cantieriFiltered: VehicleData[] = [];
 
-    // Filtro per targa
-    if(filters.plate){
-      plateFiltered = this.plateFilterService.filterVehiclesByPlateResearch(filters.plate, vehicles) as VehicleData[];
-    }else{
-      plateFiltered = vehicles;
-    }
-    filterResults.push(plateFiltered);
-    console.log("filtrato per  plate: ", plateFiltered);
+    // Logica prioritaria
+    // Se la targa non c'è, resetta tutti i vcalori del controllo cantieri
 
-    if(filters.plate){
-      const updatedCantieri = this.cantieriFilterService.updateSelectedCantieri(plateFiltered);
-      filters.cantieri.setValue(updatedCantieri);
-      filters.gps.setValue(this.gpsFilterService.updateSelectedOptions(plateFiltered));
-      filters.antenna.setValue(this.antennaFilterService.updateSelectedOptions(plateFiltered));
-      filters.sessione.setValue(this.sessionFilterService.updateSelectedOptions(plateFiltered));
-    }else{
-      const allCantieri = this.cantieriFilterService.vehiclesCantieriOnce(plateFiltered);
-      filters.cantieri.setValue(allCantieri);
+    // Se i filtri non ci sono, o se sono a default,  ritorniamo la lista
+      let filtriInseriti = false;
+      if ( filters.plate?.length > 0 ) filtriInseriti = true;
+      if ( filters.cantieri.value?.length ) filtriInseriti = true;
+
+      if ( !filtriInseriti )
+        return vehicles;
+
+    // Logiche per i filtri...
+    const arrayTarghe:number[] = this.getVeIds(this.plateFilterService.filterVehiclesByPlateResearch(filters.plate, vehicles) as VehicleData[]);
+    let arrayCantieri:number[];
+
+    if(filters.cantieri.value){
+      arrayCantieri = (this.cantieriFilterService.filterVehiclesByCantieri(vehicles, filters.cantieri.value) as VehicleData[]).map(vehicle => vehicle.vehicle.veId);
     }
 
-    // Filtro per cantieri
-    if (filters.cantieri && filters.cantieri.value) {
-        if(plateFiltered){
-          console.log("entro su plateFiltered: ", plateFiltered);
-          cantieriFiltered = this.cantieriFilterService.filterVehiclesByCantieri(plateFiltered, filters.cantieri.value) as VehicleData[];
-        }else{
-          cantieriFiltered = this.cantieriFilterService.filterVehiclesByCantieri(vehicles, filters.cantieri.value) as VehicleData[];
-        }
-        console.log("cantieriFiltered: ", cantieriFiltered);
-        filterResults.push(cantieriFiltered);
+    let arrayGps: number[];
+
+    if(filters.gps.value){
+      const gpsCheck = this.filterByStatus(this.checkErrorsService.checkVehiclesGpsErrors(vehicles), filters.gps.value, "GPS");
+      arrayGps = this.getVeIds(gpsCheck);
     }
 
-    // Filtro per stato GPS
-    if (filters.gps && filters.gps.value) {
-        const gpsCheck = this.checkErrorsService.checkVehiclesGpsErrors(cantieriFiltered);
-        console.log("gpsCheck: ", gpsCheck);
-        const gpsFiltered = this.filterByStatus(gpsCheck, filters.gps.value, "GPS");
-        console.log("gpsFiltered: ", gpsFiltered);
-        filterResults.push(gpsFiltered);
-        console.log("filtrato per  gps: ", gpsFiltered);
+    let arrayAntenne: number[];
+
+    if (filters.antenna.value) {
+      let antennaCheck = this.filterByStatus(this.checkErrorsService.checkVehiclesAntennaErrors(vehicles),filters.antenna.value,"antenna");
+
+      let antennaVehicles = antennaCheck;
+
+      if (filters.antenna.value.includes("Blackbox")) {
+        antennaVehicles = [
+          ...antennaCheck,
+          ...this.antennaFilterService.getAllRFIDVehicles(vehicles).blackboxOnly
+        ];
+      }
+
+      arrayAntenne = this.getVeIds(antennaVehicles);
     }
 
-    // Filtro per stato antenna
-    if (filters.antenna && filters.antenna.value) {
-        const antennaCheck = this.checkErrorsService.checkVehiclesAntennaErrors(cantieriFiltered);
-        const antennaErrors = this.filterByStatus(antennaCheck, filters.antenna.value, "antenna");
-        let antennaData = antennaErrors;
-        if (filters.antenna.value.includes("Blackbox")) {
-            const blackboxData = this.blackboxGraphService.getAllRFIDVehicles(cantieriFiltered);
-            antennaData = [...antennaErrors, ...blackboxData.blackboxOnly];
-        }
-        filterResults.push(antennaData);
-        console.log("filtrato per  antenna: ", antennaData);
+
+    let arraySessioni: number[];
+
+    if(filters.sessione.value){
+      const sessionCheck = this.filterByStatus(this.checkErrorsService.checkVehiclesSessionErrors(vehicles), filters.sessione.value, "sessione");
+      arraySessioni = this.getVeIds(sessionCheck);
     }
 
-    // Filtro per stato sessione
-    if (filters.sessione && filters.sessione.value) {
-        const sessionCheck = this.checkErrorsService.checkVehiclesSessionErrors(cantieriFiltered);
-        const sessionFiltered = this.filterByStatus(sessionCheck, filters.sessione.value, "sessione");
-        filterResults.push(sessionFiltered);
-        console.log("filtrato per  session: ", sessionFiltered);
-    }
-
-    //se non ci sono risultati da filtrare, ritorna un array vuoto
-    if (filterResults.length === 0) {
-        return [];
-    }
-
-    filteredVehicles = filterResults.reduce((acc, curr) => this.intersectVehicles(acc, curr), vehicles); //calcolo intersezione tra i veicoli filtrati
-
-    console.log("filteredVehicles: ", filteredVehicles);
-    this.updateAllFiltersOption(filteredVehicles);
+    const filteredVehicles = vehicles.filter( veicolo => {
+      // Per tutti gli array dei filtri
+      if ( filters.plate && arrayTarghe.findIndex( vehicleId => vehicleId === veicolo.vehicle.veId ) === -1 ) return false; // Per ogni filtro
+      if ( filters.cantieri && arrayCantieri.findIndex( vehicleId => vehicleId === veicolo.vehicle.veId ) === -1 ) return false; // Per ogni filtro
+      if ( filters.gps && arrayGps.findIndex( vehicleId => vehicleId === veicolo.vehicle.veId ) === -1 ) return false;
+      if ( filters.antenna && arrayAntenne.findIndex( vehicleId => vehicleId === veicolo.vehicle.veId ) === -1 ) return false;
+      if ( filters.sessione && arraySessioni.findIndex( vehicleId => vehicleId === veicolo.vehicle.veId ) === -1 ) return false;
+      return true;
+    } );
+    // Ritorniamo la lista filtrata
     return filteredVehicles;
+
+
+    // console.log("filtrat tutto! ");
+    // console.log("plate.value: ", filters.plate);
+    // console.log("cantieri.value: ", filters.cantieri.value);
+    // console.log("antenna.value: ", filters.antenna.value);
+    // console.log("gps.value: ", filters.gps.value);
+    // console.log("session.value: ", filters.sessione.value);
+    // let filteredVehicles: VehicleData[] = [...vehicles];
+    // const filterResults: VehicleData[][] = [];
+    // let plateFiltered: VehicleData[] = [];
+    // let cantieriFiltered: VehicleData[] = [];
+
+    // // Filtro per targa
+    // if(filters.plate){
+    //   plateFiltered = this.plateFilterService.filterVehiclesByPlateResearch(filters.plate, vehicles) as VehicleData[];
+    // }else{
+    //   plateFiltered = vehicles;
+    // }
+    // filterResults.push(plateFiltered);
+    // console.log("filtrato per  plate: ", plateFiltered);
+
+    // if(filters.plate){
+    //   const updatedCantieri = this.cantieriFilterService.updateSelectedCantieri(plateFiltered);
+    //   filters.cantieri.setValue(updatedCantieri);
+    //   filters.gps.setValue(this.gpsFilterService.updateSelectedOptions(plateFiltered));
+    //   filters.antenna.setValue(this.antennaFilterService.updateSelectedOptions(plateFiltered));
+    //   filters.sessione.setValue(this.sessionFilterService.updateSelectedOptions(plateFiltered));
+    // }else{
+    //   const allCantieri = this.cantieriFilterService.vehiclesCantieriOnce(plateFiltered);
+    //   filters.cantieri.setValue(allCantieri);
+    // }
+
+    // // Filtro per cantieri
+    // if (filters.cantieri && filters.cantieri.value) {
+    //     if(plateFiltered){
+    //       console.log("entro su plateFiltered: ", plateFiltered);
+    //       cantieriFiltered = this.cantieriFilterService.filterVehiclesByCantieri(plateFiltered, filters.cantieri.value) as VehicleData[];
+    //     }else{
+    //       cantieriFiltered = this.cantieriFilterService.filterVehiclesByCantieri(vehicles, filters.cantieri.value) as VehicleData[];
+    //     }
+    //     console.log("cantieriFiltered: ", cantieriFiltered);
+    //     filterResults.push(cantieriFiltered);
+    // }
+
+    // // Filtro per stato GPS
+    // if (filters.gps && filters.gps.value) {
+    //     const gpsCheck = this.checkErrorsService.checkVehiclesGpsErrors(cantieriFiltered);
+    //     console.log("gpsCheck: ", gpsCheck);
+    //     const gpsFiltered = this.filterByStatus(gpsCheck, filters.gps.value, "GPS");
+    //     console.log("gpsFiltered: ", gpsFiltered);
+    //     filterResults.push(gpsFiltered);
+    //     console.log("filtrato per  gps: ", gpsFiltered);
+    // }
+
+    // // Filtro per stato antenna
+    // if (filters.antenna && filters.antenna.value) {
+    //     const antennaCheck = this.checkErrorsService.checkVehiclesAntennaErrors(cantieriFiltered);
+    //     const antennaErrors = this.filterByStatus(antennaCheck, filters.antenna.value, "antenna");
+    //     let antennaData = antennaErrors;
+    //     if (filters.antenna.value.includes("Blackbox")) {
+    //         const blackboxData = this.blackboxGraphService.getAllRFIDVehicles(cantieriFiltered);
+    //         antennaData = [...antennaErrors, ...blackboxData.blackboxOnly];
+    //     }
+    //     filterResults.push(antennaData);
+    //     console.log("filtrato per  antenna: ", antennaData);
+    // }
+
+    // // Filtro per stato sessione
+    // if (filters.sessione && filters.sessione.value) {
+    //     const sessionCheck = this.checkErrorsService.checkVehiclesSessionErrors(cantieriFiltered);
+    //     const sessionFiltered = this.filterByStatus(sessionCheck, filters.sessione.value, "sessione");
+    //     filterResults.push(sessionFiltered);
+    //     console.log("filtrato per  session: ", sessionFiltered);
+    // }
+
+    // //se non ci sono risultati da filtrare, ritorna un array vuoto
+    // if (filterResults.length === 0) {
+    //     return [];
+    // }
+
+    // filteredVehicles = filterResults.reduce((acc, curr) => this.intersectVehicles(acc, curr), vehicles); //calcolo intersezione tra i veicoli filtrati
+
+    // console.log("filteredVehicles: ", filteredVehicles);
+    // this.updateAllFiltersOption(filteredVehicles);
+    // return filteredVehicles;
   }
 
+
+  getVeIds(vehicles: VehicleData[]): number[]{
+    return vehicles.map(vehicle => vehicle.vehicle.veId);
+  }
 
   /**
    * Trova l'intersezione tra due array di veicoli

@@ -374,9 +374,9 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
    * @param emptyButtonClick se la funzione è stata chiamata dalla premuta del bottone per svuotare il campo
    */
   searchPlates(){
-    if(!this.filters.plate){
-      this.toggleSelectAll();
-    }
+    // if(!this.filters.plate){
+    //   this.toggleSelectAll();
+    // }
 
     this.filtersCommonService.applyFilters$.next(this.filters);
   }
