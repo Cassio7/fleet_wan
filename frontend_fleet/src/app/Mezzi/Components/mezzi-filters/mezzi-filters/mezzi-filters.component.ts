@@ -36,6 +36,7 @@ import { MezziFilters, MezziFiltersService } from '../../../Services/mezzi-filte
 })
 export class MezziFiltersComponent implements AfterViewInit, OnDestroy{
   private readonly destroy$: Subject<void> = new Subject<void>();
+  private allSelected: boolean = false;;
   plate: string = "";
   cantieri = new FormControl<string[]>([]);
 
@@ -71,7 +72,8 @@ export class MezziFiltersComponent implements AfterViewInit, OnDestroy{
     console.log("lista caniteri: ", this.cantieriFilterService.listaCantieri);
     const allVehicles: Vehicle[] = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
     if(option == "Seleziona tutto"){
-      const cantieriToggle = this.cantieriFilterService.toggleSelectAllCantieri();
+      this.allSelected = !this.allSelected;
+      const cantieriToggle = this.cantieriFilterService.toggleSelectAllCantieri(this.allSelected);
       console.log("cantieriToggle: ", cantieriToggle);
       this.cantieri.setValue(cantieriToggle);
       this.cd.detectChanges();

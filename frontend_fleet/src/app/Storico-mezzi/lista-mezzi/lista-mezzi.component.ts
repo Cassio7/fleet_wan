@@ -15,6 +15,7 @@ import { SessionStorageService } from '../../Common-services/sessionStorage/sess
 import { Router } from '@angular/router';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CommonModule } from '@angular/common';
+import { Filters, FiltersCommonService } from '../../Common-services/filters-common/filters-common.service';
 
 export interface PeriodicElement {
   name: string;
@@ -53,6 +54,8 @@ export class ListaMezziComponent implements AfterViewInit, OnDestroy{
     private vehiclesApiService: VehiclesApiService,
     private sessionApiService: SessionApiService,
     private realtimeApiService: RealtimeApiService,
+    private filtersCommonService: FiltersCommonService,
+    private sessionStrorageService: SessionStorageService,
     private router: Router,
     private mapService: MapService,
     private cd: ChangeDetectorRef
@@ -68,6 +71,7 @@ export class ListaMezziComponent implements AfterViewInit, OnDestroy{
     .subscribe({
       next: (vehicles: Vehicle[]) => {
         this.vehiclesListData.data = vehicles;
+        this.sessionStrorageService.setItem("allVehicles", JSON.stringify(vehicles));
         if(this.vehiclesList){
           this.vehiclesList.renderRows();
         }
@@ -76,12 +80,13 @@ export class ListaMezziComponent implements AfterViewInit, OnDestroy{
       error: error => console.error("Errore nella ricezione di tutti i veicoli: ", error)
     });
 
-    this.sessionApiService.loadAnomalySessionDays$.pipe(takeUntil(this.destroy$))
+    this.filtersCommonService.applyFilters$.pipe(takeUntil(this.destroy$))
     .subscribe({
-      next: () => {
-
+      next: (filters: Filters) => {
+        const allVehicles = JSON.parse(this.sessionStrorageService.getItem("allVehicles"))
+        this.vehiclesListData.data = this.filtersCommonService.applyAllFiltersOnVehicles(allVehicles, filters) as Vehicle[];
       },
-      error: error => console.error("Errore nel caricamento delle giornate con le anomalie: ", error)
+      error: error => console.error("Errore nella ricevuta dell'applicazione dei filtri: ", error)
     });
   }
 
@@ -93,7 +98,6 @@ export class ListaMezziComponent implements AfterViewInit, OnDestroy{
       .subscribe({
         next: (realtimeDataObj: RealtimeData[]) => {
           const tableVehicles: Vehicle[] = this.realtimeApiService.mergeVehiclesWithRealtime(this.vehiclesListData.data, realtimeDataObj) as Vehicle[];
-          console.log("vehicle w realtimes merged: ", tableVehicles);
           this.vehiclesListData.data = tableVehicles;
           if(this.vehiclesList){
             this.vehiclesList.renderRows();
