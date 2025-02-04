@@ -22,7 +22,6 @@ import { KanbanTableService } from '../../Services/kanban-table/kanban-table.ser
 import { ErrorGraphsService } from '../../Services/error-graphs/error-graphs.service';
 import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
-import { KanbanFiltersComponent } from "../kanban-filters/kanban-filters.component";
 import { MapComponent } from '../../../Common-components/map/map.component';
 
 
@@ -161,8 +160,8 @@ export class DashboardComponent implements AfterViewInit{
    * Notifica di passare dai dati di oggi a quelli dell'ultimo andamento o viceversa
    * @param event evento toggle
    */
-  dataSwitch(event: MatSlideToggleChange){
-    if(event.checked){
+  dataSwitch(){
+    if(!this.today){
       this.today = true;
       this.lastSession = false;
       this.switchText = "Oggi";

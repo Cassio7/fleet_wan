@@ -102,6 +102,30 @@
   padding: 0;
 }
 
+.switch-container {
+  display: flex;
+  align-items: center;
+  gap: .2vw;
+}
+
+.switch-container p {
+  margin: 0;
+  margin-right: .4vw;
+}
+
+
+.switch-container button{
+  border-radius: 5px;
+  background-color: white;
+  color: black;
+}
+
+.switch-container .selected-switch{
+  background-color: var(--sidebar-color);
+  color: white;
+}
+
+
 .graphs .table {
   height: 100%;
   display: flex;
