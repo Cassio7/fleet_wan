@@ -24,18 +24,18 @@ export class PlateFilterService {
   filterVehiclesByPlateResearch(research: string, vehiclesData: (VehicleData | Vehicle)[]): (VehicleData | Vehicle)[] {
     const searchTextLower = research.toLowerCase().replace(/\s+/g, '');
 
-    let plate = '';
-
     return vehiclesData.filter(vehicle => {
+      let plate = '';
+
       if ('plate' in vehicle) {
         plate = vehicle.plate;
       } else if ('vehicle' in vehicle && 'plate' in vehicle.vehicle) {
         plate = vehicle.vehicle.plate;
       }
 
-      return plate.toLowerCase().replace(/\s+/g, '').includes(searchTextLower);
+      return plate.toLowerCase().replace(/\s+/g, '').startsWith(searchTextLower);
     });
-  }
+}
 
 
   /**
