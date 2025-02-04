@@ -550,7 +550,7 @@ export class AnomalyService {
     date: Date,
     gps: string | null,
     antenna: string | null,
-    detection_quality_avg: number | null,
+    detection_quality: string | null,
     session: string | null,
   ) {
     const normalizeField = (field: string | null): string | null =>
@@ -559,6 +559,7 @@ export class AnomalyService {
     const normalizedGps = normalizeField(gps);
     const normalizedAntenna = normalizeField(antenna);
     const normalizedSession = normalizeField(session);
+
     let day = date;
     const today = new Date();
     today.setUTCHours(0, 0, 0, 0);
@@ -571,7 +572,7 @@ export class AnomalyService {
         date: day,
         gps: normalizedGps,
         antenna: normalizedAntenna,
-        detection_quality_avg: detection_quality_avg,
+        detection_quality: detection_quality,
       };
       return createHash('sha256').update(JSON.stringify(toHash)).digest('hex');
     };
@@ -606,7 +607,7 @@ export class AnomalyService {
             session: normalizedSession,
             gps: normalizedGps,
             antenna: normalizedAntenna,
-            detection_quality_avg: detection_quality_avg,
+            detection_quality: detection_quality,
             hash: hash,
           };
           await queryRunner.manager
@@ -618,7 +619,7 @@ export class AnomalyService {
             date: day,
             gps: normalizedGps,
             antenna: normalizedAntenna,
-            detection_quality_avg: detection_quality_avg,
+            detection_quality: detection_quality,
             hash: hash,
           };
           await queryRunner.manager
@@ -634,7 +635,7 @@ export class AnomalyService {
             session: normalizedSession,
             gps: normalizedGps,
             antenna: normalizedAntenna,
-            detection_quality_avg: detection_quality_avg,
+            detection_quality: detection_quality,
             hash: hash,
           });
         await queryRunner.manager.getRepository(AnomalyEntity).save(anomaly);
@@ -988,20 +989,30 @@ export class AnomalyService {
           endOfDay,
         );
         return allVehicles.map((vehicle) => {
-          const detections = tags.get(vehicle.veId) || null;
-          if (detections.lenth === 0) {
+          const detections = tags.get(vehicle.veId) || [];
+          if (detections.length === 0) {
             return null;
           }
-          const detection_quality_avg =
-            detections.reduce((sum, value) => sum + value, 0) /
-            detections.length;
+          let detection_qualityText: string = null;
+          // controlla se esiste almeno una lettura con valore -70 o maggiore -71 ...
+          const detectionsBad = detections.some((num) => num <= -70);
+          if (detectionsBad) {
+            detection_qualityText = 'Poor: un tag con -70 o superiore';
+          } else {
+            // controlla se il 50% delle letture ha valore ugale a -60 o maggiore -61 ...
+            const detectionsOk = detections.filter((num) => num <= -60).length;
+            const isFiftyPercentBad = detectionsOk >= detections.length / 2;
+            detection_qualityText = isFiftyPercentBad
+              ? 'Good: range -60 -69'
+              : 'Excellent: range 0 -59';
+          }
           return {
             plate: vehicle.plate,
             veId: vehicle.veId,
             isCan: vehicle.isCan,
             isRFIDReader: vehicle.allestimento,
             day,
-            detection_quality_avg: detection_quality_avg,
+            detection_quality: detection_qualityText,
           };
         });
       }),
@@ -1020,13 +1031,11 @@ export class AnomalyService {
             detection_quality: [],
           });
         }
-
         vehicleMap.get(item.veId).detection_quality.push({
           date: item.day,
-          anomalies: item.detection_quality_avg || null, // Manteniamo anche le anomalie vuote
+          anomalies: item.detection_quality, // Manteniamo anche le anomalie vuote
         });
       });
-
     return Array.from(vehicleMap.values())
       .map((vehicle) => {
         // Filtra detection_quality eliminando quelli con anomalies = null
@@ -1093,7 +1102,6 @@ export class AnomalyService {
         error,
       );
     }
-
     // Controlla errore inizio e fine sessione (last event)
     try {
       comparison = await this.checkSession();
@@ -1152,7 +1160,7 @@ export class AnomalyService {
               anomalies: {},
             });
           }
-          allSessions.get(session.date).anomalies.detection_quality_avg =
+          allSessions.get(session.date).anomalies.detection_quality =
             session.anomalies;
         });
 
@@ -1264,6 +1272,7 @@ export class AnomalyService {
           anomalyDTO.date = anomaly.date;
           anomalyDTO.gps = anomaly.gps;
           anomalyDTO.antenna = anomaly.antenna;
+          anomalyDTO.detection_quality = anomaly.detection_quality;
           anomalyDTO.session = anomaly.session;
 
           // Aggiungi l'anomalia al gruppo del veicolo
