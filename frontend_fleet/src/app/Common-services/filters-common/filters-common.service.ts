@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { VehicleData } from '../../Models/VehicleData';
 import { PlateFilterService } from '../plate-filter/plate-filter.service';
 import { CantieriFilterService } from '../cantieri-filter/cantieri-filter.service';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, filter } from 'rxjs';
 import { GpsFilterService } from '../gps-filter/gps-filter.service';
 import { CheckErrorsService } from '../check-errors/check-errors.service';
 import { SessionFilterService } from '../session-filter/session-filter.service';
@@ -67,18 +67,14 @@ export class FiltersCommonService {
    * @returns veicoli filtrati
    */
   applyAllFiltersOnVehicles(vehicles: (VehicleData | Vehicle)[], filters: Filters): (VehicleData | Vehicle)[] {
-    // Logica prioritaria
-    // Se la targa non c'è, resetta tutti i vcalori del controllo cantieri
+    console.log("Veicoli su cui applicare tutti i filtri: ", vehicles);
+    console.log("Valore filtro cantieri: ", filters.cantieri?.value);
+    console.log("Valore filtro GPS: ", filters.gps?.value);
+    console.log("Valore filtro antenna: ", filters.antenna?.value);
+    console.log("Valore filtro sessione: ", filters.sessione?.value);
 
-    // Se i filtri non ci sono, o se sono a default,  ritorniamo la lista
-    let filtriInseriti = false;
-    if ( filters.plate?.length > 0 ) filtriInseriti = true;
-    if ( filters.cantieri.value?.length ) filtriInseriti = true;
+    if (!filters.cantieri?.value?.length) return [];
 
-    if ( !filtriInseriti )
-      return vehicles;
-
-    // Logiche per i filtri...
     let arrayTarghe:number[];
     let arrayCantieri:number[];
     let arrayGps: number[];
@@ -102,7 +98,6 @@ export class FiltersCommonService {
       }
 
       if(filters.gps.value){
-        console.log("entrtao i gps fil")
         const gpsCheck = this.filterByStatus(this.checkErrorsService.checkVehiclesGpsErrors(vehicles as VehicleData[]), filters.gps.value, "GPS");
         arrayGps = this.getVeIds(gpsCheck);
       }
@@ -132,18 +127,17 @@ export class FiltersCommonService {
 
     const filteredVehicles = vehicles.filter( veicolo => {
       if('vehicle' in veicolo){
-        if ( filters.gps && filters.gps.value && arrayGps.findIndex( veId => veId === veicolo.vehicle.veId ) === -1 ) return false;      // Per tutti gli array dei filtri
-        if ( filters.plate && arrayTarghe.findIndex( veId => veId === veicolo.vehicle.veId ) === -1 ) return false; // Per ogni filtro
-        if ( filters.cantieri && filters.cantieri.value && arrayCantieri.findIndex( veId => veId === veicolo.vehicle.veId ) === -1 ) return false; // Per ogni filtro
-        if ( filters.antenna && filters.antenna.value && arrayAntenne.findIndex( veId => veId === veicolo.vehicle.veId ) === -1 ) return false;
-        if ( filters.sessione && filters.sessione.value && arraySessioni.findIndex( veId => veId === veicolo.vehicle.veId ) === -1 ) return false;
+        if ( filters.gps && filters.gps.value && arrayGps.findIndex( veId => veId === veicolo.vehicle.veId ) === -1 ) return false;
+        if ( filters.plate && arrayTarghe.findIndex( veId => veId === veicolo.vehicle.veId ) === -1 ) return false;
+        if ( filters.cantieri && filters.cantieri.value && filters.cantieri.value.length > 0 && arrayCantieri.findIndex( veId => veId === veicolo.vehicle.veId ) === -1 ) return false;
+        if ( filters.antenna && filters.antenna.value && filters.antenna.value.length > 0 && arrayAntenne.findIndex( veId => veId === veicolo.vehicle.veId ) === -1 ) return false;
+        if ( filters.sessione && filters.sessione.value && filters.sessione.value.length > 0 && arraySessioni.findIndex( veId => veId === veicolo.vehicle.veId ) === -1 ) return false;
       }else if ('veId' in veicolo){
         if ( filters.plate && arrayTarghe.findIndex( veId => veId === veicolo.veId ) === -1 ) return false;
         if ( filters.cantieri && arrayCantieri.findIndex( veId => veId === veicolo.veId ) === -1 ) return false;
       }
       return true;
     } );
-
 
 
     // Ritorniamo la lista filtrata
