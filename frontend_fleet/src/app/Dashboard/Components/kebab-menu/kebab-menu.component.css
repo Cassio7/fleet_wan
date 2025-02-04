@@ -12,15 +12,10 @@
   border: none;
 }
 
-.table mat-icon{
+.table mat-icon, .GPS mat-icon, .antenna mat-icon, .sessione mat-icon{
   color:gray;
 }
-.GPS mat-icon{
-  color:gray;
-}
-.antenna mat-icon{
-  color:gray;
-}
+
 
 mat-button-toggle-group {
   border-radius: 0;

@@ -9,6 +9,7 @@ import { filter } from 'rxjs';
 import { KanbanGpsService } from '../../Services/kanban-gps/kanban-gps.service';
 import { KanbanAntennaService } from '../../Services/kanban-antenna/kanban-antenna.service';
 import { KanbanTableService } from '../../Services/kanban-table/kanban-table.service';
+import { KanbanSessioneService } from '../../Services/kanban-sessione/kanban-sessione.service';
 
 @Component({
   selector: 'app-kebab-menu',
@@ -30,7 +31,8 @@ export class KebabMenuComponent implements AfterViewInit{
     private kanbangpsService: KanbanGpsService,
     private kanbanAntennaService: KanbanAntennaService,
     private cd: ChangeDetectorRef,
-    private sessionStorageService: SessionStorageService
+    private sessionStorageService: SessionStorageService,
+    private kanbanSessioneService: KanbanSessioneService
   ){}
 
   ngAfterViewInit(): void {
@@ -57,6 +59,9 @@ export class KebabMenuComponent implements AfterViewInit{
         this.kanbanAntennaService.loadKanbanAntenna$.next();//switcha a componente antenna
         this.sessionStorageService.setItem("dashboard-section", "Antenna");
         break;
+      case "sessione":
+        this.kanbanSessioneService.loadKanbanSessione$.next();
+        this.sessionStorageService.setItem("dashboard-section", "sessione");
     }
   }
 }
