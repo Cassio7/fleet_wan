@@ -2,12 +2,10 @@ import { Injectable } from '@angular/core';
 import { VehicleData } from '../../Models/VehicleData';
 import { PlateFilterService } from '../plate-filter/plate-filter.service';
 import { CantieriFilterService } from '../cantieri-filter/cantieri-filter.service';
-import { BehaviorSubject, filter } from 'rxjs';
-import { SessionStorageService } from '../sessionStorage/session-storage.service';
+import { BehaviorSubject } from 'rxjs';
 import { GpsFilterService } from '../gps-filter/gps-filter.service';
 import { CheckErrorsService } from '../check-errors/check-errors.service';
 import { SessionFilterService } from '../session-filter/session-filter.service';
-import { BlackboxGraphsService } from '../../Dashboard/Services/blackbox-graphs/blackbox-graphs.service';
 import { AntennaFilterService } from '../antenna-filter/antenna-filter.service';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Vehicle } from '../../Models/Vehicle';
@@ -42,12 +40,10 @@ export class FiltersCommonService {
   constructor(
     private plateFilterService: PlateFilterService,
     private cantieriFilterService: CantieriFilterService,
-    private blackboxGraphService: BlackboxGraphsService,
     private checkErrorsService: CheckErrorsService,
     private gpsFilterService: GpsFilterService,
     private antennaFilterService: AntennaFilterService,
     private sessionFilterService: SessionFilterService,
-    private sessionStorageService: SessionStorageService
   ) {
   }
 
@@ -106,6 +102,7 @@ export class FiltersCommonService {
       }
 
       if(filters.gps.value){
+        console.log("entrtao i gps fil")
         const gpsCheck = this.filterByStatus(this.checkErrorsService.checkVehiclesGpsErrors(vehicles as VehicleData[]), filters.gps.value, "GPS");
         arrayGps = this.getVeIds(gpsCheck);
       }
@@ -135,11 +132,11 @@ export class FiltersCommonService {
 
     const filteredVehicles = vehicles.filter( veicolo => {
       if('vehicle' in veicolo){
-        if ( filters.gps && arrayGps.findIndex( veId => veId === veicolo.vehicle.veId ) === -1 ) return false;      // Per tutti gli array dei filtri
+        if ( filters.gps && filters.gps.value && arrayGps.findIndex( veId => veId === veicolo.vehicle.veId ) === -1 ) return false;      // Per tutti gli array dei filtri
         if ( filters.plate && arrayTarghe.findIndex( veId => veId === veicolo.vehicle.veId ) === -1 ) return false; // Per ogni filtro
-        if ( filters.cantieri && arrayCantieri.findIndex( veId => veId === veicolo.vehicle.veId ) === -1 ) return false; // Per ogni filtro
-        if ( filters.antenna && arrayAntenne.findIndex( veId => veId === veicolo.vehicle.veId ) === -1 ) return false;
-        if ( filters.sessione && arraySessioni.findIndex( veId => veId === veicolo.vehicle.veId ) === -1 ) return false;
+        if ( filters.cantieri && filters.cantieri.value && arrayCantieri.findIndex( veId => veId === veicolo.vehicle.veId ) === -1 ) return false; // Per ogni filtro
+        if ( filters.antenna && filters.antenna.value && arrayAntenne.findIndex( veId => veId === veicolo.vehicle.veId ) === -1 ) return false;
+        if ( filters.sessione && filters.sessione.value && arraySessioni.findIndex( veId => veId === veicolo.vehicle.veId ) === -1 ) return false;
       }else if ('veId' in veicolo){
         if ( filters.plate && arrayTarghe.findIndex( veId => veId === veicolo.veId ) === -1 ) return false;
         if ( filters.cantieri && arrayCantieri.findIndex( veId => veId === veicolo.veId ) === -1 ) return false;
