@@ -128,9 +128,7 @@ export class AntennaGraphComponent {
   }
 
   ngAfterViewInit(): void {
-    const allData = JSON.parse(this.sessionStorageService.getItem("allData"));
-    this.initializeGraph(allData);
-    this.antennaGraphService.loadChartData$.pipe(takeUntil(this.destroy$), skip(1))
+    this.antennaGraphService.loadChartData$.pipe(takeUntil(this.destroy$))
     .subscribe({
       next:(vehicles: VehicleData[]) => {
         this.initializeGraph(vehicles);

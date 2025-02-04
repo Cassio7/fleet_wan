@@ -142,9 +142,8 @@ export class ErrorPieGraphComponent implements AfterViewInit, OnDestroy{
   }
 
   ngAfterViewInit(): void {
-    this.chartOptions.series = this.errorGraphsService.loadGraphData$.value; //ottenere i dati del grafico
     //sottoscrizione al subject x caricare i dati del grafico
-    this.errorGraphsService.loadGraphData$.pipe(skip(1),takeUntil(this.destroy$))
+    this.errorGraphsService.loadGraphData$.pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (vehicles: VehicleData[]) => {
         this.initializeGraph(vehicles);
