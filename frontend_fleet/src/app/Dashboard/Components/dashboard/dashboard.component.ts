@@ -23,6 +23,8 @@ import { ErrorGraphsService } from '../../Services/error-graphs/error-graphs.ser
 import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
 import { MapComponent } from '../../../Common-components/map/map.component';
+import { KanbanSessioneComponent } from "../kanban-sessione/kanban-sessione.component";
+import { KanbanSessioneService } from '../../Services/kanban-sessione/kanban-sessione.service';
 
 
 @Component({
@@ -48,6 +50,7 @@ import { MapComponent } from '../../../Common-components/map/map.component';
     MatSlideToggleModule,
     KanbanAntennaComponent,
     MapComponent,
+    KanbanSessioneComponent
 ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
@@ -70,6 +73,7 @@ export class DashboardComponent implements AfterViewInit{
   private _table: boolean = true;
   private _kanbanGps: boolean = false;
   private _kanbanAntenna: boolean = false;
+  private _kanbanSessione: boolean = false;
 
 
   constructor(
@@ -77,6 +81,7 @@ export class DashboardComponent implements AfterViewInit{
     private errorGraphService: ErrorGraphsService,
     private KanbanAntennaService: KanbanAntennaService,
     private kanbanTableService: KanbanTableService,
+    private kanbanSessionService: KanbanSessioneService,
     private checkErrorsService: CheckErrorsService,
     private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef
@@ -123,8 +128,22 @@ export class DashboardComponent implements AfterViewInit{
         this.displaySection("Antenna"); //display del componente scelto dal kebab menu
         this.pageName = "Antenna";
         this.subtitle = "Monitora lo stato delle antenne";
+        console.log("pageName: ", this.pageName);
+        console.log("subtitle: ", this.subtitle);
         this.errorGraphTitle = this.errorGraphService.graphTitle = "Antenna";
         this.sessionStorageService.setItem("dashboard-section", "Antenna");
+      },
+      error: error => console.error("Errore nel caricamento del kaban gps: ", error)
+    });
+    this.kanbanSessionService.loadKanbanSessione$.pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: () => {
+        this.displaySection("sessione"); //display del componente scelto dal kebab menu
+        this.pageName = "Sessione";
+        this.subtitle = "Monitora lo stato della sessione";
+        this.cd.detectChanges();
+        // this.errorGraphTitle = this.errorGraphService.graphTitle = "Sessione";
+        this.sessionStorageService.setItem("dashboard-section", "Sessione");
       },
       error: error => console.error("Errore nel caricamento del kaban gps: ", error)
     });
@@ -135,22 +154,39 @@ export class DashboardComponent implements AfterViewInit{
    * @param sectionName nome della sezione da mostrare
    */
   private displaySection(sectionName: string){
+    console.log("chiamata display section con: ", sectionName);
     switch(sectionName){
       case "table":
+        this.pageName = "Riepilogo parco mezzi";
+        this.subtitle = "Monitora i tuoi veicoli";
         this.table = true;
         this.kanbanGps = false;
         this.kabanAntenna = false;
+        this.kanbanSessione = false;
         break;
       case "GPS":
+        this.pageName = "GPS";
+        this.subtitle = "Monitora lo stato dei GPS";
         this.kanbanGps = true;
         this.table = false;
         this.kabanAntenna = false;
+        this.kanbanSessione = false;
         break;
       case "Antenna":
+        this.pageName = "Antenna";
+        this.subtitle = "Monitora lo stato delle antenne";
         this.kabanAntenna = true;
         this.table = false;
         this.kanbanGps = false;
+        this.kanbanSessione = false;
         break;
+      case "sessione":
+        this.pageName = "Sessione";
+        this.subtitle = "Monitora lo stato della sessione";
+        this.kanbanSessione = true;
+        this.table = false;
+        this.kanbanGps = false;
+        this.kabanAntenna = false;
     }
 
     this.cd.detectChanges();
@@ -204,5 +240,11 @@ export class DashboardComponent implements AfterViewInit{
   }
   public set kabanAntenna(value: boolean) {
     this._kanbanAntenna = value;
+  }
+  public get kanbanSessione(): boolean {
+    return this._kanbanSessione;
+  }
+  public set kanbanSessione(value: boolean) {
+    this._kanbanSessione = value;
   }
 }
