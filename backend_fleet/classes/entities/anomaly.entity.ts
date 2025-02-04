@@ -15,8 +15,8 @@ export class AnomalyEntity extends CommonEntity implements AnomalyInterface {
   @Column({ type: 'varchar', length: 150, nullable: true })
   antenna: string;
 
-  @Column({ type: 'float', nullable: true })
-  detection_quality_avg: number;
+  @Column({ type: 'varchar', length: 150, nullable: true })
+  detection_quality: string;
 
   @Column({ type: 'varchar', length: 150, nullable: true })
   session: string;
