@@ -15,7 +15,6 @@ export class AntennaFilterService {
 private readonly _filterTableByAntenna$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
   private readonly _updateAntennaOptions$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
-  private _allSelected: boolean = false;
   private _allOptions: string[] = ["Funzionante", "Errore", "Blackbox"];
   private _selectedOptions: string[] = [];
   private blackboxData: blackboxData = {
@@ -31,17 +30,17 @@ private readonly _filterTableByAntenna$: BehaviorSubject<string[]> = new Behavio
    * Seleziona / deseleziona tutti gli stati delle antenne dei veicoli nel select e notifica la tabella di aggiornare i dati
    * @returns nuovo valore della lista cantieri
    */
-  toggleSelectAllAntenne(): boolean{
-    if (this.allSelected) {
+  toggleSelectAllAntenne(selectionState: boolean): boolean{
+    if (selectionState) {
       this.filterTableByAntenna$.next([]);
       this.selectedOptions = [];
-      this.allSelected = false;
+      selectionState = false;
     } else {
       this.filterTableByAntenna$.next(["all"]);
       this.selectedOptions = this._allOptions;
-      this.allSelected = true;
+      selectionState = true;
     }
-    return this.allSelected;
+    return selectionState;
   }
 
   updateSelectedOptions(vehicles: VehicleData[]){
@@ -61,9 +60,7 @@ private readonly _filterTableByAntenna$: BehaviorSubject<string[]> = new Behavio
 
     if(JSON.stringify(this.selectedOptions) == JSON.stringify(this.allOptions)){
       this.selectedOptions.push("Seleziona tutto");
-      this.allSelected = true;
     }else{
-      this.allSelected = false;
     }
 
     this.updateAntennaOptions$.next(this.selectedOptions);
@@ -90,15 +87,6 @@ private readonly _filterTableByAntenna$: BehaviorSubject<string[]> = new Behavio
     return this.blackboxData;
   }
 
-  /**
-   * controlla se sono selezionati tutti gli stati gps
-   * @returns true se è tutto selezionato
-   * @returns false se non è tutto selezionato
-   */
-  isAntennaFilterAllSelected(): boolean{
-    return this.allSelected;
-  }
-
   public get updateAntennaOptions$(): BehaviorSubject<string[]> {
     return this._updateAntennaOptions$;
   }
@@ -113,12 +101,6 @@ private readonly _filterTableByAntenna$: BehaviorSubject<string[]> = new Behavio
   }
   public set selectedOptions(value: string[]) {
     this._selectedOptions = value;
-  }
-  public get allSelected(): boolean {
-    return this._allSelected;
-  }
-  public set allSelected(value: boolean) {
-    this._allSelected = value;
   }
   public get filterTableByAntenna$(): BehaviorSubject<string[]> {
     return this._filterTableByAntenna$;

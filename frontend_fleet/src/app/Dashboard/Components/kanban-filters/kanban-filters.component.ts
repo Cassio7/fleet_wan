@@ -19,9 +19,11 @@ import { SortService } from '../../../Common-services/sort/sort.service';
 import { VehicleData } from '../../../Models/VehicleData';
 import { AntennaGraphService } from '../../Services/antenna-graph/antenna-graph.service';
 import { Filters, FiltersCommonService } from '../../../Common-services/filters-common/filters-common.service';
-import { takeUntil, skip, Subject } from 'rxjs';
+import { takeUntil, skip, Subject, merge, map } from 'rxjs';
 import { GpsFilterService } from '../../../Common-services/gps-filter/gps-filter.service';
 import { MatOptionModule } from '@angular/material/core';
+import { KanbanTableService } from '../../Services/kanban-table/kanban-table.service';
+import { KanbanSessioneService } from '../../Services/kanban-sessione/kanban-sessione.service';
 
 @Component({
   selector: 'app-kanban-filters',
@@ -44,29 +46,25 @@ import { MatOptionModule } from '@angular/material/core';
 })
 export class KanbanFiltersComponent implements AfterViewInit, OnDestroy{
   private readonly destroy$: Subject<void> = new Subject<void>();
-  plate: string = "";
   filterForm!: FormGroup;
   cantieri = new FormControl<string[]>([]);
   allSelected: boolean = false;
-  private filters: Filters = {
-    plate: this.plate,
+  private _filters: Filters = {
+    plate: "",
     cantieri: this.cantieri,
     gps: new FormControl(null),
     antenna: new FormControl(null),
     sessione: new FormControl(null),
-  }
+  };
 
-  //tracciatori di kanban
-  private kanbanGps: boolean = false;
-  private kanbanAntenna: boolean = false;
-   kanbanCantieri: string[] = [];
+  kanbanCantieri: string[] = [];
 
   constructor(
-    private plateFilterService: PlateFilterService,
     public cantieriFilterService: CantieriFilterService,
     private filtersCommonService: FiltersCommonService,
-    private gpsGraphService: GpsGraphService,
-    private antennaGraphService: AntennaGraphService,
+    private kanbanGpsService: KanbanGpsService,
+    private kanbanAntennaService: KanbanAntennaService,
+    private kanbanSessioneService: KanbanSessioneService,
     private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef
   ){
@@ -86,29 +84,38 @@ export class KanbanFiltersComponent implements AfterViewInit, OnDestroy{
 
 
   ngAfterViewInit(): void {
-    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allData"));
-    this.kanbanCantieri= this.cantieriFilterService.vehiclesCantieriOnce(allVehicles);
+    const allData = JSON.parse(this.sessionStorageService.getItem("allData"));
+    this.kanbanCantieri = this.cantieriFilterService.vehiclesCantieriOnce(allData).sort();
     setTimeout(() => {
       this.allSelected = !this.allSelected;
       this.toggleSelectAllCantieri(this.allSelected);
-
-      const section =  this.sessionStorageService.getItem("dashboard-section");
-      if(section == "GPS"){
-        this.kanbanGps = true;
-        this.kanbanAntenna = false;
-      }else if(section == "Antenna"){
-        this.kanbanGps = false;
-        this.kanbanAntenna = true;
-      }
+      console.log("cantieri value after toggle: ", this.cantieri.value);
     });
 
     // Sottoscrizione per il filtro cantieri
     this.cantieriFilterService.updateCantieriFilterOptions$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (selectedCantieri: string[]) => {
-        this.cantieri.setValue(selectedCantieri);
+        this.cantieri.setValue(["Seleziona tutto", ...selectedCantieri]);
       },
       error: error => console.error("Errore nell'aggiornamento delle opzioni del filtro dei cantieri: ", error)
+    });
+
+    merge(
+      this.kanbanAntennaService.loadKanbanAntenna$,
+      this.kanbanGpsService.loadKanbanGps$,
+      this.kanbanSessioneService.loadKanbanSessione$
+    ).pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next: () => {
+        const allData = JSON.parse(this.sessionStorageService.getItem("allData"));
+        const allCantieri = this.cantieriFilterService.vehiclesCantieriOnce(allData);
+
+        this.kanbanCantieri = allCantieri;
+        console.log("setting value of cantieri");
+        this.cantieri.setValue(["Seleziona tutto", ...this.kanbanCantieri]);
+      },
+      error: error => console.error("Errore nel caricamento del kanban: ", error)
     });
 
     this.allSelected = true;
@@ -121,7 +128,6 @@ export class KanbanFiltersComponent implements AfterViewInit, OnDestroy{
    * @param emptyButtonClick se la funzione è stata chiamata dalla premuta del bottone per svuotare il campo
    */
   searchPlates(){
-    this.filters.plate = this.plate;
     this.filtersCommonService.applyFilters$.next(this.filters);
   }
 
@@ -130,16 +136,12 @@ export class KanbanFiltersComponent implements AfterViewInit, OnDestroy{
    * @param option opzione selezionata
    */
   selectCantiere() {
-    this.filters.plate = this.plate;
     this.filtersCommonService.applyFilters$.next(this.filters);
   }
 
   selectAll(){
+    this.toggleSelectAllCantieri(this.allSelected);
     this.allSelected = !this.allSelected;
-    const cantieriToggle = this.cantieriFilterService.toggleSelectAllCantieri(this.allSelected);
-    console.log("cantieriToggle: ", cantieriToggle);
-    this.cantieri.setValue(cantieriToggle);
-    this.cd.detectChanges();
     this.filtersCommonService.applyFilters$.next(this.filters);
   }
 
@@ -147,6 +149,13 @@ export class KanbanFiltersComponent implements AfterViewInit, OnDestroy{
    * Seleziona tutti i filtri del select dei cantieri
    */
   toggleSelectAllCantieri(allSelected: boolean) {
-    this.cantieri.setValue(this.cantieriFilterService.toggleSelectAllCantieri(allSelected));
+    this.cantieri.setValue(["Seleziona tutto", ...this.cantieriFilterService.toggleSelectAllCantieri(allSelected)]);
+  }
+
+  public get filters(): Filters {
+    return this._filters;
+  }
+  public set filters(value: Filters) {
+    this._filters = value;
   }
 }

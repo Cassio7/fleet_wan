@@ -62,16 +62,16 @@ export class ListaFiltersComponent implements AfterViewInit{
     this.cd.detectChanges();
   }
 
-  selectCantiere(option: string){
-    this.filters.plate = this.plate;
+  selectAll(){
+    this.allSelected = !this.allSelected;
+    const cantieriToggle = this.cantieriFilterService.toggleSelectAllCantieri(this.allSelected);
+    this.cantieri.setValue(cantieriToggle);
+    this.cd.detectChanges();
+    this.filtersCommonService.applyFilters$.next(this.filters);
+  }
 
-    if(option == "Seleziona tutto"){
-      this.allSelected = !this.allSelected;
-      const cantieriToggle = this.cantieriFilterService.toggleSelectAllCantieri(this.allSelected);
-      console.log("cantieriToggle: ", cantieriToggle);
-      this.cantieri.setValue(cantieriToggle);
-      this.cd.detectChanges();
-    }
+  selectCantiere(){
+    this.filters.plate = this.plate;
     this.filtersCommonService.applyFilters$.next(this.filters);
   }
 

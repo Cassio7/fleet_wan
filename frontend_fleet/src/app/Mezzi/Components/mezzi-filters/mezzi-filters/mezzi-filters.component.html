@@ -10,10 +10,11 @@
 
   <mat-form-field class="cantieri-filter filter" appearance="outline">
     <mat-select [formControl]="cantieri" placeholder="Cantiere" multiple class="cantiere-input">
+      <mat-option value="Seleziona tutto" (click)="selectAll()">Seleziona tutto</mat-option>
       <mat-option
       [value]="cantiere"
-      (click)="selectCantiere(cantiere)"
-      *ngFor="let cantiere of cantieriFilterService.listaCantieri"
+      (click)="selectCantiere()"
+      *ngFor="let cantiere of listaCantieri"
       >
         {{ cantiere }}
       </mat-option>

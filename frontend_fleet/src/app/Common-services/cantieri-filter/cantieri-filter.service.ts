@@ -23,7 +23,7 @@ export class CantieriFilterService{
 
   private _allSelected: boolean = true;
 
-  listaCantieri: string[] = ["Seleziona tutto"];
+  listaCantieri: string[] = [];
 
 
   constructor(
@@ -147,7 +147,7 @@ export class CantieriFilterService{
 
 
   /**
-   * Aggiorna le opzioni presenti nel filtro dei cantieri
+   * Aggiorna le opzioni presenti nel filtro dei cantieri (getsisce l'opzione "Seleziona tutto")
    * @param vehicles veicoli da cui prendere i cantieri
    * @returns lista dei cantieri selezionati
    */
@@ -184,21 +184,20 @@ export class CantieriFilterService{
 
   /**
    * Seleziona / deseleziona tutti i cantieri dei veicoli nel select e notifica la tabella di aggiornare i dati
-   * @param selectionState
+   * @param selectionState stato di selezione del componente chiamante
    * @returns nuovo valore della lista cantieri
    */
   toggleSelectAllCantieri(selectionState: boolean){
-    console.log("selectionState: ", selectionState);
+    const allData = JSON.parse(this.sessionStorageService.getItem("allData"));
+    const allCantieri = this.vehiclesCantieriOnce(allData);
     if (selectionState) {
       this.filterTableByCantiere$.next([]);
-      selectionState = false
-      console.log([]);
+      console.log("entrato pe pija niente");
       return [];
     } else {
-      this.filterTableByCantiere$.next(this.listaCantieri);
-      selectionState = true
-      console.log(this.listaCantieri);
-      return this.listaCantieri;
+      this.filterTableByCantiere$.next(allCantieri);
+      console.log("entrato pe pija tutto");
+      return allCantieri;
     }
   }
 

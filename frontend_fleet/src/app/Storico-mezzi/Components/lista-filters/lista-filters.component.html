@@ -9,9 +9,9 @@
   </mat-form-field>
   <mat-form-field class="cantieri-filter filter" appearance="outline">
     <mat-select [formControl]="cantieri" placeholder="Cantiere" multiple class="cantiere-input">
-      <mat-option value="Seleziona tutto" (click)="selectCantiere('Seleziona tutto')">Seleziona tutto</mat-option>
+      <mat-option value="Seleziona tutto" (click)="selectAll()">Seleziona tutto</mat-option>
       <mat-divider></mat-divider>
-      <mat-option [value]="cantiere" (click)="selectCantiere(cantiere)" *ngFor="let cantiere of this.listaCantieri">
+      <mat-option [value]="cantiere" (click)="selectCantiere()" *ngFor="let cantiere of this.listaCantieri">
         {{ cantiere }}
       </mat-option>
     </mat-select>

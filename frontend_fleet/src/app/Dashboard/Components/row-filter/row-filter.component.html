@@ -10,10 +10,12 @@
 
   <mat-form-field class="cantieri-filter filter" appearance="outline">
     <mat-select [formControl]="cantieri" placeholder="Cantiere" multiple class="cantiere-input">
+      <mat-option value="Seleziona tutto" (click)="toggleSelectAll()">Seleziona tutto</mat-option>
+      <mat-divider></mat-divider>
       <mat-option
       [value]="cantiere"
-      (click)="selectCantiere(cantiere)"
-      *ngFor="let cantiere of cantieriFilterService.listaCantieri"
+      (click)="selectCantiere()"
+      *ngFor="let cantiere of listaCantieri"
       >
         {{ cantiere }}
       </mat-option>
@@ -23,12 +25,12 @@
 
   <mat-form-field class="GPS-state-filter filter" appearance="outline">
     <mat-select [formControl]="gps" placeholder="Stati GPS" multiple class="GPS-input">
-      <mat-option value="Seleziona tutto" (click)="selectGps('Seleziona tutto')">Seleziona tutto</mat-option>
+      <mat-option value="Seleziona tutto" (click)="toggleSelectAll()">Seleziona tutto</mat-option>
       <mat-divider></mat-divider>
       <mat-option
       *ngFor="let option of gpsFilterService.allOptions"
       [value]="option"
-      (click)="selectGps(option)">
+      (click)="selectGps()">
         {{ option }}
       </mat-option>
     </mat-select>
@@ -37,9 +39,9 @@
 
   <mat-form-field class="antenna-filter filter" appearance="outline">
     <mat-select [formControl]="antenne" placeholder="Stati antenna" multiple class="antenna-input">
-      <mat-option value="Seleziona tutto" (click)="selectAntenna('Seleziona tutto')">Seleziona tutto</mat-option>
+      <mat-option value="Seleziona tutto" (click)="toggleSelectAll()">Seleziona tutto</mat-option>
       <mat-divider></mat-divider>
-      <mat-option *ngFor="let option of antennaFilterService.allOptions" [value]="option" (click)="selectAntenna(option)">
+      <mat-option *ngFor="let option of antennaFilterService.allOptions" [value]="option" (click)="selectAntenna()">
         {{ option }}
       </mat-option>
     </mat-select>
@@ -48,9 +50,9 @@
 
   <mat-form-field class="session-filter filter" appearance="outline">
     <mat-select [formControl]="sessionStates" placeholder="Stati sessione" multiple class="antenna-input">
-      <mat-option value="Seleziona tutto" (click)="selectSession('Seleziona tutto')">Seleziona tutto</mat-option>
+      <mat-option value="Seleziona tutto" (click)="toggleSelectAll()">Seleziona tutto</mat-option>
       <mat-divider></mat-divider>
-      <mat-option *ngFor="let option of sessionFilterService.allOptions" [value]="option" (click)="selectSession(option)">
+      <mat-option *ngFor="let option of sessionFilterService.allOptions" [value]="option" (click)="selectSession()">
         {{ option }}
       </mat-option>
     </mat-select>

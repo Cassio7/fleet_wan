@@ -33,6 +33,7 @@ import { MezziFiltersService } from '../../Services/mezzi-filters/mezzi-filters.
 import { Router } from '@angular/router';
 import { NoteSectionComponent } from "../../../Common-components/note-section/note-section.component";
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { Filters, FiltersCommonService } from '../../../Common-services/filters-common/filters-common.service';
 
 @Component({
   selector: 'app-table',
@@ -95,6 +96,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
     private vehicleApiService: VehiclesApiService,
     private sessionStorageService: SessionStorageService,
     private mezziFilterService: MezziFiltersService,
+    private filtersCommonService: FiltersCommonService,
     private router: Router,
     private cd: ChangeDetectorRef
   ){}
@@ -113,7 +115,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
     this.user = this.authService.getParsedAccessToken();
     this.cd.detectChanges();
 
-    //ascolto dei filtri su tabella
+    //ascolto sui reset dei filtri della tabella
     this.mezziFilterService.filterTable$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (vehicles: Vehicle[]) => {
@@ -126,6 +128,16 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
         this.vehicleTable.renderRows();
       },
       error: error => console.error("Errore nel filtro della tabella: ", error)
+    });
+
+    //ascolto sui filtri della tabella
+    this.filtersCommonService.applyFilters$.pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next: (filters: Filters) => {
+        const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+        this.vehicleTableData.data = this.filtersCommonService.applyAllFiltersOnVehicles(allVehicles, filters) as Vehicle[];
+      },
+      error: error => console.error("Errore nella ricezione della notifica per applicare tutti i filtri: ", error)
     });
 
     //riempimento dei dati della tabella

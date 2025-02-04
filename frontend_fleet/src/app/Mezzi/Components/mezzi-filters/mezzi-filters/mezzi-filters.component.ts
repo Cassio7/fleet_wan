@@ -16,6 +16,7 @@ import { Note } from '../../../../Models/Note';
 import { skip, Subject, takeUntil } from 'rxjs';
 import { Vehicle } from '../../../../Models/Vehicle';
 import { MezziFilters, MezziFiltersService } from '../../../Services/mezzi-filters/mezzi-filters.service';
+import { Filters, FiltersCommonService } from '../../../../Common-services/filters-common/filters-common.service';
 
 @Component({
   selector: 'app-mezzi-filters',
@@ -36,14 +37,24 @@ import { MezziFilters, MezziFiltersService } from '../../../Services/mezzi-filte
 })
 export class MezziFiltersComponent implements AfterViewInit, OnDestroy{
   private readonly destroy$: Subject<void> = new Subject<void>();
-  private allSelected: boolean = false;;
+  private allSelected: boolean = false;
   plate: string = "";
   cantieri = new FormControl<string[]>([]);
+  listaCantieri: string[] = [];
+
+  private filters: Filters = {
+    plate: this.plate,
+    cantieri: this.cantieri,
+    gps: new FormControl(null),
+    antenna: new FormControl(null),
+    sessione: new FormControl(null)
+  }
 
   constructor(
     public cantieriFilterService: CantieriFilterService,
     private plateFilterService: PlateFilterService,
     private notesService: NotesService,
+    private filtersCommonService: FiltersCommonService,
     private mezziFilterService: MezziFiltersService,
     private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef
@@ -59,48 +70,30 @@ export class MezziFiltersComponent implements AfterViewInit, OnDestroy{
     if (storedData) {
       const allData: VehicleData[] = JSON.parse(storedData);
 
-      const allVehicles = allData.map((vehicleData: any) => {
-        return vehicleData.vehicle;
-      });
-
-      this.cantieri.setValue(this.cantieriFilterService.updateListaCantieri(allVehicles));
+      const allCantieri = this.cantieriFilterService.vehiclesCantieriOnce(allData);
+      this.listaCantieri = allCantieri;
+      this.cantieri.setValue(["Seleziona tutto", ...this.cantieriFilterService.vehiclesCantieriOnce(allData)]);
+      this.cd.detectChanges();
     }
-    this.loadFiltersObj();
   }
 
-  selectCantiere(option: string){
+  selectAll(){
+    this.allSelected = !this.allSelected;
+    const cantieriToggle = this.cantieriFilterService.toggleSelectAllCantieri(this.allSelected, );
+    console.log(cantieriToggle);
+    this.cantieri.setValue(cantieriToggle.length > 0 ? ["Seleziona tutto", ...cantieriToggle] : cantieriToggle);
+    this.cd.detectChanges();
+    this.filtersCommonService.applyFilters$.next(this.filters);
+  }
+
+  selectCantiere(){
     console.log("lista caniteri: ", this.cantieriFilterService.listaCantieri);
-    const allVehicles: Vehicle[] = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-    if(option == "Seleziona tutto"){
-      this.allSelected = !this.allSelected;
-      const cantieriToggle = this.cantieriFilterService.toggleSelectAllCantieri(this.allSelected);
-      console.log("cantieriToggle: ", cantieriToggle);
-      this.cantieri.setValue(cantieriToggle);
-      this.cd.detectChanges();
-      this.mezziFilterService.filterTable$.next(cantieriToggle.length > 0 ? allVehicles : []);
-    }else{
-      const filteredVehicles: Vehicle[] = this.mezziFilterService.filterVehicles(allVehicles);
-      this.mezziFilterService.filterTable$.next(filteredVehicles);
-    }
+    this.filtersCommonService.applyFilters$.next(this.filters);
   }
 
   searchPlates(){
-    this.loadFiltersObj();
-    console.log("this.mezziFilterService.mezziFilters.plate : ", this.plate);
-
-    const allVehicles: Vehicle[] = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-
-    const plateFilteredVehicles: Vehicle[] = this.plateFilterService.filterVehiclesByPlateResearch(this.plate, allVehicles) as Vehicle[];
-    this.cantieri.setValue(this.cantieriFilterService.updateSelectedCantieri(plateFilteredVehicles));
-
-    const filteredVehicles: Vehicle[] = this.mezziFilterService.filterVehicles(allVehicles);
-
-    this.mezziFilterService.filterTable$.next(filteredVehicles);
-  }
-
-  loadFiltersObj(){
-    this.mezziFilterService.mezziFilters.plate = this.plate;
-    this.mezziFilterService.mezziFilters.cantieri = this.cantieri;
+    this.filters.plate = this.plate;
+    this.filtersCommonService.applyFilters$.next(this.filters);
   }
 
   /**

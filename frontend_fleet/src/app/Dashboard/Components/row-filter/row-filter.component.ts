@@ -51,6 +51,10 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
   antenne = new FormControl<string[]>([]);
   sessionStates = new FormControl<string[]>([]);
 
+  listaCantieri: string[] = [];
+
+  allSelected: boolean = false;
+
   private _filters: Filters = {
     plate: "",
     cantieri: this.cantieri,
@@ -89,6 +93,10 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
   }
 
   ngAfterViewInit(): void {
+
+    const allData = JSON.parse(this.sessionStorageService.getItem("allData"));
+    this.listaCantieri = this.cantiereFilterService.vehiclesCantieriOnce(allData);
+    this.cd.detectChanges();
 
     this.toggleSelectAll();
 
@@ -184,32 +192,22 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
    * Viene chiamata alla premuta di un qualsiasi checkbox dentro il select per il filtro dei cantieri
    * @param option opzione selezionata
    */
-  selectCantiere(option: string) {
-    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allData"));
+  selectCantiere() {
+    const allData = JSON.parse(this.sessionStorageService.getItem("allData"));
     let selectedCantieri = this.cantieri.value || [];
 
-    if (option === "Seleziona tutto") {
-      this.toggleSelectAll();
-    } else {
-      //rimozione seleziona tutto in caso venga deselezionata un opzione diversa da quest'ultimo
-      selectedCantieri = selectedCantieri.filter(selection => selection !== "Seleziona tutto");
+    const allOptions = this.cantiereFilterService.vehiclesCantieriOnce(allData);
+    const areAllSelected = allOptions.every(option => selectedCantieri.includes(option));
 
-      //controllo se i cantieri sono tutti selezionati
-      if (this.cantieriFilterService.isCantieriAllSelected()) {
-        this.cantieriFilterService.allSelected = false;
-        this.cantieri.setValue(selectedCantieri);
-      }
-
-      const allOptions = this.cantiereFilterService.vehiclesCantieriOnce(allVehicles);
-      const areAllSelected = allOptions.every(option => selectedCantieri.includes(option));
-
-      //selezione di seleziona tutto in caso tutte le opzioni vengano selezionate singolarmente, non direttamente da "Seleziona tutto"
-      if (areAllSelected && !selectedCantieri.includes("Seleziona tutto")) {
-        selectedCantieri.unshift("Seleziona tutto");
-        this.cantieri.setValue(selectedCantieri);
-        this.cantieriFilterService.allSelected = true;
-      }
+    console.log("allOptions: ", allOptions);
+    if (areAllSelected && !selectedCantieri.includes("Seleziona tutto")) {
+      this.cantieri.setValue(["Seleziona tutto", ...selectedCantieri]);
+      this.allSelected = true
+    }else{
+      this.allSelected = false;
+      this.cantieri.setValue(selectedCantieri.filter(option => option != "Seleziona tutto"));
     }
+
     this.filtersCommonService.applyFilters$.next(this.filters);
     this.cd.detectChanges();
   }
@@ -220,27 +218,23 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
    * Viene chiamata alla premuta di un qualsiasi checkbox dentro il select per il filtro dei gps
    * @param option opzione selezionata
    */
-  selectGps(option: string) {
+  selectGps() {
     const selectedGpsStates = this.gps.value || [];
 
-    if (option === "Seleziona tutto") {
-      this.toggleSelectAll();
-    } else {
-      //rimozione di "Seleziona tutto" quando una singola opzione è deselezionata
-      if (this.gpsFilterService.isGpsFilterAllSelected()) {
-        this.gpsFilterService.allSelected = false;
-        this.gps.setValue(selectedGpsStates.filter(selection => selection !== "Seleziona tutto"));
-      }
+    //rimozione di "Seleziona tutto" quando una singola opzione è deselezionata
+    if (this.allSelected) {
+      this.allSelected = false;
+      this.gps.setValue(selectedGpsStates.filter(selection => selection !== "Seleziona tutto"));
+    }
 
-      const allOptions = ["Funzionante", "Warning", "Errore"];
-      const areAllSelected = allOptions.every(option => selectedGpsStates.includes(option));
+    const allOptions = ["Funzionante", "Warning", "Errore"];
+    const areAllSelected = allOptions.every(option => selectedGpsStates.includes(option));
 
-      //selezione di "Seleziona tutto" quando tutte le opzioni singole sono selezionate
-      if (areAllSelected && !selectedGpsStates.includes("Seleziona tutto")) {
-        selectedGpsStates.push("Seleziona tutto");
-        this.gps.setValue(selectedGpsStates);
-        this.gpsFilterService.allSelected = true;
-      }
+    //selezione di "Seleziona tutto" quando tutte le opzioni singole sono selezionate
+    if (areAllSelected && !selectedGpsStates.includes("Seleziona tutto")) {
+      selectedGpsStates.push("Seleziona tutto");
+      this.gps.setValue(selectedGpsStates);
+      this.allSelected = true;
     }
 
     this.filtersCommonService.applyFilters$.next(this.filters);
@@ -251,92 +245,80 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
   /**
    * Seleziona tutti i filtri del select delle antenne
    */
-  selectAntenna(option: string) {
+  selectAntenna() {
     const selectedAntenne = this.antenne.value || [];
 
-    if (option === "Seleziona tutto") {
-      this.toggleSelectAll();
-    } else {
-      //rimozione di "Seleziona tutto" quando una singola opzione è deselezionata
-      if (this.antennaFilterService.isAntennaFilterAllSelected()) {
-        this.antennaFilterService.allSelected = false;
-        this.antenne.setValue(selectedAntenne.filter(selection => selection !== "Seleziona tutto"));
-      }
+    //rimozione di "Seleziona tutto" quando una singola opzione è deselezionata
+    if (this.allSelected) {
+      this.allSelected = false;
+      this.antenne.setValue(selectedAntenne.filter(selection => selection !== "Seleziona tutto"));
+    }
 
-      const allOptions = ["Funzionante", "Errore", "Blackbox"];
-      const areAllSelected = allOptions.every(option => selectedAntenne.includes(option));
+    const allOptions = ["Funzionante", "Errore", "Blackbox"];
+    const areAllSelected = allOptions.every(option => selectedAntenne.includes(option));
 
-      //selezione di "Seleziona tutto" quando tutte le opzioni singole sono selezionate
-      if (areAllSelected && !selectedAntenne.includes("Seleziona tutto")) {
-        selectedAntenne.push("Seleziona tutto");
-        this.antenne.setValue(selectedAntenne);
-        this.antennaFilterService.allSelected = true;
-      }
+    //selezione di "Seleziona tutto" quando tutte le opzioni singole sono selezionate
+    if (areAllSelected && !selectedAntenne.includes("Seleziona tutto")) {
+      selectedAntenne.push("Seleziona tutto");
+      this.antenne.setValue(selectedAntenne);
+      this.allSelected = true;
     }
 
     this.filtersCommonService.applyFilters$.next(this.filters);
     this.cd.detectChanges();
   }
 
-  selectSession(option: string) {
+  selectSession() {
     const selectedSessionStates = this.sessionStates.value || [];
 
-    if (option === "Seleziona tutto") {
-      this.toggleSelectAll();
-    } else {
-      // Rimozione di "Seleziona tutto" quando una singola opzione è deselezionata
-      if (this.sessionFilterService.isSessionFilterAllSelected()) {
-        this.sessionFilterService.allSelected = false;
-        this.sessionStates.setValue(
-          selectedSessionStates.filter(selection => selection !== "Seleziona tutto")
-        );
-      }
+    // Rimozione di "Seleziona tutto" quando una singola opzione è deselezionata
+    if (this.sessionFilterService.isSessionFilterAllSelected()) {
+      this.allSelected = false;
+      this.sessionStates.setValue(
+        selectedSessionStates.filter(selection => selection !== "Seleziona tutto")
+      );
+    }
 
-      const allOptions = ["Funzionante", "Errore"];
-      const areAllSelected = allOptions.every(option => selectedSessionStates.includes(option));
+    const allOptions = ["Funzionante", "Errore"];
+    const areAllSelected = allOptions.every(option => selectedSessionStates.includes(option));
 
-      // Selezione di "Seleziona tutto" quando tutte le opzioni singole sono selezionate
-      if (areAllSelected && !selectedSessionStates.includes("Seleziona tutto")) {
-        selectedSessionStates.push("Seleziona tutto");
-        this.sessionStates.setValue(selectedSessionStates);
-        this.sessionFilterService.allSelected = true;
-      }
+    // Selezione di "Seleziona tutto" quando tutte le opzioni singole sono selezionate
+    if (areAllSelected && !selectedSessionStates.includes("Seleziona tutto")) {
+      selectedSessionStates.push("Seleziona tutto");
+      this.sessionStates.setValue(selectedSessionStates);
+      this.allSelected = true;
     }
 
     this.filtersCommonService.applyFilters$.next(this.filters);
     this.cd.detectChanges();
   }
 
+  /**
+   * Seleziona tutti i filtri del select dei cantieri
+   */
+  toggleSelectAllCantieri(){
+    this.cantieri.setValue(!this.allSelected ? ["Seleziona tutto", ...this.listaCantieri] : []);
+  }
 
+  /**
+   * Seleziona tutti i filtri del select delle sessioni
+   */
   toggleSelectAllSession(){
-    if(this.sessionFilterService.toggleSelectAllSessionStates()){
-      this.sessionStates.setValue(["Seleziona tutto", ...this.sessionFilterService.allOptions]);
-    }else{
-      this.sessionStates.setValue([]);
-    }
-
+    this.sessionStates.setValue(!this.allSelected ? ["Seleziona tutto", ...this.sessionFilterService.allOptions] : []);
   }
 
   /**
    * Seleziona tutti i filtri del select dei gps
    */
   toggleSelectAllGps() {
-    if(this.gpsFilterService.toggleSelectAllGps()){
-      this.gps.setValue(["Seleziona tutto", ...this.gpsFilterService.allOptions]);
-    }else{
-      this.gps.setValue([]);
-    }
+    this.gps.setValue(!this.allSelected ? ["Seleziona tutto", ...this.gpsFilterService.allOptions] : [])
   }
 
   /**
    * Seleziona tutti i filtri del select delle antenne
    */
   toggleSelectAllAntenne(){
-    if(this.antennaFilterService.toggleSelectAllAntenne()){
-      this.antenne.setValue(["Seleziona tutto", ...this.antennaFilterService.allOptions]);
-    }else{
-      this.antenne.setValue([]);
-    }
+    this.antenne.setValue(!this.allSelected ? ["Seleziona tutto", ...this.antennaFilterService.allOptions] : []);
   }
 
   /**
@@ -344,29 +326,14 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
    */
   toggleSelectAll() {
     // Recupero dei dati dal sessionStorage
-    const storedData = this.sessionStorageService.getItem("allData");
-    if (storedData) {
-      const allData: VehicleData[] = JSON.parse(storedData);
-
-      const allVehicles = allData.map((vehicleData: any) => {
-        return vehicleData.vehicle;
-      });
-
-      this.cantieri.setValue(this.cantieriFilterService.updateListaCantieri(allVehicles));
-    }
+    this.toggleSelectAllCantieri();
     this.toggleSelectAllGps()
     this.toggleSelectAllAntenne();
     this.toggleSelectAllSession();
+    this.allSelected = !this.allSelected;
     this.cd.detectChanges();
     console.log("togglato tutto!");
-  }
-
-  /**
-   * Controlla se tutti i cantieri sono selezionati
-   * @returns ritorna il risultato della funzione nel servizio
-   */
-  isCantieriAllSelected(): boolean {
-    return this.cantieriFilterService.isCantieriAllSelected();
+    this.filtersCommonService.applyFilters$.next(this.filters);
   }
 
   /**
