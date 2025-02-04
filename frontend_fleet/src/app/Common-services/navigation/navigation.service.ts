@@ -13,8 +13,6 @@ export class NavigationService {
       if (event instanceof NavigationStart) {
         this.previousUrl = this.currentUrl;
         this.currentUrl = event.url;
-        console.log("service previous url: ", this.previousUrl);
-        console.log("service current url: ", this.currentUrl);
       }
     });
   }
