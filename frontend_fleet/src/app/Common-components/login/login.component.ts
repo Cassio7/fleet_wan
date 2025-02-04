@@ -11,6 +11,7 @@ import { count, Subject, takeUntil } from 'rxjs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import { SessionStorageService } from '../../Common-services/sessionStorage/session-storage.service';
 
 @Component({
   selector: 'app-login',
@@ -54,6 +55,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy{
     private router: Router,
     private cookiesService: CookiesService,
     private loginService: LoginService,
+    private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef
   ) {
     this.loginForm = new FormGroup({
@@ -98,6 +100,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy{
       this.loginService.login(this.loginForm.value).pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
+          this.sessionStorageService.setItem("dashboard-section", "table")
           this.cookiesService.setCookie("user", response.access_token);
           this.deleteCookies();
           this.loginSuccess = true;

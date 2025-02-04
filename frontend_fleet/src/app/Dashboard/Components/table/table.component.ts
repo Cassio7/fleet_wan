@@ -177,7 +177,6 @@ export class TableComponent implements OnDestroy, AfterViewInit {
    * Riempe la tabella con i dati recuperati dalla chiamata API
    */
   private async fillTable() {
-    this.sessionStorageService.clear();
     console.log("CHIAMATO FILL TABLE!");
     this.antennaGraphService.resetGraph();
     this.errorGraphService.resetGraphs();
@@ -224,7 +223,6 @@ export class TableComponent implements OnDestroy, AfterViewInit {
    * Ottiene i dati dell'ultimo andamento di ciscun veicolo
    */
   getAllLastSessionAnomalies() {
-    this.sessionStorageService.clear();
     console.log("CHIAMATO GET ALL LAST SESSION!");
     this.antennaGraphService.resetGraph();
     this.errorGraphService.resetGraphs();

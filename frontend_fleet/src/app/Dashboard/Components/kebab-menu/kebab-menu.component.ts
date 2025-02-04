@@ -35,7 +35,6 @@ export class KebabMenuComponent implements AfterViewInit{
 
   ngAfterViewInit(): void {
     this.selectedOption = this.sessionStorageService.getItem("dashboard-section");
-    this.chooseKebabMenuOption('table');
     this.cd.detectChanges();
   }
 
