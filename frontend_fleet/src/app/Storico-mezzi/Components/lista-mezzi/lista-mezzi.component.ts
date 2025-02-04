@@ -3,19 +3,19 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Subject, takeUntil } from 'rxjs';
-import { VehiclesApiService } from '../../Common-services/vehicles api service/vehicles-api.service';
-import { Vehicle } from '../../Models/Vehicle';
+import { VehiclesApiService } from '../../../Common-services/vehicles api service/vehicles-api.service';
+import { Vehicle } from '../../../Models/Vehicle';
 import { MatIconModule } from '@angular/material/icon';
-import { MapService } from '../../Common-services/map/map.service';
-import { RealtimeApiService } from '../../Common-services/realtime-api/realtime-api.service';
-import { RealtimeData } from '../../Models/RealtimeData';
+import { MapService } from '../../../Common-services/map/map.service';
+import { RealtimeApiService } from '../../../Common-services/realtime-api/realtime-api.service';
+import { RealtimeData } from '../../../Models/RealtimeData';
 import { MatButtonModule } from '@angular/material/button';
-import { SessionApiService } from '../../Common-services/session/session-api.service';
-import { SessionStorageService } from '../../Common-services/sessionStorage/session-storage.service';
+import { SessionApiService } from '../../../Common-services/session/session-api.service';
+import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { Router } from '@angular/router';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CommonModule } from '@angular/common';
-import { Filters, FiltersCommonService } from '../../Common-services/filters-common/filters-common.service';
+import { Filters, FiltersCommonService } from '../../../Common-services/filters-common/filters-common.service';
 
 export interface PeriodicElement {
   name: string;

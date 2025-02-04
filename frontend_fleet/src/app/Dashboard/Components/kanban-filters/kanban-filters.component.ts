@@ -129,43 +129,18 @@ export class KanbanFiltersComponent implements AfterViewInit, OnDestroy{
    * Gestisce la selezione di un cantiere nel menù apposito
    * @param option opzione selezionata
    */
-  selectCantiere(option: string) {
-    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allData"));
-    let selectedCantieri = this.cantieri.value || [];
-
-    if (option === "Seleziona tutto") {
-      this.allSelected = !this.allSelected;
-      this.toggleSelectAllCantieri(this.allSelected);
-    } else {
-      if (this.cantieriFilterService.allSelected) {
-        this.cantieriFilterService.allSelected = false;
-        selectedCantieri = selectedCantieri.filter(selection => selection !== "Seleziona tutto");
-        this.cantieri.setValue(selectedCantieri);
-      }
-
-      if (this.cantieriFilterService.allSelected && !selectedCantieri.includes("Seleziona tutto")) {
-        //deselect seleziona tutto se viene deselezionata un'opzione
-        selectedCantieri.unshift("Seleziona tutto");
-        this.cantieri.setValue(selectedCantieri);
-
-        this.cantieriFilterService.allSelected = false;
-      }
-    }
-
-    let selectedCantieriCache: string[] = [];
-    const cantieriFilteredVehicles: VehicleData[] = this.cantieriFilterService.filterVehiclesByCantieri(allVehicles, selectedCantieri) as VehicleData[];
-    selectedCantieriCache = selectedCantieri;
-    if(this.kanbanGps){
-      this.gpsGraphService.loadChartData$.next(cantieriFilteredVehicles);
-    }else if(this.kanbanAntenna){
-      this.antennaGraphService.loadChartData$.next(cantieriFilteredVehicles);
-    }
-
+  selectCantiere() {
     this.filters.plate = this.plate;
-
     this.filtersCommonService.applyFilters$.next(this.filters);
+  }
 
+  selectAll(){
+    this.allSelected = !this.allSelected;
+    const cantieriToggle = this.cantieriFilterService.toggleSelectAllCantieri(this.allSelected);
+    console.log("cantieriToggle: ", cantieriToggle);
+    this.cantieri.setValue(cantieriToggle);
     this.cd.detectChanges();
+    this.filtersCommonService.applyFilters$.next(this.filters);
   }
 
   /**

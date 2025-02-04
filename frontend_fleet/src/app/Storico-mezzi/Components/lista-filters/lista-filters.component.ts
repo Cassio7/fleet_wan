@@ -7,12 +7,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { Filters, FiltersCommonService } from '../../Common-services/filters-common/filters-common.service';
-import { PlateFilterService } from '../../Common-services/plate-filter/plate-filter.service';
-import { CantieriFilterService } from '../../Common-services/cantieri-filter/cantieri-filter.service';
-import { SessionStorageService } from '../../Common-services/sessionStorage/session-storage.service';
+import { Filters, FiltersCommonService } from '../../../Common-services/filters-common/filters-common.service';
+import { PlateFilterService } from '../../../Common-services/plate-filter/plate-filter.service';
+import { CantieriFilterService } from '../../../Common-services/cantieri-filter/cantieri-filter.service';
+import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { MatDividerModule } from '@angular/material/divider';
-import { Vehicle } from '../../Models/Vehicle';
+import { Vehicle } from '../../../Models/Vehicle';
 
 @Component({
   selector: 'app-lista-filters',
@@ -63,7 +63,6 @@ export class ListaFiltersComponent implements AfterViewInit{
   }
 
   selectCantiere(option: string){
-    console.log("chiamata select cantiere");
     this.filters.plate = this.plate;
 
     if(option == "Seleziona tutto"){
