@@ -42,7 +42,7 @@ export class AppService implements OnModuleInit {
 
   // popolo database all'avvio
   async onModuleInit() {
-    const startDate = '2025-01-28T00:00:00.000Z';
+    const startDate = '2025-02-03T00:00:00.000Z';
     //const endDate = '2024-12-10T00:00:00.000Z';
     const endDate = new Date(
       new Date().getTime() + 2 * 60 * 60 * 1000,
@@ -232,7 +232,7 @@ export class AppService implements OnModuleInit {
     let date = null;
     let gps = null;
     let antenna = null;
-    let detection_quality_avg = null;
+    let detection_quality = null;
     const session = null;
 
     if (item.sessions && item.sessions[0]) {
@@ -240,15 +240,15 @@ export class AppService implements OnModuleInit {
       if (item.sessions[0].anomalies) {
         gps = item.sessions[0].anomalies.GPS || null;
         antenna = item.sessions[0].anomalies.Antenna || null;
-        detection_quality_avg =
-          item.sessions[0].anomalies.detection_quality_avg || null;
+        detection_quality =
+          item.sessions[0].anomalies.detection_quality || null;
       }
       return this.anomalyService.createAnomaly(
         veId,
         date,
         gps,
         antenna,
-        detection_quality_avg,
+        detection_quality,
         session,
       );
     }
@@ -273,7 +273,7 @@ export class AppService implements OnModuleInit {
           let date = null;
           let gps = null;
           let antenna = null;
-          let detection_quality_avg = null;
+          let detection_quality = null;
           const session = item.anomaliaSessione || null;
 
           if (item.sessions && item.sessions[0]) {
@@ -281,8 +281,8 @@ export class AppService implements OnModuleInit {
             if (item.sessions[0].anomalies) {
               gps = item.sessions[0].anomalies.GPS || null;
               antenna = item.sessions[0].anomalies.Antenna || null;
-              detection_quality_avg =
-                item.sessions[0].anomalies.detection_quality_avg || null;
+              detection_quality =
+                item.sessions[0].anomalies.detection_quality || null;
             }
           }
 
@@ -291,7 +291,7 @@ export class AppService implements OnModuleInit {
             date,
             gps,
             antenna,
-            detection_quality_avg,
+            detection_quality,
             session,
           );
         });
