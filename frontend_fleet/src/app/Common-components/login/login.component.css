@@ -20,15 +20,6 @@
   overflow: hidden;
 }
 
-.logo {
-  height: 10vh;
-  width: 15vw;
-}
-
-.version {
-  color: grey;
-}
-
 .left-container{
   height: 100%;
   width: 100%;
@@ -65,7 +56,25 @@
   gap: .5vh;
 }
 
-.login-eader{
+.loghi{
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 2vw;
+}
+
+.logo {
+  height: 5vh;
+  width: 8vw;
+}
+
+.version {
+  color: grey;
+  font-style: italic;
+  font-size: 15px;
+}
+
+.login-header{
   display: flex;
   flex-direction: column;
   gap: .5vh;
