@@ -385,7 +385,7 @@ export class TagService {
     veId: number[],
     dateFrom: Date,
     dateTo: Date,
-  ): Promise<any> {
+  ): Promise<Map<number, number[]>> {
     try {
       const tags = await this.tagHistoryRepository
         .createQueryBuilder('tag_history')
