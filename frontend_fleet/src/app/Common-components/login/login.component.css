@@ -63,9 +63,14 @@
   gap: 2vw;
 }
 
-.logo {
-  height: 5vh;
-  width: 8vw;
+.logo{
+  height: 6vh;
+}
+.logo-gesenu {
+  width: 7vw;
+}
+.logo-gsa{
+  width: 7vw;
 }
 
 .version {
@@ -155,4 +160,3 @@
   line-height: 1;
   font-size: 12px;
 }
-
