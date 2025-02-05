@@ -7,6 +7,7 @@ import { ErrorPieGraphComponent } from '../error-pie-graph/error-pie-graph.compo
 import { Subject } from 'rxjs';
 import { GpsGraphComponent } from "../gps-graph/gps-graph.component";
 import { AntennaGraphComponent } from "../antenna-graph/antenna-graph.component";
+import { SessioneGraphComponent } from "../sessione-graph/sessione-graph.component";
 
 @Component({
   selector: 'app-error-graph-card',
@@ -18,7 +19,8 @@ import { AntennaGraphComponent } from "../antenna-graph/antenna-graph.component"
     MatSelectModule,
     MatOptionModule,
     GpsGraphComponent,
-    AntennaGraphComponent
+    AntennaGraphComponent,
+    SessioneGraphComponent
 ],
   templateUrl: './error-graph-card.component.html',
   styleUrl: './error-graph-card.component.css'
@@ -30,6 +32,7 @@ export class ErrorGraphCardComponent implements AfterViewInit, OnDestroy{
   errorsGraph: boolean = false;
   gpsGraph: boolean = false;
   antennaGraph: boolean = false;
+  sessioneGraph: boolean = false;
 
   constructor(
     private cd: ChangeDetectorRef
@@ -52,19 +55,28 @@ export class ErrorGraphCardComponent implements AfterViewInit, OnDestroy{
         this.errorsGraph = true;
         this.gpsGraph = false;
         this.antennaGraph = false;
+        this.sessioneGraph = false;
         break;
       case 'GPS':
         this.errorGraphTitle = "GPS";
         this.errorsGraph = false;
         this.antennaGraph = false;
         this.gpsGraph = true;
+        this.sessioneGraph = false;
         break;
       case 'Antenna':
         this.errorGraphTitle = "Antenna";
         this.errorsGraph = false;
         this.antennaGraph = true;
         this.gpsGraph = false;
+        this.sessioneGraph = false;
         break;
+      case 'Sessione':
+        this.errorGraphTitle = "Sessione";
+        this.errorsGraph = false;
+        this.antennaGraph = false;
+        this.gpsGraph = false;
+        this.sessioneGraph = true;
     }
     this.cd.detectChanges();
   }

@@ -59,7 +59,6 @@ export class KanbanSessioneService {
    */
   setKanbanData(vehicles: VehicleData[]){
     const series = this.checkErrorsService.checkVehiclesSessionErrors(vehicles);//recupero dati dei veicoli controllati
-    console.log("session series: ", series);
     this.workingVehicles = series[0];
     this.errorVehicles = series[1];
   }

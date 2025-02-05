@@ -18,6 +18,7 @@ import { SessionStorageService } from '../../../Common-services/sessionStorage/s
 import { MapService } from '../../../Common-services/map/map.service';
 import { RealtimeApiService } from '../../../Common-services/realtime-api/realtime-api.service';
 import { RealtimeData } from '../../../Models/RealtimeData';
+import { SessioneGraphService } from '../../Services/sessione-graph/sessione-graph.service';
 
 @Component({
   selector: 'app-kanban-sessione',
@@ -33,7 +34,7 @@ import { RealtimeData } from '../../../Models/RealtimeData';
     MatListModule,
     MatTooltipModule,
     KanbanFiltersComponent
-  ],
+],
   templateUrl: './kanban-sessione.component.html',
   styleUrl: './kanban-sessione.component.css'
 })
@@ -42,6 +43,7 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy{
   constructor(
     public checkErrorsService: CheckErrorsService,
     public kanbanSessioneService: KanbanSessioneService,
+    private sessioneGraphService: SessioneGraphService,
     private sessionStorageService: SessionStorageService,
     private mapService: MapService,
     private realtimeApiService: RealtimeApiService,
@@ -58,20 +60,11 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy{
     let kanbanVehicles = allData;
     this.kanbanSessioneService.setKanbanData(kanbanVehicles);
 
+    this.getVehiclesErrorsData();
     this.checkErrorsService.updateAnomalies$.pipe(takeUntil(this.destroy$))
     .subscribe({
       next: () => {
-        this.checkErrorsService.checkErrorsAllToday().pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (responseObj: any) => {
-            this.kanbanSessioneService.setKanbanData([]);
-            setTimeout(() => {
-              const vehiclesData = responseObj.vehicles;
-              this.loadRealtimeVehicles(vehiclesData);
-            }, 2000);
-          },
-          error: error => console.error("Errore nell'aggiornamento delle anomalie: ", error)
-        });
+        this.getVehiclesErrorsData();
       },
       error: error => console.error("Errore nella notifica di aggiornamento delle anomalie del kanban: ", error)
     });
@@ -80,7 +73,25 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy{
     .subscribe((filters: Filters)=>{
       kanbanVehicles = this.filtersCommonService.applyAllFiltersOnVehicles(allData, filters) as VehicleData[];
       this.kanbanSessioneService.setKanbanData(kanbanVehicles);
-      // this.gpsGraphService.loadChartData$.next(kanbanVehicles);
+      this.sessioneGraphService.loadChartData$.next(kanbanVehicles);
+    });
+  }
+
+  /**
+   * Esegue una chiamata tramite un servizio che recupera i dati dei veicoli
+   * e delle loro anomalie nella giornata di oggi
+   */
+  private getVehiclesErrorsData(){
+    this.checkErrorsService.checkErrorsAllToday().pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (responseObj: any) => {
+        this.kanbanSessioneService.setKanbanData([]);
+        setTimeout(() => {
+          const vehiclesData = responseObj.vehicles;
+          this.loadRealtimeVehicles(vehiclesData);
+        }, 2000);
+      },
+      error: error => console.error("Errore nell'aggiornamento delle anomalie: ", error)
     });
   }
 
@@ -92,9 +103,10 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy{
     this.realtimeApiService.getLastRealtime().pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (realtimeDataObj: RealtimeData[]) => {
+          console.log("kanban sessione realtime data fetched: ", realtimeDataObj);
           const realtimeVehicles: VehicleData[] = this.mergeRealtimeData(vehicles, realtimeDataObj);
           this.kanbanSessioneService.setKanbanData(realtimeVehicles);
-          // this.gpsGraphService.loadChartData$.next(realtimeVehicles);
+          this.sessioneGraphService.loadChartData$.next(realtimeVehicles);
           this.sessionStorageService.setItem("allData", JSON.stringify(realtimeVehicles));
           return realtimeVehicles;
         },

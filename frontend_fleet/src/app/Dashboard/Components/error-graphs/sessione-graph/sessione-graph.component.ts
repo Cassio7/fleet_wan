@@ -1,12 +1,9 @@
 import { ChangeDetectorRef, Component } from '@angular/core';
-import { skip, Subject, takeUntil } from 'rxjs';
-import { SessionStorageService } from '../../../../Common-services/sessionStorage/session-storage.service';
+import { Subject, takeUntil } from 'rxjs';
 import { ApexChart, ApexDataLabels, ApexNonAxisChartSeries, ApexResponsive, NgApexchartsModule } from "ng-apexcharts";
-import { AntennaGraphService } from '../../../Services/antenna-graph/antenna-graph.service';
-import { BlackboxGraphsService } from '../../../Services/blackbox-graphs/blackbox-graphs.service';
-import { VehicleData } from '../../../../Models/VehicleData';
-import { PlateFilterService } from '../../../../Common-services/plate-filter/plate-filter.service';
+import { SessioneGraphService } from '../../../Services/sessione-graph/sessione-graph.service';
 import { CheckErrorsService } from '../../../../Common-services/check-errors/check-errors.service';
+import { VehicleData } from '../../../../Models/VehicleData';
 
 
 export type ChartOptions = {
@@ -20,34 +17,29 @@ export type ChartOptions = {
   plotOptions: any;
 };
 @Component({
-  selector: 'app-antenna-graph',
+  selector: 'app-sessione-graph',
   standalone: true,
   imports: [
     NgApexchartsModule
   ],
-  templateUrl: './antenna-graph.component.html',
-  styleUrl: './antenna-graph.component.css'
+  templateUrl: './sessione-graph.component.html',
+  styleUrl: './sessione-graph.component.css'
 })
-export class AntennaGraphComponent {
-  private readonly destroy$: Subject<void> = new Subject<void>();
-  public chartOptions: ChartOptions;
-
-  public nVehicles: number = 0;
+export class SessioneGraphComponent {
+    private readonly destroy$: Subject<void> = new Subject<void>();
+    public chartOptions: ChartOptions;
 
   constructor(
-    private antennaGraphService: AntennaGraphService,
-    private plateFilterService: PlateFilterService,
+    private sessioneGraphService: SessioneGraphService,
     private checkErrorsService: CheckErrorsService,
-    private blackboxGraphService: BlackboxGraphsService,
-    private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef
-  ) {
+  ){
     this.chartOptions = {
       series: [],
       chart: {
         type: "donut",
-        height: this.antennaGraphService.height,
-        width: this.antennaGraphService.width,
+        height: this.sessioneGraphService.height,
+        width: this.sessioneGraphService.width,
         events: {
           dataPointSelection: (event: any, chartContext: any, config: any) => {
             switch (config.dataPointIndex) {
@@ -55,9 +47,6 @@ export class AntennaGraphComponent {
                 this.workingClick();
                 break;
               case 1:
-                this.warningClick();
-                break;
-              case 2:
                 this.errorClick();
                 break;
             }
@@ -86,8 +75,8 @@ export class AntennaGraphComponent {
       legend: {
         position: "left"
       },
-      labels: ["Funzionante", "Error", "No antenna"],
-      colors: this.antennaGraphService.colors,
+      labels: ["Funzionante", "Error"],
+      colors: this.sessioneGraphService.colors,
       responsive: [
         {
           breakpoint: 480,
@@ -96,8 +85,8 @@ export class AntennaGraphComponent {
               position: "bottom"
             },
             chart: {
-              width: this.antennaGraphService.width / 2,
-              height: this.antennaGraphService.height / 2
+              width: this.sessioneGraphService.width / 2,
+              height: this.sessioneGraphService.height / 2
             }
           }
         }
@@ -127,10 +116,11 @@ export class AntennaGraphComponent {
   initializeGraph(vehicles: VehicleData[]){
     this.chartOptions.series = [];
 
-    const antennaCheck = this.checkErrorsService.checkVehiclesAntennaErrors(vehicles);
-    const blackboxData = this.blackboxGraphService.getAllRFIDVehicles(vehicles);
+    const sessionCheck = this.checkErrorsService.checkVehiclesSessionErrors(vehicles);
 
-    this.chartOptions.series = [antennaCheck[0].length, antennaCheck[1].length, blackboxData.blackboxOnly.length];
+    console.log("sessionCheck: ", sessionCheck);
+
+    this.chartOptions.series = [sessionCheck[0].length, sessionCheck[1].length];
   }
 
   ngOnDestroy(): void {
@@ -139,7 +129,7 @@ export class AntennaGraphComponent {
   }
 
   ngAfterViewInit(): void {
-    this.antennaGraphService.loadChartData$.pipe(takeUntil(this.destroy$))
+    this.sessioneGraphService.loadChartData$.pipe(takeUntil(this.destroy$))
     .subscribe({
       next:(vehicles: VehicleData[]) => {
         this.initializeGraph(vehicles);
