@@ -14,6 +14,7 @@ import { KanbanGpsService } from '../../Dashboard/Services/kanban-gps/kanban-gps
 import { KanbanTableService } from '../../Dashboard/Services/kanban-table/kanban-table.service';
 import { CommonModule } from '@angular/common';
 import { User } from '../../Models/User';
+import { SessionStorageService } from '../../Common-services/sessionStorage/session-storage.service';
 
 @Component({
   selector: 'app-navbar',
@@ -47,6 +48,7 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
     private kanbanGpsService: KanbanGpsService,
     private kanabanTableService: KanbanTableService,
     private activatedRoute: ActivatedRoute,
+    private sessionStorageService: SessionStorageService,
     private router: Router,
     private cd: ChangeDetectorRef
   ){}
@@ -57,17 +59,17 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
   }
 
   ngOnInit(): void {
-  this.router.events.pipe(
-    filter(event => event instanceof NavigationEnd)
-  ).subscribe(() => {
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
     const url = this.router.url;
 
-    // Gestisci il caso di /dettaglio-mezzo/:id
+    //caso di /dettaglio-mezzo/:id
     const regex = /\/dettaglio-mezzo\/(\d+)/;
     const match = url.match(regex);
 
     if (match) {
-      const id = match[1]; // Estrai l'id dalla URL
+      const id = match[1]; //estrazione dell'id dalla URL
       this.currentPage = `Dettaglio Mezzo/${id}`;
       this.isKanban = false;
       this.icon = "directions_car";
@@ -75,8 +77,25 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
       switch (url) {
         case '/dashboard':
           this.currentPage = "Riepilogo";
-          this.isKanban = true;
+          this.isKanban = false;
           this.icon = "dashboard";
+          const dashboardSection = this.sessionStorageService.getItem("dashboard-section");
+          if(dashboardSection){
+            switch(dashboardSection){
+              case 'table':
+                this.isKanban = false;
+                break;
+              case 'GPS':
+                this.isKanban = true;
+                break;
+              case 'Antenna':
+                this.isKanban = true;
+                break;
+              case 'Sessione':
+                this.isKanban = true;
+                break;
+            }
+          }
           break;
         case '/home-mezzi':
           this.currentPage = "Parco mezzi";
@@ -85,10 +104,11 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
           break;
         case '/storico-mezzi':
           this.currentPage = "Storico mezzi"
+          this.isKanban = false;
           this.icon = "inventory_2"
           break;
         default:
-          this.currentPage = "Dashboard";
+          this.currentPage = "Riepilogo";
           this.isKanban = true;
           this.icon = "dashboard";
       }
@@ -100,37 +120,39 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
 
 
   ngAfterViewInit(): void {
-    this.cd.detectChanges();
-    this.authService.getUserInfo().pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: (user: User) => {
-        this.name = user.name;
-        this.surname = user.surname;
-        this.role = user.role;
-        this.cd.detectChanges();
-      },
-      error: error => console.error("Errore nella ricezione dei dat dell'utente: ", error)
+    setTimeout(() => {
+      this.authService.getUserInfo().pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (user: User) => {
+          this.name = user.name;
+          this.surname = user.surname;
+          this.role = user.role;
+          this.cd.detectChanges();
+        },
+        error: error => console.error("Errore nella ricezione dei dat dell'utente: ", error)
+      });
+      merge(
+        this.kanbanAntennaService.loadKanbanAntenna$.pipe(takeUntil(this.destroy$)),
+        this.kanbanGpsService.loadKanbanGps$.pipe(takeUntil(this.destroy$))
+      ).subscribe({
+        next: () => {
+          this.isKanban = true;
+          this.cd.detectChanges();
+        },
+        error: error => console.error("Errore nel cambio del path: ", error)
+      });
+      this.kanabanTableService.loadKabanTable$.pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          console.log("entrato su kanbantable subj sub");
+          this.currentPage = "Riepilogo";
+          this.isKanban = false;
+          this.cd.detectChanges();
+        },
+        error: error => console.error("Errore nel cambio del path: ", error)
+      });
+      this.cd.detectChanges();
     });
-    merge(
-      this.kanbanAntennaService.loadKanbanAntenna$.pipe(takeUntil(this.destroy$)),
-      this.kanbanGpsService.loadKanbanGps$.pipe(takeUntil(this.destroy$))
-    ).subscribe({
-      next: () => {
-        this.isKanban = true;
-        this.cd.detectChanges();
-      },
-      error: error => console.error("Errore nel cambio del path: ", error)
-    });
-    this.kanabanTableService.loadKabanTable$.pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: () => {
-        this.currentPage = "Dashboard";
-        this.isKanban = false;
-        this.cd.detectChanges();
-      },
-      error: error => console.error("Errore nel cambio del path: ", error)
-    });
-    this.cd.detectChanges();
   }
 
   logout(){
