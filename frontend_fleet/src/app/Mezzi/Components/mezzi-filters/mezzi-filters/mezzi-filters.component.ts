@@ -66,7 +66,7 @@ export class MezziFiltersComponent implements AfterViewInit, OnDestroy{
   }
 
   ngAfterViewInit(): void {
-    const storedData = this.sessionStorageService.getItem("allData");
+    const storedData = this.sessionStorageService.getItem("allVehicles");
     if (storedData) {
       const allData: VehicleData[] = JSON.parse(storedData);
 
@@ -78,16 +78,28 @@ export class MezziFiltersComponent implements AfterViewInit, OnDestroy{
   }
 
   selectAll(){
-    this.allSelected = !this.allSelected;
     const cantieriToggle = this.cantieriFilterService.toggleSelectAllCantieri(this.allSelected, );
     console.log(cantieriToggle);
     this.cantieri.setValue(cantieriToggle.length > 0 ? ["Seleziona tutto", ...cantieriToggle] : cantieriToggle);
+    this.allSelected = !this.allSelected;
     this.cd.detectChanges();
     this.filtersCommonService.applyFilters$.next(this.filters);
   }
 
   selectCantiere(){
-    console.log("lista caniteri: ", this.cantieriFilterService.listaCantieri);
+    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+    const allCantieri = this.cantieriFilterService.vehiclesCantieriOnce(allVehicles);
+
+    const selectedCantieri = this.cantieri.value?.filter(option => option !== "Seleziona tutto");
+    if(selectedCantieri){
+      if(JSON.stringify(allCantieri.sort()) == JSON.stringify(selectedCantieri.sort())){
+        this.allSelected = true
+        this.cantieri.setValue(["Seleziona tutto", ...allCantieri]);
+      }else{
+        this.allSelected = false;
+        this.cantieri.setValue(selectedCantieri);
+      }
+    }
     this.filtersCommonService.applyFilters$.next(this.filters);
   }
 
