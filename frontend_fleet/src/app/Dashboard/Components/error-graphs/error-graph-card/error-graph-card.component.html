@@ -1,13 +1,9 @@
-<mat-card class="graph-card" appearance="outlined">
-  <mat-card-header>
-    <mat-card-title class="graph-title">{{errorGraphTitle}}</mat-card-title>
-  </mat-card-header>
-  <mat-card-content>
-    <div class="graph">
-      <app-pie-error-graph *ngIf="errorsGraph"></app-pie-error-graph>
-      <app-antenna-graph *ngIf="antennaGraph"></app-antenna-graph>
-      <app-gps-graph *ngIf="gpsGraph"></app-gps-graph>
-      <app-sessione-graph *ngIf="sessioneGraph"></app-sessione-graph>
-    </div>
-  </mat-card-content>
-</mat-card>
+<div class="graph-container">
+  <div class="title-container">
+    <p class="title">{{errorGraphTitle}}</p>
+  </div>
+  <app-pie-error-graph *ngIf="errorsGraph"></app-pie-error-graph>
+  <app-antenna-graph *ngIf="antennaGraph"></app-antenna-graph>
+  <app-gps-graph *ngIf="gpsGraph"></app-gps-graph>
+  <app-sessione-graph *ngIf="sessioneGraph"></app-sessione-graph>
+</div>

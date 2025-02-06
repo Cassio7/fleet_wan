@@ -1,11 +1,24 @@
-.graph {
+.graph-container {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100%;
+  background-color: white;
+  border-radius: 10px;
+  margin: 0;
 }
 
-.graph-card {
+.title-container{
+  width: 100%;
   display: flex;
-  flex-direction: column;
+  align-items: flex-start;
+  padding-top: 1vh;
+  padding-left: 1vw;
+  margin-bottom: 0;
+}
+.title-container .title{
+  font-weight: bold;
+  margin-bottom: 0;
+
 }
