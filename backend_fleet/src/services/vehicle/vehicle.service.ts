@@ -599,17 +599,28 @@ export class VehicleService {
     vehicleDTO.id = vehicle.id;
     vehicleDTO.veId = vehicle.veId;
     vehicleDTO.active = vehicle.active;
+    vehicleDTO.active_csv = vehicle.active_csv ?? null;
     vehicleDTO.plate = vehicle.plate;
     vehicleDTO.model = vehicle.model;
+    vehicleDTO.model_csv = vehicle.model_csv ?? null;
+    vehicleDTO.registration = vehicle.registration ?? null;
+    vehicleDTO.euro = vehicle.euro ?? null;
     vehicleDTO.firstEvent = vehicle.firstEvent ?? null;
     vehicleDTO.lastEvent = vehicle.lastEvent ?? null;
     vehicleDTO.lastSessionEvent = vehicle.lastSessionEvent ?? null;
-    vehicleDTO.retiredEvent = vehicle.retiredEvent ?? null;
     vehicleDTO.isCan = vehicle.isCan;
+    vehicleDTO.fleet_number = vehicle.fleet_number ?? null;
+    vehicleDTO.fleet_install = vehicle.fleet_install ?? null;
+    vehicleDTO.electrical = vehicle.electrical ?? null;
     vehicleDTO.isRFIDReader = vehicle.isRFIDReader;
     vehicleDTO.allestimento = vehicle.allestimento ?? null;
+    vehicleDTO.antenna_setting = vehicle.antenna_setting ?? null;
+    vehicleDTO.fleet_antenna_number = vehicle.fleet_antenna_number ?? null;
+    vehicleDTO.retired_event = vehicle.retired_event ?? null;
+    vehicleDTO.worksite_priority = vehicle.worksite_priority ?? null;
     vehicleDTO.profileId = vehicle.profileId;
     vehicleDTO.profileName = vehicle.profileName;
+    vehicleDTO;
 
     // Crea DeviceDTO se esiste il device
     let deviceDTO: DeviceDTO | null = null;
