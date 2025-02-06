@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { EquipmentEntity } from 'classes/entities/equipment.entity';
+import { RentalEntity } from 'classes/entities/rental.entity';
+import { ServiceEntity } from 'classes/entities/service.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { WorksiteEntity } from 'classes/entities/worksite.entity';
+import { WorkzoneEntity } from 'classes/entities/workzone.entity';
 import * as path from 'path';
 import { parseCsvFile } from 'src/utils/utils';
 import { Repository } from 'typeorm';
@@ -9,13 +13,18 @@ import { Repository } from 'typeorm';
 @Injectable()
 export class WorksiteFactoryService {
   private readonly cvsPath = path.resolve(process.cwd(), 'files/CANTIERI.csv');
-  private readonly cvsPathV = path.resolve(
-    process.cwd(),
-    'files/VEICOLI-ALLEST.csv',
-  );
+  private readonly cvsPathV = path.resolve(process.cwd(), 'files/VEICOLI.csv');
   constructor(
     @InjectRepository(WorksiteEntity, 'mainConnection')
     private worksiteRepository: Repository<WorksiteEntity>,
+    @InjectRepository(WorkzoneEntity, 'mainConnection')
+    private workzoneRepository: Repository<WorkzoneEntity>,
+    @InjectRepository(ServiceEntity, 'mainConnection')
+    private serviceRepository: Repository<ServiceEntity>,
+    @InjectRepository(EquipmentEntity, 'mainConnection')
+    private equipmentRepository: Repository<EquipmentEntity>,
+    @InjectRepository(RentalEntity, 'mainConnection')
+    private rentalRepository: Repository<RentalEntity>,
     @InjectRepository(VehicleEntity, 'mainConnection')
     private vehicleRepository: Repository<VehicleEntity>,
   ) {}
@@ -41,16 +50,41 @@ export class WorksiteFactoryService {
             veId: data.veId,
           },
         });
-        if (vehicle) {
-          vehicle.worksite = await this.worksiteRepository.findOne({
+        if (!vehicle) {
+          return;
+        }
+        vehicle.worksite = await this.worksiteRepository.findOne({
+          where: {
+            id: data.worksiteId,
+          },
+        });
+        vehicle.workzone = await this.workzoneRepository.findOne({
+          where: {
+            id: data.workzoneId,
+          },
+        });
+        vehicle.service = await this.serviceRepository.findOne({
+          where: {
+            id: data.serviceId,
+          },
+        });
+        if (data.equipmentId) {
+          vehicle.equipment = await this.equipmentRepository.findOne({
             where: {
-              id: data.worksiteId,
+              id: data.equipmentId,
             },
           });
-          vehicle.allestimento = data.Allestimento;
-          // uso save invece di update così si aggiorna la variabile di version
-          await this.vehicleRepository.save(vehicle);
         }
+        if (data.rentalId) {
+          vehicle.rental = await this.rentalRepository.findOne({
+            where: {
+              id: data.rentalId,
+            },
+          });
+        }
+        vehicle.allestimento = data.Allestimento;
+        // uso save invece di update così si aggiorna la variabile di version
+        await this.vehicleRepository.save(vehicle);
       }),
     );
   }
