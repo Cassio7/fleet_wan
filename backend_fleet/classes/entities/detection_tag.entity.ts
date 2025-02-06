@@ -6,7 +6,7 @@ import { TagHistoryEntity } from './tag_history.entity';
 
 @Entity({
   name: 'detection_tag',
-  comment: `Indica l'andamento di una lettura di una tag_history, con dei tag associati`,
+  comment: `Indica l andamento di una lettura di una tag_history, con dei tag associati`,
 })
 export class DetectionTagEntity
   extends CommonEntity
