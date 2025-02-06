@@ -33,12 +33,24 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
   @Column({ type: 'boolean' })
   active: boolean;
 
+  @Column({ type: 'boolean', nullable: true })
+  active_csv: boolean;
+
   @Column({ type: 'varchar', length: 20 })
   @Index()
   plate: string;
 
   @Column({ type: 'varchar', length: 50 })
   model: string;
+
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  model_csv: string;
+  
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  registration: string;
+
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  euro: string;
 
   @Column({ type: 'timestamptz', nullable: true })
   firstEvent: Date;
@@ -52,6 +64,15 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
   @Column({ type: 'boolean' })
   isCan: boolean;
 
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  fleet_number: string;
+
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  fleet_install: string;
+
+  @Column({ type: 'boolean', nullable: true })
+  electrical: boolean;
+
   @Column({ type: 'boolean' })
   @Index()
   isRFIDReader: boolean;
@@ -60,6 +81,12 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
   @Index()
   allestimento: boolean;
 
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  antenna_setting: string;
+
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  fleet_antenna_number: string;
+
   @Column()
   profileId: number;
 
@@ -67,7 +94,10 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
   profileName: string;
 
   @Column({ type: 'timestamptz', nullable: true })
-  retiredEvent: Date;
+  retired_event: Date;
+
+  @Column({ nullable: true })
+  worksite_priority: number;
 
   @OneToOne(() => DeviceEntity)
   @JoinColumn({ name: 'device_id' })
