@@ -83,6 +83,24 @@ export class WorksiteFactoryService {
           });
         }
         vehicle.allestimento = data.Allestimento;
+        if (data.antenna_setting) {
+          vehicle.antenna_setting = data.antenna_setting;
+        }
+        if (data.registration) {
+          vehicle.registration = data.registration;
+        }
+        vehicle.model_csv = data.model_csv;
+        if (data.euro) {
+          vehicle.euro = data.euro;
+        }
+        vehicle.worksite_priority = data.worksite_priority;
+        vehicle.electrical = data.electrical;
+        vehicle.fleet_number = data.fleet_number;
+        vehicle.fleet_install = data.fleet_install;
+        if (data.fleet_antenna_number) {
+          vehicle.fleet_antenna_number = data.fleet_antenna_number;
+        }
+        vehicle.active_csv = data.active_csv;
         // uso save invece di update così si aggiorna la variabile di version
         await this.vehicleRepository.save(vehicle);
       }),
