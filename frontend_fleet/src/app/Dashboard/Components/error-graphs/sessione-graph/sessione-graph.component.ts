@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component } from '@angular/core';
-import { Subject, takeUntil } from 'rxjs';
+import { skip, Subject, takeUntil } from 'rxjs';
 import { ApexChart, ApexDataLabels, ApexNonAxisChartSeries, ApexResponsive, NgApexchartsModule } from "ng-apexcharts";
 import { SessioneGraphService } from '../../../Services/sessione-graph/sessione-graph.service';
 import { CheckErrorsService } from '../../../../Common-services/check-errors/check-errors.service';
@@ -28,6 +28,8 @@ export type ChartOptions = {
 export class SessioneGraphComponent {
     private readonly destroy$: Subject<void> = new Subject<void>();
     public chartOptions: ChartOptions;
+    private width: number = 300;
+    private height: number = 120;
 
   constructor(
     private sessioneGraphService: SessioneGraphService,
@@ -38,8 +40,8 @@ export class SessioneGraphComponent {
       series: [],
       chart: {
         type: "donut",
-        height: this.sessioneGraphService.height,
-        width: this.sessioneGraphService.width,
+        height: this.height,
+        width: this.width,
         events: {
           dataPointSelection: (event: any, chartContext: any, config: any) => {
             switch (config.dataPointIndex) {
@@ -85,8 +87,8 @@ export class SessioneGraphComponent {
               position: "bottom"
             },
             chart: {
-              width: this.sessioneGraphService.width / 2,
-              height: this.sessioneGraphService.height / 2
+              width: this.width / 2,
+              height: this.height / 2
             }
           }
         }
@@ -118,8 +120,6 @@ export class SessioneGraphComponent {
 
     const sessionCheck = this.checkErrorsService.checkVehiclesSessionErrors(vehicles);
 
-    console.log("sessionCheck: ", sessionCheck);
-
     this.chartOptions.series = [sessionCheck[0].length, sessionCheck[1].length];
   }
 
@@ -129,9 +129,10 @@ export class SessioneGraphComponent {
   }
 
   ngAfterViewInit(): void {
-    this.sessioneGraphService.loadChartData$.pipe(takeUntil(this.destroy$))
+    this.sessioneGraphService.loadChartData$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next:(vehicles: VehicleData[]) => {
+        console.log("mi è arrivato!");
         this.initializeGraph(vehicles);
         this.cd.detectChanges();
       },

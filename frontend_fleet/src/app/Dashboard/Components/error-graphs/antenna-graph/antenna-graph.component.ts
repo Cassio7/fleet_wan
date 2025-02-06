@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component } from '@angular/core';
 import { skip, Subject, takeUntil } from 'rxjs';
 import { SessionStorageService } from '../../../../Common-services/sessionStorage/session-storage.service';
-import { ApexChart, ApexDataLabels, ApexNonAxisChartSeries, ApexResponsive, NgApexchartsModule } from "ng-apexcharts";
+import { ApexChart, ApexDataLabels, ApexLegend, ApexNonAxisChartSeries, ApexResponsive, NgApexchartsModule } from "ng-apexcharts";
 import { AntennaGraphService } from '../../../Services/antenna-graph/antenna-graph.service';
 import { BlackboxGraphsService } from '../../../Services/blackbox-graphs/blackbox-graphs.service';
 import { VehicleData } from '../../../../Models/VehicleData';
@@ -14,7 +14,7 @@ export type ChartOptions = {
   chart: ApexChart;
   responsive: ApexResponsive[];
   colors: string[];
-  legend: any;
+  legend: ApexLegend;
   dataLabels: ApexDataLabels;
   labels: any;
   plotOptions: any;
@@ -34,6 +34,9 @@ export class AntennaGraphComponent {
 
   public nVehicles: number = 0;
 
+  private width: number = 300;
+  private height: number = 120;
+
   constructor(
     private antennaGraphService: AntennaGraphService,
     private plateFilterService: PlateFilterService,
@@ -46,8 +49,8 @@ export class AntennaGraphComponent {
       series: [],
       chart: {
         type: "donut",
-        height: this.antennaGraphService.height,
-        width: this.antennaGraphService.width,
+        height: this.height,
+        width: this.width,
         events: {
           dataPointSelection: (event: any, chartContext: any, config: any) => {
             switch (config.dataPointIndex) {
@@ -96,8 +99,8 @@ export class AntennaGraphComponent {
               position: "bottom"
             },
             chart: {
-              width: this.antennaGraphService.width / 2,
-              height: this.antennaGraphService.height / 2
+              width: this.width / 2,
+              height: this.height / 2
             }
           }
         }
