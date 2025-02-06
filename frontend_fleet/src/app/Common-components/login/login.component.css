@@ -29,54 +29,81 @@
   justify-content: flex-start;
   align-items: flex-start;
   background-color: #ffffff;
-  box-sizing: border-box;
-  padding: 2vw;
+  padding: 20px;
 }
 
-.left-section {
-  height: 100%;
-  width: 100%;
-  flex: 1;
-  display: flex;
-  align-items: center;
-  box-sizing: border-box;
-}
-
-.login-form {
+.left-container .login-form {
   display: flex;
   flex-direction: column;
   max-width: 90%;
 }
 
-.section-header{
+.left-container .section-header{
   width: 100%;
   display: flex;
   align-items: flex-start;
-  flex-direction: column;
+  justify-content: space-between;
   gap: .5vh;
 }
 
-.loghi{
+.left-container .section-header .title-container{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  line-height: 1;
+}
+
+.left-container .section-header .title-container .title {
+  line-height: 1;
+  margin: 0;
+}
+
+.left-container .section-header .title-container .version {
+  color: grey;
+  font-style: italic;
+  font-size: 15px;
+  line-height: 1;
+  margin: 0;
+}
+
+.left-container .section-header .main-logo{
+  height: 8vh;
+  width: 8vw;
+  margin: 0;
+}
+
+.left-container .footer .loghi{
   width: 100%;
   display: flex;
   align-items: center;
   gap: 2vw;
 }
 
+.left-container .login-container{
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.left-container .footer{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding-bottom: .8vw;
+}
+
 .logo{
-  height: 6vh;
+  height: 5vh;
 }
 .logo-gesenu {
   width: 7vw;
 }
 .logo-gsa{
   width: 7vw;
-}
-
-.version {
-  color: grey;
-  font-style: italic;
-  font-size: 15px;
 }
 
 .login-header{
@@ -120,10 +147,8 @@
   margin-top: 1rem;
   font-size: 1vw;
   background-color: var(--sidebar-color);
-  border-radius: 5px;
   color: white;
   margin: 0;
-  border: none;
   cursor: pointer;
   transition: background-color 0.3s ease, opacity 0.3s ease;
 }
@@ -153,7 +178,6 @@
   width: 1vw !important;
   height: 1vw !important;
 }
-
 
 .copyright{
   color: gray;

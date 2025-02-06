@@ -1,16 +1,16 @@
 <div class="content">
   <div class="sections-container">
+
     <!-- Sezione sinistra: Form di login -->
     <div class="left-container">
       <div class="section-header">
-        <div class="loghi">
-          <img src="assets/logo-gsa.png" alt="logo gsa" class="logo-gsa logo">
-          <img src="assets/logo-gesenu.png" alt="logo gesenu" class="logo-gesenu logo">
+        <div class="title-container">
+          <h4 class="title">WasteTrucker</h4>
+          <p class="version">Versione 1.0.0</p>
         </div>
-        <p class="version">Versione 1.0.0</p>
+        <img src="assets/logo-nobg.png" alt="Logo waste trucker" class="main-logo">
       </div>
-      <div class="left-section">
-        <div class="left-content">
+        <div class="login-container">
           <div class="login-header">
             <h1 class="form-title">Accedi</h1>
             <p class="subtitle">Inserisci le tue credenziali</p>
@@ -29,9 +29,9 @@
             <mat-form-field appearance="outline">
               <mat-label>Username</mat-label>
               <input matInput
-                     (keydown)="checkCapslock($event)"
-                     formControlName="username"
-                     placeholder="Username" />
+                      (keydown)="checkCapslock($event)"
+                      formControlName="username"
+                      placeholder="Username" />
               <button mat-icon-button matSuffix type="button">
                 <mat-icon>person</mat-icon>
               </button>
@@ -44,10 +44,10 @@
             <mat-form-field appearance="outline">
               <mat-label>Password</mat-label>
               <input matInput
-                     [type]="showPassword ? 'text' : 'password'"
-                     (keydown)="checkCapslock($event)"
-                     formControlName="password"
-                     placeholder="Password" />
+                      [type]="showPassword ? 'text' : 'password'"
+                      (keydown)="checkCapslock($event)"
+                      formControlName="password"
+                      placeholder="Password" />
               <button mat-icon-button matSuffix type="button" (click)="showPassword = !showPassword">
                 <mat-icon>{{ showPassword ? 'visibility' : 'visibility_off' }}</mat-icon>
               </button>
@@ -61,29 +61,42 @@
               Accesso... <mat-spinner mode="indeterminate" class="success-spinner"></mat-spinner>
             </p>
             <mat-error *ngIf="credentialsError">Credenziali non valide</mat-error>
-            <mat-error *ngIf="timeoutCountdown > 1">Prossimo tentativo fra {{ timeoutCountdown / 1000 | number:'1.0-0' }} secondi</mat-error>
+            <mat-error *ngIf="timeoutCountdown > 1">
+              Prossimo tentativo fra {{ timeoutCountdown / 1000 | number:'1.0-0' }} secondi
+            </mat-error>
 
             <!-- Submit -->
-             <div class="submit-container">
+            <div class="submit-container">
               <button mat-raised-button
-              color="primary"
-              type="submit"
-              [disabled]="loginForm.invalid || credentialsError"
-              class="submit-btn">
-        Accedi
-      </button>
-      <p class="copyright">© 2025 GSA. Tutti i diritti riservati.
-
-        L'uso di questa applicazione è soggetto ai Termini e Condizioni di GSA. È vietata qualsiasi riproduzione non autorizzata.</p>
-             </div>
+                      color="primary"
+                      type="submit"
+                      [disabled]="loginForm.invalid || credentialsError"
+                      class="submit-btn">
+                Accedi
+              </button>
+            </div>
           </form>
+
+
+      </div>
+
+      <div class="footer">
+        <div class="loghi">
+          <img src="assets/logo-gsa.png" alt="logo gsa" class="logo-gsa logo">
+          <img src="assets/logo-gesenu.png" alt="logo gesenu" class="logo-gesenu logo">
+        </div>
+
+        <div class="copyright-container">
+          <p class="copyright">
+            © 2025 GSA. Tutti i diritti riservati. L'uso di questa applicazione è soggetto ai Termini e Condizioni di GSA. È vietata qualsiasi riproduzione non autorizzata.
+          </p>
         </div>
       </div>
     </div>
 
-
     <!-- Sezione destra: Immagine -->
-    <div class="right-section"></div>
-  </div>
+    <div class="right-section">
+    </div>
 
+  </div>
 </div>
