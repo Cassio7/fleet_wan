@@ -33,18 +33,17 @@ import { Vehicle } from '../../../Models/Vehicle';
   styleUrl: './lista-filters.component.css'
 })
 export class ListaFiltersComponent implements AfterViewInit{
-  plate: string = "";
   listaCantieri: string[] = [];
   cantieri = new FormControl<string[]>([]);
   private allSelected: boolean = false;
 
-  private filters: Filters = {
-    plate: this.plate,
+  private _filters: Filters = {
+    plate: "",
     cantieri: this.cantieri,
     gps: new FormControl(null),
     antenna: new FormControl(null),
     sessione: new FormControl(null)
-  }
+  };
 
   constructor(
     private filtersCommonService: FiltersCommonService,
@@ -63,20 +62,39 @@ export class ListaFiltersComponent implements AfterViewInit{
   }
 
   selectAll(){
+    const cantieriToggle = this.cantieriFilterService.toggleSelectAllCantieri(this.allSelected, );
+    console.log(cantieriToggle);
+    this.cantieri.setValue(cantieriToggle.length > 0 ? ["Seleziona tutto", ...cantieriToggle] : cantieriToggle);
     this.allSelected = !this.allSelected;
-    const cantieriToggle = this.cantieriFilterService.toggleSelectAllCantieri(this.allSelected);
-    this.cantieri.setValue(cantieriToggle);
     this.cd.detectChanges();
     this.filtersCommonService.applyFilters$.next(this.filters);
   }
 
   selectCantiere(){
-    this.filters.plate = this.plate;
+    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+    const allCantieri = this.cantieriFilterService.vehiclesCantieriOnce(allVehicles).sort();
+    const selectedCantieri = this.cantieri.value?.filter(option => option !== "Seleziona tutto").sort();
+
+    if(selectedCantieri && JSON.stringify(allCantieri) == JSON.stringify(selectedCantieri)){
+      selectedCantieri.push("Seleziona tutto");
+      this.allSelected = true;
+    }else{
+      this.allSelected = false;
+    }
+
+    this.cantieri.setValue(selectedCantieri || []);
     this.filtersCommonService.applyFilters$.next(this.filters);
   }
 
   searchPlates(){
-    this.filters.plate = this.plate;
     this.filtersCommonService.applyFilters$.next(this.filters);
+  }
+
+
+  public get filters(): Filters {
+    return this._filters;
+  }
+  public set filters(value: Filters) {
+    this._filters = value;
   }
 }

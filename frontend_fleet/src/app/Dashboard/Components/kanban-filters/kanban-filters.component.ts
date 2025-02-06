@@ -89,7 +89,6 @@ export class KanbanFiltersComponent implements AfterViewInit, OnDestroy{
     setTimeout(() => {
       this.allSelected = !this.allSelected;
       this.toggleSelectAllCantieri(this.allSelected);
-      console.log("cantieri value after toggle: ", this.cantieri.value);
     });
 
     // Sottoscrizione per il filtro cantieri
@@ -136,12 +135,26 @@ export class KanbanFiltersComponent implements AfterViewInit, OnDestroy{
    * @param option opzione selezionata
    */
   selectCantiere() {
+    const allData = JSON.parse(this.sessionStorageService.getItem("allData"));
+    const allCantieri = this.cantieriFilterService.vehiclesCantieriOnce(allData).sort();
+    const selectedCantieri = this.cantieri.value?.filter(option => option !== "Seleziona tutto").sort();
+
+    if(selectedCantieri && JSON.stringify(allCantieri) == JSON.stringify(selectedCantieri)){
+      selectedCantieri.push("Seleziona tutto");
+      this.allSelected = true;
+    }else{
+      this.allSelected = false;
+    }
+
+    this.cantieri.setValue(selectedCantieri || []);
     this.filtersCommonService.applyFilters$.next(this.filters);
   }
 
   selectAll(){
-    this.toggleSelectAllCantieri(this.allSelected);
+    const cantieriToggle = this.cantieriFilterService.toggleSelectAllCantieri(this.allSelected, );
+    this.cantieri.setValue(cantieriToggle.length > 0 ? ["Seleziona tutto", ...cantieriToggle] : cantieriToggle);
     this.allSelected = !this.allSelected;
+    this.cd.detectChanges();
     this.filtersCommonService.applyFilters$.next(this.filters);
   }
 
