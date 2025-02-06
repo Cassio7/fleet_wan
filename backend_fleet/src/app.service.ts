@@ -12,13 +12,16 @@ import { TagService } from './services/tag/tag.service';
 import { VehicleService } from './services/vehicle/vehicle.service';
 
 import { AssociationFactoryService } from './factory/association.factory';
-import { CategoryFactoryService } from './factory/category.factory';
+import { ServiceFactoryService } from './factory/service.factory';
 import { AnomalyService } from './services/anomaly/anomaly.service';
 import { getDaysInRange } from './utils/utils';
 
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import Redis from 'ioredis';
+import { RentalFactoryService } from './factory/rental.factory';
 import { AssociationService } from './services/association/association.service';
+import { EquipmentFacotoryService } from './factory/equipment.factory';
+import { WorkzoneFacotoryService } from './factory/workzone.factory';
 
 @Injectable()
 export class AppService implements OnModuleInit {
@@ -33,7 +36,10 @@ export class AppService implements OnModuleInit {
     private readonly groupFactoryService: GroupFactoryService,
     private readonly worksiteGroupFactoryService: WorksiteGroupFactoryService,
     private readonly associationFactoryService: AssociationFactoryService,
-    private readonly categoryFactoryService: CategoryFactoryService,
+    private readonly serviceFactoryService: ServiceFactoryService,
+    private readonly rentalFactoryService: RentalFactoryService,
+    private readonly equipmentFacotoryService: EquipmentFacotoryService,
+    private readonly workzoneFacotoryService: WorkzoneFacotoryService,
     private readonly anomalyService: AnomalyService,
     private readonly realtimeService: RealtimeService,
     private readonly associationService: AssociationService,
@@ -42,7 +48,7 @@ export class AppService implements OnModuleInit {
 
   // popolo database all'avvio
   async onModuleInit() {
-    const startDate = '2025-02-03T00:00:00.000Z';
+    const startDate = '2025-02-04T00:00:00.000Z';
     //const endDate = '2024-12-10T00:00:00.000Z';
     const endDate = new Date(
       new Date().getTime() + 2 * 60 * 60 * 1000,
@@ -59,7 +65,7 @@ export class AppService implements OnModuleInit {
   }
 
   async putDefaultData() {
-    await this.redis.flushdb();
+    //await this.redis.flushdb();
     await this.userFactoryService.createDefaultRoles();
     await this.userFactoryService.createDefaultUser();
     await this.companyFactoryService.createDefaultCompanies();
@@ -67,7 +73,10 @@ export class AppService implements OnModuleInit {
     await this.worksiteFactoryService.createDefaultWorksite();
     await this.worksiteGroupFactoryService.createDefaultWorksiteGroup();
     await this.associationFactoryService.createDefaultAssociation();
-    await this.categoryFactoryService.createDefaultCategory();
+    await this.serviceFactoryService.createDefaultService();
+    await this.rentalFactoryService.createDefaultRental();
+    await this.equipmentFacotoryService.createDefaultEquipment();
+    await this.workzoneFacotoryService.createDefaultWorkzone();
   }
 
   /**
