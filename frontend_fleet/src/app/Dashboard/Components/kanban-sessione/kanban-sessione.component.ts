@@ -40,6 +40,7 @@ import { SessioneGraphService } from '../../Services/sessione-graph/sessione-gra
 })
 export class KanbanSessioneComponent implements AfterViewInit, OnDestroy{
   private destroy$: Subject<void> = new Subject<void>();
+  kanbanVehicles: VehicleData[] = [];
   constructor(
     public checkErrorsService: CheckErrorsService,
     public kanbanSessioneService: KanbanSessioneService,
@@ -56,11 +57,8 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy{
   }
 
   ngAfterViewInit(): void {
-    const allData: VehicleData[] = JSON.parse(this.sessionStorageService.getItem("allData"));
-    let kanbanVehicles = allData;
-    this.kanbanSessioneService.setKanbanData(kanbanVehicles);
-
     this.getVehiclesErrorsData();
+
     this.checkErrorsService.updateAnomalies$.pipe(takeUntil(this.destroy$))
     .subscribe({
       next: () => {
@@ -71,9 +69,12 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy{
 
     this.filtersCommonService.applyFilters$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe((filters: Filters)=>{
-      kanbanVehicles = this.filtersCommonService.applyAllFiltersOnVehicles(allData, filters) as VehicleData[];
-      this.kanbanSessioneService.setKanbanData(kanbanVehicles);
-      this.sessioneGraphService.loadChartData$.next(kanbanVehicles);
+      const allData = JSON.parse(this.sessionStorageService.getItem("allData"));
+      if(allData){
+        this.kanbanVehicles = this.filtersCommonService.applyAllFiltersOnVehicles(allData, filters) as VehicleData[];
+        this.kanbanSessioneService.setKanbanData(this.kanbanVehicles);
+        this.sessioneGraphService.loadChartData$.next(this.kanbanVehicles);
+      }
     });
   }
 
@@ -104,9 +105,8 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy{
       .subscribe({
         next: (realtimeDataObj: RealtimeData[]) => {
           console.log("kanban sessione realtime data fetched: ", realtimeDataObj);
-          const realtimeVehicles: VehicleData[] = this.mergeRealtimeData(vehicles, realtimeDataObj);
-          this.kanbanSessioneService.setKanbanData(realtimeVehicles);
-          this.sessioneGraphService.loadChartData$.next(realtimeVehicles);
+          const realtimeVehicles: VehicleData[] = this.realtimeApiService.mergeVehiclesWithRealtime(vehicles, realtimeDataObj) as VehicleData[];
+          this.loadKanban(realtimeVehicles);
           this.sessionStorageService.setItem("allData", JSON.stringify(realtimeVehicles));
           return realtimeVehicles;
         },
@@ -116,21 +116,12 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy{
   }
 
   /**
-   * Unisce un array di veicoli con uno di dati realtime
-   * @param tableVehicles array di veicoli
-   * @param realtimeData dati realtime
-   * @returns veicoli accorpati
+   * Carica le colonne del kanban e il grafico delle sessioni
+   * @param vehicles veicoli
    */
-  private mergeRealtimeData(tableVehicles: VehicleData[], realtimeData: RealtimeData[]): VehicleData[] {
-    tableVehicles.forEach(vehicleData => {
-      const matchedRealtimeData = realtimeData.find(realtimeData => {
-        return realtimeData.vehicle.veId === vehicleData.vehicle.veId;
-      });
-      if (matchedRealtimeData) {
-        vehicleData.realtime = matchedRealtimeData.realtime;
-      }
-    });
-    return tableVehicles;
+  loadKanban(vehicles: VehicleData[]){
+    this.kanbanSessioneService.setKanbanData(vehicles);
+    this.sessioneGraphService.loadChartData$.next(vehicles);
   }
 
   showMap(vehicleData: VehicleData) {
