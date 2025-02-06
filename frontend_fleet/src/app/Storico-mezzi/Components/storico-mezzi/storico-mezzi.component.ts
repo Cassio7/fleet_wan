@@ -19,7 +19,6 @@ import { MatIconModule } from '@angular/material/icon';
     MapComponent,
     SessionHystoriesComponent,
     ListaMezziComponent,
-    ListaFiltersComponent,
     MatListModule,
     MatCardModule,
     MatIconModule,

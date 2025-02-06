@@ -1,14 +1,16 @@
 <div class="content">
+  <!-- Mezzi List Section -->
   <div class="mezzi-list section">
     <div class="header">
       <div class="title">Cerca un mezzo</div>
       <div class="subtitle">Seleziona un mezzo dalla lista per accedere ai dati</div>
     </div>
-      <app-lista-filters></app-lista-filters>
-      <div class="mezzi-content">
+    <div class="mezzi-content">
       <app-lista-mezzi (selectVehicle)="onVehicleSelection($event)"></app-lista-mezzi>
     </div>
   </div>
+
+  <!-- Sessions Table Section -->
   <div class="sessions-table section">
     <div class="header">
       <div class="title">Storico del mezzo</div>
@@ -17,28 +19,31 @@
     <div class="table-content">
       <div class="table-row">
         <div class="info">
-            @if(selectedVehicle){
-              <div class="targa">
-                <span class="small-title">Targa</span>
-                <span>{{selectedVehicle && selectedVehicle.plate}}</span>
-              </div>
-              <div class="cantiere">
-                <span class="small-title">Cantiere</span>
-                <span>{{selectedVehicle ? selectedVehicle.worksite ? selectedVehicle.worksite.name : "non assegnato" : ""}}</span>
-              </div>
-              <div class="tipologia">
-                <span class="small-title">Tipologia</span>
-                <span>tipo</span>
-              </div>
-            }@else {
-              Nessun veicolo selezionato
-            }
+          <!-- Conditional Rendering for Selected Vehicle -->
+          @if(selectedVehicle){
+            <div class="targa">
+              <span class="small-title">Targa</span>
+              <span>{{selectedVehicle && selectedVehicle.plate}}</span>
+            </div>
+            <div class="cantiere">
+              <span class="small-title">Cantiere</span>
+              <span>{{selectedVehicle ? selectedVehicle.worksite ? selectedVehicle.worksite.name : "non assegnato" : ""}}</span>
+            </div>
+            <div class="tipologia">
+              <span class="small-title">Tipologia</span>
+              <span>tipo</span>
+            </div>
+          }@else {
+            Nessun veicolo selezionato
+          }
         </div>
         <app-session-filters></app-session-filters>
       </div>
       <app-session-hystories [vehicle]="selectedVehicle"></app-session-hystories>
     </div>
   </div>
+
+  <!-- Map Section -->
   <div class="map section">
     <div class="header">
       <div class="title">Mappa</div>

@@ -16,6 +16,7 @@ import { Router } from '@angular/router';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CommonModule } from '@angular/common';
 import { Filters, FiltersCommonService } from '../../../Common-services/filters-common/filters-common.service';
+import { ListaFiltersComponent } from "../lista-filters/lista-filters.component";
 
 export interface PeriodicElement {
   name: string;
@@ -34,7 +35,8 @@ export interface PeriodicElement {
     MatInputModule,
     MatButtonModule,
     MatTooltipModule,
-    MatIconModule
+    MatIconModule,
+    ListaFiltersComponent
 ],
   templateUrl: './lista-mezzi.component.html',
   styleUrl: './lista-mezzi.component.css',
@@ -97,6 +99,7 @@ export class ListaMezziComponent implements AfterViewInit, OnDestroy{
     this.realtimeApiService.getLastRealtime().pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (realtimeDataObj: RealtimeData[]) => {
+          console.log("realtime data fetched from storico: ", realtimeDataObj);
           const tableVehicles: Vehicle[] = this.realtimeApiService.mergeVehiclesWithRealtime(this.vehiclesListData.data, realtimeDataObj) as Vehicle[];
           this.vehiclesListData.data = tableVehicles;
           if(this.vehiclesList){

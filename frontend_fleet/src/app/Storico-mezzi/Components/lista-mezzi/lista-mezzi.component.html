@@ -1,4 +1,7 @@
 <div class="content">
+  <div class="filters-container">
+    <app-lista-filters></app-lista-filters>
+  </div>
   <table mat-table #vehiclesList [dataSource]="vehiclesListData" class="mat-elevation-z8 vehiclesTable">
 
     <ng-container matColumnDef="icon">
