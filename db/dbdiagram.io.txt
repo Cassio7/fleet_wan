@@ -38,24 +38,53 @@ Table vehicles {
   id int [primary key]
   veId int 
   active boolean
+  active_csv boolean
   plate string
   model string
+  model_csv string
+  registration string
+  euro string
   firstEvent datetime 
   lastEvent datetime 
   lastSessionEvent datetime 
   isCan boolean
+  fleet_number string
+  fleet_install string
+  electrical boolean
   isRFIDReader boolean
+  allestimento boolean
+  antenna_setting string
+  fleet_antenna_number string
   profileId int
   profileName string
+  retired_event date
+  worksite_priority number
   hash string
   deviceId int [ref: - devices.id]
   worksiteId int [ref: > worksite.id]
 }
 
-table categories{
+table services{
   id int [primary key]
   name string
-  description string
+  vehicleId int [ref: > vehicles.id]
+}
+
+table workzone{
+  id int [primary key]
+  name string
+  vehicleId int [ref: > vehicles.id]
+}
+
+table rental{
+  id int [primary key]
+  name string
+  vehicleId int [ref: > vehicles.id]
+}
+
+table equipments{
+  id int [primary key]
+  name string
   vehicleId int [ref: > vehicles.id]
 }
 

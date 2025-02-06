@@ -38,24 +38,53 @@ CREATE TABLE "vehicles" (
   "id" int PRIMARY KEY,
   "veId" int,
   "active" boolean,
+  "active_csv" boolean,
   "plate" string,
   "model" string,
+  "model_csv" string,
+  "registration" string,
+  "euro" string,
   "firstEvent" datetime,
   "lastEvent" datetime,
   "lastSessionEvent" datetime,
   "isCan" boolean,
+  "fleet_number" string,
+  "fleet_install" string,
+  "electrical" boolean,
   "isRFIDReader" boolean,
+  "allestimento" boolean,
+  "antenna_setting" string,
+  "fleet_antenna_number" string,
   "profileId" int,
   "profileName" string,
+  "retired_event" date,
+  "worksite_priority" number,
   "hash" string,
   "deviceId" int,
   "worksiteId" int
 );
 
-CREATE TABLE "categories" (
+CREATE TABLE "services" (
   "id" int PRIMARY KEY,
   "name" string,
-  "description" string,
+  "vehicleId" int
+);
+
+CREATE TABLE "workzone" (
+  "id" int PRIMARY KEY,
+  "name" string,
+  "vehicleId" int
+);
+
+CREATE TABLE "rental" (
+  "id" int PRIMARY KEY,
+  "name" string,
+  "vehicleId" int
+);
+
+CREATE TABLE "equipments" (
+  "id" int PRIMARY KEY,
+  "name" string,
   "vehicleId" int
 );
 
@@ -185,7 +214,13 @@ ALTER TABLE "vehicles" ADD FOREIGN KEY ("deviceId") REFERENCES "devices" ("id");
 
 ALTER TABLE "vehicles" ADD FOREIGN KEY ("worksiteId") REFERENCES "worksite" ("id");
 
-ALTER TABLE "categories" ADD FOREIGN KEY ("vehicleId") REFERENCES "vehicles" ("id");
+ALTER TABLE "services" ADD FOREIGN KEY ("vehicleId") REFERENCES "vehicles" ("id");
+
+ALTER TABLE "workzone" ADD FOREIGN KEY ("vehicleId") REFERENCES "vehicles" ("id");
+
+ALTER TABLE "rental" ADD FOREIGN KEY ("vehicleId") REFERENCES "vehicles" ("id");
+
+ALTER TABLE "equipments" ADD FOREIGN KEY ("vehicleId") REFERENCES "vehicles" ("id");
 
 ALTER TABLE "notes" ADD FOREIGN KEY ("userId") REFERENCES "users" ("id");
 
