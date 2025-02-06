@@ -1,6 +1,6 @@
 import { SessionStorageService } from './../../../Common-services/sessionStorage/session-storage.service';
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, ViewChild, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -55,7 +55,7 @@ import { KanbanSessioneService } from '../../Services/kanban-sessione/kanban-ses
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
-export class DashboardComponent implements AfterViewInit{
+export class DashboardComponent implements OnInit, AfterViewInit{
   @ViewChild('graphs') graphs!: ElementRef;
   private readonly destroy$: Subject<void> = new Subject<void>();
 
@@ -85,18 +85,19 @@ export class DashboardComponent implements AfterViewInit{
     private checkErrorsService: CheckErrorsService,
     private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef
-  ){
+  ){}
 
+  ngOnInit(): void {
+    const currentSection = this.sessionStorageService.getItem("dashboard-section");
+    this.displaySection(currentSection);
   }
 
   ngAfterViewInit(): void {
     this.errorGraphTitle = this.errorGraphService.graphTitle;
-    const currentSection = this.sessionStorageService.getItem("dashboard-section");
-    this.displaySection(currentSection);
-
     this.handleKanbanLoading();
     this.cd.detectChanges();
   }
+
 
   private handleKanbanLoading(){
     this.kanbanTableService.loadKabanTable$.pipe(takeUntil(this.destroy$))
@@ -188,8 +189,6 @@ export class DashboardComponent implements AfterViewInit{
         this.kanbanGps = false;
         this.kabanAntenna = false;
     }
-
-    this.cd.detectChanges();
   }
 
   /**
