@@ -1,32 +1,33 @@
 <div class="content">
   <div class="left-section">
-    <div class="left-header">
+    <div class="left-header section-header">
       <h4 class="title">Statistiche</h4>
       <p class="subtitle">Dati aggiornati sul parco mezzi</p>
     </div>
     <div class="graphs" #graphs>
       <div class="table" *ngIf="table">
-        <div class="error-graph"><app-error-graph-card [errorGraphTitle]="'Errors'"></app-error-graph-card></div>
+        <div class="error-graph"><app-error-graph-card [errorGraphTitle]="'GPS'"></app-error-graph-card></div>
         <div class="blackbox-graph"><app-error-graph-card [errorGraphTitle]="'Antenna'"></app-error-graph-card></div>
+        <div class="error-graph"><app-error-graph-card [errorGraphTitle]="'Sessione'"></app-error-graph-card></div>
       </div>
         <div class="error-graph"><app-error-graph-card [errorGraphTitle]="'GPS'" *ngIf="kanbanGps"></app-error-graph-card></div>
         <div class="error-graph"><app-error-graph-card [errorGraphTitle]="'Antenna'" *ngIf="kabanAntenna"></app-error-graph-card></div>
         <div class="error-graph"><app-error-graph-card [errorGraphTitle]="'Sessione'" *ngIf="kanbanSessione"></app-error-graph-card></div>
     </div>
-    <div class="map-header">
+    <div class="map-header section-header">
       <h4 class="title">Mappa</h4>
       <p class="subtitle">Ultima posizione registrata</p>
     </div>
-    <app-map class="map" *ngIf="today"></app-map>
-    <mat-error *ngIf="!today">Mappa non disponibile per ultimo andamento.</mat-error>
+    <div class="map-container">
+      <app-map class="map" *ngIf="today"></app-map>
+      <mat-error *ngIf="!today">Mappa non disponibile per ultimo andamento</mat-error>
+    </div>
   </div>
   <div class="right-section">
     <div class="header">
-      <div class="header-left">
-        <div class="section-name">
-          <h2 class="title">{{ pageName }}</h2>
-          <p class="subtitle">{{subtitle}}</p>
-        </div>
+      <div class="section-header">
+        <h2 class="title">{{ pageName }}</h2>
+        <p class="subtitle">{{subtitle}}</p>
       </div>
       <div class="header-right">
         <div class="switch-container">
@@ -40,8 +41,12 @@
     </div>
     <div class="main-content">
       <div class="table-content" *ngIf="table">
-        <app-row-filter></app-row-filter>
-        <app-table></app-table>
+        <div class="filters-container">
+          <app-row-filter></app-row-filter>
+        </div>
+        <div class="table-container">
+          <app-table></app-table>
+        </div>
       </div>
       <div class="kabangps-content" *ngIf="kanbanGps">
         <app-kanban-gps></app-kanban-gps>
