@@ -41,8 +41,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.mapService.loadMap$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (realtimeData: RealtimeData | null) => {
-        console.log("realtimData obtained: ", realtimeData);
-        if(realtimeData){
+        if(realtimeData && realtimeData.realtime){
           this.lat = realtimeData.realtime.latitude;
           this.long = realtimeData.realtime.longitude;
 

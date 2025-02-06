@@ -332,7 +332,6 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
     this.toggleSelectAllSession();
     this.allSelected = !this.allSelected;
     this.cd.detectChanges();
-    console.log("togglato tutto!");
     this.filtersCommonService.applyFilters$.next(this.filters);
   }
 

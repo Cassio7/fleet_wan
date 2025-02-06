@@ -192,11 +192,9 @@ export class CantieriFilterService{
     const allCantieri = this.vehiclesCantieriOnce(allData);
     if (selectionState) {
       this.filterTableByCantiere$.next([]);
-      console.log("entrato pe pija niente");
       return [];
     } else {
       this.filterTableByCantiere$.next(allCantieri);
-      console.log("entrato pe pija tutto");
       return allCantieri;
     }
   }

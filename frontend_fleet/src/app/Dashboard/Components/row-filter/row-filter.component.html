@@ -5,7 +5,7 @@
     <button *ngIf="targa.value" matSuffix mat-icon-button aria-label="Clear" (click)="filters.plate='';searchPlates()">
       <mat-icon>close</mat-icon>
     </button>
-    <mat-icon matSuffix *ngIf="!targa.value">search</mat-icon>
+    <mat-icon matSuffix *ngIf="!targa.value" class="suffix-icon">search</mat-icon>
   </mat-form-field>
 
   <mat-form-field class="cantieri-filter filter" appearance="outline">
@@ -20,7 +20,7 @@
         {{ cantiere }}
       </mat-option>
     </mat-select>
-    <mat-icon matSuffix>engineering</mat-icon>
+    <mat-icon matSuffix class="suffix-icon">engineering</mat-icon>
   </mat-form-field>
 
   <mat-form-field class="GPS-state-filter filter" appearance="outline">
@@ -34,7 +34,7 @@
         {{ option }}
       </mat-option>
     </mat-select>
-    <mat-icon matSuffix>location_on</mat-icon>
+    <mat-icon matSuffix class="suffix-icon">location_on</mat-icon>
   </mat-form-field>
 
   <mat-form-field class="antenna-filter filter" appearance="outline">
@@ -45,7 +45,7 @@
         {{ option }}
       </mat-option>
     </mat-select>
-    <mat-icon matSuffix>wifi</mat-icon>
+    <mat-icon matSuffix class="suffix-icon">wifi</mat-icon>
   </mat-form-field>
 
   <mat-form-field class="session-filter filter" appearance="outline">
@@ -56,6 +56,6 @@
         {{ option }}
       </mat-option>
     </mat-select>
-    <mat-icon matSuffix>settings_backup_restore</mat-icon>
+    <mat-icon matSuffix class="suffix-icon">settings_backup_restore</mat-icon>
   </mat-form-field>
 </div>
