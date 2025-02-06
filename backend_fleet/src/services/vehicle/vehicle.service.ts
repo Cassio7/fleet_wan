@@ -620,7 +620,6 @@ export class VehicleService {
     vehicleDTO.worksite_priority = vehicle.worksite_priority ?? null;
     vehicleDTO.profileId = vehicle.profileId;
     vehicleDTO.profileName = vehicle.profileName;
-    vehicleDTO;
 
     // Crea DeviceDTO se esiste il device
     let deviceDTO: DeviceDTO | null = null;
