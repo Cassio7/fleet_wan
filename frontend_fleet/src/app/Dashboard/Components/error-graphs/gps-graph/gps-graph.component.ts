@@ -1,7 +1,7 @@
 import { ErrorGraphsService } from './../../../Services/error-graphs/error-graphs.service';
 import { GpsGraphService } from './../../../Services/gps-graph/gps-graph.service';
 import { AfterViewInit, ChangeDetectorRef, Component, ViewChild } from '@angular/core';
-import { NgApexchartsModule } from "ng-apexcharts";
+import { ApexChart, ApexDataLabels, ApexLegend, ApexNonAxisChartSeries, ApexResponsive, NgApexchartsModule } from "ng-apexcharts";
 import { Subject, skip, takeUntil } from 'rxjs';
 import { SessionStorageService } from '../../../../Common-services/sessionStorage/session-storage.service';
 import { PlateFilterService } from '../../../../Common-services/plate-filter/plate-filter.service';
@@ -10,6 +10,17 @@ import { VehicleData } from '../../../../Models/VehicleData';
 import { FiltersCommonService } from '../../../../Common-services/filters-common/filters-common.service';
 import { style } from '@angular/animations';
 
+
+export type ChartOptions = {
+  series: ApexNonAxisChartSeries;
+  chart: ApexChart;
+  responsive: ApexResponsive[];
+  colors: string[];
+  legend: ApexLegend;
+  dataLabels: ApexDataLabels;
+  labels: any;
+  plotOptions: any;
+};
 @Component({
   selector: 'app-gps-graph',
   standalone: true,
@@ -21,9 +32,11 @@ import { style } from '@angular/animations';
 })
 export class GpsGraphComponent implements AfterViewInit{
   private readonly destroy$: Subject<void> = new Subject<void>();
-  public chartOptions: any;
+  public chartOptions: ChartOptions;
 
   public nVehicles: number = 0;
+  private width: number = 300;
+  private height: number = 120;
 
   constructor(
     private gpsGraphService: GpsGraphService,
@@ -37,8 +50,8 @@ export class GpsGraphComponent implements AfterViewInit{
       series: [],
       chart: {
         type: "donut",
-        height: this.gpsGraphService.height,
-        width: this.gpsGraphService.width,
+        height: this.height,
+        width: this.width,
         events: {
           dataPointSelection: (event: any, chartContext: any, config: any) => {
             switch (config.dataPointIndex) {
@@ -75,6 +88,9 @@ export class GpsGraphComponent implements AfterViewInit{
       legend: {
         position: "left"
       },
+      dataLabels: {
+        enabled: false
+      },
       labels: ["Funzionante", "Warning", "Error"],
       colors: this.gpsGraphService.colors,
       responsive: [
@@ -85,8 +101,8 @@ export class GpsGraphComponent implements AfterViewInit{
               position: "bottom"
             },
             chart: {
-              width: this.gpsGraphService.width / 2,
-              height: this.gpsGraphService.height / 2
+              width: this.width / 2,
+              height: this.height / 2
             }
           }
         }
@@ -128,8 +144,6 @@ export class GpsGraphComponent implements AfterViewInit{
   }
 
   ngAfterViewInit(): void {
-    const allData = JSON.parse(this.sessionStorageService.getItem("allData"));
-    this.initializeGraph(allData);
     this.gpsGraphService.loadChartData$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next:(vehicles: VehicleData[]) => {
