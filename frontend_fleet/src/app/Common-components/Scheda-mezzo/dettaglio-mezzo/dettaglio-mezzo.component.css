@@ -73,7 +73,7 @@
 }
 .right-section{
   width: 100%;
-  height: 100vh;
+  height: 100%;
   padding: 20px;
   background-color: var(--background-color);
   flex: 1;

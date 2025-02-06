@@ -2,6 +2,8 @@
   display: flex;
   flex-direction: column;
   margin-top: 3vh;
+  height: 100vh;
+  background-color: var(--background-color);
 }
 
 .columns {
@@ -29,8 +31,6 @@
   background-color: green !important; /*non funziona*/
   cursor: pointer;
 }
-
-
 
 .working-col, .warning-col, .error-col {
   flex: 1;
@@ -99,7 +99,7 @@
 }
 .vehicle .right-container .map-btn mat-icon {
   width: 100%;
-  height: 100%;
+  height: 100vh;
   font-size: 35px;
   color: var(--sidebar-color);
   overflow: visible;

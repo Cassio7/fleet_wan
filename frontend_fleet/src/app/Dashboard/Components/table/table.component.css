@@ -5,10 +5,10 @@
 
 .table-container {
   border-radius: 10px;
-  height: 80vh;
+  height: 100%;
+  margin-top: 1;
   overflow-y: auto;
   box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
-  display: block;
 }
 
 tr.mat-header-row, tr.mat-row {
@@ -16,7 +16,6 @@ tr.mat-header-row, tr.mat-row {
   display: flex;
   justify-content: center;
 }
-
 
 .mat-cell, th.mat-header-cell {
   display: flex;
