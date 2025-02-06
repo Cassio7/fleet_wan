@@ -294,6 +294,7 @@ export class AssociationService {
       },
     });
     const vehicles = new Set<VehicleEntity>();
+
     associations.forEach((association) => {
       // Prendo i veicoli se hanno direttamente associazione con worksite
       if (association.worksite?.vehicle) {
@@ -302,9 +303,9 @@ export class AssociationService {
         );
       }
       // Prendo tutti i veicoli passando da company -> group -> worksite_group -> worksite considerando soltanto il comune principale per evitare duplicati
-      if (association.company?.group) {
+      if (association?.company?.group) {
         const firstGroup = association.company.group[0];
-        if (firstGroup.worksite_group) {
+        if (firstGroup?.worksite_group) {
           firstGroup.worksite_group.forEach((worksiteGroup) => {
             if (worksiteGroup.worksite?.vehicle) {
               worksiteGroup.worksite.vehicle.forEach((vehicle) =>
@@ -356,7 +357,6 @@ export class AssociationService {
       const promises = users.map(async (user) => {
         const key = `vehicleAssociateUser:${user.id}`;
         const vehicles = await this.getVehiclesByUserRole(user.id);
-
         try {
           await this.redis.set(key, JSON.stringify(vehicles));
         } catch (error) {
