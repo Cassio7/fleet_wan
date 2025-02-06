@@ -92,8 +92,8 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  padding-bottom: .8vw;
+  gap: 10px;
+  padding-bottom: 1.2vw;
 }
 
 .logo{
@@ -182,5 +182,5 @@
 .copyright{
   color: gray;
   line-height: 1;
-  font-size: 12px;
+  font-size: 10px;
 }
