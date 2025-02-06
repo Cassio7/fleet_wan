@@ -3,7 +3,10 @@ import { SessionInterface } from 'classes/interfaces/session.interface';
 import { Column, Entity, OneToMany, Index } from 'typeorm';
 import { HistoryEntity } from './history.entity';
 
-@Entity('session')
+@Entity({
+  name: 'session',
+  comment: `Sessione che indica accendimento e spegnimento veicolo`,
+})
 export class SessionEntity extends CommonEntity implements SessionInterface {
   @Column({ type: 'timestamptz', nullable: true })
   @Index()

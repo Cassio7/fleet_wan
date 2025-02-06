@@ -4,7 +4,10 @@ import { Column, Entity, Index, ManyToOne } from 'typeorm';
 import { TagEntity } from './tag.entity';
 import { TagHistoryEntity } from './tag_history.entity';
 
-@Entity('detection_tag')
+@Entity({
+  name: 'detection_tag',
+  comment: `Indica l'andamento di una lettura di una tag_history, con dei tag associati`,
+})
 export class DetectionTagEntity
   extends CommonEntity
   implements DetectionTagInterface

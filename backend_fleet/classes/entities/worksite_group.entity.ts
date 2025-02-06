@@ -4,7 +4,10 @@ import { Entity, ManyToOne } from 'typeorm';
 import { GroupEntity } from './group.entity';
 import { WorksiteEntity } from './worksite.entity';
 
-@Entity('worksite_group')
+@Entity({
+  name: 'worksite_group',
+  comment: `Tabella che associa ogni cantiere al suo comune, con l'aggiunta dei comuni predefiniti`,
+})
 export class WorksiteGroupEntity
   extends CommonEntity
   implements WorksiteGroupInterface
@@ -14,5 +17,4 @@ export class WorksiteGroupEntity
 
   @ManyToOne(() => WorksiteEntity, (worksite) => worksite.worksite_group)
   worksite: WorksiteEntity;
-
 }

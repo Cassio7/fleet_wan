@@ -5,7 +5,10 @@ import { WorksiteGroupEntity } from './worksite_group.entity';
 import { VehicleEntity } from './vehicle.entity';
 import { AssociationEntity } from './association.entity';
 
-@Entity('worksites')
+@Entity({
+  name: 'worksites',
+  comment: `Cantieri`,
+})
 export class WorksiteEntity extends CommonEntity implements WorksiteInterface {
   @Column()
   name: string;

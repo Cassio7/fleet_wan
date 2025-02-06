@@ -3,7 +3,10 @@ import { RoleInterface } from 'classes/interfaces/role.interface';
 import { Column, Entity, OneToMany } from 'typeorm';
 import { UserEntity } from './user.entity';
 
-@Entity('roles')
+@Entity({
+  name: 'roles',
+  comment: `Indicano i ruoli disponibili, con gli utenti associati`,
+})
 export class RoleEntity extends CommonEntity implements RoleInterface {
   @Column()
   name: string;
