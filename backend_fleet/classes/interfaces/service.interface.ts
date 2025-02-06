@@ -1,6 +1,5 @@
 import { CommonInterface } from 'classes/common/common.interface';
 
-export interface CategoryInterface extends CommonInterface {
+export interface ServiceInterface extends CommonInterface {
   name: string;
-  description: string;
 }
