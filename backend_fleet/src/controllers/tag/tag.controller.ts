@@ -223,17 +223,17 @@ export class TagController {
   }
 
   /**
-   * API per recuperare l'andamento del detection quality per ogni lettura, diviso di ora in ora
-   * per ammortizzare il carico di dati. In base al veicolo passato
+   * API per recuperare l'andamento del detection quality per ogni lettura, diviso per giornate.
+   * Permette di specificare se recuperare i dati per mese o per numero di giorni, 0 - 0 indica tutti
    * @param req user data
-   * @param body veid identificativo veicolo
+   * @param body veid identificativo veicolo, months: numero mesi da recuperare, days: numero giorni da recuperare
    * @param res
    * @returns
    */
   @Post('detection')
   async getDetectionQualityBiVeId(
     @Req() req: Request & { user: UserFromToken },
-    @Body() body: { veId: number },
+    @Body() body: { veId: number; months: number; days: number },
     @Res() res: Response,
   ) {
     const context: LogContext = {
@@ -254,10 +254,26 @@ export class TagController {
         message: 'Il veId deve essere un numero valido',
       });
     }
+    const months = Number(body.months);
+    const days = Number(body.days) || 0;
+
+    if (isNaN(months) || isNaN(days)) {
+      this.loggerService.logCrudError({
+        error: new Error('Il mese o il giorno deve essere un numero valido'),
+        context,
+        operation: 'list',
+      });
+      return res.status(400).json({
+        message: 'Il mese oppure il giorno deve essere un numero valido',
+      });
+    }
+
     try {
-      const detections = await this.tagService.getDetectionQualityBiVeId(
+      const detections = await this.tagService.getDetectionQualityByVeId(
         req.user.id,
         veId,
+        months,
+        days,
       );
       if (!detections?.length) {
         this.loggerService.logCrudSuccess(

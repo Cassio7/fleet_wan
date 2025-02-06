@@ -1,3 +1,4 @@
+import { InjectRedis } from '@nestjs-modules/ioredis';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import axios from 'axios';
@@ -7,6 +8,7 @@ import { HistoryEntity } from 'classes/entities/history.entity';
 import { SessionEntity } from 'classes/entities/session.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { createHash } from 'crypto';
+import Redis from 'ioredis';
 import { convertHours } from 'src/utils/utils';
 import {
   DataSource,
@@ -28,6 +30,7 @@ export class SessionService {
     private readonly sessionRepository: Repository<SessionEntity>,
     @InjectDataSource('mainConnection')
     private readonly connection: DataSource,
+    @InjectRedis() private readonly redis: Redis,
     private readonly associationService: AssociationService,
   ) {}
   // Costruisce la richiesta SOAP
@@ -161,7 +164,7 @@ export class SessionService {
           period_to: convertHours(item['periodTo']),
           sequence_id: item['sequenceId'],
           closed: item['closed'],
-          distance: item['distance'].split('.').join(''),
+          distance: item['distance'],
           engine_drive: item['engineDriveSec'],
           engine_stop: item['engineNoDriveSec'],
           lists: item['list'],
@@ -453,7 +456,7 @@ export class SessionService {
   }
 
   /**
-   * Ricerca sessione tramite l'hash
+   * Ricerca sessione tramite l'hash, solo dentro server
    * @param hash hash della sessione generato in getSessionist
    * @returns
    */
@@ -462,6 +465,49 @@ export class SessionService {
       where: { hash: hash },
     });
     return session;
+  }
+
+  /**
+   * Recupera la sessione in base al key, prima controlla che l utente possa effettivamente accedere al veicolo
+   * Solitamente viene chiamata dopo il recupero di redis per l ultima sessione di un veicolo
+   * @param userId user id
+   * @param sessionRedis oggetto che viene recuperato da redis
+   * @returns ritorna SessionDTO
+   */
+  async getSessionByKey(
+    userId: number,
+    sessionRedis: any,
+  ): Promise<SessionDTO> {
+    const vehicles =
+      await this.associationService.getVehiclesAssociateUserRedis(userId);
+    if (!vehicles || vehicles.length === 0)
+      throw new HttpException(
+        'Nessun veicolo associato per questo utente',
+        HttpStatus.NOT_FOUND,
+      );
+    if (!vehicles.find((v) => v.veId === sessionRedis.veid))
+      throw new HttpException(
+        'Non hai il permesso per visualizzare questo veicolo',
+        HttpStatus.FORBIDDEN,
+      );
+    try {
+      const session = await this.sessionRepository.findOne({
+        where: { key: sessionRedis.key },
+        relations: {
+          history: true,
+        },
+        order: {
+          period_to: 'DESC',
+        },
+      });
+      return session ? this.toDTOSession(session) : null;
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new HttpException(
+        `Errore durante recupero delle sessioni veId con range temporale`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   /**
@@ -648,27 +694,69 @@ export class SessionService {
    * @returns ritorna una mappa con (veId, session);
    */
   async getLastSessionByVeIds(vehicleIds: number[]): Promise<Map<number, any>> {
-    const query = `
-    SELECT DISTINCT ON (v."veId") 
-      s.sequence_id as "sequence_id",
-      s.period_to AS "period_to",
-      v."veId" AS "veId"
-    FROM session s
-    INNER JOIN history h ON s.id = h."sessionId"
-    INNER JOIN vehicles v ON h."vehicleId" = v.id
-    WHERE v."veId" IN (${vehicleIds.map((_, index) => `$${index + 1}`).join(',')})
-    ORDER BY v."veId", s.sequence_id DESC;
-  `;
-    const sessions = await this.sessionRepository.query(query, vehicleIds);
-    const sessionMap = new Map<number, any>();
+    const sessions = await this.sessionRepository
+      .createQueryBuilder('s')
+      .distinctOn(['v.veId'])
+      .select([
+        's.key AS key',
+        's.id AS id',
+        's.sequence_id AS sequence_id',
+        's.period_to AS period_to',
+        'v.veId AS veId',
+      ])
+      .innerJoin('history', 'h', 's.id = h.sessionId')
+      .innerJoin('vehicles', 'v', 'h.vehicleId = v.id')
+      .where('v.veId IN (:...vehicleIds)', { vehicleIds })
+      .orderBy('v.veId')
+      .addOrderBy('s.sequence_id', 'DESC')
+      .getRawMany();
 
+    const sessionMap = new Map<number, any>();
     sessions.forEach((session) => {
-      const vehicleId = session.veId;
+      const vehicleId = session.veid;
       if (vehicleId) {
         sessionMap.set(vehicleId, session);
       }
     });
+    await this.setLastSessionRedis(sessionMap);
+    return sessionMap;
+  }
 
+  /**
+   * Imposto alcuni dati riguardanti l'ultima sessione per ogni veicolo su redis
+   * per un recupero piu veloce
+   * @param sessionMap
+   */
+  async setLastSessionRedis(sessionMap: Map<number, any>) {
+    for (const [veId, session] of sessionMap) {
+      const key = `lastSession:${veId}`;
+      await this.redis.set(key, JSON.stringify(session));
+    }
+  }
+
+  /**
+   * Recupero da redis i dati riguardanti l'ultima sessione per ogni veicolo passato
+   * @param vehicleIds array di veicoli
+   * @returns ritorna una mappa con veId e sessione
+   */
+  async getLastSessionRedis(vehicleIds: number[]): Promise<Map<number, any>> {
+    const sessionMap = new Map<number, any>();
+    const redisPromises = vehicleIds.map(async (id) => {
+      const key = `lastSession:${id}`;
+      try {
+        const data = await this.redis.get(key);
+        if (data) {
+          sessionMap.set(id, JSON.parse(data));
+        }
+      } catch (error) {
+        if (error instanceof HttpException) throw error;
+        throw new HttpException(
+          `Errore durante recupero delle ultime sessioni da redis`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    });
+    await Promise.all(redisPromises);
     return sessionMap;
   }
 
@@ -730,7 +818,9 @@ export class SessionService {
       if (!sessionMap) {
         return null;
       }
-      const lastSession = await this.getLastSessionByVeIds(veIdArray);
+      let lastSession = await this.getLastSessionRedis(vehicleIds);
+      if (!lastSession)
+        lastSession = await this.getLastSessionByVeIds(vehicleIds);
       if (!lastSession) {
         return null;
       }

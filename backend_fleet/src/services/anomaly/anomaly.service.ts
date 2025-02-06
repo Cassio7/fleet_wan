@@ -550,6 +550,7 @@ export class AnomalyService {
     date: Date,
     gps: string | null,
     antenna: string | null,
+    detection_quality: string | null,
     session: string | null,
   ) {
     const normalizeField = (field: string | null): string | null =>
@@ -558,6 +559,7 @@ export class AnomalyService {
     const normalizedGps = normalizeField(gps);
     const normalizedAntenna = normalizeField(antenna);
     const normalizedSession = normalizeField(session);
+
     let day = date;
     const today = new Date();
     today.setUTCHours(0, 0, 0, 0);
@@ -570,6 +572,7 @@ export class AnomalyService {
         date: day,
         gps: normalizedGps,
         antenna: normalizedAntenna,
+        detection_quality: detection_quality,
       };
       return createHash('sha256').update(JSON.stringify(toHash)).digest('hex');
     };
@@ -596,6 +599,7 @@ export class AnomalyService {
       await queryRunner.connect();
       await queryRunner.startTransaction();
       if (anomaliesQuery && anomaliesQuery.hash !== hash) {
+        // oggi
         if (day.getTime() === today.getTime()) {
           const anomaly = {
             vehicle: vehicle,
@@ -603,6 +607,7 @@ export class AnomalyService {
             session: normalizedSession,
             gps: normalizedGps,
             antenna: normalizedAntenna,
+            detection_quality: detection_quality,
             hash: hash,
           };
           await queryRunner.manager
@@ -614,6 +619,7 @@ export class AnomalyService {
             date: day,
             gps: normalizedGps,
             antenna: normalizedAntenna,
+            detection_quality: detection_quality,
             hash: hash,
           };
           await queryRunner.manager
@@ -629,6 +635,7 @@ export class AnomalyService {
             session: normalizedSession,
             gps: normalizedGps,
             antenna: normalizedAntenna,
+            detection_quality: detection_quality,
             hash: hash,
           });
         await queryRunner.manager.getRepository(AnomalyEntity).save(anomaly);
@@ -819,14 +826,13 @@ export class AnomalyService {
 
     const daysInRange = getDaysInRange(dateFrom_new, dateTo_new);
     const allVehicles = await this.vehicleService.getVehiclesByReader();
+    const vehicleIds = allVehicles.map((v) => v.veId);
 
     const anomaliesForDays = await Promise.all(
       daysInRange.slice(0, -1).map(async (day) => {
         const startOfDay = new Date(day);
         const endOfDay = new Date(day);
         endOfDay.setHours(23, 59, 59, 0);
-
-        const vehicleIds = allVehicles.map((v) => v.veId);
 
         const tagMap = await this.tagService.getLastTagHistoryByVeIdsAndRange(
           vehicleIds,
@@ -912,8 +918,11 @@ export class AnomalyService {
       const vehicleIds = vehicles.map((v) => v.veId);
 
       // Recupero le ultime sessioni per tutti i veicoli in parallelo
-      const sessionsMap =
-        await this.sessionService.getLastSessionByVeIds(vehicleIds);
+      let sessionsMap =
+        await this.sessionService.getLastSessionRedis(vehicleIds);
+      if (!sessionsMap)
+        sessionsMap =
+          await this.sessionService.getLastSessionByVeIds(vehicleIds);
       const brokenVehicles = vehicles.reduce((acc, vehicle) => {
         const lastSession = sessionsMap.get(vehicle.veId) || null;
         if (lastSession) {
@@ -953,6 +962,100 @@ export class AnomalyService {
     }
   }
 
+  private async checkQuality(dateFrom: Date, dateTo: Date) {
+    const validation = validateDateRange(
+      dateFrom.toISOString(),
+      dateTo.toISOString(),
+    );
+    if (!validation.isValid) {
+      return validation.message;
+    }
+
+    const dateFrom_new = new Date(dateFrom);
+    const dateTo_new = new Date(dateTo);
+
+    const daysInRange = getDaysInRange(dateFrom_new, dateTo_new);
+    const allVehicles = await this.vehicleService.getVehiclesByReader();
+    const vehicleIds = allVehicles.map((v) => v.veId);
+    const qualityForDays = await Promise.all(
+      daysInRange.slice(0, -1).map(async (day) => {
+        const startOfDay = new Date(day);
+        const endOfDay = new Date(day);
+        endOfDay.setHours(23, 59, 59, 0);
+
+        const tags = await this.tagService.noAPIgetTagHistoryByVeIdRanged(
+          vehicleIds,
+          startOfDay,
+          endOfDay,
+        );
+        return allVehicles.map((vehicle) => {
+          const detections = tags.get(vehicle.veId) || [];
+          if (detections.length === 0) {
+            return null;
+          }
+          let detection_qualityText: string = null;
+          // controlla se esiste almeno una lettura con valore -70 o maggiore -71 ...
+          const detectionsBad = detections.some((num) => num <= -70);
+          if (detectionsBad) {
+            detection_qualityText = 'Poor: un tag con -70 o superiore';
+          } else {
+            // controlla se il 50% delle letture ha valore ugale a -60 o maggiore -61 ...
+            const detectionsOk = detections.filter((num) => num <= -60).length;
+            const isFiftyPercentBad = detectionsOk >= detections.length / 2;
+            detection_qualityText = isFiftyPercentBad
+              ? 'Good: range -60 -69'
+              : 'Excellent: range 0 -59';
+          }
+          return {
+            plate: vehicle.plate,
+            veId: vehicle.veId,
+            isCan: vehicle.isCan,
+            isRFIDReader: vehicle.allestimento,
+            day,
+            detection_quality: detection_qualityText,
+          };
+        });
+      }),
+    );
+    const vehicleMap = new Map();
+    qualityForDays
+      .flat()
+      .filter((item) => item !== null && item !== undefined) // Filtra valori null o undefined
+      .forEach((item) => {
+        if (!vehicleMap.has(item.veId)) {
+          vehicleMap.set(item.veId, {
+            plate: item.plate,
+            veId: item.veId,
+            isCan: item.isCan,
+            isRFIDReader: item.isRFIDReader,
+            detection_quality: [],
+          });
+        }
+        vehicleMap.get(item.veId).detection_quality.push({
+          date: item.day,
+          anomalies: item.detection_quality, // Manteniamo anche le anomalie vuote
+        });
+      });
+    return Array.from(vehicleMap.values())
+      .map((vehicle) => {
+        // Filtra detection_quality eliminando quelli con anomalies = null
+        const filteredQuality = vehicle.detection_quality.filter(
+          (dq) => dq.anomalies !== null,
+        );
+
+        // Ritorna il veicolo solo se detection_quality non è vuoto
+        if (filteredQuality.length > 0) {
+          return {
+            ...vehicle,
+            detection_quality: filteredQuality, // Sovrascrivi con la lista filtrata
+          };
+        }
+        // Se detection_quality è vuoto, non ritorniamo il veicolo
+        return null;
+      })
+      .filter((vehicle) => vehicle !== null); // Rimuovi i veicoli nulli
+  }
+
   /**
    * Funzione principale che accorpa tutti i controlli, divisa per giorni
    * @param dateFromParam data di inizio
@@ -966,6 +1069,7 @@ export class AnomalyService {
     let gpsErrors: any = []; // Risultati controllo GPS
     let fetchedTagComparisons: any = []; // Risultati comparazione tag
     let comparison: any = []; // Controllo errori lastEvent
+    let quality: any = []; // Controllo errori detection_quality
     const mergedData = [];
 
     // Controlla errore di GPS
@@ -989,6 +1093,15 @@ export class AnomalyService {
       );
     }
 
+    try {
+      quality = await this.checkQuality(dateFrom, dateTo);
+      quality = Array.isArray(quality) ? quality : [];
+    } catch (error) {
+      console.error(
+        'Errore nella media dei detection quality giornalieri:',
+        error,
+      );
+    }
     // Controlla errore inizio e fine sessione (last event)
     try {
       comparison = await this.checkSession();
@@ -1001,6 +1114,7 @@ export class AnomalyService {
       const allPlates = new Set([
         ...gpsErrors.map((item) => item.plate),
         ...fetchedTagComparisons.map((item) => item.plate),
+        ...quality.map((item) => item.plate),
         ...comparison.map((item) => item.plate),
       ]);
 
@@ -1008,6 +1122,7 @@ export class AnomalyService {
         const gpsEntry = gpsErrors.find((item) => item.plate === plate) || {};
         const tagEntry =
           fetchedTagComparisons.find((item) => item.plate === plate) || {};
+        const qualityEntry = quality.find((item) => item.plate === plate) || {};
         const comparisonEntry =
           comparison.find((item) => item.plate === plate) || {};
 
@@ -1035,6 +1150,18 @@ export class AnomalyService {
           }
           allSessions.get(session.date).anomalies.Antenna =
             session.anomalies?.[0];
+        });
+
+        // Aggiungi qualità Antenna
+        (qualityEntry.detection_quality || []).forEach((session) => {
+          if (!allSessions.has(session.date)) {
+            allSessions.set(session.date, {
+              date: session.date,
+              anomalies: {},
+            });
+          }
+          allSessions.get(session.date).anomalies.detection_quality =
+            session.anomalies;
         });
 
         const combinedMap = new Map();
@@ -1065,13 +1192,23 @@ export class AnomalyService {
 
         mergedData.push({
           plate,
-          veId: gpsEntry.veId || tagEntry.veId || comparisonEntry.veId || null,
+          veId:
+            gpsEntry.veId ||
+            tagEntry.veId ||
+            comparisonEntry.veId ||
+            qualityEntry.veId ||
+            null,
           isCan:
-            gpsEntry.isCan || tagEntry.isCan || comparisonEntry.isCan || false,
+            gpsEntry.isCan ||
+            tagEntry.isCan ||
+            comparisonEntry.isCan ||
+            qualityEntry.isCan ||
+            false,
           isRFIDReader:
             gpsEntry.isRFIDReader ||
             tagEntry.isRFIDReader ||
             comparisonEntry.isRFIDReader ||
+            qualityEntry.isRFIDReader ||
             false,
           anomaliaSessione: comparisonEntry.anomalies,
           sessions: unifiedSessions,
@@ -1135,6 +1272,7 @@ export class AnomalyService {
           anomalyDTO.date = anomaly.date;
           anomalyDTO.gps = anomaly.gps;
           anomalyDTO.antenna = anomaly.antenna;
+          anomalyDTO.detection_quality = anomaly.detection_quality;
           anomalyDTO.session = anomaly.session;
 
           // Aggiungi l'anomalia al gruppo del veicolo

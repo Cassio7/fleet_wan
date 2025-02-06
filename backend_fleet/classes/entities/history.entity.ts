@@ -4,7 +4,10 @@ import { Column, Entity, Index, ManyToOne } from 'typeorm';
 import { SessionEntity } from './session.entity';
 import { VehicleEntity } from './vehicle.entity';
 
-@Entity('history')
+@Entity({
+  name: 'history',
+  comment: `Indica una posizione GPS associata ad una sessione`,
+})
 export class HistoryEntity extends CommonEntity implements HistoryInterface {
   @Column({ type: 'timestamptz', nullable: true })
   timestamp: Date;

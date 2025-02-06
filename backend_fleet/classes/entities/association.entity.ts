@@ -5,7 +5,11 @@ import { CompanyEntity } from './company.entity';
 import { UserEntity } from './user.entity';
 import { WorksiteEntity } from './worksite.entity';
 
-@Entity('associations')
+@Entity({
+  name: 'associations',
+  comment:
+    'Salva le associazioni tra gli utenti e i cantieri / società associati',
+})
 export class AssociationEntity
   extends CommonEntity
   implements AssociationInterface

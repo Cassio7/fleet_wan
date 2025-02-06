@@ -25,15 +25,12 @@ export class CommonEntity implements CommonInterface {
     this.key = uuidv4();
   }
 
-  @CreateDateColumn({ type: 'timestamptz'})
-  @Index()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
-  @UpdateDateColumn({ type: 'timestamptz'})
-  @Index()
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 
-  @VersionColumn({ type: 'timestamptz'})
-  @Index()
+  @VersionColumn({ type: 'timestamptz' })
   version: number;
 }

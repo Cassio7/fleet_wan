@@ -4,7 +4,10 @@ import { Column, Entity, OneToMany } from 'typeorm';
 import { GroupEntity } from './group.entity';
 import { AssociationEntity } from './association.entity';
 
-@Entity('companies')
+@Entity({
+  name: 'companies',
+  comment: 'Società',
+})
 export class CompanyEntity extends CommonEntity implements CompanyInterface {
   @Column()
   suId: number;

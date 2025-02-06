@@ -9,16 +9,22 @@ import {
   OneToMany,
   OneToOne,
 } from 'typeorm';
+import { AnomalyEntity } from './anomaly.entity';
 import { DeviceEntity } from './device.entity';
 import { HistoryEntity } from './history.entity';
 import { NoteEntity } from './note.entity';
 import { RealtimePositionEntity } from './realtime_position.entity';
+import { ServiceEntity } from './service.entity';
 import { TagHistoryEntity } from './tag_history.entity';
 import { WorksiteEntity } from './worksite.entity';
-import { CategoryEntity } from './category.entity';
-import { AnomalyEntity } from './anomaly.entity';
+import { WorkzoneEntity } from './workzone.entity';
+import { RentalEntity } from './rental.entity';
+import { EquipmentEntity } from './equipment.entity';
 
-@Entity('vehicles')
+@Entity({
+  name: 'vehicles',
+  comment: `Tabella che rappresenta tutti i veicoli recuperati dal WSDL`,
+})
 export class VehicleEntity extends CommonEntity implements VehicleInterface {
   @Column()
   @Index()
@@ -27,12 +33,24 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
   @Column({ type: 'boolean' })
   active: boolean;
 
+  @Column({ type: 'boolean', nullable: true })
+  active_csv: boolean;
+
   @Column({ type: 'varchar', length: 20 })
   @Index()
   plate: string;
 
   @Column({ type: 'varchar', length: 50 })
   model: string;
+
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  model_csv: string;
+  
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  registration: string;
+
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  euro: string;
 
   @Column({ type: 'timestamptz', nullable: true })
   firstEvent: Date;
@@ -46,6 +64,15 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
   @Column({ type: 'boolean' })
   isCan: boolean;
 
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  fleet_number: string;
+
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  fleet_install: string;
+
+  @Column({ type: 'boolean', nullable: true })
+  electrical: boolean;
+
   @Column({ type: 'boolean' })
   @Index()
   isRFIDReader: boolean;
@@ -54,6 +81,12 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
   @Index()
   allestimento: boolean;
 
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  antenna_setting: string;
+
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  fleet_antenna_number: string;
+
   @Column()
   profileId: number;
 
@@ -61,10 +94,10 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
   profileName: string;
 
   @Column({ type: 'timestamptz', nullable: true })
-  retiredEvent: Date;
+  retired_event: Date;
 
-  @Column({ type: 'varchar', length: 50, nullable: true })
-  relevant_company: string;
+  @Column({ nullable: true })
+  worksite_priority: number;
 
   @OneToOne(() => DeviceEntity)
   @JoinColumn({ name: 'device_id' })
@@ -86,13 +119,24 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
   @OneToMany(() => NoteEntity, (note) => note.vehicle)
   note: NoteEntity[];
 
-  @OneToMany(() => CategoryEntity, (category) => category.vehicle)
-  category: CategoryEntity[];
+  @ManyToOne(() => ServiceEntity, (service) => service.vehicle)
+  service: ServiceEntity | null;
+
+  @ManyToOne(() => RentalEntity, (service) => service.vehicle)
+  rental: RentalEntity | null;
+
+  @ManyToOne(() => EquipmentEntity, (service) => service.vehicle)
+  equipment: EquipmentEntity | null;
 
   @ManyToOne(() => WorksiteEntity, (worksite) => worksite.vehicle, {
     nullable: true,
   })
   worksite: WorksiteEntity | null;
+
+  @ManyToOne(() => WorkzoneEntity, (workzone) => workzone.vehicle, {
+    nullable: true,
+  })
+  workzone: WorkzoneEntity | null;
 
   @OneToMany(() => AnomalyEntity, (anomaly) => anomaly.vehicle)
   anomaly: AnomalyEntity[];

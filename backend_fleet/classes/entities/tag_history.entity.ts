@@ -4,12 +4,16 @@ import { Column, Entity, Index, ManyToOne, OneToMany } from 'typeorm';
 import { DetectionTagEntity } from './detection_tag.entity';
 import { VehicleEntity } from './vehicle.entity';
 
-@Entity('tag_history')
+@Entity({
+  name: 'tag_history',
+  comment: `Indica la posizione (ed altri dati) della lettura di un tag`,
+})
 export class TagHistoryEntity
   extends CommonEntity
   implements TagHistoryInterface
 {
   @Column({ type: 'timestamptz', nullable: true })
+  @Index()
   timestamp: Date;
 
   @Column('double precision')

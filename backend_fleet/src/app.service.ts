@@ -1,24 +1,27 @@
-import { CompanyFactoryService } from './factory/company.factory';
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { VehicleService } from './services/vehicle/vehicle.service';
-import { SessionService } from './services/session/session.service';
 import { Cron } from '@nestjs/schedule';
-import { TagService } from './services/tag/tag.service';
-import { CompanyService } from './services/company/company.service';
+import { CompanyFactoryService } from './factory/company.factory';
+import { GroupFactoryService } from './factory/group.factory';
 import { UserFactoryService } from './factory/user.factory';
 import { WorksiteFactoryService } from './factory/worksite.factory';
-import { GroupFactoryService } from './factory/group.factory';
 import { WorksiteGroupFactoryService } from './factory/worksite_group.factory';
+import { CompanyService } from './services/company/company.service';
 import { RealtimeService } from './services/realtime/realtime.service';
+import { SessionService } from './services/session/session.service';
+import { TagService } from './services/tag/tag.service';
+import { VehicleService } from './services/vehicle/vehicle.service';
 
-import { getDaysInRange } from './utils/utils';
 import { AssociationFactoryService } from './factory/association.factory';
-import { CategoryFactoryService } from './factory/category.factory';
+import { ServiceFactoryService } from './factory/service.factory';
 import { AnomalyService } from './services/anomaly/anomaly.service';
+import { getDaysInRange } from './utils/utils';
 
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import Redis from 'ioredis';
+import { RentalFactoryService } from './factory/rental.factory';
 import { AssociationService } from './services/association/association.service';
+import { EquipmentFacotoryService } from './factory/equipment.factory';
+import { WorkzoneFacotoryService } from './factory/workzone.factory';
 
 @Injectable()
 export class AppService implements OnModuleInit {
@@ -33,7 +36,10 @@ export class AppService implements OnModuleInit {
     private readonly groupFactoryService: GroupFactoryService,
     private readonly worksiteGroupFactoryService: WorksiteGroupFactoryService,
     private readonly associationFactoryService: AssociationFactoryService,
-    private readonly categoryFactoryService: CategoryFactoryService,
+    private readonly serviceFactoryService: ServiceFactoryService,
+    private readonly rentalFactoryService: RentalFactoryService,
+    private readonly equipmentFacotoryService: EquipmentFacotoryService,
+    private readonly workzoneFacotoryService: WorkzoneFacotoryService,
     private readonly anomalyService: AnomalyService,
     private readonly realtimeService: RealtimeService,
     private readonly associationService: AssociationService,
@@ -42,7 +48,7 @@ export class AppService implements OnModuleInit {
 
   // popolo database all'avvio
   async onModuleInit() {
-    const startDate = '2025-01-01T00:00:00.000Z';
+    const startDate = '2025-02-04T00:00:00.000Z';
     //const endDate = '2024-12-10T00:00:00.000Z';
     const endDate = new Date(
       new Date().getTime() + 2 * 60 * 60 * 1000,
@@ -59,7 +65,7 @@ export class AppService implements OnModuleInit {
   }
 
   async putDefaultData() {
-    await this.redis.flushdb();
+    //await this.redis.flushdb();
     await this.userFactoryService.createDefaultRoles();
     await this.userFactoryService.createDefaultUser();
     await this.companyFactoryService.createDefaultCompanies();
@@ -67,7 +73,10 @@ export class AppService implements OnModuleInit {
     await this.worksiteFactoryService.createDefaultWorksite();
     await this.worksiteGroupFactoryService.createDefaultWorksiteGroup();
     await this.associationFactoryService.createDefaultAssociation();
-    await this.categoryFactoryService.createDefaultCategory();
+    await this.serviceFactoryService.createDefaultService();
+    await this.rentalFactoryService.createDefaultRental();
+    await this.equipmentFacotoryService.createDefaultEquipment();
+    await this.workzoneFacotoryService.createDefaultWorkzone();
   }
 
   /**
@@ -78,10 +87,10 @@ export class AppService implements OnModuleInit {
     const endDate = end;
 
     console.log('Data inizio: ' + startDate + ' Data fine: ' + endDate);
-    const batchSize = 100;
+    const batchSize = 20;
 
     await this.vehicleService.getVehicleList(254, 313); //Gesenu principale
-    await this.vehicleService.getVehicleList(254, 683); //Gesenu dismessi
+    //await this.vehicleService.getVehicleList(254, 683); //Gesenu dismessi
     await this.vehicleService.getVehicleList(305, 650); //TSA principale
     await this.vehicleService.getVehicleList(324, 688); //Fiumicino principale
 
@@ -139,6 +148,8 @@ export class AppService implements OnModuleInit {
         console.log(company);
       }
     }
+    const vehicleIds = vehicles.map((v) => v.veId);
+    await this.sessionService.getLastSessionByVeIds(vehicleIds);
   }
 
   //@Cron('*/3 * * * *')
@@ -185,6 +196,10 @@ export class AppService implements OnModuleInit {
         );
       }
     }
+
+    // inserire il calcolo dell ultima sessione valida
+    // const vehicleIds = vehicles.map((v) => v.veId);
+    // await this.sessionService.getLastSessionByVeIds(vehicleIds);
   }
 
   async anomalyCheck(start: string, end: string) {
@@ -226,6 +241,7 @@ export class AppService implements OnModuleInit {
     let date = null;
     let gps = null;
     let antenna = null;
+    let detection_quality = null;
     const session = null;
 
     if (item.sessions && item.sessions[0]) {
@@ -233,12 +249,15 @@ export class AppService implements OnModuleInit {
       if (item.sessions[0].anomalies) {
         gps = item.sessions[0].anomalies.GPS || null;
         antenna = item.sessions[0].anomalies.Antenna || null;
+        detection_quality =
+          item.sessions[0].anomalies.detection_quality || null;
       }
       return this.anomalyService.createAnomaly(
         veId,
         date,
         gps,
         antenna,
+        detection_quality,
         session,
       );
     }
@@ -263,6 +282,7 @@ export class AppService implements OnModuleInit {
           let date = null;
           let gps = null;
           let antenna = null;
+          let detection_quality = null;
           const session = item.anomaliaSessione || null;
 
           if (item.sessions && item.sessions[0]) {
@@ -270,6 +290,8 @@ export class AppService implements OnModuleInit {
             if (item.sessions[0].anomalies) {
               gps = item.sessions[0].anomalies.GPS || null;
               antenna = item.sessions[0].anomalies.Antenna || null;
+              detection_quality =
+                item.sessions[0].anomalies.detection_quality || null;
             }
           }
 
@@ -278,6 +300,7 @@ export class AppService implements OnModuleInit {
             date,
             gps,
             antenna,
+            detection_quality,
             session,
           );
         });

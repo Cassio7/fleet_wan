@@ -12,5 +12,8 @@ export class AnomalyDTO extends CommonDTO {
   antenna: string | null;
   @IsOptional()
   @IsString()
+  detection_quality: string | null;
+  @IsOptional()
+  @IsString()
   session: string | null;
 }

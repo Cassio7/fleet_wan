@@ -4,7 +4,10 @@ import { Column, Entity, Index, ManyToOne, OneToMany } from 'typeorm';
 import { CompanyEntity } from './company.entity';
 import { WorksiteGroupEntity } from './worksite_group.entity';
 
-@Entity('groups')
+@Entity({
+  name: 'groups',
+  comment: `Comuni`,
+})
 export class GroupEntity extends CommonEntity implements GroupInterface {
   @Column()
   @Index()

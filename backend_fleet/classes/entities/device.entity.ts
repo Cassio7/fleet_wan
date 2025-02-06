@@ -2,7 +2,10 @@ import { CommonEntity } from 'classes/common/common.entity';
 import { DeviceInterface } from 'classes/interfaces/device.interface';
 import { Column, Entity, Index } from 'typeorm';
 
-@Entity('devices')
+@Entity({
+  name: 'devices',
+  comment: `Indica il dispositivo associato ad ogni veicolo`,
+})
 export class DeviceEntity extends CommonEntity implements DeviceInterface {
   @Column()
   device_id: number;

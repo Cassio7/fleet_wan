@@ -206,11 +206,20 @@ export class SessionController {
       });
     }
     try {
-      const data = await this.sessionService.getLastSession(
-        req.user.id,
-        body.veId,
-      );
-      if (!data) {
+      // prima controlla se esiste su redis, se ci sta recupera direttamente usando la key
+      const exist = await this.sessionService.getLastSessionRedis([veId]);
+      let last = null;
+      if (exist) {
+        last = await this.sessionService.getSessionByKey(
+          req.user.id,
+          exist.get(veId),
+        );
+      }
+      // se non trova nulla allora fa la ricerca normale
+      else {
+        last = await this.sessionService.getLastSession(req.user.id, veId);
+      }
+      if (!last) {
         this.loggerService.logCrudSuccess(
           context,
           'read',
@@ -221,9 +230,9 @@ export class SessionController {
       this.loggerService.logCrudSuccess(
         context,
         'read',
-        `Ultima sessione recuperata con successo, Id = ${data.id} , VeId = ${veId}, Sequence_id = ${data.sequence_id}`,
+        `Ultima sessione recuperata con successo, Id = ${last.id} , VeId = ${veId}, Sequence_id = ${last.sequence_id}`,
       );
-      return res.status(200).json(data);
+      return res.status(200).json(last);
     } catch (error) {
       this.loggerService.logCrudError({
         error,
@@ -328,8 +337,19 @@ export class SessionController {
         );
         return res.status(200).json({ active: false });
       }
-
-      const last = await this.sessionService.getLastSession(req.user.id, veId);
+      // prima controlla se esiste su redis, se ci sta recupera direttamente usando la key
+      const exist = await this.sessionService.getLastSessionRedis([veId]);
+      let last = null;
+      if (exist) {
+        last = await this.sessionService.getSessionByKey(
+          req.user.id,
+          exist.get(veId),
+        );
+      }
+      // se non trova nulla allora fa la ricerca normale
+      else {
+        last = await this.sessionService.getLastSession(req.user.id, veId);
+      }
       if (!last) {
         this.loggerService.logCrudSuccess(
           context,

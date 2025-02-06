@@ -3,7 +3,10 @@ import { RealtimePositionInterface } from 'classes/interfaces/realtime_position.
 import { Column, Entity, Index, ManyToOne } from 'typeorm';
 import { VehicleEntity } from './vehicle.entity';
 
-@Entity('realtime_positions')
+@Entity({
+  name: 'realtime_positions',
+  comment: `Indica una posizione GPS in tempo reale di un veicolo`,
+})
 export class RealtimePositionEntity
   extends CommonEntity
   implements RealtimePositionInterface

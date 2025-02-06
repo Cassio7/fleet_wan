@@ -1,69 +1,75 @@
+import { RedisModule } from '@nestjs-modules/ioredis';
 import { Global, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
+import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ScheduleModule } from '@nestjs/schedule';
-import { JwtModule } from '@nestjs/jwt';
-import { RedisModule } from '@nestjs-modules/ioredis';
 
 // Importa le entità
-import { VehicleEntity } from 'classes/entities/vehicle.entity';
-import { DeviceEntity } from 'classes/entities/device.entity';
-import { GroupEntity } from 'classes/entities/group.entity';
-import { RealtimePositionEntity } from 'classes/entities/realtime_position.entity';
-import { HistoryEntity } from 'classes/entities/history.entity';
-import { TagEntity } from 'classes/entities/tag.entity';
-import { TagHistoryEntity } from 'classes/entities/tag_history.entity';
-import { DetectionTagEntity } from 'classes/entities/detection_tag.entity';
-import { SessionEntity } from 'classes/entities/session.entity';
-import { UserEntity } from 'classes/entities/user.entity';
-import { RoleEntity } from 'classes/entities/role.entity';
+import { AnomalyEntity } from 'classes/entities/anomaly.entity';
 import { AssociationEntity } from 'classes/entities/association.entity';
 import { CompanyEntity } from 'classes/entities/company.entity';
-import { WorksiteEntity } from 'classes/entities/worksite.entity';
+import { DetectionTagEntity } from 'classes/entities/detection_tag.entity';
+import { DeviceEntity } from 'classes/entities/device.entity';
+import { EquipmentEntity } from 'classes/entities/equipment.entity';
+import { GroupEntity } from 'classes/entities/group.entity';
+import { HistoryEntity } from 'classes/entities/history.entity';
 import { NoteEntity } from 'classes/entities/note.entity';
+import { RealtimePositionEntity } from 'classes/entities/realtime_position.entity';
+import { RentalEntity } from 'classes/entities/rental.entity';
+import { RoleEntity } from 'classes/entities/role.entity';
+import { ServiceEntity } from 'classes/entities/service.entity';
+import { SessionEntity } from 'classes/entities/session.entity';
+import { TagEntity } from 'classes/entities/tag.entity';
+import { TagHistoryEntity } from 'classes/entities/tag_history.entity';
+import { UserEntity } from 'classes/entities/user.entity';
+import { VehicleEntity } from 'classes/entities/vehicle.entity';
+import { WorksiteEntity } from 'classes/entities/worksite.entity';
 import { WorksiteGroupEntity } from 'classes/entities/worksite_group.entity';
-import { CategoryEntity } from 'classes/entities/category.entity';
-import { AnomalyEntity } from 'classes/entities/anomaly.entity';
+import { WorkzoneEntity } from 'classes/entities/workzone.entity';
 
 // importo i servizi
-import { VehicleService } from './services/vehicle/vehicle.service';
+import { LoggerService } from './log/service/logger.service';
+import { AnomalyService } from './services/anomaly/anomaly.service';
+import { AssociationService } from './services/association/association.service';
+import { AuthService } from './services/auth/auth.service';
+import { CompanyService } from './services/company/company.service';
 import { GroupService } from './services/group/group.service';
+import { NotesService } from './services/notes/notes.service';
 import { RealtimeService } from './services/realtime/realtime.service';
+import { RoleService } from './services/role/role.service';
 import { SessionService } from './services/session/session.service';
 import { TagService } from './services/tag/tag.service';
-import { AuthService } from './services/auth/auth.service';
 import { UserService } from './services/user/user.service';
-import { CompanyService } from './services/company/company.service';
+import { VehicleService } from './services/vehicle/vehicle.service';
+import { WorksiteService } from './services/worksite/worksite.service';
 
 // importo i controller
+import { AnomalyController } from './controllers/anomaly/anomaly.controller';
+import { AssociationController } from './controllers/association/association.controller';
+import { AuthController } from './controllers/auth/auth.controller';
+import { CompanyController } from './controllers/company/company.controller';
 import { GroupController } from './controllers/group/group.controller';
-import { VehicleController } from './controllers/vehicle/vehicle.controller';
+import { NotesController } from './controllers/notes/notes.controller';
 import { RealtimeController } from './controllers/realtime/realtime.controller';
 import { SessionController } from './controllers/session/session.controller';
 import { TagController } from './controllers/tag/tag.controller';
-import { CompanyController } from './controllers/company/company.controller';
-import { AuthController } from './controllers/auth/auth.controller';
 import { UserController } from './controllers/user/user.controller';
-import { AnomalyController } from './controllers/anomaly/anomaly.controller';
+import { VehicleController } from './controllers/vehicle/vehicle.controller';
 
 // importo i factory
-import { UserFactoryService } from './factory/user.factory';
-import { CompanyFactoryService } from './factory/company.factory';
-import { WorksiteFactoryService } from './factory/worksite.factory';
-import { GroupFactoryService } from './factory/group.factory';
-import { WorksiteGroupFactoryService } from './factory/worksite_group.factory';
-import { NotesService } from './services/notes/notes.service';
-import { NotesController } from './controllers/notes/notes.controller';
 import { AssociationFactoryService } from './factory/association.factory';
-import { CategoryFactoryService } from './factory/category.factory';
-import { AnomalyService } from './services/anomaly/anomaly.service';
-import { RoleService } from './services/role/role.service';
-import { AssociationService } from './services/association/association.service';
-import { AssociationController } from './controllers/association/association.controller';
-import { WorksiteService } from './services/worksite/worksite.service';
-import { LoggerService } from './log/service/logger.service';
+import { CompanyFactoryService } from './factory/company.factory';
+import { EquipmentFacotoryService } from './factory/equipment.factory';
+import { GroupFactoryService } from './factory/group.factory';
+import { RentalFactoryService } from './factory/rental.factory';
+import { ServiceFactoryService } from './factory/service.factory';
+import { UserFactoryService } from './factory/user.factory';
+import { WorksiteFactoryService } from './factory/worksite.factory';
+import { WorksiteGroupFactoryService } from './factory/worksite_group.factory';
+import { WorkzoneFacotoryService } from './factory/workzone.factory';
 
 @Global()
 @Module({
@@ -100,8 +106,11 @@ import { LoggerService } from './log/service/logger.service';
           WorksiteEntity,
           WorksiteGroupEntity,
           NoteEntity,
-          CategoryEntity,
+          ServiceEntity,
           AnomalyEntity,
+          WorkzoneEntity,
+          RentalEntity,
+          EquipmentEntity,
         ],
         synchronize: true,
         //dropSchema: true, // if true drop db
@@ -125,8 +134,11 @@ import { LoggerService } from './log/service/logger.service';
         WorksiteEntity,
         WorksiteGroupEntity,
         NoteEntity,
-        CategoryEntity,
+        ServiceEntity,
         AnomalyEntity,
+        WorkzoneEntity,
+        RentalEntity,
+        EquipmentEntity,
       ],
       'mainConnection',
     ),
@@ -158,8 +170,11 @@ import { LoggerService } from './log/service/logger.service';
           WorksiteEntity,
           WorksiteGroupEntity,
           NoteEntity,
-          CategoryEntity,
+          ServiceEntity,
           AnomalyEntity,
+          WorkzoneEntity,
+          RentalEntity,
+          EquipmentEntity,
         ],
         synchronize: false,
       }),
@@ -182,8 +197,11 @@ import { LoggerService } from './log/service/logger.service';
         WorksiteEntity,
         WorksiteGroupEntity,
         NoteEntity,
-        CategoryEntity,
+        ServiceEntity,
         AnomalyEntity,
+        WorkzoneEntity,
+        RentalEntity,
+        EquipmentEntity,
       ],
       'readOnlyConnection',
     ),
@@ -234,9 +252,12 @@ import { LoggerService } from './log/service/logger.service';
     WorksiteFactoryService,
     GroupFactoryService,
     WorksiteGroupFactoryService,
+    RentalFactoryService,
     NotesService,
     AssociationFactoryService,
-    CategoryFactoryService,
+    EquipmentFacotoryService,
+    ServiceFactoryService,
+    WorkzoneFacotoryService,
     AnomalyService,
     RoleService,
     AssociationService,

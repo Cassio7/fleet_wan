@@ -3,7 +3,10 @@ import { AnomalyInterface } from 'classes/interfaces/anomaly.interface';
 import { Column, Entity, Index, ManyToOne } from 'typeorm';
 import { VehicleEntity } from './vehicle.entity';
 
-@Entity('anomalies')
+@Entity({
+  name: 'anomalies',
+  comment: 'Salva tutti gli andamenti delle giornate di lavoro di ogni veicolo',
+})
 export class AnomalyEntity extends CommonEntity implements AnomalyInterface {
   @Column({ type: 'timestamptz' })
   @Index()
@@ -14,6 +17,9 @@ export class AnomalyEntity extends CommonEntity implements AnomalyInterface {
 
   @Column({ type: 'varchar', length: 150, nullable: true })
   antenna: string;
+
+  @Column({ type: 'varchar', length: 150, nullable: true })
+  detection_quality: string;
 
   @Column({ type: 'varchar', length: 150, nullable: true })
   session: string;

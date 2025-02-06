@@ -1,4 +1,4 @@
-# Fleet App
+# WasteTrucker
 ## Indice
 1. [Introduzione](#introduzione)
 2. [Cosa Risolve](#cosa-risolve)
@@ -14,7 +14,7 @@
 
 ---
 ## Introduzione
-Fleet App è uno strumento per visualizzare in modo rapido i veicoli aziendali e monitorare e controllare il funzionamento di lettori RFID e antenne.
+WasteTrucker è uno strumento per visualizzare in modo rapido i veicoli aziendali e monitorare e controllare il funzionamento di lettori RFID e antenne.
 
 ---
 ## Cosa Risolve

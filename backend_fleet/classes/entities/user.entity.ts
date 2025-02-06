@@ -13,7 +13,10 @@ import { AssociationEntity } from './association.entity';
 import { NoteEntity } from './note.entity';
 import { RoleEntity } from './role.entity';
 
-@Entity('users')
+@Entity({
+  name: 'users',
+  comment: `Tabella utenti presenti nel sistema`,
+})
 export class UserEntity extends CommonEntity implements UserInterface {
   @Column({ nullable: true })
   name: string;

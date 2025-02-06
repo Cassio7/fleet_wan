@@ -13,6 +13,10 @@ import { DataSource, In, Repository } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
 import { AssociationService } from '../association/association.service';
 import { WorksiteDTO } from './../../../classes/dtos/worksite.dto';
+import { WorkzoneDTO } from 'classes/dtos/workzone.dto';
+import { ServiceDTO } from 'classes/dtos/service.dto';
+import { EquipmentDTO } from 'classes/dtos/equipment.dto';
+import { RentalDTO } from 'classes/dtos/rental.dto';
 
 @Injectable()
 export class VehicleService {
@@ -148,7 +152,7 @@ export class VehicleService {
         return {
           id: item['id'],
           active: item['active'] === 'true',
-          plate: item['plate'],
+          plate: item['plate'].trim(),
           model: item['model'],
           firstEvent:
             typeof item['firstEvent'] === 'object'
@@ -454,6 +458,10 @@ export class VehicleService {
               },
             },
           },
+          workzone: true,
+          service: true,
+          equipment: true,
+          rental: true,
         },
         order: {
           plate: 'ASC',
@@ -591,18 +599,28 @@ export class VehicleService {
     vehicleDTO.id = vehicle.id;
     vehicleDTO.veId = vehicle.veId;
     vehicleDTO.active = vehicle.active;
+    vehicleDTO.active_csv = vehicle.active_csv ?? null;
     vehicleDTO.plate = vehicle.plate;
     vehicleDTO.model = vehicle.model;
+    vehicleDTO.model_csv = vehicle.model_csv ?? null;
+    vehicleDTO.registration = vehicle.registration ?? null;
+    vehicleDTO.euro = vehicle.euro ?? null;
     vehicleDTO.firstEvent = vehicle.firstEvent ?? null;
     vehicleDTO.lastEvent = vehicle.lastEvent ?? null;
     vehicleDTO.lastSessionEvent = vehicle.lastSessionEvent ?? null;
-    vehicleDTO.retiredEvent = vehicle.retiredEvent ?? null;
     vehicleDTO.isCan = vehicle.isCan;
+    vehicleDTO.fleet_number = vehicle.fleet_number ?? null;
+    vehicleDTO.fleet_install = vehicle.fleet_install ?? null;
+    vehicleDTO.electrical = vehicle.electrical ?? null;
     vehicleDTO.isRFIDReader = vehicle.isRFIDReader;
     vehicleDTO.allestimento = vehicle.allestimento ?? null;
-    vehicleDTO.relevant_company = vehicle.relevant_company ?? null;
+    vehicleDTO.antenna_setting = vehicle.antenna_setting ?? null;
+    vehicleDTO.fleet_antenna_number = vehicle.fleet_antenna_number ?? null;
+    vehicleDTO.retired_event = vehicle.retired_event ?? null;
+    vehicleDTO.worksite_priority = vehicle.worksite_priority ?? null;
     vehicleDTO.profileId = vehicle.profileId;
     vehicleDTO.profileName = vehicle.profileName;
+    vehicleDTO;
 
     // Crea DeviceDTO se esiste il device
     let deviceDTO: DeviceDTO | null = null;
@@ -630,11 +648,15 @@ export class VehicleService {
     }
     let groupDTO: GroupDTO | null = null;
     let companyDTO: CompanyDTO | null = null;
+    let workzoneDTO: WorkzoneDTO | null = null;
+    let serviceDTO: ServiceDTO | null = null;
+    let equipmentDTO: EquipmentDTO | null = null;
+    let rentalDTO: RentalDTO | null = null;
 
     if (vehicle.worksite) {
       if (vehicle.worksite.worksite_group) {
         for (const item of vehicle.worksite.worksite_group) {
-          if (item.group.name && !item.group.name.includes('COMUNI')) {
+          if (item.group.name && !item.group.name.includes('Comuni')) {
             groupDTO = new GroupDTO();
             groupDTO.vgId = item.group.vgId;
             groupDTO.name = item.group.name;
@@ -650,13 +672,41 @@ export class VehicleService {
       }
     }
 
+    if (vehicle.workzone) {
+      workzoneDTO = new WorkzoneDTO();
+      workzoneDTO.id = vehicle.workzone.id;
+      workzoneDTO.name = vehicle.workzone.name;
+    }
+
+    if (vehicle.service) {
+      serviceDTO = new ServiceDTO();
+      serviceDTO.id = vehicle.service.id;
+      serviceDTO.name = vehicle.service.name;
+    }
+
+    if (vehicle.equipment) {
+      equipmentDTO = new EquipmentDTO();
+      equipmentDTO.id = vehicle.equipment.id;
+      equipmentDTO.name = vehicle.equipment.name;
+    }
+
+    if (vehicle.rental) {
+      rentalDTO = new RentalDTO();
+      rentalDTO.id = vehicle.rental.id;
+      rentalDTO.name = vehicle.rental.name;
+    }
+
     // Restituisci l'oggetto combinato
     return {
       ...vehicleDTO,
       device: deviceDTO,
       worksite: worksiteDTO,
+      workzone: workzoneDTO,
       group: groupDTO,
       company: companyDTO,
+      service: serviceDTO,
+      equipment: equipmentDTO,
+      rental: rentalDTO,
     };
   }
 }

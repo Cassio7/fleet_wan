@@ -12,10 +12,22 @@ export class VehicleDTO extends CommonDTO {
   veId: number;
   @IsBoolean()
   active: boolean;
+  @IsOptional()
+  @IsBoolean()
+  active_csv: boolean | null;
   @IsString()
   plate: string;
   @IsString()
   model: string;
+  @IsOptional()
+  @IsString()
+  model_csv: string | null;
+  @IsOptional()
+  @IsString()
+  registration: string | null;
+  @IsOptional()
+  @IsString()
+  euro: string | null;
   @IsOptional()
   @IsDate()
   firstEvent?: Date | null;
@@ -25,19 +37,34 @@ export class VehicleDTO extends CommonDTO {
   @IsOptional()
   @IsDate()
   lastSessionEvent?: Date | null;
-  @IsOptional()
-  @IsDate()
-  retiredEvent?: Date | null;
   @IsBoolean()
   isCan: boolean;
+  @IsOptional()
+  @IsString()
+  fleet_number: string | null;
+  @IsOptional()
+  @IsString()
+  fleet_install: string | null;
+  @IsOptional()
+  @IsBoolean()
+  electrical: boolean | null;
   @IsBoolean()
   isRFIDReader: boolean;
   @IsOptional()
   @IsBoolean()
-  allestimento?: boolean | null;
+  allestimento: boolean | null;
   @IsOptional()
   @IsString()
-  relevant_company?: string | null;
+  antenna_setting: string | null;
+  @IsOptional()
+  @IsString()
+  fleet_antenna_number: string | null;
+  @IsOptional()
+  @IsDate()
+  retired_event?: Date | null;
+  @IsOptional()
+  @IsNumber()
+  worksite_priority: number | null;
   @IsNumber()
   profileId: number;
   @IsString()
