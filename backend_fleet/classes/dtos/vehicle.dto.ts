@@ -35,9 +35,6 @@ export class VehicleDTO extends CommonDTO {
   @IsOptional()
   @IsBoolean()
   allestimento?: boolean | null;
-  @IsOptional()
-  @IsString()
-  relevant_company?: string | null;
   @IsNumber()
   profileId: number;
   @IsString()
