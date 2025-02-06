@@ -31,6 +31,7 @@ import { RealtimeData } from '../../../Models/RealtimeData';
 import { RealtimeApiService } from '../../../Common-services/realtime-api/realtime-api.service';
 import { MapService } from '../../../Common-services/map/map.service';
 import { Router } from '@angular/router';
+import { SessioneGraphService } from '../../Services/sessione-graph/sessione-graph.service';
 
 @Component({
   selector: 'app-table',
@@ -71,6 +72,8 @@ export class TableComponent implements OnDestroy, AfterViewInit {
   constructor(
     public checkErrorsService: CheckErrorsService,
     private errorGraphService: ErrorGraphsService,
+    private gpsGraphService: GpsGraphService,
+    private sessioneGraphService: SessioneGraphService,
     private antennaGraphService: AntennaGraphService,
     private cantieriFilterService: CantieriFilterService,
     private sessionApiService: SessionApiService,
@@ -128,7 +131,9 @@ export class TableComponent implements OnDestroy, AfterViewInit {
         this.vehicleTableData.data = filteredVehicles;
         this.vehicleTable.renderRows();
         this.antennaGraphService.loadChartData$.next(filteredVehicles);
-        this.errorGraphService.loadGraphData$.next(filteredVehicles);
+        this.gpsGraphService.loadChartData$.next(filteredVehicles);
+        this.sessioneGraphService.loadChartData$.next(filteredVehicles);
+        // this.errorGraphService.loadGraphData$.next(filteredVehicles);
       }
     });
   }
@@ -179,7 +184,9 @@ export class TableComponent implements OnDestroy, AfterViewInit {
   private async fillTable() {
     console.log("CHIAMATO FILL TABLE!");
     this.antennaGraphService.resetGraph();
-    this.errorGraphService.resetGraphs();
+    this.sessioneGraphService.resetGraph();
+    this.gpsGraphService.resetGraph();
+    // this.errorGraphService.resetGraphs();
     this.vehicleTableData.data = [];
     this.checkErrorsService.checkErrorsAllToday().subscribe({
       next: (responseObj: any) => {
@@ -200,16 +207,18 @@ export class TableComponent implements OnDestroy, AfterViewInit {
         console.error("Errore nel caricamento iniziale dei dati: ", err);
       }
     });
-    this.getLastRealtime();
+    this.addLastRealtime();
   }
 
   /**
-   * Recupera i dati del realtime dalla chiamata API e unisce i risultati con i veicoli della tabella
+   * Recupera i dati dell'ultima posizione di ogni veicolo effettuando una chiamata tramite un servizio,
+   * poi unisce le posizioni ottenute con i veicoli nella tabella
    */
-  private getLastRealtime() {
+  private addLastRealtime() {
     this.realtimeApiService.getLastRealtime().pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (realtimeDataObj: RealtimeData[]) => {
+          console.log("realtime data fetched from dashboard: ", realtimeDataObj);
           const tableVehicles: VehicleData[] = this.realtimeApiService.mergeVehiclesWithRealtime(this.vehicleTableData.data, realtimeDataObj) as VehicleData[];
           this.vehicleTableData.data = tableVehicles;
           this.sessionStorageService.setItem("allData", JSON.stringify(tableVehicles));
@@ -223,7 +232,6 @@ export class TableComponent implements OnDestroy, AfterViewInit {
    * Ottiene i dati dell'ultimo andamento di ciscun veicolo
    */
   getAllLastSessionAnomalies() {
-    console.log("CHIAMATO GET ALL LAST SESSION!");
     this.antennaGraphService.resetGraph();
     this.errorGraphService.resetGraphs();
 
@@ -239,6 +247,7 @@ export class TableComponent implements OnDestroy, AfterViewInit {
               this.vehicleTableData.data = [...vehiclesData];
               this.sessionStorageService.setItem("allData", JSON.stringify(vehiclesData));
               this.vehicleTable.renderRows();
+              this.addLastRealtime();
               this.loadGraphs(vehiclesData);
             }
           } catch (error) {
@@ -299,7 +308,6 @@ export class TableComponent implements OnDestroy, AfterViewInit {
    * @param vehicleData veicolo di cui mostrare l'ultima posizione registrata
    */
   showMap(vehicleData: VehicleData) {
-    console.log("chiamata ShowMap()");
     const realtimeData: RealtimeData = {
       vehicle: {
         plate: vehicleData.vehicle.plate,
@@ -325,8 +333,10 @@ export class TableComponent implements OnDestroy, AfterViewInit {
    * @param newVehicles veicoli con cui caricare i grafici
    */
   loadGraphs(newVehicles: VehicleData[]) {
-    this.errorGraphService.loadGraphData$.next(newVehicles);
+    // this.errorGraphService.loadGraphData$.next(newVehicles);
+    this.gpsGraphService.loadChartData$.next(newVehicles);
     this.antennaGraphService.loadChartData$.next(newVehicles);
+    this.sessioneGraphService.loadChartData$.next(newVehicles);
   }
 
   /**

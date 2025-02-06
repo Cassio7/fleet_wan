@@ -12,9 +12,6 @@ export class SessioneGraphService {
 
   private _colors = ["#5C9074", "#D02626"];
 
-  private _height = 140;
-  private _width = 300;
-
   private readonly _loadChartData$: BehaviorSubject<VehicleData[]> = new BehaviorSubject<VehicleData[]>([]);
 
   constructor() { }
@@ -44,18 +41,6 @@ export class SessioneGraphService {
   }
   public set series(value) {
     this._series = value;
-  }
-  public get height() {
-    return this._height;
-  }
-  public set height(value) {
-    this._height = value;
-  }
-  public get width() {
-    return this._width;
-  }
-  public set width(value) {
-    this._width = value;
   }
   public get loadChartData$(): BehaviorSubject<VehicleData[]> {
     return this._loadChartData$;

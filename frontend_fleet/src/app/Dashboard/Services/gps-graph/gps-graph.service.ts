@@ -48,7 +48,14 @@ export class GpsGraphService {
     ];
 
     return [workingVehicles, warningVehicles, errorVehicles];
-}
+  }
+
+  /**
+   * Azzera i valori del grafico degli errori
+   */
+  resetGraph(){
+    this.loadChartData$.next([]);
+  }
 
 
   /*getters & setters*/
