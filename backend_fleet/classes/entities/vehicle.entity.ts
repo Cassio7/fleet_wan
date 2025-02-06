@@ -9,17 +9,22 @@ import {
   OneToMany,
   OneToOne,
 } from 'typeorm';
+import { AnomalyEntity } from './anomaly.entity';
 import { DeviceEntity } from './device.entity';
 import { HistoryEntity } from './history.entity';
 import { NoteEntity } from './note.entity';
 import { RealtimePositionEntity } from './realtime_position.entity';
+import { ServiceEntity } from './service.entity';
 import { TagHistoryEntity } from './tag_history.entity';
 import { WorksiteEntity } from './worksite.entity';
-import { CategoryEntity } from './category.entity';
-import { AnomalyEntity } from './anomaly.entity';
 import { WorkzoneEntity } from './workzone.entity';
+import { RentalEntity } from './rental.entity';
+import { EquipmentEntity } from './equipment.entity';
 
-@Entity('vehicles')
+@Entity({
+  name: 'vehicles',
+  comment: `Tabella che rappresenta tutti i veicoli recuperati dal WSDL`,
+})
 export class VehicleEntity extends CommonEntity implements VehicleInterface {
   @Column()
   @Index()
@@ -64,9 +69,6 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
   @Column({ type: 'timestamptz', nullable: true })
   retiredEvent: Date;
 
-  @Column({ type: 'varchar', length: 50, nullable: true })
-  relevant_company: string;
-
   @OneToOne(() => DeviceEntity)
   @JoinColumn({ name: 'device_id' })
   @Index()
@@ -87,8 +89,14 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
   @OneToMany(() => NoteEntity, (note) => note.vehicle)
   note: NoteEntity[];
 
-  @OneToMany(() => CategoryEntity, (category) => category.vehicle)
-  category: CategoryEntity[];
+  @ManyToOne(() => ServiceEntity, (service) => service.vehicle)
+  service: ServiceEntity | null;
+
+  @ManyToOne(() => RentalEntity, (service) => service.vehicle)
+  rental: RentalEntity | null;
+
+  @ManyToOne(() => EquipmentEntity, (service) => service.vehicle)
+  equipment: EquipmentEntity | null;
 
   @ManyToOne(() => WorksiteEntity, (worksite) => worksite.vehicle, {
     nullable: true,
