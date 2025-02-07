@@ -29,7 +29,7 @@ export type ChartOptions = {
 })
 export class DetectionGraphComponent implements AfterViewInit{
   private readonly destroy$: Subject<void> = new Subject<void>();
-  @Input() vehicle!: Vehicle;
+  @Input() veId!: number;
   public chartOptions: Partial<ChartOptions>;
 
   constructor(private detectionGraphService: DetectionGraphService){
@@ -73,7 +73,7 @@ export class DetectionGraphComponent implements AfterViewInit{
     };
   }
   ngAfterViewInit(): void {
-    this.detectionGraphService.getDetectionQualityByVeId(this.vehicle.veId).pipe(takeUntil(this.destroy$))
+    this.detectionGraphService.getDetectionQualityByVeId(this.veId).pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (detectionQualities: DetectionQuality[]) => {
           console.log("detectionQualities fetched: ", detectionQualities);

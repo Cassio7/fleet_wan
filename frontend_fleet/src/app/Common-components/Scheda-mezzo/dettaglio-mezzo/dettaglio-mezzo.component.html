@@ -88,7 +88,7 @@
           </mat-card>
           <mat-card class="graph-card">
             <mat-card-content>
-              <app-detection-graph [vehicle]="vehicle" *ngIf="vehicle.allestimento"></app-detection-graph>
+              <app-detection-graph [veId]="vehicle.veId" *ngIf="vehicle.allestimento"></app-detection-graph>
               <div class="disabled-graph" *ngIf="!vehicle.allestimento">
                 <p>Il grafico per la qualità delle letture non disponibile, perché il veicolo non è dotato di antenna RFID</p>
               </div>

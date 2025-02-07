@@ -30,7 +30,9 @@ export class DetectionGraphService {
     });
 
     const body = {
-      veId: veId
+      veId: veId,
+      months: 3, //di default prende 3 mesi di dati
+      days: 0
     };
     return this.http.post<DetectionQuality[]>(`${this.commonService.url}/tags/detection`, body, {headers});
   }
