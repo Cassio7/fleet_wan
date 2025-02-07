@@ -169,10 +169,3 @@ td.mat-cell {
   align-items: center;
   margin-bottom: 2vh;
 }
-
-.tipologia-container{
-  height: 100%;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}

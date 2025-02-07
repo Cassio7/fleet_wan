@@ -21,7 +21,7 @@ tr.selected-row td{
 }
 
 .map-btn mat-icon{
-  color: var(--green);
+  color: var(--sidebar-color);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -30,17 +30,22 @@ tr.selected-row td{
   transform: scale(1.5) !important;
 }
 
-
-
 .table {
-  max-height: 500px;
+  width: 100%;
   overflow-y: auto;
   padding-right: 20px;
   padding-left: 10px;
+  display: block;
 }
 
-.table{
+
+.table {
+  width: 100%;
+  max-height: 70vh;
   overflow-y: auto;
+  padding-right: 20px;
+  padding-left: 10px;
+  display: block;
 }
 
 .table::-webkit-scrollbar {

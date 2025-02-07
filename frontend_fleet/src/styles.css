@@ -28,8 +28,8 @@ body { margin: 0; font-family: "Inter", sans-serif; }
   --navbarANDstats-background: #F1F0E6;
 }
 
-/* Stile della targa */
-.plate-container {
+/*Stile per contenitore icona mezzo e il suo label*/
+.icon-container {
   display: inline-flex;
   align-items: center;
   background-color: #EFEEE4;
@@ -69,8 +69,9 @@ body { margin: 0; font-family: "Inter", sans-serif; }
 }
 
 th{
-  color: var(--gr);
+  color: var(--green);
 }
-tr:nth-child(even) {
+table:not(.mat-calendar-table) tr:nth-child(even) {
   background-color: #F7F7F6;
 }
+

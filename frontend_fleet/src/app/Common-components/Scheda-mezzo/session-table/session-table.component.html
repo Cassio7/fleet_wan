@@ -156,7 +156,7 @@
 
 
   <!-- Header row -->
-  <tr mat-header-row *matHeaderRowDef="daysColumnsToDisplayWithExpand"></tr>
+  <tr mat-header-row *matHeaderRowDef="daysColumnsToDisplayWithExpand, sticky: true"></tr>
 
   <!-- Data rows -->
   <tr mat-row *matRowDef="let anomaly; columns: daysColumnsToDisplayWithExpand;"

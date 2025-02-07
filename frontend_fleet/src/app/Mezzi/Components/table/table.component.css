@@ -104,14 +104,12 @@ td {
   max-height: 50px;
 }
 
-/* Apply fixed table layout and allow horizontal scrolling */
 table {
   table-layout: fixed;
   width: 100%;
-  overflow-x: auto; /* Allow horizontal scrolling */
+  overflow-x: auto;
 }
 
-/* Column width adjustments */
 th, td {
   max-width: 150px;
 }

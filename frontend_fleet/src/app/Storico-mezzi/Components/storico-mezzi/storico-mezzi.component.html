@@ -19,7 +19,6 @@
     <div class="table-content">
       <div class="table-row">
         <div class="info">
-          <!-- Conditional Rendering for Selected Vehicle -->
           @if(selectedVehicle){
             <div class="targa">
               <span class="small-title">Targa</span>
@@ -37,9 +36,13 @@
             Nessun veicolo selezionato
           }
         </div>
-        <app-session-filters></app-session-filters>
+        <div class="session-filter">
+          <app-session-filters></app-session-filters>
+        </div>
       </div>
-      <app-session-hystories [vehicle]="selectedVehicle"></app-session-hystories>
+      <div class="sessionTable-container">
+        <app-session-hystories [vehicle]="selectedVehicle"></app-session-hystories>
+      </div>
     </div>
   </div>
 
