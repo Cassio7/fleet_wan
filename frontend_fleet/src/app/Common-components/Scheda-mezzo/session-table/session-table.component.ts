@@ -45,7 +45,7 @@ export class SessionTableComponent implements OnChanges, AfterViewInit {
   anomaliesTableData = new MatTableDataSource<Anomaly>();
 
   daysColumnsToDisplay = ['Data', 'Stato GPS', 'Stato Antenna', 'Sessione'];
-  daysColumnsToDisplayWithExpand = [...this.daysColumnsToDisplay, 'expand'];
+  daysColumnsToDisplayWithExpand = ['expand', ...this.daysColumnsToDisplay];
   expandedDay: any;
 
   sessionColumnsToDisplay = ['Id', 'Sequence ID', 'Inizio', 'Fine', 'Distanza'];

@@ -3,11 +3,13 @@
 html, body {
   height: 100%;
   overflow: hidden;
+  background-color: var(--background-color);
 }
 
 body {
   margin: 0;
   font-family: 'Inter' !important;
+  background-color: var(--background-color);
 }
 
 html, body, h1, h2, h3, h4, h5, h6, th, td, mat-card-title{
@@ -37,10 +39,10 @@ body { margin: 0; font-family: "Inter", sans-serif; }
   white-space: nowrap;
 }
 
-
 .table tr:hover {
   background-color: var(--background-color);
 }
+
 
 .section-header{
   width: 100%;
@@ -68,4 +70,7 @@ body { margin: 0; font-family: "Inter", sans-serif; }
 
 th{
   color: var(--gr);
+}
+tr:nth-child(even) {
+  background-color: #F7F7F6;
 }

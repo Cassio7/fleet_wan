@@ -12,7 +12,7 @@ import { MezziFiltersComponent } from "../mezzi-filters/mezzi-filters/mezzi-filt
     MezziFiltersComponent
 ],
   templateUrl: './home-mezzi.component.html',
-  styleUrls: ['./home-mezzi.component.css']
+  styleUrls: ['./home-mezzi.component.css'],
 })
 export class HomeMezziComponent {
 

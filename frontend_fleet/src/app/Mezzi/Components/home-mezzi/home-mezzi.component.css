@@ -1,22 +1,13 @@
-html, body {
-  height: 100%;
-  margin: 0;
-}
-
-.content {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+.content{
+  height: 100vh;
+  padding: 20px;
   background-color: var(--background-color);
 }
-
-.filters-container{
-  width: 100%;
+.header{
+  display: flex;
+  flex-direction: column;
+  gap: 3vh;
 }
-
 .table-container{
-  max-height: 80%;
+  height: 72vh;
 }
-

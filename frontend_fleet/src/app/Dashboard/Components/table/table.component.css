@@ -170,9 +170,6 @@ td.mat-cell {
   margin-bottom: 2vh;
 }
 
-tr:nth-child(even) {
-  background-color: #F7F7F6;
-}
 .tipologia-container{
   height: 100%;
   display: flex;

@@ -12,7 +12,7 @@
 
   <!-- Colonna Stato GPS -->
   <ng-container matColumnDef="Stato GPS">
-    <th mat-header-cell *matHeaderCellDef> Stato GPS </th>
+    <th mat-header-cell *matHeaderCellDef> GPS </th>
     <td mat-cell *matCellDef="let anomaly">
       <div class="OK-container" matTooltip="GPS funzionante" *ngIf="!checkErrorsService.checkGpsError(anomaly.gps) && !checkErrorsService.checkGpsWarning(anomaly.gps)">
         <mat-icon class="gpsIcon-OK">location_on</mat-icon>
@@ -31,7 +31,7 @@
 
   <!-- Colonna Stato Antenna -->
   <ng-container matColumnDef="Stato Antenna">
-    <th mat-header-cell *matHeaderCellDef> Stato Antenna </th>
+    <th mat-header-cell *matHeaderCellDef> Antenna </th>
     <td mat-cell *matCellDef="let anomaly">
       <!-- OK Container -->
       <div
@@ -50,7 +50,6 @@
         matTooltip="Non ha un'antenna RFID"
       >
         <mat-icon class="noAntennA-icon">wifi_off</mat-icon>
-        No Antenna
       </div>
 
       <!-- Error Container -->
@@ -76,7 +75,6 @@
         <div class="OK-container" matTooltip="Sessione corretta">
           OK
         </div>
-        {{ checkErrorsService.getAnomalyDate(anomaly) ? (checkErrorsService.getAnomalyDate(anomaly) | date: 'dd/MM/yy') : '' }}
       </span>
       <!-- se c'è errore  -->
       <ng-template #sessionError>
@@ -85,7 +83,6 @@
             Error
           </div>
           <span class="session-date" [matTooltip]="anomaly.session">
-            {{ checkErrorsService.getAnomalyDate(anomaly) ? (checkErrorsService.getAnomalyDate(anomaly) | date: 'dd/MM/yyyy') : '' }}
           </span>
         </div>
       </ng-template>
@@ -133,13 +130,13 @@
         <!-- Colonna Inizio -->
         <ng-container matColumnDef="Inizio">
           <th mat-header-cell *matHeaderCellDef> Inizio </th>
-          <td mat-cell *matCellDef="let session"> {{session.period_from | date: "dd/MM/yyyy"}} </td>
+          <td mat-cell *matCellDef="let session"> {{session.period_from | date: "HH:mm"}} </td>
         </ng-container>
 
         <!-- Colonna Fine -->
         <ng-container matColumnDef="Fine">
           <th mat-header-cell *matHeaderCellDef> Fine </th>
-          <td mat-cell *matCellDef="let session"> {{session.period_to | date: "dd/MM/yyyy"}} </td>
+          <td mat-cell *matCellDef="let session"> {{session.period_to | date: "HH:mm"}} </td>
         </ng-container>
 
         <!-- Colonna Distanza -->
