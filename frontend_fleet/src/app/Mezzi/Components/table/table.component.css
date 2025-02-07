@@ -1,4 +1,5 @@
-.loading-p{
+/* General Styles */
+.loading-p {
   font-style: italic;
   color: gray;
 }
@@ -10,8 +11,8 @@
 
 tr, td, th {
   text-align: center;
-  width: 100px;
   word-wrap: break-word;
+  max-width: 150px; /* Adjust column width */
 }
 
 .table-container {
@@ -20,7 +21,7 @@ tr, td, th {
   margin: 0;
   width: 100%;
   overflow-y: auto;
-  overflow-x: hidden;
+  overflow-x: auto; /* Enable horizontal scrolling */
   box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
   max-width: 100%;
 }
@@ -50,31 +51,30 @@ td {
   display: flex;
 }
 
-.comment-section-content{
+.comment-section-content {
   padding: 50px;
 }
 
-.notes-header{
+.notes-header {
   display: flex;
   align-items: center;
 }
 
-.notes-header mat-icon{
-  color: var(--sidebar-color);
+.notes-header mat-icon {
+  color: var(--green);
 }
 
-.notes-header .note-icon{
-  color: var(--sidebar-color);
+.notes-header .note-icon {
+  color: var(--green);
 }
 
-.expand-btn{
-  color: var(--sidebar-color);
+.expand-btn {
+  color: var(--green);
 }
 
-.comment-icon{
-  color: var(--sidebar-color);
+.comment-icon {
+  color: var(--green);
 }
-
 
 .filter-menu-btn {
   font-size: 16px;
@@ -83,7 +83,7 @@ td {
   color: black;
 }
 
-.content{
+.content {
   height: 100%;
   width: 100%;
   flex-direction: column;
@@ -93,7 +93,7 @@ td {
   gap: 2vh;
 }
 
-.table-over{
+.table-over {
   width: 100%;
   display: flex;
   justify-content: flex-end;
@@ -101,8 +101,27 @@ td {
   float: right;
 }
 
-.filter-menu-container{
+.filter-menu-container {
   max-height: 50px;
 }
 
+/* Apply fixed table layout and allow horizontal scrolling */
+table {
+  table-layout: fixed;
+  width: 100%;
+  overflow-x: auto; /* Allow horizontal scrolling */
+}
+
+/* Column width adjustments */
+th, td {
+  max-width: 150px;
+}
+
+.tipologia-container {
+  display: inline-flex;
+  gap: 5px;
+}
+tr:hover {
+  background-color: var(--background-color);
+}
 

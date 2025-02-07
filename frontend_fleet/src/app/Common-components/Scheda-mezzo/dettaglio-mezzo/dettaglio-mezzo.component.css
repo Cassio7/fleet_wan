@@ -1,6 +1,6 @@
 .all-page{
   width: 100%;
-  height: 100%;
+  height: 100vh;
   display: flex;
   overflow: hidden;
 }
@@ -22,7 +22,7 @@
 }
 .content{
   width: 100%;
-  height: 100%;
+  height: 100vh;
   display: flex;
 }
 .go-back{
@@ -89,7 +89,7 @@
 .working{
   width: 100px;
   height: 100px;
-  background-color: var(--sidebar-color);
+  background-color: var(--green);
 }
 .warning{
   width: 100px;
@@ -117,7 +117,7 @@
   align-items: center;
 }
 .notes-header mat-icon{
-  color: var(--sidebar-color);
+  color: var(--green);
 }
 .note-author{
   display: flex;
@@ -186,9 +186,17 @@ mat-list-item{
 }
 
 .list-label{
-  color: var(--sidebar-color);
+  color: var(--green);
 }
 mat-divider {
+  margin-top: 10px;
   border-top-width: 2px;
   border-top-color: var(--background-color);
+}
+.plate{
+  background-color: #EFEEE4;
+  padding-left: 3px;
+  padding-right: 3px;
+  border-radius: 5px;
+  box-sizing: border-box;
 }

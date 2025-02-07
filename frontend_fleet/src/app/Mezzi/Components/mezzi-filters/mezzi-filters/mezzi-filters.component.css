@@ -1,11 +1,12 @@
 .content{
   width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   gap: 2vw;
 }
 .reset-btn{
-  background-color: var(--sidebar-color);
+  background-color: var(--green);
   border-radius: 5px;
   color: white;
 }

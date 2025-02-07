@@ -16,19 +16,19 @@
             <mat-divider></mat-divider>
             <mat-card-content class="general-lists">
               <mat-list>
-                <mat-list-item><span class="list-label">Targa</span><p>{{vehicle.plate}}</p></mat-list-item>
+                <mat-list-item><span class="list-label">Targa</span><p class="plate">{{vehicle.plate}}</p></mat-list-item>
                 <mat-divider></mat-divider>
                 <mat-list-item><span class="list-label">Modello</span><p>{{vehicle.model}}</p></mat-list-item>
               </mat-list>
               <mat-list>
                 <mat-list-item><span class="list-label">Cantiere</span><p>{{vehicle.worksite?.name}}</p></mat-list-item>
                 <mat-divider></mat-divider>
-                <mat-list-item><span class="list-label">Comune</span><p>{{vehicle.group.name}}</p></mat-list-item>
+                <mat-list-item><span class="list-label">Comune</span><p>{{vehicle.group ? vehicle.group.name : "Nessun dato"}}</p></mat-list-item>
               </mat-list>
               <mat-list>
                 <mat-list-item><span class="list-label">Azienda</span><p>{{vehicle.relevant_company ? vehicle.relevant_company : "No azienda"}}</p></mat-list-item>
                 <mat-divider></mat-divider>
-                <mat-list-item><span class="list-label">Società</span><p>{{vehicle.company.name}}</p></mat-list-item>
+                <mat-list-item><span class="list-label">Società</span><p>{{vehicle.company ? vehicle.company.name : "Nessun dato"}}</p></mat-list-item>
               </mat-list>
             </mat-card-content>
           </mat-card>

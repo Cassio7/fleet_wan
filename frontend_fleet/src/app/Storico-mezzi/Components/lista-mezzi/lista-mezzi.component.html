@@ -2,7 +2,7 @@
   <div class="filters-container">
     <app-lista-filters></app-lista-filters>
   </div>
-  <table mat-table #vehiclesList [dataSource]="vehiclesListData" class="mat-elevation-z8 vehiclesTable">
+  <table mat-table #vehiclesList [dataSource]="vehiclesListData" class="mat-elevation-z8 table">
 
     <ng-container matColumnDef="icon">
       <th mat-header-cell *matHeaderCellDef></th>
@@ -11,7 +11,7 @@
 
     <ng-container matColumnDef="Targa">
       <th mat-header-cell *matHeaderCellDef> Targa </th>
-      <td mat-cell *matCellDef="let vehicle"> {{vehicle.plate}} </td>
+      <td mat-cell *matCellDef="let vehicle"> <span class="plate-container">{{vehicle.plate}}</span> </td>
     </ng-container>
 
     <ng-container matColumnDef="Cantiere">

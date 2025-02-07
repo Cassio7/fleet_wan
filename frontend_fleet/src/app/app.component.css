@@ -9,7 +9,7 @@
 .fixed-drawer-content {
   width: 100%;
   height: 100vh;
-  background-color: var(--sidebar-color);
+  background-color: var(--green);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -45,7 +45,7 @@
 
 .fixed-main-actions mat-icon,
 .log-out mat-icon {
-  transform: scale(1.2);
+  transform: scale(1.1);
   color: white;
 }
 
@@ -100,7 +100,7 @@
 .sidebar {
   padding: clamp(10px, 2vw, 20px);
   width: auto;
-  background-color: var(--sidebar-color);
+  background-color: var(--green);
   border-radius: 0px;
 }
 
@@ -118,9 +118,7 @@
 .drawer-content button {
   color: white;
   width: auto;
-  display: flex;
-  align-items: center;
-  justify-content:center;
+  display: inline-flex;
   padding: 10px 20px;
   box-sizing: border-box;
 }

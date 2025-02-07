@@ -33,10 +33,6 @@ tr.mat-header-row, tr.mat-row {
   align-items: center;
 }
 
-tr:hover {
-  background-color: var(--background-color);
-}
-
 
 td.mat-cell {
   display: flex;
@@ -45,11 +41,6 @@ td.mat-cell {
   padding: 0;
   height: 100%;
   box-sizing: border-box;
-}
-
-.plate-container{
-  padding: 2%;
-  background-color: #EFEEE4;
 }
 
 /*Stile icone*/
@@ -65,7 +56,7 @@ td.mat-cell {
   justify-content: center;
   gap: 2px;
   color: white;
-  background-color: var(--sidebar-color);
+  background-color: var(--green);
   padding: 2%;
   cursor: pointer;
   border-radius: 5px;
@@ -161,7 +152,7 @@ td.mat-cell {
 
 .map-icon {
   font-size: 32px;
-  color: var(--sidebar-color);
+  color: var(--green);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -181,4 +172,10 @@ td.mat-cell {
 
 tr:nth-child(even) {
   background-color: #F7F7F6;
+}
+.tipologia-container{
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }

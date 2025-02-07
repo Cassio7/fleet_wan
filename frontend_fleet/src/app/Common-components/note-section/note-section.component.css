@@ -6,7 +6,7 @@
 }
 
 .note-input{
-  border-color: var(--sidebar-color);
+  border-color: var(--green);
   border-radius: 5px;
   height: 100px;
   width: 300px;
@@ -19,14 +19,16 @@
 }
 
 .create-btn, .update-btn{
-  border: 1px solid var(--sidebar-color);
-  background-color: var(--sidebar-color);
+  border: 1px solid var(--green);
+  background-color: var(--green);
+  border-radius: 5px;
   color: white;
 }
 
 .delete-btn{
-  border: 1px solid var(--sidebar-color);
+  border: 1px solid var(--green);
   background-color: white;
+  border-radius: 5px;
   color: black;
 }
 

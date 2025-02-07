@@ -4,7 +4,7 @@ html, body {
 }
 
 .content {
-  min-height: 80vh;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -12,43 +12,11 @@ html, body {
   background-color: var(--background-color);
 }
 
-.header{
-  height: 100%;
+.filters-container{
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  padding-left: 80px;
-  padding-top: 50px;
 }
 
-.title{
-  font-size: 40px;
-  font-weight: bold;
-  line-height: 1;
-  margin: 0;
+.table-container{
+  max-height: 80%;
 }
 
-.subtitle{
-  font-size: 20px;
-  color: gray;
-  font-style: italic;
-  line-height: 1;
-  margin: 0;
-  margin-bottom: 20px;
-}
-app-mezzi-filters{
-  width: 98%;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  float: left;
-  margin: 0;
-  padding: 0;
-}
-app-table{
-  width: 98%;
-  margin: 0;
-  padding: 0;
-}

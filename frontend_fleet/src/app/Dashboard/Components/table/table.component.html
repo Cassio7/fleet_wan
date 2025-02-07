@@ -3,17 +3,17 @@
   <mat-progress-bar mode="determinate" [value]="loadingProgress" class="loading-bar"></mat-progress-bar>
 </div>
 <div class="table-container">
-  <table #vehicleTable mat-table [dataSource]="vehicleTableData" matSort (matSortChange)="onSortChange($event)">
+  <table #vehicleTable mat-table [dataSource]="vehicleTableData" matSort (matSortChange)="onSortChange($event)" class="table">
     <!-- Tipologia column -->
     <ng-container matColumnDef="tipologia">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> Tipologia </th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Tipologia</th>
       <td mat-cell *matCellDef="let vehicleData">
-        <div class="plate-icon">
+        <span class="tipologia-container">
           <mat-icon style="cursor: pointer;" matTooltip="Click per maggiori dettagli sul veicolo" (click)="displayVehicleDetail(vehicleData.vehicle.veId)">
             local_shipping
           </mat-icon>
-          <span style="margin-left: 8px;">{{vehicleData.service ? vehicleData.service.name : "Nessun dato"}}</span>
-        </div>
+          {{vehicleData.service ? vehicleData.service.name : "Nessun dato"}}
+        </span>
       </td>
     </ng-container>
 

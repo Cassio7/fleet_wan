@@ -13,7 +13,14 @@
         <p class="role">{{role}}</p>
       }
     </div>
-    <button mat-button [matMenuTriggerFor]="menu" class="account-circle-btn"><div mat-card-avatar class="account-circle"></div></button>
+    <div mat-card-avatar class="account-circle">
+      @if(name == "admin"){
+        <span class="admin-name">A</span>
+      }@else {
+        <span class="name">{{name[0]}}</span>
+        <span class="surname">{{surname[0]}}</span>
+      }
+    </div>
     <mat-menu #menu="matMenu">
       <button mat-menu-item (click)="logout()">Esci</button>
     </mat-menu>

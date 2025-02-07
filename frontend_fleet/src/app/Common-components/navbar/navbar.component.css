@@ -15,20 +15,24 @@
 .left-side {
   height: 100%;
   display: flex;
+  justify-content: center;
   align-items: center;
-  justify-content: flex-end;
-  margin-top: 2vh;
-  gap: 10px;
+  justify-content: flex-start;
 }
 
 .page-p {
   display: flex;
   align-items: center;
+  font-size: 12px;
+}
+
+.page-p mat-icon{
+  transform: scale(0.5);
 }
 
 .logo {
-  height: 50px;
-  width: 50px;
+  height: 40px;
+  width: 40px;
   border-radius: 50%;
   background-size: cover;
   cursor: pointer;
@@ -41,15 +45,20 @@
 }
 
 .account-circle {
-  height: 50px;
-  width: 50px;
-  background-image: url("/assets/account_circle.png");
+  height: 35px;
+  width: 35px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--green);
+  border-radius: 40px;
   background-size: cover;
+  font-size: 14px;
+  color: white;
 }
 
-.account-circle-btn {
-  height: 50px;
-  width: 50px;
+.account-circle .admin-name{
+  font-size: 18px;
 }
 
 .profile-info {
@@ -58,15 +67,15 @@
   text-align: center;
 }
 
-.username {
-  font-size: 20px;
+.profile-info .username {
+  font-size: 14px;
   margin: 0;
   line-height: 1;
   padding: 0;
 }
 
-.role {
-  font-size: 15px;
+.profile-info .role {
+  font-size: 12px;
   margin: 0;
   line-height: 1;
   padding: 0;
@@ -79,14 +88,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 50px;
+  height: 40px;
 }
 
 .menu-btn mat-icon {
   width: 70px;
-  height: 50px;
-  line-height: 50px;
-  font-size: 50px;
+  height: 40px;
+  line-height: 40px;
+  font-size: 40px;
 }
 
 .notifications-btn {
@@ -98,7 +107,7 @@
 }
 
 .notifications-btn mat-icon {
-  font-size: 30px;
+  font-size: 40px;
   line-height: 1;
   width: 40px;
   height: 40px;

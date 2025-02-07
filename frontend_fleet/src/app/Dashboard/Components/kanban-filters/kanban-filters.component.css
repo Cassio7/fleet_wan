@@ -14,7 +14,7 @@ mat-form-field {
 }
 
 .filters-btn{
-  background-color: var(--sidebar-color);
+  background-color: var(--green);
   border-radius: 5px !important;
   color: white;
 }

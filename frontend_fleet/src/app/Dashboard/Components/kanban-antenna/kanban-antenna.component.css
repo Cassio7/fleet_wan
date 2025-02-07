@@ -72,7 +72,7 @@
 }
 
 .OK-container {
-  background-color: var(--sidebar-color); /* Ensure --sidebar-color is defined in your CSS or replace with a specific color */
+  background-color: var(--green); /* Ensure --sidebar-color is defined in your CSS or replace with a specific color */
 }
 
 .blackbox-container {
@@ -113,7 +113,7 @@
   width: 100%;
   height: 100%;
   font-size: 35px; /* Prova a ridurre un po' per vedere se evita il taglio */
-  color: var(--sidebar-color);
+  color: var(--green);
   overflow: visible;
 }
 
