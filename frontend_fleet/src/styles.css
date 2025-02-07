@@ -2,6 +2,7 @@
 
 html, body {
   height: 100%;
+  overflow: hidden;
 }
 
 body {
@@ -16,11 +17,55 @@ html, body, h1, h2, h3, h4, h5, h6, th, td, mat-card-title{
 html, body { height: 100%; }
 body { margin: 0; font-family: "Inter", sans-serif; }
 :root {
-  --sidebar-color: #5C9074;
+  --green: #5C9074;
   --yellow: #C5D026;
   --red: #D02626;
   --black: #484848;
   --background-color: #F8F7F2;
-  --navbar-height: 7vh;
+  --navbar-height: 6vh;
   --navbarANDstats-background: #F1F0E6;
+}
+
+/* Stile della targa */
+.plate-container {
+  display: inline-flex;
+  align-items: center;
+  background-color: #EFEEE4;
+  padding: 5px 10px;
+  border-radius: 5px;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+
+.table tr:hover {
+  background-color: var(--background-color);
+}
+
+.section-header{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 2px;
+  margin: 0;
+}
+
+.section-header .title{
+  font-weight: bold;
+  font-size: 24px;
+  line-height: 1;
+  margin: 0;
+}
+.section-header .subtitle{
+  font-size: 14px;
+  font-style: italic;
+  color: gray;
+  line-height: 1;
+  margin: 0;
+}
+
+th{
+  color: var(--gr);
 }
