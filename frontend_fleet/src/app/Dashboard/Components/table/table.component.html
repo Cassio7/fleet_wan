@@ -12,7 +12,7 @@
           <mat-icon style="cursor: pointer;" matTooltip="Click per maggiori dettagli sul veicolo" (click)="displayVehicleDetail(vehicleData.vehicle.veId)">
             local_shipping
           </mat-icon>
-          <span style="margin-left: 8px;">Camionetta</span>
+          <span style="margin-left: 8px;">{{vehicleData.service ? vehicleData.service.name : "Nessun dato"}}</span>
         </div>
       </td>
     </ng-container>

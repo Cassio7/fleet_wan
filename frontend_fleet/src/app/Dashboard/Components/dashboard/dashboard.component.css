@@ -11,6 +11,7 @@ body, html{
 
 .right-section .header {
   width: 100%;
+  height: 100%;
   height: auto;
   display: flex;
   align-items: center;
@@ -220,7 +221,6 @@ body, html{
   width: auto;
   display: flex;
   align-items: center;
-  background-color: white;
 }
 
 .table-content {
