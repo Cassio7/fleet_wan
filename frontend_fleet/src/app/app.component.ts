@@ -12,6 +12,7 @@ import { CommonModule } from '@angular/common';
 import { CookiesService } from './Common-services/cookies service/cookies.service';
 import { MatMenuModule } from '@angular/material/menu';
 import { NavigationService } from './Common-services/navigation/navigation.service';
+import { SessionStorageService } from './Common-services/sessionStorage/session-storage.service';
 
 @Component({
   selector: 'app-root',
@@ -50,6 +51,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
     private router: Router,
     private loginService: LoginService,
     private cookiesService: CookiesService,
+    private sessionStorageService: SessionStorageService,
     private navigationService: NavigationService, //servizio importato per farlo caricare ad inizio applicazione
     private cd: ChangeDetectorRef
   ){}
@@ -119,6 +121,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
       const isDashboard = selectedUrl === '/dashboard';
       const isMezzi = selectedUrl === '/home-mezzi';
       const isStorico = selectedUrl == '/storico-mezzi'
+      if(isDashboard){
+        this.sessionStorageService.setItem("dashboard-section", "table");
+      }
       this.dashboardBtn.nativeElement.classList.toggle('btnSelected', isDashboard);
       this.mezziBtn.nativeElement.classList.toggle('btnSelected', isMezzi);
       this.storicoBtn.nativeElement.classList.toggle('btnSelected', isStorico)
