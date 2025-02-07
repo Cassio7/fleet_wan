@@ -18,6 +18,7 @@ import { AssociationService } from '../association/association.service';
 import { SessionService } from '../session/session.service';
 import { TagService } from '../tag/tag.service';
 import { VehicleService } from '../vehicle/vehicle.service';
+import { ServiceDTO } from 'classes/dtos/service.dto';
 
 @Injectable()
 export class AnomalyService {
@@ -64,6 +65,7 @@ export class AnomalyService {
         relations: {
           vehicle: {
             worksite: true,
+            service: true,
           },
         },
         order: {
@@ -116,6 +118,7 @@ export class AnomalyService {
           relations: {
             vehicle: {
               worksite: true,
+              service: true,
             },
           },
           order: {
@@ -133,6 +136,7 @@ export class AnomalyService {
           relations: {
             vehicle: {
               worksite: true,
+              service: true,
             },
           },
           order: {
@@ -176,6 +180,7 @@ export class AnomalyService {
         .createQueryBuilder('anomalies')
         .innerJoinAndSelect('anomalies.vehicle', 'vehicle')
         .leftJoinAndSelect('vehicle.worksite', 'worksite')
+        .leftJoinAndSelect('vehicle.service', 'service')
         .where('vehicle.veId IN (:...veIdArray)', { veIdArray })
         .andWhere((qb) => {
           const subQuery = qb
@@ -258,6 +263,7 @@ export class AnomalyService {
         relations: {
           vehicle: {
             worksite: true,
+            service: true,
           },
         },
         order: {
@@ -311,6 +317,7 @@ export class AnomalyService {
         relations: {
           vehicle: {
             worksite: true,
+            service: true,
           },
         },
         order: {
@@ -370,6 +377,7 @@ export class AnomalyService {
           relations: {
             vehicle: {
               worksite: true,
+              service: true,
             },
           },
           order: {
@@ -391,6 +399,7 @@ export class AnomalyService {
           relations: {
             vehicle: {
               worksite: true,
+              service: true,
             },
           },
           order: {
@@ -1232,7 +1241,10 @@ export class AnomalyService {
    * @returns
    */
   private toDTO(anomalies: AnomalyEntity[]): Array<{
-    vehicle: VehicleDTO & { worksite: WorksiteDTO | null };
+    vehicle: VehicleDTO & {
+      worksite: WorksiteDTO | null;
+      service: ServiceDTO | null;
+    };
     anomalies: AnomalyDTO[];
   }> {
     return anomalies
@@ -1259,9 +1271,20 @@ export class AnomalyService {
               worksiteDTO.id = anomaly.vehicle.worksite.id;
               worksiteDTO.name = anomaly.vehicle.worksite.name;
             }
+            // DTO del service se esiste
+            let serviceDTO: ServiceDTO | null = null;
+            if (anomaly.vehicle.worksite) {
+              serviceDTO = new ServiceDTO();
+              serviceDTO.id = anomaly.vehicle.service.id;
+              serviceDTO.name = anomaly.vehicle.service.name;
+            }
 
             vehicleGroup = {
-              vehicle: { ...vehicleDTO, worksite: worksiteDTO }, // Aggiungo worksite dentro il VehicleDTO
+              vehicle: {
+                ...vehicleDTO,
+                worksite: worksiteDTO,
+                service: serviceDTO,
+              }, // Aggiungo worksite dentro il VehicleDTO
               anomalies: [],
             };
             acc.push(vehicleGroup);
@@ -1281,7 +1304,10 @@ export class AnomalyService {
           return acc;
         },
         [] as Array<{
-          vehicle: VehicleDTO & { worksite: WorksiteDTO | null };
+          vehicle: VehicleDTO & {
+            worksite: WorksiteDTO | null;
+            service: ServiceDTO | null;
+          };
           anomalies: AnomalyDTO[];
         }>,
       )
