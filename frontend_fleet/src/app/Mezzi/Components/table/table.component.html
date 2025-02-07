@@ -1,7 +1,4 @@
 <div class="content">
-<div class="table-over">
-  <p class="nVeicoli">Numero di veicoli: {{vehicleTableData.data.length == 0 ?  '-' : vehicleTableData.data.length}}</p>
-</div>
 <div class="loading-progress" *ngIf="loadingProgress < 100">
   <p class="loading-p">{{loadingText}}</p>
   <mat-progress-bar mode="determinate" [value]="loadingProgress" class="loading-bar"></mat-progress-bar>
@@ -9,6 +6,24 @@
 <p class="loading-p" *ngIf="resetLoading">Ricaricamento veicoli...</p>
 <div class="table-container">
   <table mat-table [dataSource]="vehicleTableData" #vehicleTable class="mat-elevation-z8" multiTemplateDataRows>
+
+    <!-- Colonna Tipologia -->
+    <ng-container matColumnDef="Tipologia">
+      <th mat-header-cell *matHeaderCellDef>
+        <button mat-button [matMenuTriggerFor]="aziendaMenu" class="filter-menu-btn">Tipologia</button>
+        <mat-menu #aziendaMenu="matMenu">
+          <button mat-menu-item>Item 1</button>
+          <button mat-menu-item>Item 2</button>
+        </mat-menu>
+      </th>
+
+      <td mat-cell *matCellDef="let vehicle">
+        <span class="tipologia-container">
+          <mat-icon matTooltip="Click per maggiori dettagli sul veicolo">local_shipping</mat-icon>
+          {{ vehicle.service ? vehicle.service.name : "Nessun dato" }}
+        </span>
+      </td>
+    </ng-container>
 
     <!-- Colonna Azienda -->
     <ng-container matColumnDef="Azienda">
@@ -19,7 +34,9 @@
           <button mat-menu-item>Item 2</button>
         </mat-menu>
       </th>
-      <td mat-cell *matCellDef="let vehicle"> <p>{{ vehicle.rental ? vehicle.rental.name : vehicle.company.name}}</p> </td>
+      <td mat-cell *matCellDef="let vehicle">
+        <p>{{ (vehicle.rental ? vehicle.rental.name : vehicle.company.name) | titlecase }}</p>
+      </td>
     </ng-container>
 
     <!-- Colonna Targa -->
@@ -41,7 +58,7 @@
         </mat-menu>
       </th>
       <td mat-cell *matCellDef="let vehicle" class="cell">
-        <p><mat-icon matTooltip="Click per maggiori dettagli sul veicolo">local_shipping</mat-icon>{{ vehicle.plate }}</p>
+        <span class="plate-container">{{ vehicle.plate }}</span>
       </td>
     </ng-container>
 
@@ -153,7 +170,7 @@
     <!-- Colonna Data installazione fleet -->
     <ng-container matColumnDef="Data-installazione-fleet">
       <th mat-header-cell *matHeaderCellDef>
-        <button mat-button [matMenuTriggerFor]="installazioneMenu" class="filter-menu-btn">Data installazione fleet</button>
+        <button mat-button [matMenuTriggerFor]="installazioneMenu" class="filter-menu-btn">Installazione fleet</button>
         <mat-menu #installazioneMenu="matMenu">
           <!-- Checkbox "Seleziona tutto" -->
           <button mat-menu-item (click)="selectDeselectAll($event)">
@@ -171,7 +188,7 @@
     <!-- Colonna Data rimozione apparato -->
     <ng-container matColumnDef="Data-rimozione-apparato">
       <th mat-header-cell *matHeaderCellDef>
-        <button mat-button [matMenuTriggerFor]="rimozioneMenu" class="filter-menu-btn">Data rimozione apparato</button>
+        <button mat-button [matMenuTriggerFor]="rimozioneMenu" class="filter-menu-btn">Rimozione fleet</button>
         <mat-menu #rimozioneMenu="matMenu">
           <!-- Checkbox "Seleziona tutto" -->
           <button mat-menu-item (click)="selectDeselectAll($event)">
@@ -188,14 +205,16 @@
     <ng-container matColumnDef="expand">
       <th mat-header-cell *matHeaderCellDef aria-label="row actions">&nbsp;</th>
       <td mat-cell *matCellDef="let vehicle">
-        <mat-icon class="comment-icon" *ngIf="vehicle.note">comment</mat-icon>
-        <button mat-icon-button class="expand-btn" aria-label="expand row" (click)="checkVehicleExpansion(vehicle); $event.stopPropagation()">
-          @if (this.expandedVehicle === vehicle) {
-            <mat-icon>keyboard_arrow_up</mat-icon>
-          } @else {
-            <mat-icon>keyboard_arrow_down</mat-icon>
-          }
-        </button>
+        <div class="commentIcon-container">
+          <mat-icon class="comment-icon" [ngStyle]="{'visibility': vehicle.note ? 'visible' : 'hidden'}">comment</mat-icon>
+          <button mat-icon-button class="expand-btn" aria-label="expand row" (click)="checkVehicleExpansion(vehicle); $event.stopPropagation()">
+            @if (this.expandedVehicle === vehicle) {
+              <mat-icon>keyboard_arrow_up</mat-icon>
+            } @else {
+              <mat-icon>keyboard_arrow_down</mat-icon>
+            }
+          </button>
+        </div>
       </td>
     </ng-container>
 

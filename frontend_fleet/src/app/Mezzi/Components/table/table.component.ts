@@ -79,7 +79,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
   user!: User;
 
 
-  displayedColumns: string[] = ["Azienda", "Targa", "Marca&modello", "Cantiere",
+  displayedColumns: string[] = ["Tipologia", "Azienda", "Targa", "Marca&modello", "Cantiere",
   "Anno immatricolazione", "Tipologia attrezzatura", "Allestimento",
   "Data-installazione-fleet", "Data-rimozione-apparato"];
   columnsToDisplayWithExpand = [...this.displayedColumns, "expand"];
