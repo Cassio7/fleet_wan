@@ -79,9 +79,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
   user!: User;
 
 
-  displayedColumns: string[] = ["Tipologia", "Azienda", "Targa", "Marca&modello", "Cantiere",
-  "Anno immatricolazione", "Tipologia attrezzatura", "Allestimento",
-  "Data-installazione-fleet", "Data-rimozione-apparato"];
+  displayedColumns: string[] = ["Proprietario", "Targa", "Immatricolazione", "Marca", "Tipologia", "Cantiere","Allestimento", "Installazione fleet"];
   columnsToDisplayWithExpand = [...this.displayedColumns, "expand"];
 
 
@@ -323,7 +321,7 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
    * Naviga alla pagina di dettaglio del veicolo
    * @param vehicleId id del veicolo del quale visualizzare il dettaglio
    */
-  showVehicleDetail(vehicleId: number){
+  displayVehicleDetail(vehicleId: number){
     this.router.navigate(['/dettaglio-mezzo', vehicleId]);
   }
 
