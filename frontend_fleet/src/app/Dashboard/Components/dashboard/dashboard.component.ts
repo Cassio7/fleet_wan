@@ -129,8 +129,6 @@ export class DashboardComponent implements OnInit, AfterViewInit{
         this.displaySection("Antenna"); //display del componente scelto dal kebab menu
         this.pageName = "Antenna";
         this.subtitle = "Monitora lo stato delle antenne";
-        console.log("pageName: ", this.pageName);
-        console.log("subtitle: ", this.subtitle);
         this.errorGraphTitle = this.errorGraphService.graphTitle = "Antenna";
         this.sessionStorageService.setItem("dashboard-section", "Antenna");
       },

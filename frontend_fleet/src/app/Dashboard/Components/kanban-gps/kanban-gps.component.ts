@@ -58,12 +58,23 @@ export class KanbanGpsComponent implements AfterViewInit, OnDestroy{
   ngAfterViewInit(): void {
     const allData: VehicleData[] = JSON.parse(this.sessionStorageService.getItem("allData"));
     let kanbanVehicles = allData;
+    this.kanbanGpsService.setKanbanData(kanbanVehicles);
+    this.gpsGraphService.loadChartData$.next(kanbanVehicles);
 
-    this.getVehiclesErrorsData();
     this.checkErrorsService.updateAnomalies$.pipe(takeUntil(this.destroy$))
     .subscribe({
       next: () => {
-        this.getVehiclesErrorsData();
+        this.checkErrorsService.checkErrorsAllToday().pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (responseObj: any) => {
+            this.kanbanGpsService.setKanbanData([]);
+            setTimeout(() => {
+              const vehiclesData = responseObj.vehicles;
+              this.loadRealtimeVehicles(vehiclesData);
+            }, 2000);
+          },
+          error: error => console.error("Errore nell'aggiornamento delle anomalie: ", error)
+        });
       },
       error: error => console.error("Errore nella notifica di aggiornamento delle anomalie del kanban: ", error)
     });
@@ -77,24 +88,6 @@ export class KanbanGpsComponent implements AfterViewInit, OnDestroy{
   }
 
   /**
-   * Esegue una chiamata tramite un servizio che recupera i dati dei veicoli
-   * e delle loro anomalie nella giornata di oggi
-   */
-  private getVehiclesErrorsData(){
-    this.checkErrorsService.checkErrorsAllToday().pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: (responseObj: any) => {
-        this.kanbanGpsService.setKanbanData([]);
-        setTimeout(() => {
-          const vehiclesData = responseObj.vehicles;
-          this.loadRealtimeVehicles(vehiclesData);
-        }, 2000);
-      },
-      error: error => console.error("Errore nell'aggiornamento delle anomalie: ", error)
-    });
-  }
-
-  /**
    * Recupera i dati del realtime dalla chiamata API e unisce i risultati con i veicoli passati
    * @returns veicoli accorpati con ultima posizione
    */
@@ -102,8 +95,7 @@ export class KanbanGpsComponent implements AfterViewInit, OnDestroy{
     this.realtimeApiService.getLastRealtime().pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (realtimeDataObj: RealtimeData[]) => {
-          console.log("kanban sessione realtime data fetched: ", realtimeDataObj);
-          const realtimeVehicles: VehicleData[] = this.realtimeApiService.mergeVehiclesWithRealtime(vehicles, realtimeDataObj) as VehicleData[];
+          const realtimeVehicles: VehicleData[] = this.mergeRealtimeData(vehicles, realtimeDataObj);
           this.kanbanGpsService.setKanbanData(realtimeVehicles);
           this.gpsGraphService.loadChartData$.next(realtimeVehicles);
           this.sessionStorageService.setItem("allData", JSON.stringify(realtimeVehicles));
@@ -112,6 +104,24 @@ export class KanbanGpsComponent implements AfterViewInit, OnDestroy{
         error: error => console.error("Errore nel caricamento dei dati realtime: ", error)
       });
     return [];
+  }
+
+  /**
+   * Unisce un array di veicoli con uno di dati realtime
+   * @param tableVehicles array di veicoli
+   * @param realtimeData dati realtime
+   * @returns veicoli accorpati
+   */
+  private mergeRealtimeData(tableVehicles: VehicleData[], realtimeData: RealtimeData[]): VehicleData[] {
+    tableVehicles.forEach(vehicleData => {
+      const matchedRealtimeData = realtimeData.find(realtimeData => {
+        return realtimeData.vehicle.veId === vehicleData.vehicle.veId;
+      });
+      if (matchedRealtimeData) {
+        vehicleData.realtime = matchedRealtimeData.realtime;
+      }
+    });
+    return tableVehicles;
   }
 
   showMap(vehicleData: VehicleData) {
