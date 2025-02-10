@@ -9,7 +9,10 @@
   </mat-form-field>
 
   <mat-form-field class="cantieri-filter filter" appearance="outline" subscriptSizing="dynamic">
-    <mat-select [formControl]="cantieri" placeholder="Cantiere" multiple class="cantiere-input">
+    <mat-select [formControl]="cantieri" placeholder="Cantieri" multiple class="cantiere-input" >
+      <mat-select-trigger>
+        Cantieri
+      </mat-select-trigger>
       <mat-option value="Seleziona tutto" (click)="toggleSelectAll()">Seleziona tutto</mat-option>
       <mat-divider></mat-divider>
       <mat-option
@@ -25,6 +28,9 @@
 
   <mat-form-field class="GPS-state-filter filter" appearance="outline" subscriptSizing="dynamic">
     <mat-select [formControl]="gps" placeholder="Stati GPS" multiple class="GPS-input">
+      <mat-select-trigger>
+        Stati GPS
+      </mat-select-trigger>
       <mat-option value="Seleziona tutto" (click)="toggleSelectAll()">Seleziona tutto</mat-option>
       <mat-divider></mat-divider>
       <mat-option
@@ -39,6 +45,9 @@
 
   <mat-form-field class="antenna-filter filter" appearance="outline" subscriptSizing="dynamic">
     <mat-select [formControl]="antenne" placeholder="Stati antenna" multiple class="antenna-input">
+      <mat-select-trigger>
+        Stati antenna
+      </mat-select-trigger>
       <mat-option value="Seleziona tutto" (click)="toggleSelectAll()">Seleziona tutto</mat-option>
       <mat-divider></mat-divider>
       <mat-option *ngFor="let option of antennaFilterService.allOptions" [value]="option" (click)="selectAntenna()">
@@ -50,6 +59,9 @@
 
   <mat-form-field class="session-filter filter" appearance="outline" subscriptSizing="dynamic">
     <mat-select  [formControl]="sessionStates" placeholder="Stati sessione" multiple class="antenna-input">
+      <mat-select-trigger>
+        Stati sessione
+      </mat-select-trigger>
       <mat-option value="Seleziona tutto" (click)="toggleSelectAll()">Seleziona tutto</mat-option>
       <mat-divider></mat-divider>
       <mat-option *ngFor="let option of sessionFilterService.allOptions" [value]="option" (click)="selectSession()">
