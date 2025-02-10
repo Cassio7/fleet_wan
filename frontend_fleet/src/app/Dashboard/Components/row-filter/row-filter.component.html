@@ -1,5 +1,5 @@
 <div class="filters-container">
-  <mat-form-field class="targa-filter filter" appearance="outline">
+  <mat-form-field class="targa-filter filter" appearance="outline" subscriptSizing="dynamic">
     <mat-label>Targa</mat-label>
     <input matInput type="text" placeholder="Targa" #targa class="targa-input" [(ngModel)]="filters.plate" (input)="searchPlates()">
     <button *ngIf="targa.value" matSuffix mat-icon-button aria-label="Clear" (click)="filters.plate='';searchPlates()">
@@ -8,7 +8,7 @@
     <mat-icon matSuffix *ngIf="!targa.value" class="suffix-icon">search</mat-icon>
   </mat-form-field>
 
-  <mat-form-field class="cantieri-filter filter" appearance="outline">
+  <mat-form-field class="cantieri-filter filter" appearance="outline" subscriptSizing="dynamic">
     <mat-select [formControl]="cantieri" placeholder="Cantiere" multiple class="cantiere-input">
       <mat-option value="Seleziona tutto" (click)="toggleSelectAll()">Seleziona tutto</mat-option>
       <mat-divider></mat-divider>
@@ -23,7 +23,7 @@
     <mat-icon matSuffix class="suffix-icon">engineering</mat-icon>
   </mat-form-field>
 
-  <mat-form-field class="GPS-state-filter filter" appearance="outline">
+  <mat-form-field class="GPS-state-filter filter" appearance="outline" subscriptSizing="dynamic">
     <mat-select [formControl]="gps" placeholder="Stati GPS" multiple class="GPS-input">
       <mat-option value="Seleziona tutto" (click)="toggleSelectAll()">Seleziona tutto</mat-option>
       <mat-divider></mat-divider>
@@ -37,7 +37,7 @@
     <mat-icon matSuffix class="suffix-icon">location_on</mat-icon>
   </mat-form-field>
 
-  <mat-form-field class="antenna-filter filter" appearance="outline">
+  <mat-form-field class="antenna-filter filter" appearance="outline" subscriptSizing="dynamic">
     <mat-select [formControl]="antenne" placeholder="Stati antenna" multiple class="antenna-input">
       <mat-option value="Seleziona tutto" (click)="toggleSelectAll()">Seleziona tutto</mat-option>
       <mat-divider></mat-divider>
@@ -48,8 +48,8 @@
     <mat-icon matSuffix class="suffix-icon">wifi</mat-icon>
   </mat-form-field>
 
-  <mat-form-field class="session-filter filter" appearance="outline">
-    <mat-select [formControl]="sessionStates" placeholder="Stati sessione" multiple class="antenna-input">
+  <mat-form-field class="session-filter filter" appearance="outline" subscriptSizing="dynamic">
+    <mat-select  [formControl]="sessionStates" placeholder="Stati sessione" multiple class="antenna-input">
       <mat-option value="Seleziona tutto" (click)="toggleSelectAll()">Seleziona tutto</mat-option>
       <mat-divider></mat-divider>
       <mat-option *ngFor="let option of sessionFilterService.allOptions" [value]="option" (click)="selectSession()">

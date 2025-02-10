@@ -17,7 +17,7 @@
           <mat-list-item *ngFor="let vehicleData of kanbanGpsService.workingVehicles">
             <div class="vehicle">
               <div class="info" matTooltip="GPS funzionante">
-                <p class="type">{{ "tipologia" }}</p>
+                <p class="type">{{ vehicleData.vehicle.service?.name }}</p>
                 <p class="cantiere">
                   {{ vehicleData.vehicle.worksite?.name ? vehicleData.vehicle.worksite?.name : "non assegnato" }}
                 </p>
@@ -48,7 +48,7 @@
           <mat-list-item *ngFor="let vehicleData of kanbanGpsService.warningVehicles" >
             <div class="vehicle">
               <div class="info" [matTooltip]="checkErrorsService.checkVehicleGPSWarning(vehicleData)">
-                <p class="type">{{ "tipologia"}}</p>
+                <p class="type">{{ vehicleData.vehicle.service?.name }}</p>
                 <p class="cantiere">{{ vehicleData.vehicle.worksite?.name ? vehicleData.vehicle.worksite?.name : "non assegnato"}}</p>
               </div>
               <div class="right-container">
@@ -78,7 +78,7 @@
           <mat-list-item *ngFor="let vehicleData of kanbanGpsService.errorVehicles">
             <div class="vehicle">
               <div class="info" [matTooltip]="checkErrorsService.checkVehicleGpsError(vehicleData)">
-                <p class="type">{{ "tipologia"}}</p>
+                <p class="type">{{ vehicleData.vehicle.service?.name }}</p>
                 <p class="cantiere">{{ vehicleData.vehicle.worksite?.name ? vehicleData.vehicle.worksite?.name : "non assegnato"}}</p>
               </div>
               <div class="right-container">

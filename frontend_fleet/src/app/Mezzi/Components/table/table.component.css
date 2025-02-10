@@ -10,7 +10,6 @@
 }
 
 tr, td, th {
-  text-align: center;
   word-wrap: break-word;
   max-width: 150px; /* Adjust column width */
 }

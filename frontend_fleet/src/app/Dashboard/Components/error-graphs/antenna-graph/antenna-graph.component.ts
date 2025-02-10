@@ -70,14 +70,16 @@ export class AntennaGraphComponent {
       plotOptions: {
         pie: {
           donut: {
+            size: '75%',
             labels: {
               show: true,
               total: {
                 showAlways: true,
                 show: true,
                 label: "mezzi",
-                fontSize: "18px",
-                fontWeight: 600,
+                fontSize: "14px",
+                fontWeight: 400,
+                color: "#1A1919",
               }
             }
           }
@@ -89,7 +91,7 @@ export class AntennaGraphComponent {
       legend: {
         position: "left"
       },
-      labels: ["Funzionante", "Error", "No antenna"],
+      labels: ["Ok", "Error", "No antenna"],
       colors: this.antennaGraphService.colors,
       responsive: [
         {

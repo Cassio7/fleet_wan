@@ -71,15 +71,16 @@ export class GpsGraphComponent implements AfterViewInit{
       plotOptions: {
         pie: {
           donut: {
+            size: '75%',
             labels: {
               show: true,
               total: {
                 showAlways: true,
                 show: true,
                 label: "mezzi",
-                fontSize: "18px",
-                fontWeight: 600,
-                color: "#000",
+                fontSize: "14px",
+                fontWeight: 400,
+                color: "#1A1919",
               }
             }
           }
@@ -91,7 +92,7 @@ export class GpsGraphComponent implements AfterViewInit{
       dataLabels: {
         enabled: false
       },
-      labels: ["Funzionante", "Warning", "Error"],
+      labels: ["Ok", "Warning", "Error"],
       colors: this.gpsGraphService.colors,
       responsive: [
         {

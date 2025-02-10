@@ -1,22 +1,26 @@
 .filters-container {
-  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 1vw;
   flex-wrap: wrap;
+  background-color: white;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 20px;
 }
 
-.filters-btn{
+.filters-btn {
   background-color: var(--green);
   border-radius: 5px !important;
   color: white;
 }
 
-.filter{
+.filter {
   min-height: 28px;
 }
 
 mat-form-field {
   flex: 1;
+  font-family: "Inter";
 }

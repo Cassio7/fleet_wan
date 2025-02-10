@@ -1,4 +1,5 @@
-body, html{
+body,
+html {
   overflow: hidden;
 }
 
@@ -46,7 +47,13 @@ body, html{
 .header-right .updateData-btn {
   text-wrap: nowrap;
 }
+.title {
+  font-weight: bold;
+  font-size: 20px;
+  line-height: 1;
+  padding-bottom: 4px;
 
+}
 .section-header {
   width: 100%;
   display: flex;
@@ -82,12 +89,12 @@ body, html{
 .switch-container {
   display: flex;
   align-items: center;
-  gap: .2vw;
+  gap: 0.2vw;
 }
 
 .switch-container p {
   margin: 0;
-  margin-right: .4vw;
+  margin-right: 0.4vw;
 }
 
 .switch-container button {
@@ -105,7 +112,7 @@ body, html{
   height: 100%;
   display: flex;
   flex-direction: column;
-  gap: .5vh;
+  gap: 0.5vh;
 }
 
 .map-header {
@@ -181,7 +188,7 @@ body, html{
   max-height: 100%;
 }
 
-.right-section .main-content .filters-container{
+.right-section .main-content .filters-container {
   height: 100px;
   width: auto;
   display: flex;

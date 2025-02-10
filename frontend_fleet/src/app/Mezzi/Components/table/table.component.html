@@ -1,115 +1,164 @@
 <div class="content">
-<div class="loading-progress" *ngIf="loadingProgress < 100">
-  <p class="loading-p">{{loadingText}}</p>
-  <mat-progress-bar mode="determinate" [value]="loadingProgress" class="loading-bar"></mat-progress-bar>
-</div>
-<p class="loading-p" *ngIf="resetLoading">Ricaricamento veicoli...</p>
-<div class="table-container">
-  <table mat-table [dataSource]="vehicleTableData" #vehicleTable class="table" multiTemplateDataRows>
-
-    <!-- Colonna Proprietario -->
-    <ng-container matColumnDef="Proprietario">
-      <th mat-header-cell *matHeaderCellDef>Proprietario</th>
-      <td mat-cell *matCellDef="let vehicle">
-        <span class="proprietario-container">
-          <mat-icon style="cursor: pointer;" matTooltip="Click per maggiori dettagli sul veicolo" (click)="displayVehicleDetail(vehicle.veId)">
+  <div class="loading-progress" *ngIf="loadingProgress < 100">
+    <p class="loading-p">{{ loadingText }}</p>
+    <mat-progress-bar
+      mode="determinate"
+      [value]="loadingProgress"
+      class="loading-bar"
+    ></mat-progress-bar>
+  </div>
+  <p class="loading-p" *ngIf="resetLoading">Ricaricamento veicoli...</p>
+  <div class="table-container">
+    <table
+      mat-table
+      [dataSource]="vehicleTableData"
+      #vehicleTable
+      class="table"
+      multiTemplateDataRows
+    >
+      <!-- Colonna Proprietario -->
+      <ng-container matColumnDef="Proprietario">
+        <th mat-header-cell *matHeaderCellDef>Proprietario/Locatario</th>
+        <td mat-cell *matCellDef="let vehicle">
+          <span class="proprietario-container">
+            <mat-icon style="cursor: pointer;" matTooltip="Click per maggiori dettagli sul veicolo" (click)="displayVehicleDetail(vehicle.veId)">
             local_shipping
           </mat-icon>
-          {{ vehicle.rental?.name || "Nessun dato" }}
-        </span>
-      </td>
-    </ng-container>
 
-    <!-- Colonna Targa -->
-    <ng-container matColumnDef="Targa">
-      <th mat-header-cell *matHeaderCellDef>Targa</th>
-      <td mat-cell *matCellDef="let vehicle"><span class="icon-container">{{ vehicle.plate }}</span></td>
-    </ng-container>
+            {{ vehicle.rental?.name || vehicle.company.name }}
+          </span>
+        </td>
+      </ng-container>
 
-    <!-- Colonna Immatricolazione -->
-    <ng-container matColumnDef="Immatricolazione">
-      <th mat-header-cell *matHeaderCellDef>Immatricolazione</th>
-      <td mat-cell *matCellDef="let vehicle">{{ vehicle?.registration || "Nessun dato"}}</td>
-    </ng-container>
+      <!-- Colonna Targa -->
+      <ng-container matColumnDef="Targa">
+        <th mat-header-cell *matHeaderCellDef>Targa</th>
+        <td mat-cell *matCellDef="let vehicle">
+          <span class="icon-container">{{ vehicle.plate }}</span>
+        </td>
+      </ng-container>
 
-    <!-- Colonna Marca -->
-    <ng-container matColumnDef="Marca">
-      <th mat-header-cell *matHeaderCellDef>Marca</th>
-      <td mat-cell *matCellDef="let vehicle">{{ vehicle.model }}</td>
-    </ng-container>
+      <!-- Colonna Immatricolazione -->
+      <ng-container matColumnDef="Immatricolazione">
+        <th mat-header-cell *matHeaderCellDef>Immatricolazione</th>
+        <td mat-cell *matCellDef="let vehicle">
+          {{ vehicle?.registration || "" }}
+        </td>
+      </ng-container>
 
-    <!-- Colonna Tipologia -->
-    <ng-container matColumnDef="Tipologia">
-      <th mat-header-cell *matHeaderCellDef>Tipologia</th>
-      <td mat-cell *matCellDef="let vehicle">{{ vehicle.equipment?.name || "Nessun dato" }}</td>
-    </ng-container>
+      <!-- Colonna Marca -->
+      <ng-container matColumnDef="Marca">
+        <th mat-header-cell *matHeaderCellDef>Marca</th>
+        <td mat-cell *matCellDef="let vehicle">{{ vehicle.model }}</td>
+      </ng-container>
 
-    <!-- Colonna Cantiere -->
-    <ng-container matColumnDef="Cantiere">
-      <th mat-header-cell *matHeaderCellDef>Cantiere</th>
-      <td mat-cell *matCellDef="let vehicle">{{ vehicle.worksite?.name || 'Non assegnato' }}</td>
-    </ng-container>
+      <!-- Colonna Attrezzatura -->
+      <ng-container matColumnDef="Tipologia">
+        <th mat-header-cell *matHeaderCellDef>Attrezzatura</th>
+        <td mat-cell *matCellDef="let vehicle">
+          {{ vehicle.equipment?.name || "" }}
+        </td>
+      </ng-container>
 
-    <!-- Colonna Allestimento -->
-    <ng-container matColumnDef="Allestimento">
-      <th mat-header-cell *matHeaderCellDef>Allestimento</th>
-      <td mat-cell *matCellDef="let vehicle">{{ vehicle.allestimento ? "Blackbox+antenna": "Blackbox" }}</td>
-    </ng-container>
+      <!-- Colonna Cantiere -->
+      <ng-container matColumnDef="Cantiere">
+        <th mat-header-cell *matHeaderCellDef>Cantiere</th>
+        <td mat-cell *matCellDef="let vehicle">
+          {{ vehicle.worksite?.name || "" }}
+        </td>
+      </ng-container>
 
-    <!-- Colonna Installazione fleet -->
-    <ng-container matColumnDef="Installazione fleet">
-      <th mat-header-cell *matHeaderCellDef>Installazione fleet</th>
-      <td mat-cell *matCellDef="let vehicle">{{ vehicle?.fleet_install || "Nessun dato" }}</td>
-    </ng-container>
+      <!-- Colonna Allestimento -->
+      <ng-container matColumnDef="Allestimento">
+        <th mat-header-cell *matHeaderCellDef>Allestimento</th>
+        <td mat-cell *matCellDef="let vehicle">
+          {{ vehicle.allestimento ? "Blackbox+antenna" : "Blackbox" }}
+        </td>
+      </ng-container>
 
-    <ng-container matColumnDef="expand">
-      <th mat-header-cell *matHeaderCellDef aria-label="row actions">&nbsp;</th>
-      <td mat-cell *matCellDef="let vehicle">
-        <div class="commentIcon-container">
-          <mat-icon class="comment-icon" [ngStyle]="{'visibility': vehicle.note ? 'visible' : 'hidden'}">comment</mat-icon>
-          <button mat-icon-button class="expand-btn" aria-label="expand row" (click)="checkVehicleExpansion(vehicle); $event.stopPropagation()">
-            @if (this.expandedVehicle === vehicle) {
+      <!-- Colonna Installazione fleet -->
+      <ng-container matColumnDef="Installazione fleet">
+        <th mat-header-cell *matHeaderCellDef>Installazione fleet</th>
+        <td mat-cell *matCellDef="let vehicle">
+          {{ vehicle?.fleet_install || "" }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="expand">
+        <th mat-header-cell *matHeaderCellDef aria-label="row actions">
+          &nbsp;
+        </th>
+        <td mat-cell *matCellDef="let vehicle">
+          <div class="commentIcon-container">
+            <mat-icon
+              class="comment-icon"
+              [ngStyle]="{ visibility: vehicle.note ? 'visible' : 'hidden' }"
+              >comment</mat-icon
+            >
+            <button
+              mat-icon-button
+              class="expand-btn"
+              aria-label="expand row"
+              (click)="checkVehicleExpansion(vehicle); $event.stopPropagation()"
+            >
+              @if (this.expandedVehicle === vehicle) {
               <mat-icon>keyboard_arrow_up</mat-icon>
-            } @else {
+              } @else {
               <mat-icon>keyboard_arrow_down</mat-icon>
-            }
-          </button>
-        </div>
-      </td>
-    </ng-container>
-
-    <!-- Colonna espandibile per i commenti -->
-    <ng-container matColumnDef="comment-section">
-      <td mat-cell *matCellDef="let vehicle" [attr.colspan]="columnsToDisplayWithExpand.length">
-        <div>
-          <div class="vehicle-comment"
-          [@detailExpand]="vehicle.veId === expandedVehicle?.veId ? 'expanded' : 'collapsed'">
-          <div class="comment-section-content">
-            <div class="notes-header">
-              <mat-icon class="note-icon">
-                edit_square
-              </mat-icon>
-              <span style="margin-left: 8px;">Nota di <strong>{{user.username}}</strong></span>
-            </div>
-            <th mat-header-cell *matHeaderCellDef></th>
-            <td>
-              <app-note-section [vehicle]="vehicle"></app-note-section>
-            </td>
+              }
+            </button>
           </div>
-        </div>
-        </div>
-      </td>
-    </ng-container>
+        </td>
+      </ng-container>
 
+      <!-- Colonna espandibile per i commenti -->
+      <ng-container matColumnDef="comment-section">
+        <td
+          mat-cell
+          *matCellDef="let vehicle"
+          [attr.colspan]="columnsToDisplayWithExpand.length"
+        >
+          <div>
+            <div
+              class="vehicle-comment"
+              [@detailExpand]="
+                vehicle.veId === expandedVehicle?.veId
+                  ? 'expanded'
+                  : 'collapsed'
+              "
+            >
+              <div class="comment-section-content">
+                <div class="notes-header">
+                  <mat-icon class="note-icon"> edit_square </mat-icon>
+                  <span style="margin-left: 8px"
+                    >Nota di <strong>{{ user.username }}</strong></span
+                  >
+                </div>
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td>
+                  <app-note-section [vehicle]="vehicle"></app-note-section>
+                </td>
+              </div>
+            </div>
+          </div>
+        </td>
+      </ng-container>
 
-    <!-- Definizione righe della tabella -->
-    <tr mat-header-row *matHeaderRowDef="columnsToDisplayWithExpand; sticky: true"></tr>
-    <tr mat-row *matRowDef="let vehicle; columns: columnsToDisplayWithExpand;" (click)="displayVehicleDetail(vehicle.veId)"></tr>
-    <tr
-    mat-row
-    *matRowDef="let row; columns: ['comment-section']"
-    class="comment-row"
-  ></tr>
-  </table>
-</div>
+      <!-- Definizione righe della tabella -->
+      <tr
+        mat-header-row
+        *matHeaderRowDef="columnsToDisplayWithExpand; sticky: true"
+      ></tr>
+      <tr
+        mat-row
+        *matRowDef="let vehicle; columns: columnsToDisplayWithExpand"
+        (click)="displayVehicleDetail(vehicle.veId)"
+      ></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: ['comment-section']"
+        class="comment-row"
+      ></tr>
+    </table>
+  </div>
 </div>
