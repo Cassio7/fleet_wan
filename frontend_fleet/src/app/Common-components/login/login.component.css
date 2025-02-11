@@ -71,16 +71,9 @@
 }
 
 .left-container .section-header .main-logo{
-  height: 8vh;
+  height: 5vh;
   width: 5vw;
   margin: 0;
-}
-
-.left-container .footer .loghi{
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 2vw;
 }
 
 .left-container .login-container{
@@ -97,6 +90,14 @@
   flex-direction: column;
   gap: 10px;
   padding-bottom: 1.2vw;
+}
+
+.left-container .footer .loghi{
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2vw;
 }
 
 .logo{
