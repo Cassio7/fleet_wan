@@ -69,8 +69,8 @@ table:not(.mat-calendar-table) tr:nth-child(even) {
   margin: 0;
 }
 .section-header .subtitle{
+  font-weight: 300;
   font-size: 14px;
-  color: gray;
   line-height: 1;
   margin: 0;
 }

@@ -1,7 +1,19 @@
 import { ErrorGraphsService } from './../../../Services/error-graphs/error-graphs.service';
 import { GpsGraphService } from './../../../Services/gps-graph/gps-graph.service';
-import { AfterViewInit, ChangeDetectorRef, Component, ViewChild } from '@angular/core';
-import { ApexChart, ApexDataLabels, ApexLegend, ApexNonAxisChartSeries, ApexResponsive, NgApexchartsModule } from "ng-apexcharts";
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  ViewChild,
+} from '@angular/core';
+import {
+  ApexChart,
+  ApexDataLabels,
+  ApexLegend,
+  ApexNonAxisChartSeries,
+  ApexResponsive,
+  NgApexchartsModule,
+} from 'ng-apexcharts';
 import { Subject, skip, takeUntil } from 'rxjs';
 import { SessionStorageService } from '../../../../Common-services/sessionStorage/session-storage.service';
 import { PlateFilterService } from '../../../../Common-services/plate-filter/plate-filter.service';
@@ -9,7 +21,6 @@ import { CheckErrorsService } from '../../../../Common-services/check-errors/che
 import { VehicleData } from '../../../../Models/VehicleData';
 import { FiltersCommonService } from '../../../../Common-services/filters-common/filters-common.service';
 import { style } from '@angular/animations';
-
 
 export type ChartOptions = {
   series: ApexNonAxisChartSeries;
@@ -24,13 +35,11 @@ export type ChartOptions = {
 @Component({
   selector: 'app-gps-graph',
   standalone: true,
-  imports: [
-    NgApexchartsModule
-  ],
+  imports: [NgApexchartsModule],
   templateUrl: './gps-graph.component.html',
-  styleUrl: './gps-graph.component.css'
+  styleUrl: './gps-graph.component.css',
 })
-export class GpsGraphComponent implements AfterViewInit{
+export class GpsGraphComponent implements AfterViewInit {
   private readonly destroy$: Subject<void> = new Subject<void>();
   public chartOptions: ChartOptions;
 
@@ -49,7 +58,7 @@ export class GpsGraphComponent implements AfterViewInit{
     this.chartOptions = {
       series: [],
       chart: {
-        type: "donut",
+        type: 'donut',
         height: this.height,
         width: this.width,
         events: {
@@ -65,8 +74,8 @@ export class GpsGraphComponent implements AfterViewInit{
                 this.errorClick();
                 break;
             }
-          }
-        }
+          },
+        },
       },
       plotOptions: {
         pie: {
@@ -74,40 +83,52 @@ export class GpsGraphComponent implements AfterViewInit{
             size: '75%',
             labels: {
               show: true,
+              name: {
+                show: true,
+                fontSize: '14px',
+                fontWeight: 400,
+                offsetY: 20,
+              },
+              value: {
+                show: true,
+                fontSize: '22px',
+                fontWeight: 600,
+                offsetY: -20
+              },
               total: {
                 showAlways: true,
                 show: true,
-                label: "mezzi",
-                fontSize: "14px",
-                fontWeight: 400,
-                color: "#1A1919",
-              }
-            }
-          }
-        }
+                label: 'mezzi',
+                color: '#1A1919',
+              },
+            },
+          },
+        },
       },
       legend: {
-        position: "left"
+        position: 'left',
+        fontFamily: 'Inter',
+        fontSize: '14px',
       },
       dataLabels: {
-        enabled: false
+        enabled: false,
       },
-      labels: ["Ok", "Warning", "Error"],
+      labels: true,
       colors: this.gpsGraphService.colors,
       responsive: [
         {
           breakpoint: 480,
           options: {
             legend: {
-              position: "bottom"
+              position: 'bottom',
             },
             chart: {
               width: this.width / 2,
-              height: this.height / 2
-            }
-          }
-        }
-      ]
+              height: this.height / 2,
+            },
+          },
+        },
+      ],
     };
   }
 
@@ -115,28 +136,34 @@ export class GpsGraphComponent implements AfterViewInit{
    * Click sulla fetta "funzionante" del grafico
    */
   workingClick() {
-    console.log("working gps");
+    console.log('working gps');
   }
   /**
    * Click sulla fetta "warning" del grafico
    */
   warningClick() {
-    console.log("warning gps");
+    console.log('warning gps');
   }
   /**
    * Click sulla fetta "error" del grafico
    */
   errorClick() {
-    console.log("error gps");
+    console.log('error gps');
   }
 
-  initializeGraph(vehicles: VehicleData[]){
+  initializeGraph(vehicles: VehicleData[]) {
     this.chartOptions.series = [];
 
     const gpsCheck = this.checkErrorsService.checkVehiclesGpsErrors(vehicles);
 
     const series = [gpsCheck[0].length, gpsCheck[1].length, gpsCheck[2].length];
     this.chartOptions.series = series;
+    this.chartOptions.labels = [
+      `Ok ${gpsCheck[0].length}`,
+      `Warning ${gpsCheck[1].length}`,
+      `Error ${gpsCheck[2].length}`,
+    ];
+    this.cd.detectChanges();
   }
 
   ngOnDestroy(): void {
@@ -145,15 +172,16 @@ export class GpsGraphComponent implements AfterViewInit{
   }
 
   ngAfterViewInit(): void {
-    this.gpsGraphService.loadChartData$.pipe(takeUntil(this.destroy$), skip(1))
-    .subscribe({
-      next:(vehicles: VehicleData[]) => {
-        this.initializeGraph(vehicles);
-        this.cd.detectChanges();
-      },
-      error: error => console.error("Errore nel caricamento del grafico GPS: ", error)
-    });
+    this.gpsGraphService.loadChartData$
+      .pipe(takeUntil(this.destroy$), skip(1))
+      .subscribe({
+        next: (vehicles: VehicleData[]) => {
+          this.initializeGraph(vehicles);
+          this.cd.detectChanges();
+        },
+        error: (error) =>
+          console.error('Errore nel caricamento del grafico GPS: ', error),
+      });
     this.cd.detectChanges();
   }
-
 }

@@ -52,7 +52,7 @@
 
     <!-- GPS Column -->
     <ng-container matColumnDef="GPS">
-      <th mat-header-cell *matHeaderCellDef>GPS</th>
+      <th mat-header-cell *matHeaderCellDef>Stato GPS</th>
       <td mat-cell *matCellDef="let vehicleData">
         <!-- Controllo GPS funzionante -->
         <div
@@ -91,7 +91,7 @@
 
     <!-- Antenna Column -->
     <ng-container matColumnDef="antenna">
-      <th mat-header-cell *matHeaderCellDef>Antenna</th>
+      <th mat-header-cell *matHeaderCellDef>Stato Antenna</th>
       <td mat-cell *matCellDef="let vehicleData">
         <div
           class="OK-container"
@@ -131,7 +131,7 @@
 
     <!-- Sessione Column -->
     <ng-container matColumnDef="sessione">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header>Sessione</th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Stato Sessione</th>
       <td mat-cell *matCellDef="let vehicleData">
         <!-- se non c'è errore, data nera -->
         <span

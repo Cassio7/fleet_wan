@@ -32,7 +32,7 @@
 
 
 
-.working-col, .warning-col, .blackbox-col {
+.working-col, .error-col, .blackbox-col {
   flex: 1;
   padding: 16px;
   border: 1px solid #ccc;

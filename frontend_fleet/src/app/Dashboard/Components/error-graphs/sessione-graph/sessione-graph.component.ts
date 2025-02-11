@@ -64,12 +64,22 @@ export class SessioneGraphComponent {
             size: '75%',
             labels: {
               show: true,
+              name: {
+                show: true,
+                fontSize: '14px',
+                fontWeight: 400,
+                offsetY: 20,
+              },
+              value: {
+                show: true,
+                fontSize: '22px',
+                fontWeight: 600,
+                offsetY: -20
+              },
               total: {
                 showAlways: true,
                 show: true,
                 label: 'mezzi',
-                fontSize: '14px',
-                fontWeight: 400,
                 color: '#1A1919',
               },
             },
@@ -81,8 +91,10 @@ export class SessioneGraphComponent {
       },
       legend: {
         position: 'left',
+        fontFamily: 'Inter',
+        fontSize: '14px',
       },
-      labels: ['Ok', 'Error'],
+      labels: true,
       colors: this.sessioneGraphService.colors,
       responsive: [
         {
@@ -126,7 +138,13 @@ export class SessioneGraphComponent {
     const sessionCheck =
       this.checkErrorsService.checkVehiclesSessionErrors(vehicles);
 
+      this.chartOptions.labels = [
+        `Ok ${sessionCheck[0].length}`,
+        `Error ${sessionCheck[1].length}`
+      ];
+
     this.chartOptions.series = [sessionCheck[0].length, sessionCheck[1].length];
+    this.cd.detectChanges();
   }
 
   ngOnDestroy(): void {

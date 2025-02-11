@@ -1,13 +1,19 @@
 import { ChangeDetectorRef, Component } from '@angular/core';
+import {
+  ApexChart,
+  ApexDataLabels,
+  ApexLegend,
+  ApexNonAxisChartSeries,
+  ApexResponsive,
+  NgApexchartsModule,
+} from 'ng-apexcharts';
 import { skip, Subject, takeUntil } from 'rxjs';
+import { CheckErrorsService } from '../../../../Common-services/check-errors/check-errors.service';
+import { PlateFilterService } from '../../../../Common-services/plate-filter/plate-filter.service';
 import { SessionStorageService } from '../../../../Common-services/sessionStorage/session-storage.service';
-import { ApexChart, ApexDataLabels, ApexLegend, ApexNonAxisChartSeries, ApexResponsive, NgApexchartsModule } from "ng-apexcharts";
+import { VehicleData } from '../../../../Models/VehicleData';
 import { AntennaGraphService } from '../../../Services/antenna-graph/antenna-graph.service';
 import { BlackboxGraphsService } from '../../../Services/blackbox-graphs/blackbox-graphs.service';
-import { VehicleData } from '../../../../Models/VehicleData';
-import { PlateFilterService } from '../../../../Common-services/plate-filter/plate-filter.service';
-import { CheckErrorsService } from '../../../../Common-services/check-errors/check-errors.service';
-
 
 export type ChartOptions = {
   series: ApexNonAxisChartSeries;
@@ -22,11 +28,9 @@ export type ChartOptions = {
 @Component({
   selector: 'app-antenna-graph',
   standalone: true,
-  imports: [
-    NgApexchartsModule
-  ],
+  imports: [NgApexchartsModule],
   templateUrl: './antenna-graph.component.html',
-  styleUrl: './antenna-graph.component.css'
+  styleUrl: './antenna-graph.component.css',
 })
 export class AntennaGraphComponent {
   private readonly destroy$: Subject<void> = new Subject<void>();
@@ -48,7 +52,7 @@ export class AntennaGraphComponent {
     this.chartOptions = {
       series: [],
       chart: {
-        type: "donut",
+        type: 'donut',
         height: this.height,
         width: this.width,
         events: {
@@ -64,8 +68,8 @@ export class AntennaGraphComponent {
                 this.errorClick();
                 break;
             }
-          }
-        }
+          },
+        },
       },
       plotOptions: {
         pie: {
@@ -73,40 +77,52 @@ export class AntennaGraphComponent {
             size: '75%',
             labels: {
               show: true,
+              name: {
+                show: true,
+                fontSize: '14px',
+                fontWeight: 400,
+                offsetY: 20,
+              },
+              value: {
+                show: true,
+                fontSize: '22px',
+                fontWeight: 600,
+                offsetY: -20,
+              },
               total: {
                 showAlways: true,
                 show: true,
-                label: "mezzi",
-                fontSize: "14px",
-                fontWeight: 400,
-                color: "#1A1919",
-              }
-            }
-          }
-        }
-      },
-      dataLabels: {
-        enabled: false
+                label: 'mezzi',
+                color: '#1A1919',
+              },
+            },
+          },
+        },
       },
       legend: {
-        position: "left"
+        position: 'left',
+        fontFamily: 'Inter',
+        fontSize: '14px',
       },
-      labels: ["Ok", "Error", "No antenna"],
+      dataLabels: {
+        enabled: false,
+      },
+      labels: true,
       colors: this.antennaGraphService.colors,
       responsive: [
         {
           breakpoint: 480,
           options: {
             legend: {
-              position: "bottom"
+              position: 'bottom',
             },
             chart: {
               width: this.width / 2,
-              height: this.height / 2
-            }
-          }
-        }
-      ]
+              height: this.height / 2,
+            },
+          },
+        },
+      ],
     };
   }
 
@@ -114,28 +130,39 @@ export class AntennaGraphComponent {
    * Click sulla fetta "funzionante" del grafico
    */
   workingClick() {
-    console.log("working gps");
+    console.log('working gps');
   }
   /**
    * Click sulla fetta "warning" del grafico
    */
   warningClick() {
-    console.log("warning gps");
+    console.log('warning gps');
   }
   /**
    * Click sulla fetta "error" del grafico
    */
   errorClick() {
-    console.log("error gps");
+    console.log('error gps');
   }
 
-  initializeGraph(vehicles: VehicleData[]){
+  initializeGraph(vehicles: VehicleData[]) {
     this.chartOptions.series = [];
 
-    const antennaCheck = this.checkErrorsService.checkVehiclesAntennaErrors(vehicles);
+    const antennaCheck =
+      this.checkErrorsService.checkVehiclesAntennaErrors(vehicles);
     const blackboxData = this.blackboxGraphService.getAllRFIDVehicles(vehicles);
+    this.chartOptions.labels = [
+      `Ok ${antennaCheck[0].length}`,
+      `Error ${antennaCheck[1].length}`,
+      `No RFID ${blackboxData.blackboxOnly.length}`,
+    ];
+    this.chartOptions.series = [
+      antennaCheck[0].length,
+      antennaCheck[1].length,
+      blackboxData.blackboxOnly.length,
+    ];
 
-    this.chartOptions.series = [antennaCheck[0].length, antennaCheck[1].length, blackboxData.blackboxOnly.length];
+    this.cd.detectChanges();
   }
 
   ngOnDestroy(): void {
@@ -144,14 +171,16 @@ export class AntennaGraphComponent {
   }
 
   ngAfterViewInit(): void {
-    this.antennaGraphService.loadChartData$.pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next:(vehicles: VehicleData[]) => {
-        this.initializeGraph(vehicles);
-        this.cd.detectChanges();
-      },
-      error: error => console.error("Errore nel caricamento del grafico GPS: ", error)
-    });
+    this.antennaGraphService.loadChartData$
+      .pipe(takeUntil(this.destroy$), skip(1))
+      .subscribe({
+        next: (vehicles: VehicleData[]) => {
+          this.initializeGraph(vehicles);
+          this.cd.detectChanges();
+        },
+        error: (error) =>
+          console.error('Errore nel caricamento del grafico GPS: ', error),
+      });
     this.cd.detectChanges();
   }
 }
