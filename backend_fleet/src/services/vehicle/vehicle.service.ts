@@ -555,6 +555,10 @@ export class VehicleService {
               },
             },
           },
+          workzone: true,
+          service: true,
+          equipment: true,
+          rental: true,
         },
       });
       if (!vehicle)
