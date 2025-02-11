@@ -1,14 +1,19 @@
-.content{
+.content {
   height: 100vh;
   padding: 20px;
   background-color: var(--background-color);
   overflow: hidden;
 }
-.header{
+.header {
   display: flex;
   flex-direction: column;
   gap: 3vh;
 }
-.table-container{
+.table-container {
   height: 72vh;
+}
+.title-main {
+  font-weight: bold;
+  font-size: 24px;
+  padding-bottom: 1vh;
 }

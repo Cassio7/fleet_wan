@@ -26,16 +26,19 @@
   text-align: center;
 }
 
-.title {
+.title-side {
+  font-weight: 500;
+  font-size: 20px;
+  padding-bottom: 5px;
+}
+.title-main {
   font-weight: bold;
-  font-size: 28px;
-  line-height: 1.2;
+  font-size: 24px;
+  padding-bottom: 5px;
 }
 
 .subtitle {
-  color: gray;
-  font-style: italic;
-  line-height: 1.4;
+  font-weight: 300;
   font-size: 14px;
 }
 
