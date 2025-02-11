@@ -1,4 +1,29 @@
 <div id="chart">
+  <p class="title">Report qualità delle letture</p>
+  <mat-chip-listbox class="mat-chip-listbox-inline" aria-label="Cutest dog breeds">
+    <mat-chip-option
+      [ngClass]="{ 'selected-chip': selectedRange === '10 G' }"
+      (click)="setGraphDataRange('10 G')">
+      10 G
+    </mat-chip-option>
+    <mat-chip-option
+      [ngClass]="{ 'selected-chip': selectedRange === '1 M' }"
+      (click)="setGraphDataRange('1 M')">
+      1 M
+    </mat-chip-option>
+    <mat-chip-option
+      [ngClass]="{ 'selected-chip': selectedRange === '3 M' }"
+      (click)="setGraphDataRange('3 M')">
+      3 M
+    </mat-chip-option>
+    <mat-chip-option
+      [ngClass]="{ 'selected-chip': selectedRange === '1 A' }"
+      (click)="setGraphDataRange('1 A')">
+      1 A
+    </mat-chip-option>
+  </mat-chip-listbox>
+
+
   <apx-chart
     [series]="chartOptions.series"
     [chart]="chartOptions.chart"
@@ -8,6 +33,5 @@
     [grid]="chartOptions.grid"
     [colors]="chartOptions.colors"
     [stroke]="chartOptions.stroke"
-    [title]="chartOptions.title"
   ></apx-chart>
 </div>

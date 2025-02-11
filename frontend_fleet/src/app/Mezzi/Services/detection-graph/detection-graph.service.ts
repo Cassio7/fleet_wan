@@ -22,18 +22,19 @@ export class DetectionGraphService {
    * @param veId veId del veicolo di cui ricercare la qualità delle letture
    * @returns observable http post
    */
-  getDetectionQualityByVeId(veId: number): Observable<DetectionQuality[]>{
+  getDetectionQualityByVeId(
+    body: {
+      veId: number,
+      months: number,
+      days: number
+    }
+  ): Observable<DetectionQuality[]>{
     const access_token = this.cookiesService.getCookie("user");
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'
     });
 
-    const body = {
-      veId: veId,
-      months: 3, //di default prende 3 mesi di dati
-      days: 0
-    };
     return this.http.post<DetectionQuality[]>(`${this.commonService.url}/tags/detection`, body, {headers});
   }
 

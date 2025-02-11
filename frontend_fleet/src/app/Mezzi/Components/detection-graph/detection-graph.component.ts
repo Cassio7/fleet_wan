@@ -5,6 +5,8 @@ import { DetectionGraphService } from '../../Services/detection-graph/detection-
 import { Vehicle } from '../../../Models/Vehicle';
 import { Subject, takeUntil } from 'rxjs';
 import { DetectionQuality } from '../../../Models/DetectionQuality';
+import {MatChipsModule} from '@angular/material/chips';
+import { CommonModule } from '@angular/common';
 
 export type ChartOptions = {
   series: ApexAxisChartSeries;
@@ -22,7 +24,9 @@ export type ChartOptions = {
   selector: 'app-detection-graph',
   standalone: true,
   imports: [
-    NgApexchartsModule
+    CommonModule,
+    NgApexchartsModule,
+    MatChipsModule
   ],
   templateUrl: './detection-graph.component.html',
   styleUrl: './detection-graph.component.css'
@@ -30,6 +34,7 @@ export type ChartOptions = {
 export class DetectionGraphComponent implements AfterViewInit{
   private readonly destroy$: Subject<void> = new Subject<void>();
   @Input() veId!: number;
+  selectedRange: string = '';
   public chartOptions: Partial<ChartOptions>;
 
   constructor(private detectionGraphService: DetectionGraphService){
@@ -50,10 +55,6 @@ export class DetectionGraphComponent implements AfterViewInit{
       stroke: {
         curve: "straight",
       },
-      title: {
-        text: "Report qualità delle letture",
-        align: "left",
-      },
       grid: {
         row: {
           colors: ["#f3f3f3", "transparent"],
@@ -73,7 +74,22 @@ export class DetectionGraphComponent implements AfterViewInit{
     };
   }
   ngAfterViewInit(): void {
-    this.detectionGraphService.getDetectionQualityByVeId(this.veId).pipe(takeUntil(this.destroy$))
+    const body = {
+      veId: this.veId,
+      months: 3,
+      days: 0
+    }
+    this.loadGraph(body);
+  }
+
+  loadGraph(
+    body: {
+      veId: number,
+      months: number,
+      days: number
+    }
+  ){
+    this.detectionGraphService.getDetectionQualityByVeId(body).pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (detectionQualities: DetectionQuality[]) => {
           console.log("detectionQualities fetched: ", detectionQualities);
@@ -102,5 +118,33 @@ export class DetectionGraphComponent implements AfterViewInit{
       },
       error: error => console.error("Errore nella ricerca delle qualità di lettura: ", error)
     });
+  }
+
+  setGraphDataRange(chipText: string){
+    this.selectedRange = chipText;
+    this.chartOptions.series = [];
+    const body = {
+      veId: this.veId,
+      months: 0,
+      days: 0
+    }
+    switch(chipText){
+      case "10 G":
+        body.days = 10;
+        this.loadGraph(body);
+        break;
+      case "1 M":
+        body.months = 1;
+        this.loadGraph(body);
+        break;
+      case "3 M":
+        body.months = 3;
+        this.loadGraph(body);
+        break;
+      case "1 A":
+        body.months = 12;
+        this.loadGraph(body);
+        break;
+    }
   }
 }
