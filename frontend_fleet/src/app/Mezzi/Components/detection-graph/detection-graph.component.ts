@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Input } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, Input } from '@angular/core';
 import { ApexAxisChartSeries, ApexChart, ApexXAxis, ApexDataLabels, ApexGrid, ApexStroke, ApexTitleSubtitle, ApexYAxis } from 'ng-apexcharts';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { DetectionGraphService } from '../../Services/detection-graph/detection-graph.service';
@@ -7,6 +7,8 @@ import { Subject, takeUntil } from 'rxjs';
 import { DetectionQuality } from '../../../Models/DetectionQuality';
 import {MatChipsModule} from '@angular/material/chips';
 import { CommonModule } from '@angular/common';
+import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
+import { NavigationStart, Router } from '@angular/router';
 
 export type ChartOptions = {
   series: ApexAxisChartSeries;
@@ -37,7 +39,12 @@ export class DetectionGraphComponent implements AfterViewInit{
   selectedRange: string = '';
   public chartOptions: Partial<ChartOptions>;
 
-  constructor(private detectionGraphService: DetectionGraphService){
+  constructor(
+    private detectionGraphService: DetectionGraphService,
+    private sessionStorageService: SessionStorageService,
+    private router: Router,
+    private cd: ChangeDetectorRef
+  ){
     this.chartOptions = {
       series: [
       ],
@@ -74,12 +81,20 @@ export class DetectionGraphComponent implements AfterViewInit{
     };
   }
   ngAfterViewInit(): void {
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationStart) {
+        this.sessionStorageService.removeItem("selectedRange");
+      }
+    });
     const body = {
       veId: this.veId,
       months: 3,
       days: 0
     }
+    const selectedRange = this.sessionStorageService.getItem("selectedRange");
+    this.selectedRange = selectedRange || "3 M";
     this.loadGraph(body);
+    this.cd.detectChanges();
   }
 
   loadGraph(
@@ -122,6 +137,7 @@ export class DetectionGraphComponent implements AfterViewInit{
 
   setGraphDataRange(chipText: string){
     this.selectedRange = chipText;
+    this.sessionStorageService.setItem("selectedRange", chipText);
     this.chartOptions.series = [];
     const body = {
       veId: this.veId,
