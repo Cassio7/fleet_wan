@@ -19,7 +19,7 @@ export class MapService {
   initMap(map: L.Map, lat: number, long: number): L.Map {
     map = L.map('map', {
       center: [lat, long],
-      zoom: 14
+      zoom: 12
     });
 
     const tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {

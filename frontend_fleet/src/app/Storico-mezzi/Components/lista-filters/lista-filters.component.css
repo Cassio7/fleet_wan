@@ -1,8 +1,13 @@
 .filters-container {
   width: 100%;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 1vw;
+  background-color: white;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  box-sizing: border-box;
 }
 
 .filter{

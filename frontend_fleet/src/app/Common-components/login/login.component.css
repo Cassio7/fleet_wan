@@ -41,9 +41,10 @@
 .left-container .section-header{
   width: 100%;
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: .5vh;
+  flex-direction: row;
+  align-items: center;
+  gap: 2vw;
+  margin: 0;
 }
 
 .left-container .section-header .title-container{
@@ -64,14 +65,14 @@
 .left-container .section-header .title-container .version {
   color: grey;
   font-style: italic;
-  font-size: 15px;
+  font-size: 10px;
   line-height: 1;
   margin: 0;
 }
 
 .left-container .section-header .main-logo{
   height: 8vh;
-  width: 8vw;
+  width: 5vw;
   margin: 0;
 }
 
@@ -185,4 +186,7 @@
   color: gray;
   line-height: 1;
   font-size: 10px;
+}
+mat-icon{
+  color: var(--green);
 }

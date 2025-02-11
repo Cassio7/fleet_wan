@@ -21,15 +21,12 @@
       <div class="scrollable-list">
         <mat-list>
           <mat-list-item *ngFor="let vehicleData of kanbanAntennaService.workingVehicles">
-            <div class="vehicle" >
-              <div class="info" matTooltip="Antenna funzionante">
-                <p class="type">{{ vehicleData.vehicle.service?.name }}</p>
-                <p class="cantiere">{{ vehicleData.vehicle.worksite?.name || 'Non assegnato' }}</p>
-              </div>
-              <div class="right-container">
-                <p class="plate" matTooltip="Antenna funzionante">{{ vehicleData.vehicle.plate }}</p>
+            <div class="vehicle" matTooltip="Antenna funzionante">
+              <div class="left-container">
+                <p class="cantiere">{{ vehicleData.vehicle.worksite?.name ? vehicleData.vehicle.worksite?.name : "non assegnato"}}</p>
                 <button mat-button class="map-btn" matTooltip="Click per visualizzare l'ultima posizione registrata sulla mappa" (click)="showMap(vehicleData)"><mat-icon>map</mat-icon></button>
               </div>
+                <p class="plate">{{ vehicleData.vehicle.plate }}</p>
             </div>
           </mat-list-item>
         </mat-list>
@@ -56,15 +53,12 @@
       <div class="scrollable-list">
         <mat-list>
           <mat-list-item *ngFor="let vehicleData of kanbanAntennaService.errorVehicles">
-            <div class="vehicle">
-              <div class="info" [matTooltip]="checkErrorsService.checkVehicleAntennaError(vehicleData)">
-                <p class="type">{{ vehicleData.vehicle.service?.name }}</p>
-                <p class="cantiere">{{ vehicleData.vehicle.worksite?.name || 'Non assegnato' }}</p>
-              </div>
-              <div class="right-container">
-                <p class="plate" [matTooltip]="checkErrorsService.checkVehicleAntennaError(vehicleData)">{{ vehicleData.vehicle.plate }}</p>
+            <div class="vehicle" [matTooltip]="checkErrorsService.checkVehicleAntennaError(vehicleData)">
+              <div class="left-container">
+                <p class="cantiere">{{ vehicleData.vehicle.worksite?.name ? vehicleData.vehicle.worksite?.name : "non assegnato"}}</p>
                 <button mat-button class="map-btn" matTooltip="Click per visualizzare l'ultima posizione registrata sulla mappa" (click)="showMap(vehicleData)"><mat-icon>map</mat-icon></button>
               </div>
+                <p class="plate">{{ vehicleData.vehicle.plate }}</p>
             </div>
           </mat-list-item>
         </mat-list>
@@ -92,14 +86,11 @@
         <mat-list>
           <mat-list-item *ngFor="let vehicleData of kanbanAntennaService.blackboxVehicles">
             <div class="vehicle">
-              <div class="info" matTooltip="No antenna">
-                <p class="type">{{ vehicleData.vehicle.service?.name }}</p>
-                <p class="cantiere">{{ vehicleData.vehicle.worksite?.name || 'Non assegnato' }}</p>
-              </div>
-              <div class="right-container">
-                <p class="plate" matTooltip="No antenna">{{ vehicleData.vehicle.plate }}</p>
+              <div class="left-container">
+                <p class="cantiere">{{ vehicleData.vehicle.worksite?.name ? vehicleData.vehicle.worksite?.name : "non assegnato"}}</p>
                 <button mat-button class="map-btn" matTooltip="Click per visualizzare l'ultima posizione registrata sulla mappa" (click)="showMap(vehicleData)"><mat-icon>map</mat-icon></button>
               </div>
+                <p class="plate">{{ vehicleData.vehicle.plate }}</p>
             </div>
           </mat-list-item>
         </mat-list>

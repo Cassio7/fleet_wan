@@ -20,16 +20,6 @@ tr.selected-row td{
   overflow: visible;
 }
 
-.map-btn mat-icon{
-  color: var(--sidebar-color);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  transform: scale(1.5) !important;
-}
-
 .table {
   width: 100%;
   overflow-y: auto;
@@ -60,4 +50,13 @@ tr.selected-row td{
 
 .table::-webkit-scrollbar-thumb:hover {
   background-color: #555 !important;
+}
+.map-btn mat-icon{
+  color: var(--green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  transform: scale(1.5) !important;
 }

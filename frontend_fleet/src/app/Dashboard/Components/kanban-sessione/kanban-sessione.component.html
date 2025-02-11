@@ -5,7 +5,7 @@
     <div class="working-col">
       <div class="header">
         <div class="OK-container">
-          <mat-icon class="gpsIcon-OK">settings_backup_restore</mat-icon>
+          <mat-icon class="sessionIcon-OK">settings_backup_restore</mat-icon>
           OK
         </div>
         <span class="nMezzi">{{ kanbanSessioneService.workingVehicles.length }}</span>
@@ -15,17 +15,12 @@
       <div class="scrollable-list">
         <mat-list>
           <mat-list-item *ngFor="let vehicleData of kanbanSessioneService.workingVehicles">
-            <div class="vehicle">
-              <div class="info" matTooltip="GPS funzionante">
-                <p class="type">{{ vehicleData.vehicle.service?.name }}</p>
-                <p class="cantiere">
-                  {{ vehicleData.vehicle.worksite?.name ? vehicleData.vehicle.worksite?.name : "non assegnato" }}
-                </p>
-              </div>
-              <div class="right-container">
-                <p class="plate">{{ vehicleData.vehicle.plate }}</p>
+            <div class="vehicle" matTooltip="Sessione corretta">
+              <div class="left-container">
+                <p class="cantiere">{{ vehicleData.vehicle.worksite?.name ? vehicleData.vehicle.worksite?.name : "non assegnato"}}</p>
                 <button mat-button class="map-btn" matTooltip="Click per visualizzare l'ultima posizione registrata sulla mappa" (click)="showMap(vehicleData)"><mat-icon>map</mat-icon></button>
               </div>
+                <p class="plate">{{ vehicleData.vehicle.plate }}</p>
             </div>
           </mat-list-item>
         </mat-list>
@@ -47,15 +42,12 @@
       <div class="scrollable-list">
         <mat-list>
           <mat-list-item *ngFor="let vehicleData of kanbanSessioneService.errorVehicles">
-            <div class="vehicle">
-              <div class="info" [matTooltip]="checkErrorsService.checkVehicleGpsError(vehicleData)">
-                <p class="type">{{ vehicleData.vehicle.service?.name }}</p>
+            <div class="vehicle" [matTooltip]="checkErrorsService.checkVehicleSessionError(vehicleData)">
+              <div class="left-container">
                 <p class="cantiere">{{ vehicleData.vehicle.worksite?.name ? vehicleData.vehicle.worksite?.name : "non assegnato"}}</p>
-              </div>
-              <div class="right-container">
-                <p class="plate">{{ vehicleData.vehicle.plate }}</p>
                 <button mat-button class="map-btn" matTooltip="Click per visualizzare l'ultima posizione registrata sulla mappa" (click)="showMap(vehicleData)"><mat-icon>map</mat-icon></button>
               </div>
+                <p class="plate">{{ vehicleData.vehicle.plate }}</p>
             </div>
           </mat-list-item>
         </mat-list>

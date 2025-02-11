@@ -85,26 +85,25 @@
   flex-direction: column;
 }
 
-.vehicle .right-container{
+.vehicle .left-container{
   width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: flex-start;
 }
-.vehicle .right-container .map-btn{
-  width: 40px;
-  height: 40px;
+.vehicle .left-container .map-btn {
+  width: 5px;
+  height: 15px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.vehicle .right-container .map-btn mat-icon {
-  width: 100%;
-  height: 100%;
-  font-size: 35px;
+
+.vehicle .left-container .map-btn mat-icon {
+  transform: scale(1);
   color: var(--green);
-  overflow: visible;
 }
+
 .plate {
   text-align: right;
   background-color: #EFEEE4;
