@@ -2,6 +2,7 @@
   height: 100vh;
   padding: 20px;
   background-color: var(--background-color);
+  overflow: hidden;
 }
 .header{
   display: flex;

@@ -11,7 +11,7 @@
 
 tr, td, th {
   word-wrap: break-word;
-  max-width: 150px; /* Adjust column width */
+  max-width: 150px;
 }
 
 .table-container {
@@ -19,7 +19,7 @@ tr, td, th {
   margin: 0;
   width: 100%;
   overflow-y: auto;
-  overflow-x: auto; /* Enable horizontal scrolling */
+  overflow-x: hidden;
   box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
   max-width: 100%;
 }

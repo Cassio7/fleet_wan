@@ -4,7 +4,6 @@
   height: 100vh;
   display: flex;
   flex-direction: row;
-  box-sizing: border-box;
 }
 
 .section {
@@ -50,7 +49,6 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 15px;
   width: 100%;
 }
 
@@ -85,13 +83,12 @@
   align-items: center;
   justify-content: center;
   justify-content: space-between;
-  gap: 2vw;
 }
 
-.sessionTable-container{
-  height: 70vh;
-  overflow-x: hidden;
+.sessionTable-container {
+  max-height: 70vh;
 }
+
 
 .info {
   display: flex;
@@ -101,7 +98,7 @@
 }
 
 .info{
-  padding: 20px;
+  padding: 10px;
   background-color: white;
 }
 .info > div {
@@ -120,4 +117,6 @@
 .small-title{
   color: var(--green);
 }
-
+.section-header{
+  margin-bottom: 20px;
+}

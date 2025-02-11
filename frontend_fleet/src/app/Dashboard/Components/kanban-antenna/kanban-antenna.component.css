@@ -1,22 +1,20 @@
 .container {
   display: flex;
   flex-direction: column;
-  margin-top: 3vh;
 }
 
 .columns {
-  margin-top: 2vh;
   display: flex;
   justify-content: space-between;
   gap: 16px;
   padding: 16px;
+  font-family: 'Inter';
 }
 
 .title {
   font-size: 40px;
   font-weight: bold;
   line-height: 1;
-  margin: 0;
 }
 
 .subtitle {
@@ -24,24 +22,17 @@
   color: gray;
   font-style: italic;
   line-height: 1;
-  margin: 0;
-}
-
-.filters {
-  margin-top: 20px;
 }
 
 .progress-bar {
-  margin-bottom: 1vh;
   border-radius: 2px;
+  background-color: green !important; /*non funziona*/
   cursor: pointer;
-  /* Added for Angular theme color customization */
 }
 
-/* Customization for Angular Material components should be added in theme.scss or the component's local CSS */
-/* Ensure that Angular Material theme settings use correct colors for 'accent', 'warn', etc. */
 
-.working-col, .blackbox-col, .error-col {
+
+.working-col, .warning-col, .blackbox-col {
   flex: 1;
   padding: 16px;
   border: 1px solid #ccc;
@@ -57,10 +48,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1vh;
 }
 
-.OK-container, .blackbox-container, .error-container {
+.OK-container, .warning-container, .error-container {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -72,11 +62,11 @@
 }
 
 .OK-container {
-  background-color: var(--green); /* Ensure --sidebar-color is defined in your CSS or replace with a specific color */
+  background-color: var(--green);
 }
 
-.blackbox-container {
-  background-color: var(--black);
+.warning-container {
+  background-color: var(--yellow);
 }
 
 .error-container {
@@ -121,7 +111,6 @@
 
 mat-form-field {
   width: 100%;
-  margin-bottom: 16px;
 }
 
 input[matInput] {
@@ -131,7 +120,6 @@ input[matInput] {
 
 button {
   width: 100%;
-  margin-top: 8px;
 }
 
 mat-list-item {
@@ -144,20 +132,20 @@ mat-list-item {
 }
 
 mat-icon-button {
-  color: #f44336;
+  color: var(--red);
 }
 
 mat-list-item:hover {
   background-color: #f1f1f1;
   cursor: pointer;
 }
-
 .scrollable-list {
   max-height: 500px;
   overflow-y: auto;
   padding-right: 20px;
   padding-left: 10px;
 }
+
 
 .scrollable-list::-webkit-scrollbar {
   width: 10px;
