@@ -137,10 +137,9 @@ export class SessioneGraphComponent {
 
     const sessionCheck =
       this.checkErrorsService.checkVehiclesSessionErrors(vehicles);
-
       this.chartOptions.labels = [
-        `Ok ${sessionCheck[0].length}`,
-        `Error ${sessionCheck[1].length}`
+        `<div style='width: 110px; display:flex; justify-content: space-between'><span>Ok</span> <span>${sessionCheck[0].length}</span></div>`,
+        `<div style='width: 110px; display:flex; justify-content: space-between'><span>Error</span><span>${sessionCheck[1].length}</span></div>`,
       ];
 
     this.chartOptions.series = [sessionCheck[0].length, sessionCheck[1].length];

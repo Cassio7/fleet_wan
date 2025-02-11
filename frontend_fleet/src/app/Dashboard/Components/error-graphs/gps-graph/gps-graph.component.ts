@@ -20,7 +20,6 @@ import { PlateFilterService } from '../../../../Common-services/plate-filter/pla
 import { CheckErrorsService } from '../../../../Common-services/check-errors/check-errors.service';
 import { VehicleData } from '../../../../Models/VehicleData';
 import { FiltersCommonService } from '../../../../Common-services/filters-common/filters-common.service';
-import { style } from '@angular/animations';
 
 export type ChartOptions = {
   series: ApexNonAxisChartSeries;
@@ -159,9 +158,9 @@ export class GpsGraphComponent implements AfterViewInit {
     const series = [gpsCheck[0].length, gpsCheck[1].length, gpsCheck[2].length];
     this.chartOptions.series = series;
     this.chartOptions.labels = [
-      `Ok ${gpsCheck[0].length}`,
-      `Warning ${gpsCheck[1].length}`,
-      `Error ${gpsCheck[2].length}`,
+      `<div style='width: 110px; display:flex; justify-content: space-between'><span>Ok</span> <span>${gpsCheck[0].length}</span></div>`,
+      `<div style='width: 110px; display:flex; justify-content: space-between'><span>Warning</span><span>${gpsCheck[1].length}</span></div>`,
+      `<div style='width: 110px; display:flex; justify-content: space-between'><span>Ok</span><span>${gpsCheck[2].length}</span></b>`,
     ];
     this.cd.detectChanges();
   }

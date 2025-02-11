@@ -152,9 +152,9 @@ export class AntennaGraphComponent {
       this.checkErrorsService.checkVehiclesAntennaErrors(vehicles);
     const blackboxData = this.blackboxGraphService.getAllRFIDVehicles(vehicles);
     this.chartOptions.labels = [
-      `Ok ${antennaCheck[0].length}`,
-      `Error ${antennaCheck[1].length}`,
-      `No RFID ${blackboxData.blackboxOnly.length}`,
+      `<div style='width: 110px; display:flex; justify-content: space-between'><span>Ok</span> <span>${antennaCheck[0].length}</span></div>`,
+      `<div style='width: 110px; display:flex; justify-content: space-between'><span>Error</span><span>${antennaCheck[1].length}</span></div>`,
+      `<div style='width: 110px; display:flex; justify-content: space-between'><span>No RFID</span><span>${blackboxData.blackboxOnly.length}</span></b>`,
     ];
     this.chartOptions.series = [
       antennaCheck[0].length,
