@@ -1,34 +1,29 @@
 .all-page{
   width: 100%;
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   overflow: hidden;
 }
 .header{
-  height: 100%;
   padding-top: .5vh;
   padding-left: 2vw;
-  padding-bottom: 1vh;
-  margin: 0;
   background-color: var(--navbarANDstats-background);
   flex: 3;
 }
 .content{
-  width: 100%;
-  height: 100vh;
   display: flex;
+  width: 100%;
+  min-height: 100vh;
 }
 .content-inside{
-  width: 100%;
-  height: 100vh;
   display: flex;
 }
 .go-back{
-  font-size: 20px;
+  font-size: 24px;
   display: flex;
   align-items: center;
   gap: .5vw;
-  font-weight: bold;
+  font-weight: 600;
 }
 .go-back button{
   height: 50px;
@@ -55,27 +50,24 @@
   font-weight: bold;
   font-size: 24px;
   line-height: 1;
-  margin-bottom: 5px;
 }
 .subtitle{
-  color: gray;
-  /* font-style: italic; */
+  font-weight: 300;
   line-height: 1;
   margin-top: 0;
   font-size: 14;
 }
 .left-section{
   display: flex;
+  flex: 6;
   gap: 1vw;
   flex-direction: column;
   background-color: var(--navbarANDstats-background);
 }
 .right-section{
-  width: 100%;
-  height: 100%;
   padding: 20px;
   background-color: var(--background-color);
-  flex: 3;
+  flex: 4;
 }
 
 .cards{
@@ -145,18 +137,27 @@
   width: 100%;
   height: auto;
 }
-.generalInfo-card mat-card-header{
-  width: 100%;
-  height: 100%;
+mat-card-header{
   display: flex;
   align-items: center;
 }
-.deviceInfo-card mat-card-header{
-  width: 100%;
-  height: 100%;
+mat-card-title{
   display: flex;
   align-items: center;
+  gap: 10px;
+  padding-left: 16px;
+  padding-bottom: 8px;
+  font-weight: 500;
 }
+mat-card-subtitle{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-left: 16px;
+  font-weight: 300;
+  font-family: 'Inter';
+}
+
 .general-lists{
   width: 100%;
   display: flex;
@@ -167,7 +168,6 @@
   align-items: center;
 }
 .fleet-lists{
-  width: 100%;
   display: flex;
   align-items: center;
 }
@@ -184,6 +184,8 @@ mat-list-item{
 }
 
 .list-label{
+  font-size: 12px;
+  font-family: 'Inter';
   color: var(--green);
 }
 mat-divider {

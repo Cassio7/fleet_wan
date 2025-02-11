@@ -49,7 +49,7 @@ th{
   color: var(--green);
 }
 table:not(.mat-calendar-table) tr:nth-child(even) {
-  background-color: #F7F7F6;
+  background-color: rgba(255, 255, 255, 0.7);
 }
 
 .section-header{

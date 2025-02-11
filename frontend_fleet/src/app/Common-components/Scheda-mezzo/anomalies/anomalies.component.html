@@ -1,15 +1,14 @@
 <div class="anomalies-container">
-  <p class="anomalies-title"><strong>Anomalie</strong></p>
   <div class="anomalies" *ngIf="vehicleAnomalies">
     <mat-card class="working" #GPSCard
     [ngStyle]="{'background-color': checkGPSAnomalyColor()}"
     [matTooltip]="gpsAnomaly"
     >
-      <mat-card-header><mat-icon >location_on</mat-icon> GPS</mat-card-header>
+      <mat-card-header><mat-icon >location_on</mat-icon>GPS</mat-card-header>
       <mat-card-content>
-        <p *ngIf="gpsStatus == 'Funzionante'">Funzionante</p>
+        <p *ngIf="gpsStatus == 'Funzionante'">OK</p>
         <p *ngIf="gpsStatus == 'Warning'">Warning</p>
-        <p *ngIf="gpsStatus == 'Errore'">Errore</p>
+        <p *ngIf="gpsStatus == 'Errore'">Error</p>
       </mat-card-content>
     </mat-card>
     <mat-card class="warning" #antennaCard
@@ -18,8 +17,8 @@
     >
       <mat-card-header><mat-icon >wifi_on</mat-icon> Antenna</mat-card-header>
       <mat-card-content>
-        <p *ngIf="antennaStatus == 'Funzionante'">Funzionante</p>
-        <p *ngIf="antennaStatus == 'Errore'">Errore</p>
+        <p *ngIf="antennaStatus == 'Funzionante'">OK</p>
+        <p *ngIf="antennaStatus == 'Errore'">Error</p>
         <p *ngIf="antennaStatus == 'Blackbox'">No antenna</p>
       </mat-card-content>
     </mat-card>
@@ -29,8 +28,8 @@
     >
       <mat-card-header><mat-icon matSuffix>settings_backup_restore</mat-icon>Sessione</mat-card-header>
       <mat-card-content>
-        <p *ngIf="sessionStatus == 'Funzionante'">Funzionante</p>
-        <p *ngIf="sessionStatus == 'Errore'">Errore</p>
+        <p *ngIf="sessionStatus == 'Funzionante'">OK</p>
+        <p *ngIf="sessionStatus == 'Errore'">Error</p>
       </mat-card-content>
     </mat-card>
   </div>

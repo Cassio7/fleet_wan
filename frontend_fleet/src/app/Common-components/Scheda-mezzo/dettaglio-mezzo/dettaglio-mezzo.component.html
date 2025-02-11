@@ -17,55 +17,62 @@
           <mat-card class="generalInfo-card">
             <mat-card-header>
               <mat-card-title
-                ><mat-icon>local_shipping</mat-icon>Camion
-                differenziata</mat-card-title
+                ><mat-icon>local_shipping</mat-icon
+                >{{ vehicle.plate }}</mat-card-title
               >
               <mat-card-subtitle
-                >ID: {{ vehicle.veId }} — Dismesso: no</mat-card-subtitle
+                >ID: {{ vehicle.veId }} — Dismesso:
+                {{
+                  vehicle.retired_event ? vehicle.retired_event : "No"
+                }}</mat-card-subtitle
               >
             </mat-card-header>
             <mat-divider></mat-divider>
             <mat-card-content class="general-lists">
               <mat-list>
                 <mat-list-item
-                  ><span class="list-label">Targa</span>
-                  <p class="plate">{{ vehicle.plate }}</p></mat-list-item
+                  ><span class="list-label">Modello</span>
+                  <p>
+                    {{ vehicle.model_csv ? vehicle.model_csv : vehicle.model }}
+                  </p></mat-list-item
                 >
                 <mat-divider></mat-divider>
-                <mat-list-item
-                  ><span class="list-label">Modello</span>
-                  <p>{{ vehicle.model }}</p></mat-list-item
-                >
-              </mat-list>
-              <mat-list>
                 <mat-list-item
                   ><span class="list-label">Cantiere</span>
                   <p>{{ vehicle.worksite?.name }}</p></mat-list-item
                 >
+              </mat-list>
+              <mat-list>
+                <mat-list-item
+                  ><span class="list-label">Immatricolazione</span>
+                  <p>
+                    {{ vehicle.registration ? vehicle.registration : "" }}
+                  </p></mat-list-item
+                >
                 <mat-divider></mat-divider>
                 <mat-list-item
-                  ><span class="list-label">Comune</span>
+                  ><span class="list-label">Zona di lavoro</span>
                   <p>
-                    {{ vehicle.group ? vehicle.group.name : "Nessun dato" }}
+                    {{ vehicle.workzone ? vehicle.workzone.name : "" }}
                   </p></mat-list-item
                 >
               </mat-list>
               <mat-list>
                 <mat-list-item
-                  ><span class="list-label">Azienda</span>
+                  ><span class="list-label">Servizio</span>
                   <p>
-                    {{
-                      vehicle.relevant_company
-                        ? vehicle.relevant_company
-                        : "No azienda"
-                    }}
+                    {{ vehicle.service ? vehicle.service.name : "" }}
                   </p></mat-list-item
                 >
                 <mat-divider></mat-divider>
                 <mat-list-item
-                  ><span class="list-label">Società</span>
+                  ><span class="list-label">Proprietario / Locatario</span>
                   <p>
-                    {{ vehicle.company ? vehicle.company.name : "Nessun dato" }}
+                    {{
+                      vehicle.rental
+                        ? vehicle.rental.name
+                        : vehicle.company?.name
+                    }}
                   </p></mat-list-item
                 >
               </mat-list>
@@ -85,21 +92,17 @@
               </mat-list>
               <mat-list>
                 <mat-list-item
-                  ><span class="list-label">Immatricolazione</span>
+                  ><span class="list-label">Numero Fleet</span>
                   <p>
-                    {{
-                      vehicle.relevant_company
-                        ? vehicle.relevant_company
-                        : "No azienda"
-                    }}
+                    {{ vehicle.fleet_number ? vehicle.fleet_number : "" }}
                   </p></mat-list-item
                 >
               </mat-list>
               <mat-list>
                 <mat-list-item
-                  ><span class="list-label">Data installazione fleet</span>
+                  ><span class="list-label">Data installazione Fleet</span>
                   <p>
-                    {{ vehicle.firstEvent | date : "dd/MM/yyyy" }}
+                    {{ vehicle.fleet_install ? vehicle.fleet_install : "" }}
                   </p></mat-list-item
                 >
               </mat-list>
@@ -108,8 +111,7 @@
           <mat-card class="deviceInfo-card">
             <mat-card-header>
               <mat-card-title
-                ><mat-icon>display_settings</mat-icon>Informazioni sul
-                dispositivo</mat-card-title
+                ><mat-icon>display_settings</mat-icon>Dispositivo</mat-card-title
               >
             </mat-card-header>
             <mat-divider></mat-divider>
@@ -117,51 +119,51 @@
               <mat-list>
                 <mat-list-item
                   ><span class="list-label">Numero di serie</span>
-                  <p>{{ vehicle.plate }}</p></mat-list-item
+                  <p>{{ vehicle.device.serial_number }}</p></mat-list-item
                 >
                 <mat-divider></mat-divider>
                 <mat-list-item
                   ><span class="list-label">Data costruzione</span>
-                  <p>{{ vehicle.model }}</p></mat-list-item
+                  <p>{{ vehicle.device.date_build }}</p></mat-list-item
                 >
               </mat-list>
               <mat-divider></mat-divider>
               <mat-list>
                 <mat-list-item
                   ><span class="list-label">Aggiornamenti firmware</span>
-                  <p>{{ vehicle.device.fw_upgrade_disable }}</p></mat-list-item
+                  <p>{{ vehicle.device.fw_upgrade_disable ? "Disabilitati" : "Abilitati" }}</p></mat-list-item
                 >
                 <mat-divider></mat-divider>
                 <mat-list-item
-                  ><span class="list-label">Ultimo aggiornamento firmware</span>
-                  <p>{{ vehicle.device.fw_update }}</p></mat-list-item
+                  ><span class="list-label"
+                    >Cali di tensione</span
+                  >
+                  <p>{{ vehicle.device.power_fail_detected }}</p></mat-list-item
                 >
               </mat-list>
               <mat-divider></mat-divider>
               <mat-list>
                 <mat-list-item
-                  ><span class="list-label"
-                    >Numero di aggiornamenti firmware</span
-                  >
-                  <p>{{ vehicle.device.fw_upgrade_received }}</p></mat-list-item
+                  ><span class="list-label">Ultimo aggiornamento</span>
+                  <p>{{ vehicle.device.fw_update }}</p></mat-list-item
                 >
                 <mat-divider></mat-divider>
                 <mat-list-item
-                  ><span class="list-label">Errore batteria RTC</span>
-                  <p>{{ vehicle.device.rtc_battery_fail }}</p></mat-list-item
+                  ><span class="list-label">Batteria RTC</span>
+                  <p>{{ vehicle.device.rtc_battery_fail ? "Ok" :"Error" }}</p></mat-list-item
                 >
               </mat-list>
               <mat-list>
                 <mat-list-item
-                  ><span class="list-label"
-                    >Numero di errori di accensione</span
-                  >
-                  <p>{{ vehicle.device.power_fail_detected }}</p></mat-list-item
+                ><span class="list-label"
+                  >Aggiornamenti ricevuti</span
                 >
+                <p>{{ vehicle.device.fw_upgrade_received }}</p></mat-list-item
+              >
                 <mat-divider></mat-divider>
                 <mat-list-item
                   ><span class="list-label"
-                    >Errore di accensioni/spegnimento</span
+                    >Ripristino alimentazione</span
                   >
                   <p>
                     {{ vehicle.device.power_on_off_detected }}
