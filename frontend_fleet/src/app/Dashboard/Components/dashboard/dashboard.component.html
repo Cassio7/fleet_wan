@@ -26,7 +26,10 @@
   <div class="right-section">
     <div class="header">
       <div class="section-header">
-        <span class="title-main">{{ pageName }}</span>
+        <div class="title-container">
+          <span class="title">{{ pageName }}</span>
+          <span class="last-update">{{ lastUpdate | date: 'dd/MM/yyyy HH:mm' }}</span>
+        </div>
         <p class="subtitle">{{subtitle}}</p>
       </div>
       <div class="header-right">

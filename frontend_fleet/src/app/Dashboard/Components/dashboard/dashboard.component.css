@@ -47,22 +47,21 @@ html {
 .header-right .updateData-btn {
   text-wrap: nowrap;
 }
-.title {
-  font-weight: bold;
-  font-size: 20px;
-  line-height: 1;
-  padding-bottom: 4px;
-}
-.title-main {
-  font-weight: bold;
-  font-size: 24px;
-  line-height: 1;
-  padding-bottom: 4px;
-}
-.section-header {
+
+.section-header .title-container{
+  height: 100%;
   width: 100%;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-header .title-container .title{
+  font-size: 24px;
+}
+
+.section-header .title-container .last-update{
+  font-size: 14px;
 }
 
 .right-section .section-header {
@@ -129,7 +128,7 @@ html {
 }
 
 .map-container {
-  height: 20vh;
+  height: 22vh;
   width: 100%;
 }
 

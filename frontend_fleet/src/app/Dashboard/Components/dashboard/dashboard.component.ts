@@ -76,6 +76,8 @@ export class DashboardComponent implements OnInit, AfterViewInit{
   private _kanbanSessione: boolean = false;
 
 
+  lastUpdate: string = "";
+
   constructor(
     private kabanGpsService: KanbanGpsService,
     private errorGraphService: ErrorGraphsService,
@@ -95,6 +97,13 @@ export class DashboardComponent implements OnInit, AfterViewInit{
   ngAfterViewInit(): void {
     this.errorGraphTitle = this.errorGraphService.graphTitle;
     this.handleKanbanLoading();
+    setTimeout(() => {
+      const lastUpdate = this.sessionStorageService.getItem("lastUpdate");
+      if(lastUpdate){
+        this.lastUpdate = lastUpdate;
+        this.cd.detectChanges();
+      }
+    });
     this.cd.detectChanges();
   }
 

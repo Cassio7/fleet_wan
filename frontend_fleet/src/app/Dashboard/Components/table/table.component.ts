@@ -190,6 +190,8 @@ export class TableComponent implements OnDestroy, AfterViewInit {
     this.vehicleTableData.data = [];
     this.checkErrorsService.checkErrorsAllToday().subscribe({
       next: (responseObj: any) => {
+        console.log(responseObj);
+        this.sessionStorageService.setItem("lastUpdate", responseObj.lastUpdate);
         const vehiclesData = responseObj.vehicles;
         console.log("vehiclesData fetched: ", vehiclesData);
         try {
