@@ -12,7 +12,8 @@ html, body {
 }
 
 .map-frame {
-  border: 2px solid black;
+  border: 2px solid white;
+  border-radius: 20px;
   height: 100%;
 }
 
