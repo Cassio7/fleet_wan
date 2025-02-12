@@ -8,6 +8,9 @@
     ></mat-progress-bar>
   </div>
   <p class="loading-p" *ngIf="resetLoading">Ricaricamento veicoli...</p>
+  <div class="vehicles-number" *ngIf="loadingProgress >= 100">
+    Numero di veicoli: {{vehicleTableData.data.length}}
+  </div>
   <div class="table-container">
     <table
       mat-table
