@@ -7,7 +7,6 @@
   align-items: center;
   padding: 10px;
   box-sizing: border-box;
-  cursor: pointer;
   border-bottom: 2px solid white;
   white-space: nowrap;
 }
@@ -25,6 +24,8 @@
   align-items: center;
   font-size: 12px;
   margin-top: 1vh;
+  font-weight: 300;
+  margin-left: 10px;
 }
 
 .page-p mat-icon{
@@ -56,6 +57,7 @@
   background-size: cover;
   font-size: 14px;
   color: white;
+  margin-right: 24px;
 }
 
 .account-circle .admin-name{
@@ -65,11 +67,13 @@
 .profile-info {
   display: flex;
   flex-direction: column;
-  text-align: center;
+  text-align: right;
+  gap: 2px;
 }
 
 .profile-info .username {
   font-size: 14px;
+  font-weight: 500;
   margin: 0;
   line-height: 1;
   padding: 0;
@@ -80,7 +84,7 @@
   margin: 0;
   line-height: 1;
   padding: 0;
-  color: rgb(175, 175, 175);
+  font-weight: 300;
   font-style: italic;
 }
 
@@ -115,4 +119,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+p{
+  font-family: 'Inter';
 }
