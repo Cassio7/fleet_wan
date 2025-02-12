@@ -135,10 +135,18 @@
 
 .credentials-warning,
 .caps-lock-warning {
-  color: rgb(180, 0, 0);
+  color: var(--red);
   font-size: 1vw;
   margin-bottom: 1rem;
 }
+
+mat-icon{
+  color: var(--green);
+}
+.caps-lock-warning mat-icon{
+  color: var(--red);
+}
+
 
 .submit-container{
   display: flex;
@@ -187,7 +195,4 @@
   color: gray;
   line-height: 1;
   font-size: 10px;
-}
-mat-icon{
-  color: var(--green);
 }

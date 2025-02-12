@@ -48,7 +48,7 @@
                       (keydown)="checkCapslock($event)"
                       formControlName="password"
                       placeholder="Password" />
-              <button mat-icon-button matSuffix type="button" (click)="showPassword = !showPassword">
+              <button mat-icon-button matSuffix type="button" class="" (click)="showPassword = !showPassword">
                 <mat-icon>{{ showPassword ? 'visibility' : 'visibility_off' }}</mat-icon>
               </button>
               <mat-error *ngIf="loginForm.controls['password'].errors?.['required']">
