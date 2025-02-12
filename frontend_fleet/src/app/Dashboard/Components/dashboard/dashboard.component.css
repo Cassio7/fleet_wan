@@ -47,7 +47,18 @@ html {
 .header-right .updateData-btn {
   text-wrap: nowrap;
 }
-
+.title {
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1;
+  padding-bottom: 4px;
+}
+.title-main {
+  font-weight: bold;
+  font-size: 24px;
+  line-height: 1;
+  padding-bottom: 4px;
+}
 .section-header .title-container{
   height: 100%;
   width: 100%;
