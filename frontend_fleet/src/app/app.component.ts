@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, NgZone, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { NavigationEnd, Router, RouterModule, RouterOutlet } from '@angular/router';
 import { FooterComponent } from "./Common-components/footer/footer.component";
 import { filter, Subject, takeUntil } from 'rxjs';
@@ -13,6 +13,7 @@ import { CookiesService } from './Common-services/cookies service/cookies.servic
 import { MatMenuModule } from '@angular/material/menu';
 import { NavigationService } from './Common-services/navigation/navigation.service';
 import { SessionStorageService } from './Common-services/sessionStorage/session-storage.service';
+import { LoginComponent } from "./Common-components/login/login.component";
 
 @Component({
   selector: 'app-root',
@@ -52,6 +53,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
     private loginService: LoginService,
     private cookiesService: CookiesService,
     private sessionStorageService: SessionStorageService,
+    private ngZone: NgZone,
     private navigationService: NavigationService, //servizio importato per farlo caricare ad inizio applicazione
     private cd: ChangeDetectorRef
   ){}
@@ -75,12 +77,15 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
       this.router.navigate(['/login']);
     }
     //sottoscrizione al login
-    this.loginService.login$.pipe(takeUntil(this.destroy$))
-    .subscribe({
+    this.loginService.login$.pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
-        this.isLogged = true;
+        this.ngZone.run(() => { // Run inside Angular's zone
+          this.isLogged = true;
+          this.isLoginPage = false; // Update isLoginPage
+          this.cd.detectChanges();
+        });
       },
-      error: error => console.error("Error logging in: ", error)
+      error: (error) => console.error("Error logging in: ", error),
     });
     //sottoscrizione a router per i cambiamenti di pagina
     this.router.events.pipe(filter(event => event instanceof NavigationEnd))
