@@ -95,43 +95,50 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy{
   /**
    * Effettua e gestisce gli errori di login
    */
-  login(){
-    if(this.loginForm.valid){
+  login() {
+    if (this.loginForm.valid) {
       this.loginService.login(this.loginForm.value).pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response) => {
-          this.sessionStorageService.setItem("dashboard-section", "table")
-          this.cookiesService.setCookie("user", response.access_token);
-          this.deleteCookies();
-          this.loginSuccess = true;
-          this.attempts = 0;
-          this.cd.detectChanges();
-          setTimeout(() => {
-            this.loginService.login$.next();
-            this.router.navigate(['/dashboard']);
-          }, 3000);
-        },
-        error: error => {
-          this.attempts++;
-          this.cookiesService.setCookie("attempts", this.attempts.toString());
+        .subscribe({
+          next: (response) => {
+            this.sessionStorageService.setItem("dashboard-section", "table");
+            this.cookiesService.setCookie("user", response.access_token);
+            this.deleteCookies();
+            this.loginSuccess = true;
+            this.attempts = 0;
+            this.cd.detectChanges();
 
-          if(this.credentialsWarning){
-            this.credentialsWarning = false;
-          }
-          if(this.attempts == this.maxAttempts){
-            this.credentialsWarning = true;
-          }
-          this.cd.detectChanges();
+            setTimeout(() => {
+              this.loginService.login$.next();
+              this.router.navigate(['/dashboard']).then(() => {
+                setTimeout(() => {
+                  this.cd.detectChanges();
+                }, 100);
+              });
+            }, 3000);
+          },
+          error: (error) => {
+            console.error("Errore nel login: ", error);
+            this.attempts++;
+            this.cookiesService.setCookie("attempts", this.attempts.toString());
 
-          if(this.attempts <= this.maxAttempts){
-            this.showCredentialsError(2000); //mostra errore credenziali
-          }else{
-            this.timeoutUser(); //metti l'utente in timeout
+            if (this.credentialsWarning) {
+              this.credentialsWarning = false;
+            }
+            if (this.attempts == this.maxAttempts) {
+              this.credentialsWarning = true;
+            }
+            this.cd.detectChanges();
+
+            if (this.attempts <= this.maxAttempts) {
+              this.showCredentialsError(2000);
+            } else {
+              this.timeoutUser();
+            }
           }
-        }
-      });
+        });
     }
   }
+
 
   /**
    * Mostra l'errore delle credenziali
