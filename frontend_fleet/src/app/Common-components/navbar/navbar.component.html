@@ -1,51 +1,24 @@
 <mat-toolbar class="navbar">
   <div class="left-side">
-    <p class="page-p">
-      <svg
-        width="13"
-        height="13"
-        viewBox="0 0 13 13"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <rect opacity="0.01" width="13" height="13" fill="black" />
-        <path
-          d="M4.875 1.625H2.70833C2.11002 1.625 1.625 2.11002 1.625 2.70833V4.875C1.625 5.47331 2.11002 5.95833 2.70833 5.95833H4.875C5.47331 5.95833 5.95833 5.47331 5.95833 4.875V2.70833C5.95833 2.11002 5.47331 1.625 4.875 1.625Z"
-          fill="#1A1919"
-        />
-        <path
-          d="M10.2917 1.625H8.12499C7.52668 1.625 7.04166 2.11002 7.04166 2.70833V4.875C7.04166 5.47331 7.52668 5.95833 8.12499 5.95833H10.2917C10.89 5.95833 11.375 5.47331 11.375 4.875V2.70833C11.375 2.11002 10.89 1.625 10.2917 1.625Z"
-          fill="#1A1919"
-        />
-        <path
-          d="M4.875 7.04167H2.70833C2.11002 7.04167 1.625 7.5267 1.625 8.12501V10.2917C1.625 10.89 2.11002 11.375 2.70833 11.375H4.875C5.47331 11.375 5.95833 10.89 5.95833 10.2917V8.12501C5.95833 7.5267 5.47331 7.04167 4.875 7.04167Z"
-          fill="#1A1919"
-        />
-        <path
-          d="M10.2917 7.04167H8.12499C7.52668 7.04167 7.04166 7.5267 7.04166 8.12501V10.2917C7.04166 10.89 7.52668 11.375 8.12499 11.375H10.2917C10.89 11.375 11.375 10.89 11.375 10.2917V8.12501C11.375 7.5267 10.89 7.04167 10.2917 7.04167Z"
-          fill="#1A1919"
-        />
-      </svg>
-      /{{ currentPage }}<span *ngIf="isKanban">/Kanban</span>
-    </p>
+    <p class="page-p"><mat-icon>{{icon}}</mat-icon>/{{currentPage}}<span *ngIf="isKanban">/Kanban</span></p>
   </div>
   <div class="right-side">
     <!-- <button mat-button class="notifications-btn"><mat-icon>notifications</mat-icon></button> -->
     <div class="profile-info">
       @if(name == "admin"){
-      <p class="username">{{ name }}</p>
-      <p class="role">{{ role }}</p>
+        <p class="username">{{name}}</p>
+        <p class="role">{{role}}</p>
       }@else {
-      <p class="username">{{ name }} {{ surname }}</p>
-      <p class="role">{{ role }}</p>
+        <p class="username">{{name}} {{surname}}</p>
+        <p class="role">{{role}}</p>
       }
     </div>
     <div mat-card-avatar class="account-circle">
       @if(name == "admin"){
-      <span class="admin-name">A</span>
+        <span class="admin-name">A</span>
       }@else {
-      <span class="name">{{ name[0] }}</span>
-      <span class="surname">{{ surname[0] }}</span>
+        <span class="name">{{name[0]}}</span>
+        <span class="surname">{{surname[0]}}</span>
       }
     </div>
     <mat-menu #menu="matMenu">
