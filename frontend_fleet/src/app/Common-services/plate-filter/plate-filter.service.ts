@@ -21,21 +21,25 @@ export class PlateFilterService {
    * @param vehicles veicoli
    * @returns veicoli filtrati
    */
-  filterVehiclesByPlateResearch(research: string, vehiclesData: (VehicleData | Vehicle)[]): (VehicleData | Vehicle)[] {
-    const searchTextLower = research.toLowerCase().replace(/\s+/g, '');
+  filterVehiclesByPlateResearch(
+    research: string,
+    vehiclesData: (VehicleData | Vehicle)[]
+  ): (VehicleData | Vehicle)[] {
+      const searchTextLower = research.toLowerCase().replace(/\s+/g, '');
 
-    return vehiclesData.filter(vehicle => {
-      let plate = '';
+      return vehiclesData.filter(vehicle => {
+        let plate = '';
 
-      if ('plate' in vehicle) {
-        plate = vehicle.plate;
-      } else if ('vehicle' in vehicle && 'plate' in vehicle.vehicle) {
-        plate = vehicle.vehicle.plate;
-      }
+        if ('plate' in vehicle) {
+          plate = vehicle.plate;
+        } else if ('vehicle' in vehicle && 'plate' in vehicle.vehicle) {
+          plate = vehicle.vehicle.plate;
+        }
 
-      return plate.toLowerCase().replace(/\s+/g, '').startsWith(searchTextLower);
-    });
-}
+        return plate.toLowerCase().replace(/\s+/g, '').includes(searchTextLower);
+      });
+  }
+
 
 
   /**
