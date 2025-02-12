@@ -24,7 +24,7 @@
             <div class="vehicle" matTooltip="Antenna funzionante">
               <div class="left-container">
                 <p class="cantiere">{{ vehicleData.vehicle.worksite?.name ? vehicleData.vehicle.worksite?.name : "non assegnato"}}</p>
-                <button mat-button class="map-btn" matTooltip="Click per visualizzare l'ultima posizione registrata sulla mappa" (click)="showMap(vehicleData)"><mat-icon>map</mat-icon></button>
+                <mat-icon (click)="showMap(vehicleData)" matTooltip="Click per visualizzare l'ultima posizione registrata sulla mappa" class="map-icon">map</mat-icon>
               </div>
                 <p class="plate">{{ vehicleData.vehicle.plate }}</p>
             </div>
@@ -56,7 +56,7 @@
             <div class="vehicle" [matTooltip]="checkErrorsService.checkVehicleAntennaError(vehicleData)">
               <div class="left-container">
                 <p class="cantiere">{{ vehicleData.vehicle.worksite?.name ? vehicleData.vehicle.worksite?.name : "non assegnato"}}</p>
-                <button mat-button class="map-btn" matTooltip="Click per visualizzare l'ultima posizione registrata sulla mappa" (click)="showMap(vehicleData)"><mat-icon>map</mat-icon></button>
+                <mat-icon (click)="showMap(vehicleData)" matTooltip="Click per visualizzare l'ultima posizione registrata sulla mappa" class="map-icon">map</mat-icon>
               </div>
                 <p class="plate">{{ vehicleData.vehicle.plate }}</p>
             </div>
@@ -88,7 +88,7 @@
             <div class="vehicle">
               <div class="left-container">
                 <p class="cantiere">{{ vehicleData.vehicle.worksite?.name ? vehicleData.vehicle.worksite?.name : "non assegnato"}}</p>
-                <button mat-button class="map-btn" matTooltip="Click per visualizzare l'ultima posizione registrata sulla mappa" (click)="showMap(vehicleData)"><mat-icon>map</mat-icon></button>
+                <mat-icon (click)="showMap(vehicleData)" matTooltip="Click per visualizzare l'ultima posizione registrata sulla mappa" class="map-icon">map</mat-icon>
               </div>
                 <p class="plate">{{ vehicleData.vehicle.plate }}</p>
             </div>

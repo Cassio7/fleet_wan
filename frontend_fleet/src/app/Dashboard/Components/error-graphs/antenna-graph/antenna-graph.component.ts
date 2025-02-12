@@ -5,6 +5,7 @@ import {
   ApexLegend,
   ApexNonAxisChartSeries,
   ApexResponsive,
+  ApexTooltip,
   NgApexchartsModule,
 } from 'ng-apexcharts';
 import { skip, Subject, takeUntil } from 'rxjs';
@@ -22,6 +23,7 @@ export type ChartOptions = {
   colors: string[];
   legend: ApexLegend;
   dataLabels: ApexDataLabels;
+  tooltip: ApexTooltip;
   labels: any;
   plotOptions: any;
 };
@@ -106,6 +108,9 @@ export class AntennaGraphComponent {
       },
       dataLabels: {
         enabled: false,
+      },
+      tooltip: {
+        enabled: false
       },
       labels: true,
       colors: this.antennaGraphService.colors,

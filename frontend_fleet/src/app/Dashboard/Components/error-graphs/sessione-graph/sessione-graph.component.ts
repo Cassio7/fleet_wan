@@ -5,6 +5,7 @@ import {
   ApexDataLabels,
   ApexNonAxisChartSeries,
   ApexResponsive,
+  ApexTooltip,
   NgApexchartsModule,
 } from 'ng-apexcharts';
 import { SessioneGraphService } from '../../../Services/sessione-graph/sessione-graph.service';
@@ -18,6 +19,7 @@ export type ChartOptions = {
   colors: string[];
   legend: any;
   dataLabels: ApexDataLabels;
+  tooltip: ApexTooltip;
   labels: any;
   plotOptions: any;
 };
@@ -87,6 +89,9 @@ export class SessioneGraphComponent {
         },
       },
       dataLabels: {
+        enabled: false,
+      },
+      tooltip: {
         enabled: false,
       },
       legend: {

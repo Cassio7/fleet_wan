@@ -12,6 +12,7 @@ import {
   ApexLegend,
   ApexNonAxisChartSeries,
   ApexResponsive,
+  ApexTooltip,
   NgApexchartsModule,
 } from 'ng-apexcharts';
 import { Subject, skip, takeUntil } from 'rxjs';
@@ -28,6 +29,7 @@ export type ChartOptions = {
   colors: string[];
   legend: ApexLegend;
   dataLabels: ApexDataLabels;
+  tooltip: ApexTooltip;
   labels: any;
   plotOptions: any;
 };
@@ -112,6 +114,9 @@ export class GpsGraphComponent implements AfterViewInit {
       dataLabels: {
         enabled: false,
       },
+      tooltip: {
+        enabled: false,
+      },
       labels: true,
       colors: this.gpsGraphService.colors,
       responsive: [
@@ -160,7 +165,7 @@ export class GpsGraphComponent implements AfterViewInit {
     this.chartOptions.labels = [
       `<div style='width: 110px; display:flex; justify-content: space-between'><span>Ok</span> <span>${gpsCheck[0].length}</span></div>`,
       `<div style='width: 110px; display:flex; justify-content: space-between'><span>Warning</span><span>${gpsCheck[1].length}</span></div>`,
-      `<div style='width: 110px; display:flex; justify-content: space-between'><span>Ok</span><span>${gpsCheck[2].length}</span></b>`,
+      `<div style='width: 110px; display:flex; justify-content: space-between'><span>Error</span><span>${gpsCheck[2].length}</span></b>`,
     ];
     this.cd.detectChanges();
   }

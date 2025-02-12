@@ -90,16 +90,7 @@
   flex-direction: column;
   align-items: flex-start;
 }
-.vehicle .left-container .map-btn {
-  width: 5px;
-  height: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.vehicle .left-container .map-btn mat-icon {
-  transform: scale(1);
+.vehicle .left-container .map-icon {
   color: var(--green);
 }
 
