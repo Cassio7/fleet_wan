@@ -1,11 +1,13 @@
-import { Realtime } from "./Realtime"
+import { Anomaly } from './Anomaly';
+import { Realtime } from './Realtime';
 
-export class RealtimeData{
+export class RealtimeData {
   constructor(
     public vehicle: {
-      plate: string,
-      veId: number
+      plate: string;
+      veId: number;
     },
-    public realtime: Realtime
-  ){}
+    public realtime: Realtime,
+    public anomaly?: Anomaly
+  ) {}
 }
