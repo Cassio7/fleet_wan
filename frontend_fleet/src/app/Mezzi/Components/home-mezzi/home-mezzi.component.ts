@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { TableComponent } from "../../../Mezzi/Components/table/table.component";
 import { MezziFiltersComponent } from "../mezzi-filters/mezzi-filters/mezzi-filters.component";
+import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
+import { Vehicle } from '../../../Models/Vehicle';
 
 
 
@@ -14,6 +16,15 @@ import { MezziFiltersComponent } from "../mezzi-filters/mezzi-filters/mezzi-filt
   templateUrl: './home-mezzi.component.html',
   styleUrls: ['./home-mezzi.component.css'],
 })
-export class HomeMezziComponent {
-
+export class HomeMezziComponent implements AfterViewInit{
+  nVehicles: number = 0;
+  constructor(
+    private sessionStorageService: SessionStorageService,
+    private cd: ChangeDetectorRef
+  ){}
+  ngAfterViewInit(): void {
+    const allVehicles: Vehicle[] = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+    this.nVehicles = allVehicles.length;
+    this.cd.detectChanges();
+  }
 }
