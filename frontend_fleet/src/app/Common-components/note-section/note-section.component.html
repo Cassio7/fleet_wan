@@ -1,4 +1,13 @@
 <div class="content">
+  <div style="display: flex;flex-direction: column;">
+    <div class="header">
+      <mat-icon class="note-icon">edit_square</mat-icon>
+      <span class="header-text">
+        <span>Nota di <strong>{{ username }}</strong></span>
+      </span>
+    </div>
+    <span *ngIf="vehicle.note" class="updated-at">{{vehicle.note.updatedAt | date: "dd/MM/yyyy HH:MM:ss"}}</span>
+  </div>
   <textarea #noteInput [value]="vehicle.note ? vehicle.note.content : ''" (keyup)="isNoteModified(noteInput.value, vehicle)" name="notes" class="note-input" matInput></textarea>
   <div class="updateBtns-container" *ngIf="vehicle.note">
     <button (click)="deleteNote(vehicle)" *ngIf="eliminatedBtn && !createdBtn" mat-button class="delete-btn">Elimina</button>

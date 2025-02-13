@@ -129,15 +129,9 @@
               "
             >
               <div class="comment-section-content">
-                <div class="notes-header">
-                  <mat-icon class="note-icon"> edit_square </mat-icon>
-                  <span style="margin-left: 8px"
-                    >Nota di <strong>{{ user.username }}</strong></span
-                  >
-                </div>
                 <th mat-header-cell *matHeaderCellDef></th>
                 <td>
-                  <app-note-section [vehicle]="vehicle"></app-note-section>
+                  <app-note-section [vehicle]="vehicle" [username]="user.username"></app-note-section>
                 </td>
               </div>
             </div>

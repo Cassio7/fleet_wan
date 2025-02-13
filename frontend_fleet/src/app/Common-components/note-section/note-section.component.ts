@@ -26,6 +26,8 @@ export class NoteSectionComponent implements AfterViewInit, OnDestroy{
   private readonly destroy$: Subject<void> = new Subject<void>();
   @ViewChild('noteInput') noteInput!: ElementRef;
   @Input() vehicle!: Vehicle;
+  @Input() username!: string;
+
   private snackBar = inject(MatSnackBar);
   createdBtn: boolean = false;
   updatedBtn: boolean = false;
@@ -83,6 +85,7 @@ export class NoteSectionComponent implements AfterViewInit, OnDestroy{
       .subscribe({
         next: (newNote: Note) => {
           this.vehicle.note = newNote;
+          this.vehicle.note = newNote;
           this.modified = false;
           this.updatedBtn = true;
           this.eliminatedBtn = true;
@@ -115,6 +118,7 @@ export class NoteSectionComponent implements AfterViewInit, OnDestroy{
         .subscribe({
           next: () => {
             this.openNoteSnackbar("Nota aggiornata ✔");
+            if(vehicle.note) vehicle.note.updatedAt = new Date().toISOString();
             this.updatedBtn = true;
             this.eliminatedBtn= true;
             this.createdBtn = false;
