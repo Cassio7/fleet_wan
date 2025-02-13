@@ -237,115 +237,90 @@ export class TableComponent implements OnDestroy, AfterViewInit {
     );
   }
 
-  /**
+    /**
    * Riempe la tabella con i dati recuperati dalla chiamata API
    */
-  private async fillTable() {
-    console.log('CHIAMATO FILL TABLE!');
-    this.antennaGraphService.resetGraph();
-    this.sessioneGraphService.resetGraph();
-    this.gpsGraphService.resetGraph();
-    // this.errorGraphService.resetGraphs();
-    this.vehicleTableData.data = [];
-    this.checkErrorsService.checkErrorsAllToday().subscribe({
-      next: (responseObj: any) => {
-        console.log(responseObj);
-        this.sessionStorageService.setItem(
-          'lastUpdate',
-          responseObj.lastUpdate
-        );
-        const vehiclesData = responseObj.vehicles;
-        console.log('vehiclesData fetched: ', vehiclesData);
-        try {
-          if (vehiclesData && vehiclesData.length > 0) {
-            this.vehicleTableData.data = [...vehiclesData];
-            this.sessionStorageService.setItem(
-              'allData',
-              JSON.stringify(vehiclesData)
-            );
-            this.vehicleTable.renderRows();
-            this.loadGraphs(vehiclesData);
-          }
-        } catch (error) {
-          console.error('Error processing vehicles:', error);
-        }
-      },
-      error: (err) => {
-        console.error('Errore nel caricamento iniziale dei dati: ', err);
-      },
-    });
-    this.addLastRealtime();
-  }
-
-  /**
-   * Recupera i dati dell'ultima posizione di ogni veicolo effettuando una chiamata tramite un servizio,
-   * poi unisce le posizioni ottenute con i veicoli nella tabella
-   */
-  private addLastRealtime() {
-    this.realtimeApiService
-      .getLastRealtime()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (realtimeDataObj: RealtimeData[]) => {
-          console.log(
-            'realtime data fetched from dashboard: ',
-            realtimeDataObj
-          );
-          const tableVehicles: VehicleData[] =
-            this.realtimeApiService.mergeVehiclesWithRealtime(
-              this.vehicleTableData.data,
-              realtimeDataObj
-            ) as VehicleData[];
-          this.vehicleTableData.data = tableVehicles;
-          this.sessionStorageService.setItem(
-            'allData',
-            JSON.stringify(tableVehicles)
-          );
-          this.vehicleTable.renderRows();
-        },
-        error: (error) =>
-          console.error('Errore nel caricamento dei dati realtime: ', error),
-      });
-  }
-
-  /**
-   * Ottiene i dati dell'ultimo andamento di ciscun veicolo
-   */
-  getAllLastSessionAnomalies() {
-    this.antennaGraphService.resetGraph();
-    this.errorGraphService.resetGraphs();
-
-    this.vehicleTableData.data = [];
-
-    this.sessionApiService
-      .getAllLastSessionAnomalies()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
+    private async fillTable() {
+      console.log("CHIAMATO FILL TABLE!");
+      this.antennaGraphService.resetGraph();
+      this.sessioneGraphService.resetGraph();
+      this.gpsGraphService.resetGraph();
+      // this.errorGraphService.resetGraphs();
+      this.vehicleTableData.data = [];
+      this.checkErrorsService.checkErrorsAllToday().subscribe({
         next: (responseObj: any) => {
-          const vehiclesData: VehicleData[] = responseObj.vehicles;
-          console.log('Last session vehiclesData fetched: ', vehiclesData);
+          const lastUpdate = responseObj.lastUpdate;
+          console.log("lastUpdate var: ", lastUpdate);
+          this.sessionStorageService.setItem("lastUpdate", lastUpdate);
+          const vehiclesData = responseObj.vehicles;
+          console.log("vehiclesData fetched: ", vehiclesData);
           try {
             if (vehiclesData && vehiclesData.length > 0) {
               this.vehicleTableData.data = [...vehiclesData];
-              this.sessionStorageService.setItem(
-                'allData',
-                JSON.stringify(vehiclesData)
-              );
+              this.sessionStorageService.setItem("allData", JSON.stringify(vehiclesData));
               this.vehicleTable.renderRows();
-              this.addLastRealtime();
               this.loadGraphs(vehiclesData);
             }
           } catch (error) {
-            console.error('Error processing last session vehicles:', error);
+            console.error("Error processing vehicles:", error);
           }
+          this.checkErrorsService.updateLastUpdate$.next(lastUpdate);
         },
-        error: (error) =>
-          console.error(
-            'Errore nel recupero delle ultime sessioni dei veicoli: ',
-            error
-          ),
+        error: (err) => {
+          console.error("Errore nel caricamento iniziale dei dati: ", err);
+        }
       });
-  }
+      this.addLastRealtime();
+    }
+
+    /**
+     * Recupera i dati dell'ultima posizione di ogni veicolo effettuando una chiamata tramite un servizio,
+     * poi unisce le posizioni ottenute con i veicoli nella tabella
+     */
+    private addLastRealtime() {
+      this.realtimeApiService.getLastRealtime().pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (realtimeDataObj: RealtimeData[]) => {
+            console.log("realtime data fetched from dashboard: ", realtimeDataObj);
+            const tableVehicles: VehicleData[] = this.realtimeApiService.mergeVehiclesWithRealtime(this.vehicleTableData.data, realtimeDataObj) as VehicleData[];
+            this.vehicleTableData.data = tableVehicles;
+            this.sessionStorageService.setItem("allData", JSON.stringify(tableVehicles));
+            this.vehicleTable.renderRows();
+          },
+          error: error => console.error("Errore nel caricamento dei dati realtime: ", error)
+        });
+    }
+
+    /**
+     * Ottiene i dati dell'ultimo andamento di ciscun veicolo
+     */
+    getAllLastSessionAnomalies() {
+      this.antennaGraphService.resetGraph();
+      this.errorGraphService.resetGraphs();
+
+      this.vehicleTableData.data = [];
+
+      this.sessionApiService.getAllLastSessionAnomalies().pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (responseObj: any) => {
+            const vehiclesData: VehicleData[] = responseObj.vehicles;
+            console.log("Last session vehiclesData fetched: ", vehiclesData);
+            try {
+              if (vehiclesData && vehiclesData.length > 0) {
+                this.vehicleTableData.data = [...vehiclesData];
+                this.sessionStorageService.setItem("allData", JSON.stringify(vehiclesData));
+                this.sessionStorageService.setItem("lastUpdate", responseObj.lastUpdate);
+                this.vehicleTable.renderRows();
+                this.addLastRealtime();
+                this.loadGraphs(vehiclesData);
+              }
+            } catch (error) {
+              console.error("Error processing last session vehicles:", error);
+            }
+          },
+          error: error => console.error("Errore nel recupero delle ultime sessioni dei veicoli: ", error)
+        });
+    }
 
   /**
    * Simula il progresso di un caricamento

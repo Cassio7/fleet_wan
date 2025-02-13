@@ -74,6 +74,14 @@ table:not(.mat-calendar-table) tr:nth-child(even) {
   line-height: 1;
   margin: 0;
 }
+
+.button{
+  display: flex;
+  gap: 2px;
+  background-color: var(--green);
+  border-radius: 5px;
+  color: white;
+}
 /* Personalizzazione della scrollbar */
 ::-webkit-scrollbar {
   width: 8px; /* Imposta la larghezza della scrollbar */

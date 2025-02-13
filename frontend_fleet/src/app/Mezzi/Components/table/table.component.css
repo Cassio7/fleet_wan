@@ -53,26 +53,10 @@ td {
   padding: 50px;
 }
 
-.notes-header {
-  display: flex;
-  align-items: center;
-}
-
-.notes-header mat-icon {
-  color: var(--green);
-}
-
-.notes-header .note-icon {
-  color: var(--green);
-}
-
 .expand-btn {
   color: var(--green);
 }
 
-.comment-icon {
-  color: var(--green);
-}
 
 .filter-menu-btn {
   font-size: 16px;
@@ -127,4 +111,7 @@ tr:hover {
   align-items: flex-end;
   justify-content: flex-end;
   font-size: 14px;
+}
+.comment-icon{
+  color: var(--green);
 }
