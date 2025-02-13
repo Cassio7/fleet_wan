@@ -5,11 +5,12 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import { MatIconModule } from '@angular/material/icon';
 import { NavigationEnd, Router } from '@angular/router';
-import { filter } from 'rxjs';
+import { filter, Subject, takeUntil } from 'rxjs';
 import { KanbanGpsService } from '../../Services/kanban-gps/kanban-gps.service';
 import { KanbanAntennaService } from '../../Services/kanban-antenna/kanban-antenna.service';
 import { KanbanTableService } from '../../Services/kanban-table/kanban-table.service';
 import { KanbanSessioneService } from '../../Services/kanban-sessione/kanban-sessione.service';
+import { LoginService } from '../../../Common-services/login service/login.service';
 
 @Component({
   selector: 'app-kebab-menu',
@@ -24,6 +25,7 @@ import { KanbanSessioneService } from '../../Services/kanban-sessione/kanban-ses
   styleUrl: './kebab-menu.component.css'
 })
 export class KebabMenuComponent implements AfterViewInit{
+  private readonly destroy$: Subject<void> = new Subject<void>();
   selectedOption: string = "table";
 
   constructor(
@@ -31,6 +33,7 @@ export class KebabMenuComponent implements AfterViewInit{
     private kanbangpsService: KanbanGpsService,
     private kanbanAntennaService: KanbanAntennaService,
     private cd: ChangeDetectorRef,
+    private loginService: LoginService,
     private sessionStorageService: SessionStorageService,
     private kanbanSessioneService: KanbanSessioneService
   ){}
@@ -38,6 +41,11 @@ export class KebabMenuComponent implements AfterViewInit{
   ngAfterViewInit(): void {
     this.selectedOption = this.sessionStorageService.getItem("dashboard-section");
     this.chooseKebabMenuOption(this.selectedOption);
+
+    this.loginService.login$.pipe(takeUntil(this.destroy$))
+    .subscribe(() => {
+      this.chooseKebabMenuOption('table');
+    });
     this.cd.detectChanges();
   }
 
