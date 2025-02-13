@@ -6,9 +6,9 @@
 <path fill-rule="evenodd" clip-rule="evenodd" d="M12.8855 6H20.8855V8H12.8855V6ZM4.88547 16H12.8855V18H4.88547V16ZM20.8855 11H4.88547V13H20.8855V11Z" fill="white"/>
 </svg>
 </button>
-        <button routerLink="dashboard" #dashboardBtn><mat-icon>dashboard</mat-icon></button>
-        <button routerLink="home-mezzi" #mezziBtn><mat-icon>local_shipping</mat-icon></button>
-        <button routerLink="storico-mezzi" #storicoBtn><mat-icon>inventory_2</mat-icon></button>
+        <button routerLink="dashboard" [ngClass]="{'selectedBtn': selectedBtn == '/dashboard'}"><mat-icon>dashboard</mat-icon></button>
+        <button routerLink="home-mezzi" [ngClass]="{'selectedBtn': selectedBtn == '/home-mezzi'}"><mat-icon>local_shipping</mat-icon></button>
+        <button routerLink="storico-mezzi" [ngClass]="{'selectedBtn': selectedBtn == '/storico-mezzi'}"><mat-icon>inventory_2</mat-icon></button>
         <button><mat-icon>map</mat-icon></button>
         <button><mat-icon>manage_accounts</mat-icon></button>
         <button><mat-icon>settings</mat-icon></button>
@@ -23,25 +23,30 @@
   </mat-drawer>
   <mat-drawer-content>
     <mat-drawer-container class="drawer-container" [ngClass]="{'bg-image': isLoginPage}">
-      <mat-drawer #drawer mode="over" class="sidebar">
-        <div class="drawer-content">
-            <button mat-button class="menu-btn" (click)="toggleDrawer()"><svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path fill-rule="evenodd" clip-rule="evenodd" d="M12.8855 6H20.8855V8H12.8855V6ZM4.88547 16H12.8855V18H4.88547V16ZM20.8855 11H4.88547V13H20.8855V11Z" fill="white"/>
-</svg>
-</button>
-              <button mat-button class="dashboard-btn button" routerLink="dashboard">
-                <mat-icon>dashboard</mat-icon><span class="drawerIcon-text">Dashboard</span>
-              </button>
-              <button mat-button class="mezzi-btn button" routerLink="home-mezzi">
-                <mat-icon>local_shipping</mat-icon><span class="drawerIcon-text">Mezzi</span>
-              </button>
-              <button mat-button class="session-history-btn button" routerLink="storico-mezzi">
-                <mat-icon>inventory_2</mat-icon><span class="drawerIcon-text">Storico mezzi</span>
-              </button>
-              <div style="height: 100%; display: flex; align-items: flex-end;">
-                <button mat-button (click)="logout()"><mat-icon>power_settings_new</mat-icon><span class="drawerIcon-text">Esci</span></button>
-              </div>
-        </div>
+      <mat-drawer #drawer mode="over" class="sidebar" class="dynamic-drawer">
+          <button class="menu-btn button" (click)="toggleDrawer()"><svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M12.8855 6H20.8855V8H12.8855V6ZM4.88547 16H12.8855V18H4.88547V16ZM20.8855 11H4.88547V13H20.8855V11Z" fill="white"/>
+          </svg>
+          </button>
+          <button class="dashboard-btn button" routerLink="dashboard" [ngClass]="{'selectedBtn': selectedBtn == '/dashboard'}">
+            <mat-icon>dashboard</mat-icon><span class="drawerIcon-text">Dashboard</span>
+          </button>
+          <button class="mezzi-btn button" routerLink="home-mezzi" [ngClass]="{'selectedBtn': selectedBtn == '/home-mezzi'}">
+            <mat-icon>local_shipping</mat-icon><span class="drawerIcon-text">Mezzi</span>
+          </button>
+          <button class="session-history-btn button" routerLink="storico-mezzi" [ngClass]="{'selectedBtn': selectedBtn == '/storico-mezzi'}">
+            <mat-icon>inventory_2</mat-icon><span class="drawerIcon-text">Storico mezzi</span>
+          </button>
+          <button class="button"><mat-icon>map</mat-icon><span><span class="drawerIcon-text">Mappa</span></span></button>
+          <button class="button"><mat-icon>manage_accounts</mat-icon><span class="drawerIcon-text">Gestione utenti</span></button>
+          <button class="button"><mat-icon>settings</mat-icon><span class="drawerIcon-text">Impostazioni</span></button>
+
+          <button class="button" [matMenuTriggerFor]="menu">
+            <mat-icon>power_settings_new</mat-icon><span class="drawerIcon-text">Esci</span>
+          </button>
+          <mat-menu #menu="matMenu">
+            <button mat-menu-item (click)="logout()">Esci</button>
+          </mat-menu>
       </mat-drawer>
 
       <div class="sidebar-content">

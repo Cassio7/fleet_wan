@@ -1,7 +1,8 @@
 /* fixed drawer */
-.main-drawer{
+.main-drawer {
   height: 100%;
 }
+
 .fixed-drawer-container {
   border-radius: 0px;
 }
@@ -30,17 +31,17 @@
 }
 
 .fixed-main-actions {
-  margin-top: clamp(10px, 2vh, 20px);
   width: 100%;
+  height: 100vh;
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* Align the menu buttons to the left */
-  gap: clamp(5px, 1vh, 10px);
+  align-items: flex-start;
+  gap: 2vh;
 }
 
-.btnSelected {
-  border-left: 5px solid white !important;
+.fixed-main-actions .menu-btn {
+  margin-top: 20px;
 }
 
 .fixed-main-actions mat-icon,
@@ -49,16 +50,18 @@
   color: white;
 }
 
-.fixed-main-actions button, .log-out button {
+.fixed-main-actions button,
+.log-out button {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 10px;
+}
+
+.fixed-main-actions .button:hover{
+  opacity: .5;
 }
 
 .log-out {
-  margin-top: auto;
-  margin-bottom: 0;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -69,147 +72,55 @@
 }
 
 .mat-drawer {
-  margin: 0;
-  padding: 0;
   width: 5vw;
   height: 100vh;
   overflow: hidden;
 }
 
 /* dynamic drawer */
-
-.mat-drawer-content {
-  margin-left: 0;
-  display: flex;
-}
-
-.sidebar-container {
-  display: flex;
-}
-
-.content-area {
-  margin-top: 0;
-  flex-grow: 1;
-}
-
 .drawer-container {
   width: 100%;
   height: 100%;
 }
 
-.sidebar {
-  padding: clamp(10px, 2vw, 20px);
-  width: auto;
+.dynamic-drawer {
+  width: 8vw;
+  height: 100%;
   background-color: var(--green);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.dynamic-drawer .button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  color: white;
   border-radius: 0px;
 }
 
-.drawer-content {
-  height: 100%;
-  width: auto;
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-start;
-  flex-direction: column;
-  gap: 2vh;
-  overflow: hidden;
-}
-
-.drawer-content button {
-  color: white;
-  width: auto;
-  display: inline-flex;
-  padding: 10px 20px;
-  box-sizing: border-box;
-}
-
-.drawerLogout-container {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: flex-end;
-}
-
-
-.drawer-content button mat-icon {
-  transform: scale(1.2);
-  margin-right: 10px;
+.dynamic-drawer .button:hover{
+  opacity: .5;
 }
 
 .drawerIcon-text {
+  margin-left: 10px;
   font-size: 15px;
-  display: inline-block; /* Mantiene il testo in una sola linea */
-  white-space: nowrap; /* Evita il wrapping del testo */
+  display: inline-block;
+  white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis; /* Aggiunge i puntini di sospensione se il testo è troppo lungo */
+  text-overflow: ellipsis;
 }
 
-
-.sidebar-logo {
-  width: clamp(50%, 70%, 70%);
-  padding: clamp(2px, 1vw, 5px);
-}
-
-hr {
-  width: 100%;
-}
-
-.main-actions {
-  margin-top: clamp(10px, 2vh, 20px);
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start; /* Align the main action buttons to the left */
-  gap: clamp(5px, 1vh, 10px);
-}
-
-.main-actions button {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-}
-
-.main-actions mat-icon {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transform: scale(1.2);
-}
-
-/* Drawer Logout Container - Align button to the bottom and left */
-.drawerLogout-container {
-  margin: 0;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start; /* Align the logout button to the left */
-  justify-content: flex-start; /* Align all content to the top */
-  gap: clamp(5px, 1vh, 10px);
-  flex-grow: 1;
-  overflow: hidden;
-}
-
-.drawerLogout-btn {
-  width: 100%;
-  height: auto;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start; /* Ensures content inside button is aligned left */
-  color: white;
-}
-
-.drawer-logoutText {
-  height: 100%;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  justify-content: flex-start; /* Aligns text inside button to the left */
-  color: white;
-  padding: 20px;
+.menu-btn {
+  margin-bottom: 20px;
 }
 
 .log-out mat-icon {
@@ -220,4 +131,8 @@ hr {
 .log-out mat-icon:hover {
   transform: rotate(360deg);
   color: red;
+}
+
+.selectedBtn {
+  border-left: 5px solid white !important;
 }

@@ -34,14 +34,10 @@ import { LoginComponent } from "./Common-components/login/login.component";
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
-  //botti dentro sidebar fissa
-  @ViewChild('dashboardBtn', { static: false }) dashboardBtn!: ElementRef;
-  @ViewChild('mezziBtn', { static: false }) mezziBtn!: ElementRef;
-  @ViewChild('storicoBtn', { static: false }) storicoBtn!: ElementRef;
-
   @ViewChild('drawer') drawer!: MatDrawer; //sidebar mobile
   @ViewChild('fixedDrawer') fixedDrawer!: MatDrawer; //sidebar fissa
 
+  selectedBtn: string = "dashboard";
   isLoginPage = true;
   isLogged = false;
   title = 'frontend_fleet';
@@ -102,8 +98,10 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
 
     this.router.events.pipe(filter(event => event instanceof NavigationEnd))
     .subscribe(() => {
-      const url = this.router.url;
-      this.selectButton(url);
+      setTimeout(() => { // Add a small delay
+        const url = this.router.url;
+        this.selectButton(url);
+      }, 10); // 10 milliseconds delay
     });
   }
 
@@ -122,17 +120,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
    * @param selectedUrl url da controllare
    */
   selectButton(selectedUrl: string){
-    if (this.dashboardBtn && this.mezziBtn) {
-      const isDashboard = selectedUrl === '/dashboard';
-      const isMezzi = selectedUrl === '/home-mezzi';
-      const isStorico = selectedUrl == '/storico-mezzi'
-      if(isDashboard){
-        this.sessionStorageService.setItem("dashboard-section", "table");
-      }
-      this.dashboardBtn.nativeElement.classList.toggle('btnSelected', isDashboard);
-      this.mezziBtn.nativeElement.classList.toggle('btnSelected', isMezzi);
-      this.storicoBtn.nativeElement.classList.toggle('btnSelected', isStorico)
-    }
+    this.selectedBtn = selectedUrl;
     this.cd.detectChanges();
   }
 
