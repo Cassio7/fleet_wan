@@ -115,7 +115,7 @@ export class MapService {
           </defs>
           </svg>
       `,
-          popupAnchor: [11, -6],
+          popupAnchor: [11, 12],
         });
 
       if (
@@ -145,7 +145,7 @@ export class MapService {
         </defs>
         </svg>
     `,
-          popupAnchor: [11, -6],
+          popupAnchor: [11, 12],
         });
     }
 
@@ -161,6 +161,11 @@ export class MapService {
         autoClose: false,
       }
     );
+
+    // Apre il popup solo quando si passa sopra al marker
+    marker.on('add', () => {
+      marker.openPopup();
+    });
 
     // Apre il popup solo quando si passa sopra al marker
     marker.on('mouseover', () => {

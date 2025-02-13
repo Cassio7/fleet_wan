@@ -40,7 +40,9 @@ body {
   border: none !important;
   padding: 0 !important;
 }
-
+.leaflet-popup-close-button {
+  display: none;
+}
 /* Stile del popup personalizzato */
 .custom-popup {
   display: flex;
@@ -53,7 +55,7 @@ body {
   width: 79px;
   height: 24px;
 
-  background: #42413C;
+  background: #42413c;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   border-radius: 4px;
   position: relative; /* Per posizionare la freccia */
@@ -61,13 +63,13 @@ body {
 
 /* Testo dentro il popup */
 .popup-text {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-style: normal;
   font-weight: 600;
   font-size: 12px;
   line-height: 16px;
   text-align: center;
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 /* Triangolo personalizzato sotto il popup */
@@ -80,5 +82,5 @@ body {
   height: 0;
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
-  border-top: 6px solid #42413C;
+  border-top: 6px solid #42413c;
 }
