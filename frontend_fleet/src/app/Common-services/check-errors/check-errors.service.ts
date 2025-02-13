@@ -18,6 +18,7 @@ export class CheckErrorsService {
   private readonly _fillTable$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
   private readonly _switchCheckDay$: BehaviorSubject<string> = new BehaviorSubject<string>("");
   private readonly _updateAnomalies$: Subject<void> = new Subject<void>();
+  private readonly _updateLastUpdate$: BehaviorSubject<string> = new BehaviorSubject<string>("");
 
 
   constructor(
@@ -350,5 +351,8 @@ export class CheckErrorsService {
   }
   public get switchCheckDay$(): BehaviorSubject<string> {
     return this._switchCheckDay$;
+  }
+  public get updateLastUpdate$(): BehaviorSubject<string> {
+    return this._updateLastUpdate$;
   }
 }

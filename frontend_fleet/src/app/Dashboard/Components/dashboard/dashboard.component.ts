@@ -104,6 +104,18 @@ export class DashboardComponent implements OnInit, AfterViewInit{
         this.cd.detectChanges();
       }
     });
+
+    this.checkErrorsService.updateLastUpdate$.pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (lastUpdate: string) => {
+          if (lastUpdate) {
+            this.lastUpdate = lastUpdate;
+            this.cd.detectChanges();
+          }
+      },
+      error: error => console.error("Errore nell'aggiornamento del label per l'utimo aggiornatmento: ", error)
+    });
+
     this.cd.detectChanges();
   }
 
@@ -220,6 +232,7 @@ export class DashboardComponent implements OnInit, AfterViewInit{
    * Aggiorna i dati di oggi
    */
   updateData(){
+    this.lastUpdate = "Calcolo...";
     this.checkErrorsService.updateAnomalies().pipe(takeUntil(this.destroy$))
     .subscribe({
       next: () => {
@@ -227,6 +240,11 @@ export class DashboardComponent implements OnInit, AfterViewInit{
       },
       error: error => console.error("Errore nell'aggiornamento delle anomalie: ", error)
     });
+  }
+
+  checkDate(stringa: string): boolean {
+    const data = new Date(stringa);
+    return !isNaN(data.getTime());
   }
 
   public get table(): boolean {

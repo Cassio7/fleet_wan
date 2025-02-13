@@ -28,7 +28,9 @@
       <div class="section-header">
         <div class="title-container">
           <span class="title-main">{{ pageName }}</span>
-          <span class="last-update">{{ lastUpdate | date: 'dd/MM/yyyy HH:mm' }}</span>
+          <span class="last-update">
+            {{ lastUpdate && checkDate(lastUpdate) ? (lastUpdate | date: 'dd/MM/yyyy HH:mm'): lastUpdate }}
+          </span>
         </div>
         <p class="subtitle">{{subtitle}}</p>
       </div>
@@ -39,7 +41,7 @@
           <button mat-button [ngClass]="{'selected-switch': lastSession}" (click)="dataSwitch()">Recente</button>
         </div>
         <app-kebab-menu></app-kebab-menu>
-        <button mat-raised-button class="updateData-btn" (click)="updateData()"><mat-icon>refresh</mat-icon> Aggiorna dati</button>
+        <button mat-raised-button class="updateData-btn button" (click)="updateData()"><mat-icon>refresh</mat-icon> Aggiorna dati</button>
       </div>
     </div>
     <div class="main-content">
