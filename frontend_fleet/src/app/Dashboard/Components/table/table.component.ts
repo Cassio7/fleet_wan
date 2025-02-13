@@ -1,11 +1,31 @@
 import { AntennaFilterService } from './../../../Common-services/antenna-filter/antenna-filter.service';
 import { SessionApiService } from '../../../Common-services/session/session-api.service';
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  ViewChild,
+} from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
+import {
+  MatTable,
+  MatTableDataSource,
+  MatTableModule,
+} from '@angular/material/table';
 import { Session } from '../../../Models/Session';
-import { forkJoin, skip, Subject, takeUntil, catchError, of, tap, filter, first } from 'rxjs';
+import {
+  forkJoin,
+  skip,
+  Subject,
+  takeUntil,
+  catchError,
+  of,
+  tap,
+  filter,
+  first,
+} from 'rxjs';
 import { VehiclesApiService } from '../../../Common-services/vehicles api service/vehicles-api.service';
 import { Vehicle } from '../../../Models/Vehicle';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -24,9 +44,15 @@ import { CheckErrorsService } from '../../../Common-services/check-errors/check-
 import { VehicleData } from '../../../Models/VehicleData';
 import { CommonService } from '../../../Common-services/common service/common.service';
 import { AntennaGraphService } from '../../Services/antenna-graph/antenna-graph.service';
-import { Filters, FiltersCommonService } from '../../../Common-services/filters-common/filters-common.service';
+import {
+  Filters,
+  FiltersCommonService,
+} from '../../../Common-services/filters-common/filters-common.service';
 import { GpsGraphService } from '../../Services/gps-graph/gps-graph.service';
-import {MatSlideToggleChange, MatSlideToggleModule} from '@angular/material/slide-toggle';
+import {
+  MatSlideToggleChange,
+  MatSlideToggleModule,
+} from '@angular/material/slide-toggle';
 import { RealtimeData } from '../../../Models/RealtimeData';
 import { RealtimeApiService } from '../../../Common-services/realtime-api/realtime-api.service';
 import { MapService } from '../../../Common-services/map/map.service';
@@ -44,10 +70,10 @@ import { SessioneGraphService } from '../../Services/sessione-graph/sessione-gra
     MatTooltipModule,
     MatProgressBarModule,
     MatSortModule,
-    MatSlideToggleModule
+    MatSlideToggleModule,
   ],
   templateUrl: './table.component.html',
-  styleUrls: ['./table.component.css']
+  styleUrls: ['./table.component.css'],
 })
 export class TableComponent implements OnDestroy, AfterViewInit {
   @ViewChild('vehicleTable') vehicleTable!: MatTable<Session[]>;
@@ -58,11 +84,19 @@ export class TableComponent implements OnDestroy, AfterViewInit {
   tableMaxLength: number = 0;
 
   loadingProgress: number = 0;
-  loadingText: string = "";
+  loadingText: string = '';
   loading: boolean = false;
   today = true;
 
-  displayedColumns: string[] = ['tipologia','targa','cantiere', 'GPS', 'antenna', 'sessione', 'map'];
+  displayedColumns: string[] = [
+    'tipologia',
+    'targa',
+    'cantiere',
+    'GPS',
+    'antenna',
+    'sessione',
+    'map',
+  ];
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -91,30 +125,37 @@ export class TableComponent implements OnDestroy, AfterViewInit {
       this.handleAllFilters(); //subscribe all'applicazione di tutti i filtri
     });
 
-    this.checkErrorsService.switchCheckDay$.pipe(takeUntil(this.destroy$), skip(1))
-    .subscribe({
-      next: (switchTo: string) => {
-        if(switchTo == "today"){
-          this.fillTable();
-        } else if(switchTo == "last"){
-          this.getAllLastSessionAnomalies();
-        } else {
-          console.error("Cambio controllo a periodo sconosciuto");
-        }
-      },
-      error: error => console.error("Errore nel cambio del giorno di controllo: ", error)
-    });
+    this.checkErrorsService.switchCheckDay$
+      .pipe(takeUntil(this.destroy$), skip(1))
+      .subscribe({
+        next: (switchTo: string) => {
+          if (switchTo == 'today') {
+            this.fillTable();
+          } else if (switchTo == 'last') {
+            this.getAllLastSessionAnomalies();
+          } else {
+            console.error('Cambio controllo a periodo sconosciuto');
+          }
+        },
+        error: (error) =>
+          console.error('Errore nel cambio del giorno di controllo: ', error),
+      });
 
-    this.checkErrorsService.updateAnomalies$.pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: () => {
-        this.vehicleTableData.data = [];
-        setTimeout(() => {
-          this.fillTable();
-        }, 2000);
-      },
-      error: error => console.error("Errore nella notifica di aggiornamento della anomalie: ", error)
-    });
+    this.checkErrorsService.updateAnomalies$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.vehicleTableData.data = [];
+          setTimeout(() => {
+            this.fillTable();
+          }, 2000);
+        },
+        error: (error) =>
+          console.error(
+            'Errore nella notifica di aggiornamento della anomalie: ',
+            error
+          ),
+      });
 
     this.fillTable();
   }
@@ -123,19 +164,26 @@ export class TableComponent implements OnDestroy, AfterViewInit {
    * Gestisce la sottoscrizione all'applicazione di tutti i filtri
    */
   private handleAllFilters() {
-    this.filtersCommonService.applyFilters$.pipe(takeUntil(this.destroy$), skip(1))
-    .subscribe({
-      next: (filters: Filters) => {
-        const allData = JSON.parse(this.sessionStorageService.getItem("allData"));
-        const filteredVehicles = this.filtersCommonService.applyAllFiltersOnVehicles(allData, filters) as VehicleData[];
-        this.vehicleTableData.data = filteredVehicles;
-        this.vehicleTable.renderRows();
-        this.antennaGraphService.loadChartData$.next(filteredVehicles);
-        this.gpsGraphService.loadChartData$.next(filteredVehicles);
-        this.sessioneGraphService.loadChartData$.next(filteredVehicles);
-        // this.errorGraphService.loadGraphData$.next(filteredVehicles);
-      }
-    });
+    this.filtersCommonService.applyFilters$
+      .pipe(takeUntil(this.destroy$), skip(1))
+      .subscribe({
+        next: (filters: Filters) => {
+          const allData = JSON.parse(
+            this.sessionStorageService.getItem('allData')
+          );
+          const filteredVehicles =
+            this.filtersCommonService.applyAllFiltersOnVehicles(
+              allData,
+              filters
+            ) as VehicleData[];
+          this.vehicleTableData.data = filteredVehicles;
+          this.vehicleTable.renderRows();
+          this.antennaGraphService.loadChartData$.next(filteredVehicles);
+          this.gpsGraphService.loadChartData$.next(filteredVehicles);
+          this.sessioneGraphService.loadChartData$.next(filteredVehicles);
+          // this.errorGraphService.loadGraphData$.next(filteredVehicles);
+        },
+      });
   }
 
   /**
@@ -150,39 +198,50 @@ export class TableComponent implements OnDestroy, AfterViewInit {
 
     switch (column) {
       case 'cantiere':
-        if (sortDirection == "asc") {
-          this.vehicleTableData.data = this.sortService.sortVehiclesByCantiereAsc(vehiclesData);
+        if (sortDirection == 'asc') {
+          this.vehicleTableData.data =
+            this.sortService.sortVehiclesByCantiereAsc(vehiclesData);
         } else {
-          this.vehicleTableData.data = this.sortService.sortVehiclesByCantiereDesc(vehiclesData);
+          this.vehicleTableData.data =
+            this.sortService.sortVehiclesByCantiereDesc(vehiclesData);
         }
         this.vehicleTable.renderRows();
         break;
 
       case 'targa':
-        if (sortDirection == "asc") {
-          this.vehicleTableData.data = this.sortService.sortVehiclesByPlateAsc(vehiclesData) as VehicleData[];
+        if (sortDirection == 'asc') {
+          this.vehicleTableData.data = this.sortService.sortVehiclesByPlateAsc(
+            vehiclesData
+          ) as VehicleData[];
         } else {
-          this.vehicleTableData.data = this.sortService.sortVehiclesByPlateDesc(vehiclesData) as VehicleData[];
+          this.vehicleTableData.data = this.sortService.sortVehiclesByPlateDesc(
+            vehiclesData
+          ) as VehicleData[];
         }
         this.vehicleTable.renderRows();
         break;
       case 'sessione':
-        if (sortDirection == "asc") {
-          this.vehicleTableData.data = this.sortService.sortVehiclesBySessioneAsc(vehiclesData);
+        if (sortDirection == 'asc') {
+          this.vehicleTableData.data =
+            this.sortService.sortVehiclesBySessioneAsc(vehiclesData);
         } else {
-          this.vehicleTableData.data = this.sortService.sortVehiclesBySessioneDesc(vehiclesData);
+          this.vehicleTableData.data =
+            this.sortService.sortVehiclesBySessioneDesc(vehiclesData);
         }
         this.vehicleTable.renderRows();
         break;
     }
-    this.sessionStorageService.setItem("tableData", JSON.stringify(this.vehicleTableData.data));
+    this.sessionStorageService.setItem(
+      'tableData',
+      JSON.stringify(this.vehicleTableData.data)
+    );
   }
 
   /**
    * Riempe la tabella con i dati recuperati dalla chiamata API
    */
   private async fillTable() {
-    console.log("CHIAMATO FILL TABLE!");
+    console.log('CHIAMATO FILL TABLE!');
     this.antennaGraphService.resetGraph();
     this.sessioneGraphService.resetGraph();
     this.gpsGraphService.resetGraph();
@@ -191,23 +250,29 @@ export class TableComponent implements OnDestroy, AfterViewInit {
     this.checkErrorsService.checkErrorsAllToday().subscribe({
       next: (responseObj: any) => {
         console.log(responseObj);
-        this.sessionStorageService.setItem("lastUpdate", responseObj.lastUpdate);
+        this.sessionStorageService.setItem(
+          'lastUpdate',
+          responseObj.lastUpdate
+        );
         const vehiclesData = responseObj.vehicles;
-        console.log("vehiclesData fetched: ", vehiclesData);
+        console.log('vehiclesData fetched: ', vehiclesData);
         try {
           if (vehiclesData && vehiclesData.length > 0) {
             this.vehicleTableData.data = [...vehiclesData];
-            this.sessionStorageService.setItem("allData", JSON.stringify(vehiclesData));
+            this.sessionStorageService.setItem(
+              'allData',
+              JSON.stringify(vehiclesData)
+            );
             this.vehicleTable.renderRows();
             this.loadGraphs(vehiclesData);
           }
         } catch (error) {
-          console.error("Error processing vehicles:", error);
+          console.error('Error processing vehicles:', error);
         }
       },
       error: (err) => {
-        console.error("Errore nel caricamento iniziale dei dati: ", err);
-      }
+        console.error('Errore nel caricamento iniziale dei dati: ', err);
+      },
     });
     this.addLastRealtime();
   }
@@ -217,16 +282,29 @@ export class TableComponent implements OnDestroy, AfterViewInit {
    * poi unisce le posizioni ottenute con i veicoli nella tabella
    */
   private addLastRealtime() {
-    this.realtimeApiService.getLastRealtime().pipe(takeUntil(this.destroy$))
+    this.realtimeApiService
+      .getLastRealtime()
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (realtimeDataObj: RealtimeData[]) => {
-          console.log("realtime data fetched from dashboard: ", realtimeDataObj);
-          const tableVehicles: VehicleData[] = this.realtimeApiService.mergeVehiclesWithRealtime(this.vehicleTableData.data, realtimeDataObj) as VehicleData[];
+          console.log(
+            'realtime data fetched from dashboard: ',
+            realtimeDataObj
+          );
+          const tableVehicles: VehicleData[] =
+            this.realtimeApiService.mergeVehiclesWithRealtime(
+              this.vehicleTableData.data,
+              realtimeDataObj
+            ) as VehicleData[];
           this.vehicleTableData.data = tableVehicles;
-          this.sessionStorageService.setItem("allData", JSON.stringify(tableVehicles));
+          this.sessionStorageService.setItem(
+            'allData',
+            JSON.stringify(tableVehicles)
+          );
           this.vehicleTable.renderRows();
         },
-        error: error => console.error("Errore nel caricamento dei dati realtime: ", error)
+        error: (error) =>
+          console.error('Errore nel caricamento dei dati realtime: ', error),
       });
   }
 
@@ -239,24 +317,33 @@ export class TableComponent implements OnDestroy, AfterViewInit {
 
     this.vehicleTableData.data = [];
 
-    this.sessionApiService.getAllLastSessionAnomalies().pipe(takeUntil(this.destroy$))
+    this.sessionApiService
+      .getAllLastSessionAnomalies()
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (responseObj: any) => {
           const vehiclesData: VehicleData[] = responseObj.vehicles;
-          console.log("Last session vehiclesData fetched: ", vehiclesData);
+          console.log('Last session vehiclesData fetched: ', vehiclesData);
           try {
             if (vehiclesData && vehiclesData.length > 0) {
               this.vehicleTableData.data = [...vehiclesData];
-              this.sessionStorageService.setItem("allData", JSON.stringify(vehiclesData));
+              this.sessionStorageService.setItem(
+                'allData',
+                JSON.stringify(vehiclesData)
+              );
               this.vehicleTable.renderRows();
               this.addLastRealtime();
               this.loadGraphs(vehiclesData);
             }
           } catch (error) {
-            console.error("Error processing last session vehicles:", error);
+            console.error('Error processing last session vehicles:', error);
           }
         },
-        error: error => console.error("Errore nel recupero delle ultime sessioni dei veicoli: ", error)
+        error: (error) =>
+          console.error(
+            'Errore nel recupero delle ultime sessioni dei veicoli: ',
+            error
+          ),
       });
   }
 
@@ -271,20 +358,19 @@ export class TableComponent implements OnDestroy, AfterViewInit {
     let progress = 0;
     const progressPerSec = 100 / seconds;
     return new Promise((resolve) => {
-        const interval = setInterval(() => {
-            if (progress < 100) {
-                progress += progressPerSec;
-                this.loadingProgress = Math.min(progress, 100);
-            } else {
-                this.loading = false;
-                clearInterval(interval);
-                resolve();
-            }
-            this.cd.detectChanges();
-        }, 1000);
+      const interval = setInterval(() => {
+        if (progress < 100) {
+          progress += progressPerSec;
+          this.loadingProgress = Math.min(progress, 100);
+        } else {
+          this.loading = false;
+          clearInterval(interval);
+          resolve();
+        }
+        this.cd.detectChanges();
+      }, 1000);
     });
-}
-
+  }
 
   /**
    * Riempe la tabella con i veicoli passati
@@ -313,10 +399,11 @@ export class TableComponent implements OnDestroy, AfterViewInit {
     const realtimeData: RealtimeData = {
       vehicle: {
         plate: vehicleData.vehicle.plate,
-        veId: vehicleData.vehicle.veId
+        veId: vehicleData.vehicle.veId,
       },
-      realtime: vehicleData.realtime
-    }
+      realtime: vehicleData.realtime,
+      anomaly: vehicleData.anomalies[0],
+    };
     this.mapService.loadMap$.next(realtimeData);
   }
 
@@ -351,7 +438,7 @@ export class TableComponent implements OnDestroy, AfterViewInit {
     if (vehicleData.vehicle?.worksite && vehicleData.vehicle.worksite.name) {
       return vehicleData.vehicle.worksite.name;
     } else {
-      return "Non assegnato";
+      return 'Non assegnato';
     }
   }
 }
