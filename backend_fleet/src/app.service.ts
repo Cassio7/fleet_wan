@@ -176,30 +176,37 @@ export class AppService implements OnModuleInit {
       }
     }
 
-    for (const vehicle of vehicles) {
+    const tasks = vehicles.map(async (vehicle) => {
       console.log(
         `${vehicle.veId} con targa: ${vehicle.plate} - ${vehicle.id}`,
       );
+
       const company = companyMap.get(vehicle.veId);
       if (company) {
-        await this.sessionService.getSessionist(
-          company.suId,
-          vehicle.veId,
-          startDate,
-          endDate,
-        );
-        await this.tagService.putTagHistory(
-          company.suId,
-          vehicle.veId,
-          startDate,
-          endDate,
-        );
+        return Promise.all([
+          this.sessionService.getSessionist(
+            company.suId,
+            vehicle.veId,
+            startDate,
+            endDate,
+          ),
+          this.tagService.putTagHistory(
+            company.suId,
+            vehicle.veId,
+            startDate,
+            endDate,
+          ),
+        ]);
       }
-    }
+    });
+
+    // Aspetta che tutte le operazioni siano completate
+    await Promise.all(tasks);
 
     // inserire il calcolo dell ultima sessione valida
-    // const vehicleIds = vehicles.map((v) => v.veId);
-    // await this.sessionService.getLastSessionByVeIds(vehicleIds);
+    const vehicleIds = vehicles.map((v) => v.veId);
+    await this.sessionService.getLastSessionByVeIds(vehicleIds);
+    console.log('Fine recupero')
   }
 
   async anomalyCheck(start: string, end: string) {
