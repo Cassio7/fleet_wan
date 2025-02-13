@@ -1,6 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
 
-html, body {
+html,
+body {
   height: 100%;
   overflow: hidden;
   background-color: var(--background-color);
@@ -8,51 +9,67 @@ html, body {
 
 body {
   margin: 0;
-  font-family: 'Inter' !important;
+  font-family: "Inter" !important;
   background-color: var(--background-color);
   overflow: hidden;
 }
 
-html, body, h1, h2, h3, h4, h5, h6, th, td, mat-card-title{
-  font-family: 'Inter' !important;
+html,
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+th,
+td,
+mat-card-title {
+  font-family: "Inter" !important;
 }
 
-html, body { height: 100%; }
-body { margin: 0; font-family: "Inter", sans-serif; }
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: "Inter", sans-serif;
+}
 :root {
-  --green: #5C9074;
-  --yellow: #C5D026;
-  --red: #D02626;
+  --green: #5c9074;
+  --yellow: #c5d026;
+  --red: #d02626;
   --black: #484848;
-  --background-color: #F8F7F2;
+  --background-color: #f8f7f2;
   --navbar-height: 6vh;
-  --navbarANDstats-background: #F1F0E6;
+  --navbarANDstats-background: #f1f0e6;
 }
 
 /*Stile per contenitore icona mezzo e il suo label*/
 .icon-container {
   display: inline-flex;
   align-items: center;
-  background-color: #EFEEE4;
+  background-color: #efeee4;
   padding: 5px 10px;
   border-radius: 5px;
   gap: 5px;
   white-space: nowrap;
+  font-weight: 600;
 }
 
 .table tr:hover {
   background-color: var(--background-color);
 }
 
-
-th{
+th {
   color: var(--green);
 }
 table:not(.mat-calendar-table) tr:nth-child(even) {
   background-color: rgba(255, 255, 255, 0.7);
 }
 
-.section-header{
+.section-header {
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -62,20 +79,20 @@ table:not(.mat-calendar-table) tr:nth-child(even) {
   margin: 0;
 }
 
-.section-header .title{
+.section-header .title {
   font-weight: bold;
   font-size: 24px;
   line-height: 1;
   margin: 0;
 }
-.section-header .subtitle{
+.section-header .subtitle {
   font-weight: 300;
   font-size: 14px;
   line-height: 1;
   margin: 0;
 }
 
-.button{
+.button {
   display: flex;
   gap: 2px;
   background-color: var(--green);
