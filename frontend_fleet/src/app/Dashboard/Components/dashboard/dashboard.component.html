@@ -28,9 +28,14 @@
       <div class="section-header">
         <div class="title-container">
           <span class="title-main">{{ pageName }}</span>
-          <span class="last-update">
-            {{ lastUpdate && checkDate(lastUpdate) ? (lastUpdate | date: 'dd/MM/yyyy HH:mm'): lastUpdate }}
-          </span>
+          <div class="last-update">
+            <span *ngIf="today">
+              {{ lastUpdate && checkDate(lastUpdate) ? (lastUpdate | date: 'dd/MM/yyyy HH:mm'): lastUpdate }}
+            </span>
+            <span *ngIf="lastSession">
+              Recente
+            </span>
+          </div>
         </div>
         <p class="subtitle">{{subtitle}}</p>
       </div>

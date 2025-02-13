@@ -164,7 +164,8 @@
       class="example-element-row"
       [class.example-expanded-row]="expandedDay === anomaly"
       (click)="expandedDay = expandedDay === anomaly ? null : anomaly"
-      [ngClass]="{'selected-row': expandedDay === anomaly }">
+      [ngClass]="{'selected-row': expandedDay === anomaly }"
+      (click)="handleRowExpansion(anomaly, $event)">
   </tr>
 
   <!-- Expanded detail row -->

@@ -271,8 +271,14 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
   selectSession() {
     const selectedSessionStates = this.sessionStates.value || [];
 
+    //rimozione di "Seleziona tutto" quando una singola opzione è deselezionata
+    if (this.allSelected) {
+      this.allSelected = false;
+      this.sessionStates.setValue(selectedSessionStates.filter(selection => selection !== "Seleziona tutto"));
+    }
+
     // Rimozione di "Seleziona tutto" quando una singola opzione è deselezionata
-    if (this.sessionFilterService.isSessionFilterAllSelected()) {
+    if (this.allSelected) {
       this.allSelected = false;
       this.sessionStates.setValue(
         selectedSessionStates.filter(selection => selection !== "Seleziona tutto")
@@ -282,7 +288,7 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
     const allOptions = ["Funzionante", "Errore"];
     const areAllSelected = allOptions.every(option => selectedSessionStates.includes(option));
 
-    // Selezione di "Seleziona tutto" quando tutte le opzioni singole sono selezionate
+    //selezione di "Seleziona tutto" quando tutte le opzioni singole sono selezionate
     if (areAllSelected && !selectedSessionStates.includes("Seleziona tutto")) {
       selectedSessionStates.push("Seleziona tutto");
       this.sessionStates.setValue(selectedSessionStates);
