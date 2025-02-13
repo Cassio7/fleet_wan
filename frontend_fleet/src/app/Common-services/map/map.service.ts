@@ -90,7 +90,7 @@ export class MapService {
           </defs>
           </svg>
 `,
-      popupAnchor: [11, -6],
+      popupAnchor: [11, 12],
     });
     if (anomaly) {
       if (anomaly.gps || anomaly.antenna || anomaly.session)
@@ -150,7 +150,17 @@ export class MapService {
     }
 
     const marker = L.marker([lat, long], { icon: customIcon }); //creazione del marker
-    marker.bindPopup(msg, { autoClose: true });
+    marker.bindPopup(
+      `
+    <div class="custom-popup">
+      <span class="popup-text">${msg}</span>
+      <div class="popup-arrow"></div>
+    </div>
+  `,
+      {
+        autoClose: false,
+      }
+    );
 
     // Apre il popup solo quando si passa sopra al marker
     marker.on('mouseover', () => {
