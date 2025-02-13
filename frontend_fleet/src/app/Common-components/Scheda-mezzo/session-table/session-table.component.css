@@ -165,3 +165,9 @@ tr.example-element-row:not(.example-expanded-row):active {
   justify-content: center;
   padding: 20px;
 }
+tr.selected-row {
+  box-shadow: 0 0 0 2px green !important;
+}
+tr.selected-row td{
+  border-bottom: 2px solid green !important;
+}

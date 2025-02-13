@@ -163,7 +163,8 @@
   <tr mat-row *matRowDef="let anomaly; columns: daysColumnsToDisplayWithExpand;"
       class="example-element-row"
       [class.example-expanded-row]="expandedDay === anomaly"
-      (click)="expandedDay = expandedDay === anomaly ? null : anomaly">
+      (click)="expandedDay = expandedDay === anomaly ? null : anomaly"
+      [ngClass]="{'selected-row': expandedDay === anomaly }">
   </tr>
 
   <!-- Expanded detail row -->
