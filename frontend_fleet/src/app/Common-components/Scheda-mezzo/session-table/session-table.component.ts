@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { SessionApiService } from '../../../Common-services/session/session-api.service';
-import { skip, Subject, takeUntil } from 'rxjs';
+import { catchError, Observable, of, skip, Subject, takeUntil } from 'rxjs';
 import { VehicleAnomalies } from '../../../Models/VehicleAnomalies';
 import { Vehicle } from '../../../Models/Vehicle';
 import { Anomaly } from '../../../Models/Anomaly';
@@ -46,7 +46,7 @@ export class SessionTableComponent implements OnChanges, AfterViewInit {
   sessionsTableData = new MatTableDataSource<Session>();
   anomaliesTableData = new MatTableDataSource<Anomaly>();
 
-  daysColumnsToDisplay = ['Data', 'Stato GPS', 'Stato Antenna', 'Sessione'];
+  daysColumnsToDisplay = ['Data', 'Stato GPS', 'Stato Antenna', 'Sessione', 'Map'];
   daysColumnsToDisplayWithExpand = ['expand', ...this.daysColumnsToDisplay];
   expandedDay: any;
 
@@ -140,7 +140,18 @@ export class SessionTableComponent implements OnChanges, AfterViewInit {
     this.expandedDay = this.expandedDay === anomaly ? null : anomaly;
     event.stopPropagation();
     if (this.expandedDay) {
-      this.handleGetSessionsByVeIdRanged(anomaly.date);
+      this.handleGetSessionsByVeIdRanged(anomaly.date).pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (sessions: Session[]) => {
+          console.log("sessions fetched: ", sessions);
+
+          this.sessionsTableData.data = sessions;
+
+          this.sessionsTable.renderRows();
+
+          this.cd.detectChanges();
+        }
+      });
     }
   }
 
@@ -148,21 +159,18 @@ export class SessionTableComponent implements OnChanges, AfterViewInit {
    * Gestisce la chiamata API che permette di recuperare le sessioni eseguite in una giornata
    * @param date data della giornata di cui prendere le sessioni
    */
-  private handleGetSessionsByVeIdRanged(date: Date): void {
+  private handleGetSessionsByVeIdRanged(date: Date): Observable<Session[]> {
     const dateTo = new Date(date);
     dateTo.setDate(dateTo.getDate() + 1);
 
-    this.sessionApiService.getSessionsByVeIdRanged(this.vehicle.veId, date, dateTo)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (sessions: Session[]) => {
-          console.log("sessions fetched: ", sessions);
-          this.sessionsTableData.data = sessions;
-          this.sessionsTable.renderRows();
-          this.cd.detectChanges();
-        },
-        error: error => console.error("Errore durante la ricerca delle sessioni del veicolo nell'arco di tempo: ", error)
-      });
+    return this.sessionApiService.getSessionsByVeIdRanged(this.vehicle.veId, date, dateTo)
+      .pipe(
+        takeUntil(this.destroy$),
+        catchError(error => {
+          console.error("Error fetching sessions:", error);
+          return of([]); // Return an empty array Observable on error
+        })
+      );
   }
 
   showPathBySession(session: Session){
@@ -171,6 +179,32 @@ export class SessionTableComponent implements OnChanges, AfterViewInit {
       plate: this.vehicle.plate,
       points: points
     }
+    console.log("session pathData: ", pathData);
     this.mapService.loadPath$.next(pathData);
+  }
+
+  showDayPath(anomalyDay: Anomaly) {
+    this.handleGetSessionsByVeIdRanged(anomalyDay.date).subscribe(sessions => {
+      console.log("sessions fetched x day: ", sessions);
+
+      if (sessions.length === 0) {
+        console.warn("No sessions found for this day.");
+        this.mapService.loadPath$.next(null); // Or handle no data case appropriately
+        return;
+      }
+
+      const points = sessions.flatMap(session =>
+        session.history ? // Check if history exists to avoid errors
+        session.history.map(history => new Point(history.latitude, history.longitude)) : []
+      );
+
+      const pathData = {
+        plate: this.vehicle.plate,
+        points: points
+      };
+
+      console.log("day pathData: ", pathData);
+      this.mapService.loadPath$.next(pathData);
+    });
   }
 }

@@ -76,25 +76,21 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       }
 
 
-      const waypointsCompleti = pathData.points.map((point) =>
+      const waypoints = pathData.points.map((point) =>
           L.latLng(point.lat, point.long)
       );
 
-      const waypointsVisibili = [
-        waypointsCompleti[0],
-        waypointsCompleti[waypointsCompleti.length - 1]
-      ];
-
-      waypointsVisibili.forEach((waypoint, index) => {
+      waypoints.forEach((waypoint, index) => {
         const newMarker = L.marker(waypoint);
         let popupContent = "";
         if (index === 0) {
             popupContent = "Inizio";
-        } else if (index === waypointsVisibili.length - 1) {
+        } else if (index === waypoints.length - 1) {
             popupContent = "Fine";
         }
 
-        try {
+        if(index == 0 || index == waypoints.length -1){
+          try {
             newMarker.addTo(this.map)
                 .bindPopup(
                   this.mapService.getCustomPopup(popupContent),
@@ -103,18 +99,19 @@ export class MapComponent implements AfterViewInit, OnDestroy {
                   }
                 )
                 .openPopup();
-        } catch (error) {
-            console.error("Error creating marker:", error);
+          } catch (error) {
+              console.error("Error creating marker:", error);
+          }
         }
       });
 
       this.routingControl = L.Routing.control({
-          waypoints: waypointsCompleti,
+          waypoints: waypoints,
           routeWhileDragging: false,
           addWaypoints: false,
       }).addTo(this.map);
 
-      this.routingControl.setWaypoints(waypointsVisibili);
+      this.routingControl.setWaypoints(waypoints);
 
       //Forza il ricalcolo del percorso. Utile in alcuni casi
       this.routingControl.route();

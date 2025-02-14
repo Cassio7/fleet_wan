@@ -90,6 +90,12 @@
     </td>
   </ng-container>
 
+  <!-- Colonna Mappa -->
+  <ng-container matColumnDef="Map">
+    <th mat-header-cell *matHeaderCellDef> Percorso </th>
+    <td mat-cell *matCellDef="let anomaly"><mat-icon class="map-icon" (click)="showDayPath(anomaly)" matTooltip="Click per visualizzare il percorso di questa giornata">map</mat-icon></td>
+  </ng-container>
+
   <!-- Colonna Expand -->
   <ng-container matColumnDef="expand">
     <th mat-header-cell *matHeaderCellDef aria-label="row actions">&nbsp;</th>
@@ -148,8 +154,8 @@
 
           <!-- Colonna Mappa -->
           <ng-container matColumnDef="Map">
-            <th mat-header-cell *matHeaderCellDef> Map </th>
-            <td mat-cell *matCellDef="let session"><mat-icon class="map-icon" (click)="showPathBySession(session)">map</mat-icon></td>
+            <th mat-header-cell *matHeaderCellDef> Percorso </th>
+            <td mat-cell *matCellDef="let session"><mat-icon class="map-icon" (click)="showPathBySession(session)" matTooltip="Click per visualizzare il percorso di questa sessione">map</mat-icon></td>
           </ng-container>
 
           <!-- Definizione intestazioni e righe della tabella -->
