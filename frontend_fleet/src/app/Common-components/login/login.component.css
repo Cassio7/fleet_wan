@@ -156,14 +156,11 @@ mat-icon{
 }
 
 .submit-btn {
-  width: 100%;
-  margin-top: 1rem;
-  font-size: 1vw;
+  display: flex;
+  gap: 2px;
   background-color: var(--green);
+  border-radius: 5px;
   color: white;
-  margin: 0;
-  cursor: pointer;
-  transition: background-color 0.3s ease, opacity 0.3s ease;
 }
 
 .submit-btn:disabled {

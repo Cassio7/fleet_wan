@@ -99,6 +99,10 @@ table:not(.mat-calendar-table) tr:nth-child(even) {
   border-radius: 5px;
   color: white;
 }
+
+.map-icon{
+  color: var(--green);
+}
 /* Personalizzazione della scrollbar */
 ::-webkit-scrollbar {
   width: 8px; /* Imposta la larghezza della scrollbar */

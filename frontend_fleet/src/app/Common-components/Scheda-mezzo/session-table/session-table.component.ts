@@ -13,6 +13,8 @@ import { CheckErrorsService } from '../../../Common-services/check-errors/check-
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { Session } from '../../../Models/Session';
+import { MapService } from '../../../Common-services/map/map.service';
+import { Point } from '../../../Models/Point';
 
 @Component({
   selector: 'app-session-table',
@@ -48,7 +50,7 @@ export class SessionTableComponent implements OnChanges, AfterViewInit {
   daysColumnsToDisplayWithExpand = ['expand', ...this.daysColumnsToDisplay];
   expandedDay: any;
 
-  sessionColumnsToDisplay = ['Id', 'Sequence ID', 'Inizio', 'Fine', 'Distanza'];
+  sessionColumnsToDisplay = ['Id', 'Sequence ID', 'Inizio', 'Fine', 'Distanza', 'Map'];
 
   dateSelected: boolean = false;
   data: boolean = true;
@@ -58,6 +60,7 @@ export class SessionTableComponent implements OnChanges, AfterViewInit {
   constructor(
     private sessionApiService: SessionApiService,
     public checkErrorsService: CheckErrorsService,
+    private mapService: MapService,
     private cd: ChangeDetectorRef
   ) {}
 
@@ -153,11 +156,21 @@ export class SessionTableComponent implements OnChanges, AfterViewInit {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (sessions: Session[]) => {
+          console.log("sessions fetched: ", sessions);
           this.sessionsTableData.data = sessions;
           this.sessionsTable.renderRows();
           this.cd.detectChanges();
         },
         error: error => console.error("Errore durante la ricerca delle sessioni del veicolo nell'arco di tempo: ", error)
       });
+  }
+
+  showPathBySession(session: Session){
+    const points = session.history.map(history => new Point(history.latitude, history.longitude));
+    const pathData = {
+      plate: this.vehicle.plate,
+      points: points
+    }
+    this.mapService.loadPath$.next(pathData);
   }
 }
