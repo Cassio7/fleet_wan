@@ -859,9 +859,10 @@ export class AnomalyService {
 
           const sessionsDay = sessionMap.get(vehicle.veId) || [];
 
+          // raggruppo tutti le posizioni per la loro key della sessione corrispondente
           const groupedBySequence = sessionsDay.reduce((acc, item) => {
-            acc[item.sequence_id] = acc[item.sequence_id] || [];
-            acc[item.sequence_id].push(item);
+            acc[item.key] = acc[item.key] || [];
+            acc[item.key].push(item);
             return acc;
           }, {});
 
@@ -938,20 +939,21 @@ export class AnomalyService {
           const lastVehicleEventTime = new Date(vehicle.lastEvent).getTime();
           const sessionEndTime = new Date(lastSession.period_to).getTime();
 
-          // Calcola la differenza in giorni
-          const diffInDays = Math.floor(
-            (sessionEndTime - lastVehicleEventTime) / (1000 * 60 * 60 * 24),
-          );
+          // // Calcola la differenza in giorni
+          // const diffInDays = Math.floor(
+          //   (sessionEndTime - lastVehicleEventTime) / (1000 * 60 * 60 * 24),
+          // );
 
-          if (diffInDays >= 1) {
-            acc.push({
-              plate: vehicle.plate,
-              veId: vehicle.veId,
-              isCan: vehicle.isCan,
-              isRFIDReader: vehicle.allestimento,
-              anomalies: 'Ultima sessione non è stata chiusa correttamente',
-            });
-          } else if (lastVehicleEventTime > sessionEndTime) {
+          // if (diffInDays >= 1) {
+          //   acc.push({
+          //     plate: vehicle.plate,
+          //     veId: vehicle.veId,
+          //     isCan: vehicle.isCan,
+          //     isRFIDReader: vehicle.allestimento,
+          //     anomalies: 'Sessione rimasta aperta',
+          //   });
+          // } else
+          if (lastVehicleEventTime > sessionEndTime) {
             acc.push({
               plate: vehicle.plate,
               veId: vehicle.veId,
@@ -969,6 +971,78 @@ export class AnomalyService {
       console.error('Error getting last event: ', error);
       return 'Errore durante la richiesta al db'; // Return error message as string
     }
+  }
+
+  private async checkOpenSession(dateFrom: Date, dateTo: Date) {
+    const validation = validateDateRange(
+      dateFrom.toISOString(),
+      dateTo.toISOString(),
+    );
+    if (!validation.isValid) {
+      return validation.message;
+    }
+
+    const dateFrom_new = new Date(dateFrom);
+    const dateTo_new = new Date(dateTo);
+
+    const daysInRange = getDaysInRange(dateFrom_new, dateTo_new);
+    const allVehicles = await this.vehicleService.getAllVehicles();
+    const vehicleIds = allVehicles.map((v) => v.veId);
+    const openForDays = await Promise.all(
+      daysInRange.slice(0, -1).map(async (day) => {
+        const startOfDay = new Date(day);
+        const endOfDay = new Date(day);
+        endOfDay.setHours(23, 59, 59, 0);
+        const sessionMap =
+          await this.sessionService.getAllSessionsByVeIdsAndRange(
+            vehicleIds,
+            startOfDay,
+            endOfDay,
+          );
+        return allVehicles.map((vehicle) => {
+          const sessionsDay = sessionMap.get(vehicle.veId) || [];
+          if (!Array.isArray(sessionsDay) || sessionsDay.length === 0) {
+            return null;
+          }
+          const allSequenceIdZero = sessionsDay.every(
+            (session) => session.sequence_id === 0,
+          );
+          const anomalies = [];
+          if (allSequenceIdZero) {
+            anomalies.push('Sessione rimasta aperta');
+          }
+          return {
+            plate: vehicle.plate,
+            veId: vehicle.veId,
+            isCan: vehicle.isCan,
+            isRFIDReader: vehicle.allestimento,
+            day,
+            anomalies,
+          };
+        });
+      }),
+    );
+    const vehicleMap = new Map();
+    openForDays
+      .flat()
+      .filter((item) => item !== null && item !== undefined)
+      .forEach((item) => {
+        if (!vehicleMap.has(item.veId)) {
+          vehicleMap.set(item.veId, {
+            plate: item.plate,
+            veId: item.veId,
+            isCan: item.isCan,
+            isRFIDReader: item.isRFIDReader,
+            sessions: [],
+          });
+        }
+
+        vehicleMap.get(item.veId).sessions.push({
+          date: item.day,
+          anomalies: item.anomalies, // Manteniamo anche le anomalie vuote
+        });
+      });
+    return Array.from(vehicleMap.values());
   }
 
   private async checkQuality(dateFrom: Date, dateTo: Date) {
@@ -1078,9 +1152,9 @@ export class AnomalyService {
     let gpsErrors: any = []; // Risultati controllo GPS
     let fetchedTagComparisons: any = []; // Risultati comparazione tag
     let comparison: any = []; // Controllo errori lastEvent
+    let openSession: any = []; // Controllo errori Sessione aperta
     let quality: any = []; // Controllo errori detection_quality
     const mergedData = [];
-
     // Controlla errore di GPS
     try {
       gpsErrors = await this.checkGPS(dateFrom, dateTo);
@@ -1118,12 +1192,20 @@ export class AnomalyService {
     } catch (error) {
       console.error('Errore nel controllo del last event:', error);
     }
+
+    try {
+      openSession = await this.checkOpenSession(dateFrom, dateTo);
+      openSession = Array.isArray(openSession) ? openSession : [];
+    } catch (error) {
+      console.error('Errore nel controllo della sessione aperta:', error);
+    }
     // Combina i risultati
     try {
       const allPlates = new Set([
         ...gpsErrors.map((item) => item.plate),
         ...fetchedTagComparisons.map((item) => item.plate),
         ...quality.map((item) => item.plate),
+        ...openSession.map((item) => item.plate),
         ...comparison.map((item) => item.plate),
       ]);
 
@@ -1132,6 +1214,8 @@ export class AnomalyService {
         const tagEntry =
           fetchedTagComparisons.find((item) => item.plate === plate) || {};
         const qualityEntry = quality.find((item) => item.plate === plate) || {};
+        const openSessionEntry =
+          openSession.find((item) => item.plate === plate) || {};
         const comparisonEntry =
           comparison.find((item) => item.plate === plate) || {};
 
@@ -1173,6 +1257,16 @@ export class AnomalyService {
             session.anomalies;
         });
 
+        // Aggiungi sessioni aperte
+        (openSessionEntry.sessions || []).forEach((session) => {
+          if (!allSessions.has(session.date)) {
+            allSessions.set(session.date, {
+              date: session.date,
+              anomalies: {},
+            });
+          }
+          allSessions.get(session.date).anomalies.open = session.anomalies?.[0];
+        });
         const combinedMap = new Map();
 
         allSessions.forEach((value, key) => {
