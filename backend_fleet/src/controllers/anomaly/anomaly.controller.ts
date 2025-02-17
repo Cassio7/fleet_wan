@@ -400,7 +400,7 @@ export class AnomalyController {
         let gps = null;
         let antenna = null;
         let detection_quality_avg = null;
-        const session = item.anomaliaSessione || null;
+        let session = null;
 
         if (item.sessions && item.sessions[0]) {
           date = item.sessions[0].date || null;
@@ -409,6 +409,8 @@ export class AnomalyController {
             antenna = item.sessions[0].anomalies.Antenna || null;
             detection_quality_avg =
               item.sessions[0].anomalies.detection_quality_avg || null;
+            session =
+              item.anomaliaSessione || item.sessions[0].anomalies.open || null;
           }
         }
         return await this.anomalyService.createAnomaly(
