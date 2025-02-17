@@ -3,20 +3,19 @@ import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import axios from 'axios';
 import { CompanyDTO } from 'classes/dtos/company.dto';
 import { DeviceDTO } from 'classes/dtos/device.dto';
+import { EquipmentDTO } from 'classes/dtos/equipment.dto';
 import { GroupDTO } from 'classes/dtos/group.dto';
+import { RentalDTO } from 'classes/dtos/rental.dto';
+import { ServiceDTO } from 'classes/dtos/service.dto';
 import { VehicleDTO } from 'classes/dtos/vehicle.dto';
+import { WorkzoneDTO } from 'classes/dtos/workzone.dto';
 import { DeviceEntity } from 'classes/entities/device.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { createHash } from 'crypto';
-import { convertHours } from 'src/utils/utils';
 import { DataSource, In, Repository } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
 import { AssociationService } from '../association/association.service';
 import { WorksiteDTO } from './../../../classes/dtos/worksite.dto';
-import { WorkzoneDTO } from 'classes/dtos/workzone.dto';
-import { ServiceDTO } from 'classes/dtos/service.dto';
-import { EquipmentDTO } from 'classes/dtos/equipment.dto';
-import { RentalDTO } from 'classes/dtos/rental.dto';
 
 @Injectable()
 export class VehicleService {
@@ -155,17 +154,13 @@ export class VehicleService {
           plate: item['plate'].trim(),
           model: item['model'],
           firstEvent:
-            typeof item['firstEvent'] === 'object'
-              ? null
-              : convertHours(item['firstEvent']),
+            typeof item['firstEvent'] === 'object' ? null : item['firstEvent'],
           lastEvent:
-            typeof item['lastEvent'] === 'object'
-              ? null
-              : convertHours(item['lastEvent']),
+            typeof item['lastEvent'] === 'object' ? null : item['lastEvent'],
           lastSessionEvent:
             typeof item['lastSessionEvent'] === 'object'
               ? null
-              : convertHours(item['lastSessionEvent']),
+              : item['lastSessionEvent'],
           isCan: item['isCan'] === 'true',
           isRFIDReader: item['isRFIDReader'] === 'true',
           profileId: item['profileId'],
@@ -309,7 +304,7 @@ export class VehicleService {
           deviceLastFwUpdate:
             typeof item['deviceLastFwUpdate'] === 'object'
               ? null
-              : convertHours(item['deviceLastFwUpdate']),
+              : item['deviceLastFwUpdate'],
           deviceFwUpgradeReceived: item['deviceFwUpgradeReceived'],
           deviceRTCBatteryFailure: item['deviceRTCBatteryFailure'] === 'true',
           devicePowerFailureDetected: item['devicePowerFailureDetected'],

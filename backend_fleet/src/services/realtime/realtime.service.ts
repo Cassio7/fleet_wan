@@ -5,7 +5,6 @@ import { RealtimeDTO } from 'classes/dtos/realtime.dto';
 import { VehicleDTO } from 'classes/dtos/vehicle.dto';
 import { RealtimePositionEntity } from 'classes/entities/realtime_position.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
-import { convertHours } from 'src/utils/utils';
 import { DataSource, In, Repository } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
 
@@ -99,7 +98,7 @@ export class RealtimeService {
               timestamp:
                 typeof inside['timestamp'] === 'object'
                   ? null
-                  : convertHours(inside['timestamp']),
+                  : inside['timestamp'],
               status: inside['status'],
               latitude: inside['latitude'],
               longitude: inside['longitude'],
@@ -119,7 +118,7 @@ export class RealtimeService {
               timestamp:
                 typeof item.list['timestamp'] === 'object'
                   ? null
-                  : convertHours(item.list['timestamp']),
+                  : item.list['timestamp'],
               status: item.list['status'],
               latitude: item.list['latitude'],
               longitude: item.list['longitude'],
