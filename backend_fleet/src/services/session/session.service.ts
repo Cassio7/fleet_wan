@@ -702,7 +702,9 @@ export class SessionService {
           history: true,
         },
         order: {
-          period_from: 'ASC',
+          history: {
+            timestamp: 'ASC',
+          },
         },
       });
       return sessions.map((session) => this.toDTOSession(session));
