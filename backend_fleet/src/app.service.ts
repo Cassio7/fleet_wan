@@ -48,7 +48,7 @@ export class AppService implements OnModuleInit {
 
   // popolo database all'avvio
   async onModuleInit() {
-    const startDate = '2025-02-04T00:00:00.000Z';
+    const startDate = '2025-01-01T00:00:00.000Z';
     //const endDate = '2024-12-10T00:00:00.000Z';
     const endDate = new Date(
       new Date().getTime() + 2 * 60 * 60 * 1000,
@@ -87,7 +87,7 @@ export class AppService implements OnModuleInit {
     const endDate = end;
 
     console.log('Data inizio: ' + startDate + ' Data fine: ' + endDate);
-    const batchSize = 20;
+    const batchSize = 100;
 
     await this.vehicleService.getVehicleList(254, 313); //Gesenu principale
     //await this.vehicleService.getVehicleList(254, 683); //Gesenu dismessi
@@ -206,7 +206,7 @@ export class AppService implements OnModuleInit {
     // inserire il calcolo dell ultima sessione valida
     const vehicleIds = vehicles.map((v) => v.veId);
     await this.sessionService.getLastSessionByVeIds(vehicleIds);
-    console.log('Fine recupero')
+    console.log('Fine recupero');
   }
 
   async anomalyCheck(start: string, end: string) {
@@ -249,7 +249,7 @@ export class AppService implements OnModuleInit {
     let gps = null;
     let antenna = null;
     let detection_quality = null;
-    const session = null;
+    let session = null;
 
     if (item.sessions && item.sessions[0]) {
       date = item.sessions[0].date || null;
@@ -258,6 +258,7 @@ export class AppService implements OnModuleInit {
         antenna = item.sessions[0].anomalies.Antenna || null;
         detection_quality =
           item.sessions[0].anomalies.detection_quality || null;
+        session = item.sessions[0].anomalies.open || null;
       }
       return this.anomalyService.createAnomaly(
         veId,
@@ -290,7 +291,7 @@ export class AppService implements OnModuleInit {
           let gps = null;
           let antenna = null;
           let detection_quality = null;
-          const session = item.anomaliaSessione || null;
+          let session = null;
 
           if (item.sessions && item.sessions[0]) {
             date = item.sessions[0].date || null;
@@ -299,6 +300,10 @@ export class AppService implements OnModuleInit {
               antenna = item.sessions[0].anomalies.Antenna || null;
               detection_quality =
                 item.sessions[0].anomalies.detection_quality || null;
+              session =
+                item.anomaliaSessione ||
+                item.sessions[0].anomalies.open ||
+                null;
             }
           }
 
