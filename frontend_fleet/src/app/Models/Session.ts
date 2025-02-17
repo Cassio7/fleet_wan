@@ -1,6 +1,7 @@
 import { History } from "./History";
 export class Session {
   constructor(
+    public table_id: number,
     public sequence_id: number,
     public closed: boolean,
     public distance: number,

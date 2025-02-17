@@ -84,3 +84,13 @@ body {
   border-right: 5px solid transparent;
   border-top: 6px solid #42413c;
 }
+
+.end-label {
+  color: white; /* Colore del testo */
+  font-size: 10px; /* Puoi regolare la dimensione a piacere */
+  text-shadow:
+    1px 1px 2px black,   /* Ombra a destra e in basso */
+    -1px -1px 2px black,  /* Ombra a sinistra e in alto */
+    1px -1px 2px black,   /* Ombra a destra e in alto */
+    -1px 1px 2px black;   /* Ombra a sinistra e in basso */
+}

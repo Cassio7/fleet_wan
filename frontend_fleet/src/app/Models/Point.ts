@@ -1,5 +1,9 @@
 export class Point{
-  constructor(private _lat: number, private _long: number) {}
+
+  constructor(
+    private _lat: number,
+    private _long: number
+  ) {}
 
   public get long(): number {
     return this._long;

@@ -115,12 +115,8 @@
 
 .title {
   font-weight: bold;
-  margin-bottom: 5px;
 }
 
 .small-title{
   color: var(--green);
-}
-.section-header{
-  margin-bottom: 20px;
 }

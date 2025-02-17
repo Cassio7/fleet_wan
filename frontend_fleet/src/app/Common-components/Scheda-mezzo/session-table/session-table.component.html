@@ -116,7 +116,7 @@
           [@detailExpand]="anomaly === expandedDay ? 'expanded' : 'collapsed'">
 
         <!-- Tabella delle sessioni -->
-        <table mat-table
+        <table *ngIf="sessionsTableData" mat-table
               [dataSource]="sessionsTableData"
               multiTemplateDataRows
               class="mat-elevation-z8"
@@ -125,7 +125,7 @@
           <!-- Colonna Id -->
           <ng-container matColumnDef="Id">
             <th mat-header-cell *matHeaderCellDef> Id </th>
-            <td mat-cell *matCellDef="let session"> {{session.id}} </td>
+            <td mat-cell *matCellDef="let session"> {{session.table_id}} </td>
           </ng-container>
 
           <!-- Colonna Sequence ID -->

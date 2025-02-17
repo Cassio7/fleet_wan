@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { SessionApiService } from '../../../Common-services/session/session-api.service';
-import { catchError, Observable, of, skip, Subject, takeUntil } from 'rxjs';
+import { catchError, last, Observable, of, skip, Subject, takeUntil } from 'rxjs';
 import { VehicleAnomalies } from '../../../Models/VehicleAnomalies';
 import { Vehicle } from '../../../Models/Vehicle';
 import { Anomaly } from '../../../Models/Anomaly';
@@ -13,7 +13,7 @@ import { CheckErrorsService } from '../../../Common-services/check-errors/check-
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { Session } from '../../../Models/Session';
-import { MapService } from '../../../Common-services/map/map.service';
+import { mapData, MapService } from '../../../Common-services/map/map.service';
 import { Point } from '../../../Models/Point';
 
 @Component({
@@ -143,12 +143,12 @@ export class SessionTableComponent implements OnChanges, AfterViewInit {
       this.handleGetSessionsByVeIdRanged(anomaly.date).pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (sessions: Session[]) => {
-          console.log("sessions fetched: ", sessions);
-
+          let count = 1;
+          sessions.map(session => {
+            session.table_id = count++;
+          });
+          count = 0;
           this.sessionsTableData.data = sessions;
-
-          this.sessionsTable.renderRows();
-
           this.cd.detectChanges();
         }
       });
@@ -174,37 +174,41 @@ export class SessionTableComponent implements OnChanges, AfterViewInit {
   }
 
   showPathBySession(session: Session){
-    const points = session.history.map(history => new Point(history.latitude, history.longitude));
-    const pathData = {
+    const points = session.history.map(history => {
+      return new Point(history.latitude, history.longitude);
+    });
+    const pathData: any = {
       plate: this.vehicle.plate,
+      position_number: session.table_id,
       points: points
     }
     console.log("session pathData: ", pathData);
-    this.mapService.loadPath$.next(pathData);
+    this.mapService.loadSessionPath$.next(pathData);
   }
 
   showDayPath(anomalyDay: Anomaly) {
     this.handleGetSessionsByVeIdRanged(anomalyDay.date).subscribe(sessions => {
-      console.log("sessions fetched x day: ", sessions);
-
       if (sessions.length === 0) {
-        console.warn("No sessions found for this day.");
-        this.mapService.loadPath$.next(null); // Or handle no data case appropriately
         return;
       }
 
       const points = sessions.flatMap(session =>
-        session.history ? // Check if history exists to avoid errors
-        session.history.map(history => new Point(history.latitude, history.longitude)) : []
+        session.history.map(posizione => new Point(posizione.latitude, posizione.longitude))
       );
+
+      const lastPoints = sessions.map(session => {
+        const lastHistory = session.history[session.history.length - 1];
+        return new Point(lastHistory.latitude, lastHistory.longitude);
+      });
 
       const pathData = {
         plate: this.vehicle.plate,
-        points: points
+        points: points,
+        lastPoints: lastPoints
       };
 
       console.log("day pathData: ", pathData);
-      this.mapService.loadPath$.next(pathData);
+      this.mapService.loadDayPath$.next(pathData);
     });
   }
 }

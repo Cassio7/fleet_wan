@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Type } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { RealtimeData } from '../../Models/RealtimeData';
 import { Anomaly } from '../../Models/Anomaly';
@@ -6,12 +6,17 @@ import * as L from 'leaflet';
 import 'leaflet-routing-machine';
 import { Point } from '../../Models/Point';
 
+export interface mapData{
+  plate: string,
+  points: Point[]
+}
 @Injectable({
   providedIn: 'root',
 })
 export class MapService {
   private readonly _loadMap$: BehaviorSubject<RealtimeData | null> = new BehaviorSubject<RealtimeData | null>(null);
-  private readonly _loadPath$: BehaviorSubject<any> = new BehaviorSubject<any>(null);
+  private readonly _loadSessionPath$: BehaviorSubject<any> = new BehaviorSubject<any>(null);
+  private readonly _loadDayPath$: BehaviorSubject<any> = new BehaviorSubject<any>(null);
 
   OkMarker = `<svg width="33" height="33" viewBox="0 0 33 33" fill="none" xmlns="http://www.w3.org/2000/svg">
           <g filter="url(#filter0_d_206_1354)">
@@ -73,7 +78,7 @@ export class MapService {
    * @param lat latitudine
    * @param long longitudine
    */
-  initMapByPoint(map: L.Map, point: Point): L.Map {
+  initMap(map: L.Map, point: Point): L.Map {
     map = L.map('map', {
       center: [point.lat, point.long],
       zoom: 12,
@@ -90,43 +95,6 @@ export class MapService {
     );
 
     tiles.addTo(map);
-    return map;
-  }
-
-
-  /**
-   * Crea un percorso su una mappa data un array di coordinate.
-   * @param map Istanza della mappa Leaflet
-   * @param waypoints Array di Point
-   */
-  addRoute(map: L.Map, waypoints: L.LatLng[]) {
-    // Add OpenStreetMap tile layer to the map
-    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-
-    // Create the routing control
-    L.Routing.control({
-      router: L.Routing.osrmv1({
-        serviceUrl: `http://router.project-osrm.org/route/v1/`
-      }),
-      showAlternatives: true,
-      lineOptions: {
-        styles: [{ color: '#242c81', weight: 7 }],
-        extendToWaypoints: true,  // This property makes sure the route extends to the waypoints
-        missingRouteTolerance: 200  // Adjust this tolerance as needed
-      },
-      fitSelectedRoutes: false,
-      altLineOptions: {
-        styles: [{ color: '#ed6852', weight: 7 }],
-        extendToWaypoints: true,  // Ensure alternative routes also extend to waypoints
-        missingRouteTolerance: 200  // Adjust this tolerance as needed
-      },
-      show: false,
-      routeWhileDragging: true,
-      waypoints: waypoints // Use the waypoints passed as parameter
-    }).addTo(map);
-
     return map;
   }
 
@@ -220,18 +188,36 @@ export class MapService {
    */
   getCustomPopup(msg: string): string{
     return `
-    <div class="custom-popup">
-      <span class="popup-text">${msg}</span>
-      <div class="popup-arrow"></div>
-    </div>
+      <div class="custom-popup">
+        <span class="popup-text">${msg}</span>
+        <div class="popup-arrow"></div>
+      </div>
     `
   }
 
+  /**
+   * Permette di ottenere la stringa svg del marker per una posizione diversa dalla posizione di fine percorso
+   * @param msg messaggio all'interno del popup
+   * @returns stringa contenente l'elemento svg
+   */
+  getCustomPositionMarker(msg: string): string{
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 50" width="60" height="50">
+            <!-- Forma del pin GPS -->
+            <path d="M30,3 C22,3 17,18 17,25 C17,32 30,45 30,45 C30,45 43,32 43,25 C43,18 38,3 30,3 Z" fill="#2196F3" stroke="#1976D2" stroke-width="2"/>
+            <!-- Numero bianco al centro della testa -->
+            <text x="50%" y="40%" font-size="12" text-anchor="middle" fill="#FFFFFF" dy=".3em">${msg}</text>
+          </svg>
+    `;
+  }
 
+
+  public get loadDayPath$(): BehaviorSubject<any> {
+    return this._loadDayPath$;
+  }
   public get loadMap$(): BehaviorSubject<RealtimeData | null> {
     return this._loadMap$;
   }
-  public get loadPath$(): BehaviorSubject<any> {
-    return this._loadPath$;
+  public get loadSessionPath$(): BehaviorSubject<any> {
+    return this._loadSessionPath$;
   }
 }

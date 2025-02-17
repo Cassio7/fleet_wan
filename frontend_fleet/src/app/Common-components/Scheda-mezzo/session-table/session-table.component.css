@@ -45,7 +45,6 @@ tr.example-element-row:not(.example-expanded-row):active {
   border: 2px solid black;
   padding: 8px;
   font-weight: lighter;
-  margin: 8px 0;
   height: 104px;
 }
 
