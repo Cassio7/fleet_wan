@@ -1,0 +1,32 @@
+<div class="content">
+  <mat-form-field class="targa-filter filter" appearance="outline" subscriptSizing="dynamic">
+    <mat-label>Targa</mat-label>
+    <input matInput type="text" placeholder="Targa" #targa class="targa-input" [(ngModel)]="filters.plate" (input)="searchPlates()">
+    <button *ngIf="targa.value" matSuffix mat-icon-button aria-label="Clear" (click)="filters.plate='';searchPlates()">
+      <mat-icon>close</mat-icon>
+    </button>
+    <mat-icon matSuffix *ngIf="!targa.value">search</mat-icon>
+  </mat-form-field>
+  <mat-form-field class="cantieri-filter filter" appearance="outline" subscriptSizing="dynamic">
+    <mat-select [formControl]="cantieri" placeholder="Cantiere" multiple class="cantiere-input">
+      <mat-select-trigger>
+        Cantieri
+      </mat-select-trigger>
+      <mat-option value="Seleziona tutto" (click)="selectAll()">Seleziona tutto</mat-option>
+      <mat-divider></mat-divider>
+      <mat-option [value]="cantiere" (click)="selectCantiere()" *ngFor="let cantiere of this.listaCantieri">
+        {{ cantiere }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+  <button mat-button class="updateData-btn button">Aggiorna dati</button>
+  <div class="slider-container">
+  <mat-slide-toggle
+    class="example-margin"
+    [checked]="checked"
+    [disabled]="disabled">
+
+    <span class="slider-text">Visualizza le targhe sulla mappa</span>
+  </mat-slide-toggle>
+  </div>
+</div>
