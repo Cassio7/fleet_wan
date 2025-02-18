@@ -37,7 +37,7 @@
           <button class="session-history-btn button" routerLink="storico-mezzi" [ngClass]="{'selectedBtn': selectedBtn == '/storico-mezzi'}">
             <mat-icon>inventory_2</mat-icon><span class="drawerIcon-text">Storico mezzi</span>
           </button>
-          <button class="button"><mat-icon>map</mat-icon><span><span class="drawerIcon-text">Mappa</span></span></button>
+          <button class="button" routerLink="home-mappa" [ngClass]="{'selectedBtn': selectedBtn == '/home-mappa'}"><mat-icon>map</mat-icon><span><span class="drawerIcon-text">Mappa</span></span></button>
           <button class="button"><mat-icon>manage_accounts</mat-icon><span class="drawerIcon-text">Gestione utenti</span></button>
           <button class="button"><mat-icon>settings</mat-icon><span class="drawerIcon-text">Impostazioni</span></button>
 

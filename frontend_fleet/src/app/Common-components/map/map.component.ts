@@ -40,7 +40,17 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   private routingControl: L.Routing.Control | null = null;
 
+
   ngAfterViewInit(): void {
+    this.handleLoadPosition();
+    this.handleLoadSessionPath();
+    this.handleLoadDayPath();
+  }
+
+  /**
+   * Gestisce la sottoscrizione al subject per il caricamento nella mappa di una posizione
+   */
+  private handleLoadPosition(){
     this.mapService.loadPosition$.pipe(takeUntil(this.destroy$), skip(1)).subscribe({
       next: (realtimeData: RealtimeData | null) => {
         if (realtimeData && realtimeData.realtime) {
@@ -57,7 +67,12 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         }
       },
     });
+  }
 
+  /**
+   * Gestisce la sottoscrizione al subject per il caricamento nella mappa del percorso di un veicolo durante una sessione
+   */
+  private handleLoadSessionPath(){
     this.mapService.loadSessionPath$.pipe(
       takeUntil(this.destroy$),
       skip(1)
@@ -114,22 +129,27 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
           // Return false for intermediate waypoints to prevent markers
           return false;
-      }
-      });
+        }
+        });
 
-      this.routingControl = L.Routing.control({
-          show: false,
-          plan: customPlan,
-          routeWhileDragging: false,
-          addWaypoints: false
-      }).addTo(this.map);
+        this.routingControl = L.Routing.control({
+            show: false,
+            plan: customPlan,
+            routeWhileDragging: false,
+            addWaypoints: false
+        }).addTo(this.map);
 
-      this.routingControl.route();
-    },
-    error: error => console.error("Errore nel caricamento del percorso: ", error)
-  });
+        this.routingControl.route();
+      },
+      error: error => console.error("Errore nel caricamento del percorso: ", error)
+    });
+  }
 
-  this.mapService.loadDayPath$.pipe(takeUntil(this.destroy$), skip(1))
+  /**
+   * Gestisce la sottoscrizione al subject per il caricamento nella mappa del percorso di un veicolo durante l'insieme di tutte le sessioni di un veicolo
+   */
+  private handleLoadDayPath(){
+    this.mapService.loadDayPath$.pipe(takeUntil(this.destroy$), skip(1))
   .subscribe({
     next: (pathData: { plate: string, points: Point[], firstPoints: Point[] }) => {
       //rimozione di punti non validi
@@ -188,22 +208,20 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             return L.marker(waypoint.latLng, { icon: markerIcon });
           }
           return false;
-      }
-      });
+        }
+        });
 
-      this.routingControl = L.Routing.control({
-          show: false,
-          plan: customPlan,
-          routeWhileDragging: false,
-          addWaypoints: false
-      }).addTo(this.map);
+        this.routingControl = L.Routing.control({
+            show: false,
+            plan: customPlan,
+            routeWhileDragging: false,
+            addWaypoints: false
+        }).addTo(this.map);
 
-      this.routingControl.route();
-    },
-    error: error => console.error("Errore nel caricamento del path del giorno: ", error)
-  });
-
-
+        this.routingControl.route();
+      },
+      error: error => console.error("Errore nel caricamento del path del giorno: ", error)
+    });
   }
 
   /**
