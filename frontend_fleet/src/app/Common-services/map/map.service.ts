@@ -6,10 +6,6 @@ import * as L from 'leaflet';
 import 'leaflet-routing-machine';
 import { Point } from '../../Models/Point';
 
-export interface mapData{
-  plate: string,
-  points: Point[]
-}
 @Injectable({
   providedIn: 'root',
 })

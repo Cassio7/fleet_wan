@@ -13,8 +13,8 @@ import { CheckErrorsService } from '../../../Common-services/check-errors/check-
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { Session } from '../../../Models/Session';
-import { mapData, MapService } from '../../../Common-services/map/map.service';
 import { Point } from '../../../Models/Point';
+import { MapService } from '../../../Common-services/map/map.service';
 
 @Component({
   selector: 'app-session-table',
@@ -196,15 +196,15 @@ export class SessionTableComponent implements OnChanges, AfterViewInit {
         session.history.map(posizione => new Point(posizione.latitude, posizione.longitude))
       );
 
-      const lastPoints = sessions.map(session => {
-        const lastHistory = session.history[session.history.length - 1];
-        return new Point(lastHistory.latitude, lastHistory.longitude);
+      const firstPoints = sessions.map(session => {
+        const firstHistory = session.history[0];
+        return new Point(firstHistory.latitude, firstHistory.longitude);
       });
 
       const pathData = {
         plate: this.vehicle.plate,
         points: points,
-        lastPoints: lastPoints
+        firstPoints: firstPoints
       };
 
       console.log("day pathData: ", pathData);

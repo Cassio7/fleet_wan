@@ -44,7 +44,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.mapService.loadMap$.pipe(takeUntil(this.destroy$), skip(1)).subscribe({
       next: (realtimeData: RealtimeData | null) => {
         if (realtimeData && realtimeData.realtime) {
-          console.log(realtimeData.anomaly);
           const pgLat = realtimeData.realtime.latitude;
           const pgLong = realtimeData.realtime.longitude;
           this.initMap(new Point(pgLat, pgLong));
@@ -125,21 +124,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   this.mapService.loadDayPath$.pipe(takeUntil(this.destroy$), skip(1))
   .subscribe({
-    next: (pathData: { plate: string, points: Point[], lastPoints: Point[] }) => {
+    next: (pathData: { plate: string, points: Point[], firstPoints: Point[] }) => {
       const startPoint: number = pathData.points[0].lat;
       const endPoint: number = pathData.points[0].long;
-      const isPointInPath = pathData.lastPoints.some(lastPoint => {
-        return pathData.points.some(point => {
-            // Compara le coordinate lat e long dei punti
-            return lastPoint.lat === point.lat && lastPoint.long === point.long;
-        });
-    });
-
-    if (isPointInPath) {
-        console.log('Un punto di lastPoints è presente in points');
-    } else {
-        console.log('Nessun punto di lastPoints è presente in points');
-    }
 
       this.initMap(new Point(startPoint, endPoint));
 
@@ -154,33 +141,34 @@ export class MapComponent implements AfterViewInit, OnDestroy {
           L.latLng(point.lat, point.long)
       );
 
-      let lastPointCounter = 0;
+      let firstPointCounter = 0;
 
       // Sovrascrive il piano di navigazione per evitare i marker
       const customPlan = new L.Routing.Plan(waypoints, {
         createMarker: (waypointIndex, waypoint, numberOfWaypoints) => {
-          const currentLastPoint = pathData.lastPoints[lastPointCounter];
+          const currentFirstPosition = pathData.firstPoints[firstPointCounter];
           let markerIcon;
 
           markerIcon = L.divIcon({
             className: 'custom-div-icon',
-            html: `<div style="color: white; padding: 5px;">${this.mapService.getCustomPositionMarker((lastPointCounter + 1).toString())}</div>`,
-            iconSize: [50, 20],
-            iconAnchor: [20, 40]
+            html: `<div style="color: white; padding: 5px;">${this.mapService.getCustomPositionMarker((firstPointCounter + 1).toString())}</div>`,
+            iconSize: [20, 20],
+            iconAnchor: [10,10]
           });
 
-          if(waypointIndex === numberOfWaypoints - 1){
+          if(waypointIndex === waypoints.length - 1){
             // Create a divIcon for the start point
             markerIcon = L.divIcon({
               className: 'custom-div-icon',
               html: `<div style="color: white; padding: 5px;">${this.mapService.sessionEndMarker}</div>`,
               iconSize: [50, 20],
-              iconAnchor: [20, 40]
+              iconAnchor: [10,10]
             });
           }
 
-          if(JSON.stringify(L.latLng(currentLastPoint.lat, currentLastPoint.long)) == JSON.stringify(waypoint.latLng)){
-            lastPointCounter++;
+          if((currentFirstPosition && JSON.stringify(L.latLng(currentFirstPosition.lat, currentFirstPosition.long)) == JSON.stringify(waypoint.latLng)) ||
+          waypointIndex === waypoints.length - 1){
+            firstPointCounter++;
             return L.marker(waypoint.latLng, { icon: markerIcon });
           }
           return false;
