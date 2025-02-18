@@ -175,6 +175,7 @@ export class KanbanAntennaComponent implements AfterViewInit, OnDestroy {
         date: vehicleData.anomalies[0].date,
         gps: null,
         antenna: vehicleData.anomalies[0].antenna,
+        detection_quality: null,
         session: null,
       },
     };

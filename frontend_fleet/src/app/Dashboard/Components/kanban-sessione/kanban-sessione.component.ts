@@ -167,6 +167,7 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy {
         date: vehicleData.anomalies[0].date,
         gps: null,
         antenna: null,
+        detection_quality: null,
         session: vehicleData.anomalies[0].session,
       },
     };

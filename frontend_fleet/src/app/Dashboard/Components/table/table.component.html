@@ -16,7 +16,7 @@
     class="table"
   >
     <!-- Tipologia column -->
-    <ng-container matColumnDef="tipologia">
+    <ng-container matColumnDef="Tipologia">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Servizio</th>
       <td mat-cell *matCellDef="let vehicleData">
         <div style="display: flex; align-items: center; gap: 8px;">
@@ -33,7 +33,7 @@
     </ng-container>
 
     <!-- Targa Column -->
-    <ng-container matColumnDef="targa">
+    <ng-container matColumnDef="Targa">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Targa</th>
       <td mat-cell *matCellDef="let vehicleData">
         <span class="icon-container" style="font-weight: 600;">
@@ -43,7 +43,7 @@
     </ng-container>
 
     <!-- Cantiere Column -->
-    <ng-container matColumnDef="cantiere">
+    <ng-container matColumnDef="Cantiere">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Cantiere</th>
       <td mat-cell *matCellDef="let vehicleData">
         {{ checkWorksite(vehicleData) }}
@@ -90,7 +90,7 @@
     </ng-container>
 
     <!-- Antenna Column -->
-    <ng-container matColumnDef="antenna">
+    <ng-container matColumnDef="Antenna">
       <th mat-header-cell *matHeaderCellDef>Stato Antenna</th>
       <td mat-cell *matCellDef="let vehicleData">
         <div
@@ -129,8 +129,49 @@
       </td>
     </ng-container>
 
+    <!-- Detection quality Column -->
+    <ng-container matColumnDef="Detection quality">
+      <th mat-header-cell *matHeaderCellDef>Detection quality</th>
+      <td mat-cell *matCellDef="let vehicleData">
+        <!-- Controllo di detection quality eccellente -->
+        <div
+          *ngIf="
+          checkErrorsService.checkVehicleDetectionQuality(vehicleData)?.includes('Excellent') ||
+          checkErrorsService.checkVehicleDetectionQuality(vehicleData)?.includes('EXCELLENT')"
+          class="OK-container"
+          [matTooltip]="checkErrorsService.checkVehicleDetectionQuality(vehicleData)"
+        >
+        OK
+        </div>
+
+        <!-- Controllo di detection quality mediocre -->
+        <div
+          *ngIf="
+          checkErrorsService.checkVehicleDetectionQuality(vehicleData)?.includes('Good') ||
+          checkErrorsService.checkVehicleDetectionQuality(vehicleData)?.includes('GOOD')"
+          class="warning-container"
+          [matTooltip]="checkErrorsService.checkVehicleDetectionQuality(vehicleData)"
+        >
+        Warning
+        </div>
+
+        <!-- Controllo di detection quality scarsa -->
+        <div
+        *ngIf="
+        checkErrorsService.checkVehicleDetectionQuality(vehicleData)?.includes('Poor') ||
+        checkErrorsService.checkVehicleDetectionQuality(vehicleData)?.includes('POOR')"
+        class="error-container"
+        [matTooltip]="checkErrorsService.checkVehicleDetectionQuality(vehicleData)"
+        >
+        Error
+      </div>
+      </td>
+    </ng-container>
+
+
+
     <!-- Sessione Column -->
-    <ng-container matColumnDef="sessione">
+    <ng-container matColumnDef="Sessione">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Stato Sessione</th>
       <td mat-cell *matCellDef="let vehicleData">
         <!-- se non c'è errore, data nera -->
@@ -200,7 +241,7 @@
       </td>
     </ng-container>
 
-    <ng-container matColumnDef="map">
+    <ng-container matColumnDef="Map">
       <th mat-header-cell *matHeaderCellDef>Ultima posizione</th>
       <td mat-cell *matCellDef="let vehicleData">
         <button

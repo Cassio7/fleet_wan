@@ -172,6 +172,7 @@ export class KanbanGpsComponent implements AfterViewInit, OnDestroy {
         date: vehicleData.anomalies[0].date,
         gps: vehicleData.anomalies[0].gps,
         antenna: null,
+        detection_quality: null,
         session: null,
       },
     };

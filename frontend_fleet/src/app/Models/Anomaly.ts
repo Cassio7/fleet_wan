@@ -3,6 +3,7 @@ export class Anomaly {
     public date: Date,
     public gps: string | null,
     public antenna: string | null,
+    public detection_quality: string | null,
     public session: string | null,
   ) {}
 }

@@ -74,7 +74,6 @@ export class CheckErrorsService {
     return null;
   }
 
-
   /**
    * Controlla se è presente un errore di antenna del veicolo preso in input
    * @param vehicle veicolo da controllare
@@ -82,6 +81,15 @@ export class CheckErrorsService {
    */
   checkVehicleAntennaError(vehicleData: VehicleData): string | null {
     return this.checkVehicleAnomaly(vehicleData)?.antenna || null;
+  }
+
+  /**
+   * Controlla la qualità di lettura di un mezzo
+   * @param vehicle veicolo da controllare
+   * @returns risultato dell'analisi sulla qualità di lettura che può essere dalla migliore alla peggiore: "Excellent", "Good" o "Poor"
+   */
+  checkVehicleDetectionQuality(vehicleData: VehicleData): string | null {
+    return this.checkVehicleAnomaly(vehicleData)?.detection_quality || null;
   }
 
   /**

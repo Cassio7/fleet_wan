@@ -89,13 +89,14 @@ export class TableComponent implements OnDestroy, AfterViewInit {
   today = true;
 
   displayedColumns: string[] = [
-    'tipologia',
-    'targa',
-    'cantiere',
+    'Tipologia',
+    'Targa',
+    'Cantiere',
     'GPS',
-    'antenna',
-    'sessione',
-    'map',
+    'Antenna',
+    "Detection quality",
+    'Sessione',
+    'Map',
   ];
 
   ngOnDestroy(): void {
