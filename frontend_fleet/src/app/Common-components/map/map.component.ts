@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import * as L from 'leaflet';
 import { MapService } from '../../Common-services/map/map.service';
-import { skip, Subject, takeUntil } from 'rxjs';
+import { skip, Subject, takeUntil, filter } from 'rxjs';
 import { VehicleData } from '../../Models/VehicleData';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -64,10 +64,17 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     )
     .subscribe({
     next: (pathData: { plate: string, points: Point[], position_number: number }) => {
-      const startPoint: number = pathData.points[0].lat;
-      const endPoint: number = pathData.points[0].long;
+      pathData.points = pathData.points.filter(point => point.lat != 0 && point.long != 0); //rimozione di punti non validi
 
-      this.initMap(new Point(startPoint, endPoint));
+      const validEndPoints = this.mapService.getFirstValidEndpoints(pathData.points);
+      let startPoint: number | null = validEndPoints.startPoint;
+      let endPoint: number | null = validEndPoints.endPoint;
+
+      if (startPoint === null || endPoint === null) {
+        console.log("Nessun punto valido trovato.");
+      } else {
+        this.initMap(new Point(startPoint, endPoint));
+      }
 
       // Rimuove il controllo del percorso precedente, se esiste
       if (this.routingControl) {
@@ -125,10 +132,19 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   this.mapService.loadDayPath$.pipe(takeUntil(this.destroy$), skip(1))
   .subscribe({
     next: (pathData: { plate: string, points: Point[], firstPoints: Point[] }) => {
-      const startPoint: number = pathData.points[0].lat;
-      const endPoint: number = pathData.points[0].long;
+      //rimozione di punti non validi
+      pathData.points = pathData.points.filter(point => point.lat != 0 && point.long != 0);
+      pathData.firstPoints = pathData.firstPoints.filter(point => point.lat != 0 && point.long != 0);
 
-      this.initMap(new Point(startPoint, endPoint));
+      const validEndPoints = this.mapService.getFirstValidEndpoints(pathData.points);
+      let startPoint: number | null = validEndPoints.startPoint;
+      let endPoint: number | null = validEndPoints.endPoint;
+
+      if (startPoint === null || endPoint === null) {
+        console.log("Nessun punto valido trovato.");
+      } else {
+        this.initMap(new Point(startPoint, endPoint));
+      }
 
       // Rimuove il controllo del percorso precedente, se esiste
       if (this.routingControl) {

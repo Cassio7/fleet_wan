@@ -178,6 +178,29 @@ export class MapService {
   }
 
   /**
+   * Permette di ottenere i primi punti validi (con latitudine e longitudine diversi da 0) di inizio e di fine di una serie di punti
+   * @param points array di punti
+   * @returns
+   */
+  getFirstValidEndpoints(points: Point[]){
+    let startPoint: number | null = null;
+    let endPoint: number | null = null;
+
+    for (let i = 0; i < points.length; i++) {
+      const point = points[i];
+      if (point.lat !== 0 && point.long !== 0) {
+        startPoint = point.lat;
+        endPoint = point.long;
+        break;
+      }
+    }
+    return {
+      startPoint: startPoint,
+      endPoint: endPoint
+    }
+  }
+
+  /**
    * Permette di ottenere la stringa svg del popup custom
    * @param msg messaggio all'interno del popup
    * @returns stringa contenente l'elemento svg
