@@ -143,7 +143,7 @@
           <!-- Colonna Fine -->
           <ng-container matColumnDef="Fine">
             <th mat-header-cell *matHeaderCellDef> Fine </th>
-            <td mat-cell *matCellDef="let session"> {{session.period_to | date: "HH:mm"}} </td>
+            <td mat-cell *matCellDef="let session"> {{session.sequence_id == 0 ? "In marcia..." : session.period_to | date: "HH:mm"}} </td>
           </ng-container>
 
           <!-- Colonna Distanza -->
