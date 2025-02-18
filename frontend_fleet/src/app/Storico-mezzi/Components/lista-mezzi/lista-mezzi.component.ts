@@ -17,6 +17,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { CommonModule } from '@angular/common';
 import { Filters, FiltersCommonService } from '../../../Common-services/filters-common/filters-common.service';
 import { ListaFiltersComponent } from "../lista-filters/lista-filters.component";
+import { Point } from '../../../Models/Point';
 
 export interface PeriodicElement {
   name: string;
@@ -77,7 +78,7 @@ export class ListaMezziComponent implements AfterViewInit, OnDestroy{
         if(this.vehiclesList){
           this.vehiclesList.renderRows();
         }
-        this.getLastRealtime();
+        this.getAllLastRealtime();
       },
       error: error => console.error("Errore nella ricezione di tutti i veicoli: ", error)
     });
@@ -95,8 +96,8 @@ export class ListaMezziComponent implements AfterViewInit, OnDestroy{
   /**
    * Recupera i dati del realtime dalla chiamata API e unisce i risultati con i veicoli della tabella
    */
-  private getLastRealtime() {
-    this.realtimeApiService.getLastRealtime().pipe(takeUntil(this.destroy$))
+  private getAllLastRealtime() {
+    this.realtimeApiService.getAllLastRealtime().pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (realtimeDataObj: RealtimeData[]) => {
           console.log("realtime data fetched from storico: ", realtimeDataObj);
@@ -128,6 +129,9 @@ export class ListaMezziComponent implements AfterViewInit, OnDestroy{
       },
       realtime: vehicle.realtime
     }
+    this.mapService.initMap$.next({
+      point: new Point(realtimeData.realtime.latitude, realtimeData.realtime.longitude)
+    });
     this.mapService.loadPosition$.next(realtimeData);
   }
 

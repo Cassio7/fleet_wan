@@ -27,6 +27,7 @@ import { KanbanFiltersComponent } from '../kanban-filters/kanban-filters.compone
 import { MapService } from '../../../Common-services/map/map.service';
 import { RealtimeApiService } from '../../../Common-services/realtime-api/realtime-api.service';
 import { RealtimeData } from '../../../Models/RealtimeData';
+import { Point } from '../../../Models/Point';
 
 @Component({
   selector: 'app-kanban-antenna',
@@ -120,7 +121,7 @@ export class KanbanAntennaComponent implements AfterViewInit, OnDestroy {
    */
   private loadRealtimeVehicles(vehicles: VehicleData[]): VehicleData[] {
     this.realtimeApiService
-      .getLastRealtime()
+      .getAllLastRealtime()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (realtimeDataObj: RealtimeData[]) => {
@@ -179,6 +180,9 @@ export class KanbanAntennaComponent implements AfterViewInit, OnDestroy {
         session: null,
       },
     };
+    this.mapService.initMap$.next({
+      point: new Point(realtimeData.realtime.latitude, realtimeData.realtime.longitude)
+    });
     this.mapService.loadPosition$.next(realtimeData);
   }
 }

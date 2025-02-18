@@ -22,6 +22,7 @@ import { MapService } from '../../../Common-services/map/map.service';
 import { RealtimeApiService } from '../../../Common-services/realtime-api/realtime-api.service';
 import { RealtimeData } from '../../../Models/RealtimeData';
 import { SessioneGraphService } from '../../Services/sessione-graph/sessione-graph.service';
+import { Point } from '../../../Models/Point';
 
 @Component({
   selector: 'app-kanban-sessione',
@@ -113,7 +114,7 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy {
    */
   private loadRealtimeVehicles(vehicles: VehicleData[]): VehicleData[] {
     this.realtimeApiService
-      .getLastRealtime()
+      .getAllLastRealtime()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (realtimeDataObj: RealtimeData[]) => {
@@ -171,6 +172,9 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy {
         session: vehicleData.anomalies[0].session,
       },
     };
+    this.mapService.initMap$.next({
+      point: new Point(realtimeData.realtime.latitude, realtimeData.realtime.longitude)
+    });
     this.mapService.loadPosition$.next(realtimeData);
   }
 }

@@ -10,6 +10,7 @@ import { Point } from '../../Models/Point';
   providedIn: 'root',
 })
 export class MapService {
+  private readonly _initMap$: BehaviorSubject<any> = new BehaviorSubject<any>(null);
   private readonly _loadPosition$: BehaviorSubject<RealtimeData | null> = new BehaviorSubject<RealtimeData | null>(null);
   private readonly _loadSessionPath$: BehaviorSubject<any> = new BehaviorSubject<any>(null);
   private readonly _loadDayPath$: BehaviorSubject<any> = new BehaviorSubject<any>(null);
@@ -74,10 +75,10 @@ export class MapService {
    * @param lat latitudine
    * @param long longitudine
    */
-  initMap(map: L.Map, point: Point): L.Map {
+  initMap(map: L.Map, point: Point, zoom: number): L.Map {
     map = L.map('map', {
       center: [point.lat, point.long],
-      zoom: 12,
+      zoom: zoom,
     });
 
     const tiles = L.tileLayer(
@@ -156,6 +157,7 @@ export class MapService {
       this.getCustomPopup(msg),
       {
         autoClose: false,
+        autoPan: false
       }
     );
 
@@ -230,6 +232,9 @@ export class MapService {
   }
 
 
+  public get initMap$(): BehaviorSubject<any> {
+    return this._initMap$;
+  }
   public get loadDayPath$(): BehaviorSubject<any> {
     return this._loadDayPath$;
   }

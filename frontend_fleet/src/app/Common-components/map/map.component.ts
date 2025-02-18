@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import * as L from 'leaflet';
 import { MapService } from '../../Common-services/map/map.service';
-import { skip, Subject, takeUntil, filter } from 'rxjs';
+import { skip, Subject, takeUntil, filter, take } from 'rxjs';
 import { VehicleData } from '../../Models/VehicleData';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -42,11 +42,21 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
 
   ngAfterViewInit(): void {
+    this.handleInitMap();
     this.handleLoadPosition();
     this.handleLoadSessionPath();
     this.handleLoadDayPath();
   }
 
+  private handleInitMap(){
+    this.mapService.initMap$.pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (initData: {point: Point, zoom: number}) => {
+        this.initMap(initData.point, initData.zoom || 12);
+      },
+      error: error => console.error("Errore nell'inizializzazione della mappa: ", error)
+    });
+  }
   /**
    * Gestisce la sottoscrizione al subject per il caricamento nella mappa di una posizione
    */
@@ -54,12 +64,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.mapService.loadPosition$.pipe(takeUntil(this.destroy$), skip(1)).subscribe({
       next: (realtimeData: RealtimeData | null) => {
         if (realtimeData && realtimeData.realtime) {
-          const pgLat = realtimeData.realtime.latitude;
-          const pgLong = realtimeData.realtime.longitude;
-          this.initMap(new Point(pgLat, pgLong));
+          const lat = realtimeData.realtime.latitude;
+          const long = realtimeData.realtime.longitude;
           const marker = this.mapService.createMarker(
-            pgLat,
-            pgLong,
+            lat,
+            long,
             realtimeData.vehicle.plate,
             realtimeData.anomaly
           );
@@ -88,7 +97,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       if (startPoint === null || endPoint === null) {
         console.log("Nessun punto valido trovato.");
       } else {
-        this.initMap(new Point(startPoint, endPoint));
+        this.initMap(new Point(startPoint, endPoint),12);
       }
 
       // Rimuove il controllo del percorso precedente, se esiste
@@ -163,7 +172,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       if (startPoint === null || endPoint === null) {
         console.log("Nessun punto valido trovato.");
       } else {
-        this.initMap(new Point(startPoint, endPoint));
+        this.initMap(new Point(startPoint, endPoint),12);
       }
 
       // Rimuove il controllo del percorso precedente, se esiste
@@ -228,11 +237,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
    * Inizializza la mappa su un punto
    * @param point punto da cui inizializzare la mappa
    */
-  private initMap(point: Point) {
+  private initMap(point: Point, zoom: number) {
     this.initialized = true;
     this.cd.detectChanges();
     if(this.map) this.mapService.removeMap(this.map);
-    this.map = this.mapService.initMap(this.map, point);
+    this.map = this.mapService.initMap(this.map, point, zoom);
   }
 
 }

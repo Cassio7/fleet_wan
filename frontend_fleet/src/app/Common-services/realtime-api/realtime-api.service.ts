@@ -24,7 +24,7 @@ export class RealtimeApiService {
    * Realizza la chiamata per il recupero dei dati delle ultime posizioni realtime dei veicoli
    * @returns JSON con i dati
    */
-  getLastRealtime(): Observable<RealtimeData[]>{
+  getAllLastRealtime(): Observable<RealtimeData[]>{
     const access_token = this.cookieService.getCookie("user");
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${access_token}`,

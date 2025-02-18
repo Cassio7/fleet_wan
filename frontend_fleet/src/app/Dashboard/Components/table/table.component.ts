@@ -58,6 +58,7 @@ import { RealtimeApiService } from '../../../Common-services/realtime-api/realti
 import { MapService } from '../../../Common-services/map/map.service';
 import { Router } from '@angular/router';
 import { SessioneGraphService } from '../../Services/sessione-graph/sessione-graph.service';
+import { Point } from '../../../Models/Point';
 
 @Component({
   selector: 'app-table',
@@ -279,7 +280,7 @@ export class TableComponent implements OnDestroy, AfterViewInit {
      * poi unisce le posizioni ottenute con i veicoli nella tabella
      */
     private addLastRealtime() {
-      this.realtimeApiService.getLastRealtime().pipe(takeUntil(this.destroy$))
+      this.realtimeApiService.getAllLastRealtime().pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (realtimeDataObj: RealtimeData[]) => {
             console.log("realtime data fetched from dashboard: ", realtimeDataObj);
@@ -380,6 +381,9 @@ export class TableComponent implements OnDestroy, AfterViewInit {
       realtime: vehicleData.realtime,
       anomaly: vehicleData.anomalies[0],
     };
+    this.mapService.initMap$.next({
+      point: new Point(realtimeData.realtime.latitude, realtimeData.realtime.longitude)
+    });
     this.mapService.loadPosition$.next(realtimeData);
   }
 
