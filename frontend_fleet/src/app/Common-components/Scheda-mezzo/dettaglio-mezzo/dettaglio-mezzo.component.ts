@@ -138,7 +138,7 @@ export class DettaglioMezzoComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   goBack(): void {
-    if(this.previous_url) this.router.navigate([this.previous_url]);
+    this.router.navigate([this.previous_url || "/dashboard"]);
     this.sessionStorageService.removeItem("detail");
   }
 }
