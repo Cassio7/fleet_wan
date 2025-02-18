@@ -179,6 +179,6 @@ export class KanbanAntennaComponent implements AfterViewInit, OnDestroy {
         session: null,
       },
     };
-    this.mapService.loadMap$.next(realtimeData);
+    this.mapService.loadPosition$.next(realtimeData);
   }
 }

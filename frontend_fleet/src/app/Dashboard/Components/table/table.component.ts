@@ -380,7 +380,7 @@ export class TableComponent implements OnDestroy, AfterViewInit {
       realtime: vehicleData.realtime,
       anomaly: vehicleData.anomalies[0],
     };
-    this.mapService.loadMap$.next(realtimeData);
+    this.mapService.loadPosition$.next(realtimeData);
   }
 
   /**

@@ -10,7 +10,7 @@ import { Point } from '../../Models/Point';
   providedIn: 'root',
 })
 export class MapService {
-  private readonly _loadMap$: BehaviorSubject<RealtimeData | null> = new BehaviorSubject<RealtimeData | null>(null);
+  private readonly _loadPosition$: BehaviorSubject<RealtimeData | null> = new BehaviorSubject<RealtimeData | null>(null);
   private readonly _loadSessionPath$: BehaviorSubject<any> = new BehaviorSubject<any>(null);
   private readonly _loadDayPath$: BehaviorSubject<any> = new BehaviorSubject<any>(null);
 
@@ -233,8 +233,8 @@ export class MapService {
   public get loadDayPath$(): BehaviorSubject<any> {
     return this._loadDayPath$;
   }
-  public get loadMap$(): BehaviorSubject<RealtimeData | null> {
-    return this._loadMap$;
+  public get loadPosition$(): BehaviorSubject<RealtimeData | null> {
+    return this._loadPosition$;
   }
   public get loadSessionPath$(): BehaviorSubject<any> {
     return this._loadSessionPath$;

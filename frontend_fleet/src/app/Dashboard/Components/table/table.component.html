@@ -251,14 +251,7 @@
     <ng-container matColumnDef="Map">
       <th mat-header-cell *matHeaderCellDef>Ultima posizione</th>
       <td mat-cell *matCellDef="let vehicleData">
-        <button
-          mat-icon-button
-          (click)="showMap(vehicleData)"
-          class="map-btn"
-          matTooltip="Click per visualizzare l'ultima posizione registrata sulla mappa"
-        >
-          <mat-icon class="map-icon">map</mat-icon>
-        </button>
+          <mat-icon class="map-icon" (click)="showMap(vehicleData)" matTooltip="Click per visualizzare l'ultima posizione registrata sulla mappa">map</mat-icon>
       </td>
     </ng-container>
 

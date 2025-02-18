@@ -128,7 +128,7 @@ export class ListaMezziComponent implements AfterViewInit, OnDestroy{
       },
       realtime: vehicle.realtime
     }
-    this.mapService.loadMap$.next(realtimeData);
+    this.mapService.loadPosition$.next(realtimeData);
   }
 
 }

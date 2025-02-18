@@ -171,6 +171,6 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy {
         session: vehicleData.anomalies[0].session,
       },
     };
-    this.mapService.loadMap$.next(realtimeData);
+    this.mapService.loadPosition$.next(realtimeData);
   }
 }

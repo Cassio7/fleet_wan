@@ -41,7 +41,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   private routingControl: L.Routing.Control | null = null;
 
   ngAfterViewInit(): void {
-    this.mapService.loadMap$.pipe(takeUntil(this.destroy$), skip(1)).subscribe({
+    this.mapService.loadPosition$.pipe(takeUntil(this.destroy$), skip(1)).subscribe({
       next: (realtimeData: RealtimeData | null) => {
         if (realtimeData && realtimeData.realtime) {
           const pgLat = realtimeData.realtime.latitude;
