@@ -1,0 +1,36 @@
+.content {
+  height: 100vh; /* Occupa tutta l'altezza della finestra */
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+}
+
+.map-container {
+  flex: 1; /* Occupa lo spazio rimanente */
+  height: 100vh;
+  width: 100%;
+}
+
+.vehicleHandling-container {
+  position: absolute;
+  top: 100px; /* Aggiusta la posizione in base alle necessità */
+  left: 60px; /* Aggiusta la posizione in base alle necessità */
+  width: 320px; /* Larghezza fissa per garantire uniformità */
+  display: flex;
+  flex-direction: column;
+  gap: 16px; /* Distanza uniforme tra i container */
+  z-index: 1000;
+}
+
+.filters-container,
+.info-container {
+  width: 100%; /* Occupa tutta la larghezza del contenitore padre */
+  background: #FFFFFF;
+  box-shadow: 6px 6px 54px rgba(0, 0, 0, 0.05);
+  border-radius: 6px;
+  padding: 10px;
+}
+
+.info-container {
+  height: 350px; /* Mantiene l'altezza specificata */
+}

@@ -1,16 +1,18 @@
 import { AfterViewInit, Component } from '@angular/core';
-import { MapComponent } from "../../../../Common-components/map/map.component";
-import { MapService } from '../../../../Common-services/map/map.service';
+import { MapComponent } from "../../../Common-components/map/map.component";
+import { MapService } from '../../../Common-services/map/map.service';
 import { map } from 'leaflet';
-import { Point } from '../../../../Models/Point';
-import { RealtimeApiService } from '../../../../Common-services/realtime-api/realtime-api.service';
+import { Point } from '../../../Models/Point';
+import { RealtimeApiService } from '../../../Common-services/realtime-api/realtime-api.service';
 import { Subject, takeUntil } from 'rxjs';
-import { RealtimeData } from '../../../../Models/RealtimeData';
+import { RealtimeData } from '../../../Models/RealtimeData';
+import { MapFilterComponent } from "../map-filter/map-filter.component";
+import { MappaInfoComponent } from "../mappa-info/mappa-info.component";
 
 @Component({
   selector: 'app-home-map',
   standalone: true,
-  imports: [MapComponent],
+  imports: [MapComponent, MapFilterComponent, MappaInfoComponent],
   templateUrl: './home-map.component.html',
   styleUrl: './home-map.component.css'
 })
