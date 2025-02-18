@@ -164,7 +164,14 @@
         [matTooltip]="checkErrorsService.checkVehicleDetectionQuality(vehicleData)"
         >
         Error
-      </div>
+        </div>
+
+        <!-- Controllo di detection quality scarsa -->
+        <div
+        *ngIf="!checkErrorsService.checkVehicleDetectionQuality(vehicleData)"
+        >
+        NO DATA
+        </div>
       </td>
     </ng-container>
 

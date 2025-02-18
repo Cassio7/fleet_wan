@@ -91,9 +91,9 @@
   </ng-container>
 
   <!-- Colonna Mappa -->
-  <ng-container matColumnDef="Map">
+  <ng-container matColumnDef="Map" *ngIf="!isDettaglio">
     <th mat-header-cell *matHeaderCellDef> Percorso </th>
-    <td mat-cell *matCellDef="let anomaly"><mat-icon class="map-icon" (click)="showDayPath(anomaly)" matTooltip="Click per visualizzare il percorso di questa giornata">map</mat-icon></td>
+    <td mat-cell *matCellDef="let anomaly"><mat-icon class="map-icon" (click)="showDayPath(anomaly)" matTooltip="Click per visualizzare il percorso di questa giornata">route</mat-icon></td>
   </ng-container>
 
   <!-- Colonna Expand -->
@@ -111,7 +111,7 @@
   <!-- Riga dettagli espansi -->
   <ng-container matColumnDef="expandedDetail">
     <td mat-cell *matCellDef="let anomaly"
-        [attr.colspan]="daysColumnsToDisplayWithExpand.length">
+        [attr.colspan]="displayedDaysColumns.length">
       <div class="example-element-detail"
           [@detailExpand]="anomaly === expandedDay ? 'expanded' : 'collapsed'">
 
@@ -153,14 +153,14 @@
           </ng-container>
 
           <!-- Colonna Mappa -->
-          <ng-container matColumnDef="Map">
+          <ng-container matColumnDef="Map" *ngIf="!isDettaglio">
             <th mat-header-cell *matHeaderCellDef> Percorso </th>
-            <td mat-cell *matCellDef="let session"><mat-icon class="map-icon" (click)="showPathBySession(session)" matTooltip="Click per visualizzare il percorso di questa sessione">map</mat-icon></td>
+            <td mat-cell *matCellDef="let session"><mat-icon class="map-icon" (click)="showPathBySession(session)" matTooltip="Click per visualizzare il percorso di questa sessione">route</mat-icon></td>
           </ng-container>
 
           <!-- Definizione intestazioni e righe della tabella -->
-          <tr mat-header-row *matHeaderRowDef="sessionColumnsToDisplay"></tr>
-          <tr mat-row *matRowDef="let row; columns: sessionColumnsToDisplay;"></tr>
+          <tr mat-header-row *matHeaderRowDef="displayedSessionColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedSessionColumns;"></tr>
         </table>
 
       </div>
@@ -169,10 +169,10 @@
 
 
   <!-- Header row -->
-  <tr mat-header-row *matHeaderRowDef="daysColumnsToDisplayWithExpand, sticky: true"></tr>
+  <tr mat-header-row *matHeaderRowDef="displayedDaysColumns, sticky: true"></tr>
 
   <!-- Data rows -->
-  <tr mat-row *matRowDef="let anomaly; columns: daysColumnsToDisplayWithExpand;"
+  <tr mat-row *matRowDef="let anomaly; columns: displayedDaysColumns;"
       class="example-element-row"
       [class.example-expanded-row]="expandedDay === anomaly"
       (click)="expandedDay = expandedDay === anomaly ? null : anomaly"

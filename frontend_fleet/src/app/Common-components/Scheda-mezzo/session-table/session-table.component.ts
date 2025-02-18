@@ -15,6 +15,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { Session } from '../../../Models/Session';
 import { Point } from '../../../Models/Point';
 import { MapService } from '../../../Common-services/map/map.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-session-table',
@@ -46,11 +47,17 @@ export class SessionTableComponent implements OnChanges, AfterViewInit {
   sessionsTableData = new MatTableDataSource<Session>();
   anomaliesTableData = new MatTableDataSource<Anomaly>();
 
-  daysColumnsToDisplay = ['Data', 'Stato GPS', 'Stato Antenna', 'Sessione', 'Map'];
-  daysColumnsToDisplayWithExpand = ['expand', ...this.daysColumnsToDisplay];
+  // Define ALL possible columns
+  allDaysColumns: string[] = ['expand', 'Data', 'Stato GPS', 'Stato Antenna', 'Sessione', 'Map'];
+  allSessionColumns: string[] = ['Id', 'Sequence ID', 'Inizio', 'Fine', 'Distanza', 'Map'];
+
+  // These are the displayed columns - they will be updated
+  displayedDaysColumns: string[] = [];
+  displayedSessionColumns: string[] = [];
+
   expandedDay: any;
 
-  sessionColumnsToDisplay = ['Id', 'Sequence ID', 'Inizio', 'Fine', 'Distanza', 'Map'];
+  isDettaglio: boolean = false;
 
   dateSelected: boolean = false;
   data: boolean = true;
@@ -61,10 +68,19 @@ export class SessionTableComponent implements OnChanges, AfterViewInit {
     private sessionApiService: SessionApiService,
     public checkErrorsService: CheckErrorsService,
     private mapService: MapService,
+    private router: Router,
     private cd: ChangeDetectorRef
   ) {}
 
+  ngOnInit() {
+    // Initialize displayed columns with ALL columns
+    this.displayedDaysColumns = [...this.allDaysColumns];
+    this.displayedSessionColumns = [...this.allSessionColumns];
+  }
+
   ngAfterViewInit(): void {
+    this.checkDettaglio();
+
     //caricamento dati tramite sottoscrizione a cambiamenti nel range di date
     this.sessionApiService.loadAnomalySessionDays$
     .pipe(takeUntil(this.destroy$), skip(1))
@@ -79,6 +95,28 @@ export class SessionTableComponent implements OnChanges, AfterViewInit {
       error: error => console.error("Errore nella notifica per il caricamento delle anomalie per giornata: ", error)
     });
   }
+
+  private checkDettaglio() {
+    const currentRoute = this.router.url;
+    console.log("current route: ", currentRoute);
+    this.isDettaglio = currentRoute.startsWith("/dettaglio-mezzo");
+
+    if (this.isDettaglio) {
+      // Filter the DISPLAYED columns
+      this.displayedDaysColumns = this.allDaysColumns.filter(col => col !== "Map");
+      this.displayedSessionColumns = this.allSessionColumns.filter(col => col !== "Map");
+    } else {
+      // Add to DISPLAYED columns if not already there
+      if (!this.displayedDaysColumns.includes("Map")) {
+        this.displayedDaysColumns.push("Map");
+      }
+      if (!this.displayedSessionColumns.includes("Map")) {
+        this.displayedSessionColumns.push("Map");
+      }
+    }
+    this.cd.detectChanges(); // Absolutely essential!
+  }
+
 
   /**
    * Controlla quando avvengono cambiamenti solo nel veicolo preso in input,
