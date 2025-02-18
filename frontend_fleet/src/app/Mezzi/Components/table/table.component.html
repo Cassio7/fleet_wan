@@ -26,7 +26,7 @@
             local_shipping
           </mat-icon>
 
-            {{ vehicle.rental?.name || vehicle.company.name }}
+          {{ vehicle?.rental?.name || vehicle?.company?.name || "No data" }}
           </span>
         </td>
       </ng-container>

@@ -173,17 +173,6 @@
             </mat-card-content>
           </mat-card>
           <mat-card class="notes-card">
-            <mat-card-header>
-              <div class="notes-header">
-                <p class="note-author">
-                  <mat-icon class="note-icon">edit_square</mat-icon>Nota di
-                  <strong>{{ user.username }}</strong>
-                </p>
-                <p class="note-date">
-                  {{ vehicle.note?.updatedAt | date : "dd/MM/yyyy" }}
-                </p>
-              </div>
-            </mat-card-header>
             <mat-card-content>
               <app-note-section [vehicle]="vehicle"></app-note-section>
             </mat-card-content>
