@@ -50,7 +50,7 @@ export class DettaglioMezzoComponent implements OnInit, AfterViewInit, OnDestroy
   user!: User;
   vehicle!: Vehicle;
 
-  previous_url: string = "/dashboard";
+  previous_url: string | null = "/dashboard";
   goBack_text: string = "Torna alla dashboard";
 
   ngOnDestroy(): void {
@@ -67,11 +67,11 @@ export class DettaglioMezzoComponent implements OnInit, AfterViewInit, OnDestroy
     private navigationService: NavigationService,
     private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
-    this.previous_url = this.navigationService.getPreviousUrl() || "/dashboard";
-    console.log("this.previous_url: ", this.previous_url);
+    this.previous_url = this.navigationService.getPreviousUrl() || null;
 
     this.vehicle = JSON.parse(this.sessionStorageService.getItem("detail"));
     this.user = this.authService.getParsedAccessToken();
@@ -85,6 +85,13 @@ export class DettaglioMezzoComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   ngAfterViewInit(): void {
+
+    if(this.previous_url){
+      this.sessionStorageService.setItem("previous_url", this.previous_url);
+    }else if(this.sessionStorageService.getItem("previous_url")){
+      this.previous_url = this.sessionStorageService.getItem("previous_url");
+    }
+
     switch(this.previous_url){
       case "/dashboard":
         this.goBack_text = "Torna alla dashboard";
@@ -96,6 +103,7 @@ export class DettaglioMezzoComponent implements OnInit, AfterViewInit, OnDestroy
         this.goBack_text = "Torna allo storico mezzi";
         break;
     }
+
     this.cd.detectChanges();
   }
 
@@ -130,8 +138,7 @@ export class DettaglioMezzoComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   goBack(): void {
-    const url = this.navigationService.getPreviousUrl() ? this.navigationService.getPreviousUrl() : "/dashboard";
-    this.router.navigate([url]);
+    if(this.previous_url) this.router.navigate([this.previous_url]);
     this.sessionStorageService.removeItem("detail");
   }
 }
