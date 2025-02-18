@@ -171,8 +171,8 @@ export class MapService {
       marker.openPopup();
     });
 
-    // Chiude il popup quando il mouse esce dal marker
-    marker.on('mouseout', () => {
+    // Chiude il popup quando si preme sopra
+    marker.on('click', () => {
       marker.closePopup();
     });
 

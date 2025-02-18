@@ -48,8 +48,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.handleLoadDayPath();
   }
 
+  /**
+   * Gestisce la sottoscrizione al subject per l'inizializzazione della mappa in un punto
+   */
   private handleInitMap(){
-    this.mapService.initMap$.pipe(takeUntil(this.destroy$))
+    this.mapService.initMap$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (initData: {point: Point, zoom: number}) => {
         this.initMap(initData.point, initData.zoom || 12);
@@ -57,6 +60,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       error: error => console.error("Errore nell'inizializzazione della mappa: ", error)
     });
   }
+
   /**
    * Gestisce la sottoscrizione al subject per il caricamento nella mappa di una posizione
    */

@@ -88,6 +88,7 @@ export class ListaMezziComponent implements AfterViewInit, OnDestroy{
       next: (filters: Filters) => {
         const allVehicles = JSON.parse(this.sessionStrorageService.getItem("allVehicles"))
         this.vehiclesListData.data = this.filtersCommonService.applyAllFiltersOnVehicles(allVehicles, filters) as Vehicle[];
+        this.getAllLastRealtime();
       },
       error: error => console.error("Errore nella ricevuta dell'applicazione dei filtri: ", error)
     });
@@ -129,10 +130,11 @@ export class ListaMezziComponent implements AfterViewInit, OnDestroy{
       },
       realtime: vehicle.realtime
     }
-    this.mapService.initMap$.next({
-      point: new Point(realtimeData.realtime.latitude, realtimeData.realtime.longitude)
-    });
+    if(realtimeData?.realtime){
+      this.mapService.initMap$.next({
+        point: new Point(realtimeData.realtime.latitude, realtimeData.realtime.longitude)
+      });
+    }
     this.mapService.loadPosition$.next(realtimeData);
   }
-
 }

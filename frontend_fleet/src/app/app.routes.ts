@@ -5,7 +5,7 @@ import { DashboardComponent } from './Dashboard/Components/dashboard/dashboard.c
 import { HomeMezziComponent } from './Mezzi/Components/home-mezzi/home-mezzi.component';
 import { DettaglioMezzoComponent } from './Common-components/Scheda-mezzo/dettaglio-mezzo/dettaglio-mezzo.component';
 import { StoricoMezziComponent } from './Storico-mezzi/Components/storico-mezzi/storico-mezzi.component';
-import { HomeMapComponent } from './Mappa/Components/home-map/home-map/home-map.component';
+import { HomeMapComponent } from './Mappa/Components/home-map/home-map.component';
 
 export const routes: Routes = [
     { path: 'login', component: LoginComponent },
