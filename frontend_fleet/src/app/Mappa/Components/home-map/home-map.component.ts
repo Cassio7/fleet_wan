@@ -17,7 +17,7 @@ import { MappaInfoComponent } from "../mappa-info/mappa-info.component";
   styleUrl: './home-map.component.css'
 })
 export class HomeMapComponent implements AfterViewInit{
-  private readonly destroy$: Subject<void> = new Subject<void>()
+  private readonly destroy$: Subject<void> = new Subject<void>();
   constructor(
     private mapService: MapService,
     private realtimeApiService: RealtimeApiService

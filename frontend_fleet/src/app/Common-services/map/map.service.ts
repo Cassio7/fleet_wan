@@ -1,5 +1,5 @@
 import { Injectable, Type } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { RealtimeData } from '../../Models/RealtimeData';
 import { Anomaly } from '../../Models/Anomaly';
 import * as L from 'leaflet';
@@ -11,9 +11,14 @@ import { Point } from '../../Models/Point';
 })
 export class MapService {
   private readonly _initMap$: BehaviorSubject<any> = new BehaviorSubject<any>(null);
+
   private readonly _loadPosition$: BehaviorSubject<RealtimeData | null> = new BehaviorSubject<RealtimeData | null>(null);
   private readonly _loadSessionPath$: BehaviorSubject<any> = new BehaviorSubject<any>(null);
   private readonly _loadDayPath$: BehaviorSubject<any> = new BehaviorSubject<any>(null);
+
+  private readonly _selectMarker$: BehaviorSubject<any> = new BehaviorSubject<any>(null);
+  private readonly _togglePopups$: Subject<void> = new Subject<void>();
+
 
   OkMarker = `<svg width="33" height="33" viewBox="0 0 33 33" fill="none" xmlns="http://www.w3.org/2000/svg">
           <g filter="url(#filter0_d_206_1354)">
@@ -123,7 +128,7 @@ export class MapService {
   createMarker(
     lat: number,
     long: number,
-    msg: string,
+    plate: string,
     anomaly: Anomaly | undefined
   ): L.Marker<any> {
     let customIcon = L.divIcon({
@@ -154,7 +159,7 @@ export class MapService {
 
     const marker = L.marker([lat, long], { icon: customIcon }); //creazione del marker
     marker.bindPopup(
-      this.getCustomPopup(msg),
+      this.getCustomPopup(plate),
       {
         autoClose: false,
         autoPan: false
@@ -173,7 +178,7 @@ export class MapService {
 
     // Chiude il popup quando si preme sopra
     marker.on('click', () => {
-      marker.closePopup();
+      this.selectMarker$.next(plate);
     });
 
     return marker;
@@ -200,6 +205,22 @@ export class MapService {
       startPoint: startPoint,
       endPoint: endPoint
     }
+  }
+
+  /**
+   * Mostra/nasconde i popup dei marker in una mappa
+   * @param map mappa di cui togglare i popup
+   */
+  togglePopups(map: L.Map) {
+    map.eachLayer(layer => {
+      if (layer instanceof L.Marker) {
+        if (layer.isPopupOpen()) {
+          layer.closePopup();
+        } else {
+          layer.openPopup();
+        }
+      }
+    });
   }
 
   /**
@@ -232,8 +253,14 @@ export class MapService {
   }
 
 
+  public get togglePopups$(): Subject<void> {
+    return this._togglePopups$;
+  }
   public get initMap$(): BehaviorSubject<any> {
     return this._initMap$;
+  }
+  public get selectMarker$(): BehaviorSubject<any> {
+    return this._selectMarker$;
   }
   public get loadDayPath$(): BehaviorSubject<any> {
     return this._loadDayPath$;

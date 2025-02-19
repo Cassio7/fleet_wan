@@ -46,6 +46,20 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.handleLoadPosition();
     this.handleLoadSessionPath();
     this.handleLoadDayPath();
+    this.mapService.togglePopups$.pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: () => {
+        this.togglePopups();
+      },
+      error: error => console.error("Errore nel toggle dei popup nei marker: ", error)
+    });
+  }
+
+  /**
+   * toggla i popup dei marker nella mappa
+   */
+  private togglePopups(){
+    this.mapService.togglePopups(this.map);
   }
 
   /**

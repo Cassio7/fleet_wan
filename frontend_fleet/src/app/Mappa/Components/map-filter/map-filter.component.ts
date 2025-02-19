@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatOptionModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -12,6 +12,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { CommonModule } from '@angular/common';
+import { MapService } from '../../../Common-services/map/map.service';
+import { Subject, takeUntil } from 'rxjs';
+import { RealtimeData } from '../../../Models/RealtimeData';
+import { VehiclesApiService } from '../../../Common-services/vehicles api service/vehicles-api.service';
 
 @Component({
   selector: 'app-map-filter',
@@ -32,11 +36,18 @@ import { CommonModule } from '@angular/common';
   templateUrl: './map-filter.component.html',
   styleUrl: './map-filter.component.css'
 })
-export class MapFilterComponent {
+export class MapFilterComponent implements AfterViewInit, OnDestroy{
+  private readonly destroy$: Subject<void> = new Subject<void>();
+
   plate: string = "";
+
+  targhe = new FormControl<string[]>([]);
   cantieri = new FormControl<string[]>([]);
+
   listaCantieri: string[] = [];
-  checked = false;
+  listaTarghe: string[] = [];
+
+  checked = true;
   disabled = false;
   private allSelected: boolean = false;
 
@@ -52,12 +63,38 @@ export class MapFilterComponent {
     private cantieriFilterService: CantieriFilterService,
     private filtersCommonService: FiltersCommonService,
     private sessionStorageService: SessionStorageService,
+    private mapService: MapService,
     private cd: ChangeDetectorRef
   ){}
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  ngAfterViewInit(): void {
+    // this.mapService.loadPosition$.pipe(takeUntil(this.destroy$))
+    // .subscribe({
+    //   next: (realtimeData: RealtimeData | null) => {
+    //     if(realtimeData){
+    //       this.listaTarghe.push(realtimeData.vehicle.plate);
+    //     }
+    //     this.cd.detectChanges();
+    //   },
+    //   error: error => console.error("Errore nel caricamento del veicolo nel filtro: ", error)
+    // });
+    this.mapService.selectMarker$.pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (plate: string) => {
+
+      },
+      error: error => console.error("Errore nella selezione del marker: ", error)
+    });
+  }
+
   selectAll(){
     const cantieriToggle = this.cantieriFilterService.toggleSelectAllCantieri(this.allSelected, );
-    console.log(cantieriToggle);
+
     this.cantieri.setValue(cantieriToggle.length > 0 ? ["Seleziona tutto", ...cantieriToggle] : cantieriToggle);
     this.allSelected = !this.allSelected;
     this.cd.detectChanges();
@@ -84,6 +121,10 @@ export class MapFilterComponent {
   searchPlates(){
     this.filters.plate = this.plate;
     this.filtersCommonService.applyFilters$.next(this.filters);
+  }
+
+  togglePlates(){
+    this.mapService.togglePopups$.next();
   }
 
   public get filters(): Filters {
