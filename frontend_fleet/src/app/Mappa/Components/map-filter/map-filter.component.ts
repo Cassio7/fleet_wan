@@ -14,7 +14,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { CommonModule } from '@angular/common';
 import { MapService } from '../../../Common-services/map/map.service';
-import { skip, Subject, takeUntil } from 'rxjs';
+import { Observable, of, skip, Subject, takeUntil, tap } from 'rxjs';
 import { RealtimeData } from '../../../Models/RealtimeData';
 import { VehiclesApiService } from '../../../Common-services/vehicles api service/vehicles-api.service';
 import { PlateFilterService } from '../../../Common-services/plate-filter/plate-filter.service';
@@ -60,6 +60,7 @@ export class MapFilterComponent implements AfterViewInit, OnDestroy{
     private plateFilterService: PlateFilterService,
     private sessionStorageService: SessionStorageService,
     private mapService: MapService,
+    private vehiclesApiService: VehiclesApiService,
     private cd: ChangeDetectorRef
   ){}
 
@@ -103,21 +104,44 @@ export class MapFilterComponent implements AfterViewInit, OnDestroy{
     this.cd.detectChanges();
   }
 
-  selectCantiere(){
-    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-    const allCantieri = this.cantieriFilterService.vehiclesCantieriOnce(allVehicles);
+  selectCantiere() {
+    this.getAvailableVehicles().pipe(takeUntil(this.destroy$)).subscribe({
+      next: (vehicles: Vehicle[]) => {
+        let allCantieri: string[] = this.cantieriFilterService.vehiclesCantieriOnce(vehicles);
 
-    const selectedCantieri = this.cantieri.value?.filter(option => option !== "Seleziona tutto");
-    if(selectedCantieri){
-      if(JSON.stringify(allCantieri.sort()) == JSON.stringify(selectedCantieri.sort())){
-        this.allSelected = true
-        this.cantieri.setValue(["Seleziona tutto", ...allCantieri]);
-      }else{
-        this.allSelected = false;
-        this.cantieri.setValue(selectedCantieri);
-      }
+        const selectedCantieri = this.cantieri.value?.filter(option => option !== "Seleziona tutto");
+        if (selectedCantieri) {
+          if (JSON.stringify(allCantieri.sort()) === JSON.stringify(selectedCantieri.sort())) {
+            this.allSelected = true;
+            this.cantieri.setValue(["Seleziona tutto", ...allCantieri]);
+          } else {
+            this.allSelected = false;
+            this.cantieri.setValue(selectedCantieri);
+          }
+        }
+      },
+      error: error => console.error("Errore nella richiesta per ottenere tutti i veicoli: ", error)
+    });
+  }
+
+
+  private getAvailableVehicles(): Observable<any[]> {
+    const allData = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+    let vehicles = allData || allVehicles;
+
+    if (vehicles) {
+      return of(vehicles); // Return cached data as an Observable
+    } else {
+      return this.vehiclesApiService.getAllVehicles().pipe(
+        takeUntil(this.destroy$),
+        tap((fetchedVehicles: Vehicle[]) => {
+          this.sessionStorageService.setItem("allVehicles", JSON.stringify(fetchedVehicles));
+        })
+      );
     }
   }
+
   updateData(){
     const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
     const plateFilteredVehicles: Vehicle[] = this.targhe.value ? this.plateFilterService.filterVehiclesByPlates(this.targhe.value, allVehicles as Vehicle[]) as Vehicle[] : [];
