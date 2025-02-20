@@ -6,6 +6,7 @@ import {
   IsString,
 } from 'class-validator';
 import { CommonDTO } from 'classes/common/common.dto';
+import { WorksiteDTO } from './worksite.dto';
 
 export class VehicleDTO extends CommonDTO {
   @IsNumber()
@@ -65,6 +66,8 @@ export class VehicleDTO extends CommonDTO {
   @IsOptional()
   @IsNumber()
   worksite_priority: number | null;
+  @IsOptional()
+  worksite: WorksiteDTO;
   @IsNumber()
   profileId: number;
   @IsString()

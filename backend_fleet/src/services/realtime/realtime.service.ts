@@ -195,13 +195,16 @@ export class RealtimeService {
    */
   async getTimesByVeId(veId: number[] | number): Promise<any> {
     const veIdArray = Array.isArray(veId) ? veId : [veId];
-
+  
     const times = await this.realtimeRepository.find({
       relations: {
-        vehicle: true,
+        vehicle: {
+          worksite: true
+        }
       },
       where: { vehicle: { veId: In(veIdArray) } },
     });
+  
     // Creo DTO e formatto un output corretto
     return times.reduce(
       (acc, time) => {
@@ -209,19 +212,20 @@ export class RealtimeService {
         let vehicleGroup = acc.find(
           (group) => group.vehicle.veId === time.vehicle.veId,
         );
-
+  
         if (!vehicleGroup) {
           const vehicleDTO = new VehicleDTO();
           vehicleDTO.plate = time.vehicle.plate;
+          vehicleDTO.worksite = time.vehicle.worksite;
           vehicleDTO.veId = time.vehicle.veId;
-
+  
           vehicleGroup = {
             vehicle: vehicleDTO,
-            realtime: [],
+            realtime: []
           };
           acc.push(vehicleGroup);
         }
-
+  
         const realtimeDTO = new RealtimeDTO();
         realtimeDTO.timestamp = time.timestamp;
         realtimeDTO.row_number = time.row_number;
@@ -232,12 +236,13 @@ export class RealtimeService {
         realtimeDTO.speed = time.speed;
         realtimeDTO.direction = time.direction;
         vehicleGroup.realtime.push(realtimeDTO);
-
+  
         return acc;
       },
-      [] as Array<{ vehicle: VehicleDTO; realtime: RealtimeDTO[] }>,
+      [] as Array<{vehicle: VehicleDTO; realtime: RealtimeDTO[]}>  // Aggiunto il tipo per "nome"
     );
   }
+  
 
   /**
    * Pulisco la tabella dai vecchi dati salvati
