@@ -581,6 +581,7 @@ export class AnomalyService {
         date: day,
         gps: normalizedGps,
         antenna: normalizedAntenna,
+        session: normalizedSession,
         detection_quality: detection_quality,
       };
       return createHash('sha256').update(JSON.stringify(toHash)).digest('hex');
@@ -593,7 +594,6 @@ export class AnomalyService {
     if (!vehicle) {
       return false;
     }
-
     const queryRunner = this.connection.createQueryRunner();
     try {
       const hash = hashAnomaly();
@@ -608,33 +608,45 @@ export class AnomalyService {
       await queryRunner.connect();
       await queryRunner.startTransaction();
       if (anomaliesQuery && anomaliesQuery.hash !== hash) {
-        // oggi
-        if (day.getTime() === today.getTime()) {
-          const anomaly = {
-            vehicle: vehicle,
-            date: day,
-            session: normalizedSession,
-            gps: normalizedGps,
-            antenna: normalizedAntenna,
-            detection_quality: detection_quality,
-            hash: hash,
-          };
-          await queryRunner.manager
-            .getRepository(AnomalyEntity)
-            .update({ key: anomaliesQuery.key }, anomaly);
-        } else {
-          const anomaly = {
-            vehicle: vehicle,
-            date: day,
-            gps: normalizedGps,
-            antenna: normalizedAntenna,
-            detection_quality: detection_quality,
-            hash: hash,
-          };
-          await queryRunner.manager
-            .getRepository(AnomalyEntity)
-            .update({ key: anomaliesQuery.key }, anomaly);
-        }
+        // // oggi
+        // if (day.getTime() === today.getTime()) {
+        //   const anomaly = {
+        //     vehicle: vehicle,
+        //     date: day,
+        //     session: normalizedSession,
+        //     gps: normalizedGps,
+        //     antenna: normalizedAntenna,
+        //     detection_quality: detection_quality,
+        //     hash: hash,
+        //   };
+        //   await queryRunner.manager
+        //     .getRepository(AnomalyEntity)
+        //     .update({ key: anomaliesQuery.key }, anomaly);
+        // } else {
+        //   const anomaly = {
+        //     vehicle: vehicle,
+        //     date: day,
+        //     gps: normalizedGps,
+        //     antenna: normalizedAntenna,
+        //     detection_quality: detection_quality,
+        //     hash: hash,
+        //   };
+        //   await queryRunner.manager
+        //     .getRepository(AnomalyEntity)
+        //     .update({ key: anomaliesQuery.key }, anomaly);
+        // }
+        const anomaly = {
+          vehicle: vehicle,
+          date: day,
+          session: normalizedSession,
+          gps: normalizedGps,
+          antenna: normalizedAntenna,
+          detection_quality: detection_quality,
+          hash: hash,
+        };
+        await queryRunner.manager
+          .getRepository(AnomalyEntity)
+          .update({ key: anomaliesQuery.key }, anomaly);
       } else if (!anomaliesQuery) {
         const anomaly = await queryRunner.manager
           .getRepository(AnomalyEntity)
@@ -1138,7 +1150,7 @@ export class AnomalyService {
       })
       .filter((vehicle) => vehicle !== null); // Rimuovi i veicoli nulli
   }
-
+  
   /**
    * Funzione principale che accorpa tutti i controlli, divisa per giorni
    * @param dateFromParam data di inizio
