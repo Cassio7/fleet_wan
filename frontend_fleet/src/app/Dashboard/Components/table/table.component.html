@@ -117,11 +117,7 @@
             vehicleData.vehicle.isRFIDReader &&
             checkErrorsService.checkVehicleAntennaError(vehicleData)
           "
-          [matTooltip]="
-            checkErrorsService.checkVehicleAntennaError(vehicleData)
-              ? checkErrorsService.checkVehicleAntennaError(vehicleData)
-              : 'Anomalia antenna RFID'
-          "
+          [matTooltip]="checkErrorsService.checkVehicleAntennaError(vehicleData) || 'Anomalia antenna RFID'"
         >
           <mat-icon class="errorIcon-error">wifi</mat-icon>
           Error
@@ -219,7 +215,7 @@
                 checkErrorsService.checkVehicleSessionError(vehicleData)
               "
             >
-              {{ checkErrorsService.calculateSessionErrorDays(vehicleData) }} gg
+              {{ checkErrorsService.calculateVehicleSessionErrorDays(vehicleData) }} gg
             </div>
             <div
               class="error-container"

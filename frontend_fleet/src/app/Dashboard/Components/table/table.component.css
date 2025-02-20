@@ -50,48 +50,12 @@ td.mat-cell {
   align-items: center;
 }
 
-.OK-container{
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  color: white;
-  background-color: var(--green);
-  padding: 2%;
-  cursor: pointer;
-  border-radius: 5px;
-}
-
 .OK-container mat-icon{
   font-size: 20px;
 }
 
-.warning-container{
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  color: white;
-  background-color: #C5D026;
-  padding: 2%;
-  cursor: pointer;
-  border-radius: 5px;
-}
-
 .warning-container mat-icon{
   font-size: 20px;
-}
-
-.error-container{
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  color: white;
-  background-color: #d12717;
-  padding: 2%;
-  cursor: pointer;
-  border-radius: 5px;
 }
 
 .error-container mat-icon{
@@ -99,27 +63,8 @@ td.mat-cell {
 }
 
 .noRFID-container mat-icon{
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  color: white;
-  background-color: var(--black);
-  padding: 2%;
-  cursor: pointer;
   border-radius: 5px;
   font-size: 20px;
-}
-
-
-.session-error{
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.session-date{
-  color: red;
 }
 
 .antenna-icon, .close-icon {
@@ -139,20 +84,8 @@ td.mat-cell {
   transition: transform 0.2s;
 }
 
-.map-btn {
-  width: 50px;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  border: none;
-  overflow: visible;
-}
-
 .map-icon {
   font-size: 32px;
-  color: var(--green);
   display: flex;
   align-items: center;
   justify-content: center;

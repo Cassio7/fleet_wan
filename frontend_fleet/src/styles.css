@@ -106,17 +106,94 @@ table:not(.mat-calendar-table) tr:nth-child(even) {
 .map-icon:hover{
   opacity: .5;
 }
+
+.OK-container{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: white;
+  background-color: var(--green);
+  padding: 2%;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.warning-container{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  color: white;
+  background-color: #C5D026;
+  padding: 2%;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.error-container{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  color: white;
+  background-color: #d12717;
+  padding: 2%;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+
+.noRFID-container mat-icon{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  color: white;
+  background-color: var(--black);
+  padding: 2%;
+  cursor: pointer;
+}
+
+
+.session-error{
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.session-date{
+  color: red;
+}
+
+.antenna-icon, .close-icon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-size: 24px;
+  line-height: 24px;
+}
+
+.close-icon {
+  color: #d12717;
+}
+
+.warning-icon, .error-icon, .check-icon, .antenna-icon, .close-icon, .noAntenna-icon {
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
 /* Personalizzazione della scrollbar */
 ::-webkit-scrollbar {
-  width: 8px; /* Imposta la larghezza della scrollbar */
+  width: 8px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: green; /* Colore verde per la parte scorrevole */
-  border-radius: 4px; /* Bordo arrotondato (opzionale) */
+  background-color: green;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1; /* Colore di sfondo della traccia della scrollbar */
-  border-radius: 4px; /* Bordo arrotondato per la traccia (opzionale) */
+  background: #f1f1f1;
+  border-radius: 4px;
 }
