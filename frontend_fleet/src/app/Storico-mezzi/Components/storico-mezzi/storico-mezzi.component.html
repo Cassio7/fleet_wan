@@ -5,6 +5,9 @@
       <div class="title-side">Cerca un mezzo</div>
       <div class="subtitle">Seleziona un mezzo dalla lista per accedere ai dati</div>
     </div>
+    <div class="mezziFilters-container">
+      <app-lista-filters></app-lista-filters>
+    </div>
     <div class="mezzi-content">
       <app-lista-mezzi (selectVehicle)="onVehicleSelection($event)"></app-lista-mezzi>
     </div>

@@ -22,7 +22,8 @@ import { MatIconModule } from '@angular/material/icon';
     MatListModule,
     MatCardModule,
     MatIconModule,
-    SessionFiltersComponent
+    SessionFiltersComponent,
+    ListaFiltersComponent
 ],
   templateUrl: './storico-mezzi.component.html',
   styleUrl: './storico-mezzi.component.css'

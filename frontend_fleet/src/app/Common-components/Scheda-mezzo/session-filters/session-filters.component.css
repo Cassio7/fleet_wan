@@ -1,8 +1,7 @@
 .content-filter {
   width: auto;
-  background-color: white;
-  padding: 10px;
-  border-radius: 6px;
-  margin-bottom: 10px;
   display: inline-flex;
+  background-color: white;
+  padding: 5px;
+  border-radius: 6px;
 }

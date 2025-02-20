@@ -123,6 +123,9 @@ html {
   color: white;
 }
 
+.graphs{
+  overflow: hidden;
+}
 .graphs .table {
   height: 100%;
   display: flex;

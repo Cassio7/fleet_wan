@@ -63,7 +63,7 @@ body {
 }
 
 th {
-  color: var(--green);
+  color: #656575;
 }
 table:not(.mat-calendar-table) tr:nth-child(even) {
   background-color: rgba(255, 255, 255, 0.7);

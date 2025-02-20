@@ -14,17 +14,10 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
+  gap: 2vh;
 }
 
-.header {
-  width: 100%;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  text-align: center;
-}
+
 
 .title-side {
   font-weight: 500;
@@ -47,12 +40,18 @@
   background-color: var(--navbarANDstats-background);
 }
 
+
+.filters-container{
+  margin: 0;
+}
+
 .sessions-table {
   background-color: var(--background-color);
   flex: 1;
   display: flex;
   flex-direction: column;
   width: 100%;
+
 }
 
 .sessions-table {
@@ -62,6 +61,9 @@
 .sessions-table .table-content {
   width: 100%;
   max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2vh;
 }
 
 .map {
@@ -87,6 +89,8 @@
   align-items: center;
   justify-content: center;
   justify-content: space-between;
+  margin: 0;
+  padding: 0;
 }
 
 .sessionTable-container {
