@@ -3,13 +3,11 @@ import {
   Body,
   Controller,
   Get,
-  Param,
   Post,
   Req,
   Res,
-  UseGuards,
+  UseGuards
 } from '@nestjs/common';
-import axios from 'axios';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { Role } from 'classes/enum/role.enum';
 import { UserFromToken } from 'classes/interfaces/userToken.interface';
@@ -186,43 +184,6 @@ export class RealtimeController {
     } catch (error) {
       console.error('Errore nel recupero dei realtimes:', error);
       res.status(500).json({ message: 'Errore nel recupero dei realtimes' });
-    }
-  }
-
-  /**
-   * API che restituisce la via posizione in base alle coordinate salvandola in cache su Redis
-   * @param res VeId del veicolo
-   * @param params
-   */
-  @Get('resolve/:veId')
-  async getResolvedByVeId(@Res() res: Response, @Param() params: any) {
-    try {
-      const times = await this.realtimeService.getTimesByVeId(params.veId);
-      const response = [];
-      for (const time of times) {
-        const cacheKey = `pos:${time.latitude}:${time.longitude}`;
-        let position = await this.redis.get(cacheKey);
-        if (!position) {
-          const pos = await axios.get(this.nominatimUrl, {
-            params: {
-              lat: time.latitude,
-              lon: time.longitude,
-              format: 'json',
-            },
-          });
-          position = pos.data.display_name;
-          await this.redis.set(cacheKey, position, 'EX', 86400);
-        }
-
-        response.push(position);
-      }
-      if (response.length > 0) res.status(200).json(response);
-      else res.status(404).json({ message: 'Nessuna posizione registrata' });
-    } catch (error) {
-      console.error('Errore nel recupero dei realtimes:', error);
-      res
-        .status(500)
-        .json({ message: 'Errore durante il recupero dei realtimes' });
     }
   }
 }
