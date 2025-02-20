@@ -394,35 +394,44 @@ export class AnomalyController {
         return res.status(204).json();
       }
 
-      const anomalyPromises = data.flatMap(async (item) => {
-        const veId = item.veId;
-        let date = null;
-        let gps = null;
-        let antenna = null;
-        let detection_quality_avg = null;
-        let session = null;
+      const processAnomalies = async (data, anomalyService) => {
+        const anomalyPromises = data
+          .filter((item) => item?.veId)
+          .map(async (item) => {
+            const anomalyData = {
+              veId: item.veId,
+              date: item.sessions?.[0]?.date ?? null,
+              gps: item.sessions?.[0]?.anomalies?.GPS ?? null,
+              antenna: item.sessions?.[0]?.anomalies?.Antenna ?? null,
+              detection_quality:
+                item.sessions?.[0]?.anomalies?.detection_quality ?? null,
+              session:
+                item.anomaliaSessione ??
+                item.sessions?.[0]?.anomalies?.open ??
+                null,
+            };
+            if (
+              anomalyData.session &&
+              anomalyData.session.includes('nulla') &&
+              item.sessions.length === 0
+            ) {
+              anomalyData.antenna = item.anomaliaSessione;
+              anomalyData.gps = item.anomaliaSessione;
+            }
+            return anomalyService.createAnomaly(
+              anomalyData.veId,
+              anomalyData.date,
+              anomalyData.gps,
+              anomalyData.antenna,
+              anomalyData.detection_quality,
+              anomalyData.session,
+            );
+          });
 
-        if (item.sessions && item.sessions[0]) {
-          date = item.sessions[0].date || null;
-          if (item.sessions[0].anomalies) {
-            gps = item.sessions[0].anomalies.GPS || null;
-            antenna = item.sessions[0].anomalies.Antenna || null;
-            detection_quality_avg =
-              item.sessions[0].anomalies.detection_quality_avg || null;
-            session =
-              item.anomaliaSessione || item.sessions[0].anomalies.open || null;
-          }
-        }
-        return await this.anomalyService.createAnomaly(
-          veId,
-          date,
-          gps,
-          antenna,
-          detection_quality_avg,
-          session,
-        );
-      });
-      await Promise.all(anomalyPromises);
+        return Promise.all(anomalyPromises);
+      };
+
+      await processAnomalies(data, this.anomalyService);
 
       const todaykeys = await this.redis.keys('todayAnomaly:*');
       if (todaykeys.length > 0) {

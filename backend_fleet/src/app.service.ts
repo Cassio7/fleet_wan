@@ -49,14 +49,14 @@ export class AppService implements OnModuleInit {
   // popolo database all'avvio
   async onModuleInit() {
     const startDate = '2025-01-01T00:00:00.000Z';
-    //const endDate = '2024-12-10T00:00:00.000Z';
+    //const endDate = '2025-02-19T00:00:00.000Z';
     const endDate = new Date(
       new Date().getTime() + 2 * 60 * 60 * 1000,
     ).toISOString();
     //await this.putDefaultData();
     //await this.putDbData(startDate, endDate);
     //await this.associationService.setVehiclesAssociateAllUsersRedis(),
-    //await this.putDbData3min();
+      //await this.putDbData3min();
     //await this.anomalyCheck(startDate, endDate);
     //await this.dailyAnomalyCheck();
     //await this.setAnomaly();
@@ -87,7 +87,7 @@ export class AppService implements OnModuleInit {
     const endDate = end;
 
     console.log('Data inizio: ' + startDate + ' Data fine: ' + endDate);
-    const batchSize = 100;
+    const batchSize = 22;
 
     await this.vehicleService.getVehicleList(254, 313); //Gesenu principale
     //await this.vehicleService.getVehicleList(254, 683); //Gesenu dismessi
@@ -144,8 +144,6 @@ export class AppService implements OnModuleInit {
           // Esecuzione delle richieste per il batch corrente
           await Promise.all(requests);
         }
-      } else {
-        console.log(company);
       }
     }
     const vehicleIds = vehicles.map((v) => v.veId);
@@ -154,16 +152,17 @@ export class AppService implements OnModuleInit {
 
   //@Cron('*/3 * * * *')
   async putDbData3min() {
-    const startDate = new Date(
-      new Date().getTime() - 3 * 60 * 1000, // 3 minuti
-    ).toISOString();
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    const startDate = now.toISOString();
+    // 2 ore e 3 minuti
     const endDate = new Date(
       new Date().getTime() + 2 * 60 * 60 * 1000,
     ).toISOString();
     console.log('Data inizio: ' + startDate + ' Data fine: ' + endDate);
-    await this.vehicleService.getVehicleList(254, 313);
-    await this.vehicleService.getVehicleList(305, 650);
-    await this.vehicleService.getVehicleList(324, 688);
+    await this.vehicleService.getVehicleList(254, 313); //Gesenu principale
+    await this.vehicleService.getVehicleList(305, 650); //TSA principale
+    await this.vehicleService.getVehicleList(324, 688); //Fiumicino principale
 
     const vehicles = await this.vehicleService.getAllVehicles();
 
@@ -224,11 +223,37 @@ export class AppService implements OnModuleInit {
             datefrom,
             dateto.toISOString(),
           );
-          if (data && data.length > 0) {
-            await Promise.all(
-              data.map((item) => this.createAnomalyFromSession(item)),
-            );
+          if (!data || data.length === 0) {
+            return null;
           }
+
+          const processAnomalies = async (data, anomalyService) => {
+            const anomalyPromises = data
+              .filter((item) => item?.veId)
+              .map(async (item) => {
+                const anomalyData = {
+                  veId: item.veId,
+                  date: item.sessions?.[0]?.date ?? null,
+                  gps: item.sessions?.[0]?.anomalies?.GPS ?? null,
+                  antenna: item.sessions?.[0]?.anomalies?.Antenna ?? null,
+                  detection_quality:
+                    item.sessions?.[0]?.anomalies?.detection_quality ?? null,
+                  session: item.sessions?.[0]?.anomalies?.open ?? null,
+                };
+                return anomalyService.createAnomaly(
+                  anomalyData.veId,
+                  anomalyData.date,
+                  anomalyData.gps,
+                  anomalyData.antenna,
+                  anomalyData.detection_quality,
+                  anomalyData.session,
+                );
+              });
+
+            return Promise.all(anomalyPromises);
+          };
+
+          await processAnomalies(data, this.anomalyService);
         }),
       );
 
@@ -236,41 +261,6 @@ export class AppService implements OnModuleInit {
     } catch (error) {
       console.error('Errore durante il controllo delle anomalie:', error);
     }
-  }
-
-  /**
-   *
-   * @param item
-   * @returns
-   */
-  private async createAnomalyFromSession(item: any) {
-    const veId = item.veId;
-    let date = null;
-    let gps = null;
-    let antenna = null;
-    let detection_quality = null;
-    let session = null;
-
-    if (item.sessions && item.sessions[0]) {
-      date = item.sessions[0].date || null;
-      if (item.sessions[0].anomalies) {
-        gps = item.sessions[0].anomalies.GPS || null;
-        antenna = item.sessions[0].anomalies.Antenna || null;
-        detection_quality =
-          item.sessions[0].anomalies.detection_quality || null;
-        session = item.sessions[0].anomalies.open || null;
-      }
-      return this.anomalyService.createAnomaly(
-        veId,
-        date,
-        gps,
-        antenna,
-        detection_quality,
-        session,
-      );
-    }
-
-    return null;
   }
 
   //@Cron('58 23 * * *')
@@ -284,41 +274,48 @@ export class AppService implements OnModuleInit {
         datefrom.toISOString(),
         dateto.toISOString(),
       );
-      if (data && data.length > 0) {
-        const anomalyPromises = data.flatMap((item) => {
-          const veId = item.veId;
-          let date = null;
-          let gps = null;
-          let antenna = null;
-          let detection_quality = null;
-          let session = null;
-
-          if (item.sessions && item.sessions[0]) {
-            date = item.sessions[0].date || null;
-            if (item.sessions[0].anomalies) {
-              gps = item.sessions[0].anomalies.GPS || null;
-              antenna = item.sessions[0].anomalies.Antenna || null;
-              detection_quality =
-                item.sessions[0].anomalies.detection_quality || null;
-              session =
-                item.anomaliaSessione ||
-                item.sessions[0].anomalies.open ||
-                null;
-            }
-          }
-
-          return this.anomalyService.createAnomaly(
-            veId,
-            date,
-            gps,
-            antenna,
-            detection_quality,
-            session,
-          );
-        });
-
-        await Promise.all(anomalyPromises);
+      if (!data || data.length === 0) {
+        return null;
       }
+      const processAnomalies = async (data, anomalyService) => {
+        const anomalyPromises = data
+          .filter((item) => item?.veId)
+          .map(async (item) => {
+            const anomalyData = {
+              veId: item.veId,
+              date: item.sessions?.[0]?.date ?? null,
+              gps: item.sessions?.[0]?.anomalies?.GPS ?? null,
+              antenna: item.sessions?.[0]?.anomalies?.Antenna ?? null,
+              detection_quality:
+                item.sessions?.[0]?.anomalies?.detection_quality ?? null,
+              session:
+                item.anomaliaSessione ??
+                item.sessions?.[0]?.anomalies?.open ??
+                null,
+            };
+            if (
+              anomalyData.session &&
+              anomalyData.session.includes('nulla') &&
+              item.sessions.length === 0
+            ) {
+              anomalyData.antenna = item.anomaliaSessione;
+              anomalyData.gps = item.anomaliaSessione;
+            }
+            return anomalyService.createAnomaly(
+              anomalyData.veId,
+              anomalyData.date,
+              anomalyData.gps,
+              anomalyData.antenna,
+              anomalyData.detection_quality,
+              anomalyData.session,
+            );
+          });
+
+        return Promise.all(anomalyPromises);
+      };
+
+      await processAnomalies(data, this.anomalyService);
+
       console.log(
         'Daily Anomaly check aggiornato alle: ' + new Date().toISOString(),
       );
