@@ -48,10 +48,19 @@ export class PlateFilterService {
    * @param vehicles - Array di veicoli da filtrare.
    * @returns Un array di veicoli che corrispondono alle targhe selezionate.
    */
-  filterVehiclesByPlates(selectedPlates: string[], vehiclesData: VehicleData[]): VehicleData[] {
-    if (!selectedPlates.length) return vehiclesData;
-    const platesSet = new Set(selectedPlates);
-    return vehiclesData.filter(obj => platesSet.has(obj.vehicle.plate));
+  filterVehiclesByPlates(selectedPlates: string[], vehicles: (VehicleData | Vehicle)[]): (VehicleData | Vehicle)[] {
+    if (!selectedPlates.length) return vehicles;  // Early return if no plates are selected
+
+    const platesSet = new Set(selectedPlates);  // Create a Set for fast lookup
+
+    return vehicles.filter(vehicle => {
+      if ('vehicle' in vehicle) {
+        return platesSet.has(vehicle.vehicle.plate);  // For `Vehicle` type, access vehicle.plate
+      } else if ('veId' in vehicle) {
+        return platesSet.has(vehicle.plate);  // For `VehicleData` type, access plate directly
+      }
+      return false;  // Default return in case of unexpected structure
+    });
   }
 
 
