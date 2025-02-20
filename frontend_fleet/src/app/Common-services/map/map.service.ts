@@ -184,8 +184,7 @@ export class MapService {
 
     const marker = L.marker([point.lat, point.long], {
       icon: customIcon
-    }) as L.Marker & { veId?: number };
-
+    }) as L.Marker;
 
     marker.bindPopup(
       this.getCustomPopup(plate),
@@ -196,20 +195,24 @@ export class MapService {
       }
     );
 
-    const positionData: positionData = {
-      veId: veId,
-      position: point
-    }
-
-    // Apre il popup solo quando si aggiunge il marker
     marker.on('add', () => {
       marker.openPopup();
     });
 
-    // Seleziona il marker quando si preme sopra
-    marker.on('click', () => {
+    marker.off('click', marker.togglePopup, marker);
+
+    marker.on('click', (event) => {
+      L.DomEvent.stop(event);
+
+      marker.openPopup();
+
+      const positionData: positionData = {
+        veId: veId,
+        position: point
+      };
       this.selectMarker$.next(positionData);
     });
+
 
     return marker;
   }
