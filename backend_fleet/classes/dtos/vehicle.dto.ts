@@ -66,8 +66,6 @@ export class VehicleDTO extends CommonDTO {
   @IsOptional()
   @IsNumber()
   worksite_priority: number | null;
-  @IsOptional()
-  worksite: WorksiteDTO;
   @IsNumber()
   profileId: number;
   @IsString()

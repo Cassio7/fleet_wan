@@ -9,6 +9,7 @@ import { DataSource, In, Repository } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
 
 import { InjectRedis } from '@nestjs-modules/ioredis';
+import { WorksiteDTO } from 'classes/dtos/worksite.dto';
 import Redis from 'ioredis';
 
 @Injectable()
@@ -193,18 +194,23 @@ export class RealtimeService {
    * @param veId VeId identificatico del veicolo
    * @returns Raggruppa i realtime per veicolo usando i DTO
    */
-  async getTimesByVeId(veId: number[] | number): Promise<any> {
+  async getTimesByVeId(veId: number[] | number): Promise<
+    Array<{
+      vehicle: VehicleDTO & { worksite: WorksiteDTO | null };
+      realtime: RealtimeDTO[];
+    }>
+  > {
     const veIdArray = Array.isArray(veId) ? veId : [veId];
-  
+
     const times = await this.realtimeRepository.find({
       relations: {
         vehicle: {
-          worksite: true
-        }
+          worksite: true,
+        },
       },
       where: { vehicle: { veId: In(veIdArray) } },
     });
-  
+
     // Creo DTO e formatto un output corretto
     return times.reduce(
       (acc, time) => {
@@ -212,20 +218,25 @@ export class RealtimeService {
         let vehicleGroup = acc.find(
           (group) => group.vehicle.veId === time.vehicle.veId,
         );
-  
+
         if (!vehicleGroup) {
           const vehicleDTO = new VehicleDTO();
           vehicleDTO.plate = time.vehicle.plate;
-          vehicleDTO.worksite = time.vehicle.worksite;
+
           vehicleDTO.veId = time.vehicle.veId;
-  
+          let worksiteDTO: WorksiteDTO | null = null;
+          if (time.vehicle.worksite) {
+            worksiteDTO = new WorksiteDTO();
+            worksiteDTO.id = time.vehicle.worksite.id;
+            worksiteDTO.name = time.vehicle.worksite.name;
+          }
           vehicleGroup = {
-            vehicle: vehicleDTO,
-            realtime: []
+            vehicle: { ...vehicleDTO, worksite: worksiteDTO },
+            realtime: [],
           };
           acc.push(vehicleGroup);
         }
-  
+
         const realtimeDTO = new RealtimeDTO();
         realtimeDTO.timestamp = time.timestamp;
         realtimeDTO.row_number = time.row_number;
@@ -236,13 +247,17 @@ export class RealtimeService {
         realtimeDTO.speed = time.speed;
         realtimeDTO.direction = time.direction;
         vehicleGroup.realtime.push(realtimeDTO);
-  
+
         return acc;
       },
-      [] as Array<{vehicle: VehicleDTO; realtime: RealtimeDTO[]}>  // Aggiunto il tipo per "nome"
+      [] as Array<{
+        vehicle: VehicleDTO & {
+          worksite: WorksiteDTO | null;
+        };
+        realtime: RealtimeDTO[];
+      }>, // Aggiunto il tipo per "nome"
     );
   }
-  
 
   /**
    * Pulisco la tabella dai vecchi dati salvati
