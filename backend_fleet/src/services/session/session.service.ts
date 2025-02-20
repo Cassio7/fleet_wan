@@ -743,7 +743,7 @@ export class SessionService {
           history: true,
         },
         order: {
-          sequence_id: 'DESC',
+          period_to: 'DESC',
         },
       });
       return session ? this.toDTOSession(session) : null;
@@ -776,7 +776,7 @@ export class SessionService {
       .innerJoin('vehicles', 'v', 'h.vehicleId = v.id')
       .where('v.veId IN (:...vehicleIds)', { vehicleIds })
       .orderBy('v.veId')
-      .addOrderBy('s.sequence_id', 'DESC')
+      .addOrderBy('s.period_to', 'DESC')
       .getRawMany();
 
     const sessionMap = new Map<number, any>();
@@ -902,13 +902,15 @@ export class SessionService {
 
           if (sessionPeriodTo > lastSessionPeriodTo) {
             activeSessions.push({
+              plate: session.plate,
               veId: vehicleId,
               active: true,
             });
           }
         }
       });
-      return activeSessions;
+
+      return activeSessions.sort((a, b) => a.plate.localeCompare(b.plate));
     } catch (error) {
       if (error instanceof HttpException) throw error;
       throw new HttpException(
