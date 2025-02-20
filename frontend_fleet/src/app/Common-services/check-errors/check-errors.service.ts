@@ -144,7 +144,7 @@ export class CheckErrorsService {
 
       const diffInDays: number = diffInMilliseconds / (1000 * 60 * 60 * 24);
 
-      return diffInDays;
+      return Math.round(diffInDays);
     }
 
     return null;
