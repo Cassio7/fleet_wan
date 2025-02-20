@@ -1,3 +1,4 @@
+import { WorkSite } from './../../../Models/Worksite';
 import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatOptionModule } from '@angular/material/core';
@@ -13,9 +14,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { CommonModule } from '@angular/common';
 import { MapService } from '../../../Common-services/map/map.service';
-import { Subject, takeUntil } from 'rxjs';
+import { skip, Subject, takeUntil } from 'rxjs';
 import { RealtimeData } from '../../../Models/RealtimeData';
 import { VehiclesApiService } from '../../../Common-services/vehicles api service/vehicles-api.service';
+import { PlateFilterService } from '../../../Common-services/plate-filter/plate-filter.service';
+import { Vehicle } from '../../../Models/Vehicle';
 
 @Component({
   selector: 'app-map-filter',
@@ -38,6 +41,7 @@ import { VehiclesApiService } from '../../../Common-services/vehicles api servic
 })
 export class MapFilterComponent implements AfterViewInit, OnDestroy{
   private readonly destroy$: Subject<void> = new Subject<void>();
+  private mapVehicles: {veId: number, plate: string, worksite?: WorkSite}[] = [];
 
   plate: string = "";
 
@@ -51,17 +55,9 @@ export class MapFilterComponent implements AfterViewInit, OnDestroy{
   disabled = false;
   private allSelected: boolean = false;
 
-  private _filters: Filters = {
-    plate: this.plate,
-    cantieri: this.cantieri,
-    gps: new FormControl(null),
-    antenna: new FormControl(null),
-    sessione: new FormControl(null)
-  };
-
   constructor(
     private cantieriFilterService: CantieriFilterService,
-    private filtersCommonService: FiltersCommonService,
+    private plateFilterService: PlateFilterService,
     private sessionStorageService: SessionStorageService,
     private mapService: MapService,
     private cd: ChangeDetectorRef
@@ -73,32 +69,38 @@ export class MapFilterComponent implements AfterViewInit, OnDestroy{
   }
 
   ngAfterViewInit(): void {
-    // this.mapService.loadPosition$.pipe(takeUntil(this.destroy$))
-    // .subscribe({
-    //   next: (realtimeData: RealtimeData | null) => {
-    //     if(realtimeData){
-    //       this.listaTarghe.push(realtimeData.vehicle.plate);
-    //     }
-    //     this.cd.detectChanges();
-    //   },
-    //   error: error => console.error("Errore nel caricamento del veicolo nel filtro: ", error)
-    // });
-    this.mapService.selectMarker$.pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: (plate: string) => {
+    this.handleLoadPosition();
+  }
 
+  private handleLoadPosition(){
+    this.mapService.loadPosition$.pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (realtimeData: RealtimeData | null) => {
+        if(realtimeData){
+          this.mapVehicles.push(realtimeData.vehicle);
+          const vehicle: {plate: string, veId: number, worksite?: WorkSite} = realtimeData.vehicle;
+          let selectedTarghe = this.targhe.value;
+          this.listaTarghe.push(vehicle.plate);
+          if(selectedTarghe) this.targhe.setValue(["Seleziona tutto", ...selectedTarghe, vehicle.plate]);
+
+          if(vehicle?.worksite && !this.listaCantieri.includes(vehicle.worksite.name)){
+            let selectedCantieri = this.cantieri.value;
+            this.listaCantieri.push(vehicle.worksite.name);
+            if(selectedCantieri) this.cantieri.setValue(["Seleziona tutto", ...selectedCantieri, vehicle.worksite.name]);
+          }
+          this.cd.detectChanges();
+        }
       },
-      error: error => console.error("Errore nella selezione del marker: ", error)
+      error: error => console.error("Errore nel caricamento del veicolo nel filtro: ", error)
     });
   }
 
   selectAll(){
-    const cantieriToggle = this.cantieriFilterService.toggleSelectAllCantieri(this.allSelected, );
+    const cantieriToggle = this.cantieriFilterService.toggleSelectAllCantieri(this.allSelected);
 
     this.cantieri.setValue(cantieriToggle.length > 0 ? ["Seleziona tutto", ...cantieriToggle] : cantieriToggle);
     this.allSelected = !this.allSelected;
     this.cd.detectChanges();
-    this.filtersCommonService.applyFilters$.next(this.filters);
   }
 
   selectCantiere(){
@@ -115,22 +117,25 @@ export class MapFilterComponent implements AfterViewInit, OnDestroy{
         this.cantieri.setValue(selectedCantieri);
       }
     }
-    this.filtersCommonService.applyFilters$.next(this.filters);
   }
+  updateData(){
+    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+    const plateFilteredVehicles: Vehicle[] = this.targhe.value ? this.plateFilterService.filterVehiclesByPlates(this.targhe.value, allVehicles as Vehicle[]) as Vehicle[] : [];
+    const cantieriFilteredVehicles: Vehicle[] = this.cantieri.value ? this.cantieriFilterService.filterVehiclesByCantieri(allVehicles as Vehicle[], this.cantieri.value) as Vehicle[] : [];
 
-  searchPlates(){
-    this.filters.plate = this.plate;
-    this.filtersCommonService.applyFilters$.next(this.filters);
+    const commonVehicles = plateFilteredVehicles.filter(plateVehicle =>
+      cantieriFilteredVehicles.some(cantieriVehicle => cantieriVehicle.veId === plateVehicle.veId)
+    );
+
+    this.mapVehicles = commonVehicles;
+    this.listaTarghe = commonVehicles.map(vehicle => vehicle.plate);
+
+
+    const commonPlates = commonVehicles.map(vehicle => vehicle.plate);
+    this.mapService.updateMarkers$.next(commonPlates);
   }
 
   togglePlates(){
     this.mapService.togglePopups$.next();
-  }
-
-  public get filters(): Filters {
-    return this._filters;
-  }
-  public set filters(value: Filters) {
-    this._filters = value;
   }
 }

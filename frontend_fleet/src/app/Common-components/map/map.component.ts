@@ -46,20 +46,38 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.handleLoadPosition();
     this.handleLoadSessionPath();
     this.handleLoadDayPath();
-    this.mapService.togglePopups$.pipe(takeUntil(this.destroy$))
+    this.handleTogglePopups();
+    this.handleMarkersUpdate();
+  }
+
+  /**
+   * Gestisce la sottoscrizione all'aggiornamento dei marker presenti sulla mappa
+   */
+  private handleMarkersUpdate(){
+    this.mapService.updateMarkers$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
-      next: () => {
-        this.togglePopups();
+      next: (plates: string[]) => {
+        const filteredMarkers: L.Marker[] = this.mapService.filterMarkersByPlates(this.map, plates);
+        this.mapService.removeAllMapMarkers(this.map);
+        filteredMarkers.forEach(marker => {
+          this.mapService.addMarker(this.map, marker);
+        });
       },
-      error: error => console.error("Errore nel toggle dei popup nei marker: ", error)
+      error: error => console.error("Errore nell'aggiornamento dei marker presenti sulla mappa: ", error)
     });
   }
 
   /**
-   * toggla i popup dei marker nella mappa
+   * Gestisce la sottoscrizione all'attivazione e disabilitazione dei popup dei marker
    */
-  private togglePopups(){
-    this.mapService.togglePopups(this.map);
+  private handleTogglePopups(){
+    this.mapService.togglePopups$.pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: () => {
+        this.mapService.togglePopups(this.map);
+      },
+      error: error => console.error("Errore nel toggle dei popup nei marker: ", error)
+    });
   }
 
   /**

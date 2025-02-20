@@ -15,6 +15,7 @@ export class MapService {
   private readonly _loadPosition$: BehaviorSubject<RealtimeData | null> = new BehaviorSubject<RealtimeData | null>(null);
   private readonly _loadSessionPath$: BehaviorSubject<any> = new BehaviorSubject<any>(null);
   private readonly _loadDayPath$: BehaviorSubject<any> = new BehaviorSubject<any>(null);
+  private readonly _updateMarkers$: BehaviorSubject<any> = new BehaviorSubject<any>(null);
 
   private readonly _selectMarker$: BehaviorSubject<any> = new BehaviorSubject<any>(null);
   private readonly _togglePopups$: Subject<void> = new Subject<void>();
@@ -111,6 +112,16 @@ export class MapService {
   }
 
   /**
+   * Rimuove tutti i marker sulla mappa
+   * @param map mappa da cui rimuovere i marker
+   */
+  removeAllMapMarkers(map: L.Map){
+    const mapMarkers = this.getMapMarkers(map);
+
+    mapMarkers.map(marker => map.removeLayer(marker));
+  }
+
+  /**
    * Aggiunge un marker alla mappa
    * @param marker marker da aggiugere
    */
@@ -161,22 +172,18 @@ export class MapService {
     marker.bindPopup(
       this.getCustomPopup(plate),
       {
+        closeOnClick: false,
         autoClose: false,
         autoPan: false
       }
     );
 
-    // Apre il popup solo quando si passa sopra al marker
+    // Apre il popup solo quando si aggiunge il marker
     marker.on('add', () => {
       marker.openPopup();
     });
 
-    // Apre il popup solo quando si passa sopra al marker
-    marker.on('mouseover', () => {
-      marker.openPopup();
-    });
-
-    // Chiude il popup quando si preme sopra
+    // Seleziona il marker quando si preme sopra
     marker.on('click', () => {
       this.selectMarker$.next(plate);
     });
@@ -208,17 +215,56 @@ export class MapService {
   }
 
   /**
+   * Permette di ottenere tutti i marker in una mappa
+   * @param map mappa di cui prendere i marker
+   * @returns array di L.Marker presenti nella mappa
+   */
+  getMapMarkers(map: L.Map): L.Marker[]{
+    const markers: L.Marker[] = [];
+    map.eachLayer(layer => {
+      if(layer instanceof L.Marker) markers.push(layer);
+    });
+    return markers;
+  }
+
+  filterMarkersByPlates(map: L.Map, plates: string[]): L.Marker[] {
+    const markers: L.Marker[] = this.getMapMarkers(map);
+
+    const plateFilteredMarkers = markers.filter(marker => {
+      const markerText = this.extractMarkerPopupContent(marker);
+      return markerText ? plates.includes(markerText) : false;
+    });
+
+    return plateFilteredMarkers;
+  }
+
+  extractMarkerPopupContent(marker: L.Marker): string | null{
+    const popupContent = marker.getPopup()?.getContent();
+    if (popupContent) {
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = popupContent.toString();
+      const textContent = tempDiv.textContent?.trim();
+
+      if (textContent) {
+        return textContent;
+      }
+    }
+    return null;
+  }
+
+
+  /**
    * Mostra/nasconde i popup dei marker in una mappa
    * @param map mappa di cui togglare i popup
    */
   togglePopups(map: L.Map) {
-    map.eachLayer(layer => {
-      if (layer instanceof L.Marker) {
-        if (layer.isPopupOpen()) {
-          layer.closePopup();
-        } else {
-          layer.openPopup();
-        }
+    const markers = this.getMapMarkers(map); // Ottieni i marker direttamente
+
+    markers.forEach(marker => {
+      if (marker.isPopupOpen()) {
+        marker.closePopup();
+      } else {
+        marker.openPopup();
       }
     });
   }
@@ -261,6 +307,9 @@ export class MapService {
   }
   public get selectMarker$(): BehaviorSubject<any> {
     return this._selectMarker$;
+  }
+  public get updateMarkers$(): BehaviorSubject<any> {
+    return this._updateMarkers$;
   }
   public get loadDayPath$(): BehaviorSubject<any> {
     return this._loadDayPath$;
