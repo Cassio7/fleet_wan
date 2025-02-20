@@ -59,7 +59,6 @@ export class AnomaliesComponent implements OnInit, AfterViewInit{
     .subscribe({
       next: (vehicleAnomalies: VehicleAnomalies) => {
         this.vehicleAnomalies = vehicleAnomalies;
-        console.log("vehicleAnomalies: ", vehicleAnomalies);
         if(vehicleAnomalies){
           const todayAnomalies = vehicleAnomalies.anomalies[0];
           this.gpsAnomaly = todayAnomalies.gps || "Funzionante" ;

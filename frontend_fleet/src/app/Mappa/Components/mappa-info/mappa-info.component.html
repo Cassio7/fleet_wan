@@ -1,13 +1,13 @@
 <div class="content">
   <div class="type-container">
-    <p class="type"><mat-icon>local_shipping</mat-icon>Camion differenziata</p>
+    <p class="type"><mat-icon>local_shipping</mat-icon>{{servizio}}</p>
   </div>
   <mat-divider></mat-divider>
   <mat-list>
     <mat-list-item>
       <div class="list-item-content">
         <p>Targa</p>
-        <p class="plate">data</p>
+        <p class="plate">{{plate}}</p>
       </div>
     </mat-list-item>
     <mat-divider></mat-divider>
@@ -15,7 +15,7 @@
     <mat-list-item>
       <div class="list-item-content">
         <p>Cantiere</p>
-        <p class="cantiere">data</p>
+        <p class="cantiere">{{cantiere}}</p>
       </div>
     </mat-list-item>
     <mat-divider></mat-divider>
@@ -23,7 +23,39 @@
     <mat-list-item>
       <div class="list-item-content">
         <p>Stato GPS</p>
-        <p class="GPS">data</p>
+        <!-- Controllo GPS funzionante -->
+        <div
+          *ngIf="
+            vehicleSelected &&
+            !checkErrorsService.checkGpsError(gps) &&
+            !checkErrorsService.checkGpsWarning(gps)
+          "
+          class="OK-container"
+          matTooltip="GPS funzionante"
+        >
+          <mat-icon class="gpsIcon-OK">location_on</mat-icon>
+          OK
+        </div>
+
+        <!-- Controllo avviso GPS -->
+        <div
+          *ngIf="checkErrorsService.checkGpsWarning(gps)"
+          class="warning-container"
+          [matTooltip]="checkErrorsService.checkGpsWarning(gps)"
+        >
+          <mat-icon class="gpsIcon-warning">location_on</mat-icon>
+          Warning
+        </div>
+
+        <!-- Controllo errore GPS -->
+        <div
+          *ngIf="checkErrorsService.checkGpsError(gps)"
+          class="error-container"
+          [matTooltip]="checkErrorsService.checkGpsError(gps)"
+        >
+          <mat-icon class="errorIcon-error">location_on</mat-icon>
+          Error
+        </div>
       </div>
     </mat-list-item>
     <mat-divider></mat-divider>
@@ -31,7 +63,22 @@
     <mat-list-item>
       <div class="list-item-content">
         <p>Stato Antenna</p>
-        <p class="antenna">data</p>
+        <div
+          class="OK-container"
+          *ngIf="vehicleSelected && !antenna"
+          matTooltip="Antenna funzionante"
+        >
+          <mat-icon class="gpsIcon-OK">wifi</mat-icon>
+          OK
+        </div>
+        <div
+          class="error-container"
+          *ngIf="vehicleSelected && antenna"
+          [matTooltip]="antenna || 'Anomalia antenna RFID'"
+        >
+          <mat-icon class="errorIcon-error">wifi</mat-icon>
+          Error
+        </div>
       </div>
     </mat-list-item>
     <mat-divider></mat-divider>
@@ -39,7 +86,71 @@
     <mat-list-item>
       <div class="list-item-content">
         <p>Ultima sessione</p>
-        <p class="lastSession">data</p>
+        <div>
+          <!-- se non c'è errore, data nera -->
+        <span
+        *ngIf="
+          vehicleSelected &&
+          !sessione &&
+          anomalyDate;
+          else sessionError
+        "
+        >
+        <!-- icone -->
+        <div
+          class="OK-container"
+          *ngIf="
+            vehicleSelected &&
+            !sessione &&
+            anomalyDate
+          "
+          matTooltip="Sessione corretta"
+        >
+          OK
+        </div>
+        {{
+          sessione
+            ? (anomalyDate
+              | date : "dd/MM/yy")
+            : ""
+        }}
+        </span>
+        <!-- se c'è errore  -->
+        <ng-template #sessionError>
+        <div
+          class="session-error"
+          *ngIf="vehicleSelected && sessione"
+        >
+          <div
+            class="error-container"
+            [matTooltip]="
+              sessione
+            "
+          >
+            {{ anomalyDate ? checkErrorsService.calculateSessionErrorDays(anomalyDate) : "" }} gg
+          </div>
+          <div
+            class="error-container"
+            [matTooltip]="
+              sessione
+            "
+          >
+            Error
+          </div>
+          <span
+            class="session-date"
+            [matTooltip]="
+              sessione
+            "
+          >
+          {{
+            sessione
+              ? (anomalyDate | date : "dd/MM/yyyy"): ""
+          }}
+          </span>
+        </div>
+        </ng-template>
+        </div>
       </div>
     </mat-list-item>
   </mat-list>

@@ -8,7 +8,7 @@ import {
   ViewEncapsulation,
 } from '@angular/core';
 import * as L from 'leaflet';
-import { MapService } from '../../Common-services/map/map.service';
+import { MapService, positionData } from '../../Common-services/map/map.service';
 import { skip, Subject, takeUntil, filter, take } from 'rxjs';
 import { VehicleData } from '../../Models/VehicleData';
 import { CommonModule } from '@angular/common';
@@ -48,6 +48,19 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.handleLoadDayPath();
     this.handleTogglePopups();
     this.handleMarkersUpdate();
+    this.handleZoomIn();
+  }
+
+  private handleZoomIn(){
+    this.mapService.zoomIn$.pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next: (zoomData: { point: Point; zoom: number; } | null) => {
+        if(zoomData){
+          this.map.flyTo([zoomData?.point.lat, zoomData?.point.long], zoomData?.zoom);
+        }
+      },
+      error: error => console.error("Errore nello zoom in sulla posizione selezionata: ", error)
+    });
   }
 
   /**
@@ -100,14 +113,18 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.mapService.loadPosition$.pipe(takeUntil(this.destroy$), skip(1)).subscribe({
       next: (realtimeData: RealtimeData | null) => {
         if (realtimeData && realtimeData.realtime) {
-          const lat = realtimeData.realtime.latitude;
-          const long = realtimeData.realtime.longitude;
+          const point = new Point(realtimeData.realtime.latitude, realtimeData.realtime.longitude);
           const marker = this.mapService.createMarker(
-            lat,
-            long,
+            point,
             realtimeData.vehicle.plate,
-            realtimeData.anomaly
+            realtimeData.vehicle.veId,
+            undefined
           );
+          const positionData: positionData = {
+            veId: realtimeData.vehicle.veId,
+            position: point
+          }
+          this.mapService.mapPositionsData.push(positionData);
           this.mapService.addMarker(this.map, marker);
         }
       },

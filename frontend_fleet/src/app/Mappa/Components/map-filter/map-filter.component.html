@@ -1,9 +1,6 @@
 <div class="content">
   <mat-form-field class="targa-filter filter" appearance="outline" subscriptSizing="dynamic">
     <mat-select [formControl]="targhe" placeholder="Targa" multiple class="cantiere-input">
-      <mat-select-trigger>
-        Targa
-      </mat-select-trigger>
       <mat-option value="Seleziona tutto" (click)="selectAll()">Seleziona tutto</mat-option>
       <mat-divider></mat-divider>
       <mat-option [value]="targa" (click)="selectCantiere()" *ngFor="let targa of this.listaTarghe">
@@ -13,9 +10,6 @@
   </mat-form-field>
   <mat-form-field class="cantieri-filter filter" appearance="outline" subscriptSizing="dynamic">
     <mat-select [formControl]="cantieri" placeholder="Cantiere" multiple class="cantiere-input">
-      <mat-select-trigger>
-        Cantieri
-      </mat-select-trigger>
       <mat-option value="Seleziona tutto" (click)="selectAll()">Seleziona tutto</mat-option>
       <mat-divider></mat-divider>
       <mat-option [value]="cantiere" (click)="selectCantiere()" *ngFor="let cantiere of this.listaCantieri">

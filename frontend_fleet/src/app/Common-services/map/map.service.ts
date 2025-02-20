@@ -6,6 +6,10 @@ import * as L from 'leaflet';
 import 'leaflet-routing-machine';
 import { Point } from '../../Models/Point';
 
+export interface positionData{
+  veId: number,
+  position: Point
+}
 @Injectable({
   providedIn: 'root',
 })
@@ -17,8 +21,12 @@ export class MapService {
   private readonly _loadDayPath$: BehaviorSubject<any> = new BehaviorSubject<any>(null);
   private readonly _updateMarkers$: BehaviorSubject<any> = new BehaviorSubject<any>(null);
 
-  private readonly _selectMarker$: BehaviorSubject<any> = new BehaviorSubject<any>(null);
+  private readonly _selectMarker$: BehaviorSubject<positionData | null> = new BehaviorSubject<positionData | null>(null);
   private readonly _togglePopups$: Subject<void> = new Subject<void>();
+  private readonly _zoomIn$: BehaviorSubject<{ point: Point; zoom: number; } | null> = new BehaviorSubject<{ point: Point; zoom: number; } | null>(null);
+
+
+  private _mapPositionsData: positionData[] = [];
 
 
   OkMarker = `<svg width="33" height="33" viewBox="0 0 33 33" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -84,7 +92,7 @@ export class MapService {
   initMap(map: L.Map, point: Point, zoom: number): L.Map {
     map = L.map('map', {
       center: [point.lat, point.long],
-      zoom: zoom,
+      zoom: zoom
     });
 
     const tiles = L.tileLayer(
@@ -136,39 +144,49 @@ export class MapService {
    * @param msg contenuto del messaggio che appare onMouseOver
    * @returns marker Lea Flet
    */
-  createMarker(
-    lat: number,
-    long: number,
-    plate: string,
-    anomaly: Anomaly | undefined
-  ): L.Marker<any> {
+  /**
+   * Permette di creare un marker di Lea Flet
+   * @param point punto della mappa nel quale creare il marker
+   * @param plate targa del veicolo associato
+   * @param veId veId del veicolo associato
+   * @param anomaly anomalia
+   * @returns
+   */
+  createMarker(point: Point,plate: string, veId: number, anomaly: Anomaly | undefined): L.Marker<any> {
     let customIcon = L.divIcon({
       className: 'custom-div-icon',
       html: this.OkMarker,
       popupAnchor: [11, 12],
     });
+
     if (anomaly) {
-      if (anomaly.gps || anomaly.antenna || anomaly.session)
+      if (anomaly.gps || anomaly.antenna || anomaly.session) {
         customIcon = L.divIcon({
           className: 'custom-div-icon',
           html: this.errorMarker,
           popupAnchor: [11, 12],
         });
+      }
 
       if (
         anomaly.gps &&
         !anomaly.gps.includes('totale') &&
         !anomaly.antenna &&
         !anomaly.session
-      )
+      ) {
         customIcon = L.divIcon({
           className: 'custom-div-icon',
           html: this.errorMarker,
           popupAnchor: [11, 12],
         });
+      }
     }
 
-    const marker = L.marker([lat, long], { icon: customIcon }); //creazione del marker
+    const marker = L.marker([point.lat, point.long], {
+      icon: customIcon
+    }) as L.Marker & { veId?: number };
+
+
     marker.bindPopup(
       this.getCustomPopup(plate),
       {
@@ -178,6 +196,11 @@ export class MapService {
       }
     );
 
+    const positionData: positionData = {
+      veId: veId,
+      position: point
+    }
+
     // Apre il popup solo quando si aggiunge il marker
     marker.on('add', () => {
       marker.openPopup();
@@ -185,11 +208,12 @@ export class MapService {
 
     // Seleziona il marker quando si preme sopra
     marker.on('click', () => {
-      this.selectMarker$.next(plate);
+      this.selectMarker$.next(positionData);
     });
 
     return marker;
   }
+
 
   /**
    * Permette di ottenere i primi punti validi (con latitudine e longitudine diversi da 0) di inizio e di fine di una serie di punti
@@ -299,6 +323,9 @@ export class MapService {
   }
 
 
+  public get zoomIn$(): BehaviorSubject<{ point: Point; zoom: number; } | null> {
+    return this._zoomIn$;
+  }
   public get togglePopups$(): Subject<void> {
     return this._togglePopups$;
   }
@@ -319,5 +346,11 @@ export class MapService {
   }
   public get loadSessionPath$(): BehaviorSubject<any> {
     return this._loadSessionPath$;
+  }
+  public get mapPositionsData(): positionData[] {
+    return this._mapPositionsData;
+  }
+  public set mapPositionsData(value: positionData[]) {
+    this._mapPositionsData = value;
   }
 }

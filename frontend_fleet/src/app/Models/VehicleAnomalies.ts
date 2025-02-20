@@ -1,4 +1,6 @@
 import { Anomaly } from "./Anomaly";
+import { Service } from "./Service";
+import { WorkSite } from "./Worksite";
 
 export class VehicleAnomalies{
   constructor(
@@ -7,8 +9,8 @@ export class VehicleAnomalies{
       plate: string;
       veId: number;
       isRFIDReader: boolean;
-      worksiteId: number;
-      worksiteName: string;
+      worksite: WorkSite;
+      service: Service;
     },
     public anomalies: Anomaly[]
   ){}

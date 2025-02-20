@@ -132,23 +132,31 @@ export class CheckErrorsService {
    * @param vehicle veicolo da cui prendere l'ultimo evento
    * @returns differenza in giorni: oggi - lastevent
    */
-  public calculateSessionErrorDays(vehicleData: VehicleData): number | null {
+  public calculateVehicleSessionErrorDays(vehicleData: VehicleData): number | null {
     const anomaly: Anomaly | null = this.checkVehicleAnomaly(vehicleData);
 
     if (anomaly && anomaly.date) {
-      const anomalyDate: number = new Date(anomaly.date).setHours(0, 0, 0, 0);
-
-      const today = new Date().setHours(0,0,0,0);
-
-      const diffInMilliseconds: number = today - anomalyDate;
-
-      const diffInDays: number = diffInMilliseconds / (1000 * 60 * 60 * 24);
-
-      return Math.round(diffInDays);
+      return this.calculateSessionErrorDays(anomaly.date);
     }
 
     return null;
   }
+
+  calculateSessionErrorDays(sessionDate: Date | string): number {
+    if (sessionDate) {
+      sessionDate = new Date(sessionDate);
+
+      const stateDate: number = sessionDate.setHours(0, 0, 0, 0);
+      const today = new Date().setHours(0, 0, 0, 0);
+      const diffInMilliseconds: number = today - stateDate;
+      const diffInDays: number = diffInMilliseconds / (1000 * 60 * 60 * 24);
+
+      return Math.round(diffInDays);
+    } else {
+      return 0;
+    }
+  }
+
 
 
 
