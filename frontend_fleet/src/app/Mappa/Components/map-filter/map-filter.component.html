@@ -1,7 +1,7 @@
 <div class="content">
   <mat-form-field class="targa-filter filter" appearance="outline" subscriptSizing="dynamic">
     <mat-select [formControl]="targhe" placeholder="Targa" multiple class="cantiere-input">
-      <mat-option value="Seleziona tutto" (click)="selectAll()">Seleziona tutto</mat-option>
+      <mat-option value="Seleziona tutto" (click)="selectAllPlates()">Seleziona tutto</mat-option>
       <mat-divider></mat-divider>
       <mat-option [value]="targa" (click)="selectPlate()" *ngFor="let targa of this.listaTarghe">
         {{ targa }}
@@ -10,7 +10,7 @@
   </mat-form-field>
   <mat-form-field class="cantieri-filter filter" appearance="outline" subscriptSizing="dynamic">
     <mat-select [formControl]="cantieri" placeholder="Cantiere" multiple class="cantiere-input">
-      <mat-option value="Seleziona tutto" (click)="selectAll()">Seleziona tutto</mat-option>
+      <mat-option value="Seleziona tutto" (click)="selectAllCantieri()">Seleziona tutto</mat-option>
       <mat-divider></mat-divider>
       <mat-option [value]="cantiere" (click)="selectCantiere()" *ngFor="let cantiere of this.listaCantieri">
         {{ cantiere }}

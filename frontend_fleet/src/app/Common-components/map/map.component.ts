@@ -71,10 +71,10 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     .subscribe({
       next: (filteredVehicles: any) => {
         const filteredPositionDatas: positionData[] = this.mapService.positionDatas.filter(data =>
-          filteredVehicles.some((vehicle: any) => vehicle.plate === data.plate)
+          filteredVehicles.some((vehicle: any) => vehicle.vehicle.plate === data.plate)
         );
         const filteredMarkers: L.Marker[] = filteredPositionDatas.map(data => {
-          return this.mapService.createMarker(data.position, data.plate, data.veId, undefined);
+          return this.mapService.createMarker(data.position, data.plate, data.cantiere, data.veId, undefined);
         });
 
         this.mapService.removeAllMapMarkers(this.map);
@@ -123,6 +123,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
           const marker = this.mapService.createMarker(
             point,
             realtimeData.vehicle.plate,
+            realtimeData.vehicle.worksite?.name || null,
             realtimeData.vehicle.veId,
             undefined
           );
@@ -149,7 +150,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       let endPoint: number | null = validEndPoints.endPoint;
 
       if (startPoint === null || endPoint === null) {
-        console.log("Nessun punto valido trovato.");
       } else {
         this.initMap(new Point(startPoint, endPoint),12);
       }
@@ -224,7 +224,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       let endPoint: number | null = validEndPoints.endPoint;
 
       if (startPoint === null || endPoint === null) {
-        console.log("Nessun punto valido trovato.");
       } else {
         this.initMap(new Point(startPoint, endPoint),12);
       }

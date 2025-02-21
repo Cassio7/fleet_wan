@@ -376,15 +376,20 @@ export class TableComponent implements OnDestroy, AfterViewInit {
     const realtimeData: RealtimeData = {
       vehicle: {
         plate: vehicleData.vehicle.plate,
+        worksite: vehicleData.vehicle.worksite || null,
         veId: vehicleData.vehicle.veId,
       },
       realtime: vehicleData.realtime,
       anomaly: vehicleData.anomalies[0],
     };
-    this.mapService.initMap$.next({
-      point: new Point(realtimeData.realtime.latitude, realtimeData.realtime.longitude)
-    });
-    this.mapService.loadPosition$.next(realtimeData);
+    if(realtimeData.realtime){
+      this.mapService.initMap$.next({
+        point: new Point(realtimeData.realtime.latitude, realtimeData.realtime.longitude)
+      });
+      this.mapService.loadPosition$.next(realtimeData);
+    }else{
+      console.log("Nessun dato realtime!");
+    }
   }
 
   /**

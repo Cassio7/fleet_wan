@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { PlateFilterService } from '../../../Common-services/plate-filter/plate-filter.service';
 import { CantieriFilterService } from '../../../Common-services/cantieri-filter/cantieri-filter.service';
 import { Vehicle } from '../../../Models/Vehicle';
+import { VehicleData } from '../../../Models/VehicleData';
 
 @Injectable({
   providedIn: 'root'
@@ -20,27 +21,30 @@ export class MapFilterService {
    * @param cantieri cantieri selezionati nel filtro per cantieri
    * @returns array di veicoli filtrati per cantieri e targhe
    */
-  filterVehiclesByPlatesAndCantieri(vehicles: any, plates: string[], cantieri: string[]){
-    // Applicazione filtri
-    const plateFilteredVehicles = plates?.length
-      ? this.plateFilterService.filterVehiclesByPlates(plates, vehicles) as Vehicle[]
-      : [];
+  filterVehiclesByPlatesAndCantieri(
+    vehicles: (Vehicle | VehicleData)[],
+    plates: string[],
+    cantieri: string[]
+  ) {
+    if ((!cantieri || cantieri.length === 0) && (!plates || plates.length === 0)) {
+      return [];
+    }
 
-    const cantieriFilteredVehicles = cantieri?.length
-      ? this.cantieriFilterService.filterVehiclesByCantieri(vehicles, cantieri) as Vehicle[]
-      : [];
+    if (!vehicles || vehicles.length === 0) {
+      return [];
+    }
 
-    // Unione dei due array filtrati
-    const unionVehicles = vehicles.filter((vehicle: any) => {
-      const matchesPlate = plates?.length
-        ? plateFilteredVehicles.some(v => v.veId === vehicle.veId)
-        : false;
-      const matchesCantiere = cantieri?.length
-        ? cantieriFilteredVehicles.some(v => v.veId === vehicle.veId)
-        : false;
-      return matchesPlate || matchesCantiere;
-    });
+    const cantieriFilteredVehicles = this.cantieriFilterService.filterVehiclesByCantieri(vehicles, cantieri);
 
-    return unionVehicles;
+    if (cantieriFilteredVehicles.length === 0) {
+      return [];
+    }
+
+    if ('vehicle' in cantieriFilteredVehicles[0]) {
+      return this.plateFilterService.filterVehiclesByPlates(plates, cantieriFilteredVehicles as VehicleData[]);
+    } else {
+      return this.plateFilterService.filterVehiclesByPlates(plates, cantieriFilteredVehicles as Vehicle[]);
+    }
   }
+
 }

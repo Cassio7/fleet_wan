@@ -27,8 +27,8 @@
         <div
           *ngIf="
             vehicleSelected &&
-            !checkErrorsService.checkGpsWarning(gps) &&
-            !checkErrorsService.checkGpsError(gps)
+            !checkErrorsService.checkGpsWarning(gpsAnomaly) &&
+            !checkErrorsService.checkGpsError(gpsAnomaly)
           "
           class="OK-container"
           matTooltip="GPS funzionante"
@@ -39,9 +39,9 @@
 
         <!-- Controllo avviso GPS -->
         <div
-          *ngIf="checkErrorsService.checkGpsWarning(gps)"
+          *ngIf="checkErrorsService.checkGpsWarning(gpsAnomaly)"
           class="warning-container"
-          [matTooltip]="checkErrorsService.checkGpsWarning(gps)"
+          [matTooltip]="checkErrorsService.checkGpsWarning(gpsAnomaly)"
         >
           <mat-icon class="gpsIcon-warning">location_on</mat-icon>
           Warning
@@ -49,9 +49,9 @@
 
         <!-- Controllo errore GPS -->
         <div
-          *ngIf="checkErrorsService.checkGpsError(gps)"
+          *ngIf="checkErrorsService.checkGpsError(gpsAnomaly)"
           class="error-container"
-          [matTooltip]="checkErrorsService.checkGpsError(gps)"
+          [matTooltip]="checkErrorsService.checkGpsError(gpsAnomaly)"
         >
           <mat-icon class="errorIcon-error">location_on</mat-icon>
           Error
@@ -65,7 +65,7 @@
         <p>Stato Antenna</p>
         <div
           class="OK-container"
-          *ngIf="vehicleSelected && !antenna"
+          *ngIf="vehicleSelected && !antennaAnomaly"
           matTooltip="Antenna funzionante"
         >
           <mat-icon class="antennaIcon-OK">wifi</mat-icon>
@@ -73,8 +73,8 @@
         </div>
         <div
           class="error-container"
-          *ngIf="vehicleSelected && antenna"
-          [matTooltip]="antenna || 'Anomalia antenna RFID'"
+          *ngIf="vehicleSelected && antennaAnomaly"
+          [matTooltip]="antennaAnomaly || 'Anomalia antenna RFID'"
         >
           <mat-icon class="errorIcon-error">wifi</mat-icon>
           Error
@@ -90,7 +90,7 @@
           <!-- Stato OK -->
           <div
             class="OK-container"
-            *ngIf="vehicleSelected && !sessione"
+            *ngIf="vehicleSelected && !sessioneAnomaly"
             matTooltip="Sessione corretta"
           >
             <mat-icon class="sessionIcon-OK">settings_backup_restore</mat-icon>
@@ -98,7 +98,7 @@
           </div>
 
           <!-- Stato Errore -->
-          <div class="session-error" *ngIf="vehicleSelected && sessione" [matTooltip]="sessione">
+          <div class="session-error" *ngIf="vehicleSelected && sessioneAnomaly" [matTooltip]="sessioneAnomaly">
             <div class="error-container" >
             <mat-icon class="errorIcon-error">settings_backup_restore</mat-icon>
             Error
@@ -106,9 +106,9 @@
             <div class="error-container">
               {{ anomalyDate ? checkErrorsService.calculateSessionErrorDays(anomalyDate) : "" }} gg
             </div>
-            <span class="session-error-date" *ngIf="sessione">{{ anomalyDate | date : "dd/MM/yyyy" }}</span>
+            <span class="session-error-date" *ngIf="sessioneAnomaly">{{ anomalyDate | date : "dd/MM/yyyy" }}</span>
           </div>
-          <span *ngIf="!sessione" class="session-date">{{ anomalyDate | date : "dd/MM/yyyy" }}</span>
+          <span *ngIf="!sessioneAnomaly" class="session-date">{{ anomalyDate | date : "dd/MM/yyyy" }}</span>
         </div>
       </div>
     </mat-list-item>

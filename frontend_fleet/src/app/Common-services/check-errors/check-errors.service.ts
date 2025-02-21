@@ -44,7 +44,7 @@ export class CheckErrorsService {
    * @returns null se l'anomalia non è un errore
    */
   checkGpsError(anomaly: string | null | undefined): string | null {
-    if (typeof anomaly === 'string' && (anomaly.includes("TOTALE") || anomaly.includes("totale") || anomaly.includes("Totale"))) {
+    if (anomaly && typeof anomaly === 'string' && (anomaly.includes("TOTALE") || anomaly.includes("totale") || anomaly.includes("Totale"))) {
       return anomaly;
     }
     return null;
@@ -68,7 +68,7 @@ export class CheckErrorsService {
    * @returns null se l'anomalia non è uno warning
    */
   checkGpsWarning(anomaly: string | null | undefined): string | null {
-    if (typeof anomaly === 'string' && !(anomaly.includes("TOTALE") || anomaly.includes("totale") || anomaly.includes("Totale"))) {
+    if (anomaly && typeof anomaly === 'string' && !(anomaly.includes("TOTALE") || anomaly.includes("totale") || anomaly.includes("Totale"))) {
       return anomaly;
     }
     return null;
@@ -80,6 +80,10 @@ export class CheckErrorsService {
    * @returns l'anomalia se viene riscontrata, altrimenti "null"
    */
   checkVehicleAntennaError(vehicleData: VehicleData): string | null {
+    if(vehicleData.vehicle.plate == "GH 870 GR"){
+      console.log("vehicles data: ", vehicleData);
+      console.log("risultato del check su anomalia: ", this.checkVehicleAnomaly(vehicleData)?.antenna);
+    }
     return this.checkVehicleAnomaly(vehicleData)?.antenna || null;
   }
 
