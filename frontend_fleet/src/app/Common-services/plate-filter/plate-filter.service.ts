@@ -49,8 +49,6 @@ export class PlateFilterService {
    * @returns Un array di veicoli che corrispondono alle targhe selezionate.
    */
   filterVehiclesByPlates(selectedPlates: string[], vehicles: (VehicleData | Vehicle)[]): (VehicleData | Vehicle)[] {
-    if (!selectedPlates.length) return vehicles;  // Early return if no plates are selected
-
     const platesSet = new Set(selectedPlates);  // Create a Set for fast lookup
 
     return vehicles.filter(vehicle => {
@@ -69,8 +67,14 @@ export class PlateFilterService {
    * @param vehicles veicoli da ritornare in caso di seleziona tutto
    * @returns array di tutti i veicoli oppure un array vuoto
    */
-  toggleAllPlates(selectionState: boolean, vehicles: Vehicle[]){
-    return selectionState ? [] : vehicles.map(vehicle => vehicle.plate);
+  toggleAllPlatesWithVehicles(selectionState: boolean, vehicles: (Vehicle | VehicleData)[]){
+    return selectionState ? [] : vehicles.map(vehicle => {
+      if('vehicle' in vehicle){
+        return vehicle.vehicle.plate
+      }else{
+        return vehicle.plate;
+      }
+    });
   }
 
 
