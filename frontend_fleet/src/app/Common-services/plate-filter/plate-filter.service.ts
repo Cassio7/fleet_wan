@@ -63,6 +63,16 @@ export class PlateFilterService {
     });
   }
 
+  /**
+   * Seleziona/deseleziona tutte le opzioni delle targhe
+   * @param selectionState stato di selezione del filtro per targhe nel componente chiamante
+   * @param vehicles veicoli da ritornare in caso di seleziona tutto
+   * @returns array di tutti i veicoli oppure un array vuoto
+   */
+  toggleAllPlates(selectionState: boolean, vehicles: Vehicle[]){
+    return selectionState ? [] : vehicles.map(vehicle => vehicle.plate);
+  }
+
 
   public get filterByPlateResearch$(): BehaviorSubject<string> {
     return this._filterByPlateResearch$;

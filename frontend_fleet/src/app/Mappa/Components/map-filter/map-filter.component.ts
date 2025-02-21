@@ -41,7 +41,6 @@ import { Vehicle } from '../../../Models/Vehicle';
 })
 export class MapFilterComponent implements AfterViewInit, OnDestroy{
   private readonly destroy$: Subject<void> = new Subject<void>();
-  private mapVehicles: {veId: number, plate: string, worksite?: WorkSite}[] = [];
 
   plate: string = "";
 
@@ -73,15 +72,20 @@ export class MapFilterComponent implements AfterViewInit, OnDestroy{
     this.handleLoadPosition();
   }
 
+  /**
+   * Mette in attesa per il caricamento di una posizione sulla mappa,
+   * per popolare i filtri con i dati del nuovo veicolo associato
+   */
   private handleLoadPosition(){
     this.mapService.loadPosition$.pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (realtimeData: RealtimeData | null) => {
         if(realtimeData){
-          this.mapVehicles.push(realtimeData.vehicle);
           const vehicle: {plate: string, veId: number, worksite?: WorkSite} = realtimeData.vehicle;
           let selectedTarghe = this.targhe.value;
           this.listaTarghe.push(vehicle.plate);
+          this.listaTarghe.sort();
+
           if(selectedTarghe) this.targhe.setValue(["Seleziona tutto", ...selectedTarghe, vehicle.plate]);
 
           if(vehicle?.worksite && !this.listaCantieri.includes(vehicle.worksite.name)){
@@ -89,6 +93,7 @@ export class MapFilterComponent implements AfterViewInit, OnDestroy{
             this.listaCantieri.push(vehicle.worksite.name);
             if(selectedCantieri) this.cantieri.setValue(["Seleziona tutto", ...selectedCantieri, vehicle.worksite.name]);
           }
+          this.allSelected = true;
           this.cd.detectChanges();
         }
       },
@@ -96,14 +101,29 @@ export class MapFilterComponent implements AfterViewInit, OnDestroy{
     });
   }
 
+  /**
+   * Seleziona tutte le opzioni dei filtri
+   */
   selectAll(){
-    const cantieriToggle = this.cantieriFilterService.toggleSelectAllCantieri(this.allSelected);
+    this.getAvailableVehicles().pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (vehicles: Vehicle[]) => {
+        const plateToggle = this.plateFilterService.toggleAllPlates(this.allSelected, vehicles);
+        this.targhe.setValue(plateToggle.length > 0 ? ["Seleziona tutto", ...plateToggle] : plateToggle);
 
-    this.cantieri.setValue(cantieriToggle.length > 0 ? ["Seleziona tutto", ...cantieriToggle] : cantieriToggle);
-    this.allSelected = !this.allSelected;
-    this.cd.detectChanges();
+        const cantieriToggle = this.cantieriFilterService.toggleSelectAllCantieri(this.allSelected);
+        this.cantieri.setValue(cantieriToggle.length > 0 ? ["Seleziona tutto", ...cantieriToggle] : cantieriToggle);
+
+        this.allSelected = !this.allSelected;
+        this.cd.detectChanges();
+      },
+      error: error => console.error("Errore nella ricezione dei veicoli disponibili: ", error)
+    });
   }
 
+  /**
+   * Gestisce la selezione di un cantiere
+   */
   selectCantiere() {
     this.getAvailableVehicles().pipe(takeUntil(this.destroy$)).subscribe({
       next: (vehicles: Vehicle[]) => {
@@ -142,22 +162,57 @@ export class MapFilterComponent implements AfterViewInit, OnDestroy{
     }
   }
 
-  updateData(){
-    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-    const plateFilteredVehicles: Vehicle[] = this.targhe.value ? this.plateFilterService.filterVehiclesByPlates(this.targhe.value, allVehicles as Vehicle[]) as Vehicle[] : [];
-    const cantieriFilteredVehicles: Vehicle[] = this.cantieri.value ? this.cantieriFilterService.filterVehiclesByCantieri(allVehicles as Vehicle[], this.cantieri.value) as Vehicle[] : [];
+  updateData() {
+    this.getAvailableVehicles().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (vehicles: Vehicle[]) => {
 
-    const commonVehicles = plateFilteredVehicles.filter(plateVehicle =>
-      cantieriFilteredVehicles.some(cantieriVehicle => cantieriVehicle.veId === plateVehicle.veId)
-    );
+        // Step 1: Applica i filtri esistenti
+        const plateFilteredVehicles = this.targhe.value?.length
+          ? this.plateFilterService.filterVehiclesByPlates(this.targhe.value, vehicles) as Vehicle[]
+          : [];
 
-    this.mapVehicles = commonVehicles;
-    this.listaTarghe = commonVehicles.map(vehicle => vehicle.plate);
+        const cantieriFilteredVehicles = this.cantieri.value?.length
+          ? this.cantieriFilterService.filterVehiclesByCantieri(vehicles, this.cantieri.value) as Vehicle[]
+          : [];
 
+        // Step 2: Unisci i veicoli che soddisfano uno qualsiasi dei filtri
+        const unionVehicles = vehicles.filter(vehicle => {
+          const matchesPlate = this.targhe.value?.length
+            ? plateFilteredVehicles.some(v => v.veId === vehicle.veId)
+            : false;
+          const matchesCantiere = this.cantieri.value?.length
+            ? cantieriFilteredVehicles.some(v => v.veId === vehicle.veId)
+            : false;
+          return matchesPlate || matchesCantiere;
+        });
 
-    const commonPlates = commonVehicles.map(vehicle => vehicle.plate);
-    this.mapService.updateMarkers$.next(commonPlates);
+        // Step 3: Calcola tutte le opzioni disponibili dai veicoli filtrati
+        const availableCantieri = this.cantieriFilterService.vehiclesCantieriOnce(unionVehicles);
+        const availablePlates = [...new Set(unionVehicles.map(vehicle => vehicle.plate))];
+
+        // Step 4: Mantieni le selezioni esistenti e aggiungi le nuove opzioni valide
+        const updatedCantieri = [...new Set([
+          ...(this.cantieri.value || []),
+          ...availableCantieri
+        ])];
+        const updatedPlates = [...new Set([
+          ...(this.targhe.value || []),
+          ...availablePlates
+        ])];
+
+        this.cantieri.setValue(updatedCantieri, { emitEvent: false });
+        this.targhe.setValue(updatedPlates, { emitEvent: false });
+
+        // Step 5: Aggiorna i marker sulla mappa
+        this.mapService.updateMarkers$.next(unionVehicles);
+      },
+      error: (error) => console.error("Errore nella ricezione dei veicoli disponibili: ", error)
+    });
   }
+
+
 
   togglePlates(){
     this.mapService.togglePopups$.next();

@@ -69,8 +69,14 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   private handleMarkersUpdate(){
     this.mapService.updateMarkers$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
-      next: (plates: string[]) => {
-        const filteredMarkers: L.Marker[] = this.mapService.filterMarkersByPlates(this.map, plates);
+      next: (filteredVehicles: any) => {
+        const filteredPositionDatas: positionData[] = this.mapService.positionDatas.filter(data =>
+          filteredVehicles.some((vehicle: any) => vehicle.plate === data.plate)
+        );
+        const filteredMarkers: L.Marker[] = filteredPositionDatas.map(data => {
+          return this.mapService.createMarker(data.position, data.plate, data.veId, undefined);
+        });
+
         this.mapService.removeAllMapMarkers(this.map);
         filteredMarkers.forEach(marker => {
           this.mapService.addMarker(this.map, marker);
@@ -120,11 +126,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             realtimeData.vehicle.veId,
             undefined
           );
-          const positionData: positionData = {
-            veId: realtimeData.vehicle.veId,
-            position: point
-          }
-          this.mapService.mapPositionsData.push(positionData);
           this.mapService.addMarker(this.map, marker);
         }
       },

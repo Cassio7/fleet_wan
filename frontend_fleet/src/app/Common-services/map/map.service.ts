@@ -8,6 +8,7 @@ import { Point } from '../../Models/Point';
 
 export interface positionData{
   veId: number,
+  plate: string,
   position: Point
 }
 @Injectable({
@@ -25,8 +26,7 @@ export class MapService {
   private readonly _togglePopups$: Subject<void> = new Subject<void>();
   private readonly _zoomIn$: BehaviorSubject<{ point: Point; zoom: number; } | null> = new BehaviorSubject<{ point: Point; zoom: number; } | null>(null);
 
-
-  private _mapPositionsData: positionData[] = [];
+  positionDatas: positionData[] = [];
 
 
   OkMarker = `<svg width="33" height="33" viewBox="0 0 33 33" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -137,22 +137,21 @@ export class MapService {
     marker.addTo(map);
   }
 
-  /**
-   * Permette di creare un marker di Lea Flet
-   * @param lat latitudine della posizione
-   * @param long longitudine della posizione
-   * @param msg contenuto del messaggio che appare onMouseOver
-   * @returns marker Lea Flet
-   */
+
   /**
    * Permette di creare un marker di Lea Flet
    * @param point punto della mappa nel quale creare il marker
    * @param plate targa del veicolo associato
    * @param veId veId del veicolo associato
    * @param anomaly anomalia
-   * @returns
+   * @returns L.marker creato
    */
   createMarker(point: Point,plate: string, veId: number, anomaly: Anomaly | undefined): L.Marker<any> {
+    let positionData: positionData = {
+      plate: plate,
+      veId: veId,
+      position: point
+    }
     let customIcon = L.divIcon({
       className: 'custom-div-icon',
       html: this.OkMarker,
@@ -206,13 +205,15 @@ export class MapService {
 
       marker.openPopup();
 
-      const positionData: positionData = {
-        veId: veId,
-        position: point
-      };
+      if (!this.positionDatas.some(data => data.plate === positionData.plate))
+        this.positionDatas.push(positionData);
+
+
       this.selectMarker$.next(positionData);
     });
 
+    if (!this.positionDatas.some(data => data.plate === positionData.plate))
+      this.positionDatas.push(positionData);
 
     return marker;
   }
@@ -349,11 +350,5 @@ export class MapService {
   }
   public get loadSessionPath$(): BehaviorSubject<any> {
     return this._loadSessionPath$;
-  }
-  public get mapPositionsData(): positionData[] {
-    return this._mapPositionsData;
-  }
-  public set mapPositionsData(value: positionData[]) {
-    this._mapPositionsData = value;
   }
 }

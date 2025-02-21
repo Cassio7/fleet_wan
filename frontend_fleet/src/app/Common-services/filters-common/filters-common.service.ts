@@ -59,12 +59,6 @@ export class FiltersCommonService {
    * @returns veicoli filtrati
    */
   applyAllFiltersOnVehicles(vehicles: (VehicleData | Vehicle)[], filters: Filters): (VehicleData | Vehicle)[] {
-    // console.log("Veicoli su cui applicare tutti i filtri: ", vehicles);
-    // console.log("Valore filtro cantieri: ", filters.cantieri?.value);
-    // console.log("Valore filtro GPS: ", filters.gps?.value);
-    // console.log("Valore filtro antenna: ", filters.antenna?.value);
-    // console.log("Valore filtro sessione: ", filters.sessione?.value);
-
     //controllo se tutti i filtri sono vuoti
     const areAllFiltersEmpty =
         (!filters.plate || filters.plate.trim() === "") &&
@@ -135,85 +129,7 @@ export class FiltersCommonService {
       return true;
     });
 
-    // if('vehicle' in filteredVehicles[0]){
-    //   this.updateAllFiltersOption(filteredVehicles as VehicleData[]);
-    // }else if('veId' in filteredVehicles[0]){
-    //   this.cantieriFilterService.updateSelectedCantieri(filteredVehicles);
-    // }
-
     return filteredVehicles;
-
-
-
-    // let filteredVehicles: VehicleData[] = [...vehicles];
-    // const filterResults: VehicleData[][] = [];
-    // let plateFiltered: VehicleData[] = [];
-    // let cantieriFiltered: VehicleData[] = [];
-
-    // // Filtro per targa
-    // if(filters.plate){
-    //   plateFiltered = this.plateFilterService.filterVehiclesByPlateResearch(filters.plate, vehicles) as VehicleData[];
-    // }else{
-    //   plateFiltered = vehicles;
-    // }
-    // filterResults.push(plateFiltered);
-
-    // if(filters.plate){
-    //   const updatedCantieri = this.cantieriFilterService.updateSelectedCantieri(plateFiltered);
-    //   filters.cantieri.setValue(updatedCantieri);
-    //   filters.gps.setValue(this.gpsFilterService.updateSelectedOptions(plateFiltered));
-    //   filters.antenna.setValue(this.antennaFilterService.updateSelectedOptions(plateFiltered));
-    //   filters.sessione.setValue(this.sessionFilterService.updateSelectedOptions(plateFiltered));
-    // }else{
-    //   const allCantieri = this.cantieriFilterService.vehiclesCantieriOnce(plateFiltered);
-    //   filters.cantieri.setValue(allCantieri);
-    // }
-
-    // // Filtro per cantieri
-    // if (filters.cantieri && filters.cantieri.value) {
-    //     if(plateFiltered){
-    //       cantieriFiltered = this.cantieriFilterService.filterVehiclesByCantieri(plateFiltered, filters.cantieri.value) as VehicleData[];
-    //     }else{
-    //       cantieriFiltered = this.cantieriFilterService.filterVehiclesByCantieri(vehicles, filters.cantieri.value) as VehicleData[];
-    //     }
-    //     filterResults.push(cantieriFiltered);
-    // }
-
-    // // Filtro per stato GPS
-    // if (filters.gps && filters.gps.value) {
-    //     const gpsCheck = this.checkErrorsService.checkVehiclesGpsErrors(cantieriFiltered);
-    //     const gpsFiltered = this.filterByStatus(gpsCheck, filters.gps.value, "GPS");
-    //     filterResults.push(gpsFiltered);
-    // }
-
-    // // Filtro per stato antenna
-    // if (filters.antenna && filters.antenna.value) {
-    //     const antennaCheck = this.checkErrorsService.checkVehiclesAntennaErrors(cantieriFiltered);
-    //     const antennaErrors = this.filterByStatus(antennaCheck, filters.antenna.value, "antenna");
-    //     let antennaData = antennaErrors;
-    //     if (filters.antenna.value.includes("Blackbox")) {
-    //         const blackboxData = this.blackboxGraphService.getAllRFIDVehicles(cantieriFiltered);
-    //         antennaData = [...antennaErrors, ...blackboxData.blackboxOnly];
-    //     }
-    //     filterResults.push(antennaData);
-    // }
-
-    // // Filtro per stato sessione
-    // if (filters.sessione && filters.sessione.value) {
-    //     const sessionCheck = this.checkErrorsService.checkVehiclesSessionErrors(cantieriFiltered);
-    //     const sessionFiltered = this.filterByStatus(sessionCheck, filters.sessione.value, "sessione");
-    //     filterResults.push(sessionFiltered);
-    // }
-
-    // //se non ci sono risultati da filtrare, ritorna un array vuoto
-    // if (filterResults.length === 0) {
-    //     return [];
-    // }
-
-    // filteredVehicles = filterResults.reduce((acc, curr) => this.intersectVehicles(acc, curr), vehicles); //calcolo intersezione tra i veicoli filtrati
-
-    // this.updateAllFiltersOption(filteredVehicles);
-    // return filteredVehicles;
   }
 
 
