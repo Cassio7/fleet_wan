@@ -27,8 +27,7 @@
         <div
           *ngIf="
             vehicleSelected &&
-            !checkErrorsService.checkGpsError(gps) &&
-            !checkErrorsService.checkGpsWarning(gps)
+            !gps
           "
           class="OK-container"
           matTooltip="GPS funzionante"
@@ -39,9 +38,9 @@
 
         <!-- Controllo avviso GPS -->
         <div
-          *ngIf="checkErrorsService.checkGpsWarning(gps)"
+          *ngIf="gps"
           class="warning-container"
-          [matTooltip]="checkErrorsService.checkGpsWarning(gps)"
+          [matTooltip]="gps"
         >
           <mat-icon class="gpsIcon-warning">location_on</mat-icon>
           Warning
@@ -90,7 +89,7 @@
           <!-- Stato OK -->
           <div
             class="OK-container"
-            *ngIf="vehicleSelected && !sessione && anomalyDate"
+            *ngIf="vehicleSelected && !sessione"
             matTooltip="Sessione corretta"
           >
             <mat-icon class="sessionIcon-OK">settings_backup_restore</mat-icon>

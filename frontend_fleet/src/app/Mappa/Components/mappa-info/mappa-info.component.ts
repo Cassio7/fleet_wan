@@ -42,9 +42,11 @@ export class MappaInfoComponent implements AfterViewInit{
     .subscribe({
       next: (positionData: positionData) => {
         //chiamata http x anomalie
+        console.log(`Request for anomalies for plate: ${positionData.veId} who has this plate: ${positionData.plate}`);
         this.checkErrorsService.checkAnomaliesByVeId(positionData.veId, 1).pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (vehicleAnomalies: VehicleAnomalies) => {
+            console.log("vehicleAnomalies fetched: ", vehicleAnomalies.anomalies);
             this.setData(vehicleAnomalies);
             this.mapService.zoomIn$.next({point: positionData.position, zoom: 16});
           },
@@ -67,9 +69,9 @@ export class MappaInfoComponent implements AfterViewInit{
       this.servizio = vehicle.service.name;
       this.plate = vehicle.plate;
       this.cantiere = vehicle.worksite.name;
-      this.gps = currentAnomaly.gps || "Nessun dato";
-      this.antenna = currentAnomaly.antenna || "Nessun dato";
-      this.sessione = currentAnomaly.session || "Nessun dato";
+      this.gps = currentAnomaly.gps || "";
+      this.antenna = currentAnomaly.antenna || "";
+      this.sessione = currentAnomaly.session || "";
       this.anomalyDate = currentAnomaly.date;
     }else{
       this.vehicleSelected = false;
