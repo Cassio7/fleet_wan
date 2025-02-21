@@ -415,10 +415,6 @@ export class TableComponent implements OnDestroy, AfterViewInit {
    * @returns nome del cantiere se il veicolo ha un cantiere assegnato
    */
   checkWorksite(vehicleData: VehicleData) {
-    if (vehicleData.vehicle?.worksite && vehicleData.vehicle.worksite.name) {
-      return vehicleData.vehicle.worksite.name;
-    } else {
-      return 'Non assegnato';
-    }
+    return this.cantieriFilterService.getVehicleWorksite(vehicleData);
   }
 }

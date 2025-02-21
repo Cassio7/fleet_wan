@@ -51,14 +51,27 @@ export class CheckErrorsService {
   }
 
   /**
-   * Controlla se è presente un warning di GPS nella sessione, nel range temporale, del veicolo preso in input
+   * Controlla se è presente un warning di GPS nella sessione, nel range temporale , del veicolo preso in input
    * @param vehicle
    * @returns l'anomalia se viene riscontrata, altrimenti "null"
    */
-  checkVehicleGPSWarning(vehicleData: VehicleData): string | undefined | null {
+  checkVehicleGPSWarning(vehicleData: VehicleData): string | null {
     const gpsAnomaly: string | undefined | null = this.checkVehicleAnomaly(vehicleData)?.gps;
 
-    return gpsAnomaly;
+    return this.checkGpsWarning(gpsAnomaly);
+  }
+
+  /**
+   * Controlla se l'anomalia di GPS è uno warning
+   * @param anomaly anomalia di gps
+   * @returns anomalia nel caso sia uno warning
+   * @returns null se l'anomalia non è uno warning
+   */
+  checkGpsWarning(anomaly: string | null | undefined): string | null {
+    if (typeof anomaly === 'string' && !(anomaly.includes("TOTALE") || anomaly.includes("totale") || anomaly.includes("Totale"))) {
+      return anomaly;
+    }
+    return null;
   }
 
   /**

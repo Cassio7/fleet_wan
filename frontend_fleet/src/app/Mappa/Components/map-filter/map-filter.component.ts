@@ -14,11 +14,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { CommonModule } from '@angular/common';
 import { MapService } from '../../../Common-services/map/map.service';
-import { Observable, of, skip, Subject, takeUntil, tap } from 'rxjs';
+import { Observable, of, skip, Subject, takeUntil, tap, map, filter } from 'rxjs';
 import { RealtimeData } from '../../../Models/RealtimeData';
 import { VehiclesApiService } from '../../../Common-services/vehicles api service/vehicles-api.service';
 import { PlateFilterService } from '../../../Common-services/plate-filter/plate-filter.service';
 import { Vehicle } from '../../../Models/Vehicle';
+import { MapFilterService } from '../../Services/map-filter/map-filter.service';
 
 @Component({
   selector: 'app-map-filter',
@@ -59,6 +60,7 @@ export class MapFilterComponent implements AfterViewInit, OnDestroy{
     private plateFilterService: PlateFilterService,
     private sessionStorageService: SessionStorageService,
     private mapService: MapService,
+    private mapFilterService: MapFilterService,
     private vehiclesApiService: VehiclesApiService,
     private cd: ChangeDetectorRef
   ){}
@@ -121,6 +123,26 @@ export class MapFilterComponent implements AfterViewInit, OnDestroy{
     });
   }
 
+  selectPlate(){
+    this.getAvailableVehicles().pipe(takeUntil(this.destroy$)).subscribe({
+      next: (vehicles: Vehicle[]) => {
+        let allPlates: string[] = vehicles.map(vehicle => vehicle.plate);
+
+        const selectedPlates = this.targhe.value?.filter(option => option !== "Seleziona tutto");
+        if (selectedPlates) {
+          if (JSON.stringify(allPlates.sort()) === JSON.stringify(selectedPlates.sort())) {
+            this.allSelected = true;
+            this.targhe.setValue(["Seleziona tutto", ...allPlates]);
+          } else {
+            this.allSelected = false;
+            this.targhe.setValue(selectedPlates);
+          }
+        }
+      },
+      error: error => console.error("Errore nella richiesta per ottenere tutti i veicoli: ", error)
+    });
+  }
+
   /**
    * Gestisce la selezione di un cantiere
    */
@@ -167,46 +189,11 @@ export class MapFilterComponent implements AfterViewInit, OnDestroy{
       takeUntil(this.destroy$)
     ).subscribe({
       next: (vehicles: Vehicle[]) => {
+        const selectedPlates = this.targhe.value || [];
+        const selectedCantieri = this.cantieri.value || [];
+        const filteredVehicles = this.mapFilterService.filterVehiclesByPlatesAndCantieri(vehicles, selectedPlates, selectedCantieri);
 
-        // Step 1: Applica i filtri esistenti
-        const plateFilteredVehicles = this.targhe.value?.length
-          ? this.plateFilterService.filterVehiclesByPlates(this.targhe.value, vehicles) as Vehicle[]
-          : [];
-
-        const cantieriFilteredVehicles = this.cantieri.value?.length
-          ? this.cantieriFilterService.filterVehiclesByCantieri(vehicles, this.cantieri.value) as Vehicle[]
-          : [];
-
-        // Step 2: Unisci i veicoli che soddisfano uno qualsiasi dei filtri
-        const unionVehicles = vehicles.filter(vehicle => {
-          const matchesPlate = this.targhe.value?.length
-            ? plateFilteredVehicles.some(v => v.veId === vehicle.veId)
-            : false;
-          const matchesCantiere = this.cantieri.value?.length
-            ? cantieriFilteredVehicles.some(v => v.veId === vehicle.veId)
-            : false;
-          return matchesPlate || matchesCantiere;
-        });
-
-        // Step 3: Calcola tutte le opzioni disponibili dai veicoli filtrati
-        const availableCantieri = this.cantieriFilterService.vehiclesCantieriOnce(unionVehicles);
-        const availablePlates = [...new Set(unionVehicles.map(vehicle => vehicle.plate))];
-
-        // Step 4: Mantieni le selezioni esistenti e aggiungi le nuove opzioni valide
-        const updatedCantieri = [...new Set([
-          ...(this.cantieri.value || []),
-          ...availableCantieri
-        ])];
-        const updatedPlates = [...new Set([
-          ...(this.targhe.value || []),
-          ...availablePlates
-        ])];
-
-        this.cantieri.setValue(updatedCantieri, { emitEvent: false });
-        this.targhe.setValue(updatedPlates, { emitEvent: false });
-
-        // Step 5: Aggiorna i marker sulla mappa
-        this.mapService.updateMarkers$.next(unionVehicles);
+        this.mapService.updateMarkers$.next(filteredVehicles);
       },
       error: (error) => console.error("Errore nella ricezione dei veicoli disponibili: ", error)
     });

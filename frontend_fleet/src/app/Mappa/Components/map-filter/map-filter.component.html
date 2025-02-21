@@ -3,7 +3,7 @@
     <mat-select [formControl]="targhe" placeholder="Targa" multiple class="cantiere-input">
       <mat-option value="Seleziona tutto" (click)="selectAll()">Seleziona tutto</mat-option>
       <mat-divider></mat-divider>
-      <mat-option [value]="targa" (click)="selectCantiere()" *ngFor="let targa of this.listaTarghe">
+      <mat-option [value]="targa" (click)="selectPlate()" *ngFor="let targa of this.listaTarghe">
         {{ targa }}
       </mat-option>
     </mat-select>

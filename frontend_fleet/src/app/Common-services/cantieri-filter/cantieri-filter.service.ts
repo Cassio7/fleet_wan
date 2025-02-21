@@ -97,7 +97,15 @@ export class CantieriFilterService{
     });
   }
 
-
+  /**
+   * Permette di ottenere il cantiere di un veicolo senza rischio di errori
+   * @param vehicle veicolo di tipo Vehicle | VehicleData
+   * @returns stringa del nome del cantiere, altrimenti stringa "non assegnato"
+   */
+  getVehicleWorksite(vehicle: Vehicle | VehicleData): string {
+    const worksite = 'vehicle' in vehicle ? vehicle.vehicle?.worksite : vehicle.worksite;
+    return worksite?.name ?? 'Non assegnato';
+  }
 
   /**
    * Filtra i veicoli in base ai modelli dei veicoli selezionati.
