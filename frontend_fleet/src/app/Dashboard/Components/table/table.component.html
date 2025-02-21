@@ -182,9 +182,7 @@
           *ngIf="
             !checkErrorsService.checkVehicleSessionError(vehicleData) &&
               checkErrorsService.getVehicleSessionAnomalyDate(vehicleData);
-            else sessionError
-          "
-        >
+            else sessionError">
           <!-- icone -->
           <div
             class="OK-container"
@@ -196,12 +194,14 @@
           >
             OK
           </div>
-          {{
-            checkErrorsService.getVehicleSessionAnomalyDate(vehicleData)
-              ? (checkErrorsService.getVehicleSessionAnomalyDate(vehicleData)
-                | date : "dd/MM/yy")
-              : ""
-          }}
+          <span class="session-date">
+            {{
+              checkErrorsService.getVehicleSessionAnomalyDate(vehicleData)
+                ? (checkErrorsService.getVehicleSessionAnomalyDate(vehicleData)
+                  | date : "dd/MM/yy")
+                : ""
+            }}
+          </span>
         </span>
         <!-- se c'è errore  -->
         <ng-template #sessionError>
@@ -226,7 +226,7 @@
               Error
             </div>
             <span
-              class="session-date"
+              class="session-error-date"
               [matTooltip]="
                 checkErrorsService.checkVehicleSessionError(vehicleData)
               "

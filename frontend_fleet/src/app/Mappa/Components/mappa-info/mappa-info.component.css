@@ -29,9 +29,9 @@ mat-list-item p {
   font-family: 'Inter';
   margin: 0;
   padding: 0;
-  flex: none; /* Non farli espandere in altezza */
-  width: auto; /* Lascia che occupino solo lo spazio necessario */
-  display: inline-block; /* Mantenere inline senza spezzare riga */
+  flex: none;
+  width: auto;
+  display: inline-block;
 }
 
 mat-list-item p:last-child {
@@ -46,15 +46,23 @@ mat-list-item span {
 .type {
   display: inline-flex;
   align-items: center;
-  gap: 0.4vw;
+  gap: 0.4rem;
   padding: 0;
   margin: 0;
 }
-.type-container{
+
+.type-container {
   height: 100%;
   width: 100%;
   display: flex;
   align-items: center;
-  padding: .2vw;
-  padding-left: .78vw;
+  padding: 0.2rem;
+  padding-left: 0.78rem;
+}
+
+.session-container{
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 2px;
 }

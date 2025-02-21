@@ -68,7 +68,7 @@
           *ngIf="vehicleSelected && !antenna"
           matTooltip="Antenna funzionante"
         >
-          <mat-icon class="gpsIcon-OK">wifi</mat-icon>
+          <mat-icon class="antennaIcon-OK">wifi</mat-icon>
           OK
         </div>
         <div
@@ -86,70 +86,29 @@
     <mat-list-item>
       <div class="list-item-content">
         <p>Ultima sessione</p>
-        <div>
-          <!-- se non c'è errore, data nera -->
-        <span
-        *ngIf="
-          vehicleSelected &&
-          !sessione &&
-          anomalyDate;
-          else sessionError
-        "
-        >
-        <!-- icone -->
-        <div
-          class="OK-container"
-          *ngIf="
-            vehicleSelected &&
-            !sessione &&
-            anomalyDate
-          "
-          matTooltip="Sessione corretta"
-        >
-          OK
-        </div>
-        {{
-          sessione
-            ? (anomalyDate
-              | date : "dd/MM/yy")
-            : ""
-        }}
-        </span>
-        <!-- se c'è errore  -->
-        <ng-template #sessionError>
-        <div
-          class="session-error"
-          *ngIf="vehicleSelected && sessione"
-        >
+        <div class="session-container">
+          <!-- Stato OK -->
           <div
-            class="error-container"
-            [matTooltip]="
-              sessione
-            "
+            class="OK-container"
+            *ngIf="vehicleSelected && !sessione && anomalyDate"
+            matTooltip="Sessione corretta"
           >
-            {{ anomalyDate ? checkErrorsService.calculateSessionErrorDays(anomalyDate) : "" }} gg
+            <mat-icon class="sessionIcon-OK">settings_backup_restore</mat-icon>
+            OK
           </div>
-          <div
-            class="error-container"
-            [matTooltip]="
-              sessione
-            "
-          >
+
+          <!-- Stato Errore -->
+          <div class="session-error" *ngIf="vehicleSelected && sessione" [matTooltip]="sessione">
+            <div class="error-container" >
+            <mat-icon class="errorIcon-error">settings_backup_restore</mat-icon>
             Error
+            </div>
+            <div class="error-container">
+              {{ anomalyDate ? checkErrorsService.calculateSessionErrorDays(anomalyDate) : "" }} gg
+            </div>
+            <span class="session-error-date" *ngIf="sessione">{{ anomalyDate | date : "dd/MM/yyyy" }}</span>
           </div>
-          <span
-            class="session-date"
-            [matTooltip]="
-              sessione
-            "
-          >
-          {{
-            sessione
-              ? (anomalyDate | date : "dd/MM/yyyy"): ""
-          }}
-          </span>
-        </div>
-        </ng-template>
+          <span *ngIf="!sessione" class="session-date">{{ anomalyDate | date : "dd/MM/yyyy" }}</span>
         </div>
       </div>
     </mat-list-item>

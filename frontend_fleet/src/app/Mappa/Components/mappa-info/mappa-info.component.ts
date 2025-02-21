@@ -67,10 +67,19 @@ export class MappaInfoComponent implements AfterViewInit{
       this.servizio = vehicle.service.name;
       this.plate = vehicle.plate;
       this.cantiere = vehicle.worksite.name;
-      this.gps = currentAnomaly.gps || "";
-      this.antenna = currentAnomaly.antenna || "";
-      this.sessione = currentAnomaly.session || "";
+      this.gps = currentAnomaly.gps || "Nessun dato";
+      this.antenna = currentAnomaly.antenna || "Nessun dato";
+      this.sessione = currentAnomaly.session || "Nessun dato";
       this.anomalyDate = currentAnomaly.date;
+    }else{
+      this.vehicleSelected = false;
+      this.servizio = "Nessun dato";
+      this.plate = "Nessun dato";
+      this.cantiere = "Nessun dato";
+      this.gps = "Nessun dato";
+      this.antenna = "Nessun dato";
+      this.sessione = "Nessun dato";
+      this.anomalyDate = null;
     }
   }
 

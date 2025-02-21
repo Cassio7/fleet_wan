@@ -15,7 +15,7 @@
   position: absolute;
   top: 100px; /* Aggiusta la posizione in base alle necessità */
   left: 60px; /* Aggiusta la posizione in base alle necessità */
-  width: 320px; /* Larghezza fissa per garantire uniformità */
+  width: 400px; /* Larghezza fissa per garantire uniformità */
   display: flex;
   flex-direction: column;
   gap: 16px; /* Distanza uniforme tra i container */

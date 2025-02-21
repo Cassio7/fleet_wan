@@ -164,7 +164,11 @@ table:not(.mat-calendar-table) tr:nth-child(even) {
 }
 
 .session-date{
+  font-size: 14px;
+}
+.session-error-date{
   color: red;
+  font-size: 14px;
 }
 
 .antenna-icon, .close-icon {
