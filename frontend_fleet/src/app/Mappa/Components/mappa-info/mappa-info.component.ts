@@ -26,9 +26,9 @@ export class MappaInfoComponent implements AfterViewInit{
   servizio: string = "";
   plate: string = "";
   cantiere: string = "";
-  gps: string = "";
-  antenna: string = "";
-  sessione: string = "";
+  gpsAnomaly: string = "";
+  antennaAnomaly: string = "";
+  sessioneAnomaly: string = "";
   anomalyDate!: Date | null;
   vehicleSelected: boolean = false;
 
@@ -46,7 +46,8 @@ export class MappaInfoComponent implements AfterViewInit{
         this.checkErrorsService.checkAnomaliesByVeId(positionData.veId, 1).pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (vehicleAnomalies: VehicleAnomalies) => {
-            console.log("vehicleAnomalies fetched: ", vehicleAnomalies.anomalies);
+            this.plate = positionData.plate;
+            this.cantiere = positionData.cantiere || "";
             this.setData(vehicleAnomalies);
             this.mapService.zoomIn$.next({point: positionData.position, zoom: 16});
           },
@@ -62,26 +63,16 @@ export class MappaInfoComponent implements AfterViewInit{
    * @param vehicleAnomalies oggetto da cui prendere i dati
    */
   private setData(vehicleAnomalies: VehicleAnomalies){
+    console.log("setting this vehiclesanomalies data: ", vehicleAnomalies);
     if(vehicleAnomalies){
       const vehicle = vehicleAnomalies.vehicle;
       const currentAnomaly = vehicleAnomalies.anomalies[0];
       this.vehicleSelected = true;
       this.servizio = vehicle.service.name;
-      this.plate = vehicle.plate;
-      this.cantiere = vehicle.worksite.name;
-      this.gps = currentAnomaly.gps || "";
-      this.antenna = currentAnomaly.antenna || "";
-      this.sessione = currentAnomaly.session || "";
+      this.gpsAnomaly = currentAnomaly.gps || "";
+      this.antennaAnomaly = currentAnomaly.antenna || "";
+      this.sessioneAnomaly = currentAnomaly.session || "";
       this.anomalyDate = currentAnomaly.date;
-    }else{
-      this.vehicleSelected = false;
-      this.servizio = "Nessun dato";
-      this.plate = "Nessun dato";
-      this.cantiere = "Nessun dato";
-      this.gps = "Nessun dato";
-      this.antenna = "Nessun dato";
-      this.sessione = "Nessun dato";
-      this.anomalyDate = null;
     }
   }
 

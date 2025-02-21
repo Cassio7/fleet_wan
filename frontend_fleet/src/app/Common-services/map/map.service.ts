@@ -9,6 +9,7 @@ import { Point } from '../../Models/Point';
 export interface positionData{
   veId: number,
   plate: string,
+  cantiere: string | null,
   position: Point
 }
 @Injectable({
@@ -143,15 +144,18 @@ export class MapService {
    * @param point punto della mappa nel quale creare il marker
    * @param plate targa del veicolo associato
    * @param veId veId del veicolo associato
+   * @param worksite cantiere del veicolo associato
    * @param anomaly anomalia
    * @returns L.marker creato
    */
-  createMarker(point: Point,plate: string, veId: number, anomaly: Anomaly | undefined): L.Marker<any> {
+  createMarker(point: Point, plate: string, worksite: string | null, veId: number, anomaly: Anomaly | undefined): L.Marker<any> {
     let positionData: positionData = {
       plate: plate,
+      cantiere: worksite || null,
       veId: veId,
       position: point
     }
+
     let customIcon = L.divIcon({
       className: 'custom-div-icon',
       html: this.OkMarker,
@@ -204,10 +208,6 @@ export class MapService {
       L.DomEvent.stop(event);
 
       marker.openPopup();
-
-      if (!this.positionDatas.some(data => data.plate === positionData.plate))
-        this.positionDatas.push(positionData);
-
 
       this.selectMarker$.next(positionData);
     });

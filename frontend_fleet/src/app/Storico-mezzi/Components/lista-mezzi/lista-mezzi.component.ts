@@ -36,9 +36,8 @@ export interface PeriodicElement {
     MatInputModule,
     MatButtonModule,
     MatTooltipModule,
-    MatIconModule,
-    ListaFiltersComponent
-],
+    MatIconModule
+  ],
   templateUrl: './lista-mezzi.component.html',
   styleUrl: './lista-mezzi.component.css',
   encapsulation: ViewEncapsulation.None
@@ -123,9 +122,10 @@ export class ListaMezziComponent implements AfterViewInit, OnDestroy{
   }
 
   showMap(vehicle: Vehicle){
-    const realtimeData = {
+    const realtimeData: RealtimeData = {
       vehicle: {
         plate: vehicle.plate,
+        worksite: vehicle.worksite || null,
         veId: vehicle.veId
       },
       realtime: vehicle.realtime

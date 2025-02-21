@@ -169,6 +169,7 @@ export class KanbanAntennaComponent implements AfterViewInit, OnDestroy {
     const realtimeData: RealtimeData = {
       vehicle: {
         plate: vehicleData.vehicle.plate,
+        worksite: vehicleData.vehicle.worksite || null,
         veId: vehicleData.vehicle.veId,
       },
       realtime: vehicleData.realtime,
