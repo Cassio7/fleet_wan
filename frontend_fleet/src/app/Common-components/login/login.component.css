@@ -155,20 +155,17 @@ mat-icon{
   gap: 2vh;
 }
 
-.submit-btn {
-  display: flex;
-  gap: 2px;
-  background-color: var(--green);
-  border-radius: 5px;
-  color: white;
+.button{
+  background-color: var(--green) !important;
+  color: white !important;
+  border-radius: 5px !important;
 }
 
-.submit-btn:disabled {
+.button:disabled {
   background-color: #a0a0a0;
   cursor: not-allowed;
   opacity: 0.6;
 }
-
 
 .right-section {
   flex: 1;
