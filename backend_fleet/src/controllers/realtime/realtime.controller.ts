@@ -6,7 +6,7 @@ import {
   Post,
   Req,
   Res,
-  UseGuards
+  UseGuards,
 } from '@nestjs/common';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { Role } from 'classes/enum/role.enum';
