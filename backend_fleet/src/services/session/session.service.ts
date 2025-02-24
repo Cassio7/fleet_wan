@@ -214,6 +214,7 @@ export class SessionService {
             sequence_id: true,
             hash: true,
             key: true,
+            period_from: true,
           },
           where: {
             sequence_id: In(sessionSequenceId),
@@ -247,7 +248,7 @@ export class SessionService {
             });
           newSession.push(newSessionOne);
         } else if (exists.sequence_id === 0) {
-          const inputDate = new Date(dateFrom);
+          const inputDate = new Date(exists.period_from);
           const today = new Date();
 
           if (
@@ -761,7 +762,9 @@ export class SessionService {
    * @param vehicleIds lista di veId identificativi veicolo
    * @returns ritorna una mappa con (veId, session);
    */
-  async getLastSessionByVeIds(vehicleIds: number[]): Promise<Map<number, any>> {
+  async getLastValidSessionByVeIds(
+    vehicleIds: number[],
+  ): Promise<Map<number, any>> {
     const sessions = await this.sessionRepository
       .createQueryBuilder('s')
       .distinctOn(['v.veId'])
@@ -776,7 +779,7 @@ export class SessionService {
       .innerJoin('vehicles', 'v', 'h.vehicleId = v.id')
       .where('v.veId IN (:...vehicleIds)', { vehicleIds })
       .orderBy('v.veId')
-      .addOrderBy('s.period_to', 'DESC')
+      .addOrderBy('s.sequence_id', 'DESC')
       .getRawMany();
 
     const sessionMap = new Map<number, any>();
@@ -786,7 +789,7 @@ export class SessionService {
         sessionMap.set(vehicleId, session);
       }
     });
-    await this.setLastSessionRedis(sessionMap);
+    await this.setLastValidSessionRedis(sessionMap);
     return sessionMap;
   }
 
@@ -795,9 +798,9 @@ export class SessionService {
    * per un recupero piu veloce
    * @param sessionMap
    */
-  async setLastSessionRedis(sessionMap: Map<number, any>) {
+  async setLastValidSessionRedis(sessionMap: Map<number, any>) {
     for (const [veId, session] of sessionMap) {
-      const key = `lastSession:${veId}`;
+      const key = `lastValidSession:${veId}`;
       await this.redis.set(key, JSON.stringify(session));
     }
   }
@@ -807,10 +810,12 @@ export class SessionService {
    * @param vehicleIds array di veicoli
    * @returns ritorna una mappa con veId e sessione
    */
-  async getLastSessionRedis(vehicleIds: number[]): Promise<Map<number, any>> {
+  async getLastValidSessionRedis(
+    vehicleIds: number[],
+  ): Promise<Map<number, any>> {
     const sessionMap = new Map<number, any>();
     const redisPromises = vehicleIds.map(async (id) => {
-      const key = `lastSession:${id}`;
+      const key = `lastValidSession:${id}`;
       try {
         const data = await this.redis.get(key);
         if (data) {
@@ -886,10 +891,10 @@ export class SessionService {
       if (!sessionMap) {
         return null;
       }
-      let lastSession = await this.getLastSessionRedis(vehicleIds);
-      if (!lastSession)
-        lastSession = await this.getLastSessionByVeIds(vehicleIds);
-      if (!lastSession) {
+      let lastSession = await this.getLastValidSessionRedis(vehicleIds);
+      if (!lastSession || lastSession.size === 0)
+        lastSession = await this.getLastValidSessionByVeIds(vehicleIds);
+      if (!lastSession || lastSession.size === 0) {
         return null;
       }
       const activeSessions = [];
