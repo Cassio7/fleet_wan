@@ -9,6 +9,9 @@ import { NotesService } from "../../Common-services/notes/notes.service";
 import { Note } from "../../Models/Note";
 import { Vehicle } from "../../Models/Vehicle";
 import { User } from "../../Models/User";
+import { CookiesService } from "../../Common-services/cookies service/cookies.service";
+import { jwtDecode } from "jwt-decode";
+import { AuthService } from "../../Common-services/auth/auth.service";
 
 @Component({
   selector: 'app-note-section',
@@ -26,7 +29,7 @@ export class NoteSectionComponent implements AfterViewInit, OnDestroy{
   private readonly destroy$: Subject<void> = new Subject<void>();
   @ViewChild('noteInput') noteInput!: ElementRef;
   @Input() vehicle!: Vehicle;
-  @Input() username!: string;
+  username!: string;
 
   private snackBar = inject(MatSnackBar);
   createdBtn: boolean = false;
@@ -39,6 +42,8 @@ export class NoteSectionComponent implements AfterViewInit, OnDestroy{
 
   constructor(
     public notesService: NotesService,
+    private cookieService: CookiesService,
+    private authService: AuthService,
     private cd: ChangeDetectorRef
   ){}
 
@@ -58,6 +63,11 @@ export class NoteSectionComponent implements AfterViewInit, OnDestroy{
         error: error => console.error("Errore nell'aggiornamento delle opzioni della nota: ", error)
       });
     });
+
+    const jwt = this.cookieService.getCookie("user");
+    const user = this.authService.decodeToken(jwt);
+    this.username = user.username;
+    console.log("username: ", this.username);
   }
 
   refreshOptions(){

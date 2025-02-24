@@ -76,9 +76,6 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
   sortedVehicles: Vehicle[] = [];
   expandedVehicle: Vehicle | null = null;
 
-  user!: User;
-
-
   displayedColumns: string[] = ["Proprietario", "Targa", "Immatricolazione", "Marca", "Tipologia", "Cantiere","Allestimento", "Installazione fleet"];
   columnsToDisplayWithExpand = [...this.displayedColumns, "expand"];
 
@@ -109,10 +106,6 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
   }
 
   ngAfterViewInit(): void {
-    //recupero utente da access token
-    this.user = this.authService.getParsedAccessToken();
-    this.cd.detectChanges();
-
     //ascolto sui reset dei filtri della tabella
     this.mezziFilterService.filterTable$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
