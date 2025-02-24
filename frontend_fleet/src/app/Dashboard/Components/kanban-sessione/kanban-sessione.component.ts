@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, OnDestroy } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -51,7 +51,8 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy {
     public checkErrorsService: CheckErrorsService,
     private realtimeApiService: RealtimeApiService,
     private mapService: MapService,
-    private sessioneGraphService: SessioneGraphService
+    private sessioneGraphService: SessioneGraphService,
+    private cd: ChangeDetectorRef
   ) {}
 
   ngOnDestroy(): void {
@@ -106,6 +107,8 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy {
         this.kanbanSessioneService.setKanbanData(kanbanVehicles);
         this.sessioneGraphService.loadChartData$.next(kanbanVehicles);
       });
+
+    this.cd.detectChanges();
   }
 
   /**

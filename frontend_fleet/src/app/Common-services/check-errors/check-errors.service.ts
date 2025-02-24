@@ -80,10 +80,6 @@ export class CheckErrorsService {
    * @returns l'anomalia se viene riscontrata, altrimenti "null"
    */
   checkVehicleAntennaError(vehicleData: VehicleData): string | null {
-    if(vehicleData.vehicle.plate == "GH 870 GR"){
-      console.log("vehicles data: ", vehicleData);
-      console.log("risultato del check su anomalia: ", this.checkVehicleAnomaly(vehicleData)?.antenna);
-    }
     return this.checkVehicleAnomaly(vehicleData)?.antenna || null;
   }
 

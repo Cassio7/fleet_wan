@@ -62,13 +62,14 @@ export class ListaFiltersComponent implements AfterViewInit{
   }
 
   selectAll(){
-    const cantieriToggle = this.cantieriFilterService.toggleSelectAllCantieri(this.allSelected, );
-    console.log(cantieriToggle);
+    const allData = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+    const cantieriToggle = this.cantieriFilterService.toggleSelectAllCantieri(allData, this.allSelected);
     this.cantieri.setValue(cantieriToggle.length > 0 ? ["Seleziona tutto", ...cantieriToggle] : cantieriToggle);
     this.allSelected = !this.allSelected;
     this.cd.detectChanges();
     this.filtersCommonService.applyFilters$.next(this.filters);
   }
+
 
   selectCantiere(){
     const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));

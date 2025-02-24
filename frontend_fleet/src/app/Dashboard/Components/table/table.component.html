@@ -96,8 +96,7 @@
         <div
           class="OK-container"
           *ngIf="
-            !checkErrorsService.checkVehicleAntennaError(vehicleData) &&
-            vehicleData.vehicle.allestimento
+            !checkErrorsService.checkVehicleAntennaError(vehicleData) && vehicleData.vehicle.isRFIDReader
           "
           matTooltip="Antenna funzionante"
         >
@@ -105,17 +104,18 @@
           OK
         </div>
         <div
-          class="noRFID-container"
-          matTooltip="Non ha un'antenna RFID"
-          *ngIf="!vehicleData.vehicle.allestimento"
-        >
-          <mat-icon class="noAntennA-icon">wifi_off</mat-icon>
-        </div>
+        class="noRFID-container"
+        matTooltip="Non ha un'antenna RFID"
+        *ngIf="!vehicleData.vehicle.isRFIDReader &&
+        !checkErrorsService.checkVehicleAntennaError(vehicleData)"
+      >
+        <mat-icon class="noAntennA-icon">wifi_off</mat-icon>
+      </div>
         <div
           class="error-container"
           *ngIf="
-            vehicleData.vehicle.allestimento&&
-            checkErrorsService.checkVehicleAntennaError(vehicleData)
+            checkErrorsService.checkVehicleAntennaError(vehicleData) &&
+            vehicleData.vehicle.isRFIDReader
           "
           [matTooltip]="checkErrorsService.checkVehicleAntennaError(vehicleData) || 'Anomalia antenna RFID'"
         >

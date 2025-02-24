@@ -9,11 +9,9 @@
   </mat-form-field>
 
   <mat-form-field class="cantieri-filter filter" appearance="outline" subscriptSizing="dynamic">
-    <mat-select [formControl]="cantieri" placeholder="Cantiere" multiple class="cantiere-input">
-      <mat-select-trigger>
-        Cantieri
-      </mat-select-trigger>
-      <mat-option value="Seleziona tutto" (click)="selectAll()">Seleziona tutto</mat-option>
+    <mat-select [formControl]="cantieri" placeholder="Cantiere" multiple class="cantiere-input" (openedChange)="cantieriSelectOpened = !cantieriSelectOpened">
+      <mat-option value="Seleziona tutto" (click)="selectAll()" *ngIf="cantieriSelectOpened">Seleziona tutto</mat-option>
+      <mat-divider></mat-divider>
       <mat-option
       [value]="cantiere"
       (click)="selectCantiere()"

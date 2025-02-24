@@ -17,6 +17,7 @@ import { skip, Subject, takeUntil } from 'rxjs';
 import { Vehicle } from '../../../../Models/Vehicle';
 import { MezziFilters, MezziFiltersService } from '../../../Services/mezzi-filters/mezzi-filters.service';
 import { Filters, FiltersCommonService } from '../../../../Common-services/filters-common/filters-common.service';
+import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
   selector: 'app-mezzi-filters',
@@ -30,6 +31,7 @@ import { Filters, FiltersCommonService } from '../../../../Common-services/filte
     MatIconModule,
     MatOptionModule,
     MatSelectModule,
+    MatDividerModule,
     ReactiveFormsModule
   ],
   templateUrl: './mezzi-filters.component.html',
@@ -41,6 +43,8 @@ export class MezziFiltersComponent implements AfterViewInit, OnDestroy{
   plate: string = "";
   cantieri = new FormControl<string[]>([]);
   listaCantieri: string[] = [];
+
+  cantieriSelectOpened: boolean = false;
 
   private filters: Filters = {
     plate: this.plate,
@@ -78,7 +82,8 @@ export class MezziFiltersComponent implements AfterViewInit, OnDestroy{
   }
 
   selectAll(){
-    const cantieriToggle = this.cantieriFilterService.toggleSelectAllCantieri(this.allSelected, );
+    const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
+    const cantieriToggle = this.cantieriFilterService.toggleSelectAllCantieri(allVehicles, this.allSelected);
     console.log(cantieriToggle);
     this.cantieri.setValue(cantieriToggle.length > 0 ? ["Seleziona tutto", ...cantieriToggle] : cantieriToggle);
     this.allSelected = !this.allSelected;

@@ -161,7 +161,6 @@ export class SessioneGraphComponent {
       .pipe(takeUntil(this.destroy$), skip(1))
       .subscribe({
         next: (vehicles: VehicleData[]) => {
-          console.log('mi è arrivato!');
           this.initializeGraph(vehicles);
           this.cd.detectChanges();
         },

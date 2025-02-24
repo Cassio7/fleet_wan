@@ -55,6 +55,11 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
 
   allSelected: boolean = false;
 
+  cantieriSelectOpened: boolean = false;
+  GPSSelectOpened: boolean = false;
+  antennaSelectOpened: boolean = false;
+  sessionSelectOpened: boolean = false;
+
   private _filters: Filters = {
     plate: "",
     cantieri: this.cantieri,

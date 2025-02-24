@@ -57,7 +57,8 @@ export class KanbanAntennaComponent implements AfterViewInit, OnDestroy {
     private antennaGraphService: AntennaGraphService,
     private realtimeApiService: RealtimeApiService,
     private mapService: MapService,
-    public checkErrorsService: CheckErrorsService
+    public checkErrorsService: CheckErrorsService,
+    private cd: ChangeDetectorRef
   ) {}
 
   ngOnDestroy(): void {
@@ -113,6 +114,8 @@ export class KanbanAntennaComponent implements AfterViewInit, OnDestroy {
         this.kanbanAntennaService.setKanbanData(kanbanVehicles);
         this.antennaGraphService.loadChartData$.next(kanbanVehicles);
       });
+
+    this.cd.detectChanges();
   }
 
   /**

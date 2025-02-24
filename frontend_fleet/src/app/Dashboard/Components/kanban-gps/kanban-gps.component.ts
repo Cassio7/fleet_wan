@@ -56,7 +56,8 @@ export class KanbanGpsComponent implements AfterViewInit, OnDestroy {
     public checkErrorsService: CheckErrorsService,
     private realtimeApiService: RealtimeApiService,
     private mapService: MapService,
-    private gpsGraphService: GpsGraphService
+    private gpsGraphService: GpsGraphService,
+    private cd: ChangeDetectorRef
   ) {}
 
   ngOnDestroy(): void {
@@ -111,6 +112,8 @@ export class KanbanGpsComponent implements AfterViewInit, OnDestroy {
         this.kanbanGpsService.setKanbanData(kanbanVehicles);
         this.gpsGraphService.loadChartData$.next(kanbanVehicles);
       });
+
+    this.cd.detectChanges();
   }
 
   /**

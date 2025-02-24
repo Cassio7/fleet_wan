@@ -49,6 +49,8 @@ export class KanbanFiltersComponent implements AfterViewInit, OnDestroy{
   filterForm!: FormGroup;
   cantieri = new FormControl<string[]>([]);
   allSelected: boolean = false;
+  cantieriSelectOpened: boolean = false;
+
   private _filters: Filters = {
     plate: "",
     cantieri: this.cantieri,
@@ -151,18 +153,21 @@ export class KanbanFiltersComponent implements AfterViewInit, OnDestroy{
   }
 
   selectAll(){
-    const cantieriToggle = this.cantieriFilterService.toggleSelectAllCantieri(this.allSelected, );
+    const allData = JSON.parse(this.sessionStorageService.getItem("allData"));
+    const cantieriToggle = this.cantieriFilterService.toggleSelectAllCantieri(allData, this.allSelected);
     this.cantieri.setValue(cantieriToggle.length > 0 ? ["Seleziona tutto", ...cantieriToggle] : cantieriToggle);
     this.allSelected = !this.allSelected;
     this.cd.detectChanges();
     this.filtersCommonService.applyFilters$.next(this.filters);
   }
 
+
   /**
    * Seleziona tutti i filtri del select dei cantieri
    */
   toggleSelectAllCantieri(allSelected: boolean) {
-    this.cantieri.setValue(["Seleziona tutto", ...this.cantieriFilterService.toggleSelectAllCantieri(allSelected)]);
+    const allData = JSON.parse(this.sessionStorageService.getItem("allData"));
+    this.cantieri.setValue(["Seleziona tutto", ...this.cantieriFilterService.toggleSelectAllCantieri(allData, allSelected)]);
   }
 
   public get filters(): Filters {

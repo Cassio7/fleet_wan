@@ -195,9 +195,8 @@ export class CantieriFilterService{
    * @param selectionState stato di selezione del componente chiamante
    * @returns nuovo valore della lista cantieri
    */
-  toggleSelectAllCantieri(selectionState: boolean){
-    const allData = JSON.parse(this.sessionStorageService.getItem("allData"));
-    const allCantieri = this.vehiclesCantieriOnce(allData);
+  toggleSelectAllCantieri(vehicles: (Vehicle | VehicleData)[], selectionState: boolean){
+    const allCantieri = this.vehiclesCantieriOnce(vehicles);
     if (selectionState) {
       this.filterTableByCantiere$.next([]);
       return [];
