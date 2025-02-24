@@ -1,6 +1,15 @@
 <div class="content">
-  <mat-form-field class="targa-filter filter" appearance="outline" subscriptSizing="dynamic">
-    <mat-select [formControl]="targhe" placeholder="Targa" multiple class="cantiere-input">
+  <mat-form-field class="targa-textFilter filter" appearance="outline" subscriptSizing="dynamic"
+    [matTooltip]="targheControl.value && targheControl.value.length > 0 ? 'Rimuovi le selezioni nel filtro per targhe e cantieri' : ''">
+    <input matInput placeholder="Inserisci una targa" [formControl]="plateControl" [matAutocomplete]="auto" (keyup)="toggleForms()">
+    <mat-autocomplete #auto="matAutocomplete">
+      <mat-option *ngFor="let plate of plateObservable$ | async" [value]="plate" (click)="toggleForms()">
+        {{ plate }}
+      </mat-option>
+    </mat-autocomplete>
+  </mat-form-field>
+  <mat-form-field class="targa-selectFilter filter" appearance="outline" subscriptSizing="dynamic">
+    <mat-select [formControl]="targheControl" placeholder="Seleziona una targa" multiple class="cantiere-input">
       <mat-option value="Seleziona tutto" (click)="selectAllPlates()">Seleziona tutto</mat-option>
       <mat-divider></mat-divider>
       <mat-option [value]="targa" (click)="selectPlate()" *ngFor="let targa of this.listaTarghe">
@@ -9,7 +18,7 @@
     </mat-select>
   </mat-form-field>
   <mat-form-field class="cantieri-filter filter" appearance="outline" subscriptSizing="dynamic">
-    <mat-select [formControl]="cantieri" placeholder="Cantiere" multiple class="cantiere-input">
+    <mat-select [formControl]="cantieriControl" placeholder="Seleziona un cantiere" multiple class="cantiere-input">
       <mat-option value="Seleziona tutto" (click)="selectAllCantieri()">Seleziona tutto</mat-option>
       <mat-divider></mat-divider>
       <mat-option [value]="cantiere" (click)="selectCantiere()" *ngFor="let cantiere of this.listaCantieri">
@@ -19,12 +28,12 @@
   </mat-form-field>
   <button mat-button class="updateData-btn button" (click)="updateData()">Aggiorna dati</button>
   <div class="slider-container">
-  <mat-slide-toggle
-    class="example-margin"
-    [checked]="checked"
-    [disabled]="disabled"
-    (click)="togglePlates()"
-    >
+    <mat-slide-toggle
+      class="example-margin"
+      [checked]="checked"
+      [disabled]="disabled"
+      (click)="togglePlates()"
+      >
 
     <span class="slider-text">Visualizza le targhe sulla mappa</span>
   </mat-slide-toggle>

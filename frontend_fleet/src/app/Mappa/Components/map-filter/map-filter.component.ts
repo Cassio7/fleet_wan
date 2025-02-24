@@ -14,13 +14,15 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { CommonModule } from '@angular/common';
 import { MapService } from '../../../Common-services/map/map.service';
-import { Observable, of, skip, Subject, takeUntil, tap, map, filter } from 'rxjs';
+import { Observable, of, skip, Subject, takeUntil, tap, map, filter, startWith } from 'rxjs';
 import { RealtimeData } from '../../../Models/RealtimeData';
 import { VehiclesApiService } from '../../../Common-services/vehicles api service/vehicles-api.service';
 import { PlateFilterService } from '../../../Common-services/plate-filter/plate-filter.service';
 import { Vehicle } from '../../../Models/Vehicle';
 import { MapFilterService } from '../../Services/map-filter/map-filter.service';
 import { VehicleData } from '../../../Models/VehicleData';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import {MatAutocompleteModule} from '@angular/material/autocomplete';
 
 @Component({
   selector: 'app-map-filter',
@@ -35,7 +37,9 @@ import { VehicleData } from '../../../Models/VehicleData';
     MatSelectModule,
     MatDividerModule,
     MatIconModule,
+    MatTooltipModule,
     MatOptionModule,
+    MatAutocompleteModule,
     MatSlideToggleModule
   ],
   templateUrl: './map-filter.component.html',
@@ -44,10 +48,11 @@ import { VehicleData } from '../../../Models/VehicleData';
 export class MapFilterComponent implements OnInit, AfterViewInit, OnDestroy{
   private readonly destroy$: Subject<void> = new Subject<void>();
 
-  plate: string = "";
+  plateControl = new FormControl("");
+  plateObservable$!: Observable<string[]>;
 
-  targhe = new FormControl<string[]>([]);
-  cantieri = new FormControl<string[]>([]);
+  targheControl = new FormControl<string[]>([]);
+  cantieriControl = new FormControl<string[]>([]);
 
   listaCantieri: string[] = [];
   listaTarghe: string[] = [];
@@ -69,20 +74,59 @@ export class MapFilterComponent implements OnInit, AfterViewInit, OnDestroy{
     private vehiclesApiService: VehiclesApiService,
     private cd: ChangeDetectorRef
   ){}
+
   ngOnInit(): void {
-    // Monitora i cambiamenti nella selezione dei cantieri
-    this.cantieri.valueChanges.subscribe(selectedCantieri => {
+    this.cantieriControl.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(selectedCantieri => {
       if (!selectedCantieri || selectedCantieri.length === 0) {
-        this.targhe.disable();  // Disabilita il controllo
-        this.targhe.setValue([]); // Resetta la selezione
+        this.targheControl.disable();
+        this.plateControl.enable();
+        this.targheControl.setValue([]);
       } else {
-        this.targhe.enable();  // Riabilita il controllo
+        this.targheControl.enable();
+        this.plateControl.disable();
       }
     });
+
+    this.plateObservable$ = this.plateControl.valueChanges.pipe(
+      startWith(''),
+      map(value => this.filterPlates(value || '')),
+    );
+  }
+
+  /**
+   * Gestisce l'attivazione e disattivazione dei form per targa (selezione checkbox) e per cantiere
+   */
+  toggleForms(){
+    if(this.plateControl.value && this.plateControl.value.length > 0){
+      this.targheControl.disable();
+      this.cantieriControl.disable();
+    }else{
+      this.targheControl.enable();
+      this.cantieriControl.enable();
+    }
   }
 
   ngAfterViewInit(): void {
     this.handleLoadPosition();
+  }
+
+  /**
+   * Filtra un array di stringhe (targhe) in base al valore di ricerca passato, ignorando maiuscole, minuscole e spazi bianchi
+   * @param value valore da cercare (ignorando case e spazi bianchi)
+   * @returns array di stringhe filtrato che contiene solo le targhe che includono il valore di ricerca
+   */
+  private filterPlates(value: string): string[] {
+    const filterValue = value.toLowerCase().replace(/\s/g, '');
+    return this.listaTarghe.filter(plate => this._normalizeValue(plate).includes(filterValue));
+  }
+
+  /**
+   * Normalizza la stringa passata, rimuovendo tutti gli spazi bianchi e convertendo i caratteri in minuscolo
+   * @param value stringa da normalizzare
+   * @returns stringa normalizzata in minuscolo e senza spazi bianchi
+   */
+  private _normalizeValue(value: string): string {
+    return value.toLowerCase().replace(/\s/g, '');
   }
 
   /**
@@ -95,17 +139,17 @@ export class MapFilterComponent implements OnInit, AfterViewInit, OnDestroy{
       next: (realtimeData: RealtimeData | null) => {
         if(realtimeData){
           const vehicle: {plate: string, veId: number, worksite?: WorkSite | null} = realtimeData.vehicle;
-          let selectedTarghe = this.targhe.value;
+          let selectedTarghe = this.targheControl.value;
           this.listaTarghe.push(vehicle.plate);
           this.listaTarghe.sort();
 
-          if(selectedTarghe) this.targhe.setValue(["Seleziona tutto", ...selectedTarghe, vehicle.plate]);
+          if(selectedTarghe) this.targheControl.setValue(["Seleziona tutto", ...selectedTarghe, vehicle.plate]);
 
           if(vehicle?.worksite && !this.listaCantieri.includes(vehicle.worksite.name)){
-            let selectedCantieri = this.cantieri.value;
+            let selectedCantieri = this.cantieriControl.value;
             this.listaCantieri.push(vehicle.worksite.name);
             this.listaCantieri.sort()
-            if(selectedCantieri) this.cantieri.setValue(["Seleziona tutto", ...selectedCantieri, vehicle.worksite.name]);
+            if(selectedCantieri) this.cantieriControl.setValue(["Seleziona tutto", ...selectedCantieri, vehicle.worksite.name]);
           }
           this.allSelected = true;
           this.cd.detectChanges();
@@ -122,9 +166,9 @@ export class MapFilterComponent implements OnInit, AfterViewInit, OnDestroy{
     this.getAvailableVehicles().pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (vehicles: Vehicle[]) => {
-        const cantieriFilteredVehicles = this.cantieriFilterService.filterVehiclesByCantieri(vehicles, this.cantieri.value || []);
+        const cantieriFilteredVehicles = this.cantieriFilterService.filterVehiclesByCantieri(vehicles, this.cantieriControl.value || []);
         const plateToggle = this.plateFilterService.toggleAllPlatesWithVehicles(this.allSelected, cantieriFilteredVehicles);
-        this.targhe.setValue(plateToggle.length > 0 ? ["Seleziona tutto", ...plateToggle] : plateToggle);
+        this.targheControl.setValue(plateToggle.length > 0 ? ["Seleziona tutto", ...plateToggle] : plateToggle);
 
         this.allSelected = !this.allSelected;
         this.cd.detectChanges();
@@ -141,7 +185,7 @@ export class MapFilterComponent implements OnInit, AfterViewInit, OnDestroy{
     .subscribe({
       next: (vehicles: Vehicle[]) => {
         const cantieriToggle = this.cantieriFilterService.toggleSelectAllCantieri(this.allSelected);
-        this.cantieri.setValue(cantieriToggle.length > 0 ? ["Seleziona tutto", ...cantieriToggle] : cantieriToggle);
+        this.cantieriControl.setValue(cantieriToggle.length > 0 ? ["Seleziona tutto", ...cantieriToggle] : cantieriToggle);
 
         this.allSelected = !this.allSelected;
         this.cd.detectChanges();
@@ -156,7 +200,7 @@ export class MapFilterComponent implements OnInit, AfterViewInit, OnDestroy{
   selectPlate(){
     this.getAvailableVehicles().pipe(takeUntil(this.destroy$)).subscribe({
       next: (vehicles: Vehicle[]) => {
-        const cantieriFilteredVehicles = this.cantieriFilterService.filterVehiclesByCantieri(vehicles, this.cantieri.value || []);
+        const cantieriFilteredVehicles = this.cantieriFilterService.filterVehiclesByCantieri(vehicles, this.cantieriControl.value || []);
         let allPlates: string[] = cantieriFilteredVehicles.map(vehicle => {
           if('vehicle' in vehicle){
             return vehicle.vehicle.plate
@@ -165,20 +209,36 @@ export class MapFilterComponent implements OnInit, AfterViewInit, OnDestroy{
           }
         });
 
-        const selectedPlates = this.targhe.value?.filter(option => option !== "Seleziona tutto");
+        const selectedPlates = this.targheControl.value?.filter(option => option !== "Seleziona tutto");
         if (selectedPlates) {
           if (JSON.stringify(allPlates.sort()) === JSON.stringify(selectedPlates.sort())) {
             this.allSelected = true;
-            this.targhe.setValue(["Seleziona tutto", ...allPlates]);
+            this.targheControl.setValue(["Seleziona tutto", ...allPlates]);
           } else {
             this.allSelected = false;
-            this.targhe.setValue(selectedPlates);
+            this.targheControl.setValue(selectedPlates);
           }
         }
       },
       error: error => console.error("Errore nella richiesta per ottenere tutti i veicoli: ", error)
     });
   }
+
+  /**
+   * Filtra i veicoli per una ricerca per targa dal filtro di ricerca per targa singola
+   * @param vehicles veicoli su cui ricercare
+   * @returns veicolo con la targa richiesta
+   */
+  searchPlate(vehicles: (Vehicle | VehicleData)[]): (Vehicle | VehicleData) | null {
+    let selectedVehicle: (Vehicle | VehicleData) | null = null;
+
+    if (this.plateControl.value) {
+        selectedVehicle = this.plateFilterService.filterVehiclesByPlateResearch(this.plateControl.value, vehicles)[0] || null;
+    }
+
+    return selectedVehicle;
+  }
+
 
   /**
    * Gestisce la selezione di un cantiere
@@ -188,7 +248,7 @@ export class MapFilterComponent implements OnInit, AfterViewInit, OnDestroy{
       next: (vehicles: Vehicle[]) => {
         let allCantieri: string[] = this.cantieriFilterService.vehiclesCantieriOnce(vehicles);
 
-        const selectedCantieri = this.cantieri.value?.filter(option => option !== "Seleziona tutto");
+        const selectedCantieri = this.cantieriControl.value?.filter(option => option !== "Seleziona tutto");
         const cantieriFiltredVehicles = this.cantieriFilterService.filterVehiclesByCantieri(vehicles, selectedCantieri || []);
 
         this.listaTarghe = cantieriFiltredVehicles.map(vehicle => {
@@ -202,10 +262,10 @@ export class MapFilterComponent implements OnInit, AfterViewInit, OnDestroy{
         if (selectedCantieri) {
           if (JSON.stringify(allCantieri.sort()) === JSON.stringify(selectedCantieri.sort())) {
             this.allSelected = true;
-            this.cantieri.setValue(["Seleziona tutto", ...allCantieri]);
+            this.cantieriControl.setValue(["Seleziona tutto", ...allCantieri]);
           } else {
             this.allSelected = false;
-            this.cantieri.setValue(selectedCantieri);
+            this.cantieriControl.setValue(selectedCantieri);
           }
         }
       },
@@ -241,16 +301,18 @@ export class MapFilterComponent implements OnInit, AfterViewInit, OnDestroy{
    * li aggiorna
    */
   updateData() {
+    const selectedPlates = this.targheControl.value || [];
+    const selectedCantieri = this.cantieriControl.value || [];
     this.getAvailableVehicles().pipe(
       takeUntil(this.destroy$)
     ).subscribe({
-      next: (vehicles: Vehicle[]) => {
-        const selectedPlates = this.targhe.value || [];
-        const selectedCantieri = this.cantieri.value || [];
+      next: (vehicles: (Vehicle | VehicleData)[]) => {
         let filteredVehicles: any[] = [];
-
-        filteredVehicles = this.mapFilterService.filterVehiclesByPlatesAndCantieri(vehicles, selectedPlates, selectedCantieri);
-
+        if(this.plateControl.value && this.plateControl.value.length > 0){
+          filteredVehicles = [this.searchPlate(vehicles)];
+        }else{
+          filteredVehicles = this.mapFilterService.filterVehiclesByPlatesAndCantieri(vehicles, selectedPlates, selectedCantieri);
+        }
         this.mapService.updateMarkers$.next(filteredVehicles);
       },
       error: (error) => console.error("Errore nella ricezione dei veicoli disponibili: ", error)
