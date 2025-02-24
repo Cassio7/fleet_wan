@@ -57,6 +57,11 @@ export class MapFilterComponent implements OnInit, AfterViewInit, OnDestroy{
   listaCantieri: string[] = [];
   listaTarghe: string[] = [];
 
+  mapVehicles: any[] = [];
+
+  cantieriSelectOpened: boolean = false;
+  targheSelectOpened: boolean = false;
+
   checked = true;
   disabled = false;
   private allSelected: boolean = false;
@@ -139,8 +144,9 @@ export class MapFilterComponent implements OnInit, AfterViewInit, OnDestroy{
       next: (realtimeData: RealtimeData | null) => {
         if(realtimeData){
           const vehicle: {plate: string, veId: number, worksite?: WorkSite | null} = realtimeData.vehicle;
+          this.mapVehicles.push(vehicle);
           let selectedTarghe = this.targheControl.value;
-          this.listaTarghe.push(vehicle.plate);
+          if(!this.listaTarghe.includes(vehicle.plate)) this.listaTarghe.push(vehicle.plate);
           this.listaTarghe.sort();
 
           if(selectedTarghe) this.targheControl.setValue(["Seleziona tutto", ...selectedTarghe, vehicle.plate]);
@@ -149,7 +155,7 @@ export class MapFilterComponent implements OnInit, AfterViewInit, OnDestroy{
             let selectedCantieri = this.cantieriControl.value;
             this.listaCantieri.push(vehicle.worksite.name);
             this.listaCantieri.sort()
-            if(selectedCantieri) this.cantieriControl.setValue(["Seleziona tutto", ...selectedCantieri, vehicle.worksite.name]);
+            if(selectedCantieri) this.cantieriControl.setValue(["Seleziona tutto", ...selectedCantieri, vehicle.worksite.name.toLocaleLowerCase()]);
           }
           this.allSelected = true;
           this.cd.detectChanges();
@@ -166,7 +172,7 @@ export class MapFilterComponent implements OnInit, AfterViewInit, OnDestroy{
     this.getAvailableVehicles().pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (vehicles: Vehicle[]) => {
-        const cantieriFilteredVehicles = this.cantieriFilterService.filterVehiclesByCantieri(vehicles, this.cantieriControl.value || []);
+        const cantieriFilteredVehicles = this.cantieriFilterService.filterVehiclesByCantieri(this.mapVehicles, this.cantieriControl.value || []);
         const plateToggle = this.plateFilterService.toggleAllPlatesWithVehicles(this.allSelected, cantieriFilteredVehicles);
         this.targheControl.setValue(plateToggle.length > 0 ? ["Seleziona tutto", ...plateToggle] : plateToggle);
 
@@ -184,7 +190,9 @@ export class MapFilterComponent implements OnInit, AfterViewInit, OnDestroy{
     this.getAvailableVehicles().pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (vehicles: Vehicle[]) => {
-        const cantieriToggle = this.cantieriFilterService.toggleSelectAllCantieri(this.allSelected);
+        const cantieriToggle = this.cantieriFilterService.toggleSelectAllCantieri(this.mapVehicles, this.allSelected).map(cantiere => cantiere.toLocaleLowerCase());
+        console.log("listaCantieri: ", this.listaCantieri);
+        console.log("cantieriToggle: ", cantieriToggle);
         this.cantieriControl.setValue(cantieriToggle.length > 0 ? ["Seleziona tutto", ...cantieriToggle] : cantieriToggle);
 
         this.allSelected = !this.allSelected;
