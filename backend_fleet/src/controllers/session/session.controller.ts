@@ -207,7 +207,7 @@ export class SessionController {
     }
     try {
       // prima controlla se esiste su redis, se ci sta recupera direttamente usando la key
-      const exist = await this.sessionService.getLastSessionRedis([veId]);
+      const exist = await this.sessionService.getLastValidSessionRedis([veId]);
       let last = null;
       if (exist) {
         last = await this.sessionService.getSessionByKey(
@@ -338,7 +338,7 @@ export class SessionController {
         return res.status(200).json({ active: false });
       }
       // prima controlla se esiste su redis, se ci sta recupera direttamente usando la key
-      const exist = await this.sessionService.getLastSessionRedis([veId]);
+      const exist = await this.sessionService.getLastValidSessionRedis([veId]);
       let last = null;
       if (exist) {
         last = await this.sessionService.getSessionByKey(
