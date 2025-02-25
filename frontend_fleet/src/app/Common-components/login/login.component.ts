@@ -111,6 +111,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy{
               this.loginService.login$.next();
               this.router.navigate(['/dashboard']).then(() => {
                 setTimeout(() => {
+                  window.dispatchEvent(new Event('resize'));
                   this.cd.detectChanges();
                 }, 100);
               });

@@ -78,7 +78,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
         this.ngZone.run(() => { // Run inside Angular's zone
           this.isLogged = true;
           this.isLoginPage = false; // Update isLoginPage
-          this.cd.detectChanges();
+          setTimeout(() => {
+            this.cd.detectChanges();
+          });
         });
       },
       error: (error) => console.error("Error logging in: ", error),

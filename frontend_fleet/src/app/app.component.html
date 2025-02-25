@@ -1,5 +1,5 @@
 <mat-drawer-container class="main-drawer">
-  <mat-drawer #fixedDrawer mode="side" class="fixed-drawer-container" opened *ngIf="!drawer.opened" [style.display]="isLoginPage ? 'none' : 'block'">
+  <mat-drawer #fixedDrawer mode="side" class="fixed-drawer-container" [opened]="isLogged && !isLoginPage"  [style.display]="isLoginPage ? 'none' : 'block'">
     <div class="fixed-drawer-content">
       <div class="fixed-main-actions">
         <button class="menu-btn" (click)="toggleDrawer()"><svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
