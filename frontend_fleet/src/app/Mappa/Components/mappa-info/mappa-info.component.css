@@ -68,13 +68,6 @@ mat-list-item span {
   opacity: .5;
 }
 
-.session-container{
-  height: 100%;
-  display: flex;
-  align-items: center;
-  gap: 2px;
-}
-
 .button{
   width: 100%;
 }

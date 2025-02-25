@@ -1,6 +1,7 @@
 <div class="content">
   <div class="type-container">
-    <p class="type"><mat-icon>local_shipping</mat-icon>{{servizio}}</p>
+    <p class="type"><mat-icon>local_shipping</mat-icon>{{servizio}} (<span class="session-date">{{ anomalyDate | date : "dd/MM/yyyy" }}</span>)</p>
+
     <mat-icon (click)="closePopup.emit()">close</mat-icon>
   </div>
   <mat-divider></mat-divider>
@@ -86,30 +87,22 @@
 
     <mat-list-item>
       <div class="list-item-content">
-        <p>Ultima sessione</p>
-        <div class="session-container">
-          <!-- Stato OK -->
-          <div
-            class="OK-container"
-            *ngIf="vehicleSelected && !sessioneAnomaly"
-            matTooltip="Sessione corretta"
-          >
-            <mat-icon class="sessionIcon-OK">settings_backup_restore</mat-icon>
-            OK
-          </div>
-
-          <!-- Stato Errore -->
-          <div class="session-error" *ngIf="vehicleSelected && sessioneAnomaly" [matTooltip]="sessioneAnomaly">
-            <div class="error-container" >
-            <mat-icon class="errorIcon-error">settings_backup_restore</mat-icon>
-            Error
-            </div>
-            <div class="error-container">
-              {{ anomalyDate ? checkErrorsService.calculateSessionErrorDays(anomalyDate) : "" }} gg
-            </div>
-            <span class="session-error-date" *ngIf="sessioneAnomaly">{{ anomalyDate | date : "dd/MM/yyyy" }}</span>
-          </div>
-          <span *ngIf="!sessioneAnomaly" class="session-date">{{ anomalyDate | date : "dd/MM/yyyy" }}</span>
+        <p>Stato Ultima sessione</p>
+        <div
+          class="OK-container"
+          *ngIf="vehicleSelected && !sessioneAnomaly"
+          matTooltip="Sessione corretta"
+        >
+          <mat-icon class="sessionIcon-OK">settings_backup_restore</mat-icon>
+          OK
+        </div>
+        <div
+          class="error-container"
+          *ngIf="vehicleSelected && sessioneAnomaly"
+          [matTooltip]="sessioneAnomaly || 'Anomalia sessione'"
+        >
+          <mat-icon class="sessionIcon-error">settings_backup_restore</mat-icon>
+          Error
         </div>
       </div>
     </mat-list-item>
