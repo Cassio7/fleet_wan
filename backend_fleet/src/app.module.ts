@@ -70,6 +70,7 @@ import { UserFactoryService } from './factory/user.factory';
 import { WorksiteFactoryService } from './factory/worksite.factory';
 import { WorksiteGroupFactoryService } from './factory/worksite_group.factory';
 import { WorkzoneFacotoryService } from './factory/workzone.factory';
+import { ControlService } from './services/control/control.service';
 
 @Global()
 @Module({
@@ -263,6 +264,7 @@ import { WorkzoneFacotoryService } from './factory/workzone.factory';
     AssociationService,
     WorksiteService,
     LoggerService,
+    ControlService,
   ],
 })
 export class AppModule {}

@@ -561,8 +561,6 @@ export class TagService {
         const dateFrom = new Date();
         const dateTo = new Date();
         dateTo.setDate(dateTo.getDate() - days);
-        console.log(dateFrom);
-        console.log(dateTo);
         detections = await this.tagHistoryRepository.find({
           select: {
             timestamp: true,

@@ -4,6 +4,7 @@ import {
   Controller,
   Get,
   Post,
+  Query,
   Req,
   Res,
   UseGuards,
@@ -17,6 +18,7 @@ import { AuthGuard } from 'src/guard/auth.guard';
 import { RolesGuard } from 'src/guard/roles.guard';
 import { LogContext } from 'src/log/logger.types';
 import { LoggerService } from 'src/log/service/logger.service';
+import { ControlService } from 'src/services/control/control.service';
 import { AnomalyService } from './../../services/anomaly/anomaly.service';
 
 @UseGuards(AuthGuard, RolesGuard)
@@ -27,6 +29,7 @@ export class AnomalyController {
     private readonly anomalyService: AnomalyService,
     @InjectRedis() private readonly redis: Redis,
     private readonly loggerService: LoggerService,
+    private readonly controlService: ControlService,
   ) {}
 
   /**
@@ -349,7 +352,7 @@ export class AnomalyController {
    */
   @Post('checkerrors')
   async checkErrors(@Res() res: Response, @Body() body) {
-    const data = await this.anomalyService.checkErrors(
+    const data = await this.controlService.checkErrors(
       body.dateFrom,
       body.dateTo,
     );
@@ -381,7 +384,7 @@ export class AnomalyController {
       const dateto = new Date(datefrom);
       datefrom.setHours(0, 0, 0, 0);
       dateto.setDate(dateto.getDate() + 1);
-      const data = await this.anomalyService.checkErrors(
+      const data = await this.controlService.checkErrors(
         datefrom.toISOString(),
         dateto.toISOString(),
       );
@@ -475,6 +478,71 @@ export class AnomalyController {
 
       res.status(500).json({
         message: error.message || 'Errore nel recupero delle anomalie',
+      });
+    }
+  }
+  /**
+   * Recupera alcuni dati riguardanti il veicolo e il suo andamento, come il numero di anomalie, sessioni
+   * e tipologia di errori
+   * @param req user data
+   * @param res stats object
+   * @param veId veid identificativo del veicolo
+   * @returns
+   */
+  @Get('stats')
+  async getStatsByVeId(
+    @Req() req: Request & { user: UserFromToken },
+    @Res() res: Response,
+    @Query('veId') veId: number,
+  ) {
+    const context: LogContext = {
+      userId: req.user.id,
+      username: req.user.username,
+      resource: 'Anomaly stats',
+      resourceId: veId,
+    };
+    const veIdNumber = Number(veId); // Garantisce che veId sia un numero
+
+    if (isNaN(veIdNumber)) {
+      this.loggerService.logCrudError({
+        error: new Error('Il veId deve essere un numero valido'),
+        context,
+        operation: 'read',
+      });
+      return res.status(400).json({
+        message: 'Il veId deve essere un numero valido',
+      });
+    }
+    try {
+      const stats = await this.anomalyService.getStatsByVeId(
+        req.user.id,
+        veIdNumber,
+      );
+      if (!stats) {
+        this.loggerService.logCrudSuccess(
+          context,
+          'read',
+          'Nessuna statisca calcolata in mancanza di dati',
+        );
+        return res.status(204).json();
+      }
+      this.loggerService.logCrudSuccess(
+        context,
+        'read',
+        `Recuperate le statistiche`,
+      );
+      return res.status(200).json(stats);
+    } catch (error) {
+      this.loggerService.logCrudError({
+        context,
+        operation: 'read',
+        error,
+      });
+
+      return res.status(error.status || 500).json({
+        message:
+          error.message ||
+          'Errore durante il recupero delle statistiche anomalie',
       });
     }
   }

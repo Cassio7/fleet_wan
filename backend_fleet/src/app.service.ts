@@ -22,6 +22,7 @@ import { RentalFactoryService } from './factory/rental.factory';
 import { AssociationService } from './services/association/association.service';
 import { EquipmentFacotoryService } from './factory/equipment.factory';
 import { WorkzoneFacotoryService } from './factory/workzone.factory';
+import { ControlService } from './services/control/control.service';
 
 @Injectable()
 export class AppService implements OnModuleInit {
@@ -42,13 +43,14 @@ export class AppService implements OnModuleInit {
     private readonly workzoneFacotoryService: WorkzoneFacotoryService,
     private readonly anomalyService: AnomalyService,
     private readonly realtimeService: RealtimeService,
+    private readonly controlService: ControlService,
     private readonly associationService: AssociationService,
     @InjectRedis() private readonly redis: Redis,
   ) {}
 
   // popolo database all'avvio
   async onModuleInit() {
-    const startDate = '2025-01-01T00:00:00.000Z';
+    const startDate = '2025-02-01T00:00:00.000Z';
     //const endDate = '2025-02-19T00:00:00.000Z';
     const endDate = new Date(
       new Date().getTime() + 2 * 60 * 60 * 1000,
@@ -56,7 +58,7 @@ export class AppService implements OnModuleInit {
     //await this.putDefaultData();
     //await this.putDbData(startDate, endDate);
     //await this.associationService.setVehiclesAssociateAllUsersRedis(),
-      //await this.putDbData3min();
+    //await this.putDbDataCron();
     //await this.anomalyCheck(startDate, endDate);
     //await this.dailyAnomalyCheck();
     //await this.setAnomaly();
@@ -147,11 +149,11 @@ export class AppService implements OnModuleInit {
       }
     }
     const vehicleIds = vehicles.map((v) => v.veId);
-    await this.sessionService.getLastSessionByVeIds(vehicleIds);
+    await this.sessionService.getLastValidSessionByVeIds(vehicleIds);
   }
 
-  //@Cron('*/3 * * * *')
-  async putDbData3min() {
+  //@Cron('*/10 * * * *')
+  async putDbDataCron() {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
     const startDate = now.toISOString();
@@ -204,7 +206,7 @@ export class AppService implements OnModuleInit {
 
     // inserire il calcolo dell ultima sessione valida
     const vehicleIds = vehicles.map((v) => v.veId);
-    await this.sessionService.getLastSessionByVeIds(vehicleIds);
+    await this.sessionService.getLastValidSessionByVeIds(vehicleIds);
     console.log('Fine recupero');
   }
 
@@ -213,64 +215,65 @@ export class AppService implements OnModuleInit {
       const dateFrom = new Date(start);
       const dateTo = new Date(end);
       const daysInRange = getDaysInRange(dateFrom, dateTo);
+      const daysToProcess = daysInRange.slice(0, -1); // Esclude l'ultimo elemento
 
-      await Promise.all(
-        daysInRange.slice(0, -1).map(async (day) => {
-          const datefrom = day;
-          const dateto = new Date(datefrom);
-          dateto.setDate(dateto.getDate() + 1);
-          const data = await this.anomalyService.checkErrors(
-            datefrom,
-            dateto.toISOString(),
-          );
-          if (!data || data.length === 0) {
-            return null;
-          }
+      for (let i = 0; i < daysToProcess.length; i++) {
+        const day = daysToProcess[i];
+        const datefrom = day;
+        const dateto = new Date(datefrom);
+        dateto.setDate(dateto.getDate() + 1);
 
-          const processAnomalies = async (data, anomalyService) => {
-            const anomalyPromises = data
-              .filter((item) => item?.veId)
-              .map(async (item) => {
-                const anomalyData = {
-                  veId: item.veId,
-                  date: item.sessions?.[0]?.date ?? null,
-                  gps: item.sessions?.[0]?.anomalies?.GPS ?? null,
-                  antenna: item.sessions?.[0]?.anomalies?.Antenna ?? null,
-                  detection_quality:
-                    item.sessions?.[0]?.anomalies?.detection_quality ?? null,
-                  session: item.sessions?.[0]?.anomalies?.open ?? null,
-                };
-                return anomalyService.createAnomaly(
-                  anomalyData.veId,
-                  anomalyData.date,
-                  anomalyData.gps,
-                  anomalyData.antenna,
-                  anomalyData.detection_quality,
-                  anomalyData.session,
-                );
-              });
+        const data = await this.controlService.checkErrors(
+          datefrom,
+          dateto.toISOString(),
+        );
 
-            return Promise.all(anomalyPromises);
-          };
+        if (!data || data.length === 0) {
+          continue;
+        }
 
-          await processAnomalies(data, this.anomalyService);
-        }),
-      );
+        const processAnomalies = async (data, anomalyService) => {
+          const anomalyPromises = data
+            .filter((item) => item?.veId)
+            .map(async (item) => {
+              const anomalyData = {
+                veId: item.veId,
+                date: item.sessions?.[0]?.date ?? null,
+                gps: item.sessions?.[0]?.anomalies?.GPS ?? null,
+                antenna: item.sessions?.[0]?.anomalies?.Antenna ?? null,
+                detection_quality:
+                  item.sessions?.[0]?.anomalies?.detection_quality ?? null,
+                session: item.sessions?.[0]?.anomalies?.open ?? null,
+              };
+              return anomalyService.createAnomaly(
+                anomalyData.veId,
+                anomalyData.date,
+                anomalyData.gps,
+                anomalyData.antenna,
+                anomalyData.detection_quality,
+                anomalyData.session,
+              );
+            });
 
+          return Promise.all(anomalyPromises);
+        };
+
+        await processAnomalies(data, this.anomalyService);
+      }
       console.log('Anomaly check aggiornato alle: ' + new Date().toISOString());
     } catch (error) {
       console.error('Errore durante il controllo delle anomalie:', error);
     }
   }
 
-  //@Cron('58 23 * * *')
+  //@Cron('58 22 * * *')
   async dailyAnomalyCheck() {
     try {
       const datefrom = new Date();
       const dateto = new Date(datefrom);
       datefrom.setHours(0, 0, 0, 0);
       dateto.setDate(dateto.getDate() + 1);
-      const data = await this.anomalyService.checkErrors(
+      const data = await this.controlService.checkErrors(
         datefrom.toISOString(),
         dateto.toISOString(),
       );
@@ -330,7 +333,8 @@ export class AppService implements OnModuleInit {
   /**
    * Imposta le anomalies su redis del giorno precedente, di oggi ed anche il last
    */
-  //@Cron('02 2 * * *')
+
+  //@Cron('02 5 * * *')
   async setAnomaly() {
     const keys = await this.redis.keys('*Anomaly:*');
     if (keys.length > 0) {
