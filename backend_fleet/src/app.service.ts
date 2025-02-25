@@ -149,7 +149,10 @@ export class AppService implements OnModuleInit {
       }
     }
     const vehicleIds = vehicles.map((v) => v.veId);
-    await this.sessionService.getLastValidSessionByVeIds(vehicleIds);
+    await Promise.all([
+      this.sessionService.getLastValidSessionByVeIds(vehicleIds),
+      this.sessionService.getLastHistoryByVeIds(vehicleIds),
+    ]);
   }
 
   //@Cron('*/10 * * * *')
@@ -177,36 +180,41 @@ export class AppService implements OnModuleInit {
       }
     }
 
-    const tasks = vehicles.map(async (vehicle) => {
-      console.log(
-        `${vehicle.veId} con targa: ${vehicle.plate} - ${vehicle.id}`,
-      );
+    const tasks = vehicles
+      .filter((vehicle) => companyMap.has(vehicle.veId))
+      .map(async (vehicle) => {
+        console.log(
+          `${vehicle.veId} con targa: ${vehicle.plate} - ${vehicle.id}`,
+        );
 
-      const company = companyMap.get(vehicle.veId);
-      if (company) {
-        return Promise.all([
-          this.sessionService.getSessionist(
-            company.suId,
-            vehicle.veId,
-            startDate,
-            endDate,
-          ),
-          this.tagService.putTagHistory(
-            company.suId,
-            vehicle.veId,
-            startDate,
-            endDate,
-          ),
-        ]);
-      }
-    });
+        const company = companyMap.get(vehicle.veId);
+        if (company) {
+          return Promise.all([
+            this.sessionService.getSessionist(
+              company.suId,
+              vehicle.veId,
+              startDate,
+              endDate,
+            ),
+            this.tagService.putTagHistory(
+              company.suId,
+              vehicle.veId,
+              startDate,
+              endDate,
+            ),
+          ]);
+        }
+      });
 
     // Aspetta che tutte le operazioni siano completate
     await Promise.all(tasks);
 
     // inserire il calcolo dell ultima sessione valida
     const vehicleIds = vehicles.map((v) => v.veId);
-    await this.sessionService.getLastValidSessionByVeIds(vehicleIds);
+    await Promise.all([
+      this.sessionService.getLastValidSessionByVeIds(vehicleIds),
+      this.sessionService.getLastHistoryByVeIds(vehicleIds),
+    ]);
     console.log('Fine recupero');
   }
 
