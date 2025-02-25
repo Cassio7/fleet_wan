@@ -59,17 +59,21 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
   }
 
   ngOnInit(): void {
+    this.updateNavbarState(this.router.url);
+
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
-    ).subscribe(() => {
-    const url = this.router.url;
+    ).subscribe((event: NavigationEnd) => {
+      this.updateNavbarState(event.url);
+    });
+  }
 
-    //caso di /dettaglio-mezzo/:id
+  private updateNavbarState(url: string): void {
     const regex = /\/dettaglio-mezzo\/(\d+)/;
     const match = url.match(regex);
 
     if (match) {
-      const id = match[1]; //estrazione dell'id dalla URL
+      const id = match[1];
       this.currentPage = `Dettaglio Mezzo/${id}`;
       this.isKanban = false;
       this.icon = "directions_car";
@@ -103,9 +107,9 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
           this.icon = "local_shipping";
           break;
         case '/storico-mezzi':
-          this.currentPage = "Storico mezzi"
+          this.currentPage = "Storico mezzi";
           this.isKanban = false;
-          this.icon = "inventory_2"
+          this.icon = "inventory_2";
           break;
         default:
           this.currentPage = "Riepilogo";
@@ -113,10 +117,8 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
           this.icon = "dashboard";
       }
     }
-
-    this.cd.detectChanges(); // Assicurati che la vista si aggiorni
-  });
-}
+    this.cd.detectChanges();
+  }
 
 
   ngAfterViewInit(): void {
