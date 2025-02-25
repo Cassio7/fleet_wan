@@ -102,6 +102,8 @@ export class DettaglioMezzoComponent implements OnInit, AfterViewInit, OnDestroy
       case "/storico-mezzi":
         this.goBack_text = "Torna allo storico mezzi";
         break;
+      case "/home-mappa":
+        this.goBack_text = "Torna alla mappa dei mezzi"
     }
 
     this.cd.detectChanges();
