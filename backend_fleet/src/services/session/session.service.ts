@@ -175,35 +175,23 @@ export class SessionService {
           .digest('hex');
       };
 
-      const filteredDataSession = sessionLists.map((item: any) => {
-        if (item['sequenceId'] === 0) {
-          const hash = hashSession0(item);
+      const filteredDataSession = sessionLists
+        .filter((item: any) => item?.list)
+        .map((item: any) => {
+          const hash =
+            item.sequenceId === 0 ? hashSession0(item) : hashSession(item);
           return {
-            period_from: item['periodFrom'],
-            period_to: item['periodTo'],
-            sequence_id: item['sequenceId'],
-            closed: item['closed'],
-            distance: item['distance'],
-            engine_drive: item['engineDriveSec'],
-            engine_stop: item['engineNoDriveSec'],
-            lists: item['list'],
-            hash: hash,
+            period_from: item.periodFrom,
+            period_to: item.periodTo,
+            sequence_id: item.sequenceId,
+            closed: item.closed,
+            distance: item.distance,
+            engine_drive: item.engineDriveSec,
+            engine_stop: item.engineNoDriveSec,
+            lists: item.list,
+            hash,
           };
-        } else {
-          const hash = hashSession(item);
-          return {
-            period_from: item['periodFrom'],
-            period_to: item['periodTo'],
-            sequence_id: item['sequenceId'],
-            closed: item['closed'],
-            distance: item['distance'],
-            engine_drive: item['engineDriveSec'],
-            engine_stop: item['engineNoDriveSec'],
-            lists: item['list'],
-            hash: hash,
-          };
-        }
-      });
+        });
       const sessionSequenceId = filteredDataSession.map(
         (session) => session.sequence_id,
       );
@@ -217,6 +205,7 @@ export class SessionService {
             hash: true,
             key: true,
             period_from: true,
+            period_to: true,
           },
           where: {
             sequence_id: In(sessionSequenceId),
@@ -226,6 +215,7 @@ export class SessionService {
             period_to: 'ASC',
           },
         });
+
       // Crea una mappa per abbinare gli hash alle sessioni restituite dalla query
       const sessionQueryMap = new Map(
         sessionQueries.map((query) => [query.sequence_id, query]),
@@ -452,31 +442,6 @@ export class SessionService {
         const hisotyrQueryMap = new Map(
           historyQueries.map((query) => [query.hash, query]),
         );
-        // pulisce la sessione attiva da timestamp precedenti, evita duplicati e timestamp arretrati
-        // if (historysession.sessionquery.sequence_id === 0) {
-        //   const keys = await queryRunner.manager
-        //     .getRepository(HistoryEntity)
-        //     .find({
-        //       select: {
-        //         key: true,
-        //       },
-        //       where: {
-        //         session: {
-        //           sequence_id: 0,
-        //         },
-        //         vehicle: {
-        //           veId: id,
-        //         },
-        //       },
-        //     });
-        //   if (keys && keys.length > 0) {
-        //     const keyValues = keys.map((item) => item.key);
-        //     console.log('Pulisco history sequence 0');
-        //     await queryRunner.manager.getRepository(HistoryEntity).delete({
-        //       key: In(keyValues),
-        //     });
-        //   }
-        // }
         const newHistory = [];
         for (const history of cleanedDataHistory) {
           // controllo se esiste hash
