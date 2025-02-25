@@ -32,5 +32,8 @@
 }
 
 .info-container {
-  height: 350px; /* Mantiene l'altezza specificata */
+  height: 380px; /* Mantiene l'altezza specificata */
+}
+.hidden {
+  display: none;
 }

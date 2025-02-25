@@ -1,4 +1,4 @@
-import { AfterViewInit, Component } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, OnDestroy, Output } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MapService, positionData } from '../../../Common-services/map/map.service';
@@ -7,12 +7,16 @@ import { CheckErrorsService } from '../../../Common-services/check-errors/check-
 import { CommonModule } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { VehicleAnomalies } from '../../../Models/VehicleAnomalies';
+import { MatButtonModule } from '@angular/material/button';
+import { VehicleData } from '../../../Models/VehicleData';
+import { Vehicle } from '../../../Models/Vehicle';
 
 @Component({
   selector: 'app-mappa-info',
   standalone: true,
   imports: [
     CommonModule,
+    MatButtonModule,
     MatListModule,
     MatIconModule,
     MatTooltipModule
@@ -20,8 +24,10 @@ import { VehicleAnomalies } from '../../../Models/VehicleAnomalies';
   templateUrl: './mappa-info.component.html',
   styleUrl: './mappa-info.component.css'
 })
-export class MappaInfoComponent implements AfterViewInit{
+export class MappaInfoComponent implements AfterViewInit, OnDestroy{
   private readonly destroy$: Subject<void> = new Subject<void>();
+  @Output() selectVehicle = new EventEmitter();
+  @Output() closePopup = new EventEmitter();
 
   servizio: string = "";
   plate: string = "";
@@ -37,6 +43,12 @@ export class MappaInfoComponent implements AfterViewInit{
     private mapService:MapService,
   ){}
 
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   ngAfterViewInit(): void {
     this.mapService.selectMarker$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
@@ -50,6 +62,7 @@ export class MappaInfoComponent implements AfterViewInit{
             this.cantiere = positionData.cantiere || "";
             this.setData(vehicleAnomalies);
             this.mapService.zoomIn$.next({point: positionData.position, zoom: 16});
+            this.selectVehicle.emit();
           },
           error: error => console.error("Errore nella ricezione del controllo delle anomalie: ", error)
         });

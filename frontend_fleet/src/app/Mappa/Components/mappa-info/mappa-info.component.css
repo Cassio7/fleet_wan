@@ -56,8 +56,16 @@ mat-list-item span {
   width: 100%;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 0.2rem;
-  padding-left: 0.78rem;
+}
+
+.type-container mat-icon{
+  cursor: pointer;
+}
+
+.type-container mat-icon:hover{
+  opacity: .5;
 }
 
 .session-container{
@@ -66,3 +74,8 @@ mat-list-item span {
   align-items: center;
   gap: 2px;
 }
+
+.button{
+  width: 100%;
+}
+

@@ -8,11 +8,17 @@ import { Subject, takeUntil } from 'rxjs';
 import { RealtimeData } from '../../../Models/RealtimeData';
 import { MapFilterComponent } from "../map-filter/map-filter.component";
 import { MappaInfoComponent } from "../mappa-info/mappa-info.component";
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-home-map',
   standalone: true,
-  imports: [MapComponent, MapFilterComponent, MappaInfoComponent],
+  imports: [
+    CommonModule,
+    MapComponent,
+    MapFilterComponent,
+    MappaInfoComponent
+  ],
   templateUrl: './home-map.component.html',
   styleUrl: './home-map.component.css'
 })
@@ -22,6 +28,8 @@ export class HomeMapComponent implements AfterViewInit{
     private mapService: MapService,
     private realtimeApiService: RealtimeApiService
   ){}
+
+  vehicleSelected: boolean = false;
 
   ngAfterViewInit(): void {
     this.mapService.initMap$.next({
@@ -38,6 +46,4 @@ export class HomeMapComponent implements AfterViewInit{
       error: error => console.error("Errore nella ricerca dei dati realtime: ", error)
     });
   }
-
-
 }

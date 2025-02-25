@@ -1,6 +1,7 @@
 <div class="content">
   <div class="type-container">
     <p class="type"><mat-icon>local_shipping</mat-icon>{{servizio}}</p>
+    <mat-icon (click)="closePopup.emit()">close</mat-icon>
   </div>
   <mat-divider></mat-divider>
   <mat-list>
@@ -113,4 +114,5 @@
       </div>
     </mat-list-item>
   </mat-list>
+  <button mat-raised-button class="button">Vedi dettagli</button>
 </div>

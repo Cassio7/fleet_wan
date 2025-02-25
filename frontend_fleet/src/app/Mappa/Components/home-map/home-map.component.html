@@ -6,8 +6,12 @@
     <div class="filters-container">
       <app-map-filter></app-map-filter>
     </div>
-    <div class="info-container">
-      <app-mappa-info></app-mappa-info>
+    <div class="info-container" [ngClass]="{'hidden': !vehicleSelected}">
+      <app-mappa-info
+        (selectVehicle)="vehicleSelected=true"
+        (closePopup)="vehicleSelected=false"
+        >
+      </app-mappa-info>
     </div>
   </div>
 </div>
