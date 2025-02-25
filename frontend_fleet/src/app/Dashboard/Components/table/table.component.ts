@@ -127,21 +127,7 @@ export class TableComponent implements OnDestroy, AfterViewInit {
       this.handleAllFilters(); //subscribe all'applicazione di tutti i filtri
     });
 
-    this.checkErrorsService.switchCheckDay$
-      .pipe(takeUntil(this.destroy$), skip(1))
-      .subscribe({
-        next: (switchTo: string) => {
-          if (switchTo == 'today') {
-            this.fillTable();
-          } else if (switchTo == 'last') {
-            this.getAllLastSessionAnomalies();
-          } else {
-            console.error('Cambio controllo a periodo sconosciuto');
-          }
-        },
-        error: (error) =>
-          console.error('Errore nel cambio del giorno di controllo: ', error),
-      });
+    this.handleCheckDaySwitch();
 
     this.checkErrorsService.updateAnomalies$
       .pipe(takeUntil(this.destroy$))
@@ -159,7 +145,27 @@ export class TableComponent implements OnDestroy, AfterViewInit {
           ),
       });
 
-    this.fillTable();
+    const allData = JSON.parse(this.sessionStorageService.getItem("allData"));
+    allData ? this.setTableData(allData) : this.fillTable();
+  }
+
+  private handleCheckDaySwitch(){
+    this.checkErrorsService.switchCheckDay$
+    .pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next: (switchTo: string) => {
+
+        if (switchTo == 'today') {
+          this.fillTable();
+        } else if (switchTo == 'last') {
+          this.getAllLastSessionAnomalies();
+        } else {
+          console.error('Cambio controllo a periodo sconosciuto');
+        }
+      },
+      error: (error) =>
+        console.error('Errore nel cambio del giorno di controllo: ', error),
+    });
   }
 
   /**
@@ -183,7 +189,6 @@ export class TableComponent implements OnDestroy, AfterViewInit {
           this.antennaGraphService.loadChartData$.next(filteredVehicles);
           this.gpsGraphService.loadChartData$.next(filteredVehicles);
           this.sessioneGraphService.loadChartData$.next(filteredVehicles);
-          // this.errorGraphService.loadGraphData$.next(filteredVehicles);
         },
       });
   }
@@ -239,90 +244,103 @@ export class TableComponent implements OnDestroy, AfterViewInit {
     );
   }
 
-    /**
+  /**
    * Riempe la tabella con i dati recuperati dalla chiamata API
    */
-    private async fillTable() {
-      console.log("CHIAMATO FILL TABLE!");
-      this.antennaGraphService.resetGraph();
-      this.sessioneGraphService.resetGraph();
-      this.gpsGraphService.resetGraph();
-      // this.errorGraphService.resetGraphs();
-      this.vehicleTableData.data = [];
-      this.checkErrorsService.checkErrorsAllToday().subscribe({
+  private fillTable() {
+    console.log("CHIAMATO FILL TABLE!");
+    this.resetGraphs();
+
+    // this.errorGraphService.resetGraphs();
+    this.vehicleTableData.data = [];
+    this.checkErrorsService.checkErrorsAllToday().subscribe({
+      next: (responseObj: any) => {
+        const lastUpdate = responseObj.lastUpdate;
+        this.updateLastUpdate(lastUpdate);
+        this.setTableData(responseObj.vehicles);
+      },
+      error: (err) => {
+        console.error("Errore nel caricamento iniziale dei dati: ", err);
+      }
+    });
+  }
+
+  /**
+   * Imposta i dati della tabella e carica i grafici
+   * @param vehicles veicoli da cui prendere i dati
+   */
+  private setTableData(vehicles: VehicleData[]){
+    const vehiclesData = vehicles;
+    console.log("vehiclesData fetched: ", vehiclesData);
+    try {
+      if (vehiclesData && vehiclesData.length > 0) {
+        this.vehicleTableData.data = [...vehiclesData];
+        this.sessionStorageService.setItem("allData", JSON.stringify(vehiclesData));
+        this.vehicleTable.renderRows();
+        this.addLastRealtime();
+        this.loadGraphs(vehiclesData);
+      }
+    } catch (error) {
+      console.error("Error processing vehicles:", error);
+    }
+  }
+
+  /**
+   * Imposta il valore del testo dell'ultimo aggiornamento visualizzato sulla dashboard
+   * @param lastUpdate stringa ultimo aggiornamento
+   */
+  private updateLastUpdate(lastUpdate: string){
+    this.sessionStorageService.setItem("lastUpdate", lastUpdate);
+    this.checkErrorsService.updateLastUpdate$.next(lastUpdate);
+  }
+
+  /**
+   * Recupera i dati dell'ultima posizione di ogni veicolo effettuando una chiamata tramite un servizio,
+   * poi unisce le posizioni ottenute con i veicoli nella tabella
+   */
+  private addLastRealtime() {
+    this.realtimeApiService.getAllLastRealtime().pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (realtimeDataObj: RealtimeData[]) => {
+          console.log("realtime data fetched from dashboard: ", realtimeDataObj);
+          const tableVehicles: VehicleData[] = this.realtimeApiService.mergeVehiclesWithRealtime(this.vehicleTableData.data, realtimeDataObj) as VehicleData[];
+          this.vehicleTableData.data = tableVehicles;
+          this.sessionStorageService.setItem("allData", JSON.stringify(tableVehicles));
+          this.vehicleTable.renderRows();
+        },
+        error: error => console.error("Errore nel caricamento dei dati realtime: ", error)
+      });
+  }
+
+  /**
+   * Ottiene i dati dell'ultimo andamento di ciscun veicolo
+   */
+  getAllLastSessionAnomalies() {
+    this.resetGraphs();
+
+    this.vehicleTableData.data = [];
+
+    this.sessionApiService.getAllLastSessionAnomalies().pipe(takeUntil(this.destroy$))
+      .subscribe({
         next: (responseObj: any) => {
-          const lastUpdate = responseObj.lastUpdate;
-          console.log("lastUpdate var: ", lastUpdate);
-          this.sessionStorageService.setItem("lastUpdate", lastUpdate);
-          const vehiclesData = responseObj.vehicles;
-          console.log("vehiclesData fetched: ", vehiclesData);
+          const vehiclesData: VehicleData[] = responseObj.vehicles;
+          console.log("Last session vehiclesData fetched: ", vehiclesData);
           try {
             if (vehiclesData && vehiclesData.length > 0) {
               this.vehicleTableData.data = [...vehiclesData];
               this.sessionStorageService.setItem("allData", JSON.stringify(vehiclesData));
+              this.sessionStorageService.setItem("lastUpdate", responseObj.lastUpdate);
               this.vehicleTable.renderRows();
+              this.addLastRealtime();
               this.loadGraphs(vehiclesData);
             }
           } catch (error) {
-            console.error("Error processing vehicles:", error);
+            console.error("Error processing last session vehicles:", error);
           }
-          this.checkErrorsService.updateLastUpdate$.next(lastUpdate);
         },
-        error: (err) => {
-          console.error("Errore nel caricamento iniziale dei dati: ", err);
-        }
+        error: error => console.error("Errore nel recupero delle ultime sessioni dei veicoli: ", error)
       });
-      this.addLastRealtime();
-    }
-
-    /**
-     * Recupera i dati dell'ultima posizione di ogni veicolo effettuando una chiamata tramite un servizio,
-     * poi unisce le posizioni ottenute con i veicoli nella tabella
-     */
-    private addLastRealtime() {
-      this.realtimeApiService.getAllLastRealtime().pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (realtimeDataObj: RealtimeData[]) => {
-            console.log("realtime data fetched from dashboard: ", realtimeDataObj);
-            const tableVehicles: VehicleData[] = this.realtimeApiService.mergeVehiclesWithRealtime(this.vehicleTableData.data, realtimeDataObj) as VehicleData[];
-            this.vehicleTableData.data = tableVehicles;
-            this.sessionStorageService.setItem("allData", JSON.stringify(tableVehicles));
-            this.vehicleTable.renderRows();
-          },
-          error: error => console.error("Errore nel caricamento dei dati realtime: ", error)
-        });
-    }
-
-    /**
-     * Ottiene i dati dell'ultimo andamento di ciscun veicolo
-     */
-    getAllLastSessionAnomalies() {
-      this.antennaGraphService.resetGraph();
-      this.errorGraphService.resetGraphs();
-
-      this.vehicleTableData.data = [];
-
-      this.sessionApiService.getAllLastSessionAnomalies().pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (responseObj: any) => {
-            const vehiclesData: VehicleData[] = responseObj.vehicles;
-            console.log("Last session vehiclesData fetched: ", vehiclesData);
-            try {
-              if (vehiclesData && vehiclesData.length > 0) {
-                this.vehicleTableData.data = [...vehiclesData];
-                this.sessionStorageService.setItem("allData", JSON.stringify(vehiclesData));
-                this.sessionStorageService.setItem("lastUpdate", responseObj.lastUpdate);
-                this.vehicleTable.renderRows();
-                this.addLastRealtime();
-                this.loadGraphs(vehiclesData);
-              }
-            } catch (error) {
-              console.error("Error processing last session vehicles:", error);
-            }
-          },
-          error: error => console.error("Errore nel recupero delle ultime sessioni dei veicoli: ", error)
-        });
-    }
+  }
 
   /**
    * Simula il progresso di un caricamento
@@ -411,6 +429,12 @@ export class TableComponent implements OnDestroy, AfterViewInit {
     this.gpsGraphService.loadChartData$.next(newVehicles);
     this.antennaGraphService.loadChartData$.next(newVehicles);
     this.sessioneGraphService.loadChartData$.next(newVehicles);
+  }
+
+  resetGraphs(){
+    this.antennaGraphService.resetGraph();
+    this.sessioneGraphService.resetGraph();
+    this.gpsGraphService.resetGraph();
   }
 
   /**

@@ -13,7 +13,7 @@ import { TableComponent } from '../table/table.component';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RowFilterComponent } from '../row-filter/row-filter.component';
 import { KebabMenuComponent } from '../kebab-menu/kebab-menu.component';
-import { skip, Subject, takeUntil } from 'rxjs';
+import { last, skip, Subject, takeUntil } from 'rxjs';
 import { KanbanGpsComponent } from "../kanban-gps/kanban-gps.component";
 import { KanbanGpsService } from '../../Services/kanban-gps/kanban-gps.service';
 import { KanbanAntennaComponent } from "../kanban-antenna/kanban-antenna.component";
@@ -98,14 +98,10 @@ export class DashboardComponent implements OnInit, AfterViewInit{
     this.errorGraphTitle = this.errorGraphService.graphTitle;
     this.handleKanbanLoading();
     setTimeout(() => {
-      const lastUpdate = this.sessionStorageService.getItem("lastUpdate");
-      if(lastUpdate){
-        this.lastUpdate = lastUpdate;
-        this.cd.detectChanges();
-      }
+      this.verifyCheckDay();
     });
 
-    this.checkErrorsService.updateLastUpdate$.pipe(takeUntil(this.destroy$))
+    this.checkErrorsService.updateLastUpdate$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (lastUpdate: string) => {
           if (lastUpdate) {
@@ -118,6 +114,25 @@ export class DashboardComponent implements OnInit, AfterViewInit{
 
     this.cd.detectChanges();
   }
+
+  /**
+   * Controlla se prima del refresh della pagina, i dati della dashboard
+   * erano impostati ad oggi o all'ultimo andamento
+   */
+  private verifyCheckDay(){
+    const lastUpdate = this.sessionStorageService.getItem("lastUpdate");
+
+    if (lastUpdate !== null && lastUpdate !== undefined && lastUpdate !== "undefined") {
+      this.today = true;
+      this.lastSession = false;
+      this.lastUpdate = lastUpdate;
+    } else {
+      this.today = false;
+      this.lastSession = true;
+    }
+
+    this.cd.detectChanges();
+}
 
 
   private handleKanbanLoading(){

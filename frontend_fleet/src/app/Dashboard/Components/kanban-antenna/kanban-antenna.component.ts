@@ -28,6 +28,7 @@ import { MapService } from '../../../Common-services/map/map.service';
 import { RealtimeApiService } from '../../../Common-services/realtime-api/realtime-api.service';
 import { RealtimeData } from '../../../Models/RealtimeData';
 import { Point } from '../../../Models/Point';
+import { SessionApiService } from '../../../Common-services/session/session-api.service';
 
 @Component({
   selector: 'app-kanban-antenna',
@@ -57,6 +58,7 @@ export class KanbanAntennaComponent implements AfterViewInit, OnDestroy {
     private antennaGraphService: AntennaGraphService,
     private realtimeApiService: RealtimeApiService,
     private mapService: MapService,
+    private sessionApiService: SessionApiService,
     public checkErrorsService: CheckErrorsService,
     private cd: ChangeDetectorRef
   ) {}
@@ -71,8 +73,7 @@ export class KanbanAntennaComponent implements AfterViewInit, OnDestroy {
       this.sessionStorageService.getItem('allData')
     );
     let kanbanVehicles = allData;
-    this.kanbanAntennaService.setKanbanData(kanbanVehicles);
-    this.antennaGraphService.loadChartData$.next(kanbanVehicles);
+    this.loadKanban(kanbanVehicles);
 
     this.checkErrorsService.updateAnomalies$
       .pipe(takeUntil(this.destroy$))
@@ -115,7 +116,72 @@ export class KanbanAntennaComponent implements AfterViewInit, OnDestroy {
         this.antennaGraphService.loadChartData$.next(kanbanVehicles);
       });
 
+    this.handleCheckDaySwitch();
+
     this.cd.detectChanges();
+  }
+
+  private handleCheckDaySwitch(){
+    this.checkErrorsService.switchCheckDay$
+    .pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next: (switchTo: string) => {
+        if (switchTo == 'today') {
+          this.loadKanbanWithApiCall();
+        } else if (switchTo == 'last') {
+          this.getAllLastSessionAnomalies();
+        } else {
+          console.error('Cambio controllo a periodo sconosciuto');
+        }
+      },
+      error: (error) =>
+        console.error('Errore nel cambio del giorno di controllo: ', error),
+    });
+  }
+
+
+  private loadKanban(vehicles: VehicleData[]){
+    this.kanbanAntennaService.setKanbanData(vehicles);
+    this.antennaGraphService.loadChartData$.next(vehicles);
+  }
+
+  private loadKanbanWithApiCall(){
+    this.antennaGraphService.resetGraph();
+    this.kanbanAntennaService.clearVehicles();
+
+    this.checkErrorsService.checkErrorsAllToday().pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (responseObj: any) => {
+        const lastUpdate = responseObj.lastUpdate;
+        const vehiclesData = responseObj.vehicles;
+        this.sessionStorageService.setItem("lastUpdate", lastUpdate);
+        this.loadRealtimeVehicles(vehiclesData);
+      },
+      error: error => console.error("Errore nella chiamata per il controllo degli errori di oggi: ", error)
+    });
+  }
+
+  private getAllLastSessionAnomalies() {
+    this.antennaGraphService.resetGraph();
+    this.kanbanAntennaService.clearVehicles();
+
+    this.sessionApiService.getAllLastSessionAnomalies().pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (responseObj: any) => {
+          const vehiclesData: VehicleData[] = responseObj.vehicles;
+          console.log("Last session vehiclesData fetched: ", vehiclesData);
+          try {
+            if (vehiclesData && vehiclesData.length > 0) {
+              this.sessionStorageService.setItem("lastUpdate", responseObj.lastUpdate);
+              this.loadRealtimeVehicles(vehiclesData);
+              this.antennaGraphService.loadChartData$.next(vehiclesData);
+            }
+          } catch (error) {
+            console.error("Error processing last session vehicles:", error);
+          }
+        },
+        error: error => console.error("Errore nel recupero delle ultime sessioni dei veicoli: ", error)
+      });
   }
 
   /**

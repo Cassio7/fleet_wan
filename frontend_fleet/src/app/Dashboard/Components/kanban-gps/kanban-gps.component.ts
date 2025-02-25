@@ -28,6 +28,7 @@ import { MapService } from '../../../Common-services/map/map.service';
 import { RealtimeApiService } from '../../../Common-services/realtime-api/realtime-api.service';
 import { RealtimeData } from '../../../Models/RealtimeData';
 import { Point } from '../../../Models/Point';
+import { SessionApiService } from '../../../Common-services/session/session-api.service';
 
 @Component({
   selector: 'app-kanban-gps',
@@ -57,6 +58,7 @@ export class KanbanGpsComponent implements AfterViewInit, OnDestroy {
     private realtimeApiService: RealtimeApiService,
     private mapService: MapService,
     private gpsGraphService: GpsGraphService,
+    private sessionApiService: SessionApiService,
     private cd: ChangeDetectorRef
   ) {}
 
@@ -70,8 +72,8 @@ export class KanbanGpsComponent implements AfterViewInit, OnDestroy {
       this.sessionStorageService.getItem('allData')
     );
     let kanbanVehicles = allData;
-    this.kanbanGpsService.setKanbanData(kanbanVehicles);
-    this.gpsGraphService.loadChartData$.next(kanbanVehicles);
+
+    this.loadKanban(kanbanVehicles);
 
     this.checkErrorsService.updateAnomalies$
       .pipe(takeUntil(this.destroy$))
@@ -102,18 +104,78 @@ export class KanbanGpsComponent implements AfterViewInit, OnDestroy {
           ),
       });
 
+    this.handleCheckDaySwitch();
+
     this.filtersCommonService.applyFilters$
       .pipe(takeUntil(this.destroy$), skip(1))
       .subscribe((filters: Filters) => {
-        kanbanVehicles = this.filtersCommonService.applyAllFiltersOnVehicles(
-          allData,
-          filters
-        ) as VehicleData[];
+        kanbanVehicles = this.filtersCommonService.applyAllFiltersOnVehicles(allData, filters) as VehicleData[];
         this.kanbanGpsService.setKanbanData(kanbanVehicles);
         this.gpsGraphService.loadChartData$.next(kanbanVehicles);
       });
 
     this.cd.detectChanges();
+  }
+
+  private handleCheckDaySwitch(){
+    this.checkErrorsService.switchCheckDay$
+    .pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next: (switchTo: string) => {
+        if (switchTo == 'today') {
+          this.loadKanbanWithApiCall();
+        } else if (switchTo == 'last') {
+          this.getAllLastSessionAnomalies();
+        } else {
+          console.error('Cambio controllo a periodo sconosciuto');
+        }
+      },
+      error: (error) =>
+        console.error('Errore nel cambio del giorno di controllo: ', error),
+    });
+  }
+
+  private getAllLastSessionAnomalies() {
+    this.gpsGraphService.resetGraph();
+    this.kanbanGpsService.clearVehicles();
+
+    this.sessionApiService.getAllLastSessionAnomalies().pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (responseObj: any) => {
+          const vehiclesData: VehicleData[] = responseObj.vehicles;
+          console.log("Last session vehiclesData fetched: ", vehiclesData);
+          try {
+            if (vehiclesData && vehiclesData.length > 0) {
+              this.sessionStorageService.setItem("lastUpdate", responseObj.lastUpdate);
+              this.loadRealtimeVehicles(vehiclesData);
+              this.gpsGraphService.loadChartData$.next(vehiclesData);
+            }
+          } catch (error) {
+            console.error("Error processing last session vehicles:", error);
+          }
+        },
+        error: error => console.error("Errore nel recupero delle ultime sessioni dei veicoli: ", error)
+      });
+  }
+
+  private loadKanban(vehicles: VehicleData[]){
+    this.kanbanGpsService.setKanbanData(vehicles);
+    this.gpsGraphService.loadChartData$.next(vehicles);
+  }
+
+  private loadKanbanWithApiCall(){
+    this.gpsGraphService.resetGraph();
+    this.kanbanGpsService.clearVehicles();
+    this.checkErrorsService.checkErrorsAllToday().pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (responseObj: any) => {
+        const lastUpdate = responseObj.lastUpdate;
+        const vehiclesData = responseObj.vehicles;
+        this.sessionStorageService.setItem("lastUpdate", lastUpdate);
+        this.loadRealtimeVehicles(vehiclesData);
+      },
+      error: error => console.error("Errore nella chiamata per il controllo degli errori di oggi: ", error)
+    });
   }
 
   /**
@@ -126,16 +188,11 @@ export class KanbanGpsComponent implements AfterViewInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (realtimeDataObj: RealtimeData[]) => {
-          const realtimeVehicles: VehicleData[] = this.mergeRealtimeData(
-            vehicles,
-            realtimeDataObj
-          );
+          const realtimeVehicles: VehicleData[] = this.mergeRealtimeData(vehicles,realtimeDataObj);
           this.kanbanGpsService.setKanbanData(realtimeVehicles);
           this.gpsGraphService.loadChartData$.next(realtimeVehicles);
-          this.sessionStorageService.setItem(
-            'allData',
-            JSON.stringify(realtimeVehicles)
-          );
+          console.log("realtime vehicles set: ", realtimeVehicles);
+          this.sessionStorageService.setItem('allData',JSON.stringify(realtimeVehicles));
           return realtimeVehicles;
         },
         error: (error) =>

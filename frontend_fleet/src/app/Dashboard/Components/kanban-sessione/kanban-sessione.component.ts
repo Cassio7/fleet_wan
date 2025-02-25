@@ -23,6 +23,7 @@ import { RealtimeApiService } from '../../../Common-services/realtime-api/realti
 import { RealtimeData } from '../../../Models/RealtimeData';
 import { SessioneGraphService } from '../../Services/sessione-graph/sessione-graph.service';
 import { Point } from '../../../Models/Point';
+import { SessionApiService } from '../../../Common-services/session/session-api.service';
 
 @Component({
   selector: 'app-kanban-sessione',
@@ -52,6 +53,7 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy {
     private realtimeApiService: RealtimeApiService,
     private mapService: MapService,
     private sessioneGraphService: SessioneGraphService,
+    private sessionApiService: SessionApiService,
     private cd: ChangeDetectorRef
   ) {}
 
@@ -108,7 +110,65 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy {
         this.sessioneGraphService.loadChartData$.next(kanbanVehicles);
       });
 
+    this.handleCheckDaySwitch();
+
     this.cd.detectChanges();
+  }
+
+  private handleCheckDaySwitch(){
+    this.checkErrorsService.switchCheckDay$
+    .pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next: (switchTo: string) => {
+        if (switchTo == 'today') {
+          this.loadKanbanWithApiCall();
+        } else if (switchTo == 'last') {
+          this.getAllLastSessionAnomalies();
+        } else {
+          console.error('Cambio controllo a periodo sconosciuto');
+        }
+      },
+      error: (error) =>
+        console.error('Errore nel cambio del giorno di controllo: ', error),
+    });
+  }
+
+  private loadKanbanWithApiCall(){
+    this.sessioneGraphService.resetGraph();
+    this.kanbanSessioneService.clearVehicles();
+    this.checkErrorsService.checkErrorsAllToday().pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (responseObj: any) => {
+        const lastUpdate = responseObj.lastUpdate;
+        const vehiclesData = responseObj.vehicles;
+        this.sessionStorageService.setItem("lastUpdate", lastUpdate);
+        this.loadRealtimeVehicles(vehiclesData);
+      },
+      error: error => console.error("Errore nella chiamata per il controllo degli errori di oggi: ", error)
+    });
+  }
+
+  private getAllLastSessionAnomalies() {
+    this.sessioneGraphService.resetGraph();
+    this.kanbanSessioneService.clearVehicles();
+
+    this.sessionApiService.getAllLastSessionAnomalies().pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (responseObj: any) => {
+          const vehiclesData: VehicleData[] = responseObj.vehicles;
+          console.log("Last session vehiclesData fetched: ", vehiclesData);
+          try {
+            if (vehiclesData && vehiclesData.length > 0) {
+              this.sessionStorageService.setItem("lastUpdate", responseObj.lastUpdate);
+              this.loadRealtimeVehicles(vehiclesData);
+              this.sessioneGraphService.loadChartData$.next(vehiclesData);
+            }
+          } catch (error) {
+            console.error("Error processing last session vehicles:", error);
+          }
+        },
+        error: error => console.error("Errore nel recupero delle ultime sessioni dei veicoli: ", error)
+      });
   }
 
   /**

@@ -19,8 +19,8 @@
       <p class="subtitle">Ultima posizione registrata</p>
     </div>
     <div class="map-container">
-      <app-map class="map" *ngIf="today"></app-map>
-      <mat-error *ngIf="!today">Mappa non disponibile per ultimo andamento</mat-error>
+      <app-map class="map" *ngIf="today && !lastSession"></app-map>
+      <mat-error *ngIf="!today && lastSession">Mappa non disponibile per ultimo andamento</mat-error>
     </div>
   </div>
   <div class="right-section">
