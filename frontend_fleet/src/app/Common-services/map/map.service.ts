@@ -24,7 +24,7 @@ export class MapService {
   private readonly _updateMarkers$: BehaviorSubject<any> = new BehaviorSubject<any>(null);
 
   private readonly _selectMarker$: BehaviorSubject<positionData | null> = new BehaviorSubject<positionData | null>(null);
-  private readonly _togglePopups$: Subject<void> = new Subject<void>();
+  private readonly _togglePopups$: Subject<boolean> = new Subject<boolean>();
   private readonly _zoomIn$: BehaviorSubject<{ point: Point; zoom: number; } | null> = new BehaviorSubject<{ point: Point; zoom: number; } | null>(null);
 
   positionDatas: positionData[] = [];
@@ -202,8 +202,6 @@ export class MapService {
       marker.openPopup();
     });
 
-    marker.off('click', marker.togglePopup, marker);
-
     marker.on('click', (event) => {
       L.DomEvent.stop(event);
 
@@ -285,14 +283,14 @@ export class MapService {
    * Mostra/nasconde i popup dei marker in una mappa
    * @param map mappa di cui togglare i popup
    */
-  togglePopups(map: L.Map) {
-    const markers = this.getMapMarkers(map); // Ottieni i marker direttamente
+  togglePopups(map: L.Map, toggleState: boolean) {
+    const markers = this.getMapMarkers(map); // Marker della mappa
 
     markers.forEach(marker => {
-      if (marker.isPopupOpen()) {
-        marker.closePopup();
-      } else {
+      if(toggleState){
         marker.openPopup();
+      }else{
+        marker.closePopup()
       }
     });
   }
@@ -330,7 +328,7 @@ export class MapService {
   public get zoomIn$(): BehaviorSubject<{ point: Point; zoom: number; } | null> {
     return this._zoomIn$;
   }
-  public get togglePopups$(): Subject<void> {
+  public get togglePopups$(): Subject<boolean> {
     return this._togglePopups$;
   }
   public get initMap$(): BehaviorSubject<any> {

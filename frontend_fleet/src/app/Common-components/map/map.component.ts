@@ -16,6 +16,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { Realtime } from '../../Models/Realtime';
 import { RealtimeData } from '../../Models/RealtimeData';
 import { Point } from '../../Models/Point';
+import { SessionStorageService } from '../../Common-services/sessionStorage/session-storage.service';
 
 @Component({
   selector: 'app-map',
@@ -31,7 +32,10 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   map!: L.Map;
   initialized: boolean = false;
 
-  constructor(private mapService: MapService, private cd: ChangeDetectorRef) {}
+  constructor(
+    private mapService: MapService,
+    private sessionStorageService: SessionStorageService,
+    private cd: ChangeDetectorRef) {}
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -66,25 +70,38 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   /**
    * Gestisce la sottoscrizione all'aggiornamento dei marker presenti sulla mappa
    */
-  private handleMarkersUpdate(){
+  private handleMarkersUpdate() {
     this.mapService.updateMarkers$.pipe(takeUntil(this.destroy$), skip(1))
-    .subscribe({
-      next: (filteredVehicles: any) => {
-        const filteredPositionDatas: positionData[] = this.mapService.positionDatas.filter(data =>
-          filteredVehicles.some((vehicle: any) => vehicle.vehicle.plate === data.plate)
-        );
-        const filteredMarkers: L.Marker[] = filteredPositionDatas.map(data => {
-          return this.mapService.createMarker(data.position, data.plate, data.cantiere, data.veId, undefined);
-        });
+      .subscribe({
+        next: (filteredVehicles: any) => {
+          const plateToggle = JSON.parse(this.sessionStorageService.getItem("plateToggle"));
+          console.log("plate toggle in map component: ", plateToggle);
 
-        this.mapService.removeAllMapMarkers(this.map);
-        filteredMarkers.forEach(marker => {
-          this.mapService.addMarker(this.map, marker);
-        });
-      },
-      error: error => console.error("Errore nell'aggiornamento dei marker presenti sulla mappa: ", error)
-    });
+          const filteredPositionDatas: positionData[] = this.mapService.positionDatas.filter(data =>
+            filteredVehicles.some((vehicle: any) => vehicle.vehicle.plate === data.plate)
+          );
+
+          const filteredMarkers: L.Marker[] = filteredPositionDatas.map(data => {
+            return this.mapService.createMarker(data.position, data.plate, data.cantiere, data.veId, undefined);
+          });
+
+          this.mapService.removeAllMapMarkers(this.map);
+
+          filteredMarkers.forEach(marker => {
+            if (plateToggle) {
+              marker.openPopup();
+            } else {
+              marker.closePopup();
+            }
+            this.mapService.addMarker(this.map, marker);
+          });
+        },
+        error: error => {
+          console.error("Errore nell'aggiornamento dei marker presenti sulla mappa: ", error);
+        }
+      });
   }
+
 
   /**
    * Gestisce la sottoscrizione all'attivazione e disabilitazione dei popup dei marker
@@ -92,8 +109,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   private handleTogglePopups(){
     this.mapService.togglePopups$.pipe(takeUntil(this.destroy$))
     .subscribe({
-      next: () => {
-        this.mapService.togglePopups(this.map);
+      next: (toggleState: boolean) => {
+        this.mapService.togglePopups(this.map, toggleState);
       },
       error: error => console.error("Errore nel toggle dei popup nei marker: ", error)
     });

@@ -62,8 +62,8 @@ export class MapFilterComponent implements OnInit, AfterViewInit, OnDestroy{
   cantieriSelectOpened: boolean = false;
   targheSelectOpened: boolean = false;
 
-  checked = true;
-  disabled = false;
+  visiblePlates = true;
+  hiddnePlates = false;
   private allSelected: boolean = false;
 
   ngOnDestroy(): void {
@@ -113,6 +113,13 @@ export class MapFilterComponent implements OnInit, AfterViewInit, OnDestroy{
 
   ngAfterViewInit(): void {
     this.handleLoadPosition();
+    this.mapService.updateMarkers$.pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: () => {
+        this.visiblePlates = true;
+      },
+      error: error => console.error("Errore nella notifica di aggiornamento dei marker: ", error)
+    });
   }
 
   /**
@@ -333,6 +340,6 @@ export class MapFilterComponent implements OnInit, AfterViewInit, OnDestroy{
    * Permette di attivare e disattivare i popup sulla mappa
    */
   togglePlates(){
-    this.mapService.togglePopups$.next();
+    this.mapService.togglePopups$.next(this.visiblePlates);
   }
 }
