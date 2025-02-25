@@ -10,6 +10,7 @@ import { VehicleAnomalies } from '../../../Models/VehicleAnomalies';
 import { MatButtonModule } from '@angular/material/button';
 import { VehicleData } from '../../../Models/VehicleData';
 import { Vehicle } from '../../../Models/Vehicle';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-mappa-info',
@@ -29,18 +30,20 @@ export class MappaInfoComponent implements AfterViewInit, OnDestroy{
   @Output() selectVehicle = new EventEmitter();
   @Output() closePopup = new EventEmitter();
 
-  servizio: string = "";
-  plate: string = "";
-  cantiere: string = "";
-  gpsAnomaly: string = "";
-  antennaAnomaly: string = "";
-  sessioneAnomaly: string = "";
+  veId!: number;
+  servizio!: string;
+  plate!: string;
+  cantiere!: string;
+  gpsAnomaly!: string;
+  antennaAnomaly!: string;
+  sessioneAnomaly!: string;
   anomalyDate!: Date | null;
   vehicleSelected: boolean = false;
 
   constructor(
     public checkErrorsService: CheckErrorsService,
     private mapService:MapService,
+    private router: Router
   ){}
 
 
@@ -81,12 +84,21 @@ export class MappaInfoComponent implements AfterViewInit, OnDestroy{
       const vehicle = vehicleAnomalies.vehicle;
       const currentAnomaly = vehicleAnomalies.anomalies[0];
       this.vehicleSelected = true;
+      this.veId = vehicle.veId;
       this.servizio = vehicle.service.name;
       this.gpsAnomaly = currentAnomaly.gps || "";
       this.antennaAnomaly = currentAnomaly.antenna || "";
       this.sessioneAnomaly = currentAnomaly.session || "";
       this.anomalyDate = currentAnomaly.date;
     }
+  }
+
+  /**
+   * Naviga alla pagina di dettaglio del veicolo
+   * @param vehicleId id del veicolo del quale visualizzare il dettaglio
+   */
+  viewDetails(){
+    this.router.navigate(['/dettaglio-mezzo', this.veId]);
   }
 
 }
