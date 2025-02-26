@@ -149,54 +149,14 @@ export class UserService {
       );
     }
   }
-
+  
   /**
-   * Servizio per update utente nel database
+   * Servizio per aggiornare la i dati utente, soltanto per modificare proprio account
    * @param userId id utente
-   * @param userDTO nuovi dati da aggiornare
+   * @param currentPassword password attuale utente
+   * @param userDTO nuovi dati da aggiornare per utente
    */
-  async updateUser(userId: number, userDTO: UserDTO) {
-    const user = await this.checkUser(userId);
-
-    const updateUser = {
-      email: userDTO.email || user.email,
-      name: userDTO.name || user.name,
-      surname: userDTO.surname || user.surname,
-    };
-    const queryRunner = this.connection.createQueryRunner();
-    try {
-      await queryRunner.connect();
-      await queryRunner.startTransaction();
-      await queryRunner.manager.getRepository(UserEntity).update(
-        {
-          key: user.key,
-        },
-        updateUser,
-      );
-      await queryRunner.commitTransaction();
-    } catch (error) {
-      await queryRunner.rollbackTransaction();
-      if (error instanceof HttpException) throw error;
-      throw new HttpException(
-        `Errore durante l'aggiornamento utente`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    } finally {
-      await queryRunner.release();
-    }
-  }
-
-  /**
-   * Servizio per aggiornare la password utente
-   * @param userId user id
-   * @param currentPassword password attuale
-   * @param newPassword password nuova
-   */
-  async updateUserPsw(
-    userId: number,
-    currentPassword: string,
-    newPassword: string,
-  ) {
+  async updateUser(userId: number, currentPassword: string, userDTO: UserDTO) {
     const user = await this.checkUser(userId);
 
     const isPasswordMatch = await bcrypt.compare(
@@ -208,14 +168,32 @@ export class UserService {
         'Password attuale errata',
         HttpStatus.UNAUTHORIZED,
       );
-    if (currentPassword.toLowerCase() === newPassword.toLowerCase())
-      throw new HttpException(
-        'Password attuale uguale alla precedente!',
-        HttpStatus.BAD_REQUEST,
-      );
+    const newPassword = userDTO.password;
+    let hashPassword = null;
+    if (newPassword) {
+      if (currentPassword.toLowerCase() === newPassword.toLowerCase())
+        throw new HttpException(
+          'Password attuale uguale alla precedente!',
+          HttpStatus.BAD_REQUEST,
+        );
+      // Controllo sulla sicurezza della password
+      const passwordRegex = /^(?=.*[A-Z])(?=.*[\W_])(?=.{8,})/;
+      if (!passwordRegex.test(newPassword)) {
+        throw new HttpException(
+          'La password deve contenere almeno 8 caratteri, una lettera maiuscola e un simbolo speciale.',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      const salt = await bcrypt.genSalt(10);
+      hashPassword = await bcrypt.hash(newPassword, salt);
+    }
 
-    const salt = await bcrypt.genSalt(10);
-    const hashPassword = await bcrypt.hash(newPassword, salt);
+    const updateUser = {
+      email: userDTO.email || user.email,
+      name: userDTO.name || user.name,
+      surname: userDTO.surname || user.surname,
+      password: hashPassword || user.password,
+    };
     const queryRunner = this.connection.createQueryRunner();
     try {
       await queryRunner.connect();
@@ -224,7 +202,7 @@ export class UserService {
         {
           key: user.key,
         },
-        { password: hashPassword },
+        updateUser,
       );
       await queryRunner.commitTransaction();
     } catch (error) {
