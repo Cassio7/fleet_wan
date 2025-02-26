@@ -86,7 +86,6 @@ export class TableComponent implements OnDestroy, AfterViewInit {
 
   loadingProgress: number = 0;
   loadingText: string = '';
-  loading: boolean = false;
   today = true;
 
   displayedColumns: string[] = [
@@ -133,6 +132,7 @@ export class TableComponent implements OnDestroy, AfterViewInit {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
+          this.loadingProgress = 0;
           this.vehicleTableData.data = [];
           setTimeout(() => {
             this.fillTable();
@@ -146,7 +146,13 @@ export class TableComponent implements OnDestroy, AfterViewInit {
       });
 
     const allData = JSON.parse(this.sessionStorageService.getItem("allData"));
-    allData ? this.setTableData(allData) : this.fillTable();
+    if(allData){
+      this.vehicleTableData.data = allData;
+      this.loadGraphs(allData);
+      this.loadingProgress = 100;
+    }else{
+      this.fillTable();
+    }
   }
 
   private handleCheckDaySwitch(){
@@ -154,7 +160,6 @@ export class TableComponent implements OnDestroy, AfterViewInit {
     .pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (switchTo: string) => {
-
         if (switchTo == 'today') {
           this.fillTable();
         } else if (switchTo == 'last') {
@@ -179,16 +184,10 @@ export class TableComponent implements OnDestroy, AfterViewInit {
           const allData = JSON.parse(
             this.sessionStorageService.getItem('allData')
           );
-          const filteredVehicles =
-            this.filtersCommonService.applyAllFiltersOnVehicles(
-              allData,
-              filters
-            ) as VehicleData[];
+          const filteredVehicles = this.filtersCommonService.applyAllFiltersOnVehicles(allData,filters) as VehicleData[];
           this.vehicleTableData.data = filteredVehicles;
           this.vehicleTable.renderRows();
-          this.antennaGraphService.loadChartData$.next(filteredVehicles);
-          this.gpsGraphService.loadChartData$.next(filteredVehicles);
-          this.sessioneGraphService.loadChartData$.next(filteredVehicles);
+          this.loadGraphs(filteredVehicles);
         },
       });
   }
@@ -253,8 +252,12 @@ export class TableComponent implements OnDestroy, AfterViewInit {
 
     // this.errorGraphService.resetGraphs();
     this.vehicleTableData.data = [];
-    this.checkErrorsService.checkErrorsAllToday().subscribe({
+    this.checkErrorsService.checkErrorsAllToday().pipe(takeUntil(this.destroy$), tap(() => {
+      this.loadingProgress+=50;
+      this.loadingText = "Caricamento dei veicoli...";
+    })).subscribe({
       next: (responseObj: any) => {
+        console.log("filltable loading progress: ",this.loadingProgress);
         const lastUpdate = responseObj.lastUpdate;
         this.updateLastUpdate(lastUpdate);
         this.setTableData(responseObj.vehicles);
@@ -267,6 +270,7 @@ export class TableComponent implements OnDestroy, AfterViewInit {
 
   /**
    * Imposta i dati della tabella e carica i grafici
+   * unendo i risultati con i dati realtime
    * @param vehicles veicoli da cui prendere i dati
    */
   private setTableData(vehicles: VehicleData[]){
@@ -299,13 +303,18 @@ export class TableComponent implements OnDestroy, AfterViewInit {
    * poi unisce le posizioni ottenute con i veicoli nella tabella
    */
   private addLastRealtime() {
-    this.realtimeApiService.getAllLastRealtime().pipe(takeUntil(this.destroy$))
+    this.realtimeApiService.getAllLastRealtime().pipe(tap(() => {
+      this.loadingProgress+= 50;
+      this.loadingText = "Caricamento dati del tempo reale...";
+    }), takeUntil(this.destroy$))
       .subscribe({
         next: (realtimeDataObj: RealtimeData[]) => {
+          console.log("realtime loading progress: ",this.loadingProgress);
           console.log("realtime data fetched from dashboard: ", realtimeDataObj);
           const tableVehicles: VehicleData[] = this.realtimeApiService.mergeVehiclesWithRealtime(this.vehicleTableData.data, realtimeDataObj) as VehicleData[];
           this.vehicleTableData.data = tableVehicles;
           this.sessionStorageService.setItem("allData", JSON.stringify(tableVehicles));
+
           this.vehicleTable.renderRows();
         },
         error: error => console.error("Errore nel caricamento dei dati realtime: ", error)
@@ -340,42 +349,6 @@ export class TableComponent implements OnDestroy, AfterViewInit {
         },
         error: error => console.error("Errore nel recupero delle ultime sessioni dei veicoli: ", error)
       });
-  }
-
-  /**
-   * Simula il progresso di un caricamento
-   * @param seconds durata totale in secondi del caricamento
-   */
-  async simulateProgress(seconds: number): Promise<void> {
-    this.loading = true;
-    this.loadingProgress = 0;
-    this.cd.detectChanges();
-    let progress = 0;
-    const progressPerSec = 100 / seconds;
-    return new Promise((resolve) => {
-      const interval = setInterval(() => {
-        if (progress < 100) {
-          progress += progressPerSec;
-          this.loadingProgress = Math.min(progress, 100);
-        } else {
-          this.loading = false;
-          clearInterval(interval);
-          resolve();
-        }
-        this.cd.detectChanges();
-      }, 1000);
-    });
-  }
-
-  /**
-   * Riempe la tabella con i veicoli passati
-   * @param vehicles
-   */
-  fillTableWithVehicles(vehicles: VehicleData[]) {
-    if (vehicles.length > 0) {
-      this.vehicleTableData.data = vehicles;
-      this.vehicleTable.renderRows();
-    }
   }
 
   /**
@@ -416,7 +389,9 @@ export class TableComponent implements OnDestroy, AfterViewInit {
    */
   onGraphClick(vehiclesData: VehicleData[]) {
     this.cantieriFilterService.updateCantieriFilterOptions$.next(vehiclesData);
-    this.fillTableWithVehicles(vehiclesData);
+    if(vehiclesData){
+      this.vehicleTableData.data = vehiclesData;
+    }
     this.loadGraphs(vehiclesData);
   }
 

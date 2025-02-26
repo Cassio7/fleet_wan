@@ -1,4 +1,4 @@
-<div class="loading-progress" *ngIf="loading">
+<div class="loading-progress" *ngIf="loadingProgress < 100">
   <p class="loading-p">Caricamento dei veicoli...</p>
   <mat-progress-bar
     mode="determinate"
@@ -36,7 +36,7 @@
     <ng-container matColumnDef="Targa">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Targa</th>
       <td mat-cell *matCellDef="let vehicleData">
-        <span class="icon-container" style="font-weight: 600;">
+        <span class="plate-container" style="font-weight: 600;">
           {{ vehicleData.vehicle.plate }}
         </span>
       </td>
