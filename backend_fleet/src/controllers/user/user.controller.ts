@@ -172,6 +172,42 @@ export class UserController {
     }
   }
 
+  @Roles(Role.Admin, Role.Capo, Role.Responsabile)
+  @Put('me')
+  async updateMyProfile(
+    @Req() req: Request & { user: UserFromToken },
+    @Res() res: Response,
+    @Body() userDTO: UserDTO,
+    @Body('currentPassword') currentPassword: string,
+  ) {
+    const context: LogContext = {
+      userId: req.user.id,
+      username: req.user.username,
+      resource: 'User me',
+    };
+    try {
+      await this.userService.updateUser(req.user.id, currentPassword, userDTO);
+
+      this.loggerService.logCrudSuccess(
+        context,
+        'update',
+        `Utente con username ${userDTO.username} aggiornato!`,
+      );
+      return res.status(200).json({
+        message: `Il tuo profilo è stato aggiornato!`,
+      });
+    } catch (error) {
+      this.loggerService.logCrudError({
+        error,
+        context,
+        operation: 'update',
+      });
+      return res.status(error.status || 500).json({
+        message: error.message || 'Errore nel recupero dell utente',
+      });
+    }
+  }
+
   /**
    * API per restituire un utente in base all'id, solo admin
    * @param req user token data

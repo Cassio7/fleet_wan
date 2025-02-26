@@ -23,10 +23,12 @@ import { AssociationService } from '../association/association.service';
 export class SessionService {
   private serviceUrl = 'https://ws.fleetcontrol.it/FWANWs3/services/FWANSOAP';
   // imposta il tempo di recupero dei history, ogni quanti secondi = 3 min
-  private timeHistory = 180000;
+  private TIME_HISTORY = 180000;
   constructor(
     @InjectRepository(SessionEntity, 'readOnlyConnection')
     private readonly sessionRepository: Repository<SessionEntity>,
+    @InjectRepository(HistoryEntity, 'readOnlyConnection')
+    private readonly historyRepository: Repository<HistoryEntity>,
     @InjectDataSource('mainConnection')
     private readonly connection: DataSource,
     @InjectRedis() private readonly redis: Redis,
@@ -173,35 +175,25 @@ export class SessionService {
           .digest('hex');
       };
 
-      const filteredDataSession = sessionLists.map((item: any) => {
-        if (item['sequenceId'] === 0) {
-          const hash = hashSession0(item);
+      const filteredDataSession = sessionLists
+        .filter((item: any) => item?.list)
+        .map((item: any) => {
+          const hash =
+            Number(item.sequenceId) === 0
+              ? hashSession0(item)
+              : hashSession(item);
           return {
-            period_from: item['periodFrom'],
-            period_to: item['periodTo'],
-            sequence_id: item['sequenceId'],
-            closed: item['closed'],
-            distance: item['distance'],
-            engine_drive: item['engineDriveSec'],
-            engine_stop: item['engineNoDriveSec'],
-            lists: item['list'],
-            hash: hash,
+            period_from: item.periodFrom,
+            period_to: item.periodTo,
+            sequence_id: item.sequenceId,
+            closed: item.closed,
+            distance: item.distance,
+            engine_drive: item.engineDriveSec,
+            engine_stop: item.engineNoDriveSec,
+            lists: item.list,
+            hash,
           };
-        } else {
-          const hash = hashSession(item);
-          return {
-            period_from: item['periodFrom'],
-            period_to: item['periodTo'],
-            sequence_id: item['sequenceId'],
-            closed: item['closed'],
-            distance: item['distance'],
-            engine_drive: item['engineDriveSec'],
-            engine_stop: item['engineNoDriveSec'],
-            lists: item['list'],
-            hash: hash,
-          };
-        }
-      });
+        });
       const sessionSequenceId = filteredDataSession.map(
         (session) => session.sequence_id,
       );
@@ -214,26 +206,31 @@ export class SessionService {
             sequence_id: true,
             hash: true,
             key: true,
-            period_from: true,
           },
           where: {
             sequence_id: In(sessionSequenceId),
             history: { vehicle: { veId: veId } },
           },
-          order: {
-            period_to: 'ASC',
-          },
         });
-      // Crea una mappa per abbinare gli hash alle sessioni restituite dalla query
-      const sessionQueryMap = new Map(
-        sessionQueries.map((query) => [query.sequence_id, query]),
-      );
+
+      // Crea una mappa che associa ciascun sequence_id a un array di sessioni
+      const sessionQueryMap = new Map();
+      for (const query of sessionQueries) {
+        const seqId = Number(query.sequence_id);
+        if (!sessionQueryMap.has(seqId)) {
+          sessionQueryMap.set(seqId, []);
+        }
+        sessionQueryMap.get(seqId).push(query);
+      }
+
       const newSession = [];
       const updatedSession = [];
       for (const session of filteredDataSession) {
-        // controllo se esiste hash
-        const exists = sessionQueryMap.get(Number(session.sequence_id));
-        if (!exists) {
+        const seqId = Number(session.sequence_id);
+        // Ottieni tutte le sessioni con questo sequence_id (o array vuoto se non esistono)
+        const existingSessions = sessionQueryMap.get(seqId) || [];
+        if (existingSessions.length === 0) {
+          // Nessuna sessione esistente con questo sequence_id
           const newSessionOne = await queryRunner.manager
             .getRepository(SessionEntity)
             .create({
@@ -247,27 +244,31 @@ export class SessionService {
               hash: session.hash,
             });
           newSession.push(newSessionOne);
-        } else if (exists.sequence_id === 0) {
-          const inputDate = new Date(exists.period_from);
-          const today = new Date();
+        } else if (seqId === 0 && existingSessions.length != 0) {
+          // Caso speciale per sequence_id = 0
+          let hashFound = false;
 
-          if (
-            inputDate.getFullYear() === today.getFullYear() &&
-            inputDate.getMonth() === today.getMonth() &&
-            inputDate.getDate() === today.getDate()
-          ) {
-            // Oggi
-            updatedSession.push({
-              key: exists.key,
-              period_to: session.period_to,
-              sequence_id: session.sequence_id,
-              closed: session.closed,
-              distance: session.distance,
-              engine_drive: session.engine_drive,
-              engine_stop: session.engine_stop,
-              hash: session.hash,
-            });
-          } else {
+          for (const exists of existingSessions) {
+            if (exists.hash === session.hash) {
+              // Se troviamo una sessione con lo stesso hash, la aggiorniamo
+              updatedSession.push({
+                key: exists.key,
+                period_from: session.period_from,
+                period_to: session.period_to,
+                sequence_id: session.sequence_id,
+                closed: session.closed,
+                distance: session.distance,
+                engine_drive: session.engine_drive,
+                engine_stop: session.engine_stop,
+                hash: session.hash,
+              });
+              hashFound = true;
+              break;
+            }
+          }
+
+          if (!hashFound) {
+            // Se non troviamo nessuna sessione con lo stesso hash, ne creiamo una nuova
             const newSessionOne = await queryRunner.manager
               .getRepository(SessionEntity)
               .create({
@@ -282,18 +283,24 @@ export class SessionService {
               });
             newSession.push(newSessionOne);
           }
-        } else if (exists.hash !== session.hash) {
-          updatedSession.push({
-            key: exists.key,
-            period_from: session.period_from,
-            period_to: session.period_to,
-            sequence_id: session.sequence_id,
-            closed: session.closed,
-            distance: session.distance,
-            engine_drive: session.engine_drive,
-            engine_stop: session.engine_stop,
-            hash: session.hash,
-          });
+        } else {
+          // Per altre sequence_id, controlla l'hash
+          for (const exists of existingSessions) {
+            if (exists.hash !== session.hash) {
+              updatedSession.push({
+                key: exists.key,
+                period_from: session.period_from,
+                period_to: session.period_to,
+                sequence_id: session.sequence_id,
+                closed: session.closed,
+                distance: session.distance,
+                engine_drive: session.engine_drive,
+                engine_stop: session.engine_stop,
+                hash: session.hash,
+              });
+              break;
+            }
+          }
         }
       }
       if (newSession.length > 0) {
@@ -396,7 +403,7 @@ export class SessionService {
               // controllo se è il primo elemento oppure se la differenza tra i due è maggiore di quanto specificato
               if (
                 Math.abs(currentMillis - lastSavedTimestamp) >=
-                  this.timeHistory ||
+                  this.TIME_HISTORY ||
                 currentMillis === lastSavedTimestamp
               ) {
                 lastSavedTimestamp = currentMillis;
@@ -450,31 +457,6 @@ export class SessionService {
         const hisotyrQueryMap = new Map(
           historyQueries.map((query) => [query.hash, query]),
         );
-        // pulisce la sessione attiva da timestamp precedenti, evita duplicati e timestamp arretrati
-        // if (historysession.sessionquery.sequence_id === 0) {
-        //   const keys = await queryRunner.manager
-        //     .getRepository(HistoryEntity)
-        //     .find({
-        //       select: {
-        //         key: true,
-        //       },
-        //       where: {
-        //         session: {
-        //           sequence_id: 0,
-        //         },
-        //         vehicle: {
-        //           veId: id,
-        //         },
-        //       },
-        //     });
-        //   if (keys && keys.length > 0) {
-        //     const keyValues = keys.map((item) => item.key);
-        //     console.log('Pulisco history sequence 0');
-        //     await queryRunner.manager.getRepository(HistoryEntity).delete({
-        //       key: In(keyValues),
-        //     });
-        //   }
-        // }
         const newHistory = [];
         for (const history of cleanedDataHistory) {
           // controllo se esiste hash
@@ -765,32 +747,40 @@ export class SessionService {
   async getLastValidSessionByVeIds(
     vehicleIds: number[],
   ): Promise<Map<number, any>> {
-    const sessions = await this.sessionRepository
-      .createQueryBuilder('s')
-      .distinctOn(['v.veId'])
-      .select([
-        's.key AS key',
-        's.id AS id',
-        's.sequence_id AS sequence_id',
-        's.period_to AS period_to',
-        'v.veId AS veId',
-      ])
-      .innerJoin('history', 'h', 's.id = h.sessionId')
-      .innerJoin('vehicles', 'v', 'h.vehicleId = v.id')
-      .where('v.veId IN (:...vehicleIds)', { vehicleIds })
-      .orderBy('v.veId')
-      .addOrderBy('s.sequence_id', 'DESC')
-      .getRawMany();
+    try {
+      const sessions = await this.sessionRepository
+        .createQueryBuilder('s')
+        .distinctOn(['v.veId'])
+        .select([
+          's.key AS key',
+          's.id AS id',
+          's.sequence_id AS sequence_id',
+          's.period_to AS period_to',
+          'v.veId AS veId',
+        ])
+        .innerJoin('history', 'h', 's.id = h.sessionId')
+        .innerJoin('vehicles', 'v', 'h.vehicleId = v.id')
+        .where('v.veId IN (:...vehicleIds)', { vehicleIds })
+        .orderBy('v.veId')
+        .addOrderBy('s.sequence_id', 'DESC')
+        .getRawMany();
 
-    const sessionMap = new Map<number, any>();
-    sessions.forEach((session) => {
-      const vehicleId = session.veid;
-      if (vehicleId) {
-        sessionMap.set(vehicleId, session);
-      }
-    });
-    await this.setLastValidSessionRedis(sessionMap);
-    return sessionMap;
+      const sessionMap = new Map<number, any>();
+      sessions.forEach((session) => {
+        const vehicleId = session.veid;
+        if (vehicleId) {
+          sessionMap.set(vehicleId, session);
+        }
+      });
+      await this.setLastValidSessionRedis(sessionMap);
+      return sessionMap;
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new HttpException(
+        `Errore durante delle sessioni attive`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   /**
@@ -831,6 +821,78 @@ export class SessionService {
     });
     await Promise.all(redisPromises);
     return sessionMap;
+  }
+
+  /**
+   * Ritorna alcuni dati dell'ultima posizione registrata in base ad una lista di veicoli
+   * @param vehicleIds lista di veId identificativi veicolo
+   * @returns ritorna una mappa con (veId, history);
+   */
+  async getLastHistoryByVeIds(vehicleIds: number[]): Promise<Map<number, any>> {
+    try {
+      const history = await this.historyRepository
+        .createQueryBuilder('h')
+        .distinctOn(['v.veId'])
+        .select(['h.id as id ', 'h.timestamp AS timestamp', 'v.veId AS veId'])
+        .innerJoin('vehicles', 'v', 'h.vehicleId = v.id')
+        .where('v.veId IN (:...vehicleIds)', { vehicleIds })
+        .orderBy('v.veId')
+        .addOrderBy('h.timestamp', 'DESC')
+        .getRawMany();
+      const historyMap = new Map<number, any>();
+      history.forEach((session) => {
+        const vehicleId = session.veid;
+        if (vehicleId) {
+          historyMap.set(vehicleId, session);
+        }
+      });
+      await this.setLastHistoryRedis(historyMap);
+      return historyMap;
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new HttpException(
+        `Errore durante delle sessioni attive`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  /**
+   * Imposto alcuni dati riguardanti l'ultima posizione per ogni veicolo su redis
+   * per un recupero piu veloce
+   * @param historyMap
+   */
+  async setLastHistoryRedis(historyMap: Map<number, any>) {
+    for (const [veId, history] of historyMap) {
+      const key = `lastHistory:${veId}`;
+      await this.redis.set(key, JSON.stringify(history));
+    }
+  }
+
+  /**
+   * Recupero da redis i dati riguardanti l'ultima posizione per ogni veicolo passato
+   * @param vehicleIds array di veicoli
+   * @returns ritorna una mappa con veId e history
+   */
+  async getLastHistoryRedis(vehicleIds: number[]): Promise<Map<number, any>> {
+    const historyMap = new Map<number, any>();
+    const redisPromises = vehicleIds.map(async (id) => {
+      const key = `lastHistory:${id}`;
+      try {
+        const data = await this.redis.get(key);
+        if (data) {
+          historyMap.set(id, JSON.parse(data));
+        }
+      } catch (error) {
+        if (error instanceof HttpException) throw error;
+        throw new HttpException(
+          `Errore durante recupero delle ultime sessioni da redis`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    });
+    await Promise.all(redisPromises);
+    return historyMap;
   }
 
   /**

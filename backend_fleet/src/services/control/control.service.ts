@@ -337,6 +337,11 @@ export class ControlService {
     const daysInRange = getDaysInRange(dateFrom_new, dateTo_new);
     const allVehicles = await this.vehicleService.getAllVehicles();
     const vehicleIds = allVehicles.map((v) => v.veId);
+
+    // Recupero le ultime sessioni per tutti i veicoli in parallelo
+    let historyMap = await this.sessionService.getLastHistoryRedis(vehicleIds);
+    if (!historyMap || historyMap.size === 0)
+      historyMap = await this.sessionService.getLastHistoryByVeIds(vehicleIds);
     const openForDays = await Promise.all(
       daysInRange.slice(0, -1).map(async (day) => {
         const startOfDay = new Date(day);
@@ -353,12 +358,25 @@ export class ControlService {
           if (!Array.isArray(sessionsDay) || sessionsDay.length === 0) {
             return null;
           }
-          const allSequenceIdZero = sessionsDay.every(
-            (session) => session.sequence_id === 0,
-          );
           const anomalies = [];
-          if (allSequenceIdZero) {
-            anomalies.push('Sessione rimasta aperta');
+
+          if (sessionsDay.every((session) => session.sequence_id === 0)) {
+            const lastTimestamp = historyMap.get(vehicle.veId);
+
+            if (
+              lastTimestamp &&
+              new Date(lastTimestamp.timestamp).getTime() + 3 * 60 * 1000 >
+                new Date(vehicle.lastEvent).getTime()
+            ) {
+              const isToday =
+                new Date(lastTimestamp.timestamp).toDateString() ===
+                new Date().toDateString();
+              anomalies.push(
+                `Sessione rimasta aperta: ${isToday ? 'Problema alimentazione' : 'Dati bloccati'}`,
+              );
+            } else {
+              anomalies.push('Sessione rimasta aperta');
+            }
           }
           return {
             plate: vehicle.plate,
