@@ -1,5 +1,5 @@
 <div class="content">
-  <mat-form-field class="targa-textFilter filter" appearance="outline" subscriptSizing="dynamic"
+  <!-- <mat-form-field class="targa-textFilter filter" appearance="outline" subscriptSizing="dynamic"
     [matTooltip]="targheControl.value && targheControl.value.length > 0 ? 'Rimuovi le selezioni nel filtro per targhe e cantieri' : ''">
     <input matInput placeholder="Inserisci una targa" [formControl]="plateControl" [matAutocomplete]="auto" (keyup)="toggleForms()">
     <button *ngIf="plateControl.value" matSuffix mat-icon-button aria-label="Clear" (click)="plateControl.reset()">
@@ -10,6 +10,15 @@
         {{ plate }}
       </mat-option>
     </mat-autocomplete>
+  </mat-form-field> -->
+  <mat-form-field class="cantieri-filter filter" appearance="outline" subscriptSizing="dynamic">
+    <mat-select [formControl]="cantieriControl" placeholder="Seleziona un cantiere" multiple class="cantiere-input" (openedChange)="cantieriSelectOpened = !cantieriSelectOpened">
+      <mat-option value="Seleziona tutto" (click)="selectAllCantieri()" *ngIf="cantieriSelectOpened">Seleziona tutto</mat-option>
+      <mat-divider></mat-divider>
+      <mat-option [value]="cantiere.toLocaleLowerCase()" (click)="selectCantiere()" *ngFor="let cantiere of this.listaCantieri">
+        {{ cantiere }}
+      </mat-option>
+    </mat-select>
   </mat-form-field>
   <mat-form-field class="targa-selectFilter filter" appearance="outline" subscriptSizing="dynamic">
     <mat-select [formControl]="targheControl" placeholder="Seleziona una targa" multiple class="cantiere-input" (openedChange)="targheSelectOpened = !targheSelectOpened">
@@ -20,21 +29,12 @@
       </mat-option>
     </mat-select>
   </mat-form-field>
-  <mat-form-field class="cantieri-filter filter" appearance="outline" subscriptSizing="dynamic">
-    <mat-select [formControl]="cantieriControl" placeholder="Seleziona un cantiere" multiple class="cantiere-input" (openedChange)="cantieriSelectOpened = !cantieriSelectOpened">
-      <mat-option value="Seleziona tutto" (click)="selectAllCantieri()" *ngIf="cantieriSelectOpened">Seleziona tutto</mat-option>
-      <mat-divider></mat-divider>
-      <mat-option [value]="cantiere.toLocaleLowerCase()" (click)="selectCantiere()" *ngFor="let cantiere of this.listaCantieri">
-        {{ cantiere }}
-      </mat-option>
-    </mat-select>
-  </mat-form-field>
   <button mat-button class="updateData-btn button" (click)="updateData()">Aggiorna dati</button>
   <div class="slider-container">
     <mat-slide-toggle
       class="example-margin"
       [(ngModel)]="visiblePlates"
-      [disabled]="hiddnePlates"
+      [checked]="visiblePlates"
       (click)="togglePlates()">
 
     <span class="slider-text">Visualizza le targhe sulla mappa</span>
