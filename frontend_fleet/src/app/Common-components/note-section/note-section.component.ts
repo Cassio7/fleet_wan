@@ -67,7 +67,6 @@ export class NoteSectionComponent implements AfterViewInit, OnDestroy{
     const jwt = this.cookieService.getCookie("user");
     const user = this.authService.decodeToken(jwt);
     this.username = user.username;
-    console.log("username: ", this.username);
   }
 
   refreshOptions(){

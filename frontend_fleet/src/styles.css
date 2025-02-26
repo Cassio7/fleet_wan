@@ -47,7 +47,7 @@ body {
 }
 
 /*Stile per contenitore icona mezzo e il suo label*/
-.icon-container {
+.plate-container {
   display: inline-flex;
   align-items: center;
   background-color: #efeee4;
@@ -59,14 +59,14 @@ body {
 }
 
 .table tr:hover {
-  background-color: var(--background-color);
+  background-color: var(--background-color) !important;
 }
 
 th {
-  color: #656575;
+  color: #656575 !important;
 }
 table:not(.mat-calendar-table) tr:nth-child(even) {
-  background-color: rgba(255, 255, 255, 0.7);
+  background-color: rgba(255, 255, 255, 0.7) !important;
 }
 
 .section-header {

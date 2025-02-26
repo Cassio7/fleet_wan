@@ -115,3 +115,10 @@ tr:hover {
 .comment-icon{
   color: var(--green);
 }
+.loading-progress{
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2vh;
+}
