@@ -179,7 +179,9 @@ export class SessionService {
         .filter((item: any) => item?.list)
         .map((item: any) => {
           const hash =
-            item.sequenceId === 0 ? hashSession0(item) : hashSession(item);
+            Number(item.sequenceId) === 0
+              ? hashSession0(item)
+              : hashSession(item);
           return {
             period_from: item.periodFrom,
             period_to: item.periodTo,
@@ -204,28 +206,31 @@ export class SessionService {
             sequence_id: true,
             hash: true,
             key: true,
-            period_from: true,
-            period_to: true,
           },
           where: {
             sequence_id: In(sessionSequenceId),
             history: { vehicle: { veId: veId } },
           },
-          order: {
-            period_to: 'ASC',
-          },
         });
 
-      // Crea una mappa per abbinare gli hash alle sessioni restituite dalla query
-      const sessionQueryMap = new Map(
-        sessionQueries.map((query) => [query.sequence_id, query]),
-      );
+      // Crea una mappa che associa ciascun sequence_id a un array di sessioni
+      const sessionQueryMap = new Map();
+      for (const query of sessionQueries) {
+        const seqId = Number(query.sequence_id);
+        if (!sessionQueryMap.has(seqId)) {
+          sessionQueryMap.set(seqId, []);
+        }
+        sessionQueryMap.get(seqId).push(query);
+      }
+
       const newSession = [];
       const updatedSession = [];
       for (const session of filteredDataSession) {
-        // controllo se esiste hash
-        const exists = sessionQueryMap.get(Number(session.sequence_id));
-        if (!exists) {
+        const seqId = Number(session.sequence_id);
+        // Ottieni tutte le sessioni con questo sequence_id (o array vuoto se non esistono)
+        const existingSessions = sessionQueryMap.get(seqId) || [];
+        if (existingSessions.length === 0) {
+          // Nessuna sessione esistente con questo sequence_id
           const newSessionOne = await queryRunner.manager
             .getRepository(SessionEntity)
             .create({
@@ -239,27 +244,31 @@ export class SessionService {
               hash: session.hash,
             });
           newSession.push(newSessionOne);
-        } else if (exists.sequence_id === 0) {
-          const inputDate = new Date(exists.period_from);
-          const today = new Date();
+        } else if (seqId === 0 && existingSessions.length != 0) {
+          // Caso speciale per sequence_id = 0
+          let hashFound = false;
 
-          if (
-            inputDate.getFullYear() === today.getFullYear() &&
-            inputDate.getMonth() === today.getMonth() &&
-            inputDate.getDate() === today.getDate()
-          ) {
-            // Oggi
-            updatedSession.push({
-              key: exists.key,
-              period_to: session.period_to,
-              sequence_id: session.sequence_id,
-              closed: session.closed,
-              distance: session.distance,
-              engine_drive: session.engine_drive,
-              engine_stop: session.engine_stop,
-              hash: session.hash,
-            });
-          } else {
+          for (const exists of existingSessions) {
+            if (exists.hash === session.hash) {
+              // Se troviamo una sessione con lo stesso hash, la aggiorniamo
+              updatedSession.push({
+                key: exists.key,
+                period_from: session.period_from,
+                period_to: session.period_to,
+                sequence_id: session.sequence_id,
+                closed: session.closed,
+                distance: session.distance,
+                engine_drive: session.engine_drive,
+                engine_stop: session.engine_stop,
+                hash: session.hash,
+              });
+              hashFound = true;
+              break;
+            }
+          }
+
+          if (!hashFound) {
+            // Se non troviamo nessuna sessione con lo stesso hash, ne creiamo una nuova
             const newSessionOne = await queryRunner.manager
               .getRepository(SessionEntity)
               .create({
@@ -274,18 +283,24 @@ export class SessionService {
               });
             newSession.push(newSessionOne);
           }
-        } else if (exists.hash !== session.hash) {
-          updatedSession.push({
-            key: exists.key,
-            period_from: session.period_from,
-            period_to: session.period_to,
-            sequence_id: session.sequence_id,
-            closed: session.closed,
-            distance: session.distance,
-            engine_drive: session.engine_drive,
-            engine_stop: session.engine_stop,
-            hash: session.hash,
-          });
+        } else {
+          // Per altre sequence_id, controlla l'hash
+          for (const exists of existingSessions) {
+            if (exists.hash !== session.hash) {
+              updatedSession.push({
+                key: exists.key,
+                period_from: session.period_from,
+                period_to: session.period_to,
+                sequence_id: session.sequence_id,
+                closed: session.closed,
+                distance: session.distance,
+                engine_drive: session.engine_drive,
+                engine_stop: session.engine_stop,
+                hash: session.hash,
+              });
+              break;
+            }
+          }
         }
       }
       if (newSession.length > 0) {
