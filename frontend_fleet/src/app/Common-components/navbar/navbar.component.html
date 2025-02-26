@@ -4,7 +4,7 @@
   </div>
   <div class="right-side">
     <!-- <button mat-button class="notifications-btn"><mat-icon>notifications</mat-icon></button> -->
-    <div class="profile-info">
+    <div class="profile-info" >
       @if(name == "admin"){
         <p class="username">{{name}}</p>
         <p class="role">{{role}}</p>
@@ -13,7 +13,7 @@
         <p class="role">{{role}}</p>
       }
     </div>
-    <div mat-card-avatar class="account-circle">
+    <div mat-card-avatar class="account-circle" (click)="showProfile()">
       @if(name == "admin"){
         <span class="admin-name">A</span>
       }@else {

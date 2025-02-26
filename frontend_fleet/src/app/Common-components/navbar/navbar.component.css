@@ -58,6 +58,7 @@
   font-size: 14px;
   color: white;
   margin-right: 24px;
+  cursor: pointer;
 }
 
 .account-circle .admin-name{

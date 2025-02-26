@@ -157,6 +157,10 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
     });
   }
 
+  showProfile(){
+    this.router.navigate(["/profile"]);
+  }
+
   logout(){
     this.loginService.logout();
     this.router.navigate(['/login']);

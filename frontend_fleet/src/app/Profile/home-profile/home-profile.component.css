@@ -1,0 +1,53 @@
+.profile-card {
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+.profile-info mat-form-field {
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+mat-icon {
+  font-size: 20px;
+}
+
+button {
+  margin-top: 15px;
+  width: 100%;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+}
+
+.button-group .cancel-button{
+  border-radius: 5px;
+}
+
+button mat-icon {
+  margin-right: 8px;
+}
+
+button:hover {
+  transform: scale(1.05);
+}
+
+mat-card-title {
+  font-size: 24px;
+  color: #3f51b5;
+}
+
+mat-card-header {
+  border-radius: 8px 8px 0 0;
+  padding: 10px;
+  margin-bottom: 20px;
+}
+
+mat-card-header .title{
+  color: black;
+}

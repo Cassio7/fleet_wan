@@ -1,0 +1,69 @@
+<mat-card class="profile-card">
+  <mat-card-header>
+    <mat-card-title>Profilo Utente</mat-card-title>
+  </mat-card-header>
+  <mat-card-content *ngIf="user">
+    <div *ngIf="!isEditMode" class="profile-info">
+      <mat-form-field appearance="outline">
+        <mat-label>Email</mat-label>
+        <input matInput [value]="user.email" disabled />
+        <mat-icon matSuffix>email</mat-icon>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Nome</mat-label>
+        <input matInput [value]="user.name" disabled />
+        <mat-icon matSuffix>person</mat-icon>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Cognome</mat-label>
+        <input matInput [value]="user.surname" disabled />
+        <mat-icon matSuffix>person_outline</mat-icon>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Username</mat-label>
+        <input matInput [value]="user.username" disabled />
+        <mat-icon matSuffix>account_circle</mat-icon>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Ruolo</mat-label>
+        <input matInput [value]="user.role" disabled />
+        <mat-icon matSuffix>badge</mat-icon>
+      </mat-form-field>
+      <button mat-raised-button class="button" color="primary" (click)="toggleEditMode()">
+        <mat-icon>edit</mat-icon> Modifica
+      </button>
+    </div>
+
+    <div *ngIf="isEditMode" class="profile-info">
+      <mat-form-field appearance="outline">
+        <mat-label>Email</mat-label>
+        <input matInput [(ngModel)]="updatedProfileInfo.email" />
+        <mat-icon matSuffix>account_circle</mat-icon>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Vecchia password</mat-label>
+        <input matInput type="password" [(ngModel)]="updatedProfileInfo.currentPassword" />
+        <mat-icon matSuffix>lock</mat-icon>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Nuova password</mat-label>
+        <input matInput type="password" [(ngModel)]="updatedProfileInfo.newPassword" (keydown)="checkNewPasswordEquality()"/>
+        <mat-icon matSuffix>lock</mat-icon>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Conferma nuova password</mat-label>
+        <input matInput type="password" [(ngModel)]="updatedProfileInfo.newPasswordConfirmation" (keydown)="checkNewPasswordEquality()" />
+        <mat-icon matSuffix>lock</mat-icon>
+      </mat-form-field>
+      {{passwordConfirmationError}}
+      <div class="button-group">
+        <button mat-raised-button class="button" color="primary" (click)="saveChanges()">
+          <mat-icon>save</mat-icon> Salva
+        </button>
+        <button mat-raised-button class="cancel-button" color="warn" (click)="cancelEdit()">
+          <mat-icon>cancel</mat-icon> Annulla
+        </button>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>
