@@ -1,4 +1,13 @@
-import { Body, Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { Role } from 'classes/enum/role.enum';
 import { UserFromToken } from 'classes/interfaces/userToken.interface';
 import { Response } from 'express';
@@ -26,21 +35,21 @@ export class TagController {
    * @param res
    * @returns
    */
-  @Post()
+  @Get()
   async getAllTagHistoryByVeId(
     @Req() req: Request & { user: UserFromToken },
-    @Body() body: { veId: number },
+    @Query('veId') veId: number,
     @Res() res: Response,
   ) {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
       resource: 'Tag All',
-      resourceId: body.veId,
+      resourceId: veId,
     };
-    const veId = Number(body.veId); // Garantisce che veId sia un numero
+    const veIdNumber = Number(veId); // Garantisce che veId sia un numero
 
-    if (isNaN(veId)) {
+    if (isNaN(veIdNumber)) {
       this.loggerService.logCrudError({
         error: new Error('Il veId deve essere un numero valido'),
         context,
@@ -53,7 +62,7 @@ export class TagController {
     try {
       const tags = await this.tagService.getAllTagHistoryByVeId(
         req.user.id,
-        veId,
+        veIdNumber,
       );
       if (!tags?.length) {
         this.loggerService.logCrudSuccess(context, 'list', `Tag non trovati`);
