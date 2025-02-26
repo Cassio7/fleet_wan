@@ -198,10 +198,6 @@ export class MapService {
       }
     );
 
-    marker.on('add', () => {
-      marker.openPopup();
-    });
-
     marker.on('click', (event) => {
       L.DomEvent.stop(event);
 

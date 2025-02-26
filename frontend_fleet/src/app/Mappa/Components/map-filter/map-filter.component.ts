@@ -62,8 +62,7 @@ export class MapFilterComponent implements OnInit, AfterViewInit, OnDestroy{
   cantieriSelectOpened: boolean = false;
   targheSelectOpened: boolean = false;
 
-  visiblePlates = true;
-  hiddnePlates = false;
+  visiblePlates = false;
   private allSelected: boolean = false;
 
   ngOnDestroy(): void {
@@ -116,7 +115,7 @@ export class MapFilterComponent implements OnInit, AfterViewInit, OnDestroy{
     this.mapService.updateMarkers$.pipe(takeUntil(this.destroy$))
     .subscribe({
       next: () => {
-        this.visiblePlates = true;
+        this.visiblePlates = false;
       },
       error: error => console.error("Errore nella notifica di aggiornamento dei marker: ", error)
     });

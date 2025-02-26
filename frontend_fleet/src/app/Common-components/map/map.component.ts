@@ -17,6 +17,7 @@ import { Realtime } from '../../Models/Realtime';
 import { RealtimeData } from '../../Models/RealtimeData';
 import { Point } from '../../Models/Point';
 import { SessionStorageService } from '../../Common-services/sessionStorage/session-storage.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-map',
@@ -35,6 +36,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   constructor(
     private mapService: MapService,
     private sessionStorageService: SessionStorageService,
+    private router: Router,
     private cd: ChangeDetectorRef) {}
 
   ngOnDestroy(): void {
@@ -144,6 +146,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             realtimeData.vehicle.veId,
             undefined
           );
+          if(this.router.url != "/home-mappa") {
+            marker.on("add", () => {
+              marker.openPopup();
+            });
+          }
           this.mapService.addMarker(this.map, marker);
         }
       },
@@ -268,7 +275,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             className: 'custom-div-icon',
             html: `<div style="color: white; padding: 5px;">${this.mapService.getCustomPositionMarker((firstPointCounter + 1).toString())}</div>`,
             iconSize: [20, 20],
-            iconAnchor: [10,10]
+            iconAnchor: [10,40]
           });
 
           if(waypointIndex === waypoints.length - 1){
@@ -277,7 +284,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
               className: 'custom-div-icon',
               html: `<div style="color: white; padding: 5px;">${this.mapService.sessionEndMarker}</div>`,
               iconSize: [50, 20],
-              iconAnchor: [10,10]
+              iconAnchor: [10,40]
             });
           }
 
