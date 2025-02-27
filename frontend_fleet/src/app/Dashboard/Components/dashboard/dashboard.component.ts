@@ -45,13 +45,13 @@ import { LoginService } from '../../../Common-services/login service/login.servi
     MatToolbarModule,
     TableComponent,
     ErrorGraphCardComponent,
-    RowFilterComponent,
     KebabMenuComponent,
     KanbanGpsComponent,
     MatSlideToggleModule,
     KanbanAntennaComponent,
     MapComponent,
-    KanbanSessioneComponent
+    KanbanSessioneComponent,
+    RowFilterComponent
 ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'

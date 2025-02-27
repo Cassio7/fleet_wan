@@ -59,6 +59,7 @@ import { MapService } from '../../../Common-services/map/map.service';
 import { Router } from '@angular/router';
 import { SessioneGraphService } from '../../Services/sessione-graph/sessione-graph.service';
 import { Point } from '../../../Models/Point';
+import { RowFilterComponent } from "../row-filter/row-filter.component";
 
 @Component({
   selector: 'app-table',
@@ -71,8 +72,8 @@ import { Point } from '../../../Models/Point';
     MatTooltipModule,
     MatProgressBarModule,
     MatSortModule,
-    MatSlideToggleModule,
-  ],
+    MatSlideToggleModule
+],
   templateUrl: './table.component.html',
   styleUrls: ['./table.component.css'],
 })

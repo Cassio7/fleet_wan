@@ -45,7 +45,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
 
 
   constructor(
-    private router: Router,
+    public router: Router,
     private loginService: LoginService,
     private cookiesService: CookiesService,
     private sessionStorageService: SessionStorageService,
@@ -102,7 +102,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
     .subscribe(() => {
       setTimeout(() => { // Add a small delay
         const url = this.router.url;
-        this.selectButton(url);
       }, 10); // 10 milliseconds delay
     });
   }
@@ -117,26 +116,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
     });
   }
 
-  /**
-   * Selezionato un bottone attivandogli la classe dedicata
-   * @param selectedUrl url da controllare
-   */
-  selectButton(selectedUrl: string){
-    this.selectedBtn = selectedUrl;
-    this.cd.detectChanges();
-  }
-
-
   logout(){
     this.loginService.logout();
     this.router.navigate(['/login']);
-  }
-
-  toggleDrawer(){
-    const url = this.router.url;
-    this.selectButton(url);
-    this.drawer.toggle();
-    this.cd.detectChanges();
   }
 
   /**

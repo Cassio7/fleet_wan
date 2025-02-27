@@ -98,7 +98,6 @@ export class SessionTableComponent implements OnChanges, AfterViewInit {
 
   private checkDettaglio() {
     const currentRoute = this.router.url;
-    console.log("current route: ", currentRoute);
     this.isDettaglio = currentRoute.startsWith("/dettaglio-mezzo");
 
     if (this.isDettaglio) {

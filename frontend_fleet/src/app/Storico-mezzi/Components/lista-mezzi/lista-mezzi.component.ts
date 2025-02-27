@@ -2,7 +2,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, OnDestroy, O
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { Subject, takeUntil } from 'rxjs';
+import { skip, Subject, takeUntil } from 'rxjs';
 import { VehiclesApiService } from '../../../Common-services/vehicles api service/vehicles-api.service';
 import { Vehicle } from '../../../Models/Vehicle';
 import { MatIconModule } from '@angular/material/icon';
@@ -82,7 +82,7 @@ export class ListaMezziComponent implements AfterViewInit, OnDestroy{
       error: error => console.error("Errore nella ricezione di tutti i veicoli: ", error)
     });
 
-    this.filtersCommonService.applyFilters$.pipe(takeUntil(this.destroy$))
+    this.filtersCommonService.applyFilters$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (filters: Filters) => {
         const allVehicles = JSON.parse(this.sessionStrorageService.getItem("allVehicles"))
