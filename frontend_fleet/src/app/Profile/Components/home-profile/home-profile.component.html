@@ -37,27 +37,49 @@
     <div *ngIf="isEditMode" class="profile-info">
       <mat-form-field appearance="outline">
         <mat-label>Email</mat-label>
-        <input matInput [(ngModel)]="updatedProfileInfo.email" />
+        <input matInput [(ngModel)]="updatedProfileInfo.email" (input)="checkSaveable()"/>
         <mat-icon matSuffix>account_circle</mat-icon>
       </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Nome</mat-label>
+        <input matInput [(ngModel)]="updatedProfileInfo.name" (input)="checkSaveable()"/>
+        <mat-icon matSuffix>account_circle</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Cognome</mat-label>
+        <input matInput [(ngModel)]="updatedProfileInfo.surname" (input)="checkSaveable()"/>
+        <mat-icon matSuffix>account_circle</mat-icon>
+      </mat-form-field>
+
       <mat-form-field appearance="outline">
         <mat-label>Vecchia password</mat-label>
-        <input matInput type="password" [(ngModel)]="updatedProfileInfo.currentPassword" />
-        <mat-icon matSuffix>lock</mat-icon>
+        <input matInput [type]="showPassword ? 'text' : 'password'" [(ngModel)]="updatedProfileInfo.currentPassword" (input)="checkSaveable()"/>
+        <button mat-icon-button matSuffix type="button" (click)="showPassword = !showPassword">
+          <mat-icon>{{ showPassword ? 'visibility' : 'visibility_off' }}</mat-icon>
+        </button>
       </mat-form-field>
+
       <mat-form-field appearance="outline">
         <mat-label>Nuova password</mat-label>
-        <input matInput type="password" [(ngModel)]="updatedProfileInfo.newPassword" (keydown)="checkNewPasswordEquality()"/>
-        <mat-icon matSuffix>lock</mat-icon>
+        <input matInput [type]="showNewPassword ? 'text' : 'password'" [(ngModel)]="updatedProfileInfo.password" (input)="checkPasswordEquality()" (keyup)="checkSaveable()"/>
+        <button mat-icon-button matSuffix type="button" (click)="showNewPassword = !showNewPassword">
+          <mat-icon>{{ showNewPassword ? 'visibility' : 'visibility_off' }}</mat-icon>
+        </button>
       </mat-form-field>
+
       <mat-form-field appearance="outline">
         <mat-label>Conferma nuova password</mat-label>
-        <input matInput type="password" [(ngModel)]="updatedProfileInfo.newPasswordConfirmation" (keydown)="checkNewPasswordEquality()" />
-        <mat-icon matSuffix>lock</mat-icon>
+        <input matInput [type]="showNewPasswordConfirmation ? 'text' : 'password'" [(ngModel)]="updatedProfileInfo.passwordConfirmation" (input)="checkPasswordEquality()" (keyup)="checkSaveable()"/>
+        <button mat-icon-button matSuffix type="button" (click)="showNewPasswordConfirmation = !showNewPasswordConfirmation">
+          <mat-icon>{{ showNewPasswordConfirmation ? 'visibility' : 'visibility_off' }}</mat-icon>
+        </button>
       </mat-form-field>
-      {{passwordConfirmationError}}
+
+      <mat-error>{{errorText}}</mat-error>
       <div class="button-group">
-        <button mat-raised-button class="button" color="primary" (click)="saveChanges()">
+        <button mat-raised-button class="button" color="primary" (click)="saveChanges()" [disabled]="!isSaveable">
           <mat-icon>save</mat-icon> Salva
         </button>
         <button mat-raised-button class="cancel-button" color="warn" (click)="cancelEdit()">
