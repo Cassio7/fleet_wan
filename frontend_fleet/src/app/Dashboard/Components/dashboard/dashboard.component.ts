@@ -25,6 +25,7 @@ import { CheckErrorsService } from '../../../Common-services/check-errors/check-
 import { MapComponent } from '../../../Common-components/map/map.component';
 import { KanbanSessioneComponent } from "../kanban-sessione/kanban-sessione.component";
 import { KanbanSessioneService } from '../../Services/kanban-sessione/kanban-sessione.service';
+import { LoginService } from '../../../Common-services/login service/login.service';
 
 
 @Component({
@@ -85,6 +86,7 @@ export class DashboardComponent implements OnInit, AfterViewInit{
     private kanbanTableService: KanbanTableService,
     private kanbanSessionService: KanbanSessioneService,
     private checkErrorsService: CheckErrorsService,
+    private loginService: LoginService,
     private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef
   ){}
@@ -97,6 +99,15 @@ export class DashboardComponent implements OnInit, AfterViewInit{
   ngAfterViewInit(): void {
     this.errorGraphTitle = this.errorGraphService.graphTitle;
     this.handleKanbanLoading();
+
+    this.loginService.login$.pipe(takeUntil(this.destroy$))
+    .subscribe(() => {
+      this.sessionStorageService.setItem("lastUpdate", "oggi");
+      setTimeout(() => {
+        this.verifyCheckDay();
+      });
+    });
+
     setTimeout(() => {
       this.verifyCheckDay();
     });
@@ -132,7 +143,7 @@ export class DashboardComponent implements OnInit, AfterViewInit{
     }
 
     this.cd.detectChanges();
-}
+  }
 
 
   private handleKanbanLoading(){
