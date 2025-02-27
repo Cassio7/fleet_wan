@@ -111,6 +111,16 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
           this.isKanban = false;
           this.icon = "inventory_2";
           break;
+        case "/home-mappa":
+          this.currentPage = "Mappa";
+          this.isKanban = false;
+          this.icon = "map";
+          break;
+        case "/profile":
+          this.currentPage = "profilo";
+          this.isKanban = false;
+          this.icon = "account_circle";
+          break;
         default:
           this.currentPage = "Riepilogo";
           this.isKanban = true;
