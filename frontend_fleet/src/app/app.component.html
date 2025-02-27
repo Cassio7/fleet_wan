@@ -2,7 +2,7 @@
   <mat-drawer #fixedDrawer mode="side" class="fixed-drawer-container" [opened]="isLogged && !isLoginPage"  [style.display]="isLoginPage ? 'none' : 'block'">
     <div class="fixed-drawer-content">
       <div class="fixed-main-actions">
-        <button class="menu-btn" (click)="toggleDrawer()"><svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <button class="menu-btn" (click)="drawer.toggle(); fixedDrawer.toggle()"><svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path fill-rule="evenodd" clip-rule="evenodd" d="M12.8855 6H20.8855V8H12.8855V6ZM4.88547 16H12.8855V18H4.88547V16ZM20.8855 11H4.88547V13H20.8855V11Z" fill="white"/>
 </svg>
 </button>
@@ -24,7 +24,7 @@
   <mat-drawer-content>
     <mat-drawer-container class="drawer-container" [ngClass]="{'bg-image': isLoginPage}">
       <mat-drawer #drawer mode="over" class="sidebar" class="dynamic-drawer">
-          <button class="menu-btn button" (click)="toggleDrawer()"><svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <button class="menu-btn button" (click)="drawer.toggle(); fixedDrawer.toggle()"><svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path fill-rule="evenodd" clip-rule="evenodd" d="M12.8855 6H20.8855V8H12.8855V6ZM4.88547 16H12.8855V18H4.88547V16ZM20.8855 11H4.88547V13H20.8855V11Z" fill="white"/>
           </svg>
           </button>
