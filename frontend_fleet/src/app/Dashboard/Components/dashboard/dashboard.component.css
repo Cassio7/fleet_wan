@@ -10,6 +10,10 @@ html {
   overflow: hidden;
 }
 
+.right-section{
+  overflow: hidden;
+}
+
 .right-section .header {
   width: 100%;
   height: 100%;
@@ -178,7 +182,7 @@ html {
 
 .table-content .table-container {
   flex-grow: 1;
-  overflow-y: auto;
+  overflow-y: hidden;
   max-height: 100%;
 }
 
@@ -202,7 +206,7 @@ html {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  overflow-y: hidden;
+  overflow: hidden;
   max-height: 100%;
 }
 
@@ -227,4 +231,11 @@ html {
 .kanbanSessione-content {
   margin-top: 0;
   flex-grow: 0;
+}
+::ng-deep .mat-mdc-slide-toggle.mat-mdc-slide-toggle-checked:not(.mat-disabled) .mdc-switch__shadow {
+  background-color: white;
+}
+
+::ng-deep .mat-mdc-slide-toggle.mat-mdc-slide-toggle-checked:not(.mat-disabled) .mdc-switch__track::after {
+  background-color: var(--green) !important;
 }

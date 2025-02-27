@@ -1,23 +1,23 @@
 .filters-container {
-  width: 100%;
-  display: inline-flex;
-  align-items: center;
-  gap: 2vw;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-start;
+  max-width: 60%;
   background-color: white;
   padding: 10px;
   border-radius: 6px;
-  box-sizing: border-box;
 }
 
-.filter{
-  width: 30%;
+.filter {
+  flex: 1 1 30%;
 }
 
 mat-form-field {
-  width: 40%;
+  flex: 1 1 40%;
 }
 
-.filters-btn{
+.filters-btn {
   background-color: var(--green);
   border-radius: 5px !important;
   color: white;
