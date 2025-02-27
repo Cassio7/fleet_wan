@@ -80,7 +80,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
           console.log("plate toggle in map component: ", plateToggle);
 
           const filteredPositionDatas: positionData[] = this.mapService.positionDatas.filter(data =>
-            filteredVehicles.some((vehicle: any) => vehicle.vehicle.plate === data.plate)
+            filteredVehicles.some((vehicle: any) => vehicle.plate === data.plate)
           );
 
           const filteredMarkers: L.Marker[] = filteredPositionDatas.map(data => {

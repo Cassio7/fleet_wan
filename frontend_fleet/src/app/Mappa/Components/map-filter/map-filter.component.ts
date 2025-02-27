@@ -267,9 +267,9 @@ export class MapFilterComponent implements OnInit, AfterViewInit, OnDestroy{
 
         this.listaTarghe = cantieriFiltredVehicles.map(vehicle => {
           if('vehicle' in vehicle){
-            return vehicle.vehicle.plate
+            return vehicle.vehicle.plate;
           }else{
-            return vehicle.plate
+            return vehicle.plate;
           }
         });
 
@@ -294,12 +294,10 @@ export class MapFilterComponent implements OnInit, AfterViewInit, OnDestroy{
    * @returns observable<any[]>
    */
   private getAvailableVehicles(): Observable<any[]> {
-    const allData = JSON.parse(this.sessionStorageService.getItem("allData"));
     const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-    let vehicles = allData || allVehicles;
 
-    if (vehicles) {
-      return of(vehicles); // Return cached data as an Observable
+    if (allVehicles) {
+      return of(allVehicles); // Return cached data as an Observable
     } else {
       return this.vehiclesApiService.getAllVehicles().pipe(
         takeUntil(this.destroy$),
