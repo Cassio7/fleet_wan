@@ -261,6 +261,11 @@ export class MapService {
     return plateFilteredMarkers;
   }
 
+  /**
+   * Estrae il contenuto del pop
+   * @param marker
+   * @returns
+   */
   extractMarkerPopupContent(marker: L.Marker): string | null{
     const popupContent = marker.getPopup()?.getContent();
     if (popupContent) {

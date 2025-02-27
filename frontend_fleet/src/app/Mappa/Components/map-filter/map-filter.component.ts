@@ -97,6 +97,18 @@ export class MapFilterComponent implements OnInit, AfterViewInit, OnDestroy{
     );
   }
 
+  ngAfterViewInit(): void {
+    this.handleLoadPosition();
+    this.handleMultiplePosition();
+    this.mapService.updateMarkers$.pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: () => {
+        this.visiblePlates = false;
+      },
+      error: error => console.error("Errore nella notifica di aggiornamento dei marker: ", error)
+    });
+  }
+
   /**
    * Gestisce l'attivazione e disattivazione dei form per targa (selezione checkbox) e per cantiere
    */
@@ -108,18 +120,6 @@ export class MapFilterComponent implements OnInit, AfterViewInit, OnDestroy{
       this.targheControl.enable();
       this.cantieriControl.enable();
     }
-  }
-
-  ngAfterViewInit(): void {
-    this.handleLoadPosition();
-    this.handleMultiplePosition();
-    this.mapService.updateMarkers$.pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: () => {
-        this.visiblePlates = false;
-      },
-      error: error => console.error("Errore nella notifica di aggiornamento dei marker: ", error)
-    });
   }
 
   /**
