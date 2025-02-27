@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy, inject } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { FormGroup, FormControl, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
@@ -11,6 +11,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { User } from '../../../Models/User';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.component';
 
 @Component({
   selector: 'app-home-profile',
@@ -23,6 +25,7 @@ import { User } from '../../../Models/User';
     FormsModule,
     MatInputModule,
     MatButtonModule,
+    MatSnackBarModule,
     MatIconModule
   ],
   styleUrls: ['./home-profile.component.css'],
@@ -30,8 +33,12 @@ import { User } from '../../../Models/User';
 })
 export class HomeProfileComponent implements AfterViewInit, OnDestroy {
   private readonly destroy$: Subject<void> = new Subject<void>();
+  private snackBar = inject(MatSnackBar);
+
   isEditMode: boolean = false;
   user!: User;
+
+  snackbarDuration: number = 2;
 
   profileForm!: FormGroup;
   errorText: string = "";
@@ -182,6 +189,7 @@ export class HomeProfileComponent implements AfterViewInit, OnDestroy {
           console.log("Changes saved successfully!");
           this.isEditMode = false;
           this.isSaveable = false;
+          this.openNoteSnackbar("Cambiamenti salvati con successo!");
         },
         error: error => {
           console.error("Errore nel salvataggio dei cambiamenti del profilo: ", error);
@@ -195,5 +203,15 @@ export class HomeProfileComponent implements AfterViewInit, OnDestroy {
     this.isEditMode = false;
     this.errorText = "";
     this.initForm();
+  }
+
+  /**
+   * Apre la snackbar per la nota
+   */
+  openNoteSnackbar(content: string): void {
+    this.snackBar.openFromComponent(SnackbarComponent, {
+      duration: this.snackbarDuration * 1000,
+      data: { content: content }
+    });
   }
 }
