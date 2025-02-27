@@ -14,7 +14,9 @@ export interface MezziFilters{
   providedIn: 'root'
 })
 export class MezziFiltersService {
+  //subject per notificare di filtrare la tabella con i veicoli passati
   private readonly _filterTable$: BehaviorSubject<Vehicle[]> = new BehaviorSubject<Vehicle[]>([]);
+
   private _mezziFilters: MezziFilters = {
     plate: "",
     cantieri: new FormControl<string[]>([])

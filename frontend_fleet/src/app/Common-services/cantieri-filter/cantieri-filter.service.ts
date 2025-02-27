@@ -42,7 +42,8 @@ export class CantieriFilterService{
     let listaCantieri: string[] = [];
 
     // Mappa e filtra i dati in base al tipo di ciascun elemento
-    listaCantieri = vehicles
+    if(listaCantieri){
+      listaCantieri = vehicles
       .map(vehicle => {
         // Verifica se è un VehicleData e ottieni il worksite
         let worksite = 'vehicle' in vehicle ? vehicle.vehicle.worksite : (vehicle as Vehicle).worksite;
@@ -57,6 +58,9 @@ export class CantieriFilterService{
         seen.add(name);
         return true;
       });
+    }else{
+      listaCantieri = [];
+    }
 
     return listaCantieri;
   }

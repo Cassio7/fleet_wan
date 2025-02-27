@@ -1,4 +1,4 @@
-import { AfterContentInit, AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { AfterContentInit, AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { TableComponent } from "../../../Mezzi/Components/table/table.component";
 import { MezziFiltersComponent } from "../mezzi-filters/mezzi-filters/mezzi-filters.component";
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
@@ -16,16 +16,16 @@ import { Vehicle } from '../../../Models/Vehicle';
   templateUrl: './home-mezzi.component.html',
   styleUrls: ['./home-mezzi.component.css'],
 })
-export class HomeMezziComponent implements AfterContentInit{
+export class HomeMezziComponent implements AfterViewChecked{
   nVehicles: number = 0;
   constructor(
     private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef
   ){}
-  ngAfterContentInit(): void {
+  ngAfterViewChecked(): void {
     setTimeout(() => {
       const allVehicles: Vehicle[] = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-      this.nVehicles = allVehicles.length;
+      if(allVehicles) this.nVehicles = allVehicles.length;
       this.cd.detectChanges();
     });
   }
