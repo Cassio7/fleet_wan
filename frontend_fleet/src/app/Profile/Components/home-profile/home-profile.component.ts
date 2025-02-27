@@ -33,9 +33,7 @@ export class HomeProfileComponent implements AfterViewInit, OnDestroy {
   isEditMode: boolean = false;
   user!: User;
 
-  updatedProfileInfo!: EditableProfileInfo;
-  saveable: boolean = false;
-
+  profileForm!: FormGroup;
   errorText: string = "";
 
   showPassword: boolean = false;
@@ -47,7 +45,9 @@ export class HomeProfileComponent implements AfterViewInit, OnDestroy {
   constructor(
     private authService: AuthService,
     private profileService: ProfileService
-  ) {}
+  ) {
+    this.initForm();
+  }
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -60,43 +60,123 @@ export class HomeProfileComponent implements AfterViewInit, OnDestroy {
         next: (user: User) => {
           console.log("fetched user: ", user);
           this.user = user;
-
-          this.setEditableProfileInfo();
+          this.initForm();
         },
         error: error => console.error("Errore nel recupero delle informazioni dell'utente: ", error)
       });
   }
 
-  checkSaveable(){
-    if(this.profileService.checkSameValues(this.user, this.updatedProfileInfo)){
-      this.isSaveable = false;
-    }else{
-      this.isSaveable = true;
+  initForm(): void {
+    this.profileForm = new FormGroup({
+      email: new FormControl('', [Validators.required, Validators.email]),
+      name: new FormControl('', [Validators.required]),
+      surname: new FormControl('', [Validators.required]),
+      currentPassword: new FormControl(''),
+      password: new FormControl(''),
+      passwordConfirmation: new FormControl('')
+    });
+
+    if (this.user) {
+      this.profileForm.patchValue({
+        email: this.user.email,
+        name: this.user.name,
+        surname: this.user.surname
+      });
     }
 
-    const { currentPassword, password } = this.updatedProfileInfo;
-    const passwordInput = currentPassword !== "";
-
-    if(passwordInput && currentPassword != password && this.checkPasswordEquality()){
-      this.isSaveable = true;
-    }else{
-      this.isSaveable = false;
-    }
+    this.profileForm.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.checkSaveable();
+      this.updateErrorMessage();
+    });
   }
 
+  checkSaveable(): void {
+    const formValues = this.profileForm.value;
 
-  toggleEditMode() {
+    const isProfileChanged =
+      this.user && (
+        this.user.email !== formValues.email ||
+        this.user.name !== formValues.name ||
+        this.user.surname !== formValues.surname
+      );
+
+    const isPasswordChanged =
+      formValues.password !== "" &&
+      formValues.passwordConfirmation !== "" &&
+      formValues.password === formValues.passwordConfirmation &&
+      formValues.currentPassword !== formValues.password;
+
+    this.isSaveable = (isProfileChanged || isPasswordChanged) && this.profileForm.valid;
+  }
+
+  updateErrorMessage(): void {
+    const formValues = this.profileForm.value;
+    const { currentPassword, password, passwordConfirmation } = formValues;
+
+    const isProfileChanged =
+      this.user && (
+        this.user.email !== formValues.email ||
+        this.user.name !== formValues.name ||
+        this.user.surname !== formValues.surname
+      );
+
+    // Caso 1: Campi del profilo modificati ma password corrente non inserita
+    if (isProfileChanged && (!currentPassword || currentPassword.trim() === "")) {
+      this.errorText = "Inserisci la password attuale per salvare le modifiche.";
+      return;
+    }
+
+    // Caso 2: Nuova password inserita ma conferma mancante
+    if (password && (!passwordConfirmation || passwordConfirmation.trim() === "")) {
+      this.errorText = "Inserisci la conferma della nuova password.";
+      return;
+    }
+
+    // Caso 3: Conferma password inserita ma nuova password mancante
+    if (passwordConfirmation && (!password || password.trim() === "")) {
+      this.errorText = "Inserisci la nuova password.";
+      return;
+    }
+
+    // Caso 4: Entrambi i campi di password compilati ma non corrispondono
+    if (password && passwordConfirmation && password !== passwordConfirmation) {
+      this.errorText = "Le password sono diverse.";
+      return;
+    }
+
+    // Caso 5: Nuova password uguale alla password corrente
+    if (password && currentPassword && password === currentPassword) {
+      this.errorText = "La nuova password deve essere diversa da quella attuale.";
+      return;
+    }
+
+    // Nessun errore
+    this.errorText = "";
+  }
+
+  toggleEditMode(): void {
     this.isEditMode = !this.isEditMode;
     if (this.isEditMode) {
-      this.setEditableProfileInfo();
+      this.initForm();
     }
   }
 
-  saveChanges() {
-    const password = this.updatedProfileInfo.password;
-    const passwordConfirmation = this.updatedProfileInfo.passwordConfirmation;
-    if(password == passwordConfirmation){
-      this.profileService.saveChanges(this.updatedProfileInfo).pipe(takeUntil(this.destroy$))
+  saveChanges(): void {
+    this.updateErrorMessage();
+
+    if (this.profileForm.valid && this.isSaveable && !this.errorText) {
+      const formValues = this.profileForm.value;
+
+      const updatedProfileInfo: EditableProfileInfo = {
+        email: formValues.email,
+        name: formValues.name,
+        surname: formValues.surname,
+        currentPassword: formValues.currentPassword,
+        password: formValues.password,
+        passwordConfirmation: formValues.passwordConfirmation
+      };
+
+      this.profileService.saveChanges(updatedProfileInfo).pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
           console.log("Changes saved successfully!");
@@ -107,80 +187,13 @@ export class HomeProfileComponent implements AfterViewInit, OnDestroy {
           console.error("Errore nel salvataggio dei cambiamenti del profilo: ", error);
           this.errorText = error?.error?.message || "Errore sconosciuto";
         }
-
-
       });
     }
   }
 
-  /**
-   * Controlla se la nuova password e la conferma della nuova password sono uguali
-   * controllando se la vecchia password è stata inserita
-   * @returns true se va tutto bene
-   * @returns false se per qualche motivo non va bene
-   */
-  checkPasswordEquality(): boolean {
-    const { currentPassword, password, passwordConfirmation } = this.updatedProfileInfo;
-
-    // Verifica se i campi delle nuove password sono stati compilati
-    const arePasswordFieldsFilled = password !== "" && passwordConfirmation !== "";
-
-    // Verifica se le nuove password corrispondono
-    const doPasswordsMatch = password === passwordConfirmation;
-
-    // Verifica se la password attuale è vuota
-    const isCurrentPasswordEmpty = !currentPassword || currentPassword.trim() === "";
-
-    // Verifica se la password corrente è uguale alla nuova
-    const isCurrentEqualToNew = currentPassword === password && currentPassword !== "";
-
-    if(!this.profileService.checkSameValues(this.user, this.updatedProfileInfo) && !isCurrentPasswordEmpty){
-      return true;
-    }
-
-
-
-    // Controlli in sequenza
-
-    if (isCurrentPasswordEmpty) {
-      this.errorText = "Inserisci la password attuale.";
-      return false;
-    }
-
-    if (!arePasswordFieldsFilled) {
-      this.errorText = "Compila entrambi i campi della nuova password.";
-      return false;
-    }
-
-    if (!doPasswordsMatch) {
-      this.errorText = "Le nuove password non corrispondono.";
-      return false;
-    }
-
-    if (isCurrentEqualToNew) {
-      this.errorText = "La nuova password deve essere diversa da quella attuale.";
-      return false;
-    }
-
-    // Tutto è corretto
-    this.errorText = "";
-    return true;
-  }
-
-  cancelEdit() {
+  cancelEdit(): void {
     this.isEditMode = false;
-
-    this.setEditableProfileInfo();
-  }
-
-  setEditableProfileInfo(){
-    this.updatedProfileInfo = {
-      email: this.user.email,
-      name: this.user.name,
-      surname: this.user.surname,
-      currentPassword: "",
-      password: "",
-      passwordConfirmation: ""
-    };
+    this.errorText = "";
+    this.initForm();
   }
 }
