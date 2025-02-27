@@ -4,7 +4,6 @@ import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
 import { MatSnackBarModule, MatSnackBar } from "@angular/material/snack-bar";
 import { skip, Subject, takeUntil } from "rxjs";
-import { NoteSnackbarComponent } from "../../Mezzi/Components/note-snackbar/note-snackbar.component";
 import { NotesService } from "../../Common-services/notes/notes.service";
 import { Note } from "../../Models/Note";
 import { Vehicle } from "../../Models/Vehicle";
@@ -12,6 +11,7 @@ import { User } from "../../Models/User";
 import { CookiesService } from "../../Common-services/cookies service/cookies.service";
 import { jwtDecode } from "jwt-decode";
 import { AuthService } from "../../Common-services/auth/auth.service";
+import { SnackbarComponent } from "../snackbar/snackbar.component";
 
 @Component({
   selector: 'app-note-section',
@@ -183,7 +183,7 @@ export class NoteSectionComponent implements AfterViewInit, OnDestroy{
    * Apre la snackbar per la nota
    */
   openNoteSnackbar(content: string): void {
-    this.snackBar.openFromComponent(NoteSnackbarComponent, {
+    this.snackBar.openFromComponent(SnackbarComponent, {
       duration: this.snackbarDuration * 1000,
       data: { content: content }
     });
