@@ -6,12 +6,12 @@ import { CookiesService } from '../../../Common-services/cookies service/cookies
 import { User } from '../../../Models/User';
 
 export interface EditableProfileInfo {
-  email: string | null,
-  name: string | null,
-  surname: string | null,
+  email: string,
+  name: string,
+  surname: string,
   currentPassword: string,
-  newPassword: string,
-  newPasswordConfirmation: string
+  password: string,
+  passwordConfirmation: string
 }
 @Injectable({
   providedIn: 'root'
@@ -24,10 +24,16 @@ export class ProfileService{
     private http: HttpClient
   ) { }
 
+  /**
+   * Controlla se i valori nel form per modificare le informazioni (a parte la password) del proprio profilo sono uguali a
+   * quelle precedentemente salvate
+   * @param user utente che contiene le informazioni già salvate
+   * @param updatedProfileInfo oggetto EditableProfileInfo che contiene le nuove informazioni che si vogliono salvare
+   * @returns true se tutti i valori (a parte la password) sono uguali a quelli salvati
+   * @returns false se almeno uno dei valori (a parte la password) è diverso
+   */
   checkSameValues(user: User, updatedProfileInfo: EditableProfileInfo): boolean {
-    return (Object.keys(updatedProfileInfo) as Array<keyof EditableProfileInfo>)
-      .filter((key) => key in user)
-      .every((key) => user[key as keyof User] === updatedProfileInfo[key]);
+    return user.email == updatedProfileInfo.email && user.name == updatedProfileInfo.name && updatedProfileInfo.surname == updatedProfileInfo.surname;
   }
 
 
