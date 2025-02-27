@@ -27,3 +27,12 @@ tr.selected-row td{
   overflow-y: auto;
   display: block;
 }
+.map-icon {
+  display: block;
+  margin: 0 auto;
+}
+
+/* Opzionale: se vuoi centrare anche l'intestazione della colonna */
+th.map-column {
+  text-align: center;
+}

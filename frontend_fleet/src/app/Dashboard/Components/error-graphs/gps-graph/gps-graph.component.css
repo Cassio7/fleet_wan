@@ -3,3 +3,6 @@
   padding-top: 1vh;
   margin-bottom: 0;
 }
+.chart-container{
+  pointer-events: none;
+}

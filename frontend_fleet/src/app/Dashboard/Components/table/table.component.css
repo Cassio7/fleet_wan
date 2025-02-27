@@ -102,3 +102,12 @@ td.mat-cell {
   align-items: center;
   margin-bottom: 2vh;
 }
+.mat-column-Map {
+  text-align: center;
+}
+
+.map-icon {
+  display: block;
+  margin: 0 auto;
+  cursor: pointer;
+}
