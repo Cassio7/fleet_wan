@@ -20,13 +20,6 @@ tr.selected-row td{
   overflow: visible;
 }
 
-
-.table {
-  width: 100%;
-  max-height: 70vh;
-  overflow-y: auto;
-  display: block;
-}
 .map-icon {
   display: block;
   margin: 0 auto;

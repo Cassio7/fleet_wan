@@ -50,6 +50,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     this.handleInitMap();
     this.handleLoadPosition();
+    this.handleMultiplePositions();
     this.handleLoadSessionPath();
     this.handleLoadDayPath();
     this.handleTogglePopups();
@@ -130,6 +131,38 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       error: error => console.error("Errore nell'inizializzazione della mappa: ", error)
     });
   }
+
+  /**
+   * Gestisce la sottoscrizione al subject per il caricamento nella mappa di una posizione
+   */
+  private handleMultiplePositions() {
+    this.mapService.loadMultiplePositions$.pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (realtimeDatas: RealtimeData[]) => {
+          const gruppoMarker = L.layerGroup().addTo(this.map);
+
+          realtimeDatas.forEach((realtimeData) => {
+            const vehicle = realtimeData.vehicle;
+            const punto = new Point(realtimeData.realtime.latitude, realtimeData.realtime.longitude);
+            const marker = this.mapService.createMarker(
+              punto,
+              vehicle.plate,
+              vehicle.worksite ? vehicle.worksite.name : null,
+              vehicle.veId,
+              undefined
+            );
+            if(this.router.url != "/home-mappa") {
+              marker.on("add", () => {
+                marker.openPopup();
+              });
+            }
+            marker.addTo(gruppoMarker);
+          });
+        },
+        error: error => console.error("Errore nel caricamento di più posizioni: ", error)
+      });
+  }
+
 
   /**
    * Gestisce la sottoscrizione al subject per il caricamento nella mappa di una posizione

@@ -18,6 +18,7 @@ export interface positionData{
 export class MapService {
   private readonly _initMap$: BehaviorSubject<any> = new BehaviorSubject<any>(null);
 
+  private readonly _loadMultiplePositions$: BehaviorSubject<RealtimeData[]> = new BehaviorSubject<RealtimeData[]>([]);
   private readonly _loadPosition$: BehaviorSubject<RealtimeData | null> = new BehaviorSubject<RealtimeData | null>(null);
   private readonly _loadSessionPath$: BehaviorSubject<any> = new BehaviorSubject<any>(null);
   private readonly _loadDayPath$: BehaviorSubject<any> = new BehaviorSubject<any>(null);
@@ -344,5 +345,8 @@ export class MapService {
   }
   public get loadSessionPath$(): BehaviorSubject<any> {
     return this._loadSessionPath$;
+  }
+  public get loadMultiplePositions$(): BehaviorSubject<RealtimeData[]> {
+    return this._loadMultiplePositions$;
   }
 }

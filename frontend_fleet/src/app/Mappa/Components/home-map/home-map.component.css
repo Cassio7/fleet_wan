@@ -13,18 +13,18 @@
 
 .vehicleHandling-container {
   position: absolute;
-  top: 100px; /* Aggiusta la posizione in base alle necessità */
-  left: 60px; /* Aggiusta la posizione in base alle necessità */
-  width: 400px; /* Larghezza fissa per garantire uniformità */
+  top: 100px;
+  left: 60px;
+  width: 400px;
   display: flex;
   flex-direction: column;
-  gap: 16px; /* Distanza uniforme tra i container */
+  gap: 16px;
   z-index: 1000;
 }
 
 .filters-container,
 .info-container {
-  width: 100%; /* Occupa tutta la larghezza del contenitore padre */
+  width: 100%;
   background: #FFFFFF;
   box-shadow: 6px 6px 54px rgba(0, 0, 0, 0.05);
   border-radius: 6px;
@@ -32,7 +32,7 @@
 }
 
 .info-container {
-  height: 380px; /* Mantiene l'altezza specificata */
+  height: 380px;
 }
 .hidden {
   display: none;
