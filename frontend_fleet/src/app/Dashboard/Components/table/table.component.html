@@ -10,6 +10,7 @@
   <table
     #vehicleTable
     mat-table
+    *ngIf="tableLoaded"
     [dataSource]="vehicleTableData"
     matSort
     (matSortChange)="onSortChange($event)"
@@ -211,6 +212,7 @@
           >
             <div
               class="error-container"
+              *ngIf="checkErrorsService.calculateVehicleSessionErrorDays(vehicleData)! > 0"
               [matTooltip]="
                 checkErrorsService.checkVehicleSessionError(vehicleData)
               "

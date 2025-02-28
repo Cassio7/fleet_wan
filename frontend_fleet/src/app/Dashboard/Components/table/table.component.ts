@@ -82,6 +82,7 @@ export class TableComponent implements OnDestroy, AfterViewInit {
 
   private readonly destroy$: Subject<void> = new Subject<void>();
 
+  tableLoaded: boolean = false;
   vehicleTableData = new MatTableDataSource<VehicleData>();
   tableMaxLength: number = 0;
 
@@ -151,6 +152,7 @@ export class TableComponent implements OnDestroy, AfterViewInit {
       this.vehicleTableData.data = allData;
       this.loadGraphs(allData);
       this.loadingProgress = 100;
+      this.tableLoaded = true;
     }else{
       this.fillTable();
     }
@@ -206,24 +208,18 @@ export class TableComponent implements OnDestroy, AfterViewInit {
     switch (column) {
       case 'cantiere':
         if (sortDirection == 'asc') {
-          this.vehicleTableData.data =
-            this.sortService.sortVehiclesByCantiereAsc(vehiclesData);
+          this.vehicleTableData.data = this.sortService.sortVehiclesByCantiereAsc(vehiclesData);
         } else {
-          this.vehicleTableData.data =
-            this.sortService.sortVehiclesByCantiereDesc(vehiclesData);
+          this.vehicleTableData.data = this.sortService.sortVehiclesByCantiereDesc(vehiclesData);
         }
         this.vehicleTable.renderRows();
         break;
 
       case 'targa':
         if (sortDirection == 'asc') {
-          this.vehicleTableData.data = this.sortService.sortVehiclesByPlateAsc(
-            vehiclesData
-          ) as VehicleData[];
+          this.vehicleTableData.data = this.sortService.sortVehiclesByPlateAsc(vehiclesData) as VehicleData[];
         } else {
-          this.vehicleTableData.data = this.sortService.sortVehiclesByPlateDesc(
-            vehiclesData
-          ) as VehicleData[];
+          this.vehicleTableData.data = this.sortService.sortVehiclesByPlateDesc(vehiclesData) as VehicleData[];
         }
         this.vehicleTable.renderRows();
         break;
@@ -281,9 +277,11 @@ export class TableComponent implements OnDestroy, AfterViewInit {
       if (vehiclesData && vehiclesData.length > 0) {
         this.vehicleTableData.data = [...vehiclesData];
         this.sessionStorageService.setItem("allData", JSON.stringify(vehiclesData));
-        this.vehicleTable.renderRows();
         this.addLastRealtime();
         this.loadGraphs(vehiclesData);
+        console.log("ce so arivato!!");
+        this.tableLoaded = true;
+        this.vehicleTable.renderRows();
       }
     } catch (error) {
       console.error("Error processing vehicles:", error);
