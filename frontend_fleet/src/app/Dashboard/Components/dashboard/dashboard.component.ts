@@ -200,7 +200,6 @@ export class DashboardComponent implements OnInit, AfterViewInit{
    * @param sectionName nome della sezione da mostrare
    */
   private displaySection(sectionName: string){
-    console.log("chiamata display section con: ", sectionName);
     switch(sectionName){
       case "table":
         this.pageName = "Riepilogo parco mezzi";

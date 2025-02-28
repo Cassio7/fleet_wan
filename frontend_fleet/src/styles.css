@@ -188,7 +188,7 @@ table:not(.mat-calendar-table) tr:nth-child(even) {
   transition: transform 0.2s;
 }
 
-/* Personalizzazione della scrollbar */
+/* Stile della scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }

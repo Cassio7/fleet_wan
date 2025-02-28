@@ -189,6 +189,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
           this.mapService.addMarker(this.map, marker);
         }
       },
+      error: error => console.error("Errore nel caricamento della posizione: ", error)
     });
   }
 
