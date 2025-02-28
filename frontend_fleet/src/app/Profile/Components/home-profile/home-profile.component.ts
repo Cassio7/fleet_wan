@@ -190,6 +190,7 @@ export class HomeProfileComponent implements AfterViewInit, OnDestroy {
           this.isEditMode = false;
           this.isSaveable = false;
           this.openNoteSnackbar("Cambiamenti salvati con successo!");
+          // this.profileService.updateUserData$.next()
         },
         error: error => {
           console.error("Errore nel salvataggio dei cambiamenti del profilo: ", error);
