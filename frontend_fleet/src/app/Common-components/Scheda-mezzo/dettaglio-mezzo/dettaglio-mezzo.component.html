@@ -16,10 +16,7 @@
         <div class="cards">
           <mat-card class="generalInfo-card">
             <mat-card-header>
-              <mat-card-title
-                ><mat-icon>local_shipping</mat-icon
-                >{{ vehicle.plate }}</mat-card-title
-              >
+              <mat-card-title><mat-icon>local_shipping</mat-icon>{{ vehicle.plate }}</mat-card-title>
               <mat-card-subtitle
                 >ID: {{ vehicle.veId }} — Dismesso:
                 {{
@@ -174,7 +171,9 @@
           </mat-card>
           <mat-card class="notes-card">
             <mat-card-content>
-              <app-note-section [vehicle]="vehicle"></app-note-section>
+              <div class="noteSection-container">
+                <app-note-section [vehicle]="vehicle"></app-note-section>
+              </div>
             </mat-card-content>
           </mat-card>
           <mat-card class="graph-card">

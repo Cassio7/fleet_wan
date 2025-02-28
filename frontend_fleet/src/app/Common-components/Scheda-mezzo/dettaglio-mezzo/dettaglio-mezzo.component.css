@@ -70,13 +70,18 @@
   flex: 4;
 }
 
-.cards{
+.cards {
   display: flex;
   flex-direction: column;
   gap: 2vh;
   margin-right: 1vw;
   margin-left: 1vw;
   flex: 3;
+  height: calc(100vh - 120px); /* Adjust this value based on your header height */
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 10px; /* Add some padding to account for scrollbar width */
+  max-width: 100%;
 }
 .working{
   width: 100px;
@@ -193,14 +198,7 @@ mat-divider {
   border-top-width: 2px;
   border-top-color: var(--background-color);
 }
-.plate{
-  background-color: #EFEEE4;
-  padding-left: 3px;
-  padding-right: 3px;
-  border-radius: 5px;
-  box-sizing: border-box;
-  display: inline-block;
-}
+
 mat-list-item p {
   font-size: 16px;
   font-weight: 500;
@@ -215,4 +213,7 @@ mat-list-item p {
 mat-list-item span {
   font-size: 14px;
   font-family: 'Inter';
+}
+.noteSection-container{
+  width: 100%;
 }
