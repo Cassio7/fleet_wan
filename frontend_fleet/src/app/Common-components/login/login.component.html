@@ -7,26 +7,26 @@
         <img src="assets/logo-noscritta.png" alt="Logo waste trucker" class="main-logo">
         <div class="title-container">
           <h4 class="title">SwasteTrucks</h4>
-          <p class="version">Versione 0.1</p>
         </div>
       </div>
         <div class="login-container">
           <div class="login-header">
             <h1 class="form-title">Accedi</h1>
-            <p class="subtitle">Inserisci le tue credenziali</p>
           </div>
           <form [formGroup]="loginForm" class="login-form" (submit)="login()">
 
             <!-- Warnings -->
-            <p *ngIf="credentialsWarning" class="credentials-warning">
-              ATTENZIONE: 1 tentativo rimanente prima del blocco
-            </p>
-            <p *ngIf="isCapsActive" class="caps-lock-warning">
-              Blocco maiuscolo attivo <mat-icon>keyboard_capslock_badge</mat-icon>
-            </p>
+            <div class="warnings" style="margin: 0;">
+              <p *ngIf="credentialsWarning" class="credentials-warning">
+                ATTENZIONE: 1 tentativo rimanente prima del blocco
+              </p>
+              <p *ngIf="isCapsActive" class="caps-lock-warning">
+                Blocco maiuscolo attivo <mat-icon>keyboard_capslock_badge</mat-icon>
+              </p>
+            </div>
 
             <!-- Username -->
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="outline" style="margin: 0;">
               <mat-label>Username</mat-label>
               <input matInput
                       (keydown)="checkCapslock($event)"
@@ -56,14 +56,12 @@
               </mat-error>
             </mat-form-field>
 
-            <!-- Messaggi di stato -->
-            <p *ngIf="loginSuccess" class="login-success">
-              Accesso... <mat-spinner mode="indeterminate" class="success-spinner"></mat-spinner>
-            </p>
-            <mat-error *ngIf="credentialsError">Credenziali non valide</mat-error>
-            <mat-error *ngIf="timeoutCountdown > 1">
-              Prossimo tentativo fra {{ timeoutCountdown / 1000 | number:'1.0-0' }} secondi
-            </mat-error>
+            <div class="status-messages-container">
+              <p *ngIf="loginSuccess" class="login-success">
+                Accesso... <mat-spinner mode="indeterminate" class="success-spinner"></mat-spinner>
+              </p>
+              <mat-error *ngIf="credentialsError">Credenziali non valide <br> <span *ngIf="timeoutCountdown > 1">Prossimo tentativo fra {{ timeoutCountdown / 1000 | number:'1.0-0' }} secondi</span></mat-error>
+            </div>
 
             <!-- Submit -->
             <div class="submit-container">
@@ -79,13 +77,13 @@
           </form>
           <div class="footer">
             <div class="loghi">
-              <img src="assets/logo-gsa.png" alt="logo gsa" class="logo-gsa logo">
               <img src="assets/logo-gesenu.png" alt="logo gesenu" class="logo-gesenu logo">
+              <img src="assets/logo-gsa.png" alt="logo gsa" class="logo-gsa logo">
             </div>
 
             <div class="copyright-container">
               <p class="copyright">
-                © 2025 G.S.A. SRL Gruppo Gesenu. Tutti i diritti riservati. L'uso di questa applicazione è soggetto ai Termini e Condizioni di GSA. È vietata qualsiasi riproduzione non autorizzata.
+                Versione 0.1 © 2025 G.S.A. SRL Gruppo Gesenu. Tutti i diritti riservati. L'uso di questa applicazione è soggetto ai Termini e Condizioni di GSA. È vietata qualsiasi riproduzione non autorizzata.
               </p>
             </div>
           </div>

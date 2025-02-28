@@ -212,6 +212,9 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy{
    * @param event evento
    */
   checkCapslock(event: KeyboardEvent): void {
-    this.isCapsActive = event.getModifierState('CapsLock');
+    if (event instanceof KeyboardEvent) {
+      this.isCapsActive = event.getModifierState && event.getModifierState('CapsLock');
+    }
   }
+
 }

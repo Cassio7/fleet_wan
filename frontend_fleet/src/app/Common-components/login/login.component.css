@@ -37,19 +37,20 @@
   max-width: 90%;
 }
 
-.left-container .section-header{
+.left-container .section-header {
   width: 100%;
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-end; /* Allinea alla base */
   margin-bottom: 80px;
-  gap: .5vw;
+  gap: 0.5vw;
 }
 
-.left-container .section-header .title-container{
+.left-container .section-header .title-container {
   width: 100%;
   display: flex;
   flex-direction: column;
+  justify-content: flex-end; /* Assicura che il testo sia allineato in basso */
   margin: 0;
   line-height: 1;
 }
@@ -61,19 +62,14 @@
   margin: 0;
 }
 
-.left-container .section-header .title-container .version {
-  color: grey;
-  font-style: italic;
-  font-size: 10px;
-  line-height: 1;
-  margin: 0;
-}
-
-.left-container .section-header .main-logo{
+.left-container .section-header .main-logo {
   height: 5vh;
   width: 5vw;
   margin: 0;
+  display: flex;
+  align-self: flex-end; /* Allinea alla base */
 }
+
 
 .left-container .login-container{
   height: 100%;
@@ -97,24 +93,26 @@
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 2vw;
+  gap: 1.2vw;
+  margin-bottom: .5vh;
 }
 
 .logo{
-  height: 5.2vh;
+  height: 3.5vh;
 }
 .logo-gesenu {
-  width: 6.3vw;
+  width: 4.3vw;
 }
 .logo-gsa{
-  width: 7vw;
+  height: 3vh;
+  width: 4.5vw;
 }
 
 .login-header{
   display: flex;
   flex-direction: column;
   gap: .5vh;
+  margin-bottom: 2vh;
 }
 
 .form-title {
@@ -125,20 +123,12 @@
   margin: 0;
 }
 
-.subtitle {
-  font-size: .8vw;
-  text-align: left;
-  color: gray;
-  margin-bottom: 2vh;
-  line-height: 1;
-  margin-top: 0;
-}
-
 .credentials-warning,
 .caps-lock-warning {
   color: var(--red);
-  font-size: 1vw;
-  margin-bottom: 1rem;
+  font-size: 14px;
+  min-height: 50px;
+  margin: 0;
 }
 
 mat-icon{
@@ -147,7 +137,6 @@ mat-icon{
 .caps-lock-warning mat-icon{
   color: var(--red);
 }
-
 
 .submit-container{
   display: flex;
@@ -177,7 +166,8 @@ mat-icon{
 
 .success-spinner {
   width: 1vw !important;
-  height: 1vw !important;
+  height: 1vh !important;
+  margin: 0;
 }
 
 .copyright{
@@ -188,4 +178,30 @@ mat-icon{
 
 .forgot-password{
   font-size: 14px;
+}
+
+.login-form {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.status-messages-container {
+  min-height: 3.5vh;
+}
+
+.login-success {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+}
+
+.success-spinner {
+  width: 20px !important;
+  height: 20px !important;
+}
+
+.submit-container {
+  margin-top: 10px;
 }
