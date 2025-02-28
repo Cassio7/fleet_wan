@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { CommonService } from '../../../Common-services/common service/common.service';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { CookiesService } from '../../../Common-services/cookies service/cookies.service';
 import { User } from '../../../Models/User';
 
@@ -17,6 +17,7 @@ export interface EditableProfileInfo {
   providedIn: 'root'
 })
 export class ProfileService{
+  private readonly _updateUserData$: BehaviorSubject<User | null> = new BehaviorSubject<User | null>(null);
 
   constructor(
     private commonService: CommonService,
@@ -45,5 +46,9 @@ export class ProfileService{
       'Content-Type': 'application/json'
     });
     return this.http.put<EditableProfileInfo>(`${this.commonService.url}/users/me`, updatedProfileInfo, {headers});
+  }
+
+  public get updateUserData$(): BehaviorSubject<User | null> {
+    return this._updateUserData$;
   }
 }

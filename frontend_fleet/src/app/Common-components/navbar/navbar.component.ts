@@ -4,7 +4,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { ActivatedRoute, NavigationEnd, Router, RouterModule } from '@angular/router';
-import { Subject, filter, merge, takeUntil } from 'rxjs';
+import { Subject, filter, merge, take, takeUntil } from 'rxjs';
 import { CommonService } from '../../Common-services/common service/common.service';
 import { LoginService } from '../../Common-services/login service/login.service';
 import { CookiesService } from '../../Common-services/cookies service/cookies.service';
@@ -15,6 +15,7 @@ import { KanbanTableService } from '../../Dashboard/Services/kanban-table/kanban
 import { CommonModule } from '@angular/common';
 import { User } from '../../Models/User';
 import { SessionStorageService } from '../../Common-services/sessionStorage/session-storage.service';
+import { ProfileService } from '../../Profile/Services/profile/profile.service';
 
 @Component({
   selector: 'app-navbar',
@@ -48,6 +49,7 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
     private kanbanGpsService: KanbanGpsService,
     private kanabanTableService: KanbanTableService,
     private activatedRoute: ActivatedRoute,
+    private profileService: ProfileService,
     private sessionStorageService: SessionStorageService,
     private router: Router,
     private cd: ChangeDetectorRef
@@ -156,7 +158,6 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
       this.kanabanTableService.loadKabanTable$.pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          console.log("entrato su kanbantable subj sub");
           this.currentPage = "Riepilogo";
           this.isKanban = false;
           this.cd.detectChanges();
@@ -164,6 +165,23 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
         error: error => console.error("Errore nel cambio del path: ", error)
       });
       this.cd.detectChanges();
+    });
+
+
+  }
+
+  handleProfileInfoUpdate(){
+    this.profileService.updateUserData$.pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (user: User | null) => {
+        if(user){
+          const { name, surname } = user;
+          if(name) this.name = name;
+          if(surname) this.surname = surname;
+        }
+        console.log("me so arivati sti dati: ", user)
+      },
+      error: error => console.error("Errore nell'aggiornamento dei nuovi dati dell'utente nella navbar: ", error)
     });
   }
 
