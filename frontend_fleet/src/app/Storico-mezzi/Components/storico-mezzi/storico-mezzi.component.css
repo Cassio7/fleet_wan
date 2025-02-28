@@ -124,3 +124,18 @@
 .small-title{
   color: var(--green);
 }
+.path-switch {
+  position: absolute;
+  z-index: 1000;
+  left: 50px;
+  top: 20px;
+}
+
+/* Stile dello switch */
+::ng-deep .mat-mdc-slide-toggle.mat-mdc-slide-toggle-checked:not(.mat-disabled) .mdc-switch__shadow {
+  background-color: white !important;
+}
+
+::ng-deep .mat-mdc-slide-toggle.mat-mdc-slide-toggle-checked:not(.mat-disabled) .mdc-switch__track::after {
+  background-color: var(--green) !important;
+}
