@@ -202,8 +202,6 @@ export class MapService {
     marker.on('click', (event) => {
       L.DomEvent.stop(event);
 
-      marker.openPopup();
-
       this.selectMarker$.next(positionData);
     });
 
