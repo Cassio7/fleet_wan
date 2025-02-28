@@ -121,6 +121,26 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
     this.router.navigate(['/login']);
   }
 
+  toggleDrawers() {
+    if (this.fixedDrawer.opened) {
+      // Se il fixedDrawer è aperto, chiudilo e apri il drawer normale
+      this.fixedDrawer.close();
+      setTimeout(() => {
+        this.drawer.open();
+      }, 300); // Delay per evitare conflitti visivi
+    } else if (this.drawer.opened) {
+      // Se il drawer normale è aperto, chiudilo e apri il fixedDrawer
+      this.drawer.close();
+      setTimeout(() => {
+        this.fixedDrawer.open();
+      }, 300);
+    } else {
+      // Se entrambi sono chiusi, apri il fixedDrawer per default
+      this.fixedDrawer.open();
+    }
+  }
+
+
   /**
    * Controlla se la pagina attuale è quella di login
    * @param url url da controllare

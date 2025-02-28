@@ -6,7 +6,7 @@
 <path fill-rule="evenodd" clip-rule="evenodd" d="M12.8855 6H20.8855V8H12.8855V6ZM4.88547 16H12.8855V18H4.88547V16ZM20.8855 11H4.88547V13H20.8855V11Z" fill="white"/>
 </svg>
 </button>
-        <button routerLink="dashboard" [ngClass]="{'selectedBtn': router.url == '/dashboard'}"><mat-icon>dashboard</mat-icon></button>
+        <button routerLink="dashboard" [ngClass]="{'selectedBtn': router.url == '/dashboard'}" ><mat-icon>dashboard</mat-icon></button>
         <button routerLink="home-mezzi" [ngClass]="{'selectedBtn': router.url == '/home-mezzi'}"><mat-icon>local_shipping</mat-icon></button>
         <button routerLink="storico-mezzi" [ngClass]="{'selectedBtn': router.url == '/storico-mezzi'}"><mat-icon>inventory_2</mat-icon></button>
         <button routerLink="home-mappa" [ngClass]="{'selectedBtn': router.url == '/home-mappa'}"><mat-icon>map</mat-icon></button>
@@ -28,18 +28,18 @@
           <path fill-rule="evenodd" clip-rule="evenodd" d="M12.8855 6H20.8855V8H12.8855V6ZM4.88547 16H12.8855V18H4.88547V16ZM20.8855 11H4.88547V13H20.8855V11Z" fill="white"/>
           </svg>
           </button>
-          <button class="dashboard-btn button" routerLink="dashboard" [ngClass]="{'selectedBtn': router.url == '/dashboard'}">
+          <button class="dashboard-btn button" routerLink="dashboard" [ngClass]="{'selectedBtn': router.url == '/dashboard'}" (click)="drawer.toggle(); fixedDrawer.toggle()">
             <mat-icon>dashboard</mat-icon><span class="drawerIcon-text">Dashboard</span>
           </button>
-          <button class="mezzi-btn button" routerLink="home-mezzi" [ngClass]="{'selectedBtn': router.url == '/home-mezzi'}">
+          <button class="mezzi-btn button" routerLink="home-mezzi" [ngClass]="{'selectedBtn': router.url == '/home-mezzi'}" (click)="drawer.toggle(); fixedDrawer.toggle()">
             <mat-icon>local_shipping</mat-icon><span class="drawerIcon-text">Mezzi</span>
           </button>
-          <button class="session-history-btn button" routerLink="storico-mezzi" [ngClass]="{'selectedBtn': router.url == '/storico-mezzi'}">
+          <button class="session-history-btn button" routerLink="storico-mezzi" [ngClass]="{'selectedBtn': router.url == '/storico-mezzi'}" (click)="drawer.toggle(); fixedDrawer.toggle()">
             <mat-icon>inventory_2</mat-icon><span class="drawerIcon-text">Storico mezzi</span>
           </button>
-          <button class="button" routerLink="home-mappa" [ngClass]="{'selectedBtn': router.url == '/home-mappa'}"><mat-icon>map</mat-icon><span><span class="drawerIcon-text">Mappa</span></span></button>
-          <button class="button"><mat-icon>manage_accounts</mat-icon><span class="drawerIcon-text">Gestione utenti</span></button>
-          <button class="button"><mat-icon>settings</mat-icon><span class="drawerIcon-text">Impostazioni</span></button>
+          <button class="button" routerLink="home-mappa" [ngClass]="{'selectedBtn': router.url == '/home-mappa'}" (click)="drawer.toggle(); fixedDrawer.toggle()"><mat-icon>map</mat-icon><span><span class="drawerIcon-text">Mappa</span></span></button>
+          <button class="button"><mat-icon>manage_accounts</mat-icon><span class="drawerIcon-text" (click)="drawer.toggle(); fixedDrawer.toggle()">Gestione utenti</span></button>
+          <button class="button"><mat-icon>settings</mat-icon><span class="drawerIcon-text" (click)="drawer.toggle(); fixedDrawer.toggle()">Impostazioni</span></button>
 
           <button class="button" [matMenuTriggerFor]="menu">
             <mat-icon>power_settings_new</mat-icon><span class="drawerIcon-text">Esci</span>
