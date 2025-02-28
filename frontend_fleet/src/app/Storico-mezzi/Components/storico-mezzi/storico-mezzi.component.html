@@ -55,8 +55,19 @@
       <div class="title-side">Mappa</div>
       <div class="subtitle">Visualizza i mezzi nella mappa</div>
     </div>
-    <div class="map-content">
-      <app-map></app-map>
+    <div class="map-content" style="position: relative;">
+      <mat-slide-toggle
+      class="path-switch"
+      *ngIf="isMapLoaded"
+      [(ngModel)]="linedPath"
+      [checked]="linedPath"
+      (click)="togglePathType()">
+
+        <span class="slider-text">Tipo di percorso</span>
+      </mat-slide-toggle>
+      <div class="map-container" >
+        <app-map></app-map>
+      </div>
     </div>
   </div>
 </div>
