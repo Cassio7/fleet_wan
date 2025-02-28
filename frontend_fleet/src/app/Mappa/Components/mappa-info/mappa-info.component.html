@@ -1,17 +1,14 @@
 <div class="content">
   <div class="type-container">
-    <p class="type"><mat-icon>local_shipping</mat-icon>{{servizio}} (<span class="session-date">{{ anomalyDate | date : "dd/MM/yyyy" }}</span>)</p>
-
+    <p class="type"><mat-icon>local_shipping</mat-icon><span class="plate-container"><span class="plate">{{plate}}</span></span> (<span class="session-date">{{ anomalyDate | date : "dd/MM/yyyy" }}</span>)</p>
     <mat-icon (click)="closePopup.emit()">close</mat-icon>
   </div>
   <mat-divider></mat-divider>
   <mat-list>
     <mat-list-item>
       <div class="list-item-content">
-        <p>Targa</p>
-        <div class="plate-container">
-          <p class="plate">{{plate}}</p>
-        </div>
+        <p>Servizio</p>
+        <p class="servizio">{{servizio}}</p>
       </div>
     </mat-list-item>
     <mat-divider></mat-divider>
