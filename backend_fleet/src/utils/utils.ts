@@ -87,15 +87,24 @@ export function validateDateRange(
   if (isNaN(dateFrom_new.getTime()) || isNaN(dateTo_new.getTime())) {
     return { isValid: false, message: 'Formato della data non valido.' };
   }
-  if (dateFrom_new.getTime() >= dateTo_new.getTime()) {
+  if (dateFrom_new.getTime() > dateTo_new.getTime()) {
     // Restituisci un errore se la condizione è vera
     return {
       isValid: false,
-      message:
-        'La data iniziale deve essere indietro di almeno 1 giorno dalla finale.',
+      message: 'La data iniziale deve essere minore della finale.',
     };
   }
   return { isValid: true };
+}
+
+/**
+ * Controlla se è stato inserito lo stesso giorno
+ * @param dateFrom data inizio
+ * @param dateTo data fine
+ * @returns true o false
+ */
+export function sameDay(dateFrom: Date, dateTo: Date): boolean {
+  return dateFrom.toDateString() === dateTo.toDateString();
 }
 
 /**

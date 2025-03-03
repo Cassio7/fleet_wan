@@ -16,7 +16,7 @@ import { RolesGuard } from 'src/guard/roles.guard';
 import { LogContext } from 'src/log/logger.types';
 import { LoggerService } from 'src/log/service/logger.service';
 import { SessionService } from 'src/services/session/session.service';
-import { validateDateRange } from 'src/utils/utils';
+import { sameDay, validateDateRange } from 'src/utils/utils';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Controller('sessions')
@@ -137,6 +137,10 @@ export class SessionController {
     }
     const dateFrom_new = new Date(dateFrom);
     const dateTo_new = new Date(dateTo);
+    const equal = sameDay(dateFrom_new, dateTo_new);
+    if (equal) {
+      dateTo_new.setHours(23, 59, 59, 0);
+    }
     try {
       const data = await this.sessionService.getAllSessionsByVeIdAndRange(
         req.user.id,
