@@ -149,7 +149,7 @@ export class UserService {
       );
     }
   }
-  
+
   /**
    * Servizio per aggiornare la i dati utente, soltanto per modificare proprio account
    * @param userId id utente
