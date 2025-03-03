@@ -18,10 +18,10 @@ import { getDaysInRange } from './utils/utils';
 
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import Redis from 'ioredis';
-import { RentalFactoryService } from './factory/rental.factory';
-import { AssociationService } from './services/association/association.service';
 import { EquipmentFacotoryService } from './factory/equipment.factory';
+import { RentalFactoryService } from './factory/rental.factory';
 import { WorkzoneFacotoryService } from './factory/workzone.factory';
+import { AssociationService } from './services/association/association.service';
 import { ControlService } from './services/control/control.service';
 
 @Injectable()
@@ -50,7 +50,7 @@ export class AppService implements OnModuleInit {
 
   // popolo database all'avvio
   async onModuleInit() {
-    const startDate = '2025-02-01T00:00:00.000Z';
+    const startDate = '2025-02-24T00:00:00.000Z';
     //const endDate = '2025-02-19T00:00:00.000Z';
     const endDate = new Date(
       new Date().getTime() + 2 * 60 * 60 * 1000,
@@ -89,7 +89,7 @@ export class AppService implements OnModuleInit {
     const endDate = end;
 
     console.log('Data inizio: ' + startDate + ' Data fine: ' + endDate);
-    const batchSize = 22;
+    const batchSize = 30;
 
     await this.vehicleService.getVehicleList(254, 313); //Gesenu principale
     //await this.vehicleService.getVehicleList(254, 683); //Gesenu dismessi
@@ -253,6 +253,10 @@ export class AppService implements OnModuleInit {
                   item.sessions?.[0]?.anomalies?.detection_quality ?? null,
                 session: item.sessions?.[0]?.anomalies?.open ?? null,
               };
+              if (anomalyData.antenna?.includes('Tag letto')) {
+                anomalyData.session = item.anomaliaSessione;
+                anomalyData.gps = item.anomaliaSessione;
+              }
               return anomalyService.createAnomaly(
                 anomalyData.veId,
                 anomalyData.date,
@@ -305,8 +309,7 @@ export class AppService implements OnModuleInit {
                 null,
             };
             if (
-              anomalyData.session &&
-              anomalyData.session.includes('nulla') &&
+              anomalyData.session?.includes('nulla') &&
               item.sessions.length === 0
             ) {
               anomalyData.antenna = item.anomaliaSessione;
