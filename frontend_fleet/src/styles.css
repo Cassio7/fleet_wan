@@ -197,7 +197,7 @@ table:not(.mat-calendar-table) tr:nth-child(even) {
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: green;
+  background-color: var(--green);
   border-radius: 4px;
 }
 

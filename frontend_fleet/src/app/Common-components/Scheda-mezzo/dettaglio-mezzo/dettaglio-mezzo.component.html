@@ -1,8 +1,8 @@
 <div *ngIf="vehicle && user" class="all-page">
   <div class="content">
     <div class="left-section">
-      <div class="header">
-        <h2 class="go-back">
+      <div class="section-header left-header">
+        <h2 class="go-back title">
           <button mat-button (click)="goBack()">
             <mat-icon>arrow_back</mat-icon></button
           >{{ goBack_text }}
@@ -194,9 +194,13 @@
       </div>
     </div>
     <div class="right-section">
-      <p class="title">Dati storici</p>
-      <p class="subtitle">Visualizza i dati storici del mezzo</p>
-      <app-session-filters></app-session-filters>
+      <div class="right-header">
+        <div class="section-header">
+          <p class="title">Dati storici</p>
+          <p class="subtitle">Visualizza i dati storici del mezzo</p>
+        </div>
+        <app-session-filters></app-session-filters>
+      </div>
       <app-session-hystories [vehicle]="vehicle"></app-session-hystories>
     </div>
   </div>
