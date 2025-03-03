@@ -992,7 +992,10 @@ export class SessionService {
    * @param id VeId identificativo Veicolo
    * @returns
    */
-  async getActiveSessionByVeId(userId: number, veId: number): Promise<any> {
+  async getActiveSessionByVeId(
+    userId: number,
+    veId: number,
+  ): Promise<SessionDTO | null> {
     const vehicles =
       await this.associationService.getVehiclesAssociateUserRedis(userId);
     if (!vehicles || vehicles.length === 0)
@@ -1022,7 +1025,7 @@ export class SessionService {
     }
   }
 
-  private toDTOSession(session: SessionEntity): any {
+  private toDTOSession(session: SessionEntity): SessionDTO {
     const sessionDTO = new SessionDTO();
     sessionDTO.id = session.id;
     sessionDTO.period_from = session.period_from;
