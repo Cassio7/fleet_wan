@@ -33,10 +33,24 @@ export class AssociationFactoryService {
       associationAdmin.company = company;
       return associationAdmin;
     });
+
+    // Add new association for user with id 1 to the first company
     const user = await this.userRepository.findOne({
+      where: { username: 'm.rossi' },
+    });
+
+    if (!user) throw new Error('User "Mario Rossi" not found');
+
+    const associationForFirstCompany = new AssociationEntity();
+    associationForFirstCompany.user = user;
+    associationForFirstCompany.company = companies[0];
+    associations.push(associationForFirstCompany);
+
+    // Existing code for Luca Neri
+    const userNeri = await this.userRepository.findOne({
       where: { username: 'l.neri' },
     });
-    if (!user) throw new Error('User "Luca Neri" not found');
+    if (!userNeri) throw new Error('User "Luca Neri" not found');
     // Pallotta
     const worksite = await this.worksiteRepository.findOne({
       where: {
@@ -45,7 +59,7 @@ export class AssociationFactoryService {
     });
     const associationUser = new AssociationEntity();
     associationUser.worksite = worksite;
-    associationUser.user = user;
+    associationUser.user = userNeri;
     associations.push(associationUser);
 
     return this.associationRepository.save(associations);
