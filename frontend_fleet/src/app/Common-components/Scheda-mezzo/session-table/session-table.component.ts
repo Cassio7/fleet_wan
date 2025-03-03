@@ -294,6 +294,7 @@ export class SessionTableComponent implements OnChanges, AfterViewInit {
       position_number: session.table_id,
       points: points,
     };
+    this.sessionStorageService.setItem("pathData", JSON.stringify(pathData));
     console.log('session pathData: ', pathData);
     this.mapService.loadSessionPath$.next(pathData);
   }

@@ -101,7 +101,9 @@ export class StoricoMezziComponent implements AfterViewInit{
     if(pathData){
       //trasformazioni oggetti {_lat, _long} in Point
       pathData.points = pathData.points.map((point: any) => new Point(point._lat, point._long));
-      pathData.firstPoints = pathData.firstPoints.map((point: any) => new Point(point._lat, point._long));
+      if(pathData?.firstPoints){
+        pathData.firstPoints = pathData.firstPoints.map((point: any) => new Point(point._lat, point._long));
+      }
 
       if(pathType == "day"){
         this.mapService.loadDayPath$.next(pathData);

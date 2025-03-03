@@ -391,11 +391,13 @@ export class MapService {
    * @param map mappa da cui rimuovere i layer
    */
   removeAllRelevantLayers(map: L.Map): void {
-    map.eachLayer((layer: L.Layer) => {
-      if (layer instanceof L.Marker || layer instanceof L.Polyline) {
-        map.removeLayer(layer);
-      }
-    });
+    if(map){
+      map.eachLayer((layer: L.Layer) => {
+        if (layer instanceof L.Marker || layer instanceof L.Polyline) {
+          map.removeLayer(layer);
+        }
+      });
+    }
   }
 
 

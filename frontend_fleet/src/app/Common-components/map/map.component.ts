@@ -196,73 +196,114 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   /**
    * Gestisce la sottoscrizione al subject per il caricamento nella mappa del percorso di un veicolo durante una sessione
    */
-  private handleLoadSessionPath(){
+  private handleLoadSessionPath() {
     this.mapService.loadSessionPath$.pipe(
       takeUntil(this.destroy$),
       skip(1)
     )
     .subscribe({
-    next: (pathData: { plate: string, points: Point[], position_number: number }) => {
-      pathData.points = pathData.points.filter(point => point.lat != 0 && point.long != 0); //rimozione di punti non validi
+      next: (pathData: { plate: string, points: Point[], position_number: number }) => {
+        console.log("Pathdata arrivati: ", pathData);
+        // Filter out invalid points
+        pathData.points = pathData.points.filter(point => point.lat !== 0 && point.long !== 0);
 
-      const validEndPoints = this.mapService.getFirstValidEndpoints(pathData.points);
-      let startPoint: number | null = validEndPoints.startPoint;
-      let endPoint: number | null = validEndPoints.endPoint;
-      const pathMode = this.mapService.pathMode();
+        // Get valid endpoints
+        const validEndPoints = this.mapService.getFirstValidEndpoints(pathData.points);
+        const startPoint: number | null = validEndPoints.startPoint;
+        const endPoint: number | null = validEndPoints.endPoint;
+        const pathMode = this.mapService.pathMode();
 
-      if(!this.map && startPoint && endPoint) {
-        this.initMap(new Point(startPoint, endPoint), 12)
-      }else{
-        this.mapService.removeAllRelevantLayers(this.map);
-      };
+        // Initialize map if not exists
+        if(!this.map && startPoint && endPoint) {
+          this.initMap(new Point(startPoint, endPoint), 12)
+        }else{
+          this.mapService.removeAllRelevantLayers(this.map);
+        };
 
-      // Rimozione del percorso precedente se presente
-      if (this.routingControl) {
+        // Remove previous routing control if exists
+        if (this.routingControl) {
           this.map.removeControl(this.routingControl);
           this.routingControl = null;
-      }
+        }
 
-      // Creazione degli waypoints sui punti passati
-      const waypoints = pathData.points.map((point) =>
+        // Create waypoints from points
+        const waypoints = pathData.points.map(point =>
           L.latLng(point.lat, point.long)
-      );
+        );
 
-      const customPlan = new L.Routing.Plan(waypoints, {
-        createMarker: (waypointIndex, waypoint, numberOfWaypoints) => {
-          let markerIcon;
+        if (pathMode === "polyline") {
+          // Create a polyline from waypoints
+          const polyline = L.polyline(waypoints, { color: 'blue' }).addTo(this.map);
 
-          if (waypointIndex === 0) {
-              markerIcon = L.divIcon({
+          console.log("kono position number: ", pathData.position_number);
+          // Create custom markers for the polyline
+          // Start marker
+          const startMarker = L.marker(waypoints[0], {
+            icon: L.divIcon({
+              className: 'custom-div-icon',
+              html: `<div style="color: white; padding: 5px;">${this.mapService.getCustomPositionMarker(pathData.position_number.toString())}</div>`,
+              iconSize: [50, 20],
+              iconAnchor: [50, 40]
+            })
+          }).addTo(this.map);
+
+          // End marker
+          const endMarker = L.marker(waypoints[waypoints.length - 1], {
+            icon: L.divIcon({
+              className: 'custom-div-icon',
+              html: `<div style="color: white; padding: 5px;">${this.mapService.sessionEndMarker}</div>`,
+              iconSize: [50, 20],
+              iconAnchor: [50, 40]
+            })
+          }).addTo(this.map);
+
+          // Fit map to the polyline bounds
+          this.map.fitBounds(polyline.getBounds());
+        } else if (pathMode === "routed") {
+          // Create custom plan with markers
+          const customPlan = new L.Routing.Plan(waypoints, {
+            createMarker: (waypointIndex, waypoint, numberOfWaypoints) => {
+              let markerIcon;
+
+              if (waypointIndex === 0) {
+                // Start marker
+                markerIcon = L.divIcon({
                   className: 'custom-div-icon',
                   html: `<div style="color: white; padding: 5px;">${this.mapService.getCustomPositionMarker(pathData.position_number.toString())}</div>`,
                   iconSize: [50, 20],
                   iconAnchor: [50, 40]
-              });
-              return L.marker(waypoint.latLng, { icon: markerIcon });
-          } else if (waypointIndex === numberOfWaypoints - 1) {
-              markerIcon = L.divIcon({
+                });
+                return L.marker(waypoint.latLng, { icon: markerIcon });
+              } else if (waypointIndex === numberOfWaypoints - 1) {
+                // End marker
+                markerIcon = L.divIcon({
                   className: 'custom-div-icon',
                   html: `<div style="color: white; padding: 5px;">${this.mapService.sessionEndMarker}</div>`,
                   iconSize: [50, 20],
                   iconAnchor: [50, 40]
-              });
-              return L.marker(waypoint.latLng, { icon: markerIcon });
-          }
+                });
+                return L.marker(waypoint.latLng, { icon: markerIcon });
+              }
 
-          return false;
-        }
-        });
+              // No markers for intermediate points
+              return false;
+            }
+          });
 
-        this.mapService.pathType.set("session");
+          // Set path type to session
+          this.mapService.pathType.set("session");
 
-        this.routingControl = L.Routing.control({
+          // Create and add routing control
+          this.routingControl = L.Routing.control({
             show: false,
             plan: customPlan,
             routeWhileDragging: false,
             addWaypoints: false
-        }).addTo(this.map);
+          }).addTo(this.map);
 
-        this.routingControl.route();
+          // Calculate route
+          this.routingControl.route();
+        }
       },
       error: error => console.error("Errore nel caricamento del percorso: ", error)
     });
@@ -309,6 +350,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             const customPlan = this.mapService.createCustomRoutingPlan(pathData.points, pathData.firstPoints);
 
             this.mapService.pathType.set("day");
+            console.log("PATH TYPE SET TO DAY!! ", this.mapService.pathType());
 
             this.routingControl = L.Routing.control({
               show: false,
