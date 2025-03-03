@@ -58,12 +58,12 @@
     <div class="map-content" style="position: relative;">
       <mat-slide-toggle
       class="path-switch"
-      *ngIf="isMapLoaded"
+      *ngIf="isPathLoaded"
       [(ngModel)]="linedPath"
       [checked]="linedPath"
       (click)="togglePathType()">
 
-        <span class="slider-text">Tipo di percorso</span>
+        <span class="slider-text"><b>{{pathTypeText}}</b></span>
       </mat-slide-toggle>
       <div class="map-container" >
         <app-map></app-map>

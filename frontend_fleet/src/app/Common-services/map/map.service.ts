@@ -1,5 +1,5 @@
-import { Injectable, Type } from '@angular/core';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { Injectable, signal, Type } from '@angular/core';
+import { BehaviorSubject, Subject, map } from 'rxjs';
 import { RealtimeData } from '../../Models/RealtimeData';
 import { Anomaly } from '../../Models/Anomaly';
 import * as L from 'leaflet';
@@ -27,6 +27,9 @@ export class MapService {
   private readonly _selectMarker$: BehaviorSubject<positionData | null> = new BehaviorSubject<positionData | null>(null);
   private readonly _togglePopups$: Subject<boolean> = new Subject<boolean>();
   private readonly _zoomIn$: BehaviorSubject<{ point: Point; zoom: number; } | null> = new BehaviorSubject<{ point: Point; zoom: number; } | null>(null);
+
+  pathMode = signal("routed");
+  pathType = signal("day");
 
   positionDatas: positionData[] = [];
 
@@ -128,7 +131,9 @@ export class MapService {
   removeAllMapMarkers(map: L.Map){
     const mapMarkers = this.getMapMarkers(map);
 
-    mapMarkers.map(marker => map.removeLayer(marker));
+    mapMarkers.map(marker => {
+      if(marker) map.removeLayer(marker)
+    });
   }
 
   /**
@@ -210,6 +215,92 @@ export class MapService {
 
     return marker;
   }
+
+  /**
+   * Crea i marker per un percorso
+   * @param points Array di punti
+   * @param firstPoints Array di punti di inizio di ciascuna sessione che compone il percorso
+   * @param map mappa su cui creare il percorso
+   * @returns un layer group di marker
+   */
+  public createCustomPathMarkers(points: Point[],firstPoints: Point[],map: L.Map): L.LayerGroup {
+    const markerGroup = L.layerGroup().addTo(map);
+    const waypoints = points.map(point => L.latLng(point.lat, point.long));
+
+    //aggiunta marker per i primi punti
+    firstPoints.forEach((point, index) => {
+      if (point.lat === 0 && point.long === 0) return; // Skip invalid points
+
+      const marker = L.marker(L.latLng(point.lat, point.long), {
+        icon: L.divIcon({
+          className: 'custom-div-icon',
+          html: `<div style="color: white; padding: 5px;">${this.getCustomPositionMarker((index + 1).toString())}</div>`,
+          iconSize: [20, 20],
+          iconAnchor: [10, 40]
+        })
+      });
+      markerGroup.addLayer(marker);
+    });
+
+    const endMarker = L.marker(waypoints[waypoints.length - 1], {
+      icon: L.divIcon({
+        className: 'custom-div-icon',
+        html: `<div style="color: white; padding: 5px;">${this.sessionEndMarker}</div>`,
+        iconSize: [50, 20],
+        iconAnchor: [10, 40]
+      })
+    });
+    markerGroup.addLayer(endMarker);
+
+    return markerGroup;
+  }
+
+  /**
+   * Crea un piano di routing custom
+   * @param points Array di punti
+   * @param firstPoints Array di punti di inizio di ciascuna sessione che compone il percorso
+   * @returns un layer group di marker
+   */
+  public createCustomRoutingPlan(
+    points: Point[],
+    firstPoints: Point[]
+  ): L.Routing.Plan {
+  const waypoints = points.map(point => L.latLng(point.lat, point.long));
+  let firstPointCounter = 0;
+
+  return new L.Routing.Plan(waypoints, {
+    createMarker: (waypointIndex, waypoint, numberOfWaypoints) => {
+      const currentFirstPosition = firstPoints[firstPointCounter];
+      let markerIcon;
+
+      markerIcon = L.divIcon({
+        className: 'custom-div-icon',
+        html: `<div style="color: white; padding: 5px;">${this.getCustomPositionMarker((firstPointCounter + 1).toString())}</div>`,
+        iconSize: [20, 20],
+        iconAnchor: [10, 40]
+      });
+
+      if (waypointIndex === waypoints.length - 1) {
+        // Create a divIcon for the end point
+        markerIcon = L.divIcon({
+          className: 'custom-div-icon',
+          html: `<div style="color: white; padding: 5px;">${this.sessionEndMarker}</div>`,
+          iconSize: [50, 20],
+          iconAnchor: [10, 40]
+        });
+      }
+
+      if ((currentFirstPosition &&
+          JSON.stringify(L.latLng(currentFirstPosition.lat, currentFirstPosition.long)) ===
+          JSON.stringify(waypoint.latLng)) ||
+          waypointIndex === waypoints.length - 1) {
+        firstPointCounter++;
+        return L.marker(waypoint.latLng, { icon: markerIcon });
+      }
+      return false;
+    }
+  });
+}
 
 
   /**
@@ -294,6 +385,20 @@ export class MapService {
       }
     });
   }
+
+  /**
+   * Rimuove tutti i layer rilvanti (marker e percorsi)
+   * @param map mappa da cui rimuovere i layer
+   */
+  removeAllRelevantLayers(map: L.Map): void {
+    map.eachLayer((layer: L.Layer) => {
+      if (layer instanceof L.Marker || layer instanceof L.Polyline) {
+        map.removeLayer(layer);
+      }
+    });
+  }
+
+
 
   /**
    * Permette di ottenere la stringa svg del popup custom

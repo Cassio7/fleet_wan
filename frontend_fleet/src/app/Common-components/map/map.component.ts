@@ -208,52 +208,52 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       const validEndPoints = this.mapService.getFirstValidEndpoints(pathData.points);
       let startPoint: number | null = validEndPoints.startPoint;
       let endPoint: number | null = validEndPoints.endPoint;
+      const pathMode = this.mapService.pathMode();
 
-      if (startPoint === null || endPoint === null) {
-      } else {
-        this.initMap(new Point(startPoint, endPoint),12);
-      }
+      if(!this.map && startPoint && endPoint) {
+        this.initMap(new Point(startPoint, endPoint), 12)
+      }else{
+        this.mapService.removeAllRelevantLayers(this.map);
+      };
 
-      // Rimuove il controllo del percorso precedente, se esiste
+      // Rimozione del percorso precedente se presente
       if (this.routingControl) {
           this.map.removeControl(this.routingControl);
           this.routingControl = null;
       }
 
-      // Crea gli waypoints basati sui punti passati
+      // Creazione degli waypoints sui punti passati
       const waypoints = pathData.points.map((point) =>
           L.latLng(point.lat, point.long)
       );
 
-      // Sovrascrive il piano di navigazione per evitare i marker
       const customPlan = new L.Routing.Plan(waypoints, {
         createMarker: (waypointIndex, waypoint, numberOfWaypoints) => {
           let markerIcon;
 
           if (waypointIndex === 0) {
-              // Create a divIcon for the start point
               markerIcon = L.divIcon({
                   className: 'custom-div-icon',
                   html: `<div style="color: white; padding: 5px;">${this.mapService.getCustomPositionMarker(pathData.position_number.toString())}</div>`,
                   iconSize: [50, 20],
-                  iconAnchor: [50, 40] // Center the icon
+                  iconAnchor: [50, 40]
               });
               return L.marker(waypoint.latLng, { icon: markerIcon });
           } else if (waypointIndex === numberOfWaypoints - 1) {
-              // Create a divIcon for the end point
               markerIcon = L.divIcon({
                   className: 'custom-div-icon',
                   html: `<div style="color: white; padding: 5px;">${this.mapService.sessionEndMarker}</div>`,
                   iconSize: [50, 20],
-                  iconAnchor: [50, 40] // Center the icon
+                  iconAnchor: [50, 40]
               });
               return L.marker(waypoint.latLng, { icon: markerIcon });
           }
 
-          // Return false for intermediate waypoints to prevent markers
           return false;
         }
         });
+
+        this.mapService.pathType.set("session");
 
         this.routingControl = L.Routing.control({
             show: false,
@@ -269,81 +269,57 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   }
 
   /**
-   * Gestisce la sottoscrizione al subject per il caricamento nella mappa del percorso di un veicolo durante l'insieme di tutte le sessioni di un veicolo
+   * Gestisce la sottoscrizione al subject per il caricamento nella mappa del percorso di un veicolo durante una giornata
+   * mettendo insieme i percorsi effettauti durante le sessioni della giornata
    */
-  private handleLoadDayPath(){
+  private handleLoadDayPath() {
     this.mapService.loadDayPath$.pipe(takeUntil(this.destroy$), skip(1))
-  .subscribe({
-    next: (pathData: { plate: string, points: Point[], firstPoints: Point[] }) => {
-      //rimozione di punti non validi
-      pathData.points = pathData.points.filter(point => point.lat != 0 && point.long != 0);
-      pathData.firstPoints = pathData.firstPoints.filter(point => point.lat != 0 && point.long != 0);
+      .subscribe({
+        next: (pathData: { plate: string, points: Point[], firstPoints: Point[]}) => {
+          console.log("load day path arrivato! Questi so i path data: ", pathData);
+          console.log("pathMode: ", this.mapService.pathMode());
+          pathData.points = pathData.points.filter(point => point.lat !== 0 && point.long !== 0);
+          pathData.firstPoints = pathData.firstPoints.filter(point => point.lat !== 0 && point.long !== 0);
 
-      const validEndPoints = this.mapService.getFirstValidEndpoints(pathData.points);
-      let startPoint: number | null = validEndPoints.startPoint;
-      let endPoint: number | null = validEndPoints.endPoint;
+          const validEndPoints = this.mapService.getFirstValidEndpoints(pathData.points);
+          const startPoint: number | null = validEndPoints.startPoint;
+          const endPoint: number | null = validEndPoints.endPoint;
+          const pathMode = this.mapService.pathMode();
 
-      if (startPoint === null || endPoint === null) {
-      } else {
-        this.initMap(new Point(startPoint, endPoint),12);
-      }
+          if(!this.map && startPoint && endPoint) {
+            this.initMap(new Point(startPoint, endPoint), 12)
+          }else{
+            this.mapService.removeAllRelevantLayers(this.map);
+          };
 
-      // Rimuove il controllo del percorso precedente, se esiste
-      if (this.routingControl) {
-          this.map.removeControl(this.routingControl);
-          this.routingControl = null;
-      }
-
-      // Crea gli waypoints basati sui punti passati
-      const waypoints = pathData.points.map((point) =>
-          L.latLng(point.lat, point.long)
-      );
-
-      let firstPointCounter = 0;
-
-      // Sovrascrive il piano di navigazione per evitare i marker
-      const customPlan = new L.Routing.Plan(waypoints, {
-        createMarker: (waypointIndex, waypoint, numberOfWaypoints) => {
-          const currentFirstPosition = pathData.firstPoints[firstPointCounter];
-          let markerIcon;
-
-          markerIcon = L.divIcon({
-            className: 'custom-div-icon',
-            html: `<div style="color: white; padding: 5px;">${this.mapService.getCustomPositionMarker((firstPointCounter + 1).toString())}</div>`,
-            iconSize: [20, 20],
-            iconAnchor: [10,40]
-          });
-
-          if(waypointIndex === waypoints.length - 1){
-            // Create a divIcon for the start point
-            markerIcon = L.divIcon({
-              className: 'custom-div-icon',
-              html: `<div style="color: white; padding: 5px;">${this.mapService.sessionEndMarker}</div>`,
-              iconSize: [50, 20],
-              iconAnchor: [10,40]
-            });
+          if (this.routingControl) {
+            this.map.removeControl(this.routingControl);
+            this.routingControl = null;
           }
 
-          if((currentFirstPosition && JSON.stringify(L.latLng(currentFirstPosition.lat, currentFirstPosition.long)) == JSON.stringify(waypoint.latLng)) ||
-          waypointIndex === waypoints.length - 1){
-            firstPointCounter++;
-            return L.marker(waypoint.latLng, { icon: markerIcon });
+          const waypoints = pathData.points.map(point => L.latLng(point.lat, point.long));
+
+          if (pathMode === "polyline") {
+            const polyline = L.polyline(waypoints, { color: 'blue' }).addTo(this.map);
+
+            this.mapService.createCustomPathMarkers(pathData.points, pathData.firstPoints, this.map);
+
+            this.map.fitBounds(polyline.getBounds());
+          } else if (pathMode === "routed") {
+            const customPlan = this.mapService.createCustomRoutingPlan(pathData.points, pathData.firstPoints);
+
+            this.mapService.pathType.set("day");
+
+            this.routingControl = L.Routing.control({
+              show: false,
+              plan: customPlan,
+              routeWhileDragging: false,
+              addWaypoints: false
+            }).addTo(this.map);
           }
-          return false;
-        }
-        });
-
-        this.routingControl = L.Routing.control({
-            show: false,
-            plan: customPlan,
-            routeWhileDragging: false,
-            addWaypoints: false
-        }).addTo(this.map);
-
-        this.routingControl.route();
-      },
-      error: error => console.error("Errore nel caricamento del path del giorno: ", error)
-    });
+        },
+        error: error => console.error("Errore nel caricamento del path del giorno: ", error)
+      });
   }
 
   /**

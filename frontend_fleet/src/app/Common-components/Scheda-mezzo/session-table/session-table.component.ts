@@ -34,6 +34,7 @@ import { Point } from '../../../Models/Point';
 import { Session } from '../../../Models/Session';
 import { Vehicle } from '../../../Models/Vehicle';
 import { VehicleAnomalies } from '../../../Models/VehicleAnomalies';
+import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 
 @Component({
   selector: 'app-session-table',
@@ -108,6 +109,7 @@ export class SessionTableComponent implements OnChanges, AfterViewInit {
     private sessionApiService: SessionApiService,
     public checkErrorsService: CheckErrorsService,
     private mapService: MapService,
+    private sessionStorageService: SessionStorageService,
     private router: Router,
     private cd: ChangeDetectorRef
   ) {}
@@ -317,10 +319,11 @@ export class SessionTableComponent implements OnChanges, AfterViewInit {
         const pathData = {
           plate: this.vehicle.plate,
           points: points,
-          firstPoints: firstPoints,
+          firstPoints: firstPoints
         };
 
-        console.log('day pathData: ', pathData);
+        this.sessionStorageService.setItem("pathData", JSON.stringify(pathData));
+
         this.mapService.loadDayPath$.next(pathData);
       }
     );
