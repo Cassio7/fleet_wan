@@ -64,7 +64,6 @@
           class="OK-container"
           matTooltip="GPS funzionante"
         >
-          <mat-icon class="gpsIcon-OK">location_on</mat-icon>
           OK
         </div>
 
@@ -74,8 +73,7 @@
           class="warning-container"
           [matTooltip]="checkErrorsService.checkVehicleGPSWarning(vehicleData)"
         >
-          <mat-icon class="gpsIcon-warning">location_on</mat-icon>
-          Warning
+          Warn
         </div>
 
         <!-- Controllo errore GPS -->
@@ -84,7 +82,6 @@
           class="error-container"
           [matTooltip]="checkErrorsService.checkVehicleGpsError(vehicleData)"
         >
-          <mat-icon class="errorIcon-error">location_on</mat-icon>
           Error
         </div>
       </td>
@@ -101,7 +98,6 @@
           "
           matTooltip="Antenna funzionante"
         >
-          <mat-icon class="gpsIcon-OK">wifi</mat-icon>
           OK
         </div>
         <div
@@ -120,7 +116,6 @@
           "
           [matTooltip]="checkErrorsService.checkVehicleAntennaError(vehicleData) || 'Anomalia antenna RFID'"
         >
-          <mat-icon class="errorIcon-error">wifi</mat-icon>
           Error
         </div>
       </td>
@@ -234,11 +229,7 @@
               "
             >
               {{
-                checkErrorsService.getVehicleSessionAnomalyDate(vehicleData)
-                  ? (checkErrorsService.getVehicleSessionAnomalyDate(
-                      vehicleData
-                    ) | date : "dd/MM/yyyy")
-                  : ""
+                checkErrorsService.getVehicleSessionAnomalyDate(vehicleData) ? (checkErrorsService.getVehicleSessionAnomalyDate(vehicleData) | date : "dd/MM/yyyy"): ""
               }}
             </span>
           </div>

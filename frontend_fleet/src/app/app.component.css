@@ -156,3 +156,18 @@ mat-drawer {
   border-radius: 0px !important;
   border-left: 5px solid white !important;
 }
+.sidebar-content {
+  height: 100%;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.content-area {
+  height: 100vh;
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}

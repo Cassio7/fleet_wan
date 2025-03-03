@@ -77,12 +77,14 @@
   margin-right: 1vw;
   margin-left: 1vw;
   flex: 3;
-  height: calc(100vh - 120px); /* Adjust this value based on your header height */
+  height: 100vh;
   overflow-y: auto;
   overflow-x: hidden;
-  padding-right: 10px; /* Add some padding to account for scrollbar width */
+  padding-right: 10px;
   max-width: 100%;
+  min-height: 0;
 }
+
 .working{
   width: 100px;
   height: 100px;

@@ -6,8 +6,8 @@
 }
 
 .map-container {
-  flex: 1; /* Occupa lo spazio rimanente */
-  height: 100vh;
+  flex: 1;
+  height: calc(100vh - var(--navbar-height));
   width: 100%;
 }
 
