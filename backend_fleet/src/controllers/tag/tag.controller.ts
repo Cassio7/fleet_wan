@@ -8,6 +8,7 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
+import { TagDTO } from 'classes/dtos/tag.dto';
 import { Role } from 'classes/enum/role.enum';
 import { UserFromToken } from 'classes/interfaces/userToken.interface';
 import { Response } from 'express';
@@ -17,7 +18,7 @@ import { RolesGuard } from 'src/guard/roles.guard';
 import { LogContext } from 'src/log/logger.types';
 import { LoggerService } from 'src/log/service/logger.service';
 import { TagService } from 'src/services/tag/tag.service';
-import { validateDateRange } from 'src/utils/utils';
+import { sameDay, validateDateRange } from 'src/utils/utils';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Roles(Role.Admin, Role.Responsabile, Role.Capo)
@@ -31,24 +32,32 @@ export class TagController {
   /**
    * API per recuperare tutti i tag history e i dati relativi in base al veicolo passato
    * @param req user data
-   * @param body veId identificativo veicolo
+   * @param veId identificativo del veicolo
+   * @param dateFrom facoltativo, indica data e ora di inizio ricerca
+   * @param dateTo facoltativo, indica data e ora fine ricerca
+   * @param last indica se api deve recuperare solo l'ultima lettura
    * @param res
    * @returns
    */
+
   @Get()
-  async getAllTagHistoryByVeId(
+  async getAllTagByVeId(
     @Req() req: Request & { user: UserFromToken },
     @Query('veId') veId: number,
+    @Query('dateFrom') dateFrom: string,
+    @Query('dateTo') dateTo: string,
+    @Query('last') last: string,
     @Res() res: Response,
   ) {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
-      resource: 'Tag All',
+      resource: 'Tag',
       resourceId: veId,
     };
-    const veIdNumber = Number(veId); // Garantisce che veId sia un numero
 
+    // Validate veId is a number
+    const veIdNumber = Number(veId);
     if (isNaN(veIdNumber)) {
       this.loggerService.logCrudError({
         error: new Error('Il veId deve essere un numero valido'),
@@ -59,15 +68,56 @@ export class TagController {
         message: 'Il veId deve essere un numero valido',
       });
     }
+    const isLast = last === 'true';
     try {
-      const tags = await this.tagService.getAllTagHistoryByVeId(
-        req.user.id,
-        veIdNumber,
-      );
+      let tags: TagDTO[] = [];
+
+      // Handle date range if provided
+
+      if (dateFrom && dateTo && !isLast) {
+        // Validate date range
+        const validation = validateDateRange(dateFrom, dateTo);
+        if (!validation.isValid) {
+          this.loggerService.logCrudError({
+            error: new Error(validation.message),
+            context,
+            operation: 'list',
+          });
+          return res.status(400).json({ message: validation.message });
+        }
+
+        // Parse dates and get filtered tags
+        const parsedDateFrom = new Date(dateFrom);
+        const parsedDateTo = new Date(dateTo);
+        const equal = sameDay(parsedDateFrom, parsedDateTo);
+        if (equal) {
+          parsedDateTo.setHours(23, 59, 59, 0);
+        }
+        tags = await this.tagService.getTagHistoryByVeIdRanged(
+          req.user.id,
+          veIdNumber,
+          parsedDateFrom,
+          parsedDateTo,
+        );
+      } else if (isLast) {
+        tags = await this.tagService.getLastTagHistoryByVeId(
+          req.user.id,
+          veIdNumber,
+        );
+      } else {
+        // Get all tags if no date range specified
+        tags = await this.tagService.getAllTagHistoryByVeId(
+          req.user.id,
+          veIdNumber,
+        );
+      }
+
+      // Handle response based on results
       if (!tags?.length) {
-        this.loggerService.logCrudSuccess(context, 'list', `Tag non trovati`);
+        this.loggerService.logCrudSuccess(context, 'list', 'Tag non trovati');
         return res.status(204).json();
       }
+
       this.loggerService.logCrudSuccess(
         context,
         'list',
@@ -82,151 +132,7 @@ export class TagController {
       });
 
       return res.status(error.status || 500).json({
-        message: error.message || `Errore durante il recupero dei tag`,
-      });
-    }
-  }
-
-  /**
-   * API per il recupero dell'ultimo Tag letto in base al veicolo passato
-   * @param req user data
-   * @param body veid del veicolo
-   * @param res
-   * @returns
-   */
-  @Post('last')
-  async getLastTagHistoryByVeId(
-    @Req() req: Request & { user: UserFromToken },
-    @Body() body: { veId: number },
-    @Res() res: Response,
-  ) {
-    const context: LogContext = {
-      userId: req.user.id,
-      username: req.user.username,
-      resource: 'Tag ultimo',
-      resourceId: body.veId,
-    };
-    const veId = Number(body.veId); // Garantisce che veId sia un numero
-
-    if (isNaN(veId)) {
-      this.loggerService.logCrudError({
-        error: new Error('Il veId deve essere un numero valido'),
-        context,
-        operation: 'read',
-      });
-      return res.status(400).json({
-        message: 'Il veId deve essere un numero valido',
-      });
-    }
-    try {
-      const tag = await this.tagService.getLastTagHistoryByVeId(
-        req.user.id,
-        veId,
-      );
-      if (!tag) {
-        this.loggerService.logCrudSuccess(
-          context,
-          'read',
-          `Nessuna tag trovato`,
-        );
-        return res.status(204).json();
-      }
-      this.loggerService.logCrudSuccess(
-        context,
-        'read',
-        `Recuperato il tag con id: ${tag.id}`,
-      );
-      return res.status(200).json(tag);
-    } catch (error) {
-      this.loggerService.logCrudError({
-        error,
-        context,
-        operation: 'read',
-      });
-
-      return res.status(error.status || 500).json({
-        message: error.message || 'Errore durante il recupero del Tag',
-      });
-    }
-  }
-
-  /**
-   * API per prendere tutti i tag history indicando range temporale in base all'id
-   * @param res
-   * @param params VeId
-   * @param body Data inizio e data fine ricerca
-   * @returns
-   */
-  @Post('ranged')
-  async getTagHistoryByVeIdRanged(
-    @Req() req: Request & { user: UserFromToken },
-    @Body() body: { veId: number; dateFrom: string; dateTo: string },
-    @Res() res: Response,
-  ) {
-    const context: LogContext = {
-      userId: req.user.id,
-      username: req.user.username,
-      resource: 'Tag ranged',
-      resourceId: body.veId,
-    };
-    const veId = Number(body.veId); // Garantisce che veId sia un numero
-
-    if (isNaN(veId)) {
-      this.loggerService.logCrudError({
-        error: new Error('Il veId deve essere un numero valido'),
-        context,
-        operation: 'list',
-      });
-      return res.status(400).json({
-        message: 'Il veId deve essere un numero valido',
-      });
-    }
-    const dateFrom = body.dateFrom;
-    const dateTo = body.dateTo;
-
-    // controllo data valida
-    const validation = validateDateRange(dateFrom, dateTo);
-    if (!validation.isValid) {
-      this.loggerService.logCrudError({
-        error: new Error(validation.message),
-        context,
-        operation: 'list',
-      });
-      return res.status(400).json({ message: validation.message });
-    }
-    const dateFrom_new = new Date(dateFrom);
-    const dateTo_new = new Date(dateTo);
-    try {
-      const data = await this.tagService.getTagHistoryByVeIdRanged(
-        req.user.id,
-        veId,
-        dateFrom_new,
-        dateTo_new,
-      );
-      if (!data?.length) {
-        this.loggerService.logCrudSuccess(
-          context,
-          'list',
-          'Nessun tag trovato',
-        );
-        return res.status(204).json({ message: 'Nessun tag trovato' });
-      }
-      this.loggerService.logCrudSuccess(
-        context,
-        'list',
-        `Lista tag (${data.length}) recuperata con successo, VeId = ${veId}, dateFrom = ${dateFrom_new.toISOString()}, dateFrom = ${dateTo_new.toISOString()}`,
-      );
-      return res.status(200).json(data);
-    } catch (error) {
-      this.loggerService.logCrudError({
-        error,
-        context,
-        operation: 'list',
-      });
-
-      return res.status(error.status || 500).json({
-        message:
-          error.message || 'Errore nel recupero dei tag con range temporale',
+        message: error.message || 'Errore durante il recupero dei tag',
       });
     }
   }

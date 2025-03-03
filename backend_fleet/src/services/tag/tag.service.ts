@@ -1,22 +1,13 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import axios from 'axios';
-import { DetectionTagDTO } from 'classes/dtos/detection_tag.dto';
 import { TagDTO } from 'classes/dtos/tag.dto';
-import { TagHistoryDTO } from 'classes/dtos/tag_history.dto';
 import { DetectionTagEntity } from 'classes/entities/detection_tag.entity';
 import { TagEntity } from 'classes/entities/tag.entity';
 import { TagHistoryEntity } from 'classes/entities/tag_history.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { createHash } from 'crypto';
-import {
-  Between,
-  DataSource,
-  In,
-  LessThanOrEqual,
-  MoreThanOrEqual,
-  Repository,
-} from 'typeorm';
+import { Between, DataSource, In, Repository } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
 import { AssociationService } from '../association/association.service';
 
@@ -300,7 +291,7 @@ export class TagService {
   async getAllTagHistoryByVeId(
     userId: number,
     veId: number,
-  ): Promise<TagHistoryDTO[]> {
+  ): Promise<TagDTO[]> {
     const vehicles =
       await this.associationService.getVehiclesAssociateUserRedis(userId);
     if (!vehicles || vehicles.length === 0)
@@ -315,6 +306,21 @@ export class TagService {
       );
     try {
       const tags = await this.tagHistoryRepository.find({
+        select: {
+          timestamp: true,
+          latitude: true,
+          longitude: true,
+          geozone: true,
+          nav_mode: true,
+          detectiontag: {
+            detection_quality: true,
+            tid: true,
+            tag: {
+              id: true,
+              epc: true,
+            },
+          },
+        },
         where: { vehicle: { veId: veId } },
         relations: {
           detectiontag: {
@@ -322,7 +328,7 @@ export class TagService {
           },
         },
       });
-      return tags.map((tag) => this.toDTOTagHistory(tag));
+      return tags.flatMap((tag) => this.toDTOTag(tag));
     } catch (error) {
       if (error instanceof HttpException) throw error;
       throw new HttpException(
@@ -345,7 +351,7 @@ export class TagService {
     veId: number,
     dateFrom: Date,
     dateTo: Date,
-  ): Promise<any> {
+  ): Promise<TagDTO[]> {
     const vehicles =
       await this.associationService.getVehiclesAssociateUserRedis(userId);
     if (!vehicles || vehicles.length === 0)
@@ -362,7 +368,7 @@ export class TagService {
       const tags = await this.tagHistoryRepository.find({
         where: {
           vehicle: { veId: veId },
-          timestamp: MoreThanOrEqual(dateFrom) && LessThanOrEqual(dateTo),
+          timestamp: Between(dateFrom, dateTo),
         },
         relations: {
           detectiontag: {
@@ -370,7 +376,7 @@ export class TagService {
           },
         },
       });
-      return tags.map((tag) => this.toDTOTagHistory(tag));
+      return tags.flatMap((tag) => this.toDTOTag(tag));
     } catch (error) {
       if (error instanceof HttpException) throw error;
       throw new HttpException(
@@ -470,7 +476,7 @@ export class TagService {
   async getLastTagHistoryByVeId(
     userId: number,
     veId: number,
-  ): Promise<TagHistoryDTO | null> {
+  ): Promise<TagDTO[]> {
     const vehicles =
       await this.associationService.getVehiclesAssociateUserRedis(userId);
     if (!vehicles || vehicles.length === 0)
@@ -497,7 +503,7 @@ export class TagService {
           timestamp: 'DESC',
         },
       });
-      return tag ? this.toDTOTagHistory(tag) : null;
+      return tag ? this.toDTOTag(tag) : null;
     } catch (error) {
       if (error instanceof HttpException) throw error;
       throw new HttpException(
@@ -657,34 +663,20 @@ export class TagService {
     }
   }
 
-  private toDTOTagHistory(taghistory: TagHistoryEntity): any {
-    const tagHistoryDTO = new TagHistoryDTO();
-    tagHistoryDTO.id = taghistory.id;
-    tagHistoryDTO.timestamp = taghistory.timestamp;
-    tagHistoryDTO.latitude = taghistory.latitude;
-    tagHistoryDTO.longitude = taghistory.longitude;
-    tagHistoryDTO.nav_mode = taghistory.nav_mode;
-    tagHistoryDTO.geozone = taghistory.geozone;
-    const detection_tag: DetectionTagDTO[] = [];
-    if (taghistory.detectiontag) {
-      taghistory.detectiontag.forEach((item) => {
-        detection_tag.push(this.toDTODetectionTag(item));
-      });
-    }
-    tagHistoryDTO.detection_tag = detection_tag;
-    return tagHistoryDTO;
-  }
+  private toDTOTag(taghistory: TagHistoryEntity): TagDTO[] {
+    return taghistory.detectiontag.map((detection) => {
+      const tagDTO = new TagDTO();
+      tagDTO.id = detection.tag.id;
+      tagDTO.epc = detection.tag.epc;
+      tagDTO.tid = detection.tid;
+      tagDTO.detection_quality = detection.detection_quality;
+      tagDTO.timestamp = taghistory.timestamp;
+      tagDTO.latitude = taghistory.latitude;
+      tagDTO.longitude = taghistory.longitude;
+      tagDTO.nav_mode = taghistory.nav_mode;
+      tagDTO.geozone = taghistory.geozone;
 
-  private toDTODetectionTag(detectiontag: DetectionTagEntity): DetectionTagDTO {
-    const detectionTagDTO = new DetectionTagDTO();
-    detectionTagDTO.id = detectiontag.id;
-    detectionTagDTO.tid = detectiontag.tid;
-    detectionTagDTO.detection_quality = detectiontag.detection_quality;
-    if (detectiontag.tag) {
-      detectionTagDTO.tag = new TagDTO();
-      detectionTagDTO.tag.id = detectiontag.tag.id;
-      detectionTagDTO.tag.epc = detectiontag.tag.epc;
-    }
-    return detectionTagDTO;
+      return tagDTO;
+    });
   }
 }
