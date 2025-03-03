@@ -175,6 +175,7 @@ export class AnomalyService {
       );
     }
   }
+  
   /**
    * Recupera le anomalia piu recente per ogni veicolo passato come parametro, escludendo
    * la data odierna
@@ -439,17 +440,6 @@ export class AnomalyService {
     }
   }
 
-  /**
-   * Imposta le anomalie di ieri su Redis per recupero veloce
-   * @param anomalies
-   */
-  // async setDayBeforeAnomalyRedis(anomalies: any) {
-  //   for (const anomaly of anomalies) {
-  //     const key = `dayBeforeAnomaly:${anomaly.vehicle.veId}`;
-  //     await this.redis.set(key, JSON.stringify(anomaly));
-  //   }
-  //   return true;
-  // }
 
   /**
    * Recupera le anomalie odierne da redis, se non sono presenti le prende dal database (fallback)
@@ -642,33 +632,6 @@ export class AnomalyService {
         await queryRunner.manager.getRepository(AnomalyEntity).save(anomaly);
       }
       if (anomaliesQuery && anomaliesQuery.hash !== hash) {
-        // // oggi
-        // if (day.getTime() === today.getTime()) {
-        //   const anomaly = {
-        //     vehicle: vehicle,
-        //     date: day,
-        //     session: normalizedSession,
-        //     gps: normalizedGps,
-        //     antenna: normalizedAntenna,
-        //     detection_quality: detection_quality,
-        //     hash: hash,
-        //   };
-        //   await queryRunner.manager
-        //     .getRepository(AnomalyEntity)
-        //     .update({ key: anomaliesQuery.key }, anomaly);
-        // } else {
-        //   const anomaly = {
-        //     vehicle: vehicle,
-        //     date: day,
-        //     gps: normalizedGps,
-        //     antenna: normalizedAntenna,
-        //     detection_quality: detection_quality,
-        //     hash: hash,
-        //   };
-        //   await queryRunner.manager
-        //     .getRepository(AnomalyEntity)
-        //     .update({ key: anomaliesQuery.key }, anomaly);
-        // }
         const anomaly = {
           vehicle: vehicle,
           date: day,
@@ -813,6 +776,72 @@ export class AnomalyService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  /**
+   * Conta gli errori di sessione
+   * @param veIdArray veId dei veicoli
+   * @returns
+   */
+  async countSessionErrors(
+    userId: number,
+    date: Date,
+  ): Promise<Array<{ veId: number; plate: string; consecutive: string }>> {
+    const vehicles =
+      await this.associationService.getVehiclesAssociateUserRedis(userId);
+    if (!vehicles || vehicles.length === 0)
+      throw new HttpException(
+        'Nessun veicolo associato per questo utente',
+        HttpStatus.NOT_FOUND,
+      );
+    const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
+    const veIdArray = Array.isArray(vehicleIds) ? vehicleIds : [vehicleIds];
+    const formattedDate = date.toISOString().split('T')[0];
+
+    const query = `
+    WITH 
+      RANKED_ANOMALIES AS (
+        SELECT
+          a.session,
+          v."veId",
+          v.plate,
+          ROW_NUMBER() OVER (
+            PARTITION BY v."veId" 
+            ORDER BY a.date DESC
+          ) AS rn
+        FROM
+          public.anomalies AS a
+          JOIN public.vehicles AS v ON v.id = a."vehicleId"
+        WHERE
+          v."veId" IN (${veIdArray.join(', ')})
+          AND a.date <= '${formattedDate}'
+      ),
+      FIRST_NULL AS (
+        SELECT
+          "veId",
+          MIN(rn) AS first_null_position
+        FROM
+          RANKED_ANOMALIES
+        WHERE
+          session IS NULL
+        GROUP BY
+          "veId"
+      )
+    SELECT
+      r."veId" as "veId",
+      r.plate as "plate",
+      COUNT(*) AS consecutive
+    FROM
+      RANKED_ANOMALIES r
+      LEFT JOIN FIRST_NULL f ON r."veId" = f."veId"
+    WHERE
+      (f.first_null_position IS NULL OR r.rn < f.first_null_position)
+      AND r.session IS NOT NULL
+    GROUP BY
+      r."veId", r.plate;
+  `;
+
+    return this.anomalyRepository.query(query);
   }
 
   /**
