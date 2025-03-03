@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { trigger, state, style, transition, animate } from '@angular/animations';
-import { AfterViewInit, ChangeDetectorRef, Component, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
+import { MatButton, MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { SessionApiService } from '../../../Common-services/session/session-api.service';
@@ -32,8 +32,8 @@ import { Router } from '@angular/router';
   styleUrl: './session-table.component.css',
   animations: [
     trigger('detailExpand', [
-      state('collapsed,void', style({height: '0px', minHeight: '0'})),
-      state('expanded', style({height: '*'})),
+      state('collapsed', style({height: '0px', minHeight: '0', visibility: 'hidden'})),
+      state('expanded', style({height: '*', visibility: 'visible'})),
       transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
     ]),
   ],
@@ -46,6 +46,8 @@ export class SessionTableComponent implements OnChanges, AfterViewInit {
   @Input() vehicle!: Vehicle;
   sessionsTableData = new MatTableDataSource<Session>();
   anomaliesTableData = new MatTableDataSource<Anomaly>();
+
+  allSessions: Session[] = [];
 
   // Define ALL possible columns
   allDaysColumns: string[] = ['expand', 'Data', 'Stato GPS', 'Stato Antenna', 'Sessione', 'Map'];
@@ -180,12 +182,15 @@ export class SessionTableComponent implements OnChanges, AfterViewInit {
       this.handleGetSessionsByVeIdRanged(anomaly.date).pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (sessions: Session[]) => {
+          console.log("sessions fetched: ", sessions);
           let count = 1;
-          sessions.map(session => {
+          sessions.forEach(session => {
             session.table_id = count++;
           });
-          count = 0;
-          this.sessionsTableData.data = sessions;
+
+          this.allSessions = sessions;
+
+          this.sessionsTableData.data = sessions.slice(0, 5);
           this.cd.detectChanges();
         }
       });
@@ -208,6 +213,14 @@ export class SessionTableComponent implements OnChanges, AfterViewInit {
           return of([]); // Return an empty array Observable on error
         })
       );
+  }
+
+  /**
+   * Funzione placeholder per il bottone "Carica altro"
+   */
+  loadMore(button: MatButton): void {
+    this.sessionsTableData.data = this.allSessions;
+    button._elementRef.nativeElement.style.display = "none"; // Accessing native element correctly
   }
 
   showPathBySession(session: Session){

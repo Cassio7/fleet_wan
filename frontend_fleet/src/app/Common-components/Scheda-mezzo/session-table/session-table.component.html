@@ -2,7 +2,6 @@
   <table mat-table
        [dataSource]="anomaliesTableData"
        multiTemplateDataRows
-       class="mat-elevation-z8"
       #anomaliesTable>
 
   <!-- Colonna Data -->
@@ -16,15 +15,12 @@
     <th mat-header-cell *matHeaderCellDef> GPS </th>
     <td mat-cell *matCellDef="let anomaly">
       <div class="OK-container" matTooltip="GPS funzionante" *ngIf="!checkErrorsService.checkGpsError(anomaly.gps) && !checkErrorsService.checkGpsWarning(anomaly.gps)">
-        <mat-icon class="gpsIcon-OK">location_on</mat-icon>
         OK
       </div>
       <div class="warning-container" *ngIf="checkErrorsService.checkGpsWarning(anomaly.gps)" [matTooltip]="checkErrorsService.checkGpsWarning(anomaly.gps)">
-        <mat-icon class="gpsIcon-warning">location_on</mat-icon>
         Warning
       </div>
       <div class="error-container" *ngIf="checkErrorsService.checkGpsError(anomaly.gps)" [matTooltip]="checkErrorsService.checkGpsError(anomaly.gps)">
-        <mat-icon class="errorIcon-error">location_on</mat-icon>
         Error
       </div>
     </td>
@@ -98,8 +94,8 @@
 
   <!-- Colonna Expand -->
   <ng-container matColumnDef="expand">
-    <th mat-header-cell *matHeaderCellDef aria-label="row actions">&nbsp;</th>
-    <td mat-cell *matCellDef="let anomaly">
+    <th mat-header-cell *matHeaderCellDef aria-label="row actions" class="expand-column">&nbsp;</th>
+    <td mat-cell *matCellDef="let anomaly" class="expand-column">
       <button mat-icon-button aria-label="expand row" (click)="handleRowExpansion(anomaly, $event)">
         <mat-icon>
           {{ expandedDay === anomaly ? 'remove' : 'add' }}
@@ -116,53 +112,61 @@
           [@detailExpand]="anomaly === expandedDay ? 'expanded' : 'collapsed'">
 
         <!-- Tabella delle sessioni -->
-        <table *ngIf="sessionsTableData" mat-table
-              [dataSource]="sessionsTableData"
-              multiTemplateDataRows
-              class="mat-elevation-z8"
-              #sessionsTable>
+        <div class="expanded-content-container">
+          <table *ngIf="sessionsTableData" mat-table
+                class="session-table"
+                [dataSource]="sessionsTableData"
+                multiTemplateDataRows
+                #sessionsTable>
 
-          <!-- Colonna Id -->
-          <ng-container matColumnDef="Id">
-            <th mat-header-cell *matHeaderCellDef> Id </th>
-            <td mat-cell *matCellDef="let session"> {{session.table_id}} </td>
-          </ng-container>
+            <!-- Colonna Id -->
+            <ng-container matColumnDef="Id">
+              <th mat-header-cell *matHeaderCellDef class="id-column"> # </th>
+              <td mat-cell *matCellDef="let session" class="id-column"> {{session.table_id}} </td>
+            </ng-container>
 
-          <!-- Colonna Sequence ID -->
-          <ng-container matColumnDef="Sequence ID">
-            <th mat-header-cell *matHeaderCellDef> Sequence ID </th>
-            <td mat-cell *matCellDef="let session"> {{session.sequence_id}} </td>
-          </ng-container>
+            <!-- Colonna Sequence ID -->
+            <ng-container matColumnDef="Sequence ID">
+              <th mat-header-cell *matHeaderCellDef class="sequence-column"> Sequence ID </th>
+              <td mat-cell *matCellDef="let session" class="sequence-column"> {{session.sequence_id}} </td>
+            </ng-container>
 
-          <!-- Colonna Inizio -->
-          <ng-container matColumnDef="Inizio">
-            <th mat-header-cell *matHeaderCellDef> Inizio </th>
-            <td mat-cell *matCellDef="let session"> {{session.period_from | date: "HH:mm"}} </td>
-          </ng-container>
+            <!-- Colonna Inizio -->
+            <ng-container matColumnDef="Inizio">
+              <th mat-header-cell *matHeaderCellDef> Inizio </th>
+              <td mat-cell *matCellDef="let session"> {{session.period_from | date: "HH:mm"}} </td>
+            </ng-container>
 
-          <!-- Colonna Fine -->
-          <ng-container matColumnDef="Fine">
-            <th mat-header-cell *matHeaderCellDef> Fine </th>
-            <td mat-cell *matCellDef="let session"> {{session.sequence_id == 0 ? "In marcia..." : session.period_to | date: "HH:mm"}} </td>
-          </ng-container>
+            <!-- Colonna Fine -->
+            <ng-container matColumnDef="Fine">
+              <th mat-header-cell *matHeaderCellDef> Fine </th>
+              <td mat-cell *matCellDef="let session"> {{session.sequence_id == 0 ? "In marcia..." : session.period_to | date: "HH:mm"}} </td>
+            </ng-container>
 
-          <!-- Colonna Distanza -->
-          <ng-container matColumnDef="Distanza">
-            <th mat-header-cell *matHeaderCellDef> Distanza </th>
-            <td mat-cell *matCellDef="let session"> {{session.distance}} km </td>
-          </ng-container>
+            <!-- Colonna Distanza -->
+            <ng-container matColumnDef="Distanza">
+              <th mat-header-cell *matHeaderCellDef> Distanza </th>
+              <td mat-cell *matCellDef="let session"> {{session.distance}} km </td>
+            </ng-container>
 
-          <!-- Colonna Mappa -->
-          <ng-container matColumnDef="Map" *ngIf="!isDettaglio">
-            <th mat-header-cell *matHeaderCellDef> Percorso </th>
-            <td mat-cell *matCellDef="let session"><mat-icon class="map-icon" (click)="showPathBySession(session)" matTooltip="Click per visualizzare il percorso di questa sessione">route</mat-icon></td>
-          </ng-container>
+            <!-- Colonna Mappa -->
+            <ng-container matColumnDef="Map" *ngIf="!isDettaglio">
+              <th mat-header-cell *matHeaderCellDef> Percorso </th>
+              <td mat-cell *matCellDef="let session"><mat-icon class="map-icon" (click)="showPathBySession(session)" matTooltip="Click per visualizzare il percorso di questa sessione">route</mat-icon></td>
+            </ng-container>
 
-          <!-- Definizione intestazioni e righe della tabella -->
-          <tr mat-header-row *matHeaderRowDef="displayedSessionColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedSessionColumns;"></tr>
-        </table>
+            <!-- Definizione intestazioni e righe della tabella -->
+            <tr mat-header-row *matHeaderRowDef="displayedSessionColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedSessionColumns;"></tr>
+          </table>
 
+          <!-- Bottone Carica altro -->
+          <div class="load-more-container" *ngIf="allSessions.length > 5">
+            <button mat-raised-button color="primary" class="button" #loadBtn (click)="loadMore(loadBtn)">
+              Carica altri
+            </button>
+          </div>
+        </div>
       </div>
     </td>
   </ng-container>

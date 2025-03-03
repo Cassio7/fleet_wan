@@ -1,4 +1,4 @@
-body{
+body {
   font-size: 14px;
 }
 
@@ -8,7 +8,6 @@ body{
   width: 100%;
   overflow-y: auto;
   overflow-x: hidden;
-  box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
   max-width: 100%;
   max-height: 70vh;
 }
@@ -38,6 +37,28 @@ tr.example-element-row:not(.example-expanded-row):active {
 .example-element-detail {
   overflow: hidden;
   display: flex;
+  flex-direction: column;
+}
+
+.expanded-content-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.load-more-container {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+.load-more-button {
+  min-width: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .example-element-diagram {
@@ -61,63 +82,39 @@ tr.example-element-row:not(.example-expanded-row):active {
 .example-element-description-attribution {
   opacity: 0.5;
 }
+
 .OK-container{
-  display: inline-flex;
-  align-items: center;
   justify-content: center;
-  gap: 2px;
-  color: white;
-  background-color: var(--green);
-  padding: 3%;
-  cursor: pointer;
-  border-radius: 5px;
+  align-items: center;
 }
-
-.OK-container mat-icon{
+.OK-container mat-icon {
   font-size: 20px;
 }
-
 .warning-container{
-  display: inline-flex;
-  align-items: center;
   justify-content: center;
-  gap: 5px;
-  color: white;
-  background-color: #C5D026;
-  padding: 3%;
-  cursor: pointer;
-  border-radius: 5px;
+  align-items: center;
 }
-
-.warning-container mat-icon{
+.warning-container mat-icon {
   font-size: 20px;
 }
-
 .error-container{
-  display: inline-flex;
-  align-items: center;
   justify-content: center;
-  gap: 5px;
-  color: white;
-  background-color: #d12717;
-  padding: 3%;
-  cursor: pointer;
-  border-radius: 5px;
+  align-items: center;
 }
-
-.error-container mat-icon{
+.error-container mat-icon {
   font-size: 20px;
 }
 
-.noRFID-container{
+.noRFID-container {
   height: 100%;
   display: flex;
+  justify-content: center;
   align-items: center;
   gap: 2px;
   text-wrap: nowrap;
 }
 
-.noRFID-container mat-icon{
+.noRFID-container mat-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -130,14 +127,14 @@ tr.example-element-row:not(.example-expanded-row):active {
   font-size: 20px;
 }
 
-
-.session-error{
+.session-error {
   display: flex;
+  justify-content: center;
   align-items: center;
   gap: 5px;
 }
 
-.session-date{
+.session-date {
   color: red;
 }
 
@@ -158,15 +155,66 @@ tr.example-element-row:not(.example-expanded-row):active {
   cursor: pointer;
   transition: transform 0.2s;
 }
-.disclaimers{
+
+.disclaimers {
   width: 100%;
   display: flex;
   justify-content: center;
   padding: 20px;
 }
+
 tr.selected-row {
   box-shadow: 0 0 0 2px green !important;
 }
-tr.selected-row td{
+
+tr.selected-row td {
   border-bottom: 2px solid green !important;
+}
+.example-element-detail{
+  max-width: 100%;
+  overflow-x: hidden;
+}
+.expanded-content-container{
+  background-color: var(--background-color) !important;
+  padding: 0 0 42px 71px;
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+.mdc-data-table__cell{
+  padding: 0;
+}
+.session-table{
+  max-width: 100%;
+  overflow-x: hidden;
+}
+.mdc-data-table__cell{
+  text-align: center;
+}
+.mat-mdc-header-cell{
+  text-align: center;
+}
+.id-column {
+  width: 50px;
+  max-width: 50px;
+  padding: 0 8px;
+}
+
+.mat-column-Id {
+  width: 50px;
+  max-width: 50px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.expand-column {
+  width: 40px; /* Adjust this value as needed */
+  max-width: 40px;
+  padding: 0;
+}
+
+/* Using the Angular Material automatic class naming */
+.mat-column-expand {
+  width: 40px; /* Same value as above */
+  max-width: 40px;
+  padding: 0;
 }
