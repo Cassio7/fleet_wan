@@ -123,6 +123,13 @@
   margin: 0;
 }
 
+.warnings {
+  min-height: 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
 .credentials-warning,
 .caps-lock-warning {
   color: var(--red);
