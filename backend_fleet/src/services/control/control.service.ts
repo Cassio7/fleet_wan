@@ -216,19 +216,20 @@ export class ControlService {
             return acc;
           }, {});
 
+          // numero posizioni minime = 1 per ogni sessione
           const filteredSessions = Object.values(groupedBySequence).filter(
-            (group: any) => group.length >= 2,
+            (group: any) => group.length >= 1,
           );
 
           // se nessun tag e sessione trovata stop ricerca
-          if (!lastTag && filteredSessions.length === 0) {
+          if (!lastTag && filteredSessions?.length === 0) {
             return null;
           }
           const anomalies = [];
-          if (!lastTag && filteredSessions.length > 0) {
+          if (!lastTag && filteredSessions?.length > 0) {
             anomalies.push('Sessioni trovate ma no tag letti.');
           }
-          if (lastTag && filteredSessions.length === 0) {
+          if (lastTag && filteredSessions?.length === 0) {
             anomalies.push('Tag letto ma nessuna sessione trovata.');
           }
 
@@ -666,18 +667,21 @@ export class ControlService {
             tagEntry.veId ||
             comparisonEntry.veId ||
             qualityEntry.veId ||
+            openSessionEntry.veId ||
             null,
           isCan:
             gpsEntry.isCan ||
             tagEntry.isCan ||
             comparisonEntry.isCan ||
             qualityEntry.isCan ||
+            openSessionEntry.isCan ||
             false,
           isRFIDReader:
             gpsEntry.isRFIDReader ||
             tagEntry.isRFIDReader ||
             comparisonEntry.isRFIDReader ||
             qualityEntry.isRFIDReader ||
+            openSessionEntry.isRFIDReader ||
             false,
           anomaliaSessione: comparisonEntry.anomalies,
           sessions: unifiedSessions,
