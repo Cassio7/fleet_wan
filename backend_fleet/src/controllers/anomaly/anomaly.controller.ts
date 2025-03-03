@@ -137,15 +137,16 @@ export class AnomalyController {
     }
 
     try {
-      // logica set redis giorno prima al momento dismessa
-
-      // const yesterday = new Date(today);
-      // yesterday.setDate(yesterday.getDate() - 1);
       let lastUpdate;
       let anomalies: any[] = [];
+      let countSessionErrors;
       // Case 1: Se dateFrom === dateTo e il giorno è oggi usare todayAnomaly
       if (dateFrom.getTime() === dateTo.getTime()) {
         if (dateFrom.getTime() === today.getTime()) {
+          countSessionErrors = await this.anomalyService.countSessionErrors(
+            req.user.id,
+            dateFrom,
+          );
           const anomaliesData = await this.anomalyService.getTodayAnomalyRedis(
             req.user.id,
             dateFrom,
@@ -166,26 +167,8 @@ export class AnomalyController {
           );
         }
       }
-      // logica set redis giorno prima al momento dismessa
 
-      // // Case 2: Se dateFrom è ieri e il dateTo è oggi usa dayBeforeAnomaly
-      // else if (
-      //   dateFrom.getTime() === yesterday.getTime() &&
-      //   dateTo.getTime() === today.getTime()
-      // ) {
-      //   const redisPromises = vehicleIds.map(async (id) => {
-      //     const key = `dayBeforeAnomaly:${id}`;
-      //     try {
-      //       const data = await this.redis.get(key);
-      //       return data ? JSON.parse(data) : null;
-      //     } catch (error) {
-      //       console.error(`Errore recupero da redis il veicolo ${id}:`, error);
-      //       return null;
-      //     }
-      //   });
-      //   anomalies = (await Promise.all(redisPromises)).filter(Boolean);
-      // }
-      // Case 3: Se nessuno dei casi è true fa getAnomalyByDateRange
+      // Case 2: Se nessuno dei casi è true fa getAnomalyByDateRange
       else {
         anomalies = await this.anomalyService.getAnomalyByDateRange(
           req.user.id,
@@ -201,6 +184,7 @@ export class AnomalyController {
       return res.status(200).json({
         lastUpdate,
         vehicles: anomalies,
+        sessionCount: countSessionErrors,
       });
     } catch (error) {
       this.loggerService.logCrudError({
@@ -313,9 +297,12 @@ export class AnomalyController {
     };
 
     try {
-      const anomalies = await this.anomalyService.getLastAnomalyRedis(
+      let anomalies = await this.anomalyService.getLastAnomalyRedis(
         req.user.id,
       );
+      if (anomalies?.length === 0) {
+        anomalies = await this.anomalyService.getLastAnomaly(req.user.id);
+      }
 
       if (!anomalies || anomalies.length === 0) {
         this.loggerService.logCrudSuccess(
@@ -325,13 +312,21 @@ export class AnomalyController {
         );
         return res.status(204).json();
       }
-
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      yesterday.setHours(0, 0, 0, 0);
+      const countSessionErrors = await this.anomalyService.countSessionErrors(
+        req.user.id,
+        yesterday,
+      );
       this.loggerService.logCrudSuccess(
         context,
         'list',
         `Recuperate ${anomalies.length} anomalie `,
       );
-      res.status(200).json({ vehicles: anomalies });
+      res
+        .status(200)
+        .json({ vehicles: anomalies, sessionCount: countSessionErrors });
     } catch (error) {
       this.loggerService.logCrudError({
         context,
@@ -445,23 +440,6 @@ export class AnomalyController {
 
       const todayAnomalies = await this.anomalyService.getAnomalyByDate(1, now);
       await this.anomalyService.setTodayAnomalyRedis(todayAnomalies);
-
-      // logica set redis giorno prima al momento dismessa
-
-      // const dayBeforekeys = await this.redis.keys('dayBeforeAnomaly:*');
-      // if (dayBeforekeys.length > 0) {
-      //   await this.redis.del(dayBeforekeys);
-      // }
-      // const dayBefore = new Date(
-      //   now.getFullYear(),
-      //   now.getMonth(),
-      //   now.getDate() - 1,
-      // );
-      // const yesterdayAnomalies = await this.anomalyService.getAnomalyByDate(
-      //   vehicleIds,
-      //   dayBefore,
-      // );
-      // await this.anomalyService.setDayBeforeAnomalyRedis(yesterdayAnomalies);
 
       this.loggerService.logCrudSuccess(
         context,
