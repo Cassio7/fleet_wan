@@ -1,3 +1,11 @@
+:host{
+  --mat-form-field-container-height: 50px;
+  --mat-form-field-container-vertical-padding: 13px;
+  --mat-form-field-container-text-size: 14px;
+  --mdc-outlined-text-field-outline-color: #DEDEDE;
+  --mdc-outlined-text-field-container-shape: 5px;
+}
+
 .content {
   margin: 0;
   padding: 0;
@@ -124,7 +132,7 @@
 }
 
 .warnings {
-  min-height: 20px;
+  min-height: 50px;
   display: flex;
   flex-direction: column;
   justify-content: center;
