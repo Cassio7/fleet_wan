@@ -6,8 +6,8 @@
 .columns {
   display: flex;
   justify-content: space-between;
+  margin-top: 20px;
   gap: 16px;
-  padding: 16px;
   font-family: 'Inter';
 }
 
@@ -26,7 +26,6 @@
 
 .column {
   flex: 1;
-  padding: 16px;
   border: 0px solid transparent;
   border-radius: 8px;
   background-color: transparent;

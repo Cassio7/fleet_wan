@@ -9,8 +9,8 @@
   width: 100%;
   display: flex;
   align-items: flex-start;
+  margin-top: 20px;
   gap: 7vw;
-  padding: 16px;
   font-family: 'Inter';
 }
 
@@ -35,7 +35,6 @@
 
 .column {
   flex: 1;
-  padding: 16px;
   border: 0px solid transparent;
   border-radius: 8px;
   background-color: transparent;

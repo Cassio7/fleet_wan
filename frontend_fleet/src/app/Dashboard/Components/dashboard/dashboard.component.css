@@ -163,7 +163,8 @@ html {
   flex-direction: column;
   gap: 20px;
   background-color: var(--background-color);
-  padding: 20px;
+  padding-left: 39px;
+  padding-top: 36px;
   margin: 0;
   box-sizing: border-box;
 }
@@ -240,5 +241,3 @@ html {
 ::ng-deep .mat-mdc-slide-toggle.mat-mdc-slide-toggle-checked:not(.mat-disabled) .mdc-switch__track::after {
   background-color: var(--green) !important;
 }
-
-
