@@ -232,6 +232,7 @@ html {
   margin-top: 0;
   flex-grow: 0;
 }
+
 ::ng-deep .mat-mdc-slide-toggle.mat-mdc-slide-toggle-checked:not(.mat-disabled) .mdc-switch__shadow {
   background-color: white;
 }
@@ -239,3 +240,5 @@ html {
 ::ng-deep .mat-mdc-slide-toggle.mat-mdc-slide-toggle-checked:not(.mat-disabled) .mdc-switch__track::after {
   background-color: var(--green) !important;
 }
+
+

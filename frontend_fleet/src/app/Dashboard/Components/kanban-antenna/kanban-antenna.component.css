@@ -11,6 +11,16 @@
   font-family: 'Inter';
 }
 
+.column {
+  flex: 1;
+  padding: 16px;
+  border: 0px solid transparent;
+  border-radius: 8px;
+  background-color: transparent;
+  min-width: 200px;
+  max-width: 500px;
+}
+
 .title {
   font-size: 40px;
   font-weight: bold;
@@ -30,23 +40,14 @@
   cursor: pointer;
 }
 
-
-
-.working-col, .error-col, .blackbox-col {
-  flex: 1;
-  padding: 16px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background-color: #f9f9f9;
-  min-width: 200px;
-  max-width: 350px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
 .header {
   width: 100%;
   display: flex;
+  background-color: white;
+  padding: 10px;
+  border-radius: 5px;
   align-items: center;
+  box-sizing: border-box;
   justify-content: space-between;
 }
 
@@ -113,41 +114,50 @@ button {
   width: 100%;
 }
 
+.scrollable-list {
+  max-height: 65vh;
+  overflow-y: auto;
+  padding-right: 20px;
+  padding-left: 10px;
+}
+
+mat-list mat-list-item:nth-child(even) {
+  background-color: #FAF9F8 !important;
+}
+
+
 mat-list-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 8px;
+  background-color: white;
   border-bottom: 1px solid #ddd;
+  border-radius: 5px;
+  margin-bottom: 5px;
   height: auto !important;
-}
-
-mat-icon-button {
-  color: var(--red);
 }
 
 mat-list-item:hover {
   background-color: #f1f1f1;
   cursor: pointer;
 }
-.scrollable-list {
-  max-height: 500px;
-  overflow-y: auto;
-  padding-right: 20px;
-  padding-left: 10px;
+
+mat-progress-bar.working-bar {
+  --mdc-linear-progress-active-indicator-color: var(--green);
+  --mdc-linear-progress-track-color: white;
 }
 
-
-.scrollable-list::-webkit-scrollbar {
-  width: 10px;
-  background-color: transparent;
+mat-progress-bar.blackbox-bar {
+  --mdc-linear-progress-active-indicator-color: black;
+  --mdc-linear-progress-track-color: white;
 }
 
-.scrollable-list::-webkit-scrollbar-thumb {
-  background-color: green;
-  border-radius: 10px;
+mat-progress-bar.error-bar {
+  --mdc-linear-progress-active-indicator-color: var(--red);
+  --mdc-linear-progress-track-color: white;
 }
-
-.scrollable-list::-webkit-scrollbar-thumb:hover {
-  background-color: #555;
+mat-progress-bar.working-bar .mdc-linear-progress {
+  height: 10px !important;
+  border-radius: 10px !important; /* Modifica il valore a piacere */
 }
