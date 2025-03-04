@@ -193,7 +193,7 @@ table:not(.mat-calendar-table) tr:nth-child(even) {
 
 /* Stile della scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 7px;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -202,6 +202,6 @@ table:not(.mat-calendar-table) tr:nth-child(even) {
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: white;
   border-radius: 4px;
 }

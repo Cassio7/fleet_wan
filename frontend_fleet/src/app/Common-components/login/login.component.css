@@ -124,7 +124,7 @@
 }
 
 .warnings {
-  min-height: 50px;
+  min-height: 20px;
   display: flex;
   flex-direction: column;
   justify-content: center;

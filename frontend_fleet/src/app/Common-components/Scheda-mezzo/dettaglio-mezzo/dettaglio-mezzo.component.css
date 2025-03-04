@@ -11,6 +11,9 @@
   height: 100%;
 }
 
+.section-header{
+  margin-top: 35px;
+}
 .left-header{
   margin-left: 50px;
   margin-bottom: 20px;
@@ -107,6 +110,10 @@
   flex: 4;
   height: 100%;
   overflow-y: hidden;
+}
+
+.right-section .subtitle{
+  margin-top: 10px;
 }
 
 .working {
