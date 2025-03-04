@@ -5,9 +5,9 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { SessionApiService } from '../../../Common-services/session/session-api.service';
-import { Vehicle } from '../../../Models/Vehicle';
-import { TagService } from '../../../Common-services/tag/tag.service';
+import { SessionApiService } from '../../Common-services/session/session-api.service';
+import { Vehicle } from '../../Models/Vehicle';
+import { TagService } from '../../Common-services/tag/tag.service';
 
 @Component({
   selector: 'app-session-filters',

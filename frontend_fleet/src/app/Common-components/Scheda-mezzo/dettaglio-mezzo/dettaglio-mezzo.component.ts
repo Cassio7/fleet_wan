@@ -16,11 +16,11 @@ import { User } from '../../../Models/User';
 import { AuthService } from '../../../Common-services/auth/auth.service';
 import { DetectionGraphComponent } from "../../../Mezzi/Components/detection-graph/detection-graph.component";
 import { NoteSectionComponent } from "../../note-section/note-section.component";
-import { SessionHystoriesComponent } from "../session-hystories/session-hystories.component";
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AnomaliesComponent } from "../anomalies/anomalies.component";
-import { SessionFiltersComponent } from "../session-filters/session-filters.component";
+import { SessionFiltersComponent } from "../../session-filters/session-filters.component";
 import { NavigationService } from '../../../Common-services/navigation/navigation.service';
+import { SessionTableComponent } from "../../session-table/session-table.component";
 
 
 @Component({
@@ -36,9 +36,9 @@ import { NavigationService } from '../../../Common-services/navigation/navigatio
     MatTooltipModule,
     DetectionGraphComponent,
     NoteSectionComponent,
-    SessionHystoriesComponent,
     AnomaliesComponent,
-    SessionFiltersComponent
+    SessionFiltersComponent,
+    SessionTableComponent
 ],
   templateUrl: './dettaglio-mezzo.component.html',
   styleUrl: './dettaglio-mezzo.component.css'

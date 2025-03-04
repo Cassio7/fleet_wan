@@ -1,11 +1,9 @@
 import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { MapComponent } from "../../../Common-components/map/map.component";
-import { SessionHystoriesComponent } from "../../../Common-components/Scheda-mezzo/session-hystories/session-hystories.component";
-import { SessionTableComponent } from "../../../Common-components/Scheda-mezzo/session-table/session-table.component";
+import { SessionTableComponent } from "../../../Common-components/session-table/session-table.component";
 import { ListaMezziComponent } from "../lista-mezzi/lista-mezzi.component";
-import { FormGroup, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { SessionApiService } from '../../../Common-services/session/session-api.service';
-import { SessionFiltersComponent } from "../../../Common-components/Scheda-mezzo/session-filters/session-filters.component";
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { SessionFiltersComponent } from "../../../Common-components/session-filters/session-filters.component";
 import { ListaFiltersComponent } from "../lista-filters/lista-filters.component";
 import { Vehicle } from '../../../Models/Vehicle';
 import { MatListModule } from '@angular/material/list';
@@ -25,7 +23,6 @@ import { Point } from '../../../Models/Point';
   imports: [
     CommonModule,
     MapComponent,
-    SessionHystoriesComponent,
     ListaMezziComponent,
     MatListModule,
     MatCardModule,
@@ -34,7 +31,8 @@ import { Point } from '../../../Models/Point';
     MatIconModule,
     MatSlideToggleModule,
     SessionFiltersComponent,
-    ListaFiltersComponent
+    ListaFiltersComponent,
+    SessionTableComponent
 ],
   templateUrl: './storico-mezzi.component.html',
   styleUrl: './storico-mezzi.component.css'
