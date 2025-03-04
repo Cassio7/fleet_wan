@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { SessionApiService } from '../../../Common-services/session/session-api.service';
 import { Vehicle } from '../../../Models/Vehicle';
+import { TagService } from '../../../Common-services/tag/tag.service';
 
 @Component({
   selector: 'app-session-filters',
@@ -25,7 +26,8 @@ import { Vehicle } from '../../../Models/Vehicle';
 })
 export class SessionFiltersComponent implements OnInit{
   constructor(
-    private sessionApiService: SessionApiService
+    private sessionApiService: SessionApiService,
+    private tagService: TagService
   ){}
 
   readonly range = new FormGroup({
@@ -46,6 +48,9 @@ export class SessionFiltersComponent implements OnInit{
   checkDateRange() {
     const startDate = this.range.get('start')?.value;
     const endDate = this.range.get('end')?.value;
+
+    this.tagService.dateFrom.set(startDate || null);
+    this.tagService.dateTo.set(endDate || null);
 
     if (startDate && endDate) {
       const dateRange: Date[] = [startDate, endDate];

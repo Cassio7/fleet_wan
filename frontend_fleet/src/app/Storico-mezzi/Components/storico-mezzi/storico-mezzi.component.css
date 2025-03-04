@@ -36,7 +36,7 @@
 }
 
 /* Stili specifici */
-.mezzi-list, .map{
+.mezzi-list, .map-section{
   background-color: var(--navbarANDstats-background);
 }
 
@@ -47,15 +47,10 @@
 
 .sessions-table {
   background-color: var(--background-color);
-  flex: 1;
+  flex: 1.8;
   display: flex;
   flex-direction: column;
   width: 100%;
-
-}
-
-.sessions-table {
-  flex: 2;
 }
 
 .sessions-table .table-content {
@@ -66,7 +61,7 @@
   gap: 2vh;
 }
 
-.map {
+.map-section {
   flex: 1;
   display: flex;
   flex-direction: column;

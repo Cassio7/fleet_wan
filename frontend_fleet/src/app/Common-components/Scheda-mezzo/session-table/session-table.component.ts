@@ -35,6 +35,7 @@ import { Session } from '../../../Models/Session';
 import { Vehicle } from '../../../Models/Vehicle';
 import { VehicleAnomalies } from '../../../Models/VehicleAnomalies';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
+import { tagData, TagService } from '../../../Common-services/tag/tag.service';
 
 @Component({
   selector: 'app-session-table',
@@ -110,6 +111,7 @@ export class SessionTableComponent implements OnChanges, AfterViewInit {
     public checkErrorsService: CheckErrorsService,
     private mapService: MapService,
     private sessionStorageService: SessionStorageService,
+    private tagService: TagService,
     private router: Router,
     private cd: ChangeDetectorRef
   ) {}
@@ -325,6 +327,13 @@ export class SessionTableComponent implements OnChanges, AfterViewInit {
 
         this.sessionStorageService.setItem("pathData", JSON.stringify(pathData));
 
+        this.tagService.getTagsByVeIdRanged(this.vehicle.veId).pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (tagData: tagData) => {
+            console.log("tagData: ", tagData);
+          },
+          error: error => console.error(`Errore nel recupero delle letture dei tag`)
+        });
         this.mapService.loadDayPath$.next(pathData);
       }
     );
