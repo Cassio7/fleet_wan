@@ -1,6 +1,5 @@
 <div class="content">
   <mat-form-field class="targa-filter" appearance="outline" subscriptSizing="dynamic">
-    <mat-label>Targa</mat-label>
     <input matInput type="text" placeholder="Targa" #targa class="targa-input" [(ngModel)]="plate" (input)="searchPlates()">
     <button *ngIf="targa.value" matSuffix mat-icon-button aria-label="Clear" (click)="plate = ''; searchPlates()">
       <mat-icon>close</mat-icon>

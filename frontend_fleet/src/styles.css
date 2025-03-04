@@ -37,6 +37,7 @@ body {
   font-family: "Inter", sans-serif;
 }
 :root {
+  /*custom css variables*/
   --green: #5c9074;
   --yellow: #c5d026;
   --red: #d02626;
@@ -44,6 +45,13 @@ body {
   --background-color: #f8f7f2;
   --navbar-height: 6vh;
   --navbarANDstats-background: #f1f0e6;
+
+  /*angular css variables*/
+  --mat-form-field-container-height: 40px;
+  --mat-form-field-container-vertical-padding: 10px;
+  --mat-form-field-container-text-size: 14px;
+  --mdc-outlined-text-field-outline-color: #DEDEDE;
+  --mdc-outlined-text-field-container-shape: 10px;
 }
 
 /*Stile per contenitore targa mezzo*/

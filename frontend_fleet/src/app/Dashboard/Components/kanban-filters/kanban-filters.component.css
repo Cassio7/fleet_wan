@@ -1,24 +1,21 @@
 .filters-container {
-  display: flex;
+  display: inline-flex;
   flex-wrap: wrap;
   gap: 10px;
   justify-content: flex-start;
-  max-width: 60%;
+  max-width: 100%;
   background-color: white;
   padding: 10px;
   border-radius: 6px;
 }
 
-.filter {
-  flex: 1 1 30%;
-}
-
-mat-form-field {
-  flex: 1 1 40%;
+.mat-form-field {
+  height: var(--mat-form-field-container-height);
+  padding: var(--mat-form-field-container-vertical-padding);
+  font-size: var(--mat-form-field-container-text-size);
 }
 
 .filters-btn {
   background-color: var(--green);
-  border-radius: 5px !important;
   color: white;
 }
