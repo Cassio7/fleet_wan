@@ -126,6 +126,15 @@ export class CheckErrorsService {
   }
 
 
+  getVehicleSessionAnomalyCount(vehicleData: VehicleData){
+    const anomalies = this.checkVehicleAnomaly(vehicleData);
+    if(anomalies){
+      return anomalies.session_count;
+    }
+    return null;
+  }
+
+
 
   /**
    * Calcola da quanti giorni le sessioni di un veicolo sono in errore

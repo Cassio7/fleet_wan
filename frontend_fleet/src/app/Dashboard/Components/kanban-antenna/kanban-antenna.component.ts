@@ -248,6 +248,7 @@ export class KanbanAntennaComponent implements AfterViewInit, OnDestroy {
         antenna: vehicleData.anomalies[0].antenna,
         detection_quality: null,
         session: null,
+        session_count: null
       },
     };
     this.mapService.initMap$.next({

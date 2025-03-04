@@ -1,3 +1,4 @@
+
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -234,6 +235,7 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy {
         antenna: null,
         detection_quality: null,
         session: vehicleData.anomalies[0].session,
+        session_count: null
       },
     };
     this.mapService.initMap$.next({

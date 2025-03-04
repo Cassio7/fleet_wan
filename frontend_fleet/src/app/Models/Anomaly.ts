@@ -5,5 +5,6 @@ export class Anomaly {
     public antenna: string | null,
     public detection_quality: string | null,
     public session: string | null,
+    public session_count: number | null
   ) {}
 }

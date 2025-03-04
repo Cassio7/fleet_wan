@@ -207,12 +207,12 @@
           >
             <div
               class="error-container"
-              *ngIf="checkErrorsService.calculateVehicleSessionErrorDays(vehicleData)! > 0"
+              *ngIf="checkErrorsService.getVehicleSessionAnomalyCount(vehicleData)! > 0"
               [matTooltip]="
                 checkErrorsService.checkVehicleSessionError(vehicleData)
               "
             >
-              {{ checkErrorsService.calculateVehicleSessionErrorDays(vehicleData) }} gg
+              {{ checkErrorsService.getVehicleSessionAnomalyCount(vehicleData) }} gg
             </div>
             <div
               class="error-container"
