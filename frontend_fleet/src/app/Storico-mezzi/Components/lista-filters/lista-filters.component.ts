@@ -37,6 +37,8 @@ export class ListaFiltersComponent implements AfterViewInit{
   cantieri = new FormControl<string[]>([]);
   private allSelected: boolean = false;
 
+  cantieriSelectOpened: boolean = false;
+
   private _filters: Filters = {
     plate: "",
     cantieri: this.cantieri,
