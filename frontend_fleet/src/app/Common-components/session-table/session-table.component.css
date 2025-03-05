@@ -152,7 +152,6 @@ tr.example-element-row:not(.example-expanded-row):active {
 }
 
 .warning-icon, .error-icon, .check-icon, .antenna-icon, .close-icon, .noAntenna-icon {
-  cursor: pointer;
   transition: transform 0.2s;
 }
 
