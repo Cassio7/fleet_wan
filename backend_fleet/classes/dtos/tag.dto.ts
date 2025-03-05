@@ -18,4 +18,8 @@ export class TagDTO extends CommonDTO {
   nav_mode: number;
   @IsString()
   geozone: string;
+  @IsString()
+  plate: string;
+  @IsString()
+  worksite: string;
 }
