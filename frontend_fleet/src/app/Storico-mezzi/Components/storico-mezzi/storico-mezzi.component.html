@@ -56,11 +56,12 @@
         <div class="title-side">Mappa</div>
         <div class="subtitle">Visualizza i mezzi nella mappa</div>
       </div>
-      <div class="visualized-vehicle">
-        @if(mapPlate){
-          <p>Mappa del veicolo <b>{{mapPlate}}</b></p>
-        }
-      </div>
+      @if(mapPlate){
+        <div class="visualizedVehicle-container">
+          <p class="visualized-vehicle">Mappa del veicolo <b>{{mapPlate}}</b></p>
+        </div>
+      }
+
     </div>
     <div class="map-content" style="position: relative;">
       <mat-slide-toggle

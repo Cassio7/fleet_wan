@@ -40,10 +40,19 @@
   flex-direction: row;
   justify-content: space-between;
 }
-.visualized-vehicle{
+.visualizedVehicle-container {
   height: 100%;
-  align-self: baseline;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-end;
 }
+
+.visualized-vehicle {
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
 
 .mezzi-section, .map-section{
   background-color: var(--navbarANDstats-background);
