@@ -21,12 +21,14 @@ import { RolesGuard } from 'src/guard/roles.guard';
 import { LogContext } from 'src/log/logger.types';
 import { LoggerService } from 'src/log/service/logger.service';
 import { AssociationService } from 'src/services/association/association.service';
+import { WorksiteService } from 'src/services/worksite/worksite.service';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Controller('associations')
 export class AssociationController {
   constructor(
     private readonly associationService: AssociationService,
+    private readonly worksiteService: WorksiteService,
     private readonly loggerService: LoggerService,
   ) {}
 
@@ -171,6 +173,46 @@ export class AssociationController {
       return res.status(error.status || 500).json({
         message:
           error.message || 'Errore nella eliminazione della associazione',
+      });
+    }
+  }
+
+  /**
+   * API per il recupero dei cantieri associati in base al utente loggato
+   * @param req used data
+   * @param res
+   * @returns
+   */
+  @Roles(Role.Admin, Role.Responsabile, Role.Capo)
+  @Get('worksite')
+  async getWorksite(
+    @Req() req: Request & { user: UserFromToken },
+    @Res() res: Response,
+  ) {
+    const context: LogContext = {
+      userId: req.user.id,
+      username: req.user.username,
+      resource: 'Worksite',
+    };
+    try {
+      const worksites = await this.worksiteService.getWorksitesByUser(
+        req.user.id,
+      );
+      this.loggerService.logCrudSuccess(
+        context,
+        'list',
+        `Numero di cantieri recuperati ${worksites.length}`,
+      );
+      return res.status(200).json(worksites);
+    } catch (error) {
+      this.loggerService.logCrudError({
+        error,
+        context,
+        operation: 'list',
+      });
+
+      return res.status(error.status || 500).json({
+        message: error.message || 'Errore durante il recupero dei cantieri',
       });
     }
   }
