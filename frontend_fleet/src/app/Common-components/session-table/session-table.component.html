@@ -194,5 +194,6 @@
 </div>
 <div class="disclaimers">
   <mat-error *ngIf="!dateSelected">Nessuna data selezionata</mat-error>
-  <mat-error *ngIf="!data">Nessuna sessione trovata nell'arco di tempo {{lastDateFrom | date: "dd-MM-yyyy"}} - {{lastDateTo | date: "dd-MM-yyyy"}}</mat-error>
+  <mat-error *ngIf="!dataFound">Nessuna sessione trovata nell'arco di tempo {{lastDateFrom | date: "dd-MM-yyyy"}} - {{lastDateTo | date: "dd-MM-yyyy"}}</mat-error>
+  <mat-error *ngIf="dateSelected && !vehicle">Nessun veicolo selezionato</mat-error>
 </div>

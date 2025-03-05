@@ -195,7 +195,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       skip(1)
     )
     .subscribe({
-      next: (pathData: { plate: string, points: Point[], position_number: number }) => {
+      next: (pathData: pathData) => {
         console.log("Pathdata arrivati: ", pathData);
         // Filter out invalid points
         pathData.points = pathData.points.filter(point => point.lat !== 0 && point.long !== 0);
@@ -225,22 +225,17 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         );
 
         if (pathMode === "polyline") {
-          // Create a polyline from waypoints
           const polyline = L.polyline(waypoints, { color: 'blue' }).addTo(this.map);
 
-          console.log("kono position number: ", pathData.position_number);
-          // Create custom markers for the polyline
-          // Start marker
           const startMarker = L.marker(waypoints[0], {
             icon: L.divIcon({
               className: 'custom-div-icon',
-              html: `<div style="color: white; padding: 5px;">${this.mapService.getCustomPositionMarker(pathData.position_number.toString())}</div>`,
+              html: `<div style="color: white; padding: 5px;">${this.mapService.getCustomPositionMarker(String(pathData.position_number) || '')}</div>`,
               iconSize: [50, 20],
               iconAnchor: [50, 40]
             })
           }).addTo(this.map);
 
-          // End marker
           const endMarker = L.marker(waypoints[waypoints.length - 1], {
             icon: L.divIcon({
               className: 'custom-div-icon',
@@ -250,7 +245,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             })
           }).addTo(this.map);
 
-          // Fit map to the polyline bounds
+          console.log("pathData.tagPoints: ", pathData.tagPoints);
+          if(pathData.tagPoints) this.mapService.createMarkerGroup(pathData.tagPoints, this.mapService.tagMarker).addTo(this.map);
+
           this.map.fitBounds(polyline.getBounds());
         } else if (pathMode === "routed") {
           // Create custom plan with markers
@@ -259,16 +256,14 @@ export class MapComponent implements AfterViewInit, OnDestroy {
               let markerIcon;
 
               if (waypointIndex === 0) {
-                // Start marker
                 markerIcon = L.divIcon({
                   className: 'custom-div-icon',
-                  html: `<div style="color: white; padding: 5px;">${this.mapService.getCustomPositionMarker(pathData.position_number.toString())}</div>`,
+                  html: `<div style="color: white; padding: 5px;">${this.mapService.getCustomPositionMarker(String(pathData.position_number) || '')}</div>`,
                   iconSize: [50, 20],
                   iconAnchor: [50, 40]
                 });
                 return L.marker(waypoint.latLng, { icon: markerIcon });
               } else if (waypointIndex === numberOfWaypoints - 1) {
-                // End marker
                 markerIcon = L.divIcon({
                   className: 'custom-div-icon',
                   html: `<div style="color: white; padding: 5px;">${this.mapService.sessionEndMarker}</div>`,
@@ -278,15 +273,12 @@ export class MapComponent implements AfterViewInit, OnDestroy {
                 return L.marker(waypoint.latLng, { icon: markerIcon });
               }
 
-              // No markers for intermediate points
               return false;
             }
           });
 
-          // Set path type to session
           this.mapService.pathType.set("session");
 
-          // Create and add routing control
           this.routingControl = L.Routing.control({
             show: false,
             plan: customPlan,
@@ -294,7 +286,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             addWaypoints: false
           }).addTo(this.map);
 
-          // Calculate route
           this.routingControl.route();
         }
       },
@@ -341,20 +332,30 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             if(pathData.tagPoints) this.mapService.createMarkerGroup(pathData.tagPoints, this.mapService.tagMarker).addTo(this.map);
             this.map.fitBounds(polyline.getBounds());
           } else if (pathMode === "routed") {
-            let customPlan
-            if(pathData.firstPoints){
-              customPlan = this.mapService.createVehicleCustomRoutingPlan(pathData.points, pathData.firstPoints);
+            let customPlan;
+            if (pathData.firstPoints) {
+                customPlan = this.mapService.createVehicleCustomRoutingPlan(pathData.points, pathData.firstPoints);
             }
 
             this.mapService.pathType.set("day");
 
             this.routingControl = L.Routing.control({
-              show: false,
-              plan: customPlan,
-              routeWhileDragging: false,
-              addWaypoints: false
+                show: false,
+                plan: customPlan,
+                routeWhileDragging: false,
+                addWaypoints: false
             }).addTo(this.map);
-          }
+
+            // Aspetta che il percorso venga calcolato prima di adattare la vista
+            this.routingControl.on('routesfound', (e) => {
+                const route = e.routes[0]; // Prendi il primo percorso trovato
+                if (route) {
+                    const bounds = L.latLngBounds(route.coordinates);
+                    this.map.fitBounds(bounds);
+                }
+            });
+        }
+
         },
         error: error => console.error("Errore nel caricamento del path del giorno: ", error)
       });

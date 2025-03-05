@@ -102,7 +102,7 @@ export class SessionTableComponent implements OnChanges, AfterViewInit {
   isDettaglio: boolean = false;
 
   dateSelected: boolean = false;
-  data: boolean = true;
+  dataFound: boolean = true; //indica se sono state trovate sessioni un determinato periodo di tempo del veicolo selezionato
   lastDateFrom!: Date;
   lastDateTo!: Date;
 
@@ -195,7 +195,8 @@ export class SessionTableComponent implements OnChanges, AfterViewInit {
     this.lastDateFrom = dateFrom;
     this.lastDateTo = dateTo;
 
-    this.sessionApiService
+    if(this.vehicle){
+      this.sessionApiService
       .getDaysAnomaliesRangedByVeid(
         this.vehicle.veId,
         this.lastDateFrom,
@@ -207,12 +208,12 @@ export class SessionTableComponent implements OnChanges, AfterViewInit {
           console.log('Anomalie per il range di date: ', vehicleAnomalies);
 
           if (vehicleAnomalies && vehicleAnomalies?.anomalies?.length > 0) {
-            this.data = true;
+            this.dataFound = true;
             this.cd.detectChanges();
             this.anomaliesTableData.data = vehicleAnomalies.anomalies;
             this.anomaliesTable.renderRows();
           } else {
-            this.data = false;
+            this.dataFound = false;
             this.anomaliesTableData.data = [];
             this.anomaliesTable.renderRows();
           }
@@ -223,6 +224,7 @@ export class SessionTableComponent implements OnChanges, AfterViewInit {
             error
           ),
       });
+    }
   }
 
   /**
@@ -257,6 +259,8 @@ export class SessionTableComponent implements OnChanges, AfterViewInit {
             this.cd.detectChanges();
           },
         });
+    }else{
+      this.allSessions = [];
     }
   }
 
@@ -288,20 +292,40 @@ export class SessionTableComponent implements OnChanges, AfterViewInit {
   }
 
   showPathBySession(session: Session) {
+    console.log(`setting this time range: ${session.period_from} - ${session.period_to}`)
+    if(session) this.tagService.setTimeRange(session.period_from, session.period_to);
     const points = session.history.map((history) => {
       return new Point(history.latitude, history.longitude);
     });
-    const pathData: any = {
+    const pathData: pathData = {
       plate: this.vehicle.plate,
       position_number: session.table_id,
       points: points,
+      tagPoints: []
     };
-    this.sessionStorageService.setItem("pathData", JSON.stringify(pathData));
-    console.log('session pathData: ', pathData);
-    this.mapService.loadSessionPath$.next(pathData);
+
+    console.log(`calling with time range: ${this.tagService.getTimeRange().dateFrom} - ${this.tagService.getTimeRange().dateTo}`);
+    this.tagService.getTagsByVeIdRanged(this.vehicle.veId)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (tagData: tagData[]) => {
+        console.log("tagData fetched: ", tagData);
+        if(tagData){
+          pathData.tagPoints = tagData.map(tag => new Point(tag.latitude, tag.longitude));
+        }
+        this.sessionStorageService.setItem("pathData", JSON.stringify(pathData));
+        this.mapService.loadSessionPath$.next(pathData);
+      },
+      error: error => {
+        this.sessionStorageService.setItem("pathData", JSON.stringify(pathData));
+        this.mapService.loadSessionPath$.next(pathData);
+        console.error(`Errore nel recupero delle letture dei tag: ${error}`);
+      }
+    });
   }
 
   showDayPath(anomalyDay: Anomaly) {
+    console.log("so entrato");
     if(anomalyDay.date) this.tagService.setTimeRange(anomalyDay.date, anomalyDay.date);
     this.handleGetSessionsByVeIdRanged(anomalyDay.date).subscribe(
       (sessions) => {
@@ -327,24 +351,25 @@ export class SessionTableComponent implements OnChanges, AfterViewInit {
           tagPoints: []
         };
 
-        this.sessionStorageService.setItem("pathData", JSON.stringify(pathData));
-
         console.log(`calling with time range: ${this.tagService.getTimeRange().dateFrom} - ${this.tagService.getTimeRange().dateTo}`);
         this.tagService.getTagsByVeIdRanged(this.vehicle.veId)
-          .pipe(takeUntil(this.destroy$))
-          .subscribe({
-            next: (tagData: tagData[]) => {
-              console.log("tagData fetched: ", tagData);
-              if(tagData){
-                pathData.tagPoints = tagData.map(tag => new Point(tag.latitude, tag.longitude));
-              }
-              this.mapService.loadDayPath$.next(pathData);
-            },
-            error: error => {
-              this.mapService.loadDayPath$.next(pathData);
-              console.error(`Errore nel recupero delle letture dei tag: ${error}`);
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (tagData: tagData[]) => {
+            console.log("tagData fetched: ", tagData);
+            if(tagData){
+              console.log("ao so entrato");
+              pathData.tagPoints = tagData.map(tag => new Point(tag.latitude, tag.longitude));
             }
-          });
+            this.sessionStorageService.setItem("pathData", JSON.stringify(pathData));
+            this.mapService.loadDayPath$.next(pathData);
+          },
+          error: error => {
+            this.sessionStorageService.setItem("pathData", JSON.stringify(pathData));
+            this.mapService.loadDayPath$.next(pathData);
+            console.error(`Errore nel recupero delle letture dei tag: ${error}`);
+          }
+        });
       }
     );
   }
