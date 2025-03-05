@@ -344,11 +344,11 @@ export class SessionService {
 
   /**
    * Inserisce tutti gli history presenti associati ad una determinata sessione
-   * @param id VeId identificativo Veicolo
+   * @param veId VeId identificativo Veicolo
    * @param sessionArray
    * @returns
    */
-  private async setHistory(id, sessionArray) {
+  private async setHistory(veId, sessionArray) {
     const queryRunner = this.connection.createQueryRunner();
     try {
       await queryRunner.connect();
@@ -373,7 +373,7 @@ export class SessionService {
           totalConsumption: history.totalConsumption,
           fuelLevel: history.fuelLevel,
           brushes: history.brushes,
-          id: id,
+          id: veId,
         };
         return createHash('sha256')
           .update(JSON.stringify(toHash))
@@ -381,9 +381,13 @@ export class SessionService {
       };
       for (const historysession of sessionArray) {
         // controllo nel caso ci sia soltanto 1 history per una sessione
-        let lastSavedTimestamp = null;
-        const filteredDataHistory = historysession.sessionLists.map(
-          (item: any) => {
+        let lastSavedTimestamp: number | null = null;
+        // faccio il reverse per prendere la più vecchia e poi la più recente
+        const reversedSessionLists = historysession.sessionLists.reverse();
+
+        const cleanedDataHistory = reversedSessionLists
+          .filter((item) => item)
+          .reduce((acc: any[], item: any) => {
             if (!item) {
               return []; // se item.list non esiste, salto elemento
             }
@@ -392,22 +396,17 @@ export class SessionService {
             const currentTimestamp =
               typeof item['timestamp'] === 'object' ? null : item['timestamp'];
             // lo modifico per eliminare errori di conversione
-            const currentMillis = new Date(
-              currentTimestamp.replace('+00', 'Z'),
-            ).getTime();
+            const currentMillis = new Date(currentTimestamp).getTime();
             try {
-              // se è il primo elemento lo salvo come corrente
-              if (!lastSavedTimestamp) {
-                lastSavedTimestamp = currentMillis;
-              }
               // controllo se è il primo elemento oppure se la differenza tra i due è maggiore di quanto specificato
               if (
+                !lastSavedTimestamp ||
                 Math.abs(currentMillis - lastSavedTimestamp) >=
                   this.TIME_HISTORY ||
                 currentMillis === lastSavedTimestamp
               ) {
                 lastSavedTimestamp = currentMillis;
-                return {
+                acc.push({
                   timestamp:
                     typeof item['timestamp'] === 'object'
                       ? null
@@ -422,72 +421,64 @@ export class SessionService {
                   tot_consumption: item['totalConsumption'],
                   fuel: item['fuelLevel'],
                   brushes: item['brushes'],
-                  veId: id,
+                  veId: veId,
                   hash: hash,
-                };
-              } else {
-                return;
+                });
               }
             } catch (error) {
               console.log('errore nella if controllo temporale: ' + error);
             }
-          },
-        );
+            return acc;
+          }, []);
 
-        // Filtra l'array per rimuovere gli elementi undefined
-        const cleanedDataHistory = filteredDataHistory.filter(
-          (item) => item !== undefined,
-        );
-
-        const vehiclequery = await queryRunner.manager
+        const vehicleQuery = await queryRunner.manager
           .getRepository(VehicleEntity)
           .findOne({
-            where: { veId: id },
+            where: { veId: veId },
           });
 
         const historyHashes = cleanedDataHistory.map((history) => history.hash);
 
         // Esegui una query per ottenere tutte le sessioni con hash corrispondenti
-        const historyQueries = await queryRunner.manager
+        const existingHistories = await queryRunner.manager
           .getRepository(HistoryEntity)
           .find({
             where: { hash: In(historyHashes) },
           });
         // Crea una mappa per abbinare gli hash alle sessioni restituite dalla query
-        const hisotyrQueryMap = new Map(
-          historyQueries.map((query) => [query.hash, query]),
+        const existingHistoryMap = new Map(
+          existingHistories.map((history) => [history.hash, history]),
         );
-        const newHistory = [];
-        for (const history of cleanedDataHistory) {
-          // controllo se esiste hash
-          const exists = hisotyrQueryMap.get(history.hash);
-          // evita che dia errore quando ci sono sessioni senza history
-          if (!exists && history.length !== 0) {
-            const newHistoryOne = await queryRunner.manager
-              .getRepository(HistoryEntity)
-              .create({
-                timestamp: history.timestamp,
-                status: history.status,
-                latitude: history.latitude,
-                longitude: history.longitude,
-                nav_mode: history.nav_mode,
-                speed: history.speed,
-                direction: history.direction,
-                tot_distance: history.tot_distance,
-                tot_consumption: history.tot_consumption,
-                fuel: history.fuel,
-                brushes: history.brushes,
-                vehicle: vehiclequery,
-                session: historysession.sessionquery,
-                hash: history.hash,
-              });
-            newHistory.push(newHistoryOne);
-          }
-        }
-        if (newHistory.length > 0) {
+
+        // salvo soltanto le history di cui non trovo hash e dove la lunghezza no 0
+        const newHistories = cleanedDataHistory
+          .filter(
+            (history) =>
+              history.length !== 0 && !existingHistoryMap.has(history.hash),
+          )
+          .map((history) =>
+            queryRunner.manager.getRepository(HistoryEntity).create({
+              timestamp: history.timestamp,
+              status: history.status,
+              latitude: history.latitude,
+              longitude: history.longitude,
+              nav_mode: history.nav_mode,
+              speed: history.speed,
+              direction: history.direction,
+              tot_distance: history.tot_distance,
+              tot_consumption: history.tot_consumption,
+              fuel: history.fuel,
+              brushes: history.brushes,
+              vehicle: vehicleQuery,
+              session: historysession.sessionquery,
+              hash: history.hash,
+            }),
+          );
+
+        if (newHistories.length > 0) {
           await queryRunner.manager
             .getRepository(HistoryEntity)
-            .save(newHistory);
+            .save(newHistories);
         }
       }
       await queryRunner.commitTransaction();
@@ -505,7 +496,7 @@ export class SessionService {
    * @param hash hash della sessione generato in getSessionist
    * @returns
    */
-  private async getSessionByHash(hash): Promise<any> {
+  private async getSessionByHash(hash): Promise<SessionEntity> {
     const session = await this.sessionRepository.findOne({
       where: { hash: hash },
     });
