@@ -1,6 +1,6 @@
 import { SessionStorageService } from './../../../Common-services/sessionStorage/session-storage.service';
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, ViewChild, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, ViewChild, OnInit, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -26,6 +26,8 @@ import { MapComponent } from '../../../Common-components/map/map.component';
 import { KanbanSessioneComponent } from "../kanban-sessione/kanban-sessione.component";
 import { KanbanSessioneService } from '../../Services/kanban-sessione/kanban-sessione.service';
 import { LoginService } from '../../../Common-services/login service/login.service';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.component';
 
 
 @Component({
@@ -50,6 +52,7 @@ import { LoginService } from '../../../Common-services/login service/login.servi
     MatSlideToggleModule,
     KanbanAntennaComponent,
     MapComponent,
+    MatSnackBarModule,
     KanbanSessioneComponent,
     RowFilterComponent
 ],
@@ -70,6 +73,9 @@ export class DashboardComponent implements OnInit, AfterViewInit{
 
   pageName = "Riepilogo parco mezzi";
   subtitle = "Monitora i tuoi veicoli";
+
+  private snackbar = inject(MatSnackBar);
+  private snackbarDuration = 2;
 
   private _table: boolean = true;
   private _kanbanGps: boolean = false;
@@ -117,6 +123,7 @@ export class DashboardComponent implements OnInit, AfterViewInit{
       next: (lastUpdate: string) => {
           if (lastUpdate) {
             this.lastUpdate = lastUpdate;
+            this.openSnackbar("Dati aggiornati con successo! ✔");
             this.cd.detectChanges();
           }
       },
@@ -270,6 +277,17 @@ export class DashboardComponent implements OnInit, AfterViewInit{
   checkDate(stringa: string): boolean {
     const data = new Date(stringa);
     return !isNaN(data.getTime());
+  }
+
+  /**
+   * Apre la snackbar
+   * @param content stringa contenuto della snackbar
+   */
+  openSnackbar(content: string): void {
+    this.snackbar.openFromComponent(SnackbarComponent, {
+      duration: this.snackbarDuration * 1000,
+      data: { content: content }
+    });
   }
 
   public get table(): boolean {
