@@ -152,7 +152,9 @@ export class TableComponent implements OnDestroy, AfterViewInit {
       this.vehicleTableData.data = allData;
       this.loadGraphs(allData);
       this.loadingProgress = 100;
-      this.tableLoaded = true;
+      setTimeout(() => {
+        this.tableLoaded = true;
+      });
     }else{
       this.fillTable();
     }
@@ -280,7 +282,9 @@ export class TableComponent implements OnDestroy, AfterViewInit {
         this.addLastRealtime();
         this.loadGraphs(vehiclesData);
         console.log("ce so arivato!!");
-        this.tableLoaded = true;
+        setTimeout(() => {
+          this.tableLoaded = true;
+        });
         this.vehicleTable.renderRows();
       }
     } catch (error) {

@@ -27,7 +27,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { catchError, Observable, of, skip, Subject, takeUntil } from 'rxjs';
 import { CheckErrorsService } from '../../Common-services/check-errors/check-errors.service';
-import { MapService } from '../../Common-services/map/map.service';
+import { MapService, pathData } from '../../Common-services/map/map.service';
 import { SessionApiService } from '../../Common-services/session/session-api.service';
 import { Anomaly } from '../../Models/Anomaly';
 import { Point } from '../../Models/Point';
@@ -206,7 +206,7 @@ export class SessionTableComponent implements OnChanges, AfterViewInit {
         next: (vehicleAnomalies: VehicleAnomalies) => {
           console.log('Anomalie per il range di date: ', vehicleAnomalies);
 
-          if (vehicleAnomalies && vehicleAnomalies.anomalies.length > 0) {
+          if (vehicleAnomalies && vehicleAnomalies?.anomalies?.length > 0) {
             this.data = true;
             this.cd.detectChanges();
             this.anomaliesTableData.data = vehicleAnomalies.anomalies;
@@ -302,39 +302,49 @@ export class SessionTableComponent implements OnChanges, AfterViewInit {
   }
 
   showDayPath(anomalyDay: Anomaly) {
+    if(anomalyDay.date) this.tagService.setTimeRange(anomalyDay.date, anomalyDay.date);
     this.handleGetSessionsByVeIdRanged(anomalyDay.date).subscribe(
       (sessions) => {
         if (sessions.length === 0) {
           return;
         }
 
-        const points = sessions.flatMap((session) =>
+        const points: Point[] = sessions.flatMap((session) =>
           session.history.map(
             (posizione) => new Point(posizione.latitude, posizione.longitude)
           )
         );
 
-        const firstPoints = sessions.map((session) => {
+        const firstPoints: Point[] = sessions.map((session) => {
           const firstHistory = session.history[0];
           return new Point(firstHistory.latitude, firstHistory.longitude);
         });
 
-        const pathData = {
+        const pathData: pathData = {
           plate: this.vehicle.plate,
           points: points,
-          firstPoints: firstPoints
+          firstPoints: firstPoints,
+          tagPoints: []
         };
 
         this.sessionStorageService.setItem("pathData", JSON.stringify(pathData));
 
-        this.tagService.getTagsByVeIdRanged(this.vehicle.veId).pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (tagData: tagData) => {
-            console.log("tagData: ", tagData);
-          },
-          error: error => console.error(`Errore nel recupero delle letture dei tag`)
-        });
-        this.mapService.loadDayPath$.next(pathData);
+        console.log(`calling with time range: ${this.tagService.getTimeRange().dateFrom} - ${this.tagService.getTimeRange().dateTo}`);
+        this.tagService.getTagsByVeIdRanged(this.vehicle.veId)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
+            next: (tagData: tagData[]) => {
+              console.log("tagData fetched: ", tagData);
+              if(tagData){
+                pathData.tagPoints = tagData.map(tag => new Point(tag.latitude, tag.longitude));
+              }
+              this.mapService.loadDayPath$.next(pathData);
+            },
+            error: error => {
+              this.mapService.loadDayPath$.next(pathData);
+              console.error(`Errore nel recupero delle letture dei tag: ${error}`);
+            }
+          });
       }
     );
   }
