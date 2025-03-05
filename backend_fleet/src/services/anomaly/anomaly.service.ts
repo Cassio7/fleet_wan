@@ -175,7 +175,7 @@ export class AnomalyService {
       );
     }
   }
-  
+
   /**
    * Recupera le anomalia piu recente per ogni veicolo passato come parametro, escludendo
    * la data odierna
@@ -246,7 +246,18 @@ export class AnomalyService {
           return latest;
         })
         .filter(Boolean);
-      return this.toDTO(filteredAnomalies);
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      yesterday.setHours(0, 0, 0, 0);
+      const countSessionErrors = await this.countSessionErrors(
+        userId,
+        yesterday,
+      );
+      const countMap: Map<number, number> = new Map();
+      countSessionErrors.map((item) => {
+        countMap.set(item.veId, Number(item.consecutive));
+      });
+      return this.toDTO(filteredAnomalies, countMap);
     } catch (error) {
       if (error instanceof HttpException) throw error;
       throw new HttpException(
@@ -439,7 +450,6 @@ export class AnomalyService {
       );
     }
   }
-
 
   /**
    * Recupera le anomalie odierne da redis, se non sono presenti le prende dal database (fallback)
@@ -786,7 +796,7 @@ export class AnomalyService {
   async countSessionErrors(
     userId: number,
     date: Date,
-  ): Promise<Array<{ veId: number; plate: string; consecutive: string }>> {
+  ): Promise<Array<{ veId: number; consecutive: string }>> {
     const vehicles =
       await this.associationService.getVehiclesAssociateUserRedis(userId);
     if (!vehicles || vehicles.length === 0)
@@ -804,7 +814,6 @@ export class AnomalyService {
         SELECT
           a.session,
           v."veId",
-          v.plate,
           ROW_NUMBER() OVER (
             PARTITION BY v."veId" 
             ORDER BY a.date DESC
@@ -829,7 +838,6 @@ export class AnomalyService {
       )
     SELECT
       r."veId" as "veId",
-      r.plate as "plate",
       COUNT(*) AS consecutive
     FROM
       RANKED_ANOMALIES r
@@ -838,7 +846,7 @@ export class AnomalyService {
       (f.first_null_position IS NULL OR r.rn < f.first_null_position)
       AND r.session IS NOT NULL
     GROUP BY
-      r."veId", r.plate;
+      r."veId";
   `;
 
     return this.anomalyRepository.query(query);
@@ -849,7 +857,10 @@ export class AnomalyService {
    * @param anomalies lista delle anomalie
    * @returns
    */
-  private toDTO(anomalies: AnomalyEntity[]): Array<{
+  private toDTO(
+    anomalies: AnomalyEntity[],
+    countMap?: Map<number, number>,
+  ): Array<{
     vehicle: VehicleDTO & {
       worksite: WorksiteDTO | null;
       service: ServiceDTO | null;
@@ -906,6 +917,8 @@ export class AnomalyService {
           anomalyDTO.antenna = anomaly.antenna;
           anomalyDTO.detection_quality = anomaly.detection_quality;
           anomalyDTO.session = anomaly.session;
+          anomalyDTO.session_count =
+            countMap?.get(anomaly.vehicle?.veId) ?? null;
 
           // Aggiungi l'anomalia al gruppo del veicolo
           vehicleGroup.anomalies.push(anomalyDTO);

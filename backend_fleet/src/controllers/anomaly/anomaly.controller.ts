@@ -297,12 +297,9 @@ export class AnomalyController {
     };
 
     try {
-      let anomalies = await this.anomalyService.getLastAnomalyRedis(
+      const anomalies = await this.anomalyService.getLastAnomalyRedis(
         req.user.id,
       );
-      if (anomalies?.length === 0) {
-        anomalies = await this.anomalyService.getLastAnomaly(req.user.id);
-      }
 
       if (!anomalies || anomalies.length === 0) {
         this.loggerService.logCrudSuccess(
@@ -312,21 +309,13 @@ export class AnomalyController {
         );
         return res.status(204).json();
       }
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      yesterday.setHours(0, 0, 0, 0);
-      const countSessionErrors = await this.anomalyService.countSessionErrors(
-        req.user.id,
-        yesterday,
-      );
+
       this.loggerService.logCrudSuccess(
         context,
         'list',
         `Recuperate ${anomalies.length} anomalie `,
       );
-      res
-        .status(200)
-        .json({ vehicles: anomalies, sessionCount: countSessionErrors });
+      res.status(200).json({ vehicles: anomalies });
     } catch (error) {
       this.loggerService.logCrudError({
         context,
