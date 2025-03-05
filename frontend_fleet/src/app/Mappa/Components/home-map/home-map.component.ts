@@ -39,8 +39,7 @@ export class HomeMapComponent implements AfterViewInit{
     this.realtimeApiService.getAllLastRealtime().pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (realtimeData: RealtimeData[]) => {
-        this.mapService.loadMultiplePositions$.next(realtimeData);
-
+        this.mapService.loadMultipleVehiclePositions$.next(realtimeData);
       },
       error: error => console.error("Errore nella ricerca dei dati realtime: ", error)
     });

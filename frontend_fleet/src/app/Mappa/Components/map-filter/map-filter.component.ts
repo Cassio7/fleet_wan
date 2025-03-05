@@ -99,7 +99,7 @@ export class MapFilterComponent implements OnInit, AfterViewInit, OnDestroy{
 
   ngAfterViewInit(): void {
     this.handleLoadPosition();
-    this.handleMultiplePosition();
+    this.handleMultipleVehiclePositions();
     this.mapService.updateMarkers$.pipe(takeUntil(this.destroy$))
     .subscribe({
       next: () => {
@@ -176,46 +176,39 @@ export class MapFilterComponent implements OnInit, AfterViewInit, OnDestroy{
    * Mette in attesa per il caricamento di una posizione sulla mappa,
    * per popolare i filtri con i dati del nuovo veicolo associato
    */
-  private handleMultiplePosition() {
-    this.mapService.loadMultiplePositions$.pipe(takeUntil(this.destroy$))
+  private handleMultipleVehiclePositions() {
+    this.mapService.loadMultipleVehiclePositions$.pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (realtimeData: RealtimeData[]) => {
           if (realtimeData) {
-            // Variabili per il tracciamento delle targhe e dei cantieri da aggiornare
             const updatedTarghe: string[] = [];
             const updatedCantieri: string[] = [];
 
             realtimeData.forEach(data => {
               const vehicle: { plate: string, veId: number, worksite?: WorkSite | null } = data.vehicle;
 
-              // Aggiungi il veicolo alla lista (senza duplicati)
               this.mapVehicles.push(vehicle);
 
-              // Gestione targhe
               if (!this.listaTarghe.includes(vehicle.plate)) {
                 this.listaTarghe.push(vehicle.plate);
                 updatedTarghe.push(vehicle.plate);
               }
 
-              // Gestione cantieri
               if (vehicle?.worksite && !this.listaCantieri.includes(vehicle.worksite.name)) {
                 this.listaCantieri.push(vehicle.worksite.name);
                 updatedCantieri.push(vehicle.worksite.name.toLocaleLowerCase());
               }
             });
 
-            // Esegui ordinamenti solo una volta per le liste
             this.listaTarghe.sort();
             this.listaCantieri.sort();
 
-            // Gestisci le targhe: assicura che selectedTarghe sia sempre un array
-            const selectedTarghe = this.targheControl.value || []; // Imposta un array vuoto se null
+            const selectedTarghe = this.targheControl.value || [];
             if (updatedTarghe.length > 0) {
               this.targheControl.setValue(["Seleziona tutto", ...selectedTarghe, ...updatedTarghe]);
             }
 
-            // Gestisci i cantieri: assicura che selectedCantieri sia sempre un array
-            const selectedCantieri = this.cantieriControl.value || []; // Imposta un array vuoto se null
+            const selectedCantieri = this.cantieriControl.value || [];
             if (updatedCantieri.length > 0) {
               this.cantieriControl.setValue(["Seleziona tutto", ...selectedCantieri, ...updatedCantieri]);
             }

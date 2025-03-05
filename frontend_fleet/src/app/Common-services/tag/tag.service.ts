@@ -31,16 +31,16 @@ export class TagService {
    * @param dateTo data fine periodo
    * @returns observable http get
    */
-  getTagsByVeIdRanged(veId: number): Observable<tagData>{
+  getTagsByVeIdRanged(veId: number): Observable<tagData[]>{
     const access_token = this.cookieService.getCookie("user");
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'
     });
 
-    console.log(`${this.commonService.url}/tags?veId=${veId}&dateFrom=${this.formatDate(this.dateFrom())}&dateTo=${this.formatDate(this.dateTo())}`)
+    console.log(`${this.commonService.url}/tags?veId=${veId}&dateFrom=${this.dateFrom()}&dateTo=${this.dateTo()}`)
 
-    return this.http.get<tagData>(`${this.commonService.url}/tags?veId=${veId}&dateFrom=${this.formatDate(this.dateFrom())}&dateTo=${this.formatDate(this.dateTo())}`,{ headers });
+    return this.http.get<tagData[]>(`${this.commonService.url}/tags?veId=${veId}&dateFrom=${this.dateFrom()}&dateTo=${this.dateTo()}`,{ headers });
 
   }
 
@@ -50,6 +50,26 @@ export class TagService {
     return null;
   }
 
+  /**
+   * Imposta il range di tempo nel servizio
+   * @param dateFrom data di inizio
+   * @param dateTo data di fine
+   */
+  setTimeRange(dateFrom: Date, dateTo: Date){
+    this._dateFrom.set(dateFrom);
+    this._dateTo.set(dateTo);
+  }
+
+  /**
+   * Permette di ottenere il time range impostato nei signal del servizio
+   * @returns oggetto {dateFrom, dateTo}
+   */
+  getTimeRange(){
+    return {
+      dateFrom: this.dateFrom(),
+      dateTo: this.dateTo()
+    }
+  }
 
 
   public get dateFrom() {

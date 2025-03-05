@@ -5,6 +5,7 @@ import { Anomaly } from '../../Models/Anomaly';
 import * as L from 'leaflet';
 import 'leaflet-routing-machine';
 import { Point } from '../../Models/Point';
+import { tagData } from '../tag/tag.service';
 
 export interface positionData{
   veId: number,
@@ -12,13 +13,20 @@ export interface positionData{
   cantiere: string | null,
   position: Point
 }
+
+export interface pathData{
+  plate: string,
+  points: Point[],
+  firstPoints?: Point[],
+  tagPoints?: Point[]
+}
 @Injectable({
   providedIn: 'root',
 })
 export class MapService {
   private readonly _initMap$: BehaviorSubject<any> = new BehaviorSubject<any>(null);
 
-  private readonly _loadMultiplePositions$: BehaviorSubject<RealtimeData[]> = new BehaviorSubject<RealtimeData[]>([]);
+  private readonly _loadMultipleVehiclePositions$: BehaviorSubject<RealtimeData[]> = new BehaviorSubject<RealtimeData[]>([]);
   private readonly _loadPosition$: BehaviorSubject<RealtimeData | null> = new BehaviorSubject<RealtimeData | null>(null);
   private readonly _loadSessionPath$: BehaviorSubject<any> = new BehaviorSubject<any>(null);
   private readonly _loadDayPath$: BehaviorSubject<any> = new BehaviorSubject<any>(null);
@@ -86,6 +94,12 @@ export class MapService {
           <rect x="16" y="5" width="3" height="4"/>
           <rect x="10" y="5" width="3" height="4"/>
           </svg>`;
+  tagMarker = `<svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M8 6V4C8 3.44772 8.44772 3 9 3H15C15.5523 3 16 3.44772 16 4V6M19 6V20C19 20.5523 18.5523 21 18 21H6C5.44772 21 5 20.5523 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M10 11V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M14 11V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>`;
 
   constructor() {}
 
@@ -154,7 +168,7 @@ export class MapService {
    * @param anomaly anomalia
    * @returns L.marker creato
    */
-  createMarker(point: Point, plate: string, worksite: string | null, veId: number, anomaly: Anomaly | undefined): L.Marker<any> {
+  createVehicleMarker(point: Point, plate: string, worksite: string | null, veId: number, anomaly: Anomaly | undefined): L.Marker<any> {
     let positionData: positionData = {
       plate: plate,
       cantiere: worksite || null,
@@ -163,7 +177,7 @@ export class MapService {
     }
 
     let customIcon = L.divIcon({
-      className: 'custom-div-icon',
+      className: 'ok-icon',
       html: this.OkMarker,
       popupAnchor: [11, 12],
     });
@@ -171,7 +185,7 @@ export class MapService {
     if (anomaly) {
       if (anomaly.gps || anomaly.antenna || anomaly.session) {
         customIcon = L.divIcon({
-          className: 'custom-div-icon',
+          className: 'error-icon',
           html: this.errorMarker,
           popupAnchor: [11, 12],
         });
@@ -184,7 +198,7 @@ export class MapService {
         !anomaly.session
       ) {
         customIcon = L.divIcon({
-          className: 'custom-div-icon',
+          className: 'error-icon',
           html: this.errorMarker,
           popupAnchor: [11, 12],
         });
@@ -205,8 +219,6 @@ export class MapService {
     );
 
     marker.on('click', (event) => {
-      L.DomEvent.stop(event);
-
       this.selectMarker$.next(positionData);
     });
 
@@ -217,14 +229,75 @@ export class MapService {
   }
 
   /**
+   * Crea un marker
+   * @param point punto in cui si vuole creare il marker
+   * @param style stringa html stile marker
+   * @returns marker creato
+   */
+  createMarker(point: Point, style: string): L.Marker{
+    const customIcon: L.DivIcon = L.divIcon({
+      className: 'marker-icon',
+      html: style,
+      popupAnchor: [11, 12],
+    });
+
+    const marker: L.Marker = L.marker([point.lat, point.long], {
+      icon: customIcon
+    }) as L.Marker;
+
+    return marker;
+  }
+
+  /**
+   * Crea un layerGroup di marker per i veicoli
+   * @param realtimeDatas dati realtime dei veicoli
+   * @returns L.Layergroup con i marker creati
+   */
+  createVehicleMarkerGroup(realtimeDatas: RealtimeData[]){
+    const markerGroup: L.LayerGroup = L.layerGroup();
+    realtimeDatas.forEach((realtimeData) => {
+      const vehicle = realtimeData.vehicle;
+      const punto = new Point(realtimeData.realtime.latitude, realtimeData.realtime.longitude);
+      const marker = this.createVehicleMarker(
+        punto,
+        vehicle.plate,
+        vehicle.worksite ? vehicle.worksite.name : null,
+        vehicle.veId,
+        undefined
+      );
+
+      marker.addTo(markerGroup);
+    });
+
+    return markerGroup;
+  }
+
+  /**
+   * Crea un marker group con all'interno i marker creati tramite i punti passati
+   * @param points punti su cui creare i marker
+   * @param style stile dei marker nel layer group
+   * @returns L.LayerGroup con i marker creati
+   */
+  createMarkerGroup(points: Point[], style: string): L.LayerGroup{
+    const markerGroup: L.LayerGroup = L.layerGroup();
+    points.forEach((point) => {
+      const marker = this.createMarker(point, style);
+
+      marker.addTo(markerGroup);
+    });
+    return markerGroup;
+  }
+
+
+  /**
    * Crea i marker per un percorso
    * @param points Array di punti
    * @param firstPoints Array di punti di inizio di ciascuna sessione che compone il percorso
    * @param map mappa su cui creare il percorso
    * @returns un layer group di marker
    */
-  public createCustomPathMarkers(points: Point[],firstPoints: Point[],map: L.Map): L.LayerGroup {
-    const markerGroup = L.layerGroup().addTo(map);
+  public createCustomPathVehicleMarkers(points: Point[],firstPoints: Point[]): L.LayerGroup {
+    const markerGroup = L.layerGroup();
     const waypoints = points.map(point => L.latLng(point.lat, point.long));
 
     //aggiunta marker per i primi punti
@@ -233,7 +306,7 @@ export class MapService {
 
       const marker = L.marker(L.latLng(point.lat, point.long), {
         icon: L.divIcon({
-          className: 'custom-div-icon',
+          className: 'error-icon',
           html: `<div style="color: white; padding: 5px;">${this.getCustomPositionMarker((index + 1).toString())}</div>`,
           iconSize: [20, 20],
           iconAnchor: [10, 40]
@@ -244,7 +317,7 @@ export class MapService {
 
     const endMarker = L.marker(waypoints[waypoints.length - 1], {
       icon: L.divIcon({
-        className: 'custom-div-icon',
+        className: 'error-icon',
         html: `<div style="color: white; padding: 5px;">${this.sessionEndMarker}</div>`,
         iconSize: [50, 20],
         iconAnchor: [10, 40]
@@ -259,9 +332,9 @@ export class MapService {
    * Crea un piano di routing custom
    * @param points Array di punti
    * @param firstPoints Array di punti di inizio di ciascuna sessione che compone il percorso
-   * @returns un layer group di marker
+   * @returns un piano di routing L.Routing.Plan
    */
-  public createCustomRoutingPlan(
+  public createVehicleCustomRoutingPlan(
     points: Point[],
     firstPoints: Point[]
   ): L.Routing.Plan {
@@ -274,7 +347,7 @@ export class MapService {
       let markerIcon;
 
       markerIcon = L.divIcon({
-        className: 'custom-div-icon',
+        className: 'error-icon',
         html: `<div style="color: white; padding: 5px;">${this.getCustomPositionMarker((firstPointCounter + 1).toString())}</div>`,
         iconSize: [20, 20],
         iconAnchor: [10, 40]
@@ -283,7 +356,7 @@ export class MapService {
       if (waypointIndex === waypoints.length - 1) {
         // Create a divIcon for the end point
         markerIcon = L.divIcon({
-          className: 'custom-div-icon',
+          className: 'error-icon',
           html: `<div style="color: white; padding: 5px;">${this.sessionEndMarker}</div>`,
           iconSize: [50, 20],
           iconAnchor: [10, 40]
@@ -456,7 +529,7 @@ export class MapService {
   public get loadSessionPath$(): BehaviorSubject<any> {
     return this._loadSessionPath$;
   }
-  public get loadMultiplePositions$(): BehaviorSubject<RealtimeData[]> {
-    return this._loadMultiplePositions$;
+  public get loadMultipleVehiclePositions$(): BehaviorSubject<RealtimeData[]> {
+    return this._loadMultipleVehiclePositions$;
   }
 }

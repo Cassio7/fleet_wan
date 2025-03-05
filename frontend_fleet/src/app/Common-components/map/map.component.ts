@@ -8,7 +8,7 @@ import {
   ViewEncapsulation,
 } from '@angular/core';
 import * as L from 'leaflet';
-import { MapService, positionData } from '../../Common-services/map/map.service';
+import { MapService, pathData, positionData } from '../../Common-services/map/map.service';
 import { skip, Subject, takeUntil, filter, take } from 'rxjs';
 import { VehicleData } from '../../Models/VehicleData';
 import { CommonModule } from '@angular/common';
@@ -50,7 +50,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     this.handleInitMap();
     this.handleLoadPosition();
-    this.handleMultiplePositions();
+    this.handleMultipleVehiclePositionsLoading();
     this.handleLoadSessionPath();
     this.handleLoadDayPath();
     this.handleTogglePopups();
@@ -85,7 +85,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
           );
 
           const filteredMarkers: L.Marker[] = filteredPositionDatas.map(data => {
-            return this.mapService.createMarker(data.position, data.plate, data.cantiere, data.veId, undefined);
+            return this.mapService.createVehicleMarker(data.position, data.plate, data.cantiere, data.veId, undefined);
           });
 
           this.mapService.removeAllMapMarkers(this.map);
@@ -135,30 +135,23 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   /**
    * Gestisce la sottoscrizione al subject per il caricamento nella mappa di una posizione
    */
-  private handleMultiplePositions() {
-    this.mapService.loadMultiplePositions$.pipe(takeUntil(this.destroy$))
+  private handleMultipleVehiclePositionsLoading() {
+    this.mapService.loadMultipleVehiclePositions$.pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (realtimeDatas: RealtimeData[]) => {
           if(this.map){
-            const gruppoMarker = L.layerGroup().addTo(this.map);
+            //caricamento del layergroup con i marker dei veicoli
+            const gruppoMarker = this.mapService.createVehicleMarkerGroup(realtimeDatas);
 
-            realtimeDatas.forEach((realtimeData) => {
-              const vehicle = realtimeData.vehicle;
-              const punto = new Point(realtimeData.realtime.latitude, realtimeData.realtime.longitude);
-              const marker = this.mapService.createMarker(
-                punto,
-                vehicle.plate,
-                vehicle.worksite ? vehicle.worksite.name : null,
-                vehicle.veId,
-                undefined
-              );
+            //evita che i popup nella sezione home-map si aprano quando vengono aggiunti
+            gruppoMarker.eachLayer(marker => {
               if(this.router.url != "/home-mappa") {
                 marker.on("add", () => {
                   marker.openPopup();
                 });
               }
-              marker.addTo(gruppoMarker);
             });
+            gruppoMarker.addTo(this.map);
           }
         },
         error: error => console.error("Errore nel caricamento di più posizioni: ", error)
@@ -174,7 +167,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       next: (realtimeData: RealtimeData | null) => {
         if (realtimeData && realtimeData.realtime) {
           const point = new Point(realtimeData.realtime.latitude, realtimeData.realtime.longitude);
-          const marker = this.mapService.createMarker(
+          const marker = this.mapService.createVehicleMarker(
             point,
             realtimeData.vehicle.plate,
             realtimeData.vehicle.worksite?.name || null,
@@ -316,11 +309,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   private handleLoadDayPath() {
     this.mapService.loadDayPath$.pipe(takeUntil(this.destroy$), skip(1))
       .subscribe({
-        next: (pathData: { plate: string, points: Point[], firstPoints: Point[]}) => {
+        next: (pathData: pathData) => {
           console.log("load day path arrivato! Questi so i path data: ", pathData);
           console.log("pathMode: ", this.mapService.pathMode());
           pathData.points = pathData.points.filter(point => point.lat !== 0 && point.long !== 0);
-          pathData.firstPoints = pathData.firstPoints.filter(point => point.lat !== 0 && point.long !== 0);
+          if(pathData.firstPoints) pathData.firstPoints = pathData.firstPoints.filter(point => point.lat !== 0 && point.long !== 0);
 
           const validEndPoints = this.mapService.getFirstValidEndpoints(pathData.points);
           const startPoint: number | null = validEndPoints.startPoint;
@@ -343,14 +336,17 @@ export class MapComponent implements AfterViewInit, OnDestroy {
           if (pathMode === "polyline") {
             const polyline = L.polyline(waypoints, { color: 'blue' }).addTo(this.map);
 
-            this.mapService.createCustomPathMarkers(pathData.points, pathData.firstPoints, this.map);
-
+            if(pathData.firstPoints) this.mapService.createCustomPathVehicleMarkers(pathData.points, pathData.firstPoints).addTo(this.map);
+            console.log("pathData.tagPoints: ", pathData.tagPoints);
+            if(pathData.tagPoints) this.mapService.createMarkerGroup(pathData.tagPoints, this.mapService.tagMarker).addTo(this.map);
             this.map.fitBounds(polyline.getBounds());
           } else if (pathMode === "routed") {
-            const customPlan = this.mapService.createCustomRoutingPlan(pathData.points, pathData.firstPoints);
+            let customPlan
+            if(pathData.firstPoints){
+              customPlan = this.mapService.createVehicleCustomRoutingPlan(pathData.points, pathData.firstPoints);
+            }
 
             this.mapService.pathType.set("day");
-            console.log("PATH TYPE SET TO DAY!! ", this.mapService.pathType());
 
             this.routingControl = L.Routing.control({
               show: false,
