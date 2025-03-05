@@ -7,7 +7,6 @@
 }
 
 .section {
-  flex: 1;
   height: 100%;
   padding: 20px;
   display: flex;
@@ -36,29 +35,22 @@
 }
 
 /* Stili specifici */
-.mezzi-list, .map-section{
+.map-section .section-header{
+  width: 100%;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.visualized-vehicle{
+  height: 100%;
+  align-self: baseline;
+}
+
+.mezzi-section, .map-section{
   background-color: var(--navbarANDstats-background);
 }
 
-
-.filters-container{
-  margin: 0;
-}
-
-.sessions-table {
-  background-color: var(--background-color);
-  flex: 1.8;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
-
-.sessions-table .table-content {
-  width: 100%;
-  max-height: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 2vh;
+.mezzi-section {
+  flex: .5;
 }
 
 .map-section {
@@ -69,6 +61,26 @@
   height: 100%;
 }
 
+.table-section {
+  background-color: var(--background-color);
+  flex:1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.table-section .table-content {
+  width: 100%;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2vh;
+}
+
+.filters-container{
+  margin: 0;
+}
+
 .map-content {
   width: 100%;
   height: 80%;
@@ -76,6 +88,7 @@
 
 .mezzi-content {
   width: 100%;
+  overflow: hidden;
 }
 
 .table-content .table-row {

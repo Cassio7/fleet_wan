@@ -1,6 +1,6 @@
 <div class="content">
   <!-- Mezzi List Section -->
-  <div class="mezzi-list section">
+  <div class="mezzi-section section">
     <div class="section-header">
       <div class="title-side">Cerca un mezzo</div>
       <div class="subtitle">Seleziona un mezzo dalla lista per accedere ai dati</div>
@@ -14,7 +14,7 @@
   </div>
 
   <!-- Sessions Table Section -->
-  <div class="sessions-table section">
+  <div class="table-section section">
     <div class="section-header">
       <div class="title-main">Storico del mezzo</div>
       <div class="subtitle">Visualizza i dati del mezzo che hai selezionato</div>
@@ -52,8 +52,15 @@
   <!-- Map Section -->
   <div class="map-section section">
     <div class="section-header">
-      <div class="title-side">Mappa</div>
-      <div class="subtitle">Visualizza i mezzi nella mappa</div>
+      <div class="header-info">
+        <div class="title-side">Mappa</div>
+        <div class="subtitle">Visualizza i mezzi nella mappa</div>
+      </div>
+      <div class="visualized-vehicle">
+        @if(mapPlate){
+          <p>Mappa del veicolo <b>{{mapPlate}}</b></p>
+        }
+      </div>
     </div>
     <div class="map-content" style="position: relative;">
       <mat-slide-toggle
