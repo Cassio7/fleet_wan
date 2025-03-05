@@ -154,7 +154,7 @@ export class TableComponent implements OnDestroy, AfterViewInit {
       this.loadingProgress = 100;
       setTimeout(() => {
         this.tableLoaded = true;
-      });
+      }, 500);
     }else{
       this.fillTable();
     }
@@ -284,7 +284,7 @@ export class TableComponent implements OnDestroy, AfterViewInit {
         console.log("ce so arivato!!");
         setTimeout(() => {
           this.tableLoaded = true;
-        });
+        }, 500);
         this.vehicleTable.renderRows();
       }
     } catch (error) {

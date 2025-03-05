@@ -66,6 +66,10 @@ td.mat-cell {
   font-size: 20px;
 }
 
+.noData{
+  margin-left: 50px;
+}
+
 .antenna-icon, .close-icon {
   position: absolute;
   top: 0;

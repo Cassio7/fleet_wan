@@ -122,6 +122,9 @@ export class StoricoMezziComponent implements AfterViewInit, OnDestroy{
       if(pathData?.firstPoints){
         pathData.firstPoints = pathData.firstPoints.map((point: any) => new Point(point._lat, point._long));
       }
+      if(pathData?.tagPoints){
+        pathData.tagPoints = pathData.tagPoints.map((point: any) => new Point(point._lat, point._long));
+      }
 
       if(pathType == "day"){
         this.mapService.loadDayPath$.next(pathData);
