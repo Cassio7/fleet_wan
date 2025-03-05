@@ -144,6 +144,10 @@ export class TagService {
       const tagHistoryQueries = await queryRunner.manager
         .getRepository(TagHistoryEntity)
         .find({
+          select: {
+            id: true,
+            hash: true,
+          },
           where: { hash: In(hashTagHistory) },
         });
       const tagHistoryQueryMap = new Map(
@@ -154,6 +158,7 @@ export class TagService {
         .findOne({
           where: { veId: veId },
         });
+      const newTagHistoryMap = new Map<string, TagHistoryEntity>();
       const newTagHistory = [];
       for (const tagHistory of filteredDataTagHistory) {
         const exists = tagHistoryQueryMap.get(tagHistory.hash);
@@ -170,6 +175,7 @@ export class TagService {
               hash: tagHistory.hash,
             });
           newTagHistory.push(newTagHistoryOne);
+          newTagHistoryMap.set(tagHistory.hash, newTagHistoryOne);
         }
       }
       const tagHistoryArray = [];
@@ -179,11 +185,7 @@ export class TagService {
           .save(newTagHistory);
 
         for (const tagHistory of filteredDataTagHistory) {
-          const tagHistoryEntity = await queryRunner.manager
-            .getRepository(TagHistoryEntity)
-            .findOne({
-              where: { hash: tagHistory.hash },
-            });
+          const tagHistoryEntity = newTagHistoryMap.get(tagHistory.hash);
           if (tagHistoryEntity) {
             const tagHistoryData = Array.isArray(tagHistory.list)
               ? tagHistory.list
@@ -219,53 +221,45 @@ export class TagService {
         return false;
       }
       for (const tagList of tagHistoryArray) {
-        //console.log(tagList);
-        const filteredTag = tagList.tagHistoryData.map((item: any) => {
-          if (!item) {
-            return []; // se item.list non esiste, salto elemento
-          }
-          return {
+        const filteredTag = tagList.tagHistoryData
+          .filter((item: any) => item)
+          .map((item: any) => ({
             epc: item['epc'],
             tid: item['tid'],
             detection_quality: item['detectionQuality'],
-          };
-        });
+          }));
         const epc = filteredTag.map((tag) => tag.epc);
-        let tagQuery = await queryRunner.manager.getRepository(TagEntity).find({
-          where: { epc: In(epc) },
-        });
-        let tagQueryMap = new Map(tagQuery.map((query) => [query.epc, query]));
+        const tagQuery = await queryRunner.manager
+          .getRepository(TagEntity)
+          .find({
+            where: { epc: In(epc) },
+          });
+        const tagQueryMap = new Map(
+          tagQuery.map((query) => [query.epc, query]),
+        );
         const newTags = [];
-        const newDetections = [];
         for (const tag of filteredTag) {
-          const exists = tagQueryMap.get(tag.epc);
-          if (!exists) {
+          if (!tagQueryMap.has(tag.epc)) {
             const newTag = await queryRunner.manager
               .getRepository(TagEntity)
               .create({
                 epc: tag.epc,
               });
             newTags.push(newTag);
+            tagQueryMap.set(tag.epc, newTag);
           }
         }
         if (newTags.length > 0) {
           await queryRunner.manager.getRepository(TagEntity).save(newTags);
         }
-        tagQuery = await queryRunner.manager.getRepository(TagEntity).find({
-          where: { epc: In(epc) },
+        const newDetections = filteredTag.map((tag) => {
+          return queryRunner.manager.getRepository(DetectionTagEntity).create({
+            tid: tag.tid,
+            detection_quality: tag.detection_quality,
+            tag: tagQueryMap.get(tag.epc),
+            tagHistory: tagList.tagHistory,
+          });
         });
-        tagQueryMap = new Map(tagQuery.map((query) => [query.epc, query]));
-        for (const tag of filteredTag) {
-          const newDetection = await queryRunner.manager
-            .getRepository(DetectionTagEntity)
-            .create({
-              tid: tag.tid,
-              detection_quality: tag.detection_quality,
-              tag: tagQueryMap.get(tag.epc),
-              tagHistory: tagList.tagHistory,
-            });
-          newDetections.push(newDetection);
-        }
         if (newDetections.length > 0) {
           await queryRunner.manager
             .getRepository(DetectionTagEntity)
@@ -351,6 +345,7 @@ export class TagService {
     veId: number,
     dateFrom: Date,
     dateTo: Date,
+    less: boolean,
   ): Promise<TagDTO[]> {
     const vehicles =
       await this.associationService.getVehiclesAssociateUserRedis(userId);
@@ -376,7 +371,28 @@ export class TagService {
           },
         },
       });
-      return tags.flatMap((tag) => this.toDTOTag(tag));
+      // recupera tag con posizione univoca e, del totale, ne prende solo il 25%
+      if (less) {
+        const seen = new Set<string>();
+        const uniqueTags = tags.filter((tag) => {
+          const key = `${tag.latitude},${tag.longitude}`;
+          if (seen.has(key)) {
+            return false;
+          } else {
+            seen.add(key);
+            return true;
+          }
+        });
+        const percentage = 25;
+        const count = Math.ceil(uniqueTags.length * (percentage / 100));
+        const sampledTags = uniqueTags
+          .sort(() => Math.random() - 0.5)
+          .slice(0, count);
+
+        return sampledTags.flatMap((tag) => this.toDTOTag(tag));
+      } else {
+        return tags.flatMap((tag) => this.toDTOTag(tag));
+      }
     } catch (error) {
       if (error instanceof HttpException) throw error;
       throw new HttpException(
@@ -508,6 +524,88 @@ export class TagService {
       if (error instanceof HttpException) throw error;
       throw new HttpException(
         `Errore durante recupero dell'ultimo tag`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  /**
+   * Recupera le letture dei tag in base: ai veicoli associati all utente, al range temporale inserito
+   * e se inserisce un cantiere, anche in base al cantiere di appartenenza di un veicolo
+   * @param userId user id
+   * @param dateFrom data inizio ricerca
+   * @param dateTo data fine ricerca
+   * @param worksiteId id del cantiere se presente
+   * @returns
+   */
+  async getTagsByRangeWorksite(
+    userId: number,
+    dateFrom: Date,
+    dateTo: Date,
+    worksiteId: number,
+  ): Promise<TagDTO[]> {
+    const vehicles =
+      await this.associationService.getVehiclesAssociateUserRedis(userId);
+    if (!vehicles || vehicles.length === 0)
+      throw new HttpException(
+        'Nessun veicolo associato per questo utente',
+        HttpStatus.NOT_FOUND,
+      );
+
+    try {
+      const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
+      const veIdArray = Array.isArray(vehicleIds) ? vehicleIds : [vehicleIds];
+      let tags;
+      if (worksiteId && Number(worksiteId)) {
+        tags = await this.tagHistoryRepository
+          .createQueryBuilder('tagHistory')
+          .select([
+            'tagHistory.timestamp',
+            'tagHistory.latitude',
+            'tagHistory.longitude',
+            'detectiontag.detection_quality',
+            'tag.epc',
+            'vehicle.plate',
+            'worksite.name',
+          ])
+          .leftJoin('tagHistory.detectiontag', 'detectiontag')
+          .leftJoin('detectiontag.tag', 'tag')
+          .leftJoin('tagHistory.vehicle', 'vehicle')
+          .leftJoin('vehicle.worksite', 'worksite')
+          .where('vehicle.veId IN (:...veIdArray)', { veIdArray })
+          .andWhere('tagHistory.timestamp BETWEEN :dateFrom AND :dateTo', {
+            dateFrom,
+            dateTo,
+          })
+          .andWhere('worksite.id = :worksiteId', { worksiteId })
+          .getMany();
+      } else {
+        tags = await this.tagHistoryRepository
+          .createQueryBuilder('tagHistory')
+          .select([
+            'tagHistory.timestamp',
+            'tagHistory.latitude',
+            'tagHistory.longitude',
+            'detectiontag.detection_quality',
+            'tag.epc',
+            'vehicle.plate',
+          ])
+          .leftJoin('tagHistory.detectiontag', 'detectiontag')
+          .leftJoin('detectiontag.tag', 'tag')
+          .leftJoin('tagHistory.vehicle', 'vehicle')
+          .where('vehicle.veId IN (:...veIdArray)', { veIdArray })
+          .andWhere('tagHistory.timestamp BETWEEN :dateFrom AND :dateTo', {
+            dateFrom,
+            dateTo,
+          })
+          .getMany();
+      }
+
+      return tags.flatMap((tag) => this.toDTOTagLessInfo(tag));
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new HttpException(
+        `Errore durante recupero delle sessioni veId con range temporale`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -673,8 +771,23 @@ export class TagService {
       tagDTO.timestamp = taghistory.timestamp;
       tagDTO.latitude = taghistory.latitude;
       tagDTO.longitude = taghistory.longitude;
+      tagDTO.plate = taghistory.vehicle?.plate;
       tagDTO.nav_mode = taghistory.nav_mode;
       tagDTO.geozone = taghistory.geozone;
+
+      return tagDTO;
+    });
+  }
+  private toDTOTagLessInfo(taghistory: TagHistoryEntity): TagDTO[] {
+    return taghistory.detectiontag.map((detection) => {
+      const tagDTO = new TagDTO();
+      tagDTO.epc = detection.tag.epc;
+      tagDTO.detection_quality = detection.detection_quality;
+      tagDTO.timestamp = taghistory.timestamp;
+      tagDTO.latitude = taghistory.latitude;
+      tagDTO.longitude = taghistory.longitude;
+      tagDTO.plate = taghistory.vehicle?.plate;
+      tagDTO.worksite = taghistory.vehicle?.worksite?.name;
 
       return tagDTO;
     });
