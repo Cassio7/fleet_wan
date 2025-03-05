@@ -41,12 +41,13 @@ export class TagController {
    */
 
   @Get()
-  async getAllTagByVeId(
+  async getTagByVeId(
     @Req() req: Request & { user: UserFromToken },
     @Query('veId') veId: number,
     @Query('dateFrom') dateFrom: string,
     @Query('dateTo') dateTo: string,
     @Query('last') last: string,
+    @Query('less') less: string,
     @Res() res: Response,
   ) {
     const context: LogContext = {
@@ -69,10 +70,9 @@ export class TagController {
       });
     }
     const isLast = last === 'true';
+    const isLess = less === 'true';
     try {
       let tags: TagDTO[] = [];
-
-      // Handle date range if provided
 
       if (dateFrom && dateTo && !isLast) {
         // Validate date range
@@ -89,17 +89,15 @@ export class TagController {
         // Parse dates and get filtered tags
         const parsedDateFrom = new Date(dateFrom);
         const parsedDateTo = new Date(dateTo);
-        const equal = sameDay(parsedDateFrom, parsedDateTo);
-        if (equal) {
-          parsedDateTo.setHours(23, 59, 59, 0);
-        }
         tags = await this.tagService.getTagHistoryByVeIdRanged(
           req.user.id,
           veIdNumber,
           parsedDateFrom,
           parsedDateTo,
+          isLess,
         );
       } else if (isLast) {
+        // recupero l'ultimo
         tags = await this.tagService.getLastTagHistoryByVeId(
           req.user.id,
           veIdNumber,
@@ -123,6 +121,77 @@ export class TagController {
         'list',
         `Numero di tag recuperati ${tags.length}`,
       );
+      return res.status(200).json(tags);
+    } catch (error) {
+      this.loggerService.logCrudError({
+        error,
+        context,
+        operation: 'list',
+      });
+
+      return res.status(error.status || 500).json({
+        message: error.message || 'Errore durante il recupero dei tag',
+      });
+    }
+  }
+
+  /**
+   * API per lo scarico delle letture, si deve inserire il range di date e se si vuole
+   * id del cantire
+   * @param req user token dana
+   * @param dateFrom data inizio ricerca
+   * @param dateTo data fine ricerca
+   * @param worksite id del cantiere
+   * @param res
+   * @returns
+   */
+  @Get('download')
+  async getAllTagsRanged(
+    @Req() req: Request & { user: UserFromToken },
+    @Query('dateFrom') dateFrom: string,
+    @Query('dateTo') dateTo: string,
+    @Query('worksite') worksite: number,
+    @Res() res: Response,
+  ) {
+    const context: LogContext = {
+      userId: req.user.id,
+      username: req.user.username,
+      resource: 'Tag',
+    };
+    try {
+      const validation = validateDateRange(dateFrom, dateTo);
+      if (!validation.isValid) {
+        this.loggerService.logCrudError({
+          error: new Error(validation.message),
+          context,
+          operation: 'list',
+        });
+        return res.status(400).json({ message: validation.message });
+      }
+
+      // Parse dates and get filtered tags
+      const parsedDateFrom = new Date(dateFrom);
+      const parsedDateTo = new Date(dateTo);
+      const equal = sameDay(parsedDateFrom, parsedDateTo);
+      if (equal) {
+        parsedDateTo.setHours(23, 59, 59, 0);
+      }
+      const tags = await this.tagService.getTagsByRangeWorksite(
+        req.user.id,
+        parsedDateFrom,
+        parsedDateTo,
+        worksite,
+      );
+      if (!tags?.length) {
+        this.loggerService.logCrudSuccess(context, 'list', 'Tag non trovati');
+        return res.status(204).json();
+      }
+      this.loggerService.logCrudSuccess(
+        context,
+        'list',
+        `Numero di tag recuperati ${tags.length}`,
+      );
+
       return res.status(200).json(tags);
     } catch (error) {
       this.loggerService.logCrudError({
