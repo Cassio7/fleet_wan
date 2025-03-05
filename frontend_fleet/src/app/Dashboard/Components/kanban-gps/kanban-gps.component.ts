@@ -85,10 +85,9 @@ export class KanbanGpsComponent implements AfterViewInit, OnDestroy {
             .subscribe({
               next: (responseObj: any) => {
                 this.kanbanGpsService.setKanbanData([]);
-                setTimeout(() => {
-                  const vehiclesData = responseObj.vehicles;
-                  this.loadRealtimeVehicles(vehiclesData);
-                }, 2000);
+                const vehiclesData = responseObj.vehicles;
+                const lastUpdate = responseObj.lastUpdate;
+                this.loadRealtimeVehicles(vehiclesData, lastUpdate);
               },
               error: (error) =>
                 console.error(
@@ -147,7 +146,8 @@ export class KanbanGpsComponent implements AfterViewInit, OnDestroy {
           try {
             if (vehiclesData && vehiclesData.length > 0) {
               this.sessionStorageService.setItem("lastUpdate", responseObj.lastUpdate);
-              this.loadRealtimeVehicles(vehiclesData);
+              const lastUpdate = responseObj.lastUpdate;
+              this.loadRealtimeVehicles(vehiclesData, lastUpdate);
               this.gpsGraphService.loadChartData$.next(vehiclesData);
             }
           } catch (error) {
@@ -172,17 +172,26 @@ export class KanbanGpsComponent implements AfterViewInit, OnDestroy {
         const lastUpdate = responseObj.lastUpdate;
         const vehiclesData = responseObj.vehicles;
         this.sessionStorageService.setItem("lastUpdate", lastUpdate);
-        this.loadRealtimeVehicles(vehiclesData);
+        this.loadRealtimeVehicles(vehiclesData, lastUpdate);
       },
       error: error => console.error("Errore nella chiamata per il controllo degli errori di oggi: ", error)
     });
   }
 
   /**
+   * Imposta il valore del testo dell'ultimo aggiornamento visualizzato sulla dashboard
+   * @param lastUpdate stringa ultimo aggiornamento
+   */
+  private updateLastUpdate(lastUpdate: string){
+    this.sessionStorageService.setItem("lastUpdate", lastUpdate);
+    this.checkErrorsService.updateLastUpdate$.next(lastUpdate);
+  }
+
+  /**
    * Recupera i dati del realtime dalla chiamata API e unisce i risultati con i veicoli passati
    * @returns veicoli accorpati con ultima posizione
    */
-  private loadRealtimeVehicles(vehicles: VehicleData[]): VehicleData[] {
+  private loadRealtimeVehicles(vehicles: VehicleData[], lastUpdate: string): VehicleData[] {
     this.realtimeApiService
       .getAllLastRealtime()
       .pipe(takeUntil(this.destroy$))
@@ -193,6 +202,7 @@ export class KanbanGpsComponent implements AfterViewInit, OnDestroy {
           this.gpsGraphService.loadChartData$.next(realtimeVehicles);
           console.log("realtime vehicles set: ", realtimeVehicles);
           this.sessionStorageService.setItem('allData',JSON.stringify(realtimeVehicles));
+          this.updateLastUpdate(lastUpdate);
           return realtimeVehicles;
         },
         error: (error) =>

@@ -81,10 +81,9 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy {
             .subscribe({
               next: (responseObj: any) => {
                 this.kanbanSessioneService.setKanbanData([]);
-                setTimeout(() => {
-                  const vehiclesData = responseObj.vehicles;
-                  this.loadRealtimeVehicles(vehiclesData);
-                }, 2000);
+                const lastUpdate = responseObj.lastUpdate;
+                const vehiclesData = responseObj.vehicles;
+                this.loadRealtimeVehicles(vehiclesData, lastUpdate);
               },
               error: (error) =>
                 console.error(
@@ -143,7 +142,7 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy {
         const lastUpdate = responseObj.lastUpdate;
         const vehiclesData = responseObj.vehicles;
         this.sessionStorageService.setItem("lastUpdate", lastUpdate);
-        this.loadRealtimeVehicles(vehiclesData);
+        this.loadRealtimeVehicles(vehiclesData, lastUpdate);
       },
       error: error => console.error("Errore nella chiamata per il controllo degli errori di oggi: ", error)
     });
@@ -156,12 +155,13 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy {
     this.sessionApiService.getAllLastSessionAnomalies().pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (responseObj: any) => {
+          const lastUpdate = responseObj.lastUpdate;
           const vehiclesData: VehicleData[] = responseObj.vehicles;
           console.log("Last session vehiclesData fetched: ", vehiclesData);
           try {
             if (vehiclesData && vehiclesData.length > 0) {
               this.sessionStorageService.setItem("lastUpdate", responseObj.lastUpdate);
-              this.loadRealtimeVehicles(vehiclesData);
+              this.loadRealtimeVehicles(vehiclesData, lastUpdate);
               this.sessioneGraphService.loadChartData$.next(vehiclesData);
             }
           } catch (error) {
@@ -176,7 +176,7 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy {
    * Recupera i dati del realtime dalla chiamata API e unisce i risultati con i veicoli passati
    * @returns veicoli accorpati con ultima posizione
    */
-  private loadRealtimeVehicles(vehicles: VehicleData[]): VehicleData[] {
+  private loadRealtimeVehicles(vehicles: VehicleData[], lastUpdate: string): VehicleData[] {
     this.realtimeApiService
       .getAllLastRealtime()
       .pipe(takeUntil(this.destroy$))
@@ -192,6 +192,7 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy {
             'allData',
             JSON.stringify(realtimeVehicles)
           );
+          this.updateLastUpdate(lastUpdate);
           return realtimeVehicles;
         },
         error: (error) =>
@@ -219,6 +220,15 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy {
       }
     });
     return tableVehicles;
+  }
+
+  /**
+   * Imposta il valore del testo dell'ultimo aggiornamento visualizzato sulla dashboard
+   * @param lastUpdate stringa ultimo aggiornamento
+   */
+  private updateLastUpdate(lastUpdate: string){
+    this.sessionStorageService.setItem("lastUpdate", lastUpdate);
+    this.checkErrorsService.updateLastUpdate$.next(lastUpdate);
   }
 
   showMap(vehicleData: VehicleData) {

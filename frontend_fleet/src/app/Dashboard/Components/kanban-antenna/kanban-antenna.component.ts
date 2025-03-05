@@ -85,11 +85,10 @@ export class KanbanAntennaComponent implements AfterViewInit, OnDestroy {
             .subscribe({
               next: (responseObj: any) => {
                 this.kanbanAntennaService.setKanbanData([]);
-                setTimeout(() => {
-                  const vehiclesData = responseObj.vehicles;
-                  console.log('Kanban vehicles fetched: ', vehiclesData);
-                  this.loadRealtimeVehicles(vehiclesData);
-                }, 2000);
+                const vehiclesData = responseObj.vehicles;
+                console.log('Kanban vehicles fetched: ', vehiclesData);
+                const lastUpdate = responseObj.lastUpdate;
+                this.loadRealtimeVehicles(vehiclesData, lastUpdate);
               },
               error: (error) =>
                 console.error(
@@ -154,8 +153,7 @@ export class KanbanAntennaComponent implements AfterViewInit, OnDestroy {
       next: (responseObj: any) => {
         const lastUpdate = responseObj.lastUpdate;
         const vehiclesData = responseObj.vehicles;
-        this.sessionStorageService.setItem("lastUpdate", lastUpdate);
-        this.loadRealtimeVehicles(vehiclesData);
+        this.loadRealtimeVehicles(vehiclesData, lastUpdate);
       },
       error: error => console.error("Errore nella chiamata per il controllo degli errori di oggi: ", error)
     });
@@ -172,8 +170,9 @@ export class KanbanAntennaComponent implements AfterViewInit, OnDestroy {
           console.log("Last session vehiclesData fetched: ", vehiclesData);
           try {
             if (vehiclesData && vehiclesData.length > 0) {
+              const lastUpdate = responseObj.lastUpdate;
               this.sessionStorageService.setItem("lastUpdate", responseObj.lastUpdate);
-              this.loadRealtimeVehicles(vehiclesData);
+              this.loadRealtimeVehicles(vehiclesData, lastUpdate);
               this.antennaGraphService.loadChartData$.next(vehiclesData);
             }
           } catch (error) {
@@ -188,7 +187,7 @@ export class KanbanAntennaComponent implements AfterViewInit, OnDestroy {
    * Recupera i dati del realtime dalla chiamata API e unisce i risultati con i veicoli passati
    * @returns veicoli accorpati con ultima posizione realtime
    */
-  private loadRealtimeVehicles(vehicles: VehicleData[]): VehicleData[] {
+  private loadRealtimeVehicles(vehicles: VehicleData[], lastUpdate: string): VehicleData[] {
     this.realtimeApiService
       .getAllLastRealtime()
       .pipe(takeUntil(this.destroy$))
@@ -205,6 +204,7 @@ export class KanbanAntennaComponent implements AfterViewInit, OnDestroy {
           );
           this.kanbanAntennaService.setKanbanData(realtimeVehicles);
           this.antennaGraphService.loadChartData$.next(realtimeVehicles);
+          this.updateLastUpdate(lastUpdate);
           return realtimeVehicles;
         },
         error: (error) =>
@@ -234,6 +234,10 @@ export class KanbanAntennaComponent implements AfterViewInit, OnDestroy {
     return tableVehicles;
   }
 
+  /**
+   * Permette di caricare la mappa con i dati della posizione realtime di un veicolo
+   * @param vehicleData dati del veicolo di cui visualizzare la posizione
+   */
   showMap(vehicleData: VehicleData) {
     const realtimeData: RealtimeData = {
       vehicle: {
@@ -255,5 +259,14 @@ export class KanbanAntennaComponent implements AfterViewInit, OnDestroy {
       point: new Point(realtimeData.realtime.latitude, realtimeData.realtime.longitude)
     });
     this.mapService.loadPosition$.next(realtimeData);
+  }
+
+  /**
+   * Imposta il valore del testo dell'ultimo aggiornamento visualizzato sulla dashboard
+   * @param lastUpdate stringa ultimo aggiornamento
+   */
+  private updateLastUpdate(lastUpdate: string){
+    this.sessionStorageService.setItem("lastUpdate", lastUpdate);
+    this.checkErrorsService.updateLastUpdate$.next(lastUpdate);
   }
 }
