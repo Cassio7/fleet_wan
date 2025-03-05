@@ -13,7 +13,7 @@ export class CompanyService {
    * Ritorna tutte le società salvate
    * @returns oggetto società
    */
-  async getAllCompany(): Promise<any> {
+  async getAllCompany(): Promise<CompanyEntity[]> {
     const companies = await this.companyEntity.find();
     return companies;
   }
@@ -37,7 +37,7 @@ export class CompanyService {
    * @param veId Ricerca in base all veId del veicolo
    * @returns
    */
-  async getCompanyByVeId(veId): Promise<any> {
+  async getCompanyByVeId(veId): Promise<CompanyEntity> {
     const company = await this.companyEntity.findOne({
       where: {
         group: {
@@ -59,7 +59,7 @@ export class CompanyService {
    * @param veId Ricerca in base all vgId del gruppo
    * @returns
    */
-  async getCompanyByVgId(vgId): Promise<any> {
+  async getCompanyByVgId(vgId): Promise<CompanyEntity> {
     const company = await this.companyEntity.findOne({
       where: {
         group: {
