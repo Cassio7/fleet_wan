@@ -6,6 +6,15 @@ import { VehicleService } from '../vehicle/vehicle.service';
 
 @Injectable()
 export class ControlService {
+  // 5 posizioni dove 3 minuti a posizione * 5 = 15 minuti di viaggio
+  private MIN_POSITIONS_GPS = 5;
+  // percentuale sopra al 20%
+  private PERCENTUALE_GPS = 0.2;
+  // minimo 1 posizione per convalidare una sessione
+  private MIN_POSITIONS_ANTENNA = 1;
+  // un giorno
+  private TIME_DELAY_OPEN = 3 * 60 * 1000;
+
   constructor(
     private readonly vehicleService: VehicleService,
     private readonly sessionService: SessionService,
@@ -59,7 +68,7 @@ export class ControlService {
             longitude: data.longitude,
           }));
 
-          if (coordinates.length <= 4) {
+          if (coordinates.length < this.MIN_POSITIONS_GPS) {
             return null;
           }
 
@@ -74,7 +83,7 @@ export class ControlService {
             (coord) => coord.latitude === 0 && coord.longitude === 0,
           ).length;
           const hasZeroCoordinatesAnomaly =
-            zeroCoordinatesCount > coordinates.length * 0.2;
+            zeroCoordinatesCount > coordinates.length * this.PERCENTUALE_GPS;
 
           const groupedBySequence = sessionsDay.reduce((acc, item) => {
             acc[item.sequence_id] = acc[item.sequence_id] || [];
@@ -218,7 +227,7 @@ export class ControlService {
 
           // numero posizioni minime = 1 per ogni sessione
           const filteredSessions = Object.values(groupedBySequence).filter(
-            (group: any) => group.length >= 1,
+            (group: any) => group.length >= this.MIN_POSITIONS_ANTENNA,
           );
 
           // se nessun tag e sessione trovata stop ricerca
@@ -270,7 +279,7 @@ export class ControlService {
   }
 
   /**
-   * Ritorna tutti i veicoli dove la data dell'ultima sessione non corrisponde all ultimo evento registrato
+   * Ritorna tutti i veicoli dove la data dell'ultima sessione non corrisponde all ultimo evento registrato, inserendo sessione nulla
    * @returns
    */
   private async checkSession() {
@@ -290,20 +299,6 @@ export class ControlService {
           const lastVehicleEventTime = new Date(vehicle.lastEvent).getTime();
           const sessionEndTime = new Date(lastSession.period_to).getTime();
 
-          // // Calcola la differenza in giorni
-          // const diffInDays = Math.floor(
-          //   (sessionEndTime - lastVehicleEventTime) / (1000 * 60 * 60 * 24),
-          // );
-
-          // if (diffInDays >= 1) {
-          //   acc.push({
-          //     plate: vehicle.plate,
-          //     veId: vehicle.veId,
-          //     isCan: vehicle.isCan,
-          //     isRFIDReader: vehicle.allestimento,
-          //     anomalies: 'Sessione rimasta aperta',
-          //   });
-          // } else
           if (lastVehicleEventTime > sessionEndTime) {
             acc.push({
               plate: vehicle.plate,
@@ -323,6 +318,13 @@ export class ControlService {
       return 'Errore durante la richiesta al db'; // Return error message as string
     }
   }
+
+  /**
+   * Controlla se è presente una sessione aperta e se i dati sono bloccati
+   * @param dateFrom data inizio ricerca
+   * @param dateTo data fine ricerca
+   * @returns
+   */
   private async checkOpenSession(dateFrom: Date, dateTo: Date) {
     const validation = validateDateRange(
       dateFrom.toISOString(),
@@ -366,7 +368,8 @@ export class ControlService {
 
             if (
               lastTimestamp &&
-              new Date(lastTimestamp.timestamp).getTime() + 3 * 60 * 1000 >
+              new Date(lastTimestamp.timestamp).getTime() +
+                this.TIME_DELAY_OPEN >
                 new Date(vehicle.lastEvent).getTime()
             ) {
               const isToday =
