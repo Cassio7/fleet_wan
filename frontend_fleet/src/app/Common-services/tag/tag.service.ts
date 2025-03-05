@@ -40,7 +40,7 @@ export class TagService {
 
     console.log(`${this.commonService.url}/tags?veId=${veId}&dateFrom=${this.dateFrom()}&dateTo=${this.dateTo()}`)
 
-    return this.http.get<tagData[]>(`${this.commonService.url}/tags?veId=${veId}&dateFrom=${this.dateFrom()}&dateTo=${this.dateTo()}`,{ headers });
+    return this.http.get<tagData[]>(`${this.commonService.url}/tags?veId=${veId}&dateFrom=${this.dateFrom()}&dateTo=${this.dateTo()}&less=true`,{ headers });
 
   }
 
