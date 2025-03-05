@@ -89,6 +89,10 @@ export class TagController {
         // Parse dates and get filtered tags
         const parsedDateFrom = new Date(dateFrom);
         const parsedDateTo = new Date(dateTo);
+        const equal = sameDay(parsedDateFrom, parsedDateTo);
+        if (equal) {
+          parsedDateTo.setHours(23, 59, 59, 0);
+        }
         tags = await this.tagService.getTagHistoryByVeIdRanged(
           req.user.id,
           veIdNumber,

@@ -104,7 +104,7 @@ export function validateDateRange(
  * @returns true o false
  */
 export function sameDay(dateFrom: Date, dateTo: Date): boolean {
-  return dateFrom.toDateString() === dateTo.toDateString();
+  return dateFrom.getTime() === dateTo.getTime();
 }
 
 /**
