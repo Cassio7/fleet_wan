@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { Session } from '../../Models/Session';
 import { Vehicle } from '../../Models/Vehicle';
 import { SessionStorageService } from '../sessionStorage/session-storage.service';
 import { VehicleData } from '../../Models/VehicleData';

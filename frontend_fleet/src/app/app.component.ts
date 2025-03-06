@@ -1,10 +1,9 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, NgZone, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { NavigationEnd, Router, RouterModule, RouterOutlet } from '@angular/router';
-import { FooterComponent } from "./Common-components/footer/footer.component";
 import { filter, Subject, takeUntil } from 'rxjs';
 import { MatDrawer, MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatIcon, MatIconModule } from '@angular/material/icon';
+import { MatIconModule } from '@angular/material/icon';
 import { NavbarComponent } from './Common-components/navbar/navbar.component';
 import { MatButtonModule } from '@angular/material/button';
 import { LoginService } from './Common-services/login service/login.service';
@@ -13,7 +12,6 @@ import { CookiesService } from './Common-services/cookies service/cookies.servic
 import { MatMenuModule } from '@angular/material/menu';
 import { NavigationService } from './Common-services/navigation/navigation.service';
 import { SessionStorageService } from './Common-services/sessionStorage/session-storage.service';
-import { LoginComponent } from "./Common-components/login/login.component";
 
 @Component({
   selector: 'app-root',

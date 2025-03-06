@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
 import { VehicleData } from '../../../Models/VehicleData';
 

@@ -1,11 +1,10 @@
 import { SessionStorageService } from './../../../Common-services/sessionStorage/session-storage.service';
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { AfterViewInit, ChangeDetectorRef, Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import { MatIconModule } from '@angular/material/icon';
-import { NavigationEnd, Router } from '@angular/router';
-import { filter, Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { KanbanGpsService } from '../../Services/kanban-gps/kanban-gps.service';
 import { KanbanAntennaService } from '../../Services/kanban-antenna/kanban-antenna.service';
 import { KanbanTableService } from '../../Services/kanban-table/kanban-table.service';

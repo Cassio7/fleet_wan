@@ -1,11 +1,10 @@
-import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { ActivatedRoute, NavigationEnd, Router, RouterModule } from '@angular/router';
-import { Subject, filter, merge, take, takeUntil } from 'rxjs';
-import { CommonService } from '../../Common-services/common service/common.service';
+import { Subject, filter, merge, takeUntil } from 'rxjs';
 import { LoginService } from '../../Common-services/login service/login.service';
 import { CookiesService } from '../../Common-services/cookies service/cookies.service';
 import { AuthService } from '../../Common-services/auth/auth.service';

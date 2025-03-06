@@ -16,7 +16,6 @@ import { Router } from '@angular/router';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CommonModule } from '@angular/common';
 import { Filters, FiltersCommonService } from '../../../Common-services/filters-common/filters-common.service';
-import { ListaFiltersComponent } from "../lista-filters/lista-filters.component";
 import { Point } from '../../../Models/Point';
 
 export interface PeriodicElement {

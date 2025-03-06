@@ -1,6 +1,6 @@
 import { PlateFilterService } from './../../../Common-services/plate-filter/plate-filter.service';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { Vehicle } from '../../../Models/Vehicle';
 import { CantieriFilterService } from '../../../Common-services/cantieri-filter/cantieri-filter.service';
 import { FormControl } from '@angular/forms';

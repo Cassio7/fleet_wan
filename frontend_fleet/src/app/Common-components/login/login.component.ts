@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
+import {AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -7,7 +7,7 @@ import {MatInputModule} from '@angular/material/input';
 import { Router, RouterModule } from '@angular/router';
 import { LoginService } from '../../Common-services/login service/login.service';
 import { CookiesService } from '../../Common-services/cookies service/cookies.service';
-import { count, Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';

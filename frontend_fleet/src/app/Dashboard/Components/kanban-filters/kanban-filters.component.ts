@@ -1,5 +1,4 @@
 import { KanbanGpsService } from './../../Services/kanban-gps/kanban-gps.service';
-import { GpsGraphService } from './../../Services/gps-graph/gps-graph.service';
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -9,20 +8,13 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
-import { PlateFilterService } from '../../../Common-services/plate-filter/plate-filter.service';
 import { CantieriFilterService } from '../../../Common-services/cantieri-filter/cantieri-filter.service';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { KanbanAntennaService } from '../../Services/kanban-antenna/kanban-antenna.service';
-import { SortService } from '../../../Common-services/sort/sort.service';
-import { VehicleData } from '../../../Models/VehicleData';
-import { AntennaGraphService } from '../../Services/antenna-graph/antenna-graph.service';
 import { Filters, FiltersCommonService } from '../../../Common-services/filters-common/filters-common.service';
 import { takeUntil, skip, Subject, merge, map } from 'rxjs';
-import { GpsFilterService } from '../../../Common-services/gps-filter/gps-filter.service';
 import { MatOptionModule } from '@angular/material/core';
-import { KanbanTableService } from '../../Services/kanban-table/kanban-table.service';
 import { KanbanSessioneService } from '../../Services/kanban-sessione/kanban-sessione.service';
 
 @Component({

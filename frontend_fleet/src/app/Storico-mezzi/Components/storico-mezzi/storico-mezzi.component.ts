@@ -16,7 +16,6 @@ import { RealtimeData } from '../../../Models/RealtimeData';
 import { CommonModule } from '@angular/common';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { Point } from '../../../Models/Point';
-import { TagService } from '../../../Common-services/tag/tag.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
 
 @Component({

@@ -2,7 +2,6 @@ import { AfterViewInit, ChangeDetectorRef, Component, Input } from '@angular/cor
 import { ApexAxisChartSeries, ApexChart, ApexXAxis, ApexDataLabels, ApexGrid, ApexStroke, ApexTitleSubtitle, ApexYAxis } from 'ng-apexcharts';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { DetectionGraphService } from '../../Services/detection-graph/detection-graph.service';
-import { Vehicle } from '../../../Models/Vehicle';
 import { Subject, takeUntil } from 'rxjs';
 import { DetectionQuality } from '../../../Models/DetectionQuality';
 import {MatChipsModule} from '@angular/material/chips';

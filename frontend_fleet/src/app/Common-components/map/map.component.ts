@@ -1,19 +1,15 @@
-import { History } from './../../Models/History';
 import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
-  Input,
   OnDestroy,
   ViewEncapsulation,
 } from '@angular/core';
 import * as L from 'leaflet';
 import { MapService, pathData, positionData } from '../../Common-services/map/map.service';
-import { skip, Subject, takeUntil, filter, take } from 'rxjs';
-import { VehicleData } from '../../Models/VehicleData';
+import { skip, Subject, takeUntil } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { Realtime } from '../../Models/Realtime';
 import { RealtimeData } from '../../Models/RealtimeData';
 import { Point } from '../../Models/Point';
 import { SessionStorageService } from '../../Common-services/sessionStorage/session-storage.service';

@@ -1,10 +1,8 @@
-import { ErrorGraphsService } from './../../../Services/error-graphs/error-graphs.service';
 import { GpsGraphService } from './../../../Services/gps-graph/gps-graph.service';
 import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
-  ViewChild,
 } from '@angular/core';
 import {
   ApexChart,

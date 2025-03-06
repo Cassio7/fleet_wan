@@ -7,20 +7,19 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { RouterModule } from '@angular/router';
-import { BlackboxGraphCardComponent } from '../blackbox-graphs/blackbox-graph-card/blackbox-graph-card.component';
 import { ErrorGraphCardComponent } from '../error-graphs/error-graph-card/error-graph-card.component';
 import { TableComponent } from '../table/table.component';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RowFilterComponent } from '../row-filter/row-filter.component';
 import { KebabMenuComponent } from '../kebab-menu/kebab-menu.component';
-import { last, skip, Subject, take, takeUntil } from 'rxjs';
+import { skip, Subject, takeUntil } from 'rxjs';
 import { KanbanGpsComponent } from "../kanban-gps/kanban-gps.component";
 import { KanbanGpsService } from '../../Services/kanban-gps/kanban-gps.service';
 import { KanbanAntennaComponent } from "../kanban-antenna/kanban-antenna.component";
 import { KanbanAntennaService } from '../../Services/kanban-antenna/kanban-antenna.service';
 import { KanbanTableService } from '../../Services/kanban-table/kanban-table.service';
 import { ErrorGraphsService } from '../../Services/error-graphs/error-graphs.service';
-import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
 import { MapComponent } from '../../../Common-components/map/map.component';
 import { KanbanSessioneComponent } from "../kanban-sessione/kanban-sessione.component";
@@ -30,7 +29,6 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.component';
 import { MapService } from '../../../Common-services/map/map.service';
 import { RealtimeData } from '../../../Models/RealtimeData';
-import { Vehicle } from '../../../Models/Vehicle';
 
 
 @Component({

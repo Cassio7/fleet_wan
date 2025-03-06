@@ -2,9 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Note } from '../../Models/Note';
 import { CommonService } from '../common service/common.service';
-import { SessionStorageService } from '../sessionStorage/session-storage.service';
-import { BehaviorSubject, firstValueFrom, Observable, Subject, throwError } from 'rxjs';
-import { VehicleData } from '../../Models/VehicleData';
+import { Observable, Subject, throwError } from 'rxjs';
 import { Vehicle } from '../../Models/Vehicle';
 import { CookiesService } from '../cookies service/cookies.service';
 

@@ -2,12 +2,12 @@ import { Injectable } from '@angular/core';
 import { VehicleData } from '../../Models/VehicleData';
 import { PlateFilterService } from '../plate-filter/plate-filter.service';
 import { CantieriFilterService } from '../cantieri-filter/cantieri-filter.service';
-import { BehaviorSubject, filter } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { GpsFilterService } from '../gps-filter/gps-filter.service';
 import { CheckErrorsService } from '../check-errors/check-errors.service';
 import { SessionFilterService } from '../session-filter/session-filter.service';
 import { AntennaFilterService } from '../antenna-filter/antenna-filter.service';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl } from '@angular/forms';
 import { Vehicle } from '../../Models/Vehicle';
 
 export interface Filters {

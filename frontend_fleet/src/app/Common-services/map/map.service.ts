@@ -1,11 +1,10 @@
-import { Injectable, signal, Type } from '@angular/core';
-import { BehaviorSubject, Subject, map } from 'rxjs';
+import { Injectable, signal } from '@angular/core';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { RealtimeData } from '../../Models/RealtimeData';
 import { Anomaly } from '../../Models/Anomaly';
 import * as L from 'leaflet';
 import 'leaflet-routing-machine';
 import { Point } from '../../Models/Point';
-import { tagData } from '../tag/tag.service';
 
 export interface positionData{
   veId: number,

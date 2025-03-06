@@ -1,8 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, catchError, firstValueFrom, Observable, Subject, throwError } from 'rxjs';
+import { BehaviorSubject, catchError, Observable, Subject, throwError } from 'rxjs';
 import { CommonService } from '../common service/common.service';
-import { Vehicle } from '../../Models/Vehicle';
 import { CookiesService } from '../cookies service/cookies.service';
 import { VehicleData} from '../../Models/VehicleData';
 import { Anomaly } from '../../Models/Anomaly';

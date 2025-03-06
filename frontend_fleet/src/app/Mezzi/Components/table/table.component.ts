@@ -1,7 +1,7 @@
-import { AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, HostListener, inject, NgZone, OnDestroy, signal, ViewChild } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, OnDestroy, signal, ViewChild } from '@angular/core';
 import { Vehicle } from '../../../Models/Vehicle';
 import { VehiclesApiService } from '../../../Common-services/vehicles api service/vehicles-api.service';
-import { Subject, takeUntil, filter, forkJoin, take, tap, skip, catchError, EMPTY } from 'rxjs';
+import { Subject, takeUntil, tap, skip, catchError, EMPTY } from 'rxjs';
 import { Session } from '../../../Models/Session';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { CommonModule } from '@angular/common';

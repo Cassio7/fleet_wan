@@ -8,8 +8,6 @@ import { CommonModule } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { VehicleAnomalies } from '../../../Models/VehicleAnomalies';
 import { MatButtonModule } from '@angular/material/button';
-import { VehicleData } from '../../../Models/VehicleData';
-import { Vehicle } from '../../../Models/Vehicle';
 import { Router } from '@angular/router';
 
 @Component({
