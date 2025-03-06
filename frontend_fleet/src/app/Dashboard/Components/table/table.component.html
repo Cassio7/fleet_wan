@@ -10,7 +10,6 @@
   <table
     #vehicleTable
     mat-table
-    *ngIf="tableLoaded"
     [dataSource]="vehicleTableData"
     matSort
     (matSortChange)="onSortChange($event)"

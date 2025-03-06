@@ -1,7 +1,7 @@
 import { ErrorGraphsService } from './../../Services/error-graphs/error-graphs.service';
 import { SessionFilterService } from './../../../Common-services/session-filter/session-filter.service';
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterContentInit, AfterViewInit, ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatOptionModule } from '@angular/material/core';
@@ -22,6 +22,7 @@ import { KanbanTableService } from '../../Services/kanban-table/kanban-table.ser
 import { KanbanGpsService } from '../../Services/kanban-gps/kanban-gps.service';
 import { KanbanAntennaService } from '../../Services/kanban-antenna/kanban-antenna.service';
 import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
+import { LoginService } from '../../../Common-services/login service/login.service';
 
 @Component({
   selector: 'app-row-filter',
@@ -92,26 +93,27 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
       })
     });
   }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
   ngAfterViewInit(): void {
+    setTimeout(() => {
+      const allData = JSON.parse(this.sessionStorageService.getItem("allData"));
+      if(allData) this.listaCantieri = this.cantiereFilterService.vehiclesCantieriOnce(allData);
 
-    const allData = JSON.parse(this.sessionStorageService.getItem("allData"));
-    this.listaCantieri = this.cantiereFilterService.vehiclesCantieriOnce(allData);
-    this.cd.detectChanges();
+      this.toggleSelectAll();
 
-    this.toggleSelectAll();
+      this.handleKanbanChange();
 
-    this.handleKanbanChange();
+      this.handleAllFiltersOptionsUpdate();
+      this.handleErrorGraphClick();
 
-    this.handleAllFiltersOptionsUpdate();
-    this.handleErrorGraphClick();
-
-    // Aggiornamento del change detection (solitamente solo se ci sono modifiche dirette al DOM)
-    this.cd.detectChanges();
+      // Aggiornamento del change detection (solitamente solo se ci sono modifiche dirette al DOM)
+      this.cd.detectChanges();
+    }, 1000);
   }
 
   private handleKanbanChange(){

@@ -8,7 +8,6 @@
   width: 100%;
   height: 100%;
   overflow-y: auto;
-  box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
 }
 
 tr.mat-header-row, tr.mat-row {

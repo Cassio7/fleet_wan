@@ -285,7 +285,7 @@ export class TableComponent implements OnDestroy, AfterViewInit {
         setTimeout(() => {
           this.tableLoaded = true;
         }, 500);
-        this.vehicleTable.renderRows();
+        if(this.vehicleTable) this.vehicleTable.renderRows();
       }
     } catch (error) {
       console.error("Error processing vehicles:", error);
@@ -318,7 +318,7 @@ export class TableComponent implements OnDestroy, AfterViewInit {
           this.vehicleTableData.data = tableVehicles;
           this.sessionStorageService.setItem("allData", JSON.stringify(tableVehicles));
 
-          this.vehicleTable.renderRows();
+          if(this.vehicleTable) this.vehicleTable.renderRows();
         },
         error: error => console.error("Errore nel caricamento dei dati realtime: ", error)
       });

@@ -358,7 +358,6 @@ export class SessionTableComponent implements OnChanges, AfterViewInit {
           next: (tagData: tagData[]) => {
             console.log("tagData fetched: ", tagData);
             if(tagData){
-              console.log("ao so entrato");
               pathData.tagPoints = tagData.map(tag => new Point(tag.latitude, tag.longitude));
             }
             this.sessionStorageService.setItem("pathData", JSON.stringify(pathData));
