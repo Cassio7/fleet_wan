@@ -25,7 +25,10 @@ export interface pathData{
   providedIn: 'root',
 })
 export class MapService {
-  private readonly _initMap$: BehaviorSubject<any> = new BehaviorSubject<any>(null);
+  defaultPoint: Point = new Point(41.9027835, 12.4963655);
+  defaultZoom: number = 5;
+
+  private readonly _initMap$: BehaviorSubject<{point: Point, zoom: number}> = new BehaviorSubject<{point: Point, zoom: number}>({point: this.defaultPoint, zoom: this.defaultZoom});
 
   private readonly _loadMultipleVehiclePositions$: BehaviorSubject<RealtimeData[]> = new BehaviorSubject<RealtimeData[]>([]);
   private readonly _loadPosition$: BehaviorSubject<RealtimeData | null> = new BehaviorSubject<RealtimeData | null>(null);
@@ -37,7 +40,7 @@ export class MapService {
   private readonly _togglePopups$: Subject<boolean> = new Subject<boolean>();
   private readonly _zoomIn$: BehaviorSubject<{ point: Point; zoom: number; } | null> = new BehaviorSubject<{ point: Point; zoom: number; } | null>(null);
 
-  pathMode = signal("routed");
+  pathMode = signal("polyline");
   pathType = signal("day");
 
   positionDatas: positionData[] = [];
@@ -339,42 +342,54 @@ export class MapService {
     points: Point[],
     firstPoints: Point[]
   ): L.Routing.Plan {
-  const waypoints = points.map(point => L.latLng(point.lat, point.long));
-  let firstPointCounter = 0;
+    const waypoints = points.map(point => L.latLng(point.lat, point.long));
+    let firstPointCounter = 0;
 
-  return new L.Routing.Plan(waypoints, {
-    createMarker: (waypointIndex, waypoint, numberOfWaypoints) => {
-      const currentFirstPosition = firstPoints[firstPointCounter];
-      let markerIcon;
+    return new L.Routing.Plan(waypoints, {
+      createMarker: (waypointIndex, waypoint, numberOfWaypoints) => {
+        const currentFirstPosition = firstPoints[firstPointCounter];
+        let markerIcon;
 
-      markerIcon = L.divIcon({
-        className: 'error-icon',
-        html: `<div style="color: white; padding: 5px;">${this.getCustomPositionMarker((firstPointCounter + 1).toString())}</div>`,
-        iconSize: [20, 20],
-        iconAnchor: [10, 40]
-      });
-
-      if (waypointIndex === waypoints.length - 1) {
-        // Create a divIcon for the end point
         markerIcon = L.divIcon({
           className: 'error-icon',
-          html: `<div style="color: white; padding: 5px;">${this.sessionEndMarker}</div>`,
-          iconSize: [50, 20],
+          html: `<div style="color: white; padding: 5px;">${this.getCustomPositionMarker((firstPointCounter + 1).toString())}</div>`,
+          iconSize: [20, 20],
           iconAnchor: [10, 40]
         });
-      }
 
-      if ((currentFirstPosition &&
-          JSON.stringify(L.latLng(currentFirstPosition.lat, currentFirstPosition.long)) ===
-          JSON.stringify(waypoint.latLng)) ||
-          waypointIndex === waypoints.length - 1) {
-        firstPointCounter++;
-        return L.marker(waypoint.latLng, { icon: markerIcon });
+        if (waypointIndex === waypoints.length - 1) {
+          // Create a divIcon for the end point
+          markerIcon = L.divIcon({
+            className: 'error-icon',
+            html: `<div style="color: white; padding: 5px;">${this.sessionEndMarker}</div>`,
+            iconSize: [50, 20],
+            iconAnchor: [10, 40]
+          });
+        }
+
+        if ((currentFirstPosition &&
+            JSON.stringify(L.latLng(currentFirstPosition.lat, currentFirstPosition.long)) ===
+            JSON.stringify(waypoint.latLng)) ||
+            waypointIndex === waypoints.length - 1) {
+          firstPointCounter++;
+          return L.marker(waypoint.latLng, { icon: markerIcon });
+        }
+        return false;
       }
-      return false;
-    }
-  });
-}
+    });
+  }
+
+  createCustomPlaneRoutingControl(map: L.Map, customPlan: L.Routing.Plan): L.Routing.Control{
+    return L.Routing.control({
+      show: false,
+      plan: customPlan,
+      routeWhileDragging: false,
+      addWaypoints: false,
+      router: new L.Routing.OSRMv1({
+        serviceUrl: "http://10.1.0.102:5000/route/v1"
+      })
+    }).addTo(map);
+  }
 
 
   /**

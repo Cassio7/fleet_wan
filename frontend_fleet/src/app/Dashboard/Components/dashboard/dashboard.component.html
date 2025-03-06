@@ -19,15 +19,18 @@
       <p class="subtitle">Ultima posizione registrata</p>
     </div>
     <div class="map-container">
+      <mat-error class="map-errorContainer" >
+        <span *ngIf="!mapVehiclePlate && today">Nessun veicolo selezionato</span>
+        <span *ngIf="!today && lastSession">Mappa non disponibile per ultimo andamento</span>
+      </mat-error>
       <app-map class="map" *ngIf="today && !lastSession"></app-map>
-      <mat-error *ngIf="!today && lastSession">Mappa non disponibile per ultimo andamento</mat-error>
     </div>
   </div>
   <div class="right-section">
-    <div class="header">
+    <div class="main-header">
       <div class="section-header">
         <div class="title-container">
-          <span class="title-main">{{ pageName }}</span>
+          <span class="title">{{ pageName }}</span>
           <div class="last-update">
             <span *ngIf="today">
               {{ lastUpdate && checkDate(lastUpdate) ? (lastUpdate | date: 'dd/MM/yyyy HH:mm'): lastUpdate }}
@@ -51,7 +54,6 @@
     </div>
     <div class="main-content">
       <div class="table-content" *ngIf="table">
-
         <app-row-filter></app-row-filter>
         <div class="table-container">
           <app-table></app-table>

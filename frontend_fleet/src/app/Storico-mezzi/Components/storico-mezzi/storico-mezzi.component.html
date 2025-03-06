@@ -56,17 +56,19 @@
         <div class="title-side">Mappa</div>
         <div class="subtitle">Visualizza i mezzi nella mappa</div>
       </div>
-      @if(mapPlate){
+      @if(pathPlate){
         <div class="visualizedVehicle-container">
-          <p class="visualized-vehicle">Mappa del veicolo <b>{{mapPlate}}</b></p>
+          <p class="visualized-vehicle">Mappa del veicolo <b>{{pathPlate}}</b></p>
         </div>
       }
-
     </div>
+    <mat-error class="map-error" [class.no-mapError]="positionPlate || pathPlate">
+      Nessun veicolo selezionato
+    </mat-error>
     <div class="map-content" style="position: relative;">
       <mat-slide-toggle
       class="path-switch"
-      *ngIf="isPathLoaded"
+      *ngIf="pathPlate"
       [(ngModel)]="linedPath"
       [checked]="linedPath"
       (click)="togglePathType()">

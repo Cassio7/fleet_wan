@@ -95,6 +95,14 @@
   height: 80%;
 }
 
+.map-error{
+  width: 100%;
+}
+
+.no-mapError{
+  visibility: hidden;
+}
+
 .mezzi-content {
   width: 100%;
   overflow: hidden;

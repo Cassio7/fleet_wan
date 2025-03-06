@@ -13,7 +13,7 @@ import { TableComponent } from '../table/table.component';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RowFilterComponent } from '../row-filter/row-filter.component';
 import { KebabMenuComponent } from '../kebab-menu/kebab-menu.component';
-import { last, skip, Subject, takeUntil } from 'rxjs';
+import { last, skip, Subject, take, takeUntil } from 'rxjs';
 import { KanbanGpsComponent } from "../kanban-gps/kanban-gps.component";
 import { KanbanGpsService } from '../../Services/kanban-gps/kanban-gps.service';
 import { KanbanAntennaComponent } from "../kanban-antenna/kanban-antenna.component";
@@ -28,6 +28,9 @@ import { KanbanSessioneService } from '../../Services/kanban-sessione/kanban-ses
 import { LoginService } from '../../../Common-services/login service/login.service';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.component';
+import { MapService } from '../../../Common-services/map/map.service';
+import { RealtimeData } from '../../../Models/RealtimeData';
+import { Vehicle } from '../../../Models/Vehicle';
 
 
 @Component({
@@ -74,6 +77,8 @@ export class DashboardComponent implements OnInit, AfterViewInit{
   pageName = "Riepilogo parco mezzi";
   subtitle = "Monitora i tuoi veicoli";
 
+  mapVehiclePlate: string = "";
+
   private snackbar = inject(MatSnackBar);
   private snackbarDuration = 2;
 
@@ -88,6 +93,7 @@ export class DashboardComponent implements OnInit, AfterViewInit{
   constructor(
     private kabanGpsService: KanbanGpsService,
     private errorGraphService: ErrorGraphsService,
+    private mapService: MapService,
     private KanbanAntennaService: KanbanAntennaService,
     private kanbanTableService: KanbanTableService,
     private kanbanSessionService: KanbanSessioneService,
@@ -129,6 +135,16 @@ export class DashboardComponent implements OnInit, AfterViewInit{
       },
       error: error => console.error("Errore nell'aggiornamento del label per l'utimo aggiornatmento: ", error)
     });
+
+    this.mapService.loadPosition$.pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next: (realtimeData: RealtimeData | null) => {
+        this.mapVehiclePlate = realtimeData?.vehicle.plate || "";
+      },
+      error: error => console.error("Errore nella ricezione del caricamento di un posizione: ", error)
+    });
+
+    this.mapService.initMap$.next({point: this.mapService.defaultPoint, zoom: this.mapService.defaultZoom});
 
     this.cd.detectChanges();
   }
@@ -251,12 +267,17 @@ export class DashboardComponent implements OnInit, AfterViewInit{
       this.today = true;
       this.lastSession = false;
       this.switchText = "Oggi";
+      this.mapVehiclePlate = "";
       this.checkErrorsService.switchCheckDay$.next("today");
+      setTimeout(() => {
+        this.mapService.initMap$.next({point: this.mapService.defaultPoint, zoom: this.mapService.defaultZoom});
+      });
     }else{
       this.today = false;
       this.lastSession = true;
       this.switchText = "Ultimo andamento"
       this.checkErrorsService.switchCheckDay$.next("last");
+      this.mapVehiclePlate = "";
     }
   }
 

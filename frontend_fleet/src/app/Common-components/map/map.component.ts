@@ -279,12 +279,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
           this.mapService.pathType.set("session");
 
-          this.routingControl = L.Routing.control({
-            show: false,
-            plan: customPlan,
-            routeWhileDragging: false,
-            addWaypoints: false
-          }).addTo(this.map);
+          this.routingControl = this.mapService.createCustomPlaneRoutingControl(this.map, customPlan);
 
           this.routingControl.route();
         }
@@ -339,21 +334,16 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
             this.mapService.pathType.set("day");
 
-            this.routingControl = L.Routing.control({
-                show: false,
-                plan: customPlan,
-                routeWhileDragging: false,
-                addWaypoints: false
-            }).addTo(this.map);
-
-            // Aspetta che il percorso venga calcolato prima di adattare la vista
-            this.routingControl.on('routesfound', (e) => {
-                const route = e.routes[0]; // Prendi il primo percorso trovato
+            if(customPlan) {
+              this.routingControl = this.mapService.createCustomPlaneRoutingControl(this.map, customPlan);
+              this.routingControl.on('routesfound', (e) => {
+                const route = e.routes[0];
                 if (route) {
                     const bounds = L.latLngBounds(route.coordinates);
                     this.map.fitBounds(bounds);
                 }
             });
+            }
         }
 
         },

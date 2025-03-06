@@ -17,6 +17,7 @@ import { CommonModule } from '@angular/common';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { Point } from '../../../Models/Point';
 import { TagService } from '../../../Common-services/tag/tag.service';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 @Component({
   selector: 'app-storico-mezzi',
@@ -24,6 +25,7 @@ import { TagService } from '../../../Common-services/tag/tag.service';
   imports: [
     CommonModule,
     MapComponent,
+    MatFormFieldModule,
     ListaMezziComponent,
     MatListModule,
     MatCardModule,
@@ -41,11 +43,11 @@ import { TagService } from '../../../Common-services/tag/tag.service';
 export class StoricoMezziComponent implements AfterViewInit, OnDestroy{
   private readonly destroy$: Subject<void> = new Subject<void>();
   private _selectedVehicle!: Vehicle;
-  private _mapPlate!: string;
+  private _positionPlate: string = "";
+  private _pathPlate: string = "";
 
-  linedPath: boolean = false;
-  isPathLoaded: boolean = false;
-  pathTypeText: string = "Ricostruito";
+  linedPath: boolean = true;
+  pathTypeText: string = "Fedele";
 
   constructor(
     private mapService: MapService,
@@ -62,13 +64,22 @@ export class StoricoMezziComponent implements AfterViewInit, OnDestroy{
     this.handlePositionLoading();
     this.handleDayPathLoading();
     this.handleSessionPathLoading();
+
+    this.mapService.initMap$.next({point: this.mapService.defaultPoint, zoom: this.mapService.defaultZoom + 1});
   }
 
   private handlePositionLoading(){
     this.mapService.loadPosition$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (realtimeData: RealtimeData | null) => {
-        if(realtimeData) this.mapPlate = realtimeData?.vehicle.plate;
+        if(realtimeData) {
+          this.positionPlate = realtimeData?.vehicle.plate;
+          this.pathPlate = "";
+
+          console.log("load position arivatia");
+          console.log('positonPlate: ', this.positionPlate);
+          console.log('pathPlate: ', this.pathPlate);
+        }
         this.cd.detectChanges();
       }
     });
@@ -78,8 +89,8 @@ export class StoricoMezziComponent implements AfterViewInit, OnDestroy{
     this.mapService.loadDayPath$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (pathData: pathData) => {
-        this.isPathLoaded = true;
-        this.mapPlate = pathData.plate;
+        this.pathPlate = pathData.plate;
+        this.positionPlate = "";
         this.cd.detectChanges();
       },
     });
@@ -89,8 +100,8 @@ export class StoricoMezziComponent implements AfterViewInit, OnDestroy{
     this.mapService.loadSessionPath$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (pathData: pathData) => {
-        this.isPathLoaded = true;
-        this.mapPlate = pathData.plate;
+        this.pathPlate = pathData.plate;
+        this.positionPlate = "";
         this.cd.detectChanges();
       },
     });
@@ -135,11 +146,17 @@ export class StoricoMezziComponent implements AfterViewInit, OnDestroy{
 
   }
 
-  public get mapPlate(): string {
-    return this._mapPlate;
+  public get pathPlate(): string {
+    return this._pathPlate;
   }
-  public set mapPlate(value: string) {
-    this._mapPlate = value;
+  public set pathPlate(value: string) {
+    this._pathPlate = value;
+  }
+  public get positionPlate(): string {
+    return this._positionPlate;
+  }
+  public set positionPlate(value: string) {
+    this._positionPlate = value;
   }
   public get selectedVehicle(): Vehicle {
     return this._selectedVehicle;
