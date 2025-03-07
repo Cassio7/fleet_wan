@@ -71,6 +71,8 @@ import { WorksiteFactoryService } from './factory/worksite.factory';
 import { WorksiteGroupFactoryService } from './factory/worksite_group.factory';
 import { WorkzoneFacotoryService } from './factory/workzone.factory';
 import { ControlService } from './services/control/control.service';
+import { NotificationsService } from './notifications/notifications.service';
+import { NotificationsGateway } from './notifications/notifications.gateway';
 
 @Global()
 @Module({
@@ -265,6 +267,8 @@ import { ControlService } from './services/control/control.service';
     WorksiteService,
     LoggerService,
     ControlService,
+    NotificationsService,
+    NotificationsGateway,
   ],
 })
 export class AppModule {}
