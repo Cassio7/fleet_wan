@@ -50,15 +50,15 @@ export class AppService implements OnModuleInit {
 
   // popolo database all'avvio
   async onModuleInit() {
-    const startDate = '2025-02-24T00:00:00.000Z';
-    //const endDate = '2025-02-19T00:00:00.000Z';
+    const startDate = '2025-03-04T00:00:00.000Z';
+    //const endDate = '2025-03-05T00:00:00.000Z';
     const endDate = new Date(
       new Date().getTime() + 2 * 60 * 60 * 1000,
     ).toISOString();
     //await this.putDefaultData();
-    //await this.putDbData(startDate, endDate);
+    //await this.putDbDataMix(startDate, endDate); // da usare nuovo
     //await this.associationService.setVehiclesAssociateAllUsersRedis(),
-    //await this.putDbDataCron();
+    //await this.putDbDataCronOne();
     //await this.anomalyCheck(startDate, endDate);
     //await this.dailyAnomalyCheck();
     //await this.setAnomaly();
@@ -82,14 +82,17 @@ export class AppService implements OnModuleInit {
   }
 
   /**
-   * IL PRESCELTO
+   * VELOCE MA DUPLICATI PER I TAG
+   * Recupera tutti i dati dei veicoli, inserisce tutto in parallelo
+   * @param start
+   * @param end
    */
   async putDbData(start: string, end: string) {
     const startDate = start;
     const endDate = end;
 
     console.log('Data inizio: ' + startDate + ' Data fine: ' + endDate);
-    const batchSize = 30;
+    const batchSize = 50;
 
     await this.vehicleService.getVehicleList(254, 313); //Gesenu principale
     //await this.vehicleService.getVehicleList(254, 683); //Gesenu dismessi
@@ -100,10 +103,10 @@ export class AppService implements OnModuleInit {
     const dateTo_new = new Date(endDate);
     const daysInRange = getDaysInRange(dateFrom_new, dateTo_new); // Funzione che restituisce un array di giorni
 
-    const vehicles = await this.vehicleService.getAllVehicles();
-
     // da commentare dopo primo run
     //await this.worksiteFactoryService.createDefaultVehicleWorksite();
+
+    const vehicles = await this.vehicleService.getAllVehicles();
 
     // Creazione della mappa delle compagnie
     const companyMap = new Map();
@@ -155,8 +158,102 @@ export class AppService implements OnModuleInit {
     ]);
   }
 
+  /**
+   * PIU LENTA MA NO DUPLICATI PER I TAG
+   * Recupera tutti i dati dei veicoli, inserisce le sessioni in parallelo ma i tag giorno per giorno
+   * @param start inizio
+   * @param end fine
+   */
+  async putDbDataMix(start: string, end: string) {
+    const startDate = start;
+    const endDate = end;
+
+    console.log('Data inizio: ' + startDate + ' Data fine: ' + endDate);
+    const batchSize = 50;
+
+    // Carica tutti i veicoli dalle varie aziende
+    await this.vehicleService.getVehicleList(254, 313); //Gesenu principale
+    //await this.vehicleService.getVehicleList(254, 683); //Gesenu dismessi
+    await this.vehicleService.getVehicleList(305, 650); //TSA principale
+    await this.vehicleService.getVehicleList(324, 688); //Fiumicino principale
+
+    const dateFrom_new = new Date(startDate);
+    const dateTo_new = new Date(endDate);
+    const daysInRange = getDaysInRange(dateFrom_new, dateTo_new); // Funzione che restituisce un array di giorni
+
+    // da commentare dopo primo run
+    //await this.worksiteFactoryService.createDefaultVehicleWorksite();
+
+    const vehicles = await this.vehicleService.getAllVehicles();
+
+    // Creazione della mappa delle compagnie (ottimizzata)
+    const companyMap = new Map();
+    const companyPromises = vehicles.map(async (vehicle) => {
+      const company = await this.companyService.getCompanyByVeId(vehicle.veId);
+      if (company) {
+        companyMap.set(vehicle.veId, company);
+      }
+    });
+    await Promise.all(companyPromises);
+
+    // Elabora ogni veicolo uno alla volta
+    for (const vehicle of vehicles) {
+      console.log(
+        `${vehicle.veId} con targa: ${vehicle.plate} - ${vehicle.id}`,
+      );
+      const company = companyMap.get(vehicle.veId);
+      if (company) {
+        // 1. GESTIONE SESSIONI CON BATCH
+        for (let i = 0; i < daysInRange.length; i += batchSize) {
+          const batch = daysInRange.slice(i, i + batchSize);
+          const sessionRequests = batch.map((day) => {
+            const datefrom = day;
+            const dateto = new Date(datefrom);
+            dateto.setHours(23, 59, 59, 0);
+            console.log(dateto);
+
+            return this.sessionService.getSessionist(
+              company.suId,
+              vehicle.veId,
+              datefrom.toISOString(),
+              dateto.toISOString(),
+            );
+          });
+
+          // Esecuzione parallela di tutte le richieste nel batch corrente
+          await Promise.all(sessionRequests);
+        }
+        if (!vehicle.allestimento) continue;
+        // 2. GESTIONE TAG SEQUENZIALE
+        for (const day of daysInRange) {
+          const datefrom = day;
+          const dateto = new Date(datefrom);
+          dateto.setHours(23, 59, 59, 0);
+
+          // Elabora un giorno alla volta per evitare duplicati
+          await this.tagService.putTagHistory(
+            company.suId,
+            vehicle.veId,
+            datefrom.toISOString(),
+            dateto.toISOString(),
+          );
+        }
+      }
+    }
+
+    // Elaborazione finale
+    const vehicleIds = vehicles.map((v) => v.veId);
+    await Promise.all([
+      this.sessionService.getLastValidSessionByVeIds(vehicleIds),
+      this.sessionService.getLastHistoryByVeIds(vehicleIds),
+    ]);
+  }
+
+  /**
+   * Inserisce i veicoli uno dopo l'altro
+   */
   //@Cron('*/10 * * * *')
-  async putDbDataCron() {
+  async putDbDataCronOne() {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
     const startDate = now.toISOString();
@@ -180,34 +277,40 @@ export class AppService implements OnModuleInit {
       }
     }
 
-    const tasks = vehicles
-      .filter((vehicle) => companyMap.has(vehicle.veId))
-      .map(async (vehicle) => {
-        console.log(
-          `${vehicle.veId} con targa: ${vehicle.plate} - ${vehicle.id}`,
-        );
+    // Invece di elaborare tutti i veicoli in parallelo con Promise.all
+    for (const vehicle of vehicles.filter((vehicle) =>
+      companyMap.has(vehicle.veId),
+    )) {
+      console.log(
+        `${vehicle.veId} con targa: ${vehicle.plate} - ${vehicle.id}`,
+      );
 
-        const company = companyMap.get(vehicle.veId);
-        if (company) {
-          return Promise.all([
-            this.sessionService.getSessionist(
-              company.suId,
-              vehicle.veId,
-              startDate,
-              endDate,
-            ),
+      const company = companyMap.get(vehicle.veId);
+      if (company) {
+        // Per ogni veicolo, possiamo eseguire le operazioni di session e tag in parallelo
+        const promises = [
+          this.sessionService.getSessionist(
+            company.suId,
+            vehicle.veId,
+            startDate,
+            endDate,
+          ),
+        ];
+
+        if (vehicle.allestimento) {
+          promises.push(
             this.tagService.putTagHistory(
               company.suId,
               vehicle.veId,
               startDate,
               endDate,
             ),
-          ]);
+          );
         }
-      });
 
-    // Aspetta che tutte le operazioni siano completate
-    await Promise.all(tasks);
+        await Promise.all(promises);
+      }
+    }
 
     // inserire il calcolo dell ultima sessione valida
     const vehicleIds = vehicles.map((v) => v.veId);
@@ -358,19 +461,6 @@ export class AppService implements OnModuleInit {
 
     await this.anomalyService.setTodayAnomalyRedis(todayAnomalies);
     await this.anomalyService.setLastAnomalyRedis(lastAnomalies);
-
-    // logica set redis giorno prima al momento dismessa
-
-    // const dayBefore = new Date(
-    //   now.getFullYear(),
-    //   now.getMonth(),
-    //   now.getDate() - 1,
-    // );
-    // const yesterdayAnomalies = await this.anomalyService.getAnomalyByDate(
-    //   vehicleIds,
-    //   dayBefore,
-    // );
-    // await this.anomalyService.setDayBeforeAnomalyRedis(yesterdayAnomalies);
   }
 
   //@Cron('*/5 * * * *')
