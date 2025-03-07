@@ -139,14 +139,9 @@ export class AnomalyController {
     try {
       let lastUpdate;
       let anomalies: any[] = [];
-      let countSessionErrors;
       // Case 1: Se dateFrom === dateTo e il giorno è oggi usare todayAnomaly
       if (dateFrom.getTime() === dateTo.getTime()) {
         if (dateFrom.getTime() === today.getTime()) {
-          countSessionErrors = await this.anomalyService.countSessionErrors(
-            req.user.id,
-            dateFrom,
-          );
           const anomaliesData = await this.anomalyService.getTodayAnomalyRedis(
             req.user.id,
             dateFrom,
@@ -184,7 +179,6 @@ export class AnomalyController {
       return res.status(200).json({
         lastUpdate,
         vehicles: anomalies,
-        sessionCount: countSessionErrors,
       });
     } catch (error) {
       this.loggerService.logCrudError({
