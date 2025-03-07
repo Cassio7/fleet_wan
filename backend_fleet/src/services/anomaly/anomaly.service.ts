@@ -41,6 +41,14 @@ interface Stats {
   };
 }
 
+interface rankedAnomalies {
+  veId: number;
+  consecutive: {
+    gps: number;
+    antenna: number;
+    session: number;
+  };
+}
 @Injectable()
 export class AnomalyService {
   constructor(
@@ -182,7 +190,15 @@ export class AnomalyService {
    * @param userId user id
    * @returns
    */
-  async getLastAnomaly(userId: number): Promise<any> {
+  async getLastAnomaly(userId: number): Promise<
+    Array<{
+      vehicle: VehicleDTO & {
+        worksite: WorksiteDTO | null;
+        service: ServiceDTO | null;
+      };
+      anomalies: AnomalyDTO[];
+    }>
+  > {
     const vehicles =
       await this.associationService.getVehiclesAssociateUserRedis(userId);
     if (!vehicles || vehicles.length === 0)
@@ -253,9 +269,17 @@ export class AnomalyService {
         userId,
         yesterday,
       );
-      const countMap: Map<number, number> = new Map();
-      countSessionErrors.map((item) => {
-        countMap.set(item.veId, Number(item.consecutive));
+      // creo una mappa con il ritorno
+      const countMap: Map<
+        number,
+        { gps: number; antenna: number; session: number }
+      > = new Map();
+      countSessionErrors.forEach((item) => {
+        countMap.set(item.veId, {
+          gps: item.consecutive.gps,
+          antenna: item.consecutive.antenna,
+          session: item.consecutive.session,
+        });
       });
       return this.toDTO(filteredAnomalies, countMap);
     } catch (error) {
@@ -789,14 +813,15 @@ export class AnomalyService {
   }
 
   /**
-   * Conta gli errori di sessione
-   * @param veIdArray veId dei veicoli
+   * Conta gli errori consecutivi per il gps, antenna e sessione
+   * @param userId user data
+   * @param date data da dove far partire il controllo a ritroso
    * @returns
    */
   async countSessionErrors(
     userId: number,
     date: Date,
-  ): Promise<Array<{ veId: number; consecutive: string }>> {
+  ): Promise<rankedAnomalies[]> {
     const vehicles =
       await this.associationService.getVehiclesAssociateUserRedis(userId);
     if (!vehicles || vehicles.length === 0)
@@ -813,6 +838,8 @@ export class AnomalyService {
       RANKED_ANOMALIES AS (
         SELECT
           a.session,
+          a.antenna,
+          a.gps,
           v."veId",
           ROW_NUMBER() OVER (
             PARTITION BY v."veId" 
@@ -825,7 +852,7 @@ export class AnomalyService {
           v."veId" IN (${veIdArray.join(', ')})
           AND a.date <= '${formattedDate}'
       ),
-      FIRST_NULL AS (
+      FIRST_NULL_SESSION AS (
         SELECT
           "veId",
           MIN(rn) AS first_null_position
@@ -835,31 +862,72 @@ export class AnomalyService {
           session IS NULL
         GROUP BY
           "veId"
+      ),
+      FIRST_NULL_ANTENNA AS (
+        SELECT
+          "veId",
+          MIN(rn) AS first_null_position
+        FROM
+          RANKED_ANOMALIES
+        WHERE
+          antenna IS NULL
+        GROUP BY
+          "veId"
+      ),
+      FIRST_NULL_GPS AS (
+        SELECT
+          "veId",
+          MIN(rn) AS first_null_position
+        FROM
+          RANKED_ANOMALIES
+        WHERE
+          gps IS NULL
+        GROUP BY
+          "veId"
       )
     SELECT
       r."veId" as "veId",
-      COUNT(*) AS consecutive
+      COUNT(CASE WHEN (f_session.first_null_position IS NULL OR r.rn < f_session.first_null_position) AND r.session IS NOT NULL THEN 1 END) AS consecutive_session,
+      COUNT(CASE WHEN (f_antenna.first_null_position IS NULL OR r.rn < f_antenna.first_null_position) AND r.antenna IS NOT NULL THEN 1 END) AS consecutive_antenna,
+      COUNT(CASE WHEN (f_gps.first_null_position IS NULL OR r.rn < f_gps.first_null_position) AND r.gps IS NOT NULL THEN 1 END) AS consecutive_gps
     FROM
       RANKED_ANOMALIES r
-      LEFT JOIN FIRST_NULL f ON r."veId" = f."veId"
-    WHERE
-      (f.first_null_position IS NULL OR r.rn < f.first_null_position)
-      AND r.session IS NOT NULL
+      LEFT JOIN FIRST_NULL_SESSION f_session ON r."veId" = f_session."veId"
+      LEFT JOIN FIRST_NULL_ANTENNA f_antenna ON r."veId" = f_antenna."veId"
+      LEFT JOIN FIRST_NULL_GPS f_gps ON r."veId" = f_gps."veId"
     GROUP BY
       r."veId";
   `;
 
-    return this.anomalyRepository.query(query);
+    const datas = await this.anomalyRepository.query(query);
+    const ranked: rankedAnomalies[] = datas.map((item) => ({
+      veId: item.veId,
+      consecutive: {
+        gps: Number(item.consecutive_gps),
+        antenna: Number(item.consecutive_antenna),
+        session: Number(item.consecutive_session),
+      },
+    }));
+
+    return ranked;
   }
 
   /**
    * Funzione che formatta in modo corretto il ritorno json
    * @param anomalies lista delle anomalie
+   * @param countMap mappa della conta degli errori, soltanto per il last
    * @returns
    */
   private toDTO(
     anomalies: AnomalyEntity[],
-    countMap?: Map<number, number>,
+    countMap?: Map<
+      number,
+      {
+        gps: number;
+        antenna: number;
+        session: number;
+      }
+    >,
   ): Array<{
     vehicle: VehicleDTO & {
       worksite: WorksiteDTO | null;
@@ -914,11 +982,15 @@ export class AnomalyService {
           const anomalyDTO = new AnomalyDTO();
           anomalyDTO.date = anomaly.date;
           anomalyDTO.gps = anomaly.gps;
+          anomalyDTO.gps_count =
+            countMap?.get(anomaly.vehicle?.veId)?.gps ?? null;
           anomalyDTO.antenna = anomaly.antenna;
+          anomalyDTO.antenna_count =
+            countMap?.get(anomaly.vehicle?.veId)?.antenna ?? null;
           anomalyDTO.detection_quality = anomaly.detection_quality;
           anomalyDTO.session = anomaly.session;
           anomalyDTO.session_count =
-            countMap?.get(anomaly.vehicle?.veId) ?? null;
+            countMap?.get(anomaly.vehicle?.veId)?.session ?? null;
 
           // Aggiungi l'anomalia al gruppo del veicolo
           vehicleGroup.anomalies.push(anomalyDTO);

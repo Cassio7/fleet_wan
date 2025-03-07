@@ -19,4 +19,10 @@ export class AnomalyDTO extends CommonDTO {
   @IsOptional()
   @IsNumber()
   session_count: number | null;
+  @IsOptional()
+  @IsNumber()
+  gps_count: number | null;
+  @IsOptional()
+  @IsNumber()
+  antenna_count: number | null;
 }
