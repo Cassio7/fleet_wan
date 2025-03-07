@@ -74,6 +74,7 @@ import { ControlService } from './services/control/control.service';
 import { NotificationsService } from './notifications/notifications.service';
 import { NotificationsGateway } from './notifications/notifications.gateway';
 import { NotificationEntity } from 'classes/entities/notification.entity';
+import { NotificationsController } from './notifications/notifications.controller';
 
 @Global()
 @Module({
@@ -244,6 +245,7 @@ import { NotificationEntity } from 'classes/entities/notification.entity';
     NotesController,
     AnomalyController,
     AssociationController,
+    NotificationsController,
   ],
   providers: [
     AppService,
