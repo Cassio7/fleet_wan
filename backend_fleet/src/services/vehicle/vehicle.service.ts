@@ -53,7 +53,11 @@ export class VehicleService {
    * @param vgId Identificativo gruppo
    * @returns
    */
-  async getVehicleList(suId: number, vgId: number): Promise<any> {
+  async getVehicleList(
+    suId: number,
+    vgId: number,
+    first: boolean,
+  ): Promise<any> {
     const methodName = 'VehiclesListExtended';
     const requestXml = this.buildSoapRequest(methodName, suId, vgId);
     const headers = {
@@ -107,7 +111,7 @@ export class VehicleService {
         await queryRunner.release();
         return false; // se item.list non esiste, salto elemento
       }
-      const newVehicles = await this.putAllVehicle(lists);
+      const newVehicles = await this.putAllVehicle(lists, first);
 
       await queryRunner.commitTransaction();
       await queryRunner.release();
@@ -124,7 +128,7 @@ export class VehicleService {
    * @param lists lista dei veicoli
    * @returns
    */
-  private async putAllVehicle(lists: any[]): Promise<any> {
+  private async putAllVehicle(lists: any[], first: boolean): Promise<any> {
     const queryRunner = this.connection.createQueryRunner();
     const hashVehicle = (vehicle: any): string => {
       const toHash = {
@@ -219,6 +223,11 @@ export class VehicleService {
               hash: vehicle.hash,
             });
           newVehicles.push(newVehicle);
+          if (!first) {
+            const message = `Nuovo veicolo da censire, targa: ${newVehicle.plate} e veId: ${newVehicle.veId}`;
+            await this.notificationsService.createNotification(1, message);
+            this.notificationsService.sendNotification(message);
+          }
         } else if (existingVehicle.hash !== vehicle.hash) {
           // Aggiorniamo il veicolo solo se l'hash è cambiato
           updatedVehicles.push({
