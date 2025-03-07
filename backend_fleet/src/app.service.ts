@@ -94,10 +94,10 @@ export class AppService implements OnModuleInit {
     console.log('Data inizio: ' + startDate + ' Data fine: ' + endDate);
     const batchSize = 50;
 
-    await this.vehicleService.getVehicleList(254, 313); //Gesenu principale
+    await this.vehicleService.getVehicleList(254, 313, true); //Gesenu principale
     //await this.vehicleService.getVehicleList(254, 683); //Gesenu dismessi
-    await this.vehicleService.getVehicleList(305, 650); //TSA principale
-    await this.vehicleService.getVehicleList(324, 688); //Fiumicino principale
+    await this.vehicleService.getVehicleList(305, 650, true); //TSA principale
+    await this.vehicleService.getVehicleList(324, 688, true); //Fiumicino principale
 
     const dateFrom_new = new Date(startDate);
     const dateTo_new = new Date(endDate);
@@ -172,10 +172,10 @@ export class AppService implements OnModuleInit {
     const batchSize = 50;
 
     // Carica tutti i veicoli dalle varie aziende
-    await this.vehicleService.getVehicleList(254, 313); //Gesenu principale
+    await this.vehicleService.getVehicleList(254, 313, true); //Gesenu principale
     //await this.vehicleService.getVehicleList(254, 683); //Gesenu dismessi
-    await this.vehicleService.getVehicleList(305, 650); //TSA principale
-    await this.vehicleService.getVehicleList(324, 688); //Fiumicino principale
+    await this.vehicleService.getVehicleList(305, 650, true); //TSA principale
+    await this.vehicleService.getVehicleList(324, 688, true); //Fiumicino principale
 
     const dateFrom_new = new Date(startDate);
     const dateTo_new = new Date(endDate);
@@ -262,9 +262,9 @@ export class AppService implements OnModuleInit {
       new Date().getTime() + 2 * 60 * 60 * 1000,
     ).toISOString();
     console.log('Data inizio: ' + startDate + ' Data fine: ' + endDate);
-    await this.vehicleService.getVehicleList(254, 313); //Gesenu principale
-    await this.vehicleService.getVehicleList(305, 650); //TSA principale
-    await this.vehicleService.getVehicleList(324, 688); //Fiumicino principale
+    await this.vehicleService.getVehicleList(254, 313, false); //Gesenu principale
+    await this.vehicleService.getVehicleList(305, 650, false); //TSA principale
+    await this.vehicleService.getVehicleList(324, 688, false); //Fiumicino principale
 
     const vehicles = await this.vehicleService.getAllVehicles();
 
