@@ -73,6 +73,7 @@ import { WorkzoneFacotoryService } from './factory/workzone.factory';
 import { ControlService } from './services/control/control.service';
 import { NotificationsService } from './notifications/notifications.service';
 import { NotificationsGateway } from './notifications/notifications.gateway';
+import { NotificationEntity } from 'classes/entities/notification.entity';
 
 @Global()
 @Module({
@@ -114,6 +115,7 @@ import { NotificationsGateway } from './notifications/notifications.gateway';
           WorkzoneEntity,
           RentalEntity,
           EquipmentEntity,
+          NotificationEntity,
         ],
         synchronize: true,
         //dropSchema: true, // if true drop db
@@ -142,6 +144,7 @@ import { NotificationsGateway } from './notifications/notifications.gateway';
         WorkzoneEntity,
         RentalEntity,
         EquipmentEntity,
+        NotificationEntity,
       ],
       'mainConnection',
     ),
@@ -178,6 +181,7 @@ import { NotificationsGateway } from './notifications/notifications.gateway';
           WorkzoneEntity,
           RentalEntity,
           EquipmentEntity,
+          NotificationEntity,
         ],
         synchronize: false,
       }),
@@ -205,6 +209,7 @@ import { NotificationsGateway } from './notifications/notifications.gateway';
         WorkzoneEntity,
         RentalEntity,
         EquipmentEntity,
+        NotificationEntity,
       ],
       'readOnlyConnection',
     ),

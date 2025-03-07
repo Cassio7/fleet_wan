@@ -12,6 +12,7 @@ import {
 import { AssociationEntity } from './association.entity';
 import { NoteEntity } from './note.entity';
 import { RoleEntity } from './role.entity';
+import { NotificationEntity } from './notification.entity';
 
 @Entity({
   name: 'users',
@@ -49,4 +50,7 @@ export class UserEntity extends CommonEntity implements UserInterface {
   @ManyToOne(() => RoleEntity, (role) => role.user)
   @JoinColumn()
   role: RoleEntity;
+
+  @OneToMany(() => NotificationEntity, (notification) => notification.user)
+  notification: NotificationEntity;
 }
