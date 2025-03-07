@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import axios from 'axios';
 import { CompanyDTO } from 'classes/dtos/company.dto';
@@ -16,6 +16,7 @@ import { DataSource, In, Repository } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
 import { AssociationService } from '../association/association.service';
 import { WorksiteDTO } from './../../../classes/dtos/worksite.dto';
+import { NotificationsService } from 'src/notifications/notifications.service';
 
 @Injectable()
 export class VehicleService {
@@ -27,7 +28,9 @@ export class VehicleService {
     @InjectDataSource('mainConnection')
     private readonly connection: DataSource,
     private readonly associationService: AssociationService,
+    private readonly notificationsService: NotificationsService,
   ) {}
+
   // Prepara la richiesta SOAP
   private buildSoapRequest(methodName, suId, vgId) {
     return `<?xml version="1.0" encoding="UTF-8"?>
@@ -424,6 +427,9 @@ export class VehicleService {
         plate: 'ASC',
       },
     });
+    this.notificationsService.sendNotification(
+      'veicoli recuperati amminiastratore',
+    );
     return vehicles ? vehicles.map((vehicle) => this.toDTO(vehicle)) : null;
   }
   /**
