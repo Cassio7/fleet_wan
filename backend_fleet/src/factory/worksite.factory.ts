@@ -51,6 +51,7 @@ export class WorksiteFactoryService {
           },
         });
         if (!vehicle) {
+          console.log(`Veicolo con veId: ${data.veId} non trovato`);
           return;
         }
         vehicle.worksite = await this.worksiteRepository.findOne({
@@ -96,7 +97,7 @@ export class WorksiteFactoryService {
         vehicle.worksite_priority = data.worksite_priority;
         vehicle.electrical = data.electrical;
         vehicle.fleet_number = data.fleet_number;
-        vehicle.fleet_install = data.fleet_install;
+        vehicle.fleet_install = new Date(data.fleet_install);
         if (data.fleet_antenna_number) {
           vehicle.fleet_antenna_number = data.fleet_antenna_number;
         }

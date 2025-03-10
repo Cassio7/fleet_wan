@@ -44,8 +44,8 @@ export class VehicleDTO extends CommonDTO {
   @IsString()
   fleet_number: string | null;
   @IsOptional()
-  @IsString()
-  fleet_install: string | null;
+  @IsDate()
+  fleet_install: Date | null;
   @IsOptional()
   @IsBoolean()
   electrical: boolean | null;

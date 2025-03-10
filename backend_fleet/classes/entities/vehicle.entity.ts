@@ -45,7 +45,7 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
 
   @Column({ type: 'varchar', length: 50, nullable: true })
   model_csv: string;
-  
+
   @Column({ type: 'varchar', length: 20, nullable: true })
   registration: string;
 
@@ -67,8 +67,8 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
   @Column({ type: 'varchar', length: 50, nullable: true })
   fleet_number: string;
 
-  @Column({ type: 'varchar', length: 50, nullable: true })
-  fleet_install: string;
+  @Column({ type: 'timestamptz', nullable: true })
+  fleet_install: Date;
 
   @Column({ type: 'boolean', nullable: true })
   electrical: boolean;

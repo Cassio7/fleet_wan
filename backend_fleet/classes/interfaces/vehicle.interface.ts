@@ -18,7 +18,7 @@ export interface VehicleInterface extends CommonInterface {
   lastSessionEvent: Date | null;
   isCan: boolean;
   fleet_number: string | null;
-  fleet_install: string | null;
+  fleet_install: Date | null;
   electrical: boolean | null;
   isRFIDReader: boolean;
   allestimento: boolean | null;
