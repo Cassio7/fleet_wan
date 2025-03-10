@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Post,
+  Query,
   Req,
   Res,
   UseGuards,
@@ -16,7 +17,7 @@ import { RolesGuard } from 'src/guard/roles.guard';
 import { LogContext } from 'src/log/logger.types';
 import { LoggerService } from 'src/log/service/logger.service';
 import { SessionService } from 'src/services/session/session.service';
-import { sameDay, validateDateRange } from 'src/utils/utils';
+import { sameDate, validateDateRange } from 'src/utils/utils';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Controller('sessions')
@@ -102,6 +103,7 @@ export class SessionController {
   async getAllSessionByVeIdRanged(
     @Res() res: Response,
     @Body() body: { veId: number; dateFrom: string; dateTo: string },
+    @Query('filter') filter: string,
     @Req() req: Request & { user: UserFromToken },
   ) {
     const context: LogContext = {
@@ -111,6 +113,7 @@ export class SessionController {
       resourceId: body.veId,
     };
     const veId = Number(body.veId); // Garantisce che veId sia un numero
+    const isFilter = filter === 'true'; // prendo il boolean del filter
 
     if (isNaN(veId)) {
       this.loggerService.logCrudError({
@@ -137,7 +140,7 @@ export class SessionController {
     }
     const dateFrom_new = new Date(dateFrom);
     const dateTo_new = new Date(dateTo);
-    const equal = sameDay(dateFrom_new, dateTo_new);
+    const equal = sameDate(dateFrom_new, dateTo_new);
     if (equal) {
       dateTo_new.setHours(23, 59, 59, 0);
     }
@@ -147,6 +150,7 @@ export class SessionController {
         veId,
         dateFrom_new,
         dateTo_new,
+        isFilter,
       );
 
       if (!data?.length) {

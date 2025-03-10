@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import axios from 'axios';
 import { CompanyDTO } from 'classes/dtos/company.dto';
@@ -16,6 +16,7 @@ import { DataSource, In, Repository } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
 import { AssociationService } from '../association/association.service';
 import { WorksiteDTO } from './../../../classes/dtos/worksite.dto';
+import { NotificationsService } from 'src/notifications/notifications.service';
 
 @Injectable()
 export class VehicleService {
@@ -27,7 +28,9 @@ export class VehicleService {
     @InjectDataSource('mainConnection')
     private readonly connection: DataSource,
     private readonly associationService: AssociationService,
+    private readonly notificationsService: NotificationsService,
   ) {}
+
   // Prepara la richiesta SOAP
   private buildSoapRequest(methodName, suId, vgId) {
     return `<?xml version="1.0" encoding="UTF-8"?>
@@ -50,7 +53,11 @@ export class VehicleService {
    * @param vgId Identificativo gruppo
    * @returns
    */
-  async getVehicleList(suId: number, vgId: number): Promise<any> {
+  async getVehicleList(
+    suId: number,
+    vgId: number,
+    first: boolean,
+  ): Promise<any> {
     const methodName = 'VehiclesListExtended';
     const requestXml = this.buildSoapRequest(methodName, suId, vgId);
     const headers = {
@@ -104,7 +111,7 @@ export class VehicleService {
         await queryRunner.release();
         return false; // se item.list non esiste, salto elemento
       }
-      const newVehicles = await this.putAllVehicle(lists);
+      const newVehicles = await this.putAllVehicle(lists, first);
 
       await queryRunner.commitTransaction();
       await queryRunner.release();
@@ -121,7 +128,7 @@ export class VehicleService {
    * @param lists lista dei veicoli
    * @returns
    */
-  private async putAllVehicle(lists: any[]): Promise<any> {
+  private async putAllVehicle(lists: any[], first: boolean): Promise<any> {
     const queryRunner = this.connection.createQueryRunner();
     const hashVehicle = (vehicle: any): string => {
       const toHash = {
@@ -216,6 +223,11 @@ export class VehicleService {
               hash: vehicle.hash,
             });
           newVehicles.push(newVehicle);
+          if (!first) {
+            const message = `Nuovo veicolo da censire, targa: ${newVehicle.plate} e veId: ${newVehicle.veId}`;
+            await this.notificationsService.createNotification(1, message);
+            this.notificationsService.sendNotification(message);
+          }
         } else if (existingVehicle.hash !== vehicle.hash) {
           // Aggiorniamo il veicolo solo se l'hash è cambiato
           updatedVehicles.push({
@@ -424,6 +436,9 @@ export class VehicleService {
         plate: 'ASC',
       },
     });
+    this.notificationsService.sendNotification(
+      'veicoli recuperati amminiastratore',
+    );
     return vehicles ? vehicles.map((vehicle) => this.toDTO(vehicle)) : null;
   }
   /**

@@ -1,3 +1,4 @@
+import { NotificationsService } from 'src/notifications/notifications.service';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { NoteDto } from 'classes/dtos/note.dto';
@@ -17,6 +18,7 @@ export class NotesService {
     private readonly connection: DataSource,
     private readonly associationService: AssociationService,
     private readonly userService: UserService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   /**
@@ -205,6 +207,9 @@ export class NotesService {
       });
       await queryRunner.manager.getRepository(NoteEntity).save(newNote);
       await queryRunner.commitTransaction();
+      const message = `Nota creata dall utente: ${user.username} al veicolo con targa: ${vehicle.plate}, con il seguente contenuto: ${content}`;
+      await this.notificationsService.createNotification(1, message);
+      this.notificationsService.sendNotification(message);
       return this.toDTO(newNote);
     } catch (error) {
       await queryRunner.rollbackTransaction();

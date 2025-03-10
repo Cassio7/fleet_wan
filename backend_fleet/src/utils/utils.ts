@@ -98,13 +98,27 @@ export function validateDateRange(
 }
 
 /**
+ * Controlla se è stata inserita la stessa data
+ * @param dateFrom data inizio
+ * @param dateTo data fine
+ * @returns true o false
+ */
+export function sameDate(dateFrom: Date, dateTo: Date): boolean {
+  return dateFrom.getTime() === dateTo.getTime();
+}
+
+/**
  * Controlla se è stato inserito lo stesso giorno
  * @param dateFrom data inizio
  * @param dateTo data fine
  * @returns true o false
  */
 export function sameDay(dateFrom: Date, dateTo: Date): boolean {
-  return dateFrom.getTime() === dateTo.getTime();
+  return (
+    dateFrom.getFullYear() === dateTo.getFullYear() &&
+    dateFrom.getMonth() === dateTo.getMonth() &&
+    dateFrom.getDate() === dateTo.getDate()
+  );
 }
 
 /**

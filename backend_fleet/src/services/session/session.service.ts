@@ -1,3 +1,4 @@
+import { sameDay } from 'src/utils/utils';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
@@ -18,13 +19,15 @@ import {
 } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
 import { AssociationService } from '../association/association.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class SessionService {
   private serviceUrl = 'https://ws.fleetcontrol.it/FWANWs3/services/FWANSOAP';
   // imposta il tempo di recupero dei history, ogni quanti secondi = 3 min
-  private TIME_HISTORY = 180000;
+
   constructor(
+    private configService: ConfigService,
     @InjectRepository(SessionEntity, 'readOnlyConnection')
     private readonly sessionRepository: Repository<SessionEntity>,
     @InjectRepository(HistoryEntity, 'readOnlyConnection')
@@ -34,6 +37,9 @@ export class SessionService {
     @InjectRedis() private readonly redis: Redis,
     private readonly associationService: AssociationService,
   ) {}
+
+  private SPAN_POSIZIONI = this.configService.get<number>('SPAN_POSIZIONI');
+
   // Costruisce la richiesta SOAP
   private buildSoapRequest(
     methodName: string,
@@ -206,6 +212,7 @@ export class SessionService {
             sequence_id: true,
             hash: true,
             key: true,
+            period_from: true,
           },
           where: {
             sequence_id: In(sessionSequenceId),
@@ -214,7 +221,7 @@ export class SessionService {
         });
 
       // Crea una mappa che associa ciascun sequence_id a un array di sessioni
-      const sessionQueryMap = new Map();
+      const sessionQueryMap = new Map<number, SessionEntity[]>();
       for (const query of sessionQueries) {
         const seqId = Number(query.sequence_id);
         if (!sessionQueryMap.has(seqId)) {
@@ -249,7 +256,15 @@ export class SessionService {
           let hashFound = false;
 
           for (const exists of existingSessions) {
-            if (exists.hash === session.hash) {
+            // se ci sono piu sessioni aperte nello stesso giorno le elimino per averne soltanto 1
+            if (
+              sameDay(exists.period_from, new Date(session.period_from)) &&
+              exists.hash !== session.hash
+            ) {
+              await queryRunner.manager
+                .getRepository(SessionEntity)
+                .delete({ key: exists.key });
+            } else if (exists.hash === session.hash) {
               // Se troviamo una sessione con lo stesso hash, la aggiorniamo
               updatedSession.push({
                 key: exists.key,
@@ -402,7 +417,7 @@ export class SessionService {
               if (
                 !lastSavedTimestamp ||
                 Math.abs(currentMillis - lastSavedTimestamp) >=
-                  this.TIME_HISTORY ||
+                  this.SPAN_POSIZIONI ||
                 currentMillis === lastSavedTimestamp
               ) {
                 lastSavedTimestamp = currentMillis;
@@ -648,6 +663,7 @@ export class SessionService {
     veId: number,
     dateFrom: Date,
     dateTo: Date,
+    isFilter: boolean,
   ): Promise<SessionDTO[]> {
     const vehicles =
       await this.associationService.getVehiclesAssociateUserRedis(userId);
@@ -681,7 +697,28 @@ export class SessionService {
           },
         },
       });
-      return sessions.map((session) => this.toDTOSession(session));
+      if (isFilter) {
+        const today = new Date();
+        if (sameDay(dateFrom, today)) {
+          return sessions.length > 1
+            ? [
+                ...sessions
+                  .slice(0, -1)
+                  .filter((session) => session.sequence_id !== 0)
+                  .map((session) => this.toDTOSession(session)),
+                this.toDTOSession(sessions[sessions.length - 1]),
+              ]
+            : sessions.map((session) => this.toDTOSession(session)); // Se c'è una sola sessione, mappala direttamente
+        } else {
+          return sessions.length > 1
+            ? sessions
+                .filter((session) => session.sequence_id !== 0)
+                .map((session) => this.toDTOSession(session))
+            : sessions.map((session) => this.toDTOSession(session));
+        }
+      } else {
+        return sessions.map((session) => this.toDTOSession(session));
+      }
     } catch (error) {
       if (error instanceof HttpException) throw error;
       throw new HttpException(

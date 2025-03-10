@@ -33,7 +33,9 @@ export class SessionEntity extends CommonEntity implements SessionInterface {
   @Column()
   engine_stop: number;
 
-  @OneToMany(() => HistoryEntity, (history) => history.session)
+  @OneToMany(() => HistoryEntity, (history) => history.session, {
+    cascade: true,
+  })
   history: HistoryEntity[];
 
   @Column({ type: 'varchar', length: 100 })

@@ -71,6 +71,10 @@ import { WorksiteFactoryService } from './factory/worksite.factory';
 import { WorksiteGroupFactoryService } from './factory/worksite_group.factory';
 import { WorkzoneFacotoryService } from './factory/workzone.factory';
 import { ControlService } from './services/control/control.service';
+import { NotificationsService } from './notifications/notifications.service';
+import { NotificationsGateway } from './notifications/notifications.gateway';
+import { NotificationEntity } from 'classes/entities/notification.entity';
+import { NotificationsController } from './notifications/notifications.controller';
 
 @Global()
 @Module({
@@ -112,6 +116,7 @@ import { ControlService } from './services/control/control.service';
           WorkzoneEntity,
           RentalEntity,
           EquipmentEntity,
+          NotificationEntity,
         ],
         synchronize: true,
         //dropSchema: true, // if true drop db
@@ -140,6 +145,7 @@ import { ControlService } from './services/control/control.service';
         WorkzoneEntity,
         RentalEntity,
         EquipmentEntity,
+        NotificationEntity,
       ],
       'mainConnection',
     ),
@@ -176,6 +182,7 @@ import { ControlService } from './services/control/control.service';
           WorkzoneEntity,
           RentalEntity,
           EquipmentEntity,
+          NotificationEntity,
         ],
         synchronize: false,
       }),
@@ -203,6 +210,7 @@ import { ControlService } from './services/control/control.service';
         WorkzoneEntity,
         RentalEntity,
         EquipmentEntity,
+        NotificationEntity,
       ],
       'readOnlyConnection',
     ),
@@ -237,6 +245,7 @@ import { ControlService } from './services/control/control.service';
     NotesController,
     AnomalyController,
     AssociationController,
+    NotificationsController,
   ],
   providers: [
     AppService,
@@ -265,6 +274,8 @@ import { ControlService } from './services/control/control.service';
     WorksiteService,
     LoggerService,
     ControlService,
+    NotificationsService,
+    NotificationsGateway,
   ],
 })
 export class AppModule {}
