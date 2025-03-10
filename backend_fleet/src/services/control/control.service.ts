@@ -3,23 +3,28 @@ import { getDaysInRange, validateDateRange } from 'src/utils/utils';
 import { SessionService } from '../session/session.service';
 import { TagService } from '../tag/tag.service';
 import { VehicleService } from '../vehicle/vehicle.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ControlService {
-  // 5 posizioni dove 3 minuti a posizione * 5 = 15 minuti di viaggio
-  private MIN_POSITIONS_GPS = 5;
-  // percentuale sopra al 20%
-  private PERCENTUALE_GPS = 0.2;
-  // minimo 1 posizione per convalidare una sessione
-  private MIN_POSITIONS_ANTENNA = 1;
-  // un giorno
-  private TIME_DELAY_OPEN = 3 * 60 * 1000;
-
   constructor(
     private readonly vehicleService: VehicleService,
     private readonly sessionService: SessionService,
     private readonly tagService: TagService,
+    private configService: ConfigService,
   ) {}
+
+  // in base al numero calcolo n min_position * 30 secondi = min tempo che deve aver percorso per essere valida una giornata
+  private MIN_POSITIONS_GPS =
+    this.configService.get<number>('MIN_POSITIONS_GPS');
+  // percentuale sopra al 20%
+  private PERCENTUALE_GPS = 0.2;
+  // minimo 1 posizione per convalidare una sessione
+  private MIN_POSITIONS_ANTENNA = this.configService.get<number>(
+    'MIN_POSITIONS_ANTENNA',
+  );
+  // un giorno
+  private TIME_DELAY_OPEN = 3 * 60 * 1000;
 
   /**
    * Controllo tutte le sessioni di tutti i veicoli, per marcare quelle con dei malfunzionamenti al GPS

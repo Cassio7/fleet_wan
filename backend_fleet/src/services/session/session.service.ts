@@ -19,13 +19,15 @@ import {
 } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
 import { AssociationService } from '../association/association.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class SessionService {
   private serviceUrl = 'https://ws.fleetcontrol.it/FWANWs3/services/FWANSOAP';
   // imposta il tempo di recupero dei history, ogni quanti secondi = 3 min
-  private TIME_HISTORY = 180000;
+
   constructor(
+    private configService: ConfigService,
     @InjectRepository(SessionEntity, 'readOnlyConnection')
     private readonly sessionRepository: Repository<SessionEntity>,
     @InjectRepository(HistoryEntity, 'readOnlyConnection')
@@ -35,6 +37,9 @@ export class SessionService {
     @InjectRedis() private readonly redis: Redis,
     private readonly associationService: AssociationService,
   ) {}
+
+  private SPAN_POSIZIONI = this.configService.get<number>('SPAN_POSIZIONI');
+
   // Costruisce la richiesta SOAP
   private buildSoapRequest(
     methodName: string,
@@ -412,7 +417,7 @@ export class SessionService {
               if (
                 !lastSavedTimestamp ||
                 Math.abs(currentMillis - lastSavedTimestamp) >=
-                  this.TIME_HISTORY ||
+                  this.SPAN_POSIZIONI ||
                 currentMillis === lastSavedTimestamp
               ) {
                 lastSavedTimestamp = currentMillis;
