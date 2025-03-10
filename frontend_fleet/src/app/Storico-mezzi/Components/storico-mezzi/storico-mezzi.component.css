@@ -1,153 +1,136 @@
-/* Stili comuni */
-.content {
-  width: 100%;
-  height: 100vh;
-  display: flex;
-  flex-direction: row;
+.content{
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
 }
 
+/*common section style*/
 .section {
-  height: 100%;
+  background-color: var(--navbarANDstats-background);
+  height: 100vh;
   padding: 20px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 2vh;
+  gap: 20px;
+
+  .section-header{
+    .title{
+      font-weight: bold;
+    }
+  }
 }
 
-
-
-.title-side {
-  font-weight: 500;
-  font-size: 20px;
-  padding-bottom: 5px;
+/*section grid styles*/
+.mezzi-section{
+  grid-column: span 1;
 }
-.title-main {
-  font-weight: bold;
-  font-size: 24px;
-  padding-bottom: 5px;
-}
-
-.subtitle {
-  font-weight: 300;
-  font-size: 14px;
-}
-
-/* Stili specifici */
-.map-section .section-header{
-  width: 100%;
-  flex-direction: row;
-  justify-content: space-between;
-}
-.visualizedVehicle-container {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  align-items: flex-end;
-}
-
-.visualized-vehicle {
-  margin-bottom: 0;
-  padding-bottom: 0;
-}
-
-
-.mezzi-section, .map-section{
-  background-color: var(--navbarANDstats-background);
-}
-
-.mezzi-section {
-  flex: .5;
-}
-
-.map-section {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  height: 100%;
-}
-
-.table-section {
+.table-section{
+  grid-column: span 2;
   background-color: var(--background-color);
-  flex:1;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
+}
+.map-section{
+  grid-column: span 2;
 }
 
-.table-section .table-content {
-  width: 100%;
-  max-height: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 2vh;
+/* table section */
+.table-section{
+  .table {
+    overflow-x: hidden;
+
+    .table-row{
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      justify-content: space-between;
+      margin: 0;
+      padding: 0;
+    }
+    .table-row{
+      .info {
+        min-height: 50px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: .5vw;
+        padding: 10px;
+        background-color: white;
+      }
+      .info{
+        .info-item{
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          font-size: 14px;
+          margin: 0;
+
+          .small-title{
+            color: var(--green);
+          }
+        }
+      }
+    }
+  }
 }
 
-.filters-container{
-  margin: 0;
+/*mezzi section*/
+.mezzi-section {
+  .mezziFilters-container{
+    width: 100%;
+  }
+  .mezzi-content{
+    max-height: 70vh;
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+  }
 }
 
-.map-content {
-  width: 100%;
-  height: 80%;
+/*map section*/
+.map-section{
+
+  .map-content {
+    width: 100%;
+    height: 70%;
+  }
+
 }
 
-.map-error{
-  width: 100%;
-}
-
-.no-mapError{
+.no-mapError {
   visibility: hidden;
 }
 
-.mezzi-content {
-  width: 100%;
-  overflow: hidden;
-}
+@media (max-width: 1366px) {
+  .content {
+    grid-template-columns: repeat(5, 1fr);
+  }
 
-.table-content .table-row {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  justify-content: space-between;
-  margin: 0;
-  padding: 0;
-}
+  .mezzi-section{
+    grid-column: span 1;
+  }
+  .table-section{
+    grid-column: span 2;
+    background-color: var(--background-color);
 
-.sessionTable-container {
-  max-height: 70vh;
-}
+    .table-row{
+      flex-direction: column;
+      gap: 1vh;
+    }
 
+    .info{
+      width: 100%;
+    }
+  }
+  .map-section{
+    grid-column: span 2;
+  }
 
-.info {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 2vw;
-}
-
-.info{
-  padding: 10px;
-  background-color: white;
-}
-.info > div {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-}
-
-.title {
-  font-weight: bold;
-}
-
-.small-title{
-  color: var(--green);
+  .mezziFilters-container {
+    width: 100%;
+    overflow: hidden;
+  }
 }
 .path-switch {
   position: absolute;
@@ -155,7 +138,6 @@
   left: 50px;
   top: 20px;
 }
-
 /* Stile dello switch */
 ::ng-deep .mat-mdc-slide-toggle.mat-mdc-slide-toggle-checked:not(.mat-disabled) .mdc-switch__shadow {
   background-color: white !important;

@@ -5,6 +5,7 @@ tr{
 tr.selected-row {
   box-shadow: 0 0 0 2px green !important;
 }
+
 tr.selected-row td{
   border-bottom: 2px solid green !important;
 }
@@ -22,9 +23,8 @@ tr.selected-row td{
 
 .table {
   width: 100%;
-  max-height: 70vh;
-  overflow-y: auto;
-  display: block;
+  overflow-x: hidden;
+  table-layout: fixed;
 }
 
 .map-icon {
@@ -35,3 +35,4 @@ tr.selected-row td{
 th.map-column {
   text-align: center;
 }
+
