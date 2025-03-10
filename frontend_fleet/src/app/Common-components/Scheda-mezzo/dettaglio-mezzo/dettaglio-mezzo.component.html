@@ -121,7 +121,7 @@
                 <mat-divider></mat-divider>
                 <mat-list-item
                   ><span class="list-label">Data costruzione</span>
-                  <p>{{ vehicle.device.date_build }}</p></mat-list-item
+                  <p>{{ vehicle.device.date_build | date: "dd/MM/yyyy" }}</p></mat-list-item
                 >
               </mat-list>
               <mat-divider></mat-divider>

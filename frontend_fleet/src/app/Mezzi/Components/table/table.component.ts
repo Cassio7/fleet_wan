@@ -29,6 +29,7 @@ import { Router } from '@angular/router';
 import { NoteSectionComponent } from "../../../Common-components/note-section/note-section.component";
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Filters, FiltersCommonService } from '../../../Common-services/filters-common/filters-common.service';
+import { MatSort, MatSortModule } from '@angular/material/sort';
 
 @Component({
   selector: 'app-table',
@@ -46,6 +47,7 @@ import { Filters, FiltersCommonService } from '../../../Common-services/filters-
     MatCheckboxModule,
     MatTableModule,
     MatTooltipModule,
+    MatSortModule,
     NoteSectionComponent
 ],
   templateUrl: './table.component.html',
@@ -59,6 +61,7 @@ import { Filters, FiltersCommonService } from '../../../Common-services/filters-
   ],
 })
 export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestroy{
+  @ViewChild(MatSort) sort!: MatSort;
   @ViewChild('vehicleTable') vehicleTable!: MatTable<Session[]>;
   private readonly destroy$: Subject<void> = new Subject<void>();
   readonly panelOpenState = signal(false);
@@ -249,6 +252,41 @@ export class TableComponent implements AfterViewInit, AfterViewChecked, OnDestro
     this.selectService.updateVehiclesSelectionByAllestimento(this.sortedVehicles, option, $event.target.checked);
     this.vehicleTableData.data = this.sortService.sortVehiclesByPlateAsc(this.selectService.selectedVehicles) as Vehicle[]; //aggiornamento tabella con veicoli selezionati, ordinati per targa
     this.onSelection($event);
+  }
+
+  sortVehiclesByMatSort(vehicles: Vehicle[]): Vehicle[] {
+    const column = this.sort.active;
+    const sortDirection = this.sort.direction;
+    console.log('column: ', column);
+    console.log('sort direction: ', sortDirection);
+    const isAsc = sortDirection === "asc";
+    console.log('isAsc: ', isAsc);
+
+    const sortedVehicles = vehicles.sort((a: Vehicle, b: Vehicle) => {
+      switch(column) {
+        case "Proprietario":
+          const proprietarioA = a.rental?.name || a?.company?.name || '';
+          const proprietarioB = b.rental?.name || b.company?.name || '';
+          return this.sortService.compare(proprietarioA, proprietarioB, isAsc);
+        case "Targa":
+          return this.sortService.compare(a.plate || '', b.plate || '', isAsc);
+        case "Immatricolazione":
+          return this.sortService.compare(a.registration || '', b.registration || '', isAsc);
+        case "Marca":
+          return this.sortService.compare(a.model || '', b.model || '', isAsc);
+        case "Tipologia":
+          return this.sortService.compare(a.equipment?.name || '', b.equipment?.name || '', isAsc);
+        case "Cantiere":
+          return this.sortService.compare(a.worksite?.name || '', b.worksite?.name || '', isAsc);
+        case "Installazione fleet":
+          return this.sortService.compare(new Date(a?.fleet_install || ""), new Date(b?.fleet_install || ""), isAsc);
+        default:
+          return 0;
+      }
+    });
+
+    console.log('sortedVehicles: ', sortedVehicles);
+    return sortedVehicles;
   }
 
   /**

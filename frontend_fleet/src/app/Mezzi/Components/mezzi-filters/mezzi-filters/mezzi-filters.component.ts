@@ -84,7 +84,6 @@ export class MezziFiltersComponent implements AfterViewInit, OnDestroy{
   selectAll(){
     const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
     const cantieriToggle = this.cantieriFilterService.toggleSelectAllCantieri(allVehicles, this.allSelected);
-    console.log(cantieriToggle);
     this.cantieri.setValue(cantieriToggle.length > 0 ? ["Seleziona tutto", ...cantieriToggle] : cantieriToggle);
     this.allSelected = !this.allSelected;
     this.cd.detectChanges();

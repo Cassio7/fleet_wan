@@ -142,7 +142,7 @@ export class SortService {
 
   /**
    * Reimposta il MatSort passato come parametro
-   * @erturns MatSort reimpostato
+   * @returns MatSort reimpostato
    */
   resetMatSort(sort: MatSort): MatSort{
     if (sort) {
@@ -152,4 +152,23 @@ export class SortService {
     }
     return sort;
   }
+
+
+  /**
+   * Confronta due valori numerici o stringhe e restituisce un valore che indica l'ordine relativo.
+   *
+   * @param a - Il primo valore da confrontare.
+   * @param b - Il secondo valore da confrontare.
+   * @param isAsc - Se true, il confronto avviene in ordine ascendente, altrimenti in ordine discendente.
+   * @returns - Restituisce un valore negativo se `a` è minore di `b`, positivo se `a` è maggiore di `b`, e 0 se sono uguali.
+   */
+  compare(a: string | number | Date, b: string | number | Date, isAsc: boolean): number {
+    if (a === b) return 0;
+    if (a instanceof Date && b instanceof Date) {
+      return (a.getTime() - b.getTime()) * (isAsc ? 1 : -1);
+    }
+    return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
+  }
+
+
 }

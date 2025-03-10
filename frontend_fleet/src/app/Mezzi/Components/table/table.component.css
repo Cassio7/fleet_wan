@@ -36,10 +36,6 @@ tr.comment-row:not(.example-expanded-row):active {
   background: var(--background-color);
 }
 
-td {
-  cursor: pointer;
-}
-
 .vehicle-row td {
   border-bottom-width: 0;
 }
@@ -100,6 +96,10 @@ th, td {
 .proprietario-container {
   display: inline-flex;
   gap: 5px;
+}
+
+.proprietario-container mat-icon{
+  cursor: pointer;
 }
 tr:hover {
   background-color: var(--background-color);

@@ -17,11 +17,13 @@
       [dataSource]="vehicleTableData"
       #vehicleTable
       class="table"
+      matSort
       multiTemplateDataRows
+      (matSortChange)="vehicleTableData.data = sortVehiclesByMatSort(vehicleTableData.data)"
     >
       <!-- Colonna Proprietario -->
       <ng-container matColumnDef="Proprietario">
-        <th mat-header-cell *matHeaderCellDef>Proprietario/Locatario</th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Proprietario/Locatario</th>
         <td mat-cell *matCellDef="let vehicle">
           <span class="proprietario-container">
             <mat-icon style="cursor: pointer;" matTooltip="Click per maggiori dettagli sul veicolo" (click)="displayVehicleDetail(vehicle.veId)">
@@ -35,7 +37,7 @@
 
       <!-- Colonna Targa -->
       <ng-container matColumnDef="Targa">
-        <th mat-header-cell *matHeaderCellDef>Targa</th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Targa</th>
         <td mat-cell *matCellDef="let vehicle">
           <span class="plate-container">{{ vehicle.plate }}</span>
         </td>
@@ -43,7 +45,7 @@
 
       <!-- Colonna Immatricolazione -->
       <ng-container matColumnDef="Immatricolazione">
-        <th mat-header-cell *matHeaderCellDef>Immatricolazione</th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Immatricolazione</th>
         <td mat-cell *matCellDef="let vehicle">
           {{ vehicle?.registration || "" }}
         </td>
@@ -51,13 +53,13 @@
 
       <!-- Colonna Marca -->
       <ng-container matColumnDef="Marca">
-        <th mat-header-cell *matHeaderCellDef>Marca</th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Marca</th>
         <td mat-cell *matCellDef="let vehicle">{{ vehicle.model }}</td>
       </ng-container>
 
       <!-- Colonna Attrezzatura -->
       <ng-container matColumnDef="Tipologia">
-        <th mat-header-cell *matHeaderCellDef>Attrezzatura</th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Attrezzatura</th>
         <td mat-cell *matCellDef="let vehicle">
           {{ vehicle.equipment?.name || "" }}
         </td>
@@ -65,7 +67,7 @@
 
       <!-- Colonna Cantiere -->
       <ng-container matColumnDef="Cantiere">
-        <th mat-header-cell *matHeaderCellDef>Cantiere</th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Cantiere</th>
         <td mat-cell *matCellDef="let vehicle">
           {{ vehicle.worksite?.name || "" }}
         </td>
@@ -81,7 +83,7 @@
 
       <!-- Colonna Installazione fleet -->
       <ng-container matColumnDef="Installazione fleet">
-        <th mat-header-cell *matHeaderCellDef>Installazione fleet</th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Installazione fleet</th>
         <td mat-cell *matCellDef="let vehicle">
           {{ vehicle?.fleet_install || "" }}
         </td>
@@ -131,7 +133,7 @@
               "
             >
               <div class="comment-section-content">
-                <th mat-header-cell *matHeaderCellDef></th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header></th>
                 <td>
                   <div class="noteSection-container">
                     <app-note-section [vehicle]="vehicle"></app-note-section>
@@ -151,7 +153,6 @@
       <tr
         mat-row
         *matRowDef="let vehicle; columns: columnsToDisplayWithExpand"
-        (click)="displayVehicleDetail(vehicle.veId)"
       ></tr>
       <tr
         mat-row
