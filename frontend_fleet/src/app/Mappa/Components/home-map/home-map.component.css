@@ -9,6 +9,7 @@
   flex: 1;
   height: calc(100vh - var(--navbar-height));
   width: 100%;
+  overflow: hidden;
 }
 
 .vehicleHandling-container {
@@ -36,4 +37,20 @@
 }
 .hidden {
   display: none;
+}
+
+@media screen and (max-width: 1366px) {
+  .vehicleHandling-container {
+    position: absolute;
+    top: 50px;
+    left: 50px;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    z-index: 1000;
+  }
+  .info-container{
+    height: 310px;
+  }
 }

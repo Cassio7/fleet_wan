@@ -6,27 +6,30 @@
   gap: 2vh;
   align-items: center;
   padding-top: 1vh;
+  overflow: hidden;
+
+  .filter{
+    width: 95%;
+  }
+  .updateData-btn{
+    width: 95%;
+    display: flex;
+    gap: 2px;
+    background-color: var(--green);
+    border-radius: 5px;
+    color: white;
+  }
+  .slider-container{
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+  .slider-container .slider-text{
+    font-size: 14px;
+  }
 }
-.content .filter{
-  width: 95%;
-}
-.content .updateData-btn{
-  width: 95%;
-  display: flex;
-  gap: 2px;
-  background-color: var(--green);
-  border-radius: 5px;
-  color: white;
-}
-.content .slider-container{
-  width: 100%;
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-start;
-}
-.content .slider-container .slider-text{
-  font-size: 14px;
-}
+
 /* Stile dello switch */
 ::ng-deep .mat-mdc-slide-toggle.mat-mdc-slide-toggle-checked:not(.mat-disabled) .mdc-switch__shadow {
   background-color: white !important;
@@ -34,4 +37,10 @@
 
 ::ng-deep .mat-mdc-slide-toggle.mat-mdc-slide-toggle-checked:not(.mat-disabled) .mdc-switch__track::after {
   background-color: var(--green) !important;
+}
+
+@media screen and (max-width: 1366px) {
+  .content{
+    gap: 1vh;
+  }
 }

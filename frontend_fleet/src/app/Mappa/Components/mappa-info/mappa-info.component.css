@@ -2,20 +2,42 @@ mat-list {
   width: 100%;
 }
 
-mat-list-item {
+mat-list-item{
   width: 100%;
-  height: auto; /* Auto per adattarsi al contenuto */
+  height: auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  div.list-item-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
+  p {
+    font-size: 16px;
+    font-weight: 500;
+    font-family: 'Inter';
+    margin: 0;
+    padding: 0;
+    flex: none;
+    width: auto;
+    display: inline-block;
+  }
+
+  p:last-child {
+    text-align: right;
+  }
+
+  span {
+    font-size: 14px;
+    font-family: 'Inter';
+  }
 }
 
-mat-list-item div.list-item-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-}
+
 
 mat-divider {
   margin-top: 10px;
@@ -23,52 +45,75 @@ mat-divider {
   border-top-color: var(--background-color);
 }
 
-mat-list-item p {
-  font-size: 16px;
-  font-weight: 500;
-  font-family: 'Inter';
-  margin: 0;
-  padding: 0;
-  flex: none;
-  width: auto;
-  display: inline-block;
-}
-
-mat-list-item p:last-child {
-  text-align: right;
-}
-
-mat-list-item span {
-  font-size: 14px;
-  font-family: 'Inter';
-}
-
-.type {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0;
-  margin: 0;
-}
-
-.type-container {
+.title-container {
   height: 100%;
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0.2rem;
+
+  .title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0;
+    margin: 0;
+  }
+
+  .close{
+    cursor: pointer;
+  }
+  .close:hover{
+    opacity: .5;
+  }
 }
 
-.type-container mat-icon{
-  cursor: pointer;
-}
 
-.type-container mat-icon:hover{
-  opacity: .5;
-}
 
 .button{
   width: 100%;
 }
 
+@media screen and (max-width: 1366px){
+  .content{
+    .button{
+      height: 30px;
+    }
+    mat-divider {
+      margin-top: 0px;
+      border-top-color: var(--background-color);
+    }
+    p {
+      margin-top: 0px;
+      font-size: 12px;
+      font-weight: 500;
+      font-family: 'Inter';
+      margin: 0;
+      padding: 0;
+      flex: none;
+      width: auto;
+      display: inline-block;
+    }
+
+    .mdc-list{
+      padding: 0px;
+    }
+
+    .title-container {
+      height: 20px;
+      width: 100%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.2rem;
+
+      p{
+        display: inline-flex;
+      }
+    }
+
+  }
+
+
+}
