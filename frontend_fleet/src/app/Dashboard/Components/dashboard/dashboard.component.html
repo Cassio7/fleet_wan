@@ -20,7 +20,7 @@
         <p class="subtitle">Ultima posizione registrata</p>
         <mat-error class="map-errorContainer" >
           <span *ngIf="!mapVehiclePlate && today">Nessun veicolo selezionato</span>
-          <span *ngIf="!today && lastSession">Mappa non disponibile per ultimo andamento</span>
+          <span *ngIf="!today && lastSession" style="line-height: 1;">Mappa non disponibile per ultimo andamento</span>
         </mat-error>
       </div>
       <div class="map-container">

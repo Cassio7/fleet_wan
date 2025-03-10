@@ -1,39 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Vehicle } from '../../Models/Vehicle';
-import { SessionStorageService } from '../sessionStorage/session-storage.service';
 import { VehicleData } from '../../Models/VehicleData';
+import { MatSort } from '@angular/material/sort';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SortService {
-
-  constructor(
-    private sessionStorageService: SessionStorageService
-  ){}
-
-  /**
-   * Filtra "allVehicles" con i veicoli passati, in modo da ottenere lo stesso ordine di visualizzazione
-   * @param selectedVehicles veicoli selezionati
-   * @returns array di veicoli filtrato
-   */
-  vehiclesInDefaultOrder(selectedVehicles: VehicleData[]): VehicleData[] {
-    // Parse and retrieve all vehicles data from session storage
-    const allVehiclesData: VehicleData[] = JSON.parse(this.sessionStorageService.getItem("allData") || "[]");
-
-    // Ensure selectedVehicles is not null or undefined
-    if (!selectedVehicles || selectedVehicles.length === 0) {
-        return [];
-    }
-
-    // Filter vehicles that match veId in the selectedVehicles array
-    const filteredVehicles = allVehiclesData.filter(allVehicle =>
-        selectedVehicles.some(selected => selected.vehicle?.veId === allVehicle.vehicle?.veId)
-    );
-
-    return filteredVehicles;
-}
-
 
   /**
    * Ordina i veicoli in base alla targa con ordine crescente
@@ -128,22 +101,33 @@ export class SortService {
    * @param vehicles array di veicoli da ordinare
    * @returns array di veicoli ordinato
    */
-  sortVehiclesBySessioneAsc(vehiclesData: VehicleData[]): any[] {
+  sortVehiclesBySessioneAsc(vehiclesData: VehicleData[]): VehicleData[] {
     return vehiclesData
-      .flatMap(obj => obj.anomalies ?? [])
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()); // Crescente per data
+      .sort((a, b) => {
+        const firstVehicleSessionDate = new Date(a.anomalies[0].date);
+        const secondVehicleSessionDate = new Date(b.anomalies[0].date);
+
+        return firstVehicleSessionDate.getTime() - secondVehicleSessionDate.getTime();
+      });
   }
+
+
 
   /**
    * Ordina i veicoli in base all'ultima sessione valida con ordine decrescente
    * @param vehicles array di veicoli da ordinare
    * @returns array di veicoli ordinato
    */
-  sortVehiclesBySessioneDesc(vehiclesData: VehicleData[]): any[] {
+  sortVehiclesBySessioneDesc(vehiclesData: VehicleData[]): VehicleData[] {
     return vehiclesData
-      .flatMap(obj => obj.anomalies ?? [])
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); // Decrescente per data
+      .sort((a, b) => {
+        const firstVehicleSessionDate = new Date(a.anomalies[0].date);
+        const secondVehicleSessionDate = new Date(b.anomalies[0].date);
+
+        return secondVehicleSessionDate.getTime() - firstVehicleSessionDate.getTime();
+      });
   }
+
 
   /**
    * Ordina i veicoli in base al primo evento in ordine crescente
@@ -154,5 +138,18 @@ export class SortService {
     return vehiclesData
       .flatMap(obj => obj.anomalies ?? [])
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()); // Crescente per data
+  }
+
+  /**
+   * Reimposta il MatSort passato come parametro
+   * @erturns MatSort reimpostato
+   */
+  resetMatSort(sort: MatSort): MatSort{
+    if (sort) {
+      sort.active = '';
+      sort.direction = '';
+      sort.sortChange.emit();
+    }
+    return sort;
   }
 }

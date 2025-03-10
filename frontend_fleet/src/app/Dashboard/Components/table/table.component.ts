@@ -5,6 +5,7 @@ import {
   ChangeDetectorRef,
   Component,
   OnDestroy,
+  OnInit,
   ViewChild,
 } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
@@ -22,7 +23,7 @@ import {
 } from 'rxjs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ErrorGraphsService } from '../../Services/error-graphs/error-graphs.service';
-import { MatSortModule, Sort } from '@angular/material/sort';
+import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatButtonModule } from '@angular/material/button';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { SortService } from '../../../Common-services/sort/sort.service';
@@ -62,7 +63,8 @@ import { Point } from '../../../Models/Point';
   templateUrl: './table.component.html',
   styleUrls: ['./table.component.css'],
 })
-export class TableComponent implements OnDestroy, AfterViewInit {
+export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
+  @ViewChild(MatSort) sort!: MatSort;
   @ViewChild('vehicleTable') vehicleTable!: MatTable<Session[]>;
 
   private readonly destroy$: Subject<void> = new Subject<void>();
@@ -107,6 +109,10 @@ export class TableComponent implements OnDestroy, AfterViewInit {
     private router: Router,
     private cd: ChangeDetectorRef
   ) {}
+
+  ngOnInit(): void {
+    this.vehicleTableData.sort = this.sort;
+  }
 
   ngAfterViewInit(): void {
     setTimeout(() => {
@@ -175,57 +181,49 @@ export class TableComponent implements OnDestroy, AfterViewInit {
             this.sessionStorageService.getItem('allData')
           );
           const filteredVehicles = this.filtersCommonService.applyAllFiltersOnVehicles(allData,filters) as VehicleData[];
-          this.vehicleTableData.data = filteredVehicles;
+          console.log('filteredVehicles: ', filteredVehicles);
+          const sortedFilteredVehicles = this.sortVehiclesByMatSort(filteredVehicles);
+          this.vehicleTableData.data = sortedFilteredVehicles;
+          // this.vehicleTableData.data = filteredVehicles;
           this.vehicleTable.renderRows();
           this.loadGraphs(filteredVehicles);
         },
       });
   }
 
+
   /**
-   * Funzione per ordinamento della tabella in base a colonne (cantiere, targa, session)
-   * DA FIXARE PER targa E DA FARE PER session
-   * @param event evento da cui prende nome colonna e direzione ordinamento
+   * Ordina i veicoli passati in base ai valori del MatSort della tabella
+   * @param vehicles vehiclesData da ordinare
+   * @returns array di vehiclesData ordinato
    */
-  onSortChange(event: Sort) {
-    const column = event.active;
-    const sortDirection = event.direction;
-    const vehiclesData = this.vehicleTableData.data;
+  sortVehiclesByMatSort(vehicles: VehicleData[]): VehicleData[] {
+    const column = this.sort.active;
+    const sortDirection = this.sort.direction;
 
     switch (column) {
-      case 'cantiere':
+      case 'Cantiere':
         if (sortDirection == 'asc') {
-          this.vehicleTableData.data = this.sortService.sortVehiclesByCantiereAsc(vehiclesData);
+          return this.sortService.sortVehiclesByCantiereAsc(vehicles) as VehicleData[];
         } else {
-          this.vehicleTableData.data = this.sortService.sortVehiclesByCantiereDesc(vehiclesData);
+          return this.sortService.sortVehiclesByCantiereDesc(vehicles) as VehicleData[];
         }
-        this.vehicleTable.renderRows();
-        break;
-
-      case 'targa':
+      case 'Targa':
         if (sortDirection == 'asc') {
-          this.vehicleTableData.data = this.sortService.sortVehiclesByPlateAsc(vehiclesData) as VehicleData[];
+          return this.sortService.sortVehiclesByPlateAsc(vehicles) as VehicleData[];
         } else {
-          this.vehicleTableData.data = this.sortService.sortVehiclesByPlateDesc(vehiclesData) as VehicleData[];
+          return this.sortService.sortVehiclesByPlateDesc(vehicles) as VehicleData[];
         }
-        this.vehicleTable.renderRows();
-        break;
-      case 'sessione':
+      case 'Sessione':
         if (sortDirection == 'asc') {
-          this.vehicleTableData.data =
-            this.sortService.sortVehiclesBySessioneAsc(vehiclesData);
+          return this.sortService.sortVehiclesBySessioneAsc(vehicles) as VehicleData[];
         } else {
-          this.vehicleTableData.data =
-            this.sortService.sortVehiclesBySessioneDesc(vehiclesData);
+          return this.sortService.sortVehiclesBySessioneDesc(vehicles) as VehicleData[];
         }
-        this.vehicleTable.renderRows();
-        break;
     }
-    this.sessionStorageService.setItem(
-      'tableData',
-      JSON.stringify(this.vehicleTableData.data)
-    );
+    return vehicles;
   }
+
 
   /**
    * Riempe la tabella con i dati recuperati dalla chiamata API
@@ -245,6 +243,7 @@ export class TableComponent implements OnDestroy, AfterViewInit {
         const lastUpdate = responseObj.lastUpdate;
         this.updateLastUpdate(lastUpdate);
         this.setTableData(responseObj.vehicles);
+        this.sort = this.sortService.resetMatSort(this.sort);
       },
       error: (err) => {
         console.error("Errore nel caricamento iniziale dei dati: ", err);
@@ -314,7 +313,6 @@ export class TableComponent implements OnDestroy, AfterViewInit {
    */
   getAllLastSessionAnomalies() {
     this.resetGraphs();
-
     this.vehicleTableData.data = [];
 
     this.sessionApiService.getAllLastSessionAnomalies().pipe(takeUntil(this.destroy$))
@@ -324,11 +322,11 @@ export class TableComponent implements OnDestroy, AfterViewInit {
           console.log("Last session vehiclesData fetched: ", vehiclesData);
           try {
             if (vehiclesData && vehiclesData.length > 0) {
-              this.vehicleTableData.data = [...vehiclesData];
               this.sessionStorageService.setItem("allData", JSON.stringify(vehiclesData));
               this.sessionStorageService.setItem("lastUpdate", responseObj.lastUpdate);
               this.vehicleTable.renderRows();
-              this.addLastRealtime();
+              this.setTableData(vehiclesData);
+              this.sort = this.sortService.resetMatSort(this.sort);
               this.loadGraphs(vehiclesData);
             }
           } catch (error) {

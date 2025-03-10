@@ -107,7 +107,7 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
       this.handleKanbanChange();
 
       this.handleAllFiltersOptionsUpdate();
-      this.handleErrorGraphClick();
+      // this.handleErrorGraphClick();
 
       // Aggiornamento del change detection (solitamente solo se ci sono modifiche dirette al DOM)
       this.cd.detectChanges();
@@ -117,15 +117,15 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
   private handleKanbanChange(){
     this.kanabanTableService.loadKabanTable$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe(() => {
-      this.toggleSelectAll();
+      this.applyToggleSelectAll();
     });
-    this.kanbanGpsService.loadKanbanGps$.pipe(takeUntil(this.destroy$))
+    this.kanbanGpsService.loadKanbanGps$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe(()=>{
-      this.toggleSelectAll();
+      this.applyToggleSelectAll();
     });
-    this.kanbanAntennaService.loadKanbanAntenna$.pipe(takeUntil(this.destroy$))
+    this.kanbanAntennaService.loadKanbanAntenna$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe(() => {
-      this.toggleSelectAll();
+      this.applyToggleSelectAll();
     });
   }
 
@@ -170,23 +170,23 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
   /**
    * Gestisce le sottoscrizioni ai click sul grafico degli errori
    */
-  private handleErrorGraphClick() {
-    merge(
-      this.checkErrorsService.fillTable$,
-      this.errorGraphService.loadFunzionanteData$,
-      this.errorGraphService.loadWarningData$,
-      this.errorGraphService.loadErrorData$
-    )
-    .pipe(takeUntil(this.destroy$), skip(1))
-    .subscribe({
-      next: () => {
-        this.filtersCommonService.applyFilters$.next(this.filters);
-      },
-      error: (error) => {
-        console.error("Errore nel caricamento dei dati dal grafico degli errori: ", error);
-      }
-    });
-  }
+  // private handleErrorGraphClick() {
+  //   merge(
+  //     this.checkErrorsService.fillTable$,
+  //     this.errorGraphService.loadFunzionanteData$,
+  //     this.errorGraphService.loadWarningData$,
+  //     this.errorGraphService.loadErrorData$
+  //   )
+  //   .pipe(takeUntil(this.destroy$), skip(1))
+  //   .subscribe({
+  //     next: () => {
+  //       this.filtersCommonService.applyFilters$.next(this.filters);
+  //     },
+  //     error: (error) => {
+  //       console.error("Errore nel caricamento dei dati dal grafico degli errori: ", error);
+  //     }
+  //   });
+  // }
 
   // checkCantiereEnabled(cantiere: string): boolean{
   //   return this.cantieri.value ? this.cantieri.value.includes(cantiere) : false;
@@ -333,18 +333,26 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
   }
 
   /**
-   * Seleziona tutti i filtri del select dei cantieri
+   * Seleziona tutte le opzioni di tutti i filtri e manda il subject per
+   * applicarli sui veicoli della tabella
    */
-  toggleSelectAll() {
-    // Recupero dei dati dal sessionStorage
+  applyToggleSelectAll() {
+    this.toggleSelectAll();
+    console.log("filters: ", this.filters);
+    this.filtersCommonService.applyFilters$.next(this.filters);
+  }
+  /**
+   * Seleziona tutte le opzioni di tutti i filtri
+   */
+  toggleSelectAll(){
     this.toggleSelectAllCantieri();
     this.toggleSelectAllGps()
     this.toggleSelectAllAntenne();
     this.toggleSelectAllSession();
     this.allSelected = !this.allSelected;
     this.cd.detectChanges();
-    this.filtersCommonService.applyFilters$.next(this.filters);
   }
+
 
   /**
    * Invia il subject per filtrare le targhe in base all'input inserito

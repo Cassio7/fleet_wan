@@ -12,7 +12,7 @@
     mat-table
     [dataSource]="vehicleTableData"
     matSort
-    (matSortChange)="onSortChange($event)"
+    (matSortChange)="vehicleTableData.data = sortVehiclesByMatSort(vehicleTableData.data)"
     class="table"
   >
     <!-- Tipologia column -->
@@ -102,8 +102,7 @@
         <div
         class="noRFID-container"
         matTooltip="Non ha un'antenna RFID"
-        *ngIf="!vehicleData.vehicle.isRFIDReader &&
-        !checkErrorsService.checkVehicleAntennaError(vehicleData)"
+        *ngIf="!vehicleData.vehicle.isRFIDReader"
       >
         <mat-icon class="noAntennA-icon">wifi_off</mat-icon>
       </div>
