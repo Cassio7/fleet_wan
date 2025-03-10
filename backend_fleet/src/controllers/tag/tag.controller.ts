@@ -18,7 +18,7 @@ import { RolesGuard } from 'src/guard/roles.guard';
 import { LogContext } from 'src/log/logger.types';
 import { LoggerService } from 'src/log/service/logger.service';
 import { TagService } from 'src/services/tag/tag.service';
-import { sameDay, validateDateRange } from 'src/utils/utils';
+import { sameDate, validateDateRange } from 'src/utils/utils';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Roles(Role.Admin, Role.Responsabile, Role.Capo)
@@ -89,7 +89,7 @@ export class TagController {
         // Parse dates and get filtered tags
         const parsedDateFrom = new Date(dateFrom);
         const parsedDateTo = new Date(dateTo);
-        const equal = sameDay(parsedDateFrom, parsedDateTo);
+        const equal = sameDate(parsedDateFrom, parsedDateTo);
         if (equal) {
           parsedDateTo.setHours(23, 59, 59, 0);
         }
@@ -176,7 +176,7 @@ export class TagController {
       // Parse dates and get filtered tags
       const parsedDateFrom = new Date(dateFrom);
       const parsedDateTo = new Date(dateTo);
-      const equal = sameDay(parsedDateFrom, parsedDateTo);
+      const equal = sameDate(parsedDateFrom, parsedDateTo);
       if (equal) {
         parsedDateTo.setHours(23, 59, 59, 0);
       }
