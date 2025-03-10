@@ -14,16 +14,18 @@
         <div class="error-graph"><app-error-graph-card [errorGraphTitle]="'Antenna'" *ngIf="kabanAntenna"></app-error-graph-card></div>
         <div class="error-graph"><app-error-graph-card [errorGraphTitle]="'Sessione'" *ngIf="kanbanSessione"></app-error-graph-card></div>
     </div>
-    <div class="map-header section-header">
-      <h4 class="title">Mappa</h4>
-      <p class="subtitle">Ultima posizione registrata</p>
-    </div>
-    <div class="map-container">
-      <mat-error class="map-errorContainer" >
-        <span *ngIf="!mapVehiclePlate && today">Nessun veicolo selezionato</span>
-        <span *ngIf="!today && lastSession">Mappa non disponibile per ultimo andamento</span>
-      </mat-error>
-      <app-map class="map" *ngIf="today && !lastSession"></app-map>
+    <div class="map-content">
+      <div class="map-header section-header">
+        <h4 class="title">Mappa</h4>
+        <p class="subtitle">Ultima posizione registrata</p>
+        <mat-error class="map-errorContainer" >
+          <span *ngIf="!mapVehiclePlate && today">Nessun veicolo selezionato</span>
+          <span *ngIf="!today && lastSession">Mappa non disponibile per ultimo andamento</span>
+        </mat-error>
+      </div>
+      <div class="map-container">
+        <app-map class="map" *ngIf="today && !lastSession"></app-map>
+      </div>
     </div>
   </div>
   <div class="right-section">

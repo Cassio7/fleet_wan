@@ -12,7 +12,6 @@ html {
 
 .left-section {
   height: 100vh;
-  width: 17vw;
   background-color: var(--navbarANDstats-background);
   padding: 1vw;
   display: flex;
@@ -43,32 +42,38 @@ html {
     gap: 0.5vh;
   }
 
-  .map-header {
+  .map-content{
     width: 100%;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
-    line-height: 0;
-    margin: 0;
+    gap: 1.05vh;
+    .map-header {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      line-height: 0;
+      margin: 0;
+    }
+
+    .map-errorContainer{
+      font-size: 14px;
+      width: 100%;
+      text-align: left;
+    }
+
+    .map-container {
+      height: 22vh;
+      width: 100%;
+    }
+
+    .map-container .map {
+      width: 100%;
+      height: 13vw;
+      position: relative;
+    }
   }
 
-  .map-errorContainer{
-    font-size: 14px;
-    width: 100%;
-    text-align: left;
-    margin: 0;
-  }
-
-  .map-container {
-    height: 22vh;
-    width: 100%;
-  }
-
-  .map-container .map {
-    width: 100%;
-    height: 13vw;
-    position: relative;
-  }
 }
 
 .right-section {
@@ -219,5 +224,36 @@ html {
     }
   }
 
+
+}
+@media screen and (max-width: 1366px){
+
+  .left-section{
+    height: 100vh;
+
+    .graphs{
+      overflow: visible;
+    }
+
+    .graphs .table {
+      height: 100%;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5vh;
+    }
+  }
+
+  .right-section {
+    padding-left: 29px;
+    padding-top: 26px;
+    padding-right: 29px;
+  }
+
+  .table-content .table-container {
+    flex-grow: 1;
+    max-height: 100%;
+    overflow-x: auto;
+  }
 
 }
