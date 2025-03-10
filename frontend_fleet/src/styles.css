@@ -71,7 +71,7 @@ body {
 }
 
 th {
-  color: var(--green) !important;
+  color: gray !important;
 }
 table:not(.mat-calendar-table) tr:nth-child(even) {
   background-color: rgba(255, 255, 255, 0.7) !important;
@@ -213,7 +213,7 @@ table:not(.mat-calendar-table) tr:nth-child(even) {
   border-radius: 4px;
 }
 
-@media screen and (max-width: 1368px) {
+@media screen and (max-width: 1366px) {
   .section-header {
     .title {
       font-weight: bold;

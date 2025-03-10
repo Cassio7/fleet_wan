@@ -10,7 +10,7 @@ html {
   overflow: hidden;
 }
 
-.left-section {
+.left-section{
   height: 100vh;
   background-color: var(--navbarANDstats-background);
   padding: 1vw;
@@ -18,9 +18,6 @@ html {
   align-items: center;
   flex-direction: column;
   gap: 2vh;
-}
-
-.left-section{
   .left-header {
     width: 100%;
     display: flex;
@@ -30,8 +27,8 @@ html {
     margin: 0;
   }
 
-  .graphs{
-    overflow: hidden;
+  > *:last-child {
+    margin-bottom: 10vh;
   }
 
   .graphs .table {
@@ -73,7 +70,6 @@ html {
       position: relative;
     }
   }
-
 }
 
 .right-section {
@@ -229,25 +225,23 @@ html {
 @media screen and (max-width: 1366px){
 
   .left-section{
+    overflow: auto;
+    width: 30vw;
     height: 100vh;
-
-    .graphs{
-      overflow: visible;
-    }
-
-    .graphs .table {
-      height: 100%;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5vh;
-    }
   }
 
   .right-section {
     padding-left: 29px;
     padding-top: 26px;
     padding-right: 29px;
+
+    .section-header{
+      .title-container{
+        .last-update{
+          font-size: 10px;
+        }
+      }
+    }
   }
 
   .table-content .table-container {
