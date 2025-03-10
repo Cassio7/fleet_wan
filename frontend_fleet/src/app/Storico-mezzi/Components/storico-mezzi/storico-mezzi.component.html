@@ -2,7 +2,7 @@
   <!-- Mezzi List Section -->
   <div class="mezzi-section section">
     <div class="section-header">
-      <div class="title-side">Cerca un mezzo</div>
+      <div class="title">Cerca un mezzo</div>
       <div class="subtitle">Seleziona un mezzo dalla lista per accedere ai dati</div>
     </div>
     <div class="mezziFilters-container">
@@ -16,22 +16,22 @@
   <!-- Sessions Table Section -->
   <div class="table-section section">
     <div class="section-header">
-      <div class="title-main">Storico del mezzo</div>
+      <div class="title">Storico del mezzo</div>
       <div class="subtitle">Visualizza i dati del mezzo che hai selezionato</div>
     </div>
-    <div class="table-content">
+    <div class="table">
       <div class="table-row">
         <div class="info">
           @if(selectedVehicle){
-            <div class="targa">
+            <div class="targa info-item">
               <span class="small-title">Targa</span>
               <span>{{selectedVehicle && selectedVehicle.plate}}</span>
             </div>
-            <div class="cantiere">
+            <div class="cantiere info-item">
               <span class="small-title">Cantiere</span>
               <span>{{selectedVehicle ? selectedVehicle.worksite ? selectedVehicle.worksite.name : "non assegnato" : ""}}</span>
             </div>
-            <div class="tipologia">
+            <div class="tipologia info-item">
               <span class="small-title">Servizio</span>
               <span>{{selectedVehicle.service?.name || "no data"}}</span>
             </div>
@@ -39,13 +39,13 @@
             Nessun veicolo selezionato
           }
         </div>
-        <div class="session-filter">
+        <div class="session-filter" >
           <app-session-filters></app-session-filters>
         </div>
       </div>
-      <div class="sessionTable-container">
-        <app-session-table [vehicle]="selectedVehicle"></app-session-table>
-      </div>
+    </div>
+    <div class="sessionTable-container" >
+      <app-session-table [vehicle]="selectedVehicle"></app-session-table>
     </div>
   </div>
 
@@ -53,7 +53,7 @@
   <div class="map-section section">
     <div class="section-header">
       <div class="header-info">
-        <div class="title-side">Mappa</div>
+        <div class="title">Mappa</div>
         <div class="subtitle">Visualizza i mezzi nella mappa</div>
       </div>
       @if(pathPlate){
