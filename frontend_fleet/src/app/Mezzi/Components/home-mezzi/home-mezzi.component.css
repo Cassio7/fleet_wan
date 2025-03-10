@@ -1,20 +1,89 @@
-.content {
-  height: 100vh;
-  padding: 20px;
-  background-color: var(--background-color);
-  overflow: hidden;
+/* 🌍 Desktop grandi (oltre 1200px) */
+@media (min-width: 1200px) {
+  .content {
+    height: 100vh;
+    padding: 20px;
+    background-color: var(--background-color);
+    overflow: hidden;
+  }
+
+  .header {
+    display: flex;
+    flex-direction: column;
+    gap: 3vh;
+  }
+
+  .filters-container {
+    margin: 0;
+    height: auto;
+  }
+
+  .title-main {
+    font-weight: bold;
+    font-size: 24px;
+    padding-bottom: 1vh;
+  }
 }
-.header {
-  display: flex;
-  flex-direction: column;
-  gap: 3vh;
+
+/* 💻 Laptop e desktop medi (992px - 1199px) */
+@media (max-width: 1199px) {
+  .content {
+    height: auto;
+    padding: 15px;
+  }
+
+  .header {
+    gap: 2vh;
+  }
+
+  .title-main {
+    font-size: 22px;
+    padding-bottom: 0.8vh;
+  }
 }
-.filters-container{
-  margin: 0;
-  height: auto;
+
+/* 📱 Tablet e piccoli laptop (768px - 991px) */
+@media (max-width: 991px) {
+  .content {
+    height: auto;
+    padding: 10px;
+  }
+
+  .header {
+    flex-direction: row;
+    gap: 1.5vh;
+  }
+
+  .filters-container {
+    height: auto;
+    margin-top: 10px;
+  }
+
+  .title-main {
+    font-size: 20px;
+    padding-bottom: 0.5vh;
+  }
 }
-.title-main {
-  font-weight: bold;
-  font-size: 24px;
-  padding-bottom: 1vh;
+
+/* 📲 Mobile (fino a 767px) */
+@media (max-width: 767px) {
+  .content {
+    height: auto;
+    padding: 5px;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 1vh;
+  }
+
+  .filters-container {
+    height: auto;
+    margin: 5px 0;
+  }
+
+  .title-main {
+    font-size: 18px;
+    padding-bottom: 0.3vh;
+  }
 }

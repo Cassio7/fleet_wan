@@ -85,19 +85,19 @@ table:not(.mat-calendar-table) tr:nth-child(even) {
   justify-content: flex-start;
   gap: 2px;
   margin: 0;
-}
 
-.section-header .title {
-  font-weight: bold;
-  font-size: 24px;
-  line-height: 1;
-  margin: 0;
-}
-.section-header .subtitle {
-  font-weight: 300;
-  font-size: 14px;
-  line-height: 1;
-  margin: 0;
+  .title {
+    font-weight: bold;
+    font-size: 24px;
+    line-height: 1;
+    margin: 0;
+  }
+  .subtitle {
+    font-weight: 300;
+    font-size: 14px;
+    line-height: 1;
+    margin: 0;
+  }
 }
 
 .button {
@@ -211,4 +211,21 @@ table:not(.mat-calendar-table) tr:nth-child(even) {
 ::-webkit-scrollbar-track {
   background: white;
   border-radius: 4px;
+}
+
+@media screen and (max-width: 1368px) {
+  .section-header {
+    .title {
+      font-weight: bold;
+      font-size: 18px;
+      line-height: 1;
+      margin: 0;
+    }
+    .subtitle {
+      font-weight: 300;
+      font-size: 10px;
+      line-height: 1;
+      margin: 0;
+    }
+  }
 }

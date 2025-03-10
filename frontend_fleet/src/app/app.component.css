@@ -12,6 +12,10 @@ mat-drawer-container {
   overflow: hidden !important;
 }
 
+mat-drawer-content{
+  overflow: hidden !important;
+}
+
 mat-drawer {
   width: 100%;
   overflow: hidden !important;

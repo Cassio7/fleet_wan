@@ -1,3 +1,8 @@
 .note-saved{
   font-size: .8vw;
 }
+@media screen and (max-width: 1366px) {
+  .note-saved{
+    font-size: 1vw;
+  }
+}

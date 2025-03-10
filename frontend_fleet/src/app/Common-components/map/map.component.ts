@@ -337,8 +337,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
                 if (route) {
                     const bounds = L.latLngBounds(route.coordinates);
                     this.map.fitBounds(bounds);
+                    setTimeout(() => {
+                        this.map.invalidateSize();
+                    }, 100);
                 }
-            });
+              });
             }
         }
 
