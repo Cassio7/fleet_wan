@@ -250,7 +250,7 @@ export class AppService implements OnModuleInit {
   }
 
   /**
-   * Inserisce i veicoli uno dopo l'altro
+   * Inserisce i veicoli no RFID in parallelo, gli altri uno dopo l altro
    */
   //@Cron('*/10 * * * *')
   async putDbDataCronOne() {
@@ -276,9 +276,28 @@ export class AppService implements OnModuleInit {
         companyMap.set(vehicle.veId, company);
       }
     }
+    const vehiclesRFID = vehicles.filter((v) => v.allestimento);
+    const vehiclesNoRFID = vehicles.filter((v) => !v.allestimento);
+
+    const vehicleNoRFIDRequest = vehiclesNoRFID.map((vehicle) => {
+      console.log(
+        `${vehicle.veId} con targa: ${vehicle.plate} - ${vehicle.id}`,
+      );
+
+      const company = companyMap.get(vehicle.veId);
+      if (company) {
+        return this.sessionService.getSessionist(
+          company.suId,
+          vehicle.veId,
+          startDate,
+          endDate,
+        );
+      }
+    });
+    await Promise.all(vehicleNoRFIDRequest);
 
     // Invece di elaborare tutti i veicoli in parallelo con Promise.all
-    for (const vehicle of vehicles.filter((vehicle) =>
+    for (const vehicle of vehiclesRFID.filter((vehicle) =>
       companyMap.has(vehicle.veId),
     )) {
       console.log(
@@ -286,30 +305,29 @@ export class AppService implements OnModuleInit {
       );
 
       const company = companyMap.get(vehicle.veId);
-      if (company) {
-        // Per ogni veicolo, possiamo eseguire le operazioni di session e tag in parallelo
-        const promises = [
-          this.sessionService.getSessionist(
+
+      // Per ogni veicolo, possiamo eseguire le operazioni di session e tag in parallelo
+      const promises = [
+        this.sessionService.getSessionist(
+          company.suId,
+          vehicle.veId,
+          startDate,
+          endDate,
+        ),
+      ];
+
+      if (vehicle.allestimento) {
+        promises.push(
+          this.tagService.putTagHistory(
             company.suId,
             vehicle.veId,
             startDate,
             endDate,
           ),
-        ];
-
-        if (vehicle.allestimento) {
-          promises.push(
-            this.tagService.putTagHistory(
-              company.suId,
-              vehicle.veId,
-              startDate,
-              endDate,
-            ),
-          );
-        }
-
-        await Promise.all(promises);
+        );
       }
+
+      await Promise.all(promises);
     }
 
     // inserire il calcolo dell ultima sessione valida
@@ -381,7 +399,8 @@ export class AppService implements OnModuleInit {
     }
   }
 
-  //@Cron('58 22 * * *')
+  //@Cron('58 22 * * *') // prima di finire la giornata
+  //@Cron('30 6 * * *') // per la mattina
   async dailyAnomalyCheck() {
     try {
       const datefrom = new Date();
@@ -448,7 +467,7 @@ export class AppService implements OnModuleInit {
    * Imposta le anomalies su redis del giorno precedente, di oggi ed anche il last
    */
 
-  //@Cron('02 5 * * *')
+  //@Cron('40 6 * * *')
   async setAnomaly() {
     const keys = await this.redis.keys('*Anomaly:*');
     if (keys.length > 0) {
