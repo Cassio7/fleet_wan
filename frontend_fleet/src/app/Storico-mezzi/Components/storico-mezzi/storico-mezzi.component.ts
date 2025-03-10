@@ -17,6 +17,7 @@ import { CommonModule } from '@angular/common';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { Point } from '../../../Models/Point';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 
 @Component({
   selector: 'app-storico-mezzi',
@@ -39,7 +40,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
   templateUrl: './storico-mezzi.component.html',
   styleUrl: './storico-mezzi.component.css'
 })
-export class StoricoMezziComponent implements AfterViewInit, OnDestroy{
+export class StoricoMezziComponent implements OnInit, AfterViewInit, OnDestroy{
   private readonly destroy$: Subject<void> = new Subject<void>();
   private _selectedVehicle!: Vehicle;
   private _positionPlate: string = "";
@@ -48,15 +49,28 @@ export class StoricoMezziComponent implements AfterViewInit, OnDestroy{
   linedPath: boolean = true;
   pathTypeText: string = "Fedele";
 
+  isSmallScreen: boolean = false;
+
   constructor(
     private mapService: MapService,
     private sessionStorageService: SessionStorageService,
+    private breakPointObserver: BreakpointObserver,
     private cd: ChangeDetectorRef
   ){}
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  ngOnInit(): void {
+    this.breakPointObserver.observe([
+      Breakpoints.Large
+    ]).subscribe(result => {
+      if (result.matches) {
+        this.isSmallScreen = true;
+      }
+    });
   }
 
   ngAfterViewInit(): void {

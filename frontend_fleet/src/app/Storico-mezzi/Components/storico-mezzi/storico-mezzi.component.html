@@ -21,27 +21,51 @@
     </div>
     <div class="table">
       <div class="table-row">
-        <div class="info">
-          @if(selectedVehicle){
-            <div class="targa info-item">
-              <span class="small-title">Targa</span>
-              <span>{{selectedVehicle && selectedVehicle.plate}}</span>
-            </div>
-            <div class="cantiere info-item">
-              <span class="small-title">Cantiere</span>
-              <span>{{selectedVehicle ? selectedVehicle.worksite ? selectedVehicle.worksite.name : "non assegnato" : ""}}</span>
-            </div>
-            <div class="tipologia info-item">
-              <span class="small-title">Servizio</span>
-              <span>{{selectedVehicle.service?.name || "no data"}}</span>
-            </div>
-          }@else {
-            Nessun veicolo selezionato
-          }
-        </div>
-        <div class="session-filter" >
-          <app-session-filters></app-session-filters>
-        </div>
+        @if (isSmallScreen) {
+          <div class="session-filter" >
+            <app-session-filters></app-session-filters>
+          </div>
+          <div class="info">
+            @if(selectedVehicle){
+              <div class="targa info-item">
+                <span class="small-title">Targa</span>
+                <span>{{selectedVehicle && selectedVehicle.plate}}</span>
+              </div>
+              <div class="cantiere info-item">
+                <span class="small-title">Cantiere</span>
+                <span>{{selectedVehicle ? selectedVehicle.worksite ? selectedVehicle.worksite.name : "non assegnato" : ""}}</span>
+              </div>
+              <div class="tipologia info-item">
+                <span class="small-title">Servizio</span>
+                <span>{{selectedVehicle.service?.name || "no data"}}</span>
+              </div>
+            }@else {
+              Nessun veicolo selezionato
+            }
+          </div>
+        }@else {
+          <div class="info">
+            @if(selectedVehicle){
+              <div class="targa info-item">
+                <span class="small-title">Targa</span>
+                <span>{{selectedVehicle && selectedVehicle.plate}}</span>
+              </div>
+              <div class="cantiere info-item">
+                <span class="small-title">Cantiere</span>
+                <span>{{selectedVehicle ? selectedVehicle.worksite ? selectedVehicle.worksite.name : "non assegnato" : ""}}</span>
+              </div>
+              <div class="tipologia info-item">
+                <span class="small-title">Servizio</span>
+                <span>{{selectedVehicle.service?.name || "no data"}}</span>
+              </div>
+            }@else {
+              Nessun veicolo selezionato
+            }
+          </div>
+          <div class="session-filter" >
+            <app-session-filters></app-session-filters>
+          </div>
+        }
       </div>
     </div>
     <div class="sessionTable-container" >
