@@ -46,7 +46,9 @@ export class HistoryEntity extends CommonEntity implements HistoryInterface {
   @Index()
   vehicle: VehicleEntity;
 
-  @ManyToOne(() => SessionEntity, (session) => session.history)
+  @ManyToOne(() => SessionEntity, (session) => session.history, {
+    onDelete: 'CASCADE',
+  })
   @Index()
   session: SessionEntity;
 
