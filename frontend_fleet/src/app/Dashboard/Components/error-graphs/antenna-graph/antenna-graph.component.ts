@@ -116,17 +116,32 @@ export class AntennaGraphComponent {
       colors: this.antennaGraphService.colors,
       responsive: [
         {
-          breakpoint: 480,
+          breakpoint: 1370,
           options: {
-            legend: {
-              position: 'bottom',
-            },
             chart: {
-              width: this.width / 2,
-              height: this.height / 2,
+              width: this.width - 20,
+              height: this.height - 20,
             },
-          },
-        },
+            legend: {
+              fontSize: '11px',
+            },
+            plotOptions: {
+              pie: {
+                donut: {
+                  size: '75%',
+                  labels: {
+                    name: {
+                      fontSize: '8px',
+                    },
+                    value: {
+                      fontSize: '15px',
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       ],
     };
   }

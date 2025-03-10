@@ -119,16 +119,31 @@ export class GpsGraphComponent implements AfterViewInit {
       colors: this.gpsGraphService.colors,
       responsive: [
         {
-          breakpoint: 480,
+          breakpoint: 1370,
           options: {
-            legend: {
-              position: 'bottom',
-            },
             chart: {
-              width: this.width / 2,
-              height: this.height / 2,
+              width: this.width - 20,
+              height: this.height - 20,
             },
-          },
+            legend: {
+              fontSize: '11px',
+            },
+            plotOptions: {
+              pie: {
+                donut: {
+                  size: '75%',
+                  labels: {
+                    name: {
+                      fontSize: '8px',
+                    },
+                    value: {
+                      fontSize: '15px',
+                    }
+                  }
+                }
+              }
+            }
+          }
         },
       ],
     };
@@ -161,9 +176,9 @@ export class GpsGraphComponent implements AfterViewInit {
     const series = [gpsCheck[0].length, gpsCheck[1].length, gpsCheck[2].length];
     this.chartOptions.series = series;
     this.chartOptions.labels = [
-      `<div style='width: 110px; display:flex; justify-content: space-between'><span>Ok</span> <span>${gpsCheck[0].length}</span></div>`,
-      `<div style='width: 110px; display:flex; justify-content: space-between'><span>Warning</span><span>${gpsCheck[1].length}</span></div>`,
-      `<div style='width: 110px; display:flex; justify-content: space-between'><span>Error</span><span>${gpsCheck[2].length}</span></b>`,
+      `<div class='legend-item'><span>Ok</span> <span>${gpsCheck[0].length}</span></div>`,
+      `<div class='legend-item'><span>Warning</span><span>${gpsCheck[1].length}</span></div>`,
+      `<div class='legend-item'><span>Error</span><span>${gpsCheck[2].length}</span></b>`,
     ];
     this.cd.detectChanges();
   }

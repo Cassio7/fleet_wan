@@ -6,3 +6,15 @@
 .chart-container{
   pointer-events: none;
 }
+::ng-deep .legend-item {
+  width: 110px;
+  display: flex;
+  justify-content: space-between;
+}
+@media screen and (max-width: 1366px){
+  ::ng-deep .legend-item {
+    width: 100px;
+    display: flex;
+    justify-content: space-between;
+  }
+}
