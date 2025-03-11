@@ -861,7 +861,13 @@ export class SessionService {
       const history = await this.historyRepository
         .createQueryBuilder('h')
         .distinctOn(['v.veId'])
-        .select(['h.id as id ', 'h.timestamp AS timestamp', 'v.veId AS veId'])
+        .select([
+          'h.id as id ',
+          'h.timestamp AS timestamp',
+          'h.latitude as latitude',
+          'h.longitude as longitude',
+          'v.veId AS veId',
+        ])
         .innerJoin('vehicles', 'v', 'h.vehicleId = v.id')
         .where('v.veId IN (:...vehicleIds)', { vehicleIds })
         .orderBy('v.veId')
