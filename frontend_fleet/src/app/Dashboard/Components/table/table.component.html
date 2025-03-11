@@ -67,22 +67,30 @@
         </div>
 
         <!-- Controllo avviso GPS -->
-        <div
+        <div class="anomaly-container" [matTooltip]="checkErrorsService.checkVehicleGPSWarning(vehicleData)">
+          <div class="warning-container" *ngIf="checkErrorsService.checkVehicleGPSWarning(vehicleData) && checkErrorsService.getVehicleGPSAnomalyCount(vehicleData)! > 0">
+            {{checkErrorsService.getVehicleGPSAnomalyCount(vehicleData)}} gg
+          </div>
+          <div
           *ngIf="checkErrorsService.checkVehicleGPSWarning(vehicleData)"
           class="warning-container"
-          [matTooltip]="checkErrorsService.checkVehicleGPSWarning(vehicleData)"
-        >
-          Warn
+          >
+            Warn
+          </div>
         </div>
 
         <!-- Controllo errore GPS -->
-        <div
-          *ngIf="checkErrorsService.checkVehicleGpsError(vehicleData)"
-          class="error-container"
-          [matTooltip]="checkErrorsService.checkVehicleGpsError(vehicleData)"
-        >
-          Error
-        </div>
+         <div class="anomaly-container" [matTooltip]="checkErrorsService.checkVehicleGpsError(vehicleData)">
+            <div class="error-container" *ngIf="checkErrorsService.checkVehicleGpsError(vehicleData) && checkErrorsService.getVehicleGPSAnomalyCount(vehicleData)! > 0">
+            {{checkErrorsService.getVehicleGPSAnomalyCount(vehicleData)}} gg
+           </div>
+            <div
+            *ngIf="checkErrorsService.checkVehicleGpsError(vehicleData)"
+            class="error-container"
+          >
+            Error
+          </div>
+         </div>
       </td>
     </ng-container>
 
@@ -106,16 +114,20 @@
       >
         <mat-icon class="noAntennA-icon">wifi_off</mat-icon>
       </div>
+      <div class="anomaly-container" [matTooltip]="checkErrorsService.checkVehicleAntennaError(vehicleData) || 'Anomalia antenna RFID'">
+        <div class="error-container" *ngIf="checkErrorsService.getVehicleAntennaAnomalyCount(vehicleData)! > 0">
+          {{checkErrorsService.getVehicleAntennaAnomalyCount(vehicleData)}} gg
+        </div>
         <div
           class="error-container"
           *ngIf="
             checkErrorsService.checkVehicleAntennaError(vehicleData) &&
             vehicleData.vehicle.isRFIDReader
           "
-          [matTooltip]="checkErrorsService.checkVehicleAntennaError(vehicleData) || 'Anomalia antenna RFID'"
         >
           Error
         </div>
+      </div>
       </td>
     </ng-container>
 
@@ -201,31 +213,24 @@
         <!-- se c'è errore  -->
         <ng-template #sessionError>
           <div
-            class="session-error"
+            class="anomaly-container"
             *ngIf="checkErrorsService.checkVehicleSessionError(vehicleData)"
+            [matTooltip]="
+            checkErrorsService.checkVehicleSessionError(vehicleData)"
           >
             <div
               class="error-container"
               *ngIf="checkErrorsService.getVehicleSessionAnomalyCount(vehicleData)! > 0"
-              [matTooltip]="
-                checkErrorsService.checkVehicleSessionError(vehicleData)
-              "
             >
               {{ checkErrorsService.getVehicleSessionAnomalyCount(vehicleData) }} gg
             </div>
             <div
               class="error-container"
-              [matTooltip]="
-                checkErrorsService.checkVehicleSessionError(vehicleData)
-              "
             >
               Error
             </div>
             <span
               class="session-error-date"
-              [matTooltip]="
-                checkErrorsService.checkVehicleSessionError(vehicleData)
-              "
             >
               {{
                 checkErrorsService.getVehicleSessionAnomalyDate(vehicleData) ? (checkErrorsService.getVehicleSessionAnomalyDate(vehicleData) | date : "dd/MM/yyyy"): ""

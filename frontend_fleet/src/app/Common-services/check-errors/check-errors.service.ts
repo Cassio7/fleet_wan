@@ -125,10 +125,26 @@ export class CheckErrorsService {
   }
 
 
-  getVehicleSessionAnomalyCount(vehicleData: VehicleData){
+  getVehicleSessionAnomalyCount(vehicleData: VehicleData): number | null{
     const anomalies = this.checkVehicleAnomaly(vehicleData);
     if(anomalies){
       return anomalies.session_count;
+    }
+    return null;
+  }
+
+  getVehicleAntennaAnomalyCount(vehicleData: VehicleData): number | null{
+    const anomalies = this.checkVehicleAnomaly(vehicleData);
+    if(anomalies){
+      return anomalies.antenna_count;
+    }
+    return null;
+  }
+
+  getVehicleGPSAnomalyCount(vehicleData: VehicleData): number | null{
+    const anomalies = this.checkVehicleAnomaly(vehicleData);
+    if(anomalies){
+      return anomalies.gps_count;
     }
     return null;
   }
