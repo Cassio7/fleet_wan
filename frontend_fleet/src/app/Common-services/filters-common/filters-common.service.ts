@@ -144,18 +144,6 @@ export class FiltersCommonService {
   }
 
   /**
-   * Trova l'intersezione tra due array di veicoli
-   * @param firstArray primo array di veicoli
-   * @param secondArray secondo array di veicoli
-   * @returns intersezione tra i due array
-   */
-  private intersectVehicles(firstArray: VehicleData[], secondArray: VehicleData[]): VehicleData[] {
-    return firstArray.filter(firstVehicle =>
-      secondArray.some(secondVehicle => secondVehicle.vehicle.veId === firstVehicle.vehicle.veId)
-    );
-  }
-
-  /**
    * Filtra i veicoli in base allo stato
    * @param errorChecks controllo sugli errori
    * @param statuses array di stringhe sugli status

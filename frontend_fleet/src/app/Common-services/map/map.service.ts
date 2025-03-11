@@ -24,7 +24,7 @@ export interface pathData{
   providedIn: 'root',
 })
 export class MapService {
-  defaultPoint: Point = new Point(41.9027835, 12.4963655);
+  defaultPoint: Point = new Point(41.902782, 12.496366);
   defaultZoom: number = 5;
 
   private readonly _initMap$: BehaviorSubject<{point: Point, zoom: number}> = new BehaviorSubject<{point: Point, zoom: number}>({point: this.defaultPoint, zoom: this.defaultZoom});
