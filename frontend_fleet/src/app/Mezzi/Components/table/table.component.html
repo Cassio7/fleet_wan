@@ -85,7 +85,7 @@
       <ng-container matColumnDef="Installazione fleet">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>Installazione fleet</th>
         <td mat-cell *matCellDef="let vehicle">
-          {{ vehicle?.fleet_install || "" }}
+          {{ vehicle?.fleet_install ? (vehicle.fleet_install | date:'dd/MM/yyyy') : '' }}
         </td>
       </ng-container>
 
