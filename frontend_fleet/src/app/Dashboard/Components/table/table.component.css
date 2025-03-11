@@ -62,8 +62,11 @@ td.mat-cell {
   font-size: 20px;
 }
 
+.noRFID-container{
+  padding: 4px;
+}
+
 .noRFID-container mat-icon{
-  border-radius: 5px;
   font-size: 20px;
 }
 

@@ -135,7 +135,7 @@ table:not(.mat-calendar-table) tr:nth-child(even) {
   justify-content: center;
   gap: 2px;
   color: white;
-  background-color: #C5D026;
+  background-color: var(--yellow);
   padding: 6px;
   border-radius: 5px;
 }
@@ -146,29 +146,29 @@ table:not(.mat-calendar-table) tr:nth-child(even) {
   justify-content: center;
   gap: 2px;
   color: white;
-  background-color: #d12717;
+  background-color: var(--red);
   padding: 6px;
   border-radius: 5px;
 }
 
 .noRFID-container{
-  display: flex;
-  align-items: center;
-  justify-content: left;
-}
-
-
-.noRFID-container mat-icon{
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 2px;
   color: white;
   background-color: var(--black);
-  padding: 2%;
+  padding: 6px;
+  border-radius: 5px;
 }
 
-.session-error{
+.noRFID-container mat-icon{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.anomaly-container{
   display: flex;
   align-items: center;
   gap: 5px;
