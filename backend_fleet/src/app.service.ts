@@ -6,7 +6,6 @@ import { UserFactoryService } from './factory/user.factory';
 import { WorksiteFactoryService } from './factory/worksite.factory';
 import { WorksiteGroupFactoryService } from './factory/worksite_group.factory';
 import { CompanyService } from './services/company/company.service';
-import { RealtimeService } from './services/realtime/realtime.service';
 import { SessionService } from './services/session/session.service';
 import { TagService } from './services/tag/tag.service';
 import { VehicleService } from './services/vehicle/vehicle.service';
@@ -42,7 +41,6 @@ export class AppService implements OnModuleInit {
     private readonly equipmentFacotoryService: EquipmentFacotoryService,
     private readonly workzoneFacotoryService: WorkzoneFacotoryService,
     private readonly anomalyService: AnomalyService,
-    private readonly realtimeService: RealtimeService,
     private readonly controlService: ControlService,
     private readonly associationService: AssociationService,
     @InjectRedis() private readonly redis: Redis,
@@ -62,7 +60,6 @@ export class AppService implements OnModuleInit {
     //await this.anomalyCheck(startDate, endDate);
     //await this.dailyAnomalyCheck();
     //await this.setAnomaly();
-    //await this.updateRealtime();
     await this.redis.publish('realtime_channel', 'Applicazione inizializzata');
   }
 
@@ -480,20 +477,5 @@ export class AppService implements OnModuleInit {
 
     await this.anomalyService.setTodayAnomalyRedis(todayAnomalies);
     await this.anomalyService.setLastAnomalyRedis(lastAnomalies);
-  }
-
-  //@Cron('*/5 * * * *')
-  async updateRealtime() {
-    await this.realtimeService.clearRealtime();
-    await this.realtimeService.setRealtime(254, 313); //Gesenu principale
-    await this.realtimeService.setRealtime(305, 650); //TSA principale
-    await this.realtimeService.setRealtime(324, 688); //Fiumicino principale
-    const vehicles = await this.vehicleService.getAllVehicles();
-    const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
-    const realtimes = await this.realtimeService.getTimesByVeId(vehicleIds);
-    const latestRealtimes =
-      await this.realtimeService.calculateLastValid(realtimes);
-    await this.realtimeService.setLastValidRedis(latestRealtimes);
-    console.log('Realtime aggiornato alle: ' + new Date().toISOString());
   }
 }
