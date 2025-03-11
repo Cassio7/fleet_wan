@@ -12,6 +12,7 @@ import {
   Component,
   Input,
   OnChanges,
+  OnDestroy,
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
@@ -64,7 +65,7 @@ import { tagData, TagService } from '../../Common-services/tag/tag.service';
     ]),
   ],
 })
-export class SessionTableComponent implements OnChanges, AfterViewInit {
+export class SessionTableComponent implements OnChanges, AfterViewInit, OnDestroy {
   private readonly destroy$: Subject<void> = new Subject<void>();
   @ViewChild('anomaliesTable') anomaliesTable!: MatTable<Anomaly>;
   @ViewChild('sessionsTable') sessionsTable!: MatTable<Session>;
@@ -115,6 +116,10 @@ export class SessionTableComponent implements OnChanges, AfterViewInit {
     private router: Router,
     private cd: ChangeDetectorRef
   ) {}
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   ngOnInit() {
     // Initialize displayed columns with ALL columns

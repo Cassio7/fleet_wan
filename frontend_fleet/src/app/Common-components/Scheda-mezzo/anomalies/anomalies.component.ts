@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { VehicleAnomalies } from '../../../Models/VehicleAnomalies';
@@ -21,8 +21,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   templateUrl: './anomalies.component.html',
   styleUrl: './anomalies.component.css'
 })
-export class AnomaliesComponent implements OnInit, AfterViewInit{
-  @Input() vehicle!: Vehicle;  private readonly destroy$: Subject<void> = new Subject<void>();
+export class AnomaliesComponent implements OnInit, AfterViewInit, OnDestroy{
+  private readonly destroy$: Subject<void> = new Subject<void>();
+  @Input() vehicle!: Vehicle;
 
   gpsStatus!: string;
   antennaStatus!: string;
@@ -43,6 +44,10 @@ export class AnomaliesComponent implements OnInit, AfterViewInit{
     private checkErrorsService: CheckErrorsService,
     private cd: ChangeDetectorRef
   ){}
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
   ngAfterViewInit(): void {
     this.checkAnomalies();
   }

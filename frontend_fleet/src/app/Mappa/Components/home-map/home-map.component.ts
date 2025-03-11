@@ -1,4 +1,4 @@
-import { AfterViewInit, Component } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy } from '@angular/core';
 import { MapComponent } from "../../../Common-components/map/map.component";
 import { MapService } from '../../../Common-services/map/map.service';
 import { Point } from '../../../Models/Point';
@@ -21,12 +21,16 @@ import { CommonModule } from '@angular/common';
   templateUrl: './home-map.component.html',
   styleUrl: './home-map.component.css'
 })
-export class HomeMapComponent implements AfterViewInit{
+export class HomeMapComponent implements AfterViewInit, OnDestroy{
   private readonly destroy$: Subject<void> = new Subject<void>();
   constructor(
     private mapService: MapService,
     private realtimeApiService: RealtimeApiService
   ){}
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   vehicleSelected: boolean = false;
 

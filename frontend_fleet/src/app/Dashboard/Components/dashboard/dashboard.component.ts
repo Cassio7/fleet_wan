@@ -1,6 +1,6 @@
 import { SessionStorageService } from './../../../Common-services/sessionStorage/session-storage.service';
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, ViewChild, OnInit, inject } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, ViewChild, OnInit, inject, OnDestroy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -60,7 +60,7 @@ import { RealtimeData } from '../../../Models/RealtimeData';
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
-export class DashboardComponent implements OnInit, AfterViewInit{
+export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy{
   @ViewChild('graphs') graphs!: ElementRef;
   private readonly destroy$: Subject<void> = new Subject<void>();
 
@@ -72,7 +72,7 @@ export class DashboardComponent implements OnInit, AfterViewInit{
   lastSession = false;
   switchText: string = "Oggi";
 
-  pageName = "Riepilogo parco mezzi";
+  pageName = "Riepilogo";
   subtitle = "Monitora i tuoi veicoli";
 
   mapVehiclePlate: string = "";
@@ -100,6 +100,10 @@ export class DashboardComponent implements OnInit, AfterViewInit{
     private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef
   ){}
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   ngOnInit(): void {
     const currentSection = this.sessionStorageService.getItem("dashboard-section");
@@ -173,7 +177,7 @@ export class DashboardComponent implements OnInit, AfterViewInit{
       next: () => {
         this.dashboard = true;
         this.displaySection("table"); //display del componente scelto dal kebab menu
-        this.pageName = "Riepilogo parco mezzi";
+        this.pageName = "Riepilogo";
         this.subtitle = "Monitora i tuoi veicoli";
         this.errorGraphTitle = this.errorGraphService.graphTitle = "Errors";//impostazione titolo del grafico
         this.sessionStorageService.setItem("dashboard-section", "table");
@@ -223,7 +227,7 @@ export class DashboardComponent implements OnInit, AfterViewInit{
   private displaySection(sectionName: string){
     switch(sectionName){
       case "table":
-        this.pageName = "Riepilogo parco mezzi";
+        this.pageName = "Riepilogo";
         this.subtitle = "Monitora i tuoi veicoli";
         this.table = true;
         this.kanbanGps = false;

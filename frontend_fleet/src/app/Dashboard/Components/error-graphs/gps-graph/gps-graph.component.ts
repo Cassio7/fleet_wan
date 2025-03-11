@@ -3,6 +3,7 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
+  OnDestroy,
 } from '@angular/core';
 import {
   ApexChart,
@@ -38,7 +39,7 @@ export type ChartOptions = {
   templateUrl: './gps-graph.component.html',
   styleUrl: './gps-graph.component.css',
 })
-export class GpsGraphComponent implements AfterViewInit {
+export class GpsGraphComponent implements AfterViewInit, OnDestroy {
   private readonly destroy$: Subject<void> = new Subject<void>();
   public chartOptions: ChartOptions;
 

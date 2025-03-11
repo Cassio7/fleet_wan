@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, Input } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy } from '@angular/core';
 import { ApexAxisChartSeries, ApexChart, ApexXAxis, ApexDataLabels, ApexGrid, ApexStroke, ApexTitleSubtitle, ApexYAxis } from 'ng-apexcharts';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { DetectionGraphService } from '../../Services/detection-graph/detection-graph.service';
@@ -32,7 +32,7 @@ export type ChartOptions = {
   templateUrl: './detection-graph.component.html',
   styleUrl: './detection-graph.component.css'
 })
-export class DetectionGraphComponent implements AfterViewInit{
+export class DetectionGraphComponent implements AfterViewInit, OnDestroy{
   private readonly destroy$: Subject<void> = new Subject<void>();
   @Input() veId!: number;
   selectedRange: string = '';
@@ -78,6 +78,10 @@ export class DetectionGraphComponent implements AfterViewInit{
         ],
       },
     };
+  }
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
   ngAfterViewInit(): void {
     this.router.events.subscribe(event => {

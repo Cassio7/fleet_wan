@@ -1,6 +1,6 @@
 import { SessionStorageService } from './../../../Common-services/sessionStorage/session-storage.service';
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectorRef, Component } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import { MatIconModule } from '@angular/material/icon';
@@ -23,7 +23,7 @@ import { LoginService } from '../../../Common-services/login service/login.servi
   templateUrl: './kebab-menu.component.html',
   styleUrl: './kebab-menu.component.css'
 })
-export class KebabMenuComponent implements AfterViewInit{
+export class KebabMenuComponent implements AfterViewInit, OnDestroy{
   private readonly destroy$: Subject<void> = new Subject<void>();
   selectedOption: string = "table";
 
@@ -36,6 +36,11 @@ export class KebabMenuComponent implements AfterViewInit{
     private sessionStorageService: SessionStorageService,
     private kanbanSessioneService: KanbanSessioneService
   ){}
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   ngAfterViewInit(): void {
     this.selectedOption = this.sessionStorageService.getItem("dashboard-section");

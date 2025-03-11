@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { skip, Subject, takeUntil } from 'rxjs';
 import {
   ApexChart,
@@ -30,7 +30,7 @@ export type ChartOptions = {
   templateUrl: './sessione-graph.component.html',
   styleUrl: './sessione-graph.component.css',
 })
-export class SessioneGraphComponent {
+export class SessioneGraphComponent implements OnDestroy {
   private readonly destroy$: Subject<void> = new Subject<void>();
   public chartOptions: ChartOptions;
   private width: number = 300;

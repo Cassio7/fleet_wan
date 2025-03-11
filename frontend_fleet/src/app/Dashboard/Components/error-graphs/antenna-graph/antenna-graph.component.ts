@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import {
   ApexChart,
   ApexDataLabels,
@@ -34,7 +34,7 @@ export type ChartOptions = {
   templateUrl: './antenna-graph.component.html',
   styleUrl: './antenna-graph.component.css',
 })
-export class AntennaGraphComponent {
+export class AntennaGraphComponent implements OnDestroy{
   private readonly destroy$: Subject<void> = new Subject<void>();
   public chartOptions: ChartOptions;
 
