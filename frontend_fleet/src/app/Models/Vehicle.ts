@@ -24,7 +24,7 @@ export class Vehicle {
     public realtime: Realtime,
     public retired_event: Date | null,
     public fleet_number: number | null,
-    public fleet_install: string | null,
+    public fleet_install: Date | null,
     public registration?: string,
     public rental?: Rental,
     public worksite?: WorkSite,
