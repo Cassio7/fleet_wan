@@ -273,13 +273,15 @@ export class AssociationService {
       },
       relations: {
         worksite: {
-          vehicle: true,
+          vehicle: {
+            worksite: true,
+          },
         },
         company: {
           group: {
             worksite_group: {
               worksite: {
-                vehicle: true,
+                vehicle: { worksite: true },
               },
             },
           },
