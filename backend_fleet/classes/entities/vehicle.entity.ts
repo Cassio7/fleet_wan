@@ -11,15 +11,14 @@ import {
 } from 'typeorm';
 import { AnomalyEntity } from './anomaly.entity';
 import { DeviceEntity } from './device.entity';
+import { EquipmentEntity } from './equipment.entity';
 import { HistoryEntity } from './history.entity';
 import { NoteEntity } from './note.entity';
-import { RealtimePositionEntity } from './realtime_position.entity';
+import { RentalEntity } from './rental.entity';
 import { ServiceEntity } from './service.entity';
 import { TagHistoryEntity } from './tag_history.entity';
 import { WorksiteEntity } from './worksite.entity';
 import { WorkzoneEntity } from './workzone.entity';
-import { RentalEntity } from './rental.entity';
-import { EquipmentEntity } from './equipment.entity';
 
 @Entity({
   name: 'vehicles',
@@ -103,12 +102,6 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
   @JoinColumn({ name: 'device_id' })
   @Index()
   device: DeviceEntity;
-
-  @OneToMany(
-    () => RealtimePositionEntity,
-    (realtime_position) => realtime_position.vehicle,
-  )
-  realtime_position: RealtimePositionEntity[];
 
   @OneToMany(() => HistoryEntity, (history) => history.vehicle)
   history: HistoryEntity[];
