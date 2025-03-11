@@ -19,6 +19,8 @@ export class ControlService {
     this.configService.get<number>('MIN_POSITIONS_GPS');
   // percentuale sopra al 20%
   private PERCENTUALE_GPS = 0.2;
+  // massima distanza che può fare una sessione
+  private MAX_DISTANCE: number = this.configService.get<number>('MAX_DISTANCE');
   // minimo 1 posizione per convalidare una sessione
   private MIN_POSITIONS_ANTENNA = this.configService.get<number>(
     'MIN_POSITIONS_ANTENNA',
@@ -99,27 +101,36 @@ export class ControlService {
           const skipDistanceCheck =
             Object.keys(groupedBySequence).length === 1 &&
             groupedBySequence[0]?.length > 0;
-
+          let distanceTooBig: boolean = false;
           if (!skipDistanceCheck) {
-            const distanceMap = sessionsDay.map((data) => data.distance);
-
+            // recupero tutte le distanze soltanto 1 volta, per ogni sessione
+            const uniqueDistances: number[] = Array.from(
+              sessionsDay
+                .reduce((map, item) => {
+                  if (!map.has(item.sequence_id)) {
+                    map.set(item.sequence_id, item.distance);
+                  }
+                  return map;
+                }, new Map<number, number>())
+                .values(),
+            );
             if (vehicle.isCan) {
-              const hasDistanceAnomaly = distanceMap.every(
+              const hasDistanceAnomaly = uniqueDistances.every(
                 (distance) => distance === 0,
               );
               if (hasDistanceAnomaly) {
                 anomalies.push(
-                  `Anomalia tachimetro, distanza sempre uguale a ${distanceMap[0]}`,
+                  `Anomalia tachimetro, distanza sempre uguale a ${uniqueDistances[0]}`,
                 );
               }
             } else {
               const hasDistanceAnomaly =
-                distanceMap.every((distance) => distance === distanceMap[0]) ||
-                distanceMap.every((distance) => distance === 0);
-
+                uniqueDistances.every(
+                  (distance) => distance === uniqueDistances[0],
+                ) || uniqueDistances.every((distance) => distance === 0);
               if (hasDistanceAnomaly && isCoordinatesFixed) {
                 anomalies.push(
-                  `Anomalia totale, distanza: ${distanceMap[0]} e lat: ${coordinates[0].latitude} e lon: ${coordinates[0].longitude}`,
+                  `Anomalia totale, distanza: ${uniqueDistances[0]} e lat: ${coordinates[0].latitude} e lon: ${coordinates[0].longitude}`,
                 );
                 return {
                   plate: vehicle.plate,
@@ -130,6 +141,9 @@ export class ControlService {
                   anomalies,
                 };
               }
+              distanceTooBig = uniqueDistances.some(
+                (distance) => distance > this.MAX_DISTANCE,
+              );
             }
           }
 
@@ -140,6 +154,10 @@ export class ControlService {
           } else if (hasZeroCoordinatesAnomaly) {
             anomalies.push(
               `Anomalia coordinate con lat: 0 e lon: 0 sopra al 20%`,
+            );
+          } else if (distanceTooBig) {
+            anomalies.push(
+              `Anomalia distanza: sessione superiore a ${this.MAX_DISTANCE}km `,
             );
           }
 
