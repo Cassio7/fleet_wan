@@ -49,7 +49,7 @@ export class SessionApiService {
       dateFrom: dateFrom,
       dateTo: dateTo
     }
-    return this.http.post<Session[]>(`${this.commonService.url}/sessions/veId/ranged`, body, {headers});
+    return this.http.post<Session[]>(`${this.commonService.url}/sessions/veId/ranged?filter=true`, body, {headers});
   }
 
   /**
