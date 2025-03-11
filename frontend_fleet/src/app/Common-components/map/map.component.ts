@@ -1,19 +1,25 @@
 import {
+  AfterContentChecked,
   AfterViewInit,
   ChangeDetectorRef,
   Component,
   OnDestroy,
+  OnInit,
   ViewEncapsulation,
 } from '@angular/core';
 import * as L from 'leaflet';
 import { MapService, pathData, positionData } from '../../Common-services/map/map.service';
-import { skip, Subject, takeUntil } from 'rxjs';
+import { last, merge, skip, Subject, takeUntil } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { RealtimeData } from '../../Models/RealtimeData';
 import { Point } from '../../Models/Point';
 import { SessionStorageService } from '../../Common-services/sessionStorage/session-storage.service';
 import { Router } from '@angular/router';
+import { KanbanAntennaService } from '../../Dashboard/Services/kanban-antenna/kanban-antenna.service';
+import { KanbanGpsService } from '../../Dashboard/Services/kanban-gps/kanban-gps.service';
+import { KanbanSessioneService } from '../../Dashboard/Services/kanban-sessione/kanban-sessione.service';
+import { KanbanTableService } from '../../Dashboard/Services/kanban-table/kanban-table.service';
 
 @Component({
   selector: 'app-map',
@@ -23,17 +29,22 @@ import { Router } from '@angular/router';
   styleUrl: './map.component.css',
   encapsulation: ViewEncapsulation.None,
 })
-export class MapComponent implements AfterViewInit, OnDestroy {
+export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly destroy$: Subject<void> = new Subject<void>();
 
-  map!: L.Map;
+  private map!: L.Map;
   initialized: boolean = false;
 
   constructor(
     private mapService: MapService,
+    private kanbanTableService: KanbanTableService,
+    private kanbanAntennaService: KanbanAntennaService,
+    private kanbanGpsService: KanbanGpsService,
+    private kanbanSessioneService: KanbanSessioneService,
     private sessionStorageService: SessionStorageService,
     private router: Router,
     private cd: ChangeDetectorRef) {}
+
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -41,6 +52,10 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   }
 
   private routingControl: L.Routing.Control | null = null;
+
+  ngOnInit() {
+    this.handleKanbanChange();
+  }
 
 
   ngAfterViewInit(): void {
@@ -53,6 +68,25 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.handleMarkersUpdate();
     this.handleZoomIn();
   }
+
+  private handleKanbanChange() {
+    merge(
+      this.kanbanTableService.loadKabanTable$,
+      this.kanbanGpsService.loadKanbanGps$,
+      this.kanbanAntennaService.loadKanbanAntenna$,
+      this.kanbanSessioneService.loadKanbanSessione$
+    )
+    .pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next: () => {
+        setTimeout(() => {
+          this.map.invalidateSize();
+        }, 1000);
+      },
+      error: error => console.error("Errore nel centrare la mappa dopo il cambio di kanban: ", error)
+    });
+  }
+
 
   private handleZoomIn(){
     this.mapService.zoomIn$.pipe(takeUntil(this.destroy$), skip(1))
@@ -353,6 +387,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   /**
    * Inizializza la mappa su un punto
    * @param point punto da cui inizializzare la mappa
+   * @param zoom zoom con la quale impostare la vista
    */
   private initMap(point: Point, zoom: number) {
     this.initialized = true;
