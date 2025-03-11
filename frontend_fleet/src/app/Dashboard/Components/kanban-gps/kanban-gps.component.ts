@@ -246,7 +246,9 @@ export class KanbanGpsComponent implements AfterViewInit, OnDestroy {
         antenna: null,
         detection_quality: null,
         session: null,
-        session_count: null
+        session_count: 0,
+        antenna_count: 0,
+        gps_count: 0
       },
     };
     this.mapService.initMap$.next({

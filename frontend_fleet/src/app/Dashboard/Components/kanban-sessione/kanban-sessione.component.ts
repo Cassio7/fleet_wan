@@ -245,7 +245,9 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy {
         antenna: null,
         detection_quality: null,
         session: vehicleData.anomalies[0].session,
-        session_count: null
+        session_count: 0,
+        antenna_count: 0,
+        gps_count: 0
       },
     };
     this.mapService.initMap$.next({
