@@ -1,14 +1,13 @@
-import { ErrorGraphsService } from './../../Services/error-graphs/error-graphs.service';
 import { SessionFilterService } from './../../../Common-services/session-filter/session-filter.service';
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatOptionModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
-import { merge, skip, Subject, takeUntil } from 'rxjs';
+import { skip, Subject, takeUntil } from 'rxjs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
@@ -20,7 +19,6 @@ import { Filters, FiltersCommonService } from '../../../Common-services/filters-
 import { KanbanTableService } from '../../Services/kanban-table/kanban-table.service';
 import { KanbanGpsService } from '../../Services/kanban-gps/kanban-gps.service';
 import { KanbanAntennaService } from '../../Services/kanban-antenna/kanban-antenna.service';
-import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
 
 @Component({
   selector: 'app-row-filter',
@@ -41,14 +39,10 @@ import { CheckErrorsService } from '../../../Common-services/check-errors/check-
   styleUrl: './row-filter.component.css'
 })
 
-export class RowFilterComponent implements AfterViewInit, OnDestroy{
+export class RowFilterComponent implements OnInit, AfterViewInit, OnDestroy{
   private readonly destroy$: Subject<void> = new Subject<void>();
 
   filterForm!: FormGroup;
-  cantieri = new FormControl<string[]>([]);
-  gps = new FormControl<string[]>([]);
-  antenne = new FormControl<string[]>([]);
-  sessionStates = new FormControl<string[]>([]);
 
   listaCantieri: string[] = [];
 
@@ -61,10 +55,10 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
 
   private _filters: Filters = {
     plate: "",
-    cantieri: this.cantieri,
-    gps: this.gps,
-    antenna: this.antenne,
-    sessione: this.sessionStates
+    cantieri: new FormControl<string[]>([]),
+    gps: new FormControl<string[]>([]),
+    antenna: new FormControl<string[]>([]),
+    sessione: new FormControl<string[]>([])
   };
 
 
@@ -73,22 +67,31 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
     public cantieriFilterService: CantieriFilterService,
     public gpsFilterService: GpsFilterService,
     public antennaFilterService: AntennaFilterService,
-    private kanabanTableService: KanbanTableService,
+    private kanbanTableService: KanbanTableService,
     private kanbanGpsService: KanbanGpsService,
     private kanbanAntennaService: KanbanAntennaService,
     public sessionFilterService: SessionFilterService,
     private cantiereFilterService: CantieriFilterService,
-    private checkErrorsService: CheckErrorsService,
-    private errorGraphService: ErrorGraphsService,
     private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef) {
     this.filterForm = new FormGroup({
-      cantiere: new FormControl(''),
-      targa: new FormControl(''),
-      range: new FormGroup({
-        start: new FormControl(new Date()),
-        end: new FormControl(new Date())
-      })
+      plate: new FormControl(''),
+      cantieri: new FormControl<string[]>([]),
+      gps:  new FormControl<string[]>([]),
+      antenna: new FormControl<string[]>([]),
+      sessionStates: new FormControl<string[]>([])
+    });
+  }
+  ngOnInit(): void {
+    this.filterForm.valueChanges.pipe(takeUntil(this.destroy$), skip(4))
+    .subscribe({
+      next: () => {
+        this.setFiltersObj();
+        this.kanbanTableService.filtersValue.set(this.filters);
+        this.filtersCommonService.applyFilters$.next(this.filters);
+        console.log('filtri impostati: ', this.filters);
+      },
+      error: error => console.log("Errore nell'ascolto del form dei filtri: ", error)
     });
   }
 
@@ -115,7 +118,7 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
   }
 
   private handleKanbanChange(){
-    this.kanabanTableService.loadKabanTable$.pipe(takeUntil(this.destroy$), skip(1))
+    this.kanbanTableService.loadKabanTable$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe(() => {
       this.applyToggleSelectAll();
     });
@@ -135,7 +138,7 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
     .pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (selectedCantieri: string[]) => {
-        this.cantieri.setValue(selectedCantieri);
+        this.filterForm.get('cantieri')?.setValue(selectedCantieri);
       },
     });
 
@@ -144,7 +147,7 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
     .pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (selectedOptions: string[]) => {
-        this.gps.setValue(selectedOptions);
+        this.filterForm.get('gps')?.setValue(selectedOptions);
       },
     });
 
@@ -153,7 +156,7 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
     .pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (selectedOptions: string[]) => {
-        this.antenne.setValue(selectedOptions);
+        this.filterForm.get('antenna')?.setValue(selectedOptions);
       },
     });
 
@@ -162,9 +165,17 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
     .pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (selectedOptions: string[]) => {
-        this.sessionStates.setValue(selectedOptions);
+        this.filterForm.get('sessionStates')?.setValue(selectedOptions);
       },
     });
+  }
+
+  private setFiltersObj(){
+    this.filters.plate = this.filterForm.get('plate')?.value;
+    this.filters.antenna = this.filterForm.get('antenna') as FormControl<string[] | null>;
+    this.filters.cantieri = this.filterForm.get('cantieri') as FormControl<string[] | null>;
+    this.filters.gps = this.filterForm.get('gps') as FormControl<string[] | null>;
+    this.filters.sessione = this.filterForm.get('sessionStates') as FormControl<string[] | null>;
   }
 
   /**
@@ -180,7 +191,7 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
   //   .pipe(takeUntil(this.destroy$), skip(1))
   //   .subscribe({
   //     next: () => {
-  //       this.filtersCommonService.applyFilters$.next(this.filters);
+  //
   //     },
   //     error: (error) => {
   //       console.error("Errore nel caricamento dei dati dal grafico degli errori: ", error);
@@ -199,21 +210,19 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
    */
   selectCantiere() {
     const allData = JSON.parse(this.sessionStorageService.getItem("allData"));
-    let selectedCantieri = this.cantieri.value || [];
+    let selectedCantieri: string[] = this.filterForm.get('cantieri')?.value || [];
 
     const allOptions = this.cantiereFilterService.vehiclesCantieriOnce(allData);
     const areAllSelected = allOptions.every(option => selectedCantieri.includes(option));
 
     console.log("allOptions: ", allOptions);
     if (areAllSelected && !selectedCantieri.includes("Seleziona tutto")) {
-      this.cantieri.setValue(["Seleziona tutto", ...selectedCantieri]);
+      this.filterForm.get('cantieri')?.setValue(["Seleziona tutto", ...selectedCantieri]);
       this.allSelected = true
     }else{
       this.allSelected = false;
-      this.cantieri.setValue(selectedCantieri.filter(option => option != "Seleziona tutto"));
+      this.filterForm.get('cantieri')?.setValue(selectedCantieri.filter((option: string) => option != "Seleziona tutto"));
     }
-
-    this.filtersCommonService.applyFilters$.next(this.filters);
     this.cd.detectChanges();
   }
 
@@ -224,12 +233,12 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
    * @param option opzione selezionata
    */
   selectGps() {
-    const selectedGpsStates = this.gps.value || [];
+    const selectedGpsStates: string[] = this.filterForm.get('gps')?.value || [];
 
     //rimozione di "Seleziona tutto" quando una singola opzione è deselezionata
     if (this.allSelected) {
       this.allSelected = false;
-      this.gps.setValue(selectedGpsStates.filter(selection => selection !== "Seleziona tutto"));
+      this.filterForm.get('gps')?.setValue(selectedGpsStates.filter(selection => selection !== "Seleziona tutto"));
     }
 
     const allOptions = ["Funzionante", "Warning", "Errore"];
@@ -238,11 +247,11 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
     //selezione di "Seleziona tutto" quando tutte le opzioni singole sono selezionate
     if (areAllSelected && !selectedGpsStates.includes("Seleziona tutto")) {
       selectedGpsStates.push("Seleziona tutto");
-      this.gps.setValue(selectedGpsStates);
+      this.filterForm.get('gps')?.setValue(selectedGpsStates);
       this.allSelected = true;
     }
 
-    this.filtersCommonService.applyFilters$.next(this.filters);
+
     this.cd.detectChanges();
   }
 
@@ -251,12 +260,12 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
    * Seleziona tutti i filtri del select delle antenne
    */
   selectAntenna() {
-    const selectedAntenne = this.antenne.value || [];
+    const selectedAntenne: string[] = this.filterForm.get('antenna')?.value || [];
 
     //rimozione di "Seleziona tutto" quando una singola opzione è deselezionata
     if (this.allSelected) {
       this.allSelected = false;
-      this.antenne.setValue(selectedAntenne.filter(selection => selection !== "Seleziona tutto"));
+      this.filterForm.get('antenna')?.setValue(selectedAntenne.filter(selection => selection !== "Seleziona tutto"));
     }
 
     const allOptions = ["Funzionante", "Errore", "Blackbox"];
@@ -265,27 +274,27 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
     //selezione di "Seleziona tutto" quando tutte le opzioni singole sono selezionate
     if (areAllSelected && !selectedAntenne.includes("Seleziona tutto")) {
       selectedAntenne.push("Seleziona tutto");
-      this.antenne.setValue(selectedAntenne);
+      this.filterForm.get('antenna')?.setValue(selectedAntenne);
       this.allSelected = true;
     }
 
-    this.filtersCommonService.applyFilters$.next(this.filters);
+
     this.cd.detectChanges();
   }
 
   selectSession() {
-    const selectedSessionStates = this.sessionStates.value || [];
+    const selectedSessionStates: string[] = this.filterForm.get('sessionStates')?.value || [];
 
     //rimozione di "Seleziona tutto" quando una singola opzione è deselezionata
     if (this.allSelected) {
       this.allSelected = false;
-      this.sessionStates.setValue(selectedSessionStates.filter(selection => selection !== "Seleziona tutto"));
+      this.filterForm.get('sessionStates')?.setValue(selectedSessionStates.filter(selection => selection !== "Seleziona tutto"));
     }
 
     // Rimozione di "Seleziona tutto" quando una singola opzione è deselezionata
     if (this.allSelected) {
       this.allSelected = false;
-      this.sessionStates.setValue(
+      this.filterForm.get('sessionStates')?.setValue(
         selectedSessionStates.filter(selection => selection !== "Seleziona tutto")
       );
     }
@@ -296,11 +305,9 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
     //selezione di "Seleziona tutto" quando tutte le opzioni singole sono selezionate
     if (areAllSelected && !selectedSessionStates.includes("Seleziona tutto")) {
       selectedSessionStates.push("Seleziona tutto");
-      this.sessionStates.setValue(selectedSessionStates);
+      this.filterForm.get('sessionStates')?.setValue(selectedSessionStates);
       this.allSelected = true;
     }
-
-    this.filtersCommonService.applyFilters$.next(this.filters);
     this.cd.detectChanges();
   }
 
@@ -308,28 +315,28 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
    * Seleziona tutti i filtri del select dei cantieri
    */
   toggleSelectAllCantieri(){
-    this.cantieri.setValue(!this.allSelected ? ["Seleziona tutto", ...this.listaCantieri] : []);
+    this.filterForm.get('cantieri')?.setValue(!this.allSelected ? ["Seleziona tutto", ...this.listaCantieri] : []);
   }
 
   /**
    * Seleziona tutti i filtri del select delle sessioni
    */
   toggleSelectAllSession(){
-    this.sessionStates.setValue(!this.allSelected ? ["Seleziona tutto", ...this.sessionFilterService.allOptions] : []);
+    this.filterForm.get('sessionStates')?.setValue(!this.allSelected ? ["Seleziona tutto", ...this.sessionFilterService.allOptions] : []);
   }
 
   /**
    * Seleziona tutti i filtri del select dei gps
    */
   toggleSelectAllGps() {
-    this.gps.setValue(!this.allSelected ? ["Seleziona tutto", ...this.gpsFilterService.allOptions] : [])
+    this.filterForm.get('gps')?.setValue(!this.allSelected ? ["Seleziona tutto", ...this.gpsFilterService.allOptions] : [])
   }
 
   /**
    * Seleziona tutti i filtri del select delle antenne
    */
   toggleSelectAllAntenne(){
-    this.antenne.setValue(!this.allSelected ? ["Seleziona tutto", ...this.antennaFilterService.allOptions] : []);
+    this.filterForm.get('antenna')?.setValue(!this.allSelected ? ["Seleziona tutto", ...this.antennaFilterService.allOptions] : []);
   }
 
   /**
@@ -337,9 +344,7 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
    * applicarli sui veicoli della tabella
    */
   applyToggleSelectAll() {
-    this.toggleSelectAll();
-    console.log("filters: ", this.filters);
-    this.filtersCommonService.applyFilters$.next(this.filters);
+    this.toggleSelectAll()
   }
   /**
    * Seleziona tutte le opzioni di tutti i filtri
@@ -362,8 +367,6 @@ export class RowFilterComponent implements AfterViewInit, OnDestroy{
     // if(!this.filters.plate){
     //   this.toggleSelectAll();
     // }
-
-    this.filtersCommonService.applyFilters$.next(this.filters);
   }
   public get filters(): Filters {
     return this._filters;
