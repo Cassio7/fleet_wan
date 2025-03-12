@@ -126,6 +126,7 @@ export class RowFilterComponent implements OnInit, AfterViewInit, OnDestroy{
       this.filterForm.get('gps')?.setValue(previous_value.gps.value);
       this.filterForm.get('antenna')?.setValue(previous_value.antenna.value);
       this.filterForm.get('sessionStates')?.setValue(previous_value.sessione.value);
+      this.allSelected = false;
     }
   }
 
