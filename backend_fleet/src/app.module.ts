@@ -44,6 +44,7 @@ import { TagService } from './services/tag/tag.service';
 import { UserService } from './services/user/user.service';
 import { VehicleService } from './services/vehicle/vehicle.service';
 import { WorksiteService } from './services/worksite/worksite.service';
+import { StatsService } from './services/anomaly/stats/stats.service';
 
 // importo i controller
 import { AnomalyController } from './controllers/anomaly/anomaly.controller';
@@ -271,6 +272,7 @@ import { NotificationsController } from './notifications/notifications.controlle
     ControlService,
     NotificationsService,
     NotificationsGateway,
+    StatsService,
   ],
 })
 export class AppModule {}
