@@ -86,7 +86,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy{
   private _kanbanAntenna: boolean = false;
   private _kanbanSessione: boolean = false;
 
-
   lastUpdate: string = "";
 
   constructor(
@@ -103,8 +102,15 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy{
     private cd: ChangeDetectorRef
   ){
     effect(() => {
-      this.lastUpdate = this.dashboardService.lastUpdate();
-      this.openSnackbar("Dati aggiornati con successo! ✔");
+      const signalLastUpate = this.dashboardService.lastUpdate();
+
+      if(signalLastUpate){
+        this.lastUpdate = signalLastUpate;
+      }else{
+        this.lastUpdate = sessionStorageService.getItem("lastUpdate");
+      }
+      console.log('lastupdate: ', this.lastUpdate);
+      this.verifyCheckDay(this.lastUpdate);
       this.cd.detectChanges();
     });
   }
@@ -129,16 +135,20 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy{
       this.checkErrorsService.switchCheckDay$.next("today");
     });
 
-    setTimeout(() => {
-      this.verifyCheckDay();
-    });
-
     this.mapService.loadPosition$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (realtimeData: RealtimeData | null) => {
         this.mapVehiclePlate = realtimeData?.vehicle.plate || "";
       },
       error: error => console.error("Errore nella ricezione del caricamento di un posizione: ", error)
+    });
+
+    this.kanbanTableService.tableLoaded$.pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: () => {
+        this.openSnackbar("Dati aggiornati con successo! ✔");
+      },
+      error: error => console.error("Errore nella notifica di caricamento della tabella: ", error)
     });
 
     this.mapService.initMap$.next({point: this.mapService.defaultPoint, zoom: this.mapService.defaultZoom});
@@ -150,8 +160,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy{
    * Controlla se prima del refresh della pagina, i dati della dashboard
    * erano impostati ad oggi o all'ultimo andamento
    */
-  private verifyCheckDay(){
-    const lastUpdate = this.sessionStorageService.getItem("lastUpdate");
+  private verifyCheckDay(lastUpdate: string){
     if(lastUpdate){
       if (lastUpdate != "recente") {
         this.today = true;

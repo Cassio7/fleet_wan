@@ -273,6 +273,7 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
               this.vehicleTableData.data = mergedVehicles;
               this.loadGraphs(mergedVehicles);
             }
+            this.kanbanTableService.tableLoaded$.next();
           },
           error: error => console.error("Errore nell'aggiunta dei realtime ai veicoli: ", error)
         });
@@ -348,6 +349,7 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
           this.vehicleTableData.data = vehiclesData;
           this.loadGraphs(vehiclesData);
         }
+        this.kanbanTableService.tableLoaded$.next();
         this.sort = this.sortService.resetMatSort(this.sort);
         },
         error: error => console.error("Errore nel recupero delle ultime sessioni dei veicoli: ", error)

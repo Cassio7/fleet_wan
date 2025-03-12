@@ -6,12 +6,16 @@ import { Filters } from '../../../Common-services/filters-common/filters-common.
   providedIn: 'root'
 })
 export class KanbanTableService {
+  private readonly _tableLoaded$: Subject<void> = new Subject<void>();
   private readonly _loadKabanTable$: Subject<void> = new Subject<void>();
 
   private _filtersValue: WritableSignal<Filters | null> = signal(null);
 
   constructor() { }
 
+  public get tableLoaded$(): Subject<void> {
+    return this._tableLoaded$;
+  }
   public get loadKabanTable$(): Subject<void> {
     return this._loadKabanTable$;
   }
