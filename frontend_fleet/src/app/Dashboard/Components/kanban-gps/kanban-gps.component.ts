@@ -29,6 +29,7 @@ import { RealtimeApiService } from '../../../Common-services/realtime-api/realti
 import { RealtimeData } from '../../../Models/RealtimeData';
 import { Point } from '../../../Models/Point';
 import { SessionApiService } from '../../../Common-services/session/session-api.service';
+import { DashboardService } from '../../Services/dashboard/dashboard.service';
 
 @Component({
   selector: 'app-kanban-gps',
@@ -52,6 +53,7 @@ export class KanbanGpsComponent implements AfterViewInit, OnDestroy {
   private readonly destroy$: Subject<void> = new Subject<void>();
   constructor(
     public kanbanGpsService: KanbanGpsService,
+    private dashboardService: DashboardService,
     private filtersCommonService: FiltersCommonService,
     private sessionStorageService: SessionStorageService,
     public checkErrorsService: CheckErrorsService,
@@ -184,7 +186,7 @@ export class KanbanGpsComponent implements AfterViewInit, OnDestroy {
    */
   private updateLastUpdate(lastUpdate: string){
     this.sessionStorageService.setItem("lastUpdate", lastUpdate);
-    this.checkErrorsService.updateLastUpdate$.next(lastUpdate);
+    this.dashboardService.lastUpdate.set(lastUpdate);
   }
 
   /**

@@ -1,6 +1,6 @@
 import { SessionStorageService } from './../../../Common-services/sessionStorage/session-storage.service';
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, ViewChild, OnInit, inject, OnDestroy } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, ViewChild, OnInit, inject, OnDestroy, effect } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -29,6 +29,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.component';
 import { MapService } from '../../../Common-services/map/map.service';
 import { RealtimeData } from '../../../Models/RealtimeData';
+import { DashboardService } from '../../Services/dashboard/dashboard.service';
 
 
 @Component({
@@ -91,6 +92,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy{
   constructor(
     private kabanGpsService: KanbanGpsService,
     private errorGraphService: ErrorGraphsService,
+    private dashboardService: DashboardService,
     private mapService: MapService,
     private KanbanAntennaService: KanbanAntennaService,
     private kanbanTableService: KanbanTableService,
@@ -99,7 +101,13 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy{
     private loginService: LoginService,
     private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef
-  ){}
+  ){
+    effect(() => {
+      this.lastUpdate = this.dashboardService.lastUpdate();
+      this.openSnackbar("Dati aggiornati con successo! ✔");
+      this.cd.detectChanges();
+    });
+  }
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -123,18 +131,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy{
 
     setTimeout(() => {
       this.verifyCheckDay();
-    });
-
-    this.checkErrorsService.updateLastUpdate$.pipe(takeUntil(this.destroy$), skip(1))
-    .subscribe({
-      next: (lastUpdate: string) => {
-          if (lastUpdate) {
-            this.lastUpdate = lastUpdate;
-            this.openSnackbar("Dati aggiornati con successo! ✔");
-            this.cd.detectChanges();
-          }
-      },
-      error: error => console.error("Errore nell'aggiornamento del label per l'utimo aggiornatmento: ", error)
     });
 
     this.mapService.loadPosition$.pipe(takeUntil(this.destroy$), skip(1))

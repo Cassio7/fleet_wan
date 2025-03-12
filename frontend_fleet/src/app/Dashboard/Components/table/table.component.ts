@@ -52,6 +52,7 @@ import { SessioneGraphService } from '../../Services/sessione-graph/sessione-gra
 import { Point } from '../../../Models/Point';
 import { KanbanTableService } from '../../Services/kanban-table/kanban-table.service';
 import { LoginService } from '../../../Common-services/login service/login.service';
+import { DashboardService } from '../../Services/dashboard/dashboard.service';
 
 @Component({
   selector: 'app-table',
@@ -109,6 +110,7 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
     private sessionStorageService: SessionStorageService,
     private realtimeApiService: RealtimeApiService,
     private filtersCommonService: FiltersCommonService,
+    private dashboardService: DashboardService,
     private kanbanTableService: KanbanTableService,
     private mapService: MapService,
     private sortService: SortService,
@@ -289,9 +291,12 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
   private updateLastUpdate(lastUpdate: string){
     if(lastUpdate){
       this.sessionStorageService.setItem("lastUpdate", lastUpdate);
-      this.checkErrorsService.updateLastUpdate$.next(lastUpdate);
+      this.dashboardService.lastUpdate.set(lastUpdate);
+      this.dashboardService.lastUpdate.set(lastUpdate);
     }else{
       this.sessionStorageService.setItem("lastUpdate", "recente");
+      this.dashboardService.lastUpdate.set("recente");
+      this.dashboardService.lastUpdate.set("recente");
     }
   }
 
