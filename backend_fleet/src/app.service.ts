@@ -22,6 +22,7 @@ import { RentalFactoryService } from './factory/rental.factory';
 import { WorkzoneFacotoryService } from './factory/workzone.factory';
 import { AssociationService } from './services/association/association.service';
 import { ControlService } from './services/control/control.service';
+import { StatsService } from './services/anomaly/stats/stats.service';
 
 @Injectable()
 export class AppService implements OnModuleInit {
@@ -42,6 +43,7 @@ export class AppService implements OnModuleInit {
     private readonly workzoneFacotoryService: WorkzoneFacotoryService,
     private readonly anomalyService: AnomalyService,
     private readonly controlService: ControlService,
+    private readonly statsService: StatsService,
     private readonly associationService: AssociationService,
     @InjectRedis() private readonly redis: Redis,
   ) {}
@@ -55,7 +57,7 @@ export class AppService implements OnModuleInit {
     ).toISOString();
     //await this.putDefaultData();
     //await this.putDbDataMix(startDate, endDate); // da usare nuovo
-    //await this.associationService.setVehiclesAssociateAllUsersRedis(),
+    //await this.setAssociations(),
     //await this.putDbDataCronOne();
     //await this.anomalyCheck(startDate, endDate);
     //await this.dailyAnomalyCheck();
@@ -76,83 +78,6 @@ export class AppService implements OnModuleInit {
     await this.rentalFactoryService.createDefaultRental();
     await this.equipmentFacotoryService.createDefaultEquipment();
     await this.workzoneFacotoryService.createDefaultWorkzone();
-  }
-
-  /**
-   * VELOCE MA DUPLICATI PER I TAG
-   * Recupera tutti i dati dei veicoli, inserisce tutto in parallelo
-   * @param start
-   * @param end
-   */
-  async putDbData(start: string, end: string) {
-    const startDate = start;
-    const endDate = end;
-
-    console.log('Data inizio: ' + startDate + ' Data fine: ' + endDate);
-    const batchSize = 50;
-
-    await this.vehicleService.getVehicleList(254, 313, true); //Gesenu principale
-    //await this.vehicleService.getVehicleList(254, 683); //Gesenu dismessi
-    await this.vehicleService.getVehicleList(305, 650, true); //TSA principale
-    await this.vehicleService.getVehicleList(324, 688, true); //Fiumicino principale
-
-    const dateFrom_new = new Date(startDate);
-    const dateTo_new = new Date(endDate);
-    const daysInRange = getDaysInRange(dateFrom_new, dateTo_new); // Funzione che restituisce un array di giorni
-
-    // da commentare dopo primo run
-    //await this.worksiteFactoryService.createDefaultVehicleWorksite();
-
-    const vehicles = await this.vehicleService.getAllVehicles();
-
-    // Creazione della mappa delle compagnie
-    const companyMap = new Map();
-    for (const vehicle of vehicles) {
-      const company = await this.companyService.getCompanyByVeId(vehicle.veId);
-      if (company) {
-        companyMap.set(vehicle.veId, company);
-      }
-    }
-    for (const vehicle of vehicles) {
-      console.log(
-        `${vehicle.veId} con targa: ${vehicle.plate} - ${vehicle.id}`,
-      );
-      const company = companyMap.get(vehicle.veId);
-      if (company) {
-        // Suddivisione dei giorni in batch
-        for (let i = 0; i < daysInRange.length; i += batchSize) {
-          const batch = daysInRange.slice(i, i + batchSize);
-
-          const requests = batch.map((day) => {
-            const datefrom = day;
-            const dateto = new Date(datefrom);
-            dateto.setHours(23, 59, 59, 0);
-            console.log(dateto);
-            return Promise.all([
-              this.sessionService.getSessionist(
-                company.suId,
-                vehicle.veId,
-                datefrom.toISOString(),
-                dateto.toISOString(),
-              ),
-              this.tagService.putTagHistory(
-                company.suId,
-                vehicle.veId,
-                datefrom.toISOString(),
-                dateto.toISOString(),
-              ),
-            ]);
-          });
-          // Esecuzione delle richieste per il batch corrente
-          await Promise.all(requests);
-        }
-      }
-    }
-    const vehicleIds = vehicles.map((v) => v.veId);
-    await Promise.all([
-      this.sessionService.getLastValidSessionByVeIds(vehicleIds),
-      this.sessionService.getLastHistoryByVeIds(vehicleIds),
-    ]);
   }
 
   /**
@@ -448,7 +373,7 @@ export class AppService implements OnModuleInit {
       };
 
       await processAnomalies(data, this.anomalyService);
-
+      await this.statsService.setAllStatsRedis();
       console.log(
         'Daily Anomaly check aggiornato alle: ' + new Date().toISOString(),
       );
@@ -477,5 +402,12 @@ export class AppService implements OnModuleInit {
 
     await this.anomalyService.setTodayAnomalyRedis(todayAnomalies);
     await this.anomalyService.setLastAnomalyRedis(lastAnomalies);
+  }
+  /**
+   * imposta le associazioni su redis
+   */
+  async setAssociations() {
+    await this.associationService.setVehiclesAssociateAllUsersRedis();
+    await this.associationService.setVehiclesAssociateAllUsersRedisSet();
   }
 }
