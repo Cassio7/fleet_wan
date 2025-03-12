@@ -105,28 +105,6 @@ tr.example-element-row:not(.example-expanded-row):active {
   font-size: 20px;
 }
 
-.noRFID-container {
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 2px;
-  text-wrap: nowrap;
-}
-
-.noRFID-container mat-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  color: white;
-  background-color: #000000;
-  padding: 3%;
-  cursor: pointer;
-  border-radius: 5px;
-  font-size: 20px;
-}
-
 .session-error {
   display: flex;
   justify-content: center;

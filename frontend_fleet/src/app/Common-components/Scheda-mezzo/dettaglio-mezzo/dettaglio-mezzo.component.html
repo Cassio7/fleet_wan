@@ -99,7 +99,7 @@
                 <mat-list-item
                   ><span class="list-label">Data installazione Fleet</span>
                   <p>
-                    {{ vehicle.fleet_install ? vehicle.fleet_install : "" }}
+                    {{ vehicle.fleet_install ? (vehicle.fleet_install | date: "dd/MM/yyyy") : '' }}
                   </p></mat-list-item
                 >
               </mat-list>
