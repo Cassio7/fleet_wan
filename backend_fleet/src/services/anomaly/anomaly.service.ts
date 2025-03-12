@@ -93,18 +93,7 @@ export class AnomalyService {
     veId: number,
     count: number,
   ): Promise<any> {
-    const vehicles =
-      await this.associationService.getVehiclesAssociateUserRedis(userId);
-    if (!vehicles || vehicles.length === 0)
-      throw new HttpException(
-        'Nessun veicolo associato per questo utente',
-        HttpStatus.NOT_FOUND,
-      );
-    if (!vehicles.find((v) => v.veId === veId))
-      throw new HttpException(
-        'Non hai il permesso per visualizzare le anomalie di questo veicolo',
-        HttpStatus.FORBIDDEN,
-      );
+    await this.associationService.checkVehicleAssociateUserSet(userId, veId);
     try {
       if (count === 0) {
         const anomalies = await this.anomalyRepository.find({

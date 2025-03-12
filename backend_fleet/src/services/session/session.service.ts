@@ -529,18 +529,10 @@ export class SessionService {
     userId: number,
     sessionRedis: any,
   ): Promise<SessionDTO> {
-    const vehicles =
-      await this.associationService.getVehiclesAssociateUserRedis(userId);
-    if (!vehicles || vehicles.length === 0)
-      throw new HttpException(
-        'Nessun veicolo associato per questo utente',
-        HttpStatus.NOT_FOUND,
-      );
-    if (!vehicles.find((v) => v.veId === sessionRedis.veid))
-      throw new HttpException(
-        'Non hai il permesso per visualizzare questo veicolo',
-        HttpStatus.FORBIDDEN,
-      );
+    await this.associationService.checkVehicleAssociateUserSet(
+      userId,
+      sessionRedis.veid,
+    );
     try {
       const session = await this.sessionRepository.findOne({
         where: { key: sessionRedis.key },
@@ -571,18 +563,7 @@ export class SessionService {
     userId: number,
     veId: number,
   ): Promise<SessionDTO[]> {
-    const vehicles =
-      await this.associationService.getVehiclesAssociateUserRedis(userId);
-    if (!vehicles || vehicles.length === 0)
-      throw new HttpException(
-        'Nessun veicolo associato per questo utente',
-        HttpStatus.NOT_FOUND,
-      );
-    if (!vehicles.find((v) => v.veId === veId))
-      throw new HttpException(
-        'Non hai il permesso per visualizzare questo veicolo',
-        HttpStatus.FORBIDDEN,
-      );
+    await this.associationService.checkVehicleAssociateUserSet(userId, veId);
     try {
       const sessions = await this.sessionRepository.find({
         where: { history: { vehicle: { veId: veId } } },
@@ -665,18 +646,7 @@ export class SessionService {
     dateTo: Date,
     isFilter: boolean,
   ): Promise<SessionDTO[]> {
-    const vehicles =
-      await this.associationService.getVehiclesAssociateUserRedis(userId);
-    if (!vehicles || vehicles.length === 0)
-      throw new HttpException(
-        'Nessun veicolo associato per questo utente',
-        HttpStatus.NOT_FOUND,
-      );
-    if (!vehicles.find((v) => v.veId === veId))
-      throw new HttpException(
-        'Non hai il permesso per visualizzare questo veicolo',
-        HttpStatus.FORBIDDEN,
-      );
+    await this.associationService.checkVehicleAssociateUserSet(userId, veId);
     try {
       const sessions = await this.sessionRepository.find({
         where:
@@ -735,18 +705,7 @@ export class SessionService {
    * @returns sessionDTO
    */
   async getLastSession(userId: number, veId: number): Promise<SessionDTO> {
-    const vehicles =
-      await this.associationService.getVehiclesAssociateUserRedis(userId);
-    if (!vehicles || vehicles.length === 0)
-      throw new HttpException(
-        'Nessun veicolo associato per questo utente',
-        HttpStatus.NOT_FOUND,
-      );
-    if (!vehicles.find((v) => v.veId === veId))
-      throw new HttpException(
-        'Non hai il permesso per visualizzare questo veicolo',
-        HttpStatus.FORBIDDEN,
-      );
+    await this.associationService.checkVehicleAssociateUserSet(userId, veId);
     try {
       const session = await this.sessionRepository.findOne({
         where: { history: { vehicle: { veId: veId } } },
@@ -1030,18 +989,7 @@ export class SessionService {
     userId: number,
     veId: number,
   ): Promise<SessionDTO | null> {
-    const vehicles =
-      await this.associationService.getVehiclesAssociateUserRedis(userId);
-    if (!vehicles || vehicles.length === 0)
-      throw new HttpException(
-        'Nessun veicolo associato per questo utente',
-        HttpStatus.NOT_FOUND,
-      );
-    if (!vehicles.find((v) => v.veId === veId))
-      throw new HttpException(
-        'Non hai il permesso per visualizzare questo veicolo',
-        HttpStatus.FORBIDDEN,
-      );
+    await this.associationService.checkVehicleAssociateUserSet(userId, veId);
     try {
       const session = await this.sessionRepository.findOne({
         where: { history: { vehicle: { veId: veId } }, sequence_id: 0 },
