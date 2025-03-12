@@ -17,7 +17,6 @@ import { EquipmentEntity } from 'classes/entities/equipment.entity';
 import { GroupEntity } from 'classes/entities/group.entity';
 import { HistoryEntity } from 'classes/entities/history.entity';
 import { NoteEntity } from 'classes/entities/note.entity';
-import { RealtimePositionEntity } from 'classes/entities/realtime_position.entity';
 import { RentalEntity } from 'classes/entities/rental.entity';
 import { RoleEntity } from 'classes/entities/role.entity';
 import { ServiceEntity } from 'classes/entities/service.entity';
@@ -45,6 +44,7 @@ import { TagService } from './services/tag/tag.service';
 import { UserService } from './services/user/user.service';
 import { VehicleService } from './services/vehicle/vehicle.service';
 import { WorksiteService } from './services/worksite/worksite.service';
+import { StatsService } from './services/anomaly/stats/stats.service';
 
 // importo i controller
 import { AnomalyController } from './controllers/anomaly/anomaly.controller';
@@ -98,7 +98,6 @@ import { NotificationsController } from './notifications/notifications.controlle
           VehicleEntity,
           DeviceEntity,
           GroupEntity,
-          RealtimePositionEntity,
           HistoryEntity,
           TagEntity,
           TagHistoryEntity,
@@ -127,7 +126,6 @@ import { NotificationsController } from './notifications/notifications.controlle
         VehicleEntity,
         DeviceEntity,
         GroupEntity,
-        RealtimePositionEntity,
         HistoryEntity,
         TagEntity,
         TagHistoryEntity,
@@ -164,7 +162,6 @@ import { NotificationsController } from './notifications/notifications.controlle
           VehicleEntity,
           DeviceEntity,
           GroupEntity,
-          RealtimePositionEntity,
           HistoryEntity,
           TagEntity,
           TagHistoryEntity,
@@ -192,7 +189,6 @@ import { NotificationsController } from './notifications/notifications.controlle
         VehicleEntity,
         DeviceEntity,
         GroupEntity,
-        RealtimePositionEntity,
         HistoryEntity,
         TagEntity,
         TagHistoryEntity,
@@ -276,6 +272,7 @@ import { NotificationsController } from './notifications/notifications.controlle
     ControlService,
     NotificationsService,
     NotificationsGateway,
+    StatsService,
   ],
 })
 export class AppModule {}

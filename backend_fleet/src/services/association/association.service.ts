@@ -185,6 +185,7 @@ export class AssociationService {
         .save(newAssociations);
       await queryRunner.commitTransaction();
       await this.setVehiclesAssociateAllUsersRedis();
+      await this.setVehiclesAssociateAllUsersRedisSet();
       return save;
     } catch (error) {
       await queryRunner.rollbackTransaction();
@@ -222,6 +223,7 @@ export class AssociationService {
       await queryRunner.manager.getRepository(AssociationEntity).remove(exist);
       await queryRunner.commitTransaction();
       await this.setVehiclesAssociateAllUsersRedis();
+      await this.setVehiclesAssociateAllUsersRedisSet();
     } catch (error) {
       await queryRunner.rollbackTransaction();
       if (error instanceof HttpException) throw error;
@@ -273,13 +275,15 @@ export class AssociationService {
       },
       relations: {
         worksite: {
-          vehicle: true,
+          vehicle: {
+            worksite: true,
+          },
         },
         company: {
           group: {
             worksite_group: {
               worksite: {
-                vehicle: true,
+                vehicle: { worksite: true },
               },
             },
           },
@@ -370,6 +374,75 @@ export class AssociationService {
     } catch (error) {
       console.log('Errore generale:', error);
     }
+  }
+
+  /**
+   * inserisce su redis le associazioni dei veid ad ogni utente
+   */
+  async setVehiclesAssociateAllUsersRedisSet() {
+    try {
+      const keys = await this.redis.keys('vehicleAssociateUserSet:*');
+      if (keys.length > 0) {
+        await this.redis.del(keys);
+      }
+
+      const users = await this.userService.getAllUsers();
+
+      const promises = users.map(async (user) => {
+        const key = `vehicleAssociateUserSet:${user.id}`;
+        const vehicles = await this.getVehiclesByUserRole(user.id);
+        try {
+          const veIds = vehicles.map((vehicle) => vehicle.veId);
+          if (veIds?.length > 0) await this.redis.sadd(key, ...veIds);
+        } catch (error) {
+          console.log(
+            `Errore set Redis associazione veicoli con l'utente ${user.id}:`,
+            error,
+          );
+        }
+      });
+      await Promise.all(promises);
+    } catch (error) {
+      console.log('Errore generale:', error);
+    }
+  }
+
+  /**
+   * controlla se un utente ha il veid passato assegnato su redis
+   * @param userid user id
+   * @param veId identificativo veicolo
+   * @returns
+   */
+  async hasVehiclesAssociateUserRedisSet(
+    userid: number,
+    veId: number,
+  ): Promise<boolean> {
+    const key = `vehicleAssociateUserSet:${userid}`;
+
+    // Controlla se l'ID del veicolo (veId) è presente nel Set associato all'utente
+    const exists = await this.redis.sismember(key, veId);
+
+    return exists === 1;
+  }
+
+  /**
+   * Controlla se un utente ha il permesso di visualizzare un determinato veicolo
+   * @param userId id utente
+   * @param veId identificativo veicolo
+   * @returns
+   */
+  async checkVehicleAssociateUserSet(
+    userId: number,
+    veId: number,
+  ): Promise<boolean> {
+    // recupero i veicoli mappati
+    const flag = await this.hasVehiclesAssociateUserRedisSet(userId, veId);
+    if (!flag)
+      throw new HttpException(
+        'Non hai il permesso per visualizzare le anomalie di questo veicolo',
+        HttpStatus.FORBIDDEN,
+      );
+    return true;
   }
 
   /**

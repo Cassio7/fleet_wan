@@ -20,6 +20,7 @@ import { LogContext } from 'src/log/logger.types';
 import { LoggerService } from 'src/log/service/logger.service';
 import { ControlService } from 'src/services/control/control.service';
 import { AnomalyService } from './../../services/anomaly/anomaly.service';
+import { StatsService } from 'src/services/anomaly/stats/stats.service';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Controller('anomaly')
@@ -30,6 +31,7 @@ export class AnomalyController {
     @InjectRedis() private readonly redis: Redis,
     private readonly loggerService: LoggerService,
     private readonly controlService: ControlService,
+    private readonly statsService: StatsService,
   ) {}
 
   /**
@@ -423,6 +425,7 @@ export class AnomalyController {
 
       const todayAnomalies = await this.anomalyService.getAnomalyByDate(1, now);
       await this.anomalyService.setTodayAnomalyRedis(todayAnomalies);
+      await this.statsService.setAllStatsRedis();
 
       this.loggerService.logCrudSuccess(
         context,
@@ -475,10 +478,18 @@ export class AnomalyController {
       });
     }
     try {
-      const stats = await this.anomalyService.getStatsByVeId(
+      let stats = await this.statsService.getRedisStats(
         req.user.id,
         veIdNumber,
       );
+      if (!stats) {
+        stats = await this.statsService.getStatsByVeId(
+          req.user.id,
+          veIdNumber,
+          false,
+        );
+      }
+
       if (!stats) {
         this.loggerService.logCrudSuccess(
           context,

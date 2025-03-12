@@ -273,6 +273,7 @@ export class UserService {
           .getRepository(AssociationEntity)
           .remove(associationsRemove);
         await this.associationService.setVehiclesAssociateAllUsersRedis();
+        await this.associationService.setVehiclesAssociateAllUsersRedisSet();
       }
     } catch (error) {
       await queryRunner.rollbackTransaction();
