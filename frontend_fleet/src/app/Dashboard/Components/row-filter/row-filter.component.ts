@@ -19,6 +19,7 @@ import { Filters, FiltersCommonService } from '../../../Common-services/filters-
 import { KanbanTableService } from '../../Services/kanban-table/kanban-table.service';
 import { KanbanGpsService } from '../../Services/kanban-gps/kanban-gps.service';
 import { KanbanAntennaService } from '../../Services/kanban-antenna/kanban-antenna.service';
+import { LoginService } from '../../../Common-services/login service/login.service';
 
 @Component({
   selector: 'app-row-filter',
@@ -64,6 +65,7 @@ export class RowFilterComponent implements OnInit, AfterViewInit, OnDestroy{
 
   constructor(
     public filtersCommonService: FiltersCommonService,
+    private loginService: LoginService,
     public cantieriFilterService: CantieriFilterService,
     public gpsFilterService: GpsFilterService,
     public antennaFilterService: AntennaFilterService,
@@ -83,16 +85,8 @@ export class RowFilterComponent implements OnInit, AfterViewInit, OnDestroy{
     });
   }
   ngOnInit(): void {
-    this.filterForm.valueChanges.pipe(takeUntil(this.destroy$), skip(4))
-    .subscribe({
-      next: () => {
-        this.setFiltersObj();
-        this.kanbanTableService.filtersValue.set(this.filters);
-        this.filtersCommonService.applyFilters$.next(this.filters);
-        console.log('filtri impostati: ', this.filters);
-      },
-      error: error => console.log("Errore nell'ascolto del form dei filtri: ", error)
-    });
+    this.handleFormChange();
+    this.handleLogout();
   }
 
   ngOnDestroy(): void {
@@ -107,14 +101,51 @@ export class RowFilterComponent implements OnInit, AfterViewInit, OnDestroy{
 
       this.toggleSelectAll();
 
+
+      this.setPreviousValue();
+
+
       this.handleKanbanChange();
 
       this.handleAllFiltersOptionsUpdate();
       // this.handleErrorGraphClick();
-
-      // Aggiornamento del change detection (solitamente solo se ci sono modifiche dirette al DOM)
-      this.cd.detectChanges();
     }, 1000);
+  }
+
+  private setPreviousValue(){
+    const previous_value = this.kanbanTableService.filtersValue();
+
+    const hasValue = previous_value?.plate ||
+    previous_value?.cantieri?.value ||
+    previous_value?.gps?.value ||
+    previous_value?.antenna?.value ||
+    previous_value?.sessione?.value;
+    if (hasValue) {
+      this.filterForm.get('plate')?.setValue(previous_value.plate);
+      this.filterForm.get('cantieri')?.setValue(previous_value.cantieri.value);
+      this.filterForm.get('gps')?.setValue(previous_value.gps.value);
+      this.filterForm.get('antenna')?.setValue(previous_value.antenna.value);
+      this.filterForm.get('sessionStates')?.setValue(previous_value.sessione.value);
+    }
+  }
+
+  private handleFormChange(){
+    this.filterForm.valueChanges.pipe(takeUntil(this.destroy$), skip(4))
+    .subscribe({
+      next: () => {
+        this.setFiltersObj();
+        this.kanbanTableService.filtersValue.set(this.filters);
+        this.filtersCommonService.applyFilters$.next(this.filters);
+      },
+      error: error => console.log("Errore nell'ascolto del form dei filtri: ", error)
+    });
+  }
+
+  private handleLogout(){
+    this.loginService.logout$.pipe(takeUntil(this.destroy$))
+    .subscribe(() => {
+      this.kanbanTableService.filtersValue.set(null);
+    });
   }
 
   private handleKanbanChange(){

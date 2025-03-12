@@ -16,10 +16,14 @@ import {
 } from '@angular/material/table';
 import { Session } from '../../../Models/Session';
 import {
+  catchError,
+  map,
+  Observable,
   skip,
   Subject,
   takeUntil,
   tap,
+  throwError,
 } from 'rxjs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ErrorGraphsService } from '../../Services/error-graphs/error-graphs.service';
@@ -47,6 +51,7 @@ import { Router } from '@angular/router';
 import { SessioneGraphService } from '../../Services/sessione-graph/sessione-graph.service';
 import { Point } from '../../../Models/Point';
 import { KanbanTableService } from '../../Services/kanban-table/kanban-table.service';
+import { LoginService } from '../../../Common-services/login service/login.service';
 
 @Component({
   selector: 'app-table',
@@ -79,7 +84,7 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
   today = true;
 
   displayedColumns: string[] = [
-    'Tipologia',
+    'Servizio',
     'Targa',
     'Cantiere',
     'GPS',
@@ -96,7 +101,6 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
 
   constructor(
     public checkErrorsService: CheckErrorsService,
-    private errorGraphService: ErrorGraphsService,
     private gpsGraphService: GpsGraphService,
     private sessioneGraphService: SessioneGraphService,
     private antennaGraphService: AntennaGraphService,
@@ -120,6 +124,10 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
     setTimeout(() => {
       this.handleAllFilters(); //subscribe all'applicazione di tutti i filtri
     });
+
+    // this.vehicleTableData.connect().subscribe((data) => {
+    //   console.log('data added: ', data);
+    // });
 
     this.handleCheckDaySwitch();
 
@@ -147,9 +155,6 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
       this.vehicleTableData.data = filteredData;
       this.loadGraphs(filteredData);
       this.loadingProgress = 100;
-      setTimeout(() => {
-        this.tableLoaded = true;
-      }, 500);
     }else if(allData){
       this.vehicleTableData.data = allData;
       this.loadGraphs(allData);
@@ -172,7 +177,9 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
       next: (switchTo: string) => {
         if (switchTo == 'today') {
           this.fillTable();
+          if(!this.displayedColumns.includes("Map")) this.displayedColumns.push("Map"); //Riaggiunta colonna mappa se mancante
         } else if (switchTo == 'last') {
+          this.displayedColumns = this.displayedColumns.filter(col => col !== "Map"); //Rimozione colonna mappa
           this.getAllLastSessionAnomalies();
         } else {
           console.error('Cambio controllo a periodo sconosciuto');
@@ -191,11 +198,8 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
       .pipe(takeUntil(this.destroy$), skip(1))
       .subscribe({
         next: (filters: Filters) => {
-          console.log('filtri arrivati a table: ', filters);
           const allData = JSON.parse(this.sessionStorageService.getItem('allData'));
-          console.log('allData: ', allData);
           const filteredVehicles = this.filtersCommonService.applyAllFiltersOnVehicles(allData,filters) as VehicleData[];
-          console.log('veicoli filtrati: ', filteredVehicles);
           const sortedFilteredVehicles = this.sortVehiclesByMatSort(filteredVehicles);
           this.vehicleTableData.data = sortedFilteredVehicles;
           this.vehicleTable.renderRows();
@@ -252,17 +256,24 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
       this.loadingText = "Caricamento dei veicoli...";
     })).subscribe({
       next: (responseObj: any) => {
-        console.log("filltable loading progress: ",this.loadingProgress);
-        const lastUpdate: string = responseObj.lastUpdate;
         const vehiclesData = responseObj.vehicles;
-        this.sessionStorageService.setItem("allData", JSON.stringify(vehiclesData));
-        const activeFilters = this.kanbanTableService.filtersValue();
-        if(activeFilters){
-          const filteredVehicles: VehicleData[] = this.filtersCommonService.applyAllFiltersOnVehicles(vehiclesData, activeFilters) as VehicleData[];
-          this.setTableData(filteredVehicles, lastUpdate);
-        }else{
-          this.setTableData(vehiclesData, lastUpdate);
-        }
+        this.updateLastUpdate(responseObj.lastUpdate);
+        this.addLastRealtime(vehiclesData).pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (mergedVehicles: VehicleData[]) => {
+            this.sessionStorageService.setItem("allData", JSON.stringify(mergedVehicles));
+            const activeFilters = this.kanbanTableService.filtersValue();
+            if(activeFilters){
+              const filteredMergedVehicles: VehicleData[] = this.filtersCommonService.applyAllFiltersOnVehicles(mergedVehicles, activeFilters) as VehicleData[];
+              this.vehicleTableData.data = filteredMergedVehicles;
+              this.loadGraphs(filteredMergedVehicles);
+            }else{
+              this.vehicleTableData.data = mergedVehicles;
+              this.loadGraphs(mergedVehicles);
+            }
+          },
+          error: error => console.error("Errore nell'aggiunta dei realtime ai veicoli: ", error)
+        });
         this.sort = this.sortService.resetMatSort(this.sort);
       },
       error: (err) => {
@@ -272,68 +283,43 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
   }
 
   /**
-   * Imposta i dati della tabella e carica i grafici
-   * unendo i risultati con i dati realtime
-   * @param vehicles veicoli da cui prendere i dati
-   */
-  private setTableData(vehicles: VehicleData[], lastUpdate?: string){
-    const vehiclesData = vehicles;
-    console.log("vehiclesData fetched: ", vehiclesData);
-    try {
-      if (vehiclesData && vehiclesData.length > 0) {
-        this.vehicleTableData.data = [...vehiclesData];
-        if(lastUpdate){
-          this.addLastRealtime(lastUpdate);
-        }
-        this.loadGraphs(vehiclesData);
-        console.log("ce so arivato!!");
-        setTimeout(() => {
-          this.tableLoaded = true;
-        }, 500);
-        if(this.vehicleTable) this.vehicleTable.renderRows();
-      }
-    } catch (error) {
-      console.error("Error processing vehicles:", error);
-    }
-  }
-
-  /**
    * Imposta il valore del testo dell'ultimo aggiornamento visualizzato sulla dashboard
    * @param lastUpdate stringa ultimo aggiornamento
    */
   private updateLastUpdate(lastUpdate: string){
-    this.sessionStorageService.setItem("lastUpdate", lastUpdate);
-    this.checkErrorsService.updateLastUpdate$.next(lastUpdate);
+    if(lastUpdate){
+      this.sessionStorageService.setItem("lastUpdate", lastUpdate);
+      this.checkErrorsService.updateLastUpdate$.next(lastUpdate);
+    }else{
+      this.sessionStorageService.setItem("lastUpdate", "recente");
+    }
   }
 
   /**
-   * Recupera i dati dell'ultima posizione di ogni veicolo effettuando una chiamata tramite un servizio,
-   * poi unisce le posizioni ottenute con i veicoli nella tabella
+   * Recupera i dati dell'ultima posizione di ogni veicolo effettuando una chiamata tramite un servizio
+   * @param vehicles veicoli a cui aggiungere il realtime
+   * @returns veicoli associati con il realtime
    */
-  private addLastRealtime(lastUpdate?: string) {
-    this.realtimeApiService.getAllLastRealtime().pipe(tap(() => {
-      this.loadingProgress+= 50;
-      this.loadingText = "Caricamento dati del tempo reale...";
-    }), takeUntil(this.destroy$))
-      .subscribe({
-        next: (realtimeDataObj: RealtimeData[]) => {
-          console.log("realtime data fetched from dashboard: ", realtimeDataObj);
-          const allData = JSON.parse(this.sessionStorageService.getItem("allData"))
-          const mergedVehicles: VehicleData[] = this.realtimeApiService.mergeVehiclesWithRealtime(allData, realtimeDataObj) as VehicleData[];
-          this.sessionStorageService.setItem("allData", JSON.stringify(mergedVehicles));
-          const activeFilters = this.kanbanTableService.filtersValue();
-          if(activeFilters){
-            const filteredMergedVehicles: VehicleData[] = this.filtersCommonService.applyAllFiltersOnVehicles(mergedVehicles, activeFilters) as VehicleData[];
-            this.vehicleTableData.data = filteredMergedVehicles;
-          }
+  private addLastRealtime(vehicles: VehicleData[]): Observable<VehicleData[]> {
+    return this.realtimeApiService.getAllLastRealtime().pipe(
+      tap(() => {
+        this.loadingProgress += 50;
+        this.loadingText = "Caricamento dati del tempo reale...";
+      }),
+      map((realtimeDataObj: RealtimeData[]) => {
+        console.log("realtime data fetched from dashboard: ", realtimeDataObj);
 
-          if(lastUpdate) this.updateLastUpdate(lastUpdate);
+        const mergedVehicles: VehicleData[] = this.realtimeApiService.mergeVehiclesWithRealtime(vehicles, realtimeDataObj) as VehicleData[];
 
-          if(this.vehicleTable) this.vehicleTable.renderRows();
-        },
-        error: error => console.error("Errore nel caricamento dei dati realtime: ", error)
-      });
+        return mergedVehicles;
+      }),
+      catchError(error => {
+        console.error("Errore nel caricamento dei dati realtime: ", error);
+        return throwError(() => error);
+      })
+    );
   }
+
 
   /**
    * Ottiene i dati dell'ultimo andamento di ciscun veicolo
@@ -345,26 +331,19 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
     this.sessionApiService.getAllLastSessionAnomalies().pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (responseObj: any) => {
-          const vehiclesData: VehicleData[] = responseObj.vehicles;
-          console.log("Last session vehiclesData fetched: ", vehiclesData);
-          try {
-            if (vehiclesData && vehiclesData.length > 0) {
-              this.sessionStorageService.setItem("allData", JSON.stringify(vehiclesData));
-              this.sessionStorageService.setItem("lastUpdate", responseObj.lastUpdate);
-              const activeFilters = this.kanbanTableService.filtersValue();
-              if(activeFilters){
-                const filteredVehicles: VehicleData[] = this.filtersCommonService.applyAllFiltersOnVehicles(vehiclesData, activeFilters) as VehicleData[];
-                this.setTableData(filteredVehicles);
-                this.loadGraphs(filteredVehicles);
-              }else{
-                this.setTableData(vehiclesData);
-                this.loadGraphs(vehiclesData);
-              }
-              this.sort = this.sortService.resetMatSort(this.sort);
-            }
-          } catch (error) {
-            console.error("Error processing last session vehicles:", error);
-          }
+        const vehiclesData = responseObj.vehicles;
+        this.sessionStorageService.setItem("allData", JSON.stringify(vehiclesData));
+        this.updateLastUpdate(responseObj.lastUpdate);
+        const activeFilters = this.kanbanTableService.filtersValue();
+        if(activeFilters){
+          const filteredVehicles: VehicleData[] = this.filtersCommonService.applyAllFiltersOnVehicles(vehiclesData, activeFilters) as VehicleData[];
+          this.vehicleTableData.data = filteredVehicles;
+          this.loadGraphs(filteredVehicles);
+        }else{
+          this.vehicleTableData.data = vehiclesData;
+          this.loadGraphs(vehiclesData);
+        }
+        this.sort = this.sortService.resetMatSort(this.sort);
         },
         error: error => console.error("Errore nel recupero delle ultime sessioni dei veicoli: ", error)
       });

@@ -12,7 +12,7 @@ import { TableComponent } from '../table/table.component';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RowFilterComponent } from '../row-filter/row-filter.component';
 import { KebabMenuComponent } from '../kebab-menu/kebab-menu.component';
-import { skip, Subject, takeUntil } from 'rxjs';
+import { last, skip, Subject, takeUntil } from 'rxjs';
 import { KanbanGpsComponent } from "../kanban-gps/kanban-gps.component";
 import { KanbanGpsService } from '../../Services/kanban-gps/kanban-gps.service';
 import { KanbanAntennaComponent } from "../kanban-antenna/kanban-antenna.component";
@@ -116,10 +116,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy{
 
     this.loginService.login$.pipe(takeUntil(this.destroy$))
     .subscribe(() => {
-      this.sessionStorageService.setItem("lastUpdate", "oggi");
-      setTimeout(() => {
-        this.verifyCheckDay();
-      });
+      this.today = true;
+      this.lastSession = false;
+      this.checkErrorsService.switchCheckDay$.next("today");
     });
 
     setTimeout(() => {
@@ -157,12 +156,16 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy{
    */
   private verifyCheckDay(){
     const lastUpdate = this.sessionStorageService.getItem("lastUpdate");
-
-    if (lastUpdate !== null && lastUpdate !== undefined && lastUpdate !== "undefined") {
-      this.today = true;
-      this.lastSession = false;
-      this.lastUpdate = lastUpdate;
-    } else {
+    if(lastUpdate){
+      if (lastUpdate != "recente") {
+        this.today = true;
+        this.lastSession = false;
+        this.lastUpdate = lastUpdate;
+      } else {
+        this.today = false;
+        this.lastSession = true;
+      }
+    }else{
       this.today = false;
       this.lastSession = true;
     }
@@ -280,6 +283,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy{
       this.switchText = "Ultimo andamento"
       this.checkErrorsService.switchCheckDay$.next("last");
       this.mapVehiclePlate = "";
+      this.sessionStorageService.setItem("lastUpdate", "recente");
     }
   }
 
