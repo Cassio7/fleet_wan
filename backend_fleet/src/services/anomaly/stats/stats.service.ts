@@ -52,6 +52,7 @@ export class StatsService {
    * Recupera le informazioni per le statistiche di ogni veicolo
    * @param userId id utente
    * @param veId identificativo veicolo
+   * @param skipControl salta il controllo solo server
    * @returns Stats
    */
   async getStatsByVeId(
@@ -60,18 +61,7 @@ export class StatsService {
     skipControl: boolean,
   ): Promise<Stats> {
     if (!skipControl) {
-      const vehicles =
-        await this.associationService.getVehiclesAssociateUserRedis(userId);
-      if (!vehicles || vehicles.length === 0)
-        throw new HttpException(
-          'Nessun veicolo associato per questo utente',
-          HttpStatus.NOT_FOUND,
-        );
-      if (!vehicles.find((v) => v.veId === veId))
-        throw new HttpException(
-          'Non hai il permesso per visualizzare le anomalie di questo veicolo',
-          HttpStatus.FORBIDDEN,
-        );
+      await this.associationService.checkVehicleAssociateUserSet(userId, veId);
     }
     try {
       const anomalies = await this.anomalyRepository.findAndCount({
@@ -180,6 +170,9 @@ export class StatsService {
     }
   }
 
+  /**
+   * Calcola tutte le statistiche per tutti i veicoli in parallelo e le salva su redis
+   */
   async setAllStatsRedis() {
     try {
       const allVehicles = await this.vehicleService.getAllVehicles();
@@ -201,6 +194,10 @@ export class StatsService {
     }
   }
 
+  /**
+   * Salva statistiche su redis
+   * @param stats oggetto statistica
+   */
   async setRedisStats(stats: Stats[]) {
     for (const stat of stats) {
       const key = `stats:${stat.veId}`;
@@ -208,21 +205,14 @@ export class StatsService {
     }
   }
 
+  /**
+   * Recupera da redis le statistiche per un determinato veicolo
+   * @param userId id utente
+   * @param veId veicolo utente
+   * @returns
+   */
   async getRedisStats(userId: number, veId: number): Promise<Stats | null> {
-    // const vehicles =
-    //   await this.associationService.getVehiclesAssociateUserRedis(userId);
-    // if (!vehicles || vehicles.length === 0)
-    //   throw new HttpException(
-    //     'Nessun veicolo associato per questo utente',
-    //     HttpStatus.NOT_FOUND,
-    //   );
-    // if (!vehicles.find((v) => v.veId === veId))
-    //   throw new HttpException(
-    //     'Non hai il permesso per visualizzare le anomalie di questo veicolo',
-    //     HttpStatus.FORBIDDEN,
-    //   );
-
-    await this.associationService.checkVehicleAssociateUser(userId, veId);
+    await this.associationService.checkVehicleAssociateUserSet(userId, veId);
     const key = `stats:${veId}`;
     try {
       const data = await this.redis.get(key);
