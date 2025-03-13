@@ -9,6 +9,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { VehicleAnomalies } from '../../../Models/VehicleAnomalies';
 import { MatButtonModule } from '@angular/material/button';
 import { Router } from '@angular/router';
+import { Vehicle } from '../../../Models/Vehicle';
 
 @Component({
   selector: 'app-mappa-info',
@@ -36,7 +37,7 @@ export class MappaInfoComponent implements AfterViewInit, OnDestroy{
   antennaAnomaly!: string;
   sessioneAnomaly!: string;
   anomalyDate!: Date | null;
-  vehicleSelected: boolean = false;
+  selectedVehicle!: Vehicle;
 
   constructor(
     public checkErrorsService: CheckErrorsService,
@@ -81,9 +82,9 @@ export class MappaInfoComponent implements AfterViewInit, OnDestroy{
     if(vehicleAnomalies){
       const vehicle = vehicleAnomalies.vehicle;
       const currentAnomaly = vehicleAnomalies.anomalies[0];
-      this.vehicleSelected = true;
+      this.selectedVehicle = vehicleAnomalies.vehicle;
       this.veId = vehicle.veId;
-      this.servizio = vehicle.service.name;
+      this.servizio = vehicle?.service?.name || "";
       this.gpsAnomaly = currentAnomaly.gps || "";
       this.antennaAnomaly = currentAnomaly.antenna || "";
       this.sessioneAnomaly = currentAnomaly.session || "";

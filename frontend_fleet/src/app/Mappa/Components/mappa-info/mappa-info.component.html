@@ -27,7 +27,7 @@
         <!-- Controllo GPS funzionante -->
         <div
           *ngIf="
-            vehicleSelected &&
+            selectedVehicle &&
             !checkErrorsService.checkGpsWarning(gpsAnomaly) &&
             !checkErrorsService.checkGpsError(gpsAnomaly)
           "
@@ -66,15 +66,22 @@
         <p>Stato Antenna</p>
         <div
           class="OK-container"
-          *ngIf="vehicleSelected && !antennaAnomaly"
+          *ngIf="selectedVehicle && !antennaAnomaly && selectedVehicle?.isRFIDReader"
           matTooltip="Antenna funzionante"
         >
           <mat-icon class="antennaIcon-OK">wifi</mat-icon>
           OK
         </div>
         <div
+        class="noRFID-container"
+        matTooltip="Non ha un'antenna RFID"
+        *ngIf="!selectedVehicle?.isRFIDReader">
+        <mat-icon class="noAntennA-icon">wifi_off</mat-icon>
+        No Antenna
+      </div>
+        <div
           class="error-container"
-          *ngIf="vehicleSelected && antennaAnomaly"
+          *ngIf="selectedVehicle && antennaAnomaly"
           [matTooltip]="antennaAnomaly || 'Anomalia antenna RFID'"
         >
           <mat-icon class="errorIcon-error">wifi</mat-icon>
@@ -89,7 +96,7 @@
         <p>Stato Ultima sessione</p>
         <div
           class="OK-container"
-          *ngIf="vehicleSelected && !sessioneAnomaly"
+          *ngIf="selectedVehicle && !sessioneAnomaly"
           matTooltip="Sessione corretta"
         >
           <mat-icon class="sessionIcon-OK">settings_backup_restore</mat-icon>
@@ -97,7 +104,7 @@
         </div>
         <div
           class="error-container"
-          *ngIf="vehicleSelected && sessioneAnomaly"
+          *ngIf="selectedVehicle && sessioneAnomaly"
           [matTooltip]="sessioneAnomaly || 'Anomalia sessione'"
         >
           <mat-icon class="sessionIcon-error">settings_backup_restore</mat-icon>
