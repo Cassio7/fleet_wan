@@ -4,13 +4,15 @@ import { RealtimeData } from '../../Models/RealtimeData';
 import { Anomaly } from '../../Models/Anomaly';
 import * as L from 'leaflet';
 import 'leaflet-routing-machine';
+import 'leaflet-rotatedmarker';
 import { Point } from '../../Models/Point';
 
 export interface positionData{
   veId: number,
   plate: string,
   cantiere: string | null,
-  position: Point
+  position: Point,
+  direction: number | null
 }
 
 export interface pathData{
@@ -39,6 +41,8 @@ export class MapService {
   private readonly _togglePopups$: Subject<boolean> = new Subject<boolean>();
   private readonly _zoomIn$: BehaviorSubject<{ point: Point; zoom: number; } | null> = new BehaviorSubject<{ point: Point; zoom: number; } | null>(null);
 
+  private readonly _resizeMap$: Subject<void> = new Subject<void>();
+
   pathMode = signal("polyline");
   pathType = signal("day");
 
@@ -63,6 +67,26 @@ export class MapService {
           </filter>
           </defs>
           </svg>`;
+
+  movingMarker = `<svg width="33" height="36" viewBox="0 0 33 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g filter="url(#filter0_d_64_659)">
+        <path d="M28.6531 24.3066C28.6531 30.9341 23.2805 24.3066 16.6531 24.3066C10.0257 24.3066 4.65308 30.9341 4.65308 24.3066C4.65308 17.6792 10.0257 0.5 16.6531 0.5C23.2805 0.5 28.6531 17.6792 28.6531 24.3066Z" fill="#5C9074"/>
+        <path d="M27.6531 24.3066C27.6531 25.0829 27.5723 25.5761 27.4663 25.8767C27.3683 26.1542 27.2747 26.202 27.2551 26.2121L27.2546 26.2123C27.2107 26.2348 27.0773 26.279 26.7521 26.2302C26.4287 26.1816 26.0176 26.0571 25.4948 25.8576C25.0601 25.6918 24.5906 25.4912 24.0676 25.2678C23.9652 25.224 23.8608 25.1794 23.7541 25.134C23.1129 24.861 22.4091 24.5669 21.6633 24.2979C20.1742 23.7609 18.4726 23.3066 16.6531 23.3066C14.8336 23.3066 13.132 23.7609 11.6429 24.2979C10.897 24.5669 10.1933 24.861 9.552 25.134C9.44539 25.1794 9.34098 25.224 9.23861 25.2678C8.7156 25.4912 8.24611 25.6918 7.81136 25.8576C7.28853 26.0571 6.8775 26.1816 6.55409 26.2302C6.22885 26.279 6.09544 26.2348 6.05155 26.2123L6.05106 26.2121C6.03141 26.202 5.93782 26.1542 5.8399 25.8767C5.73382 25.5761 5.65308 25.0829 5.65308 24.3066C5.65308 21.1694 6.94971 15.3542 9.0885 10.3083C10.1544 7.79354 11.4015 5.53848 12.7488 3.9299C14.1182 2.29487 15.442 1.5 16.6531 1.5C17.8641 1.5 19.188 2.29487 20.5574 3.9299C21.9047 5.53848 23.1517 7.79354 24.2177 10.3083C26.3564 15.3542 27.6531 21.1694 27.6531 24.3066Z" stroke="white" stroke-width="2"/>
+        </g>
+        <defs>
+        <filter id="filter0_d_64_659" x="0.653076" y="0.5" width="32" height="34.7522" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+        <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+        <feOffset dy="4"/>
+        <feGaussianBlur stdDeviation="2"/>
+        <feComposite in2="hardAlpha" operator="out"/>
+        <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+        <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_64_659"/>
+        <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_64_659" result="shape"/>
+        </filter>
+        </defs>
+        </svg>
+        `;
 
   errorMarker = `<svg width="33" height="33" viewBox="0 0 33 33" fill="none" xmlns="http://www.w3.org/2000/svg">
           <g filter="url(#filter0_d_206_1349)">
@@ -171,17 +195,18 @@ export class MapService {
    * @param anomaly anomalia
    * @returns L.marker creato
    */
-  createVehicleMarker(point: Point, plate: string, worksite: string | null, veId: number, anomaly: Anomaly | undefined): L.Marker<any> {
+  createVehicleMarker(point: Point, plate: string, worksite: string | null, veId: number, anomaly: Anomaly | undefined, direction?: number): L.Marker<any> {
     let positionData: positionData = {
       plate: plate,
       cantiere: worksite || null,
       veId: veId,
-      position: point
+      position: point,
+      direction: (direction === undefined || direction === null) ? null : direction
     }
 
     let customIcon = L.divIcon({
       className: 'ok-icon',
-      html: this.OkMarker,
+      html: direction == null ? this.OkMarker : this.movingMarker,
       popupAnchor: [11, 12],
     });
 
@@ -209,7 +234,8 @@ export class MapService {
     }
 
     const marker = L.marker([point.lat, point.long], {
-      icon: customIcon
+      icon: customIcon,
+      rotationAngle: direction
     }) as L.Marker;
 
     marker.bindPopup(
@@ -260,14 +286,18 @@ export class MapService {
     const markerGroup: L.LayerGroup = L.layerGroup();
     realtimeDatas.forEach((realtimeData) => {
       const vehicle = realtimeData.vehicle;
-      const punto = new Point(realtimeData.realtime.latitude, realtimeData.realtime.longitude);
+      const realtime = realtimeData.realtime;
+      const punto = new Point(realtime.latitude, realtime.longitude);
       const marker = this.createVehicleMarker(
         punto,
         vehicle.plate,
         vehicle.worksite ? vehicle.worksite.name : null,
         vehicle.veId,
-        undefined
+        undefined,
+        realtime.direction
       );
+
+
 
       marker.addTo(markerGroup);
     });
@@ -427,6 +457,12 @@ export class MapService {
     return markers;
   }
 
+  /**
+   * Filtra tutti i marker di una mappa per la targa all'interno popup
+   * @param map mappa da cui prendere
+   * @param plates targhe selezionate
+   * @returns array di marker
+   */
   filterMarkersByPlates(map: L.Map, plates: string[]): L.Marker[] {
     const markers: L.Marker[] = this.getMapMarkers(map);
 
@@ -546,5 +582,8 @@ export class MapService {
   }
   public get loadMultipleVehiclePositions$(): BehaviorSubject<RealtimeData[]> {
     return this._loadMultipleVehiclePositions$;
+  }
+  public get resizeMap$(): Subject<void> {
+    return this._resizeMap$;
   }
 }

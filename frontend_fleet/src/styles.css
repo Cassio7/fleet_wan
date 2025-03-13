@@ -66,8 +66,10 @@ body {
   font-weight: 600;
 }
 
-.table tr:hover {
-  background-color: var(--background-color) !important;
+.table {
+  tr:hover {
+    background-color: var(--background-color) !important;
+  }
 }
 
 th {
