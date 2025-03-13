@@ -52,6 +52,9 @@ import { DashboardService } from '../../Services/dashboard/dashboard.service';
 export class KanbanAntennaComponent implements AfterViewInit, OnDestroy {
   private readonly destroy$: Subject<void> = new Subject<void>();
 
+  today: boolean = true;
+  last: boolean = false;
+
   constructor(
     public kanbanAntennaService: KanbanAntennaService,
     private dashboardService: DashboardService,
@@ -76,6 +79,8 @@ export class KanbanAntennaComponent implements AfterViewInit, OnDestroy {
     );
     let kanbanVehicles = allData;
     this.loadKanban(kanbanVehicles);
+
+    this.verifyCheckDay();
 
     this.checkErrorsService.updateAnomalies$
       .pipe(takeUntil(this.destroy$))
@@ -129,8 +134,12 @@ export class KanbanAntennaComponent implements AfterViewInit, OnDestroy {
       next: (switchTo: string) => {
         if (switchTo == 'today') {
           this.loadKanbanWithApiCall();
+          this.today = true;
+          this.last = false;
         } else if (switchTo == 'last') {
           this.getAllLastSessionAnomalies();
+          this.today = false;
+          this.last = true;
         } else {
           console.error('Cambio controllo a periodo sconosciuto');
         }
@@ -270,7 +279,33 @@ export class KanbanAntennaComponent implements AfterViewInit, OnDestroy {
    * @param lastUpdate stringa ultimo aggiornamento
    */
   private updateLastUpdate(lastUpdate: string){
-    this.sessionStorageService.setItem("lastUpdate", lastUpdate);
-    this.dashboardService.lastUpdate.set(lastUpdate);
+    if(lastUpdate){
+      this.sessionStorageService.setItem("lastUpdate", lastUpdate);
+      this.dashboardService.lastUpdate.set(lastUpdate);
+    }else{
+      this.sessionStorageService.setItem("lastUpdate", "recente");
+      this.dashboardService.lastUpdate.set("recente");
+    }
+  }
+
+  /**
+   * Controlla se il segnale del lastUpdate è oggi o recente
+   */
+  private verifyCheckDay(){
+    const lastUpdate = this.dashboardService.lastUpdate();
+    if(lastUpdate){
+      if (lastUpdate != "recente") {
+        this.today = true;
+        this.last = false;
+      } else {
+        this.today = false;
+        this.last = true;
+      }
+    }else{
+      this.today = false;
+      this.last = true;
+    }
+
+    this.cd.detectChanges();
   }
 }

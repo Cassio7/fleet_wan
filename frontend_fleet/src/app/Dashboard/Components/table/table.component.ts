@@ -274,6 +274,7 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
               this.loadGraphs(mergedVehicles);
             }
             this.kanbanTableService.tableLoaded$.next();
+            this.mapService.resizeMap$.next();
           },
           error: error => console.error("Errore nell'aggiunta dei realtime ai veicoli: ", error)
         });
@@ -293,10 +294,8 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
     if(lastUpdate){
       this.sessionStorageService.setItem("lastUpdate", lastUpdate);
       this.dashboardService.lastUpdate.set(lastUpdate);
-      this.dashboardService.lastUpdate.set(lastUpdate);
     }else{
       this.sessionStorageService.setItem("lastUpdate", "recente");
-      this.dashboardService.lastUpdate.set("recente");
       this.dashboardService.lastUpdate.set("recente");
     }
   }

@@ -51,6 +51,10 @@ import { DashboardService } from '../../Services/dashboard/dashboard.service';
 })
 export class KanbanGpsComponent implements AfterViewInit, OnDestroy {
   private readonly destroy$: Subject<void> = new Subject<void>();
+
+  today: boolean = true;
+  last: boolean = false;
+
   constructor(
     public kanbanGpsService: KanbanGpsService,
     private dashboardService: DashboardService,
@@ -76,6 +80,8 @@ export class KanbanGpsComponent implements AfterViewInit, OnDestroy {
     let kanbanVehicles = allData;
 
     this.loadKanban(kanbanVehicles);
+
+    this.verifyCheckDay();
 
     this.checkErrorsService.updateAnomalies$
       .pipe(takeUntil(this.destroy$))
@@ -125,8 +131,12 @@ export class KanbanGpsComponent implements AfterViewInit, OnDestroy {
       next: (switchTo: string) => {
         if (switchTo == 'today') {
           this.loadKanbanWithApiCall();
+          this.today = true;
+          this.last = false;
         } else if (switchTo == 'last') {
           this.getAllLastSessionAnomalies();
+          this.today = false;
+          this.last = true;
         } else {
           console.error('Cambio controllo a periodo sconosciuto');
         }
@@ -145,16 +155,10 @@ export class KanbanGpsComponent implements AfterViewInit, OnDestroy {
         next: (responseObj: any) => {
           const vehiclesData: VehicleData[] = responseObj.vehicles;
           console.log("Last session vehiclesData fetched: ", vehiclesData);
-          try {
-            if (vehiclesData && vehiclesData.length > 0) {
-              this.sessionStorageService.setItem("lastUpdate", responseObj.lastUpdate);
-              const lastUpdate = responseObj.lastUpdate;
-              this.loadRealtimeVehicles(vehiclesData, lastUpdate);
-              this.gpsGraphService.loadChartData$.next(vehiclesData);
-            }
-          } catch (error) {
-            console.error("Error processing last session vehicles:", error);
-          }
+          const lastUpdate = responseObj.lastUpdate;
+          this.updateLastUpdate(lastUpdate);
+          this.loadRealtimeVehicles(vehiclesData, lastUpdate);
+          this.gpsGraphService.loadChartData$.next(vehiclesData);
         },
         error: error => console.error("Errore nel recupero delle ultime sessioni dei veicoli: ", error)
       });
@@ -173,7 +177,7 @@ export class KanbanGpsComponent implements AfterViewInit, OnDestroy {
       next: (responseObj: any) => {
         const lastUpdate = responseObj.lastUpdate;
         const vehiclesData = responseObj.vehicles;
-        this.sessionStorageService.setItem("lastUpdate", lastUpdate);
+        this.updateLastUpdate(lastUpdate);
         this.loadRealtimeVehicles(vehiclesData, lastUpdate);
       },
       error: error => console.error("Errore nella chiamata per il controllo degli errori di oggi: ", error)
@@ -185,8 +189,13 @@ export class KanbanGpsComponent implements AfterViewInit, OnDestroy {
    * @param lastUpdate stringa ultimo aggiornamento
    */
   private updateLastUpdate(lastUpdate: string){
-    this.sessionStorageService.setItem("lastUpdate", lastUpdate);
-    this.dashboardService.lastUpdate.set(lastUpdate);
+    if(lastUpdate){
+      this.sessionStorageService.setItem("lastUpdate", lastUpdate);
+      this.dashboardService.lastUpdate.set(lastUpdate);
+    }else{
+      this.sessionStorageService.setItem("lastUpdate", "recente");
+      this.dashboardService.lastUpdate.set("recente");
+    }
   }
 
   /**
@@ -257,5 +266,26 @@ export class KanbanGpsComponent implements AfterViewInit, OnDestroy {
       point: new Point(realtimeData.realtime.latitude, realtimeData.realtime.longitude)
     });
     this.mapService.loadPosition$.next(realtimeData);
+  }
+
+  /**
+   * Controlla se il segnale del lastUpdate è oggi o recente
+   */
+  private verifyCheckDay(){
+    const lastUpdate = this.dashboardService.lastUpdate();
+    if(lastUpdate){
+      if (lastUpdate != "recente") {
+        this.today = true;
+        this.last = false;
+      } else {
+        this.today = false;
+        this.last = true;
+      }
+    }else{
+      this.today = false;
+      this.last = true;
+    }
+
+    this.cd.detectChanges();
   }
 }

@@ -18,7 +18,7 @@
             <div class="vehicle" matTooltip="Sessione corretta">
               <div class="left-container">
                 <p class="cantiere">{{ vehicleData.vehicle.worksite?.name ? vehicleData.vehicle.worksite?.name : "non assegnato"}}</p>
-                <mat-icon (click)="showMap(vehicleData)" matTooltip="Click per visualizzare l'ultima posizione registrata sulla mappa" class="map-icon">map</mat-icon>
+                <mat-icon (click)="showMap(vehicleData)" *ngIf="today" matTooltip="Click per visualizzare l'ultima posizione registrata sulla mappa" class="map-icon">map</mat-icon>
               </div>
                 <p class="plate">{{ vehicleData.vehicle.plate }}</p>
             </div>
@@ -45,7 +45,7 @@
             <div class="vehicle" [matTooltip]="checkErrorsService.checkVehicleSessionError(vehicleData)">
               <div class="left-container">
                 <p class="cantiere">{{ vehicleData.vehicle.worksite?.name ? vehicleData.vehicle.worksite?.name : "non assegnato"}}</p>
-                <mat-icon (click)="showMap(vehicleData)" matTooltip="Click per visualizzare l'ultima posizione registrata sulla mappa" class="map-icon">map</mat-icon>
+                <mat-icon (click)="showMap(vehicleData)" *ngIf="today" matTooltip="Click per visualizzare l'ultima posizione registrata sulla mappa" class="map-icon">map</mat-icon>
               </div>
                 <p class="plate">{{ vehicleData.vehicle.plate }}</p>
             </div>
