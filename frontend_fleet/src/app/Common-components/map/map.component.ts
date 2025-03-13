@@ -161,7 +161,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             const gruppoMarker = this.mapService.createVehicleMarkerGroup(realtimeDatas);
 
             //evita che i popup nella sezione home-map si aprano quando vengono aggiunti
-            gruppoMarker.eachLayer(marker => {
+            gruppoMarker.eachLayer((marker: any) => {
               if(this.router.url != "/home-mappa") {
                 marker.on("add", () => {
                   marker.openPopup();

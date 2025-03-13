@@ -6,6 +6,7 @@ import * as L from 'leaflet';
 import 'leaflet-routing-machine';
 import 'leaflet-rotatedmarker';
 import { Point } from '../../Models/Point';
+import 'leaflet.markercluster';
 
 export interface positionData{
   veId: number,
@@ -283,7 +284,7 @@ export class MapService {
    * @returns L.Layergroup con i marker creati
    */
   createVehicleMarkerGroup(realtimeDatas: RealtimeData[]){
-    const markerGroup: L.LayerGroup = L.layerGroup();
+    const markerGroup = L.markerClusterGroup();
     realtimeDatas.forEach((realtimeData) => {
       const vehicle = realtimeData.vehicle;
       const realtime = realtimeData.realtime;

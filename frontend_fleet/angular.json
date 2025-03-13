@@ -85,10 +85,14 @@
                 "input": "public"
               }
             ],
-            "styles": [
-              "@angular/material/prebuilt-themes/azure-blue.css",
-              "src/styles.css"
-            ],
+          "styles": [
+            "@angular/material/prebuilt-themes/azure-blue.css",
+            "node_modules/leaflet/dist/leaflet.css",
+            "node_modules/leaflet.markercluster/dist/MarkerCluster.css",
+            "node_modules/leaflet.markercluster/dist/MarkerCluster.Default.css",
+            "src/styles.css"
+          ],
+
             "scripts": []
           }
         }
