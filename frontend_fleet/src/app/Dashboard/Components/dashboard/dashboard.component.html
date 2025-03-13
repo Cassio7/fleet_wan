@@ -23,7 +23,7 @@
           <span *ngIf="!today && lastSession" style="line-height: 1;">Mappa non disponibile per ultimo andamento</span>
         </mat-error>
       </div>
-      <div class="map-container">
+      <div class="map-container" #mapContainer>
         <app-map class="map" *ngIf="today && !lastSession"></app-map>
       </div>
     </div>

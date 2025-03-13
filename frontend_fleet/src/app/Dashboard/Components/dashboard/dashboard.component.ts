@@ -1,6 +1,6 @@
 import { SessionStorageService } from './../../../Common-services/sessionStorage/session-storage.service';
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, ViewChild, OnInit, inject, OnDestroy, effect } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, ViewChild, OnInit, inject, OnDestroy, effect, NgZone } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -62,6 +62,7 @@ import { DashboardService } from '../../Services/dashboard/dashboard.service';
   styleUrl: './dashboard.component.css'
 })
 export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy{
+  @ViewChild('mapContainer', { static: true }) mapContainerRef!: ElementRef;
   @ViewChild('graphs') graphs!: ElementRef;
   private readonly destroy$: Subject<void> = new Subject<void>();
 
@@ -86,6 +87,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy{
   private _kanbanAntenna: boolean = false;
   private _kanbanSessione: boolean = false;
 
+  private resizeObserver!: ResizeObserver;
   lastUpdate: string = "";
 
   constructor(
@@ -99,6 +101,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy{
     private checkErrorsService: CheckErrorsService,
     private loginService: LoginService,
     private sessionStorageService: SessionStorageService,
+    private ngZone: NgZone,
     private cd: ChangeDetectorRef
   ){
     effect(() => {
@@ -115,6 +118,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy{
     });
   }
   ngOnDestroy(): void {
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+    }
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -126,30 +132,18 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy{
 
   ngAfterViewInit(): void {
     this.errorGraphTitle = this.errorGraphService.graphTitle;
+
     this.handleKanbanLoading();
 
-    this.loginService.login$.pipe(takeUntil(this.destroy$))
-    .subscribe(() => {
-      this.today = true;
-      this.lastSession = false;
-      this.checkErrorsService.switchCheckDay$.next("today");
-    });
+    if(this.today){
+      this.handleMapResizing();
+    }
 
-    this.mapService.loadPosition$.pipe(takeUntil(this.destroy$), skip(1))
-    .subscribe({
-      next: (realtimeData: RealtimeData | null) => {
-        this.mapVehiclePlate = realtimeData?.vehicle.plate || "";
-      },
-      error: error => console.error("Errore nella ricezione del caricamento di un posizione: ", error)
-    });
+    this.handleLogin();
 
-    this.kanbanTableService.tableLoaded$.pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: () => {
-        this.openSnackbar("Dati aggiornati con successo! ✔");
-      },
-      error: error => console.error("Errore nella notifica di caricamento della tabella: ", error)
-    });
+    this.handleLoadPosition();
+
+    this.handleTableLoaded();
 
     this.mapService.initMap$.next({point: this.mapService.defaultPoint, zoom: this.mapService.defaultZoom});
 
@@ -158,7 +152,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy{
 
   /**
    * Controlla se prima del refresh della pagina, i dati della dashboard
-   * erano impostati ad oggi o all'ultimo andamento
+   * erano impostati ad oggi o all'ultimo andamento.
+   * Imposta lo stile dei bottoni "Oggi" e "Recente"
    */
   private verifyCheckDay(lastUpdate: string){
     if(lastUpdate){
@@ -179,6 +174,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy{
   }
 
 
+  /**
+   * Ascolta per il caricamento di uno dei kanban per mostrare la sezione associata con i corrispettivi dati
+   */
   private handleKanbanLoading(){
     this.kanbanTableService.loadKabanTable$.pipe(takeUntil(this.destroy$))
     .subscribe({
@@ -306,6 +304,12 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy{
     });
   }
 
+  /**
+   * Verifica se una stringa rappresenta una data valida.
+   * @param stringa - La stringa da controllare.
+   * @returns true se la stringa è una data valida
+   * @returns false se la stringa non è una data valida
+   */
   checkDate(stringa: string): boolean {
     const data = new Date(stringa);
     return !isNaN(data.getTime());
@@ -315,10 +319,63 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy{
    * Apre la snackbar
    * @param content stringa contenuto della snackbar
    */
-  openSnackbar(content: string): void {
+  private openSnackbar(content: string): void {
     this.snackbar.openFromComponent(SnackbarComponent, {
       duration: this.snackbarDuration * 1000,
       data: { content: content }
+    });
+  }
+
+  /**
+   * Ascolta il completamento del caricamento della tabella
+   */
+  private handleTableLoaded(){
+    this.kanbanTableService.tableLoaded$.pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: () => {
+        this.openSnackbar("Dati aggiornati con successo! ✔");
+      },
+      error: error => console.error("Errore nella notifica di caricamento della tabella: ", error)
+    });
+  }
+
+  /**
+   * Ascolta il ridimensionamento del contenitore della mappa per ricalcolare le dimensioni di quest'ultima di conseguenza
+   */
+  private handleMapResizing(){
+    if(this.mapContainerRef){
+      const mapDiv = this.mapContainerRef.nativeElement;
+      this.ngZone.runOutsideAngular(() => {
+        this.resizeObserver = new ResizeObserver(() => {
+          this.mapService.resizeMap$.next();
+        });
+        this.resizeObserver.observe(mapDiv);
+      });
+    }
+  }
+
+  /**
+   * Ascolta il subject che notifica il login di un utente
+   */
+  private handleLogin(){
+    this.loginService.login$.pipe(takeUntil(this.destroy$))
+    .subscribe(() => {
+      this.today = true;
+      this.lastSession = false;
+      this.checkErrorsService.switchCheckDay$.next("today");
+    });
+  }
+
+  /**
+   * Ascolta il subject per il caricamento delle posizioni sulla mappa
+   */
+  private handleLoadPosition(){
+    this.mapService.loadPosition$.pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next: (realtimeData: RealtimeData | null) => {
+        this.mapVehiclePlate = realtimeData?.vehicle.plate || "";
+      },
+      error: error => console.error("Errore nella ricezione del caricamento di un posizione: ", error)
     });
   }
 

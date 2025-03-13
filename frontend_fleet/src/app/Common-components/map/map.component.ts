@@ -1,15 +1,13 @@
 import {
-  AfterContentChecked,
   AfterViewInit,
   ChangeDetectorRef,
   Component,
   OnDestroy,
-  OnInit,
   ViewEncapsulation,
 } from '@angular/core';
 import * as L from 'leaflet';
 import { MapService, pathData, positionData } from '../../Common-services/map/map.service';
-import { last, merge, skip, Subject, takeUntil } from 'rxjs';
+import { skip, Subject, takeUntil } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { RealtimeData } from '../../Models/RealtimeData';
@@ -29,7 +27,7 @@ import { KanbanTableService } from '../../Dashboard/Services/kanban-table/kanban
   styleUrl: './map.component.css',
   encapsulation: ViewEncapsulation.None,
 })
-export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
+export class MapComponent implements AfterViewInit, OnDestroy {
   private readonly destroy$: Subject<void> = new Subject<void>();
 
   private map!: L.Map;
@@ -53,10 +51,6 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private routingControl: L.Routing.Control | null = null;
 
-  ngOnInit() {
-    this.handleKanbanChange();
-  }
-
 
   ngAfterViewInit(): void {
     this.handleInitMap();
@@ -67,23 +61,16 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     this.handleTogglePopups();
     this.handleMarkersUpdate();
     this.handleZoomIn();
+    this.handleMapResizing();
   }
 
-  private handleKanbanChange() {
-    merge(
-      this.kanbanTableService.loadKabanTable$,
-      this.kanbanGpsService.loadKanbanGps$,
-      this.kanbanAntennaService.loadKanbanAntenna$,
-      this.kanbanSessioneService.loadKanbanSessione$
-    )
-    .pipe(takeUntil(this.destroy$), skip(1))
+  private handleMapResizing(){
+    this.mapService.resizeMap$.pipe(takeUntil(this.destroy$))
     .subscribe({
       next: () => {
-        setTimeout(() => {
-          this.map.invalidateSize();
-        }, 1000);
+        if(this.map) this.map.invalidateSize();
       },
-      error: error => console.error("Errore nel centrare la mappa dopo il cambio di kanban: ", error)
+      error: error => console.error("Errore nel ridimensionamento della mappa: ", error)
     });
   }
 
@@ -108,14 +95,14 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe({
         next: (filteredVehicles: any) => {
           const plateToggle = JSON.parse(this.sessionStorageService.getItem("plateToggle"));
-          console.log("plate toggle in map component: ", plateToggle);
 
           const filteredPositionDatas: positionData[] = this.mapService.positionDatas.filter(data =>
             filteredVehicles.some((vehicle: any) => vehicle.plate === data.plate)
           );
 
+
           const filteredMarkers: L.Marker[] = filteredPositionDatas.map(data => {
-            return this.mapService.createVehicleMarker(data.position, data.plate, data.cantiere, data.veId, undefined);
+            return this.mapService.createVehicleMarker(data.position, data.plate, data.cantiere, data.veId, undefined, data.direction == null ? undefined : data.direction);
           });
 
           this.mapService.removeAllMapMarkers(this.map);
