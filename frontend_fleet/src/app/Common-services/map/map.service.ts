@@ -7,6 +7,7 @@ import 'leaflet-routing-machine';
 import 'leaflet-rotatedmarker';
 import { Point } from '../../Models/Point';
 import 'leaflet.markercluster';
+import { SessionStorageService } from '../sessionStorage/session-storage.service';
 
 export interface positionData{
   veId: number,
@@ -129,7 +130,9 @@ export class MapService {
         <path d="M14 11V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>`;
 
-  constructor() {}
+  constructor(
+    private sessionStorageService: SessionStorageService
+  ) {}
 
   /**
    * Inizializza una mappa tramite un punto
@@ -279,12 +282,12 @@ export class MapService {
   }
 
   /**
-   * Crea un layerGroup di marker per i veicoli
-   * @param realtimeDatas dati realtime dei veicoli
-   * @returns L.Layergroup con i marker creati
+   * Crea un marker cluster group tramite dei dati realtime di veicoli
+   * @param {RealtimeData} realtimeDatas dati realtime dei veicoli
+   * @returns {L.MarkerClusterGroup} L.MarkerClusterGroup con i marker creati
    */
-  createVehicleMarkerGroup(realtimeDatas: RealtimeData[]): L.MarkerClusterGroup{
-    const markerGroup = L.markerClusterGroup();
+  createMarkerClusterGroupByRealtimeData(realtimeDatas: RealtimeData[]): L.MarkerClusterGroup{
+    const clusterGroup = L.markerClusterGroup();
     realtimeDatas.forEach((realtimeData) => {
       const vehicle = realtimeData.vehicle;
       const realtime = realtimeData.realtime;
@@ -300,11 +303,33 @@ export class MapService {
 
 
 
-      marker.addTo(markerGroup);
+      marker.addTo(clusterGroup);
     });
 
-    return markerGroup;
+    return clusterGroup;
   }
+
+  /**
+   * Crea un marker cluster group tramite dei marker
+   * @param {L.Marekrs[]} markers marker creati
+   * @returns {L.MarkerClusterGroup} L.MarkerClusterGroup con i marker passati
+   */
+  createMarkerClusterGroupByMarkers(markers: L.Marker[]): L.MarkerClusterGroup {
+    const plateToggle = JSON.parse(this.sessionStorageService.getItem("plateToggle"));
+    const clusterGroup = L.markerClusterGroup();
+
+    markers.forEach(marker => {
+      if (plateToggle) {
+        marker.openPopup();
+      } else {
+        marker.closePopup();
+      }
+      marker.addTo(clusterGroup);
+    });
+
+    return clusterGroup;
+  }
+
 
   /**
    * Crea un marker group con all'interno i marker creati tramite i punti passati
@@ -518,7 +543,7 @@ export class MapService {
   removeAllRelevantLayers(map: L.Map): void {
     if(map){
       map.eachLayer((layer: L.Layer) => {
-        if (layer instanceof L.Marker || layer instanceof L.Polyline) {
+        if (layer instanceof L.Marker || layer instanceof L.Polyline || layer instanceof L.MarkerClusterGroup) {
           map.removeLayer(layer);
         }
       });

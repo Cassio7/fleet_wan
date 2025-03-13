@@ -94,27 +94,17 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.mapService.updateMarkers$.pipe(takeUntil(this.destroy$), skip(1))
       .subscribe({
         next: (filteredVehicles: any) => {
-          const plateToggle = JSON.parse(this.sessionStorageService.getItem("plateToggle"));
-
           const filteredPositionDatas: positionData[] = this.mapService.positionDatas.filter(data =>
             filteredVehicles.some((vehicle: any) => vehicle.plate === data.plate)
           );
-
 
           const filteredMarkers: L.Marker[] = filteredPositionDatas.map(data => {
             return this.mapService.createVehicleMarker(data.position, data.plate, data.cantiere, data.veId, undefined, data.direction == null ? undefined : data.direction);
           });
 
-          this.mapService.removeAllMapMarkers(this.map);
+          this.mapService.removeAllRelevantLayers(this.map);
 
-          filteredMarkers.forEach(marker => {
-            if (plateToggle) {
-              marker.openPopup();
-            } else {
-              marker.closePopup();
-            }
-            this.mapService.addMarker(this.map, marker);
-          });
+          this.mapService.createMarkerClusterGroupByMarkers(filteredMarkers).addTo(this.map);
         },
         error: error => {
           console.error("Errore nell'aggiornamento dei marker presenti sulla mappa: ", error);
@@ -158,7 +148,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         next: (realtimeDatas: RealtimeData[]) => {
           if(this.map){
             //caricamento del layergroup con i marker dei veicoli
-            const gruppoMarker: L.MarkerClusterGroup = this.mapService.createVehicleMarkerGroup(realtimeDatas);
+            const gruppoMarker: L.MarkerClusterGroup = this.mapService.createMarkerClusterGroupByRealtimeData(realtimeDatas);
 
             //evita che i popup nella sezione home-map si aprano quando vengono aggiunti
             gruppoMarker.eachLayer(marker => {
