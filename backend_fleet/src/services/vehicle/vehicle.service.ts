@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import axios from 'axios';
 import { CompanyDTO } from 'classes/dtos/company.dto';
@@ -12,11 +12,11 @@ import { WorkzoneDTO } from 'classes/dtos/workzone.dto';
 import { DeviceEntity } from 'classes/entities/device.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { createHash } from 'crypto';
+import { NotificationsService } from 'src/notifications/notifications.service';
 import { DataSource, In, Repository } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
 import { AssociationService } from '../association/association.service';
 import { WorksiteDTO } from './../../../classes/dtos/worksite.dto';
-import { NotificationsService } from 'src/notifications/notifications.service';
 
 @Injectable()
 export class VehicleService {
