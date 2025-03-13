@@ -67,6 +67,7 @@ export class RealtimeService {
     realtimeDTO.timestamp = realtime.timestamp;
     realtimeDTO.latitude = realtime.latitude;
     realtimeDTO.longitude = realtime.longitude;
+    realtimeDTO.direction = realtime.direction;
 
     return {
       vehicle: { ...vehicleDTO, worksite: worksiteDTO },

@@ -825,6 +825,7 @@ export class SessionService {
           'h.timestamp AS timestamp',
           'h.latitude as latitude',
           'h.longitude as longitude',
+          'h.direction as direction',
           'v.veId AS veId',
         ])
         .innerJoin('vehicles', 'v', 'h.vehicleId = v.id')
