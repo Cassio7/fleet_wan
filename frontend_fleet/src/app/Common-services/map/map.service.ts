@@ -283,7 +283,7 @@ export class MapService {
    * @param realtimeDatas dati realtime dei veicoli
    * @returns L.Layergroup con i marker creati
    */
-  createVehicleMarkerGroup(realtimeDatas: RealtimeData[]){
+  createVehicleMarkerGroup(realtimeDatas: RealtimeData[]): L.MarkerClusterGroup{
     const markerGroup = L.markerClusterGroup();
     realtimeDatas.forEach((realtimeData) => {
       const vehicle = realtimeData.vehicle;
