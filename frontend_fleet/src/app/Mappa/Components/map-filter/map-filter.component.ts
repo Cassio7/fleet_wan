@@ -387,6 +387,6 @@ export class MapFilterComponent implements OnInit, AfterViewInit, OnDestroy{
    * Permette di attivare e disattivare i popup sulla mappa
    */
   togglePlates(){
-    this.mapService.togglePopups$.next(this.visiblePlates);
+    this.mapService.togglePopups$.next();
   }
 }

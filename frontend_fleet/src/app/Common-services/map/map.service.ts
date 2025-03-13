@@ -40,7 +40,7 @@ export class MapService {
   private readonly _updateMarkers$: BehaviorSubject<any> = new BehaviorSubject<any>(null);
 
   private readonly _selectMarker$: BehaviorSubject<positionData | null> = new BehaviorSubject<positionData | null>(null);
-  private readonly _togglePopups$: Subject<boolean> = new Subject<boolean>();
+  private readonly _togglePopups$: Subject<void> = new Subject<void>();
   private readonly _zoomIn$: BehaviorSubject<{ point: Point; zoom: number; } | null> = new BehaviorSubject<{ point: Point; zoom: number; } | null>(null);
 
   private readonly _resizeMap$: Subject<void> = new Subject<void>();
@@ -282,7 +282,7 @@ export class MapService {
   }
 
   /**
-   * Crea un marker cluster group tramite dei dati realtime di veicoli
+   * Crea un marker cluster group tramite i dati realtime di veicoli
    * @param {RealtimeData} realtimeDatas dati realtime dei veicoli
    * @returns {L.MarkerClusterGroup} L.MarkerClusterGroup con i marker creati
    */
@@ -300,7 +300,6 @@ export class MapService {
         undefined,
         realtime.direction
       );
-
 
 
       marker.addTo(clusterGroup);
@@ -585,7 +584,7 @@ export class MapService {
   public get zoomIn$(): BehaviorSubject<{ point: Point; zoom: number; } | null> {
     return this._zoomIn$;
   }
-  public get togglePopups$(): Subject<boolean> {
+  public get togglePopups$(): Subject<void> {
     return this._togglePopups$;
   }
   public get initMap$(): BehaviorSubject<any> {

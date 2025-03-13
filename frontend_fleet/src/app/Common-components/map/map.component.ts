@@ -12,12 +12,7 @@ import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { RealtimeData } from '../../Models/RealtimeData';
 import { Point } from '../../Models/Point';
-import { SessionStorageService } from '../../Common-services/sessionStorage/session-storage.service';
 import { Router } from '@angular/router';
-import { KanbanAntennaService } from '../../Dashboard/Services/kanban-antenna/kanban-antenna.service';
-import { KanbanGpsService } from '../../Dashboard/Services/kanban-gps/kanban-gps.service';
-import { KanbanSessioneService } from '../../Dashboard/Services/kanban-sessione/kanban-sessione.service';
-import { KanbanTableService } from '../../Dashboard/Services/kanban-table/kanban-table.service';
 
 @Component({
   selector: 'app-map',
@@ -31,15 +26,12 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   private readonly destroy$: Subject<void> = new Subject<void>();
 
   private map!: L.Map;
+  private popupVisible: boolean = false;
+
   initialized: boolean = false;
 
   constructor(
     private mapService: MapService,
-    private kanbanTableService: KanbanTableService,
-    private kanbanAntennaService: KanbanAntennaService,
-    private kanbanGpsService: KanbanGpsService,
-    private kanbanSessioneService: KanbanSessioneService,
-    private sessionStorageService: SessionStorageService,
     private router: Router,
     private cd: ChangeDetectorRef) {}
 
@@ -79,8 +71,13 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.mapService.zoomIn$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (zoomData: { point: Point; zoom: number; } | null) => {
+        const currentZoom = this.map.getZoom();
         if(zoomData){
-          this.map.flyTo([zoomData?.point.lat, zoomData?.point.long], zoomData?.zoom);
+          if(currentZoom < zoomData.zoom){
+            this.map.flyTo([zoomData?.point.lat, zoomData?.point.long], zoomData?.zoom);
+          }else{
+            this.map.flyTo([zoomData?.point.lat, zoomData?.point.long], currentZoom);
+          }
         }
       },
       error: error => console.error("Errore nello zoom in sulla posizione selezionata: ", error)
@@ -119,8 +116,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   private handleTogglePopups(){
     this.mapService.togglePopups$.pipe(takeUntil(this.destroy$))
     .subscribe({
-      next: (toggleState: boolean) => {
-        this.mapService.togglePopups(this.map, toggleState);
+      next: () => {
+        this.popupVisible = !this.popupVisible;
+        this.mapService.togglePopups(this.map, this.popupVisible);
       },
       error: error => console.error("Errore nel toggle dei popup nei marker: ", error)
     });
@@ -158,6 +156,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
                 });
               }
             });
+
             gruppoMarker.addTo(this.map);
           }
         },
