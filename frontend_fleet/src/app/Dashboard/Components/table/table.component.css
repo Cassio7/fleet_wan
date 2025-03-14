@@ -16,7 +16,6 @@ tr.mat-header-row, tr.mat-row {
   display: flex;
   justify-content: center;
 }
-
 .mat-cell, th.mat-header-cell {
   display: flex;
   justify-content: center;
@@ -25,7 +24,6 @@ tr.mat-header-row, tr.mat-row {
   height: 100%;
   box-sizing: border-box;
 }
-
 .header-center {
   text-align: center;
   display: flex;
@@ -117,4 +115,31 @@ td.mat-cell {
   display: block;
   margin: 0 auto;
   cursor: pointer;
+}
+
+.movimento-icona {
+  font-size: 1.2rem;
+  color: green;
+  animation: blink 2s infinite alternate;
+}
+@keyframes blink {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.mdc-data-table__cell{
+  padding: 0;
+  padding-left: 0px;
+}
+.mdc-data-table__header-cell{
+  padding: 0;
+  padding-left: 0px;
+}
+.servicePadding{
+  padding-left: 10px;
+}
+
+.centra-icona {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
