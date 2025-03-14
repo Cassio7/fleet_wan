@@ -326,13 +326,13 @@ export class AssociationService {
   /**
    * Recupera i veicoli associati in base all'id utente su redis, se non trova li prende
    * dalla funzione passando per il db
-   * @param userid id utente
+   * @param userId id utente
    * @returns
    */
   async getVehiclesAssociateUserRedis(
-    userid: number,
+    userId: number,
   ): Promise<VehicleEntity[]> {
-    const key = `vehicleAssociateUser:${userid}`;
+    const key = `vehicleAssociateUser:${userId}`;
     const data = await this.redis.get(key);
 
     if (data) {
@@ -343,7 +343,7 @@ export class AssociationService {
         return [];
       }
     }
-    return await this.getVehiclesByUserRole(userid);
+    return await this.getVehiclesByUserRole(userId);
   }
 
   /**
@@ -409,20 +409,37 @@ export class AssociationService {
 
   /**
    * controlla se un utente ha il veid passato assegnato su redis
-   * @param userid user id
+   * @param userId user id
    * @param veId identificativo veicolo
    * @returns
    */
   async hasVehiclesAssociateUserRedisSet(
-    userid: number,
+    userId: number,
     veId: number,
   ): Promise<boolean> {
-    const key = `vehicleAssociateUserSet:${userid}`;
+    const key = `vehicleAssociateUserSet:${userId}`;
 
     // Controlla se l'ID del veicolo (veId) è presente nel Set associato all'utente
     const exists = await this.redis.sismember(key, veId);
 
     return exists === 1;
+  }
+
+  /**
+   * Controlla se un utente ha dei veicoli associati e ritorno un array di veId
+   * @param userId id utente
+   * @returns veId array
+   */
+  async getVehiclesRedisAllSet(userId: number): Promise<number[]> {
+    const key = `vehicleAssociateUserSet:${userId}`;
+    const set = await this.redis.smembers(key);
+    if (set?.length === 0) {
+      throw new HttpException(
+        'Nessun veicolo associato per questo utente',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    return set.map(Number);
   }
 
   /**
@@ -439,7 +456,7 @@ export class AssociationService {
     const flag = await this.hasVehiclesAssociateUserRedisSet(userId, veId);
     if (!flag)
       throw new HttpException(
-        'Non hai il permesso per visualizzare le anomalie di questo veicolo',
+        'Non hai il permesso di visualizzare questo veicolo',
         HttpStatus.FORBIDDEN,
       );
     return true;
