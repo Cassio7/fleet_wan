@@ -4,6 +4,7 @@ import { SessionService } from '../session/session.service';
 import { TagService } from '../tag/tag.service';
 import { VehicleService } from '../vehicle/vehicle.service';
 import { ConfigService } from '@nestjs/config';
+import { VehicleEntity } from 'classes/entities/vehicle.entity';
 
 @Injectable()
 export class ControlService {
@@ -32,9 +33,10 @@ export class ControlService {
    * Controllo tutte le sessioni di tutti i veicoli, per marcare quelle con dei malfunzionamenti al GPS
    * @param dateFrom data inizio ricerca
    * @param dateTo data fine ricerca
+   * @param vehicles lista veicoli
    * @returns
    */
-  async checkGPS(dateFrom: Date, dateTo: Date) {
+  async checkGPS(dateFrom: Date, dateTo: Date, vehicles: VehicleEntity[]) {
     const validation = validateDateRange(
       dateFrom.toISOString(),
       dateTo.toISOString(),
@@ -47,7 +49,6 @@ export class ControlService {
     const dateTo_new = new Date(dateTo);
 
     const daysInRange = getDaysInRange(dateFrom_new, dateTo_new);
-    const allVehicles = await this.vehicleService.getAllVehicles();
 
     const anomaliesForDays = await Promise.all(
       daysInRange.slice(0, -1).map(async (day) => {
@@ -55,7 +56,7 @@ export class ControlService {
         const endOfDay = new Date(day);
         endOfDay.setHours(23, 59, 59, 0);
 
-        const vehicleIds = allVehicles.map((v) => v.veId);
+        const vehicleIds = vehicles.map((v) => v.veId);
 
         // Recupera tutte le sessioni in un'unica chiamata per il giorno corrente
         const sessionMap =
@@ -64,7 +65,7 @@ export class ControlService {
             startOfDay,
             endOfDay,
           );
-        return allVehicles.map((vehicle) => {
+        return vehicles.map((vehicle) => {
           const sessionsDay = sessionMap.get(vehicle.veId) || [];
           if (sessionsDay.length === 0) {
             return null;
@@ -303,11 +304,11 @@ export class ControlService {
 
   /**
    * Ritorna tutti i veicoli dove la data dell'ultima sessione non corrisponde all ultimo evento registrato, inserendo sessione nulla
+   * @param vehicles lista veicoli
    * @returns
    */
-  private async checkSession() {
+  private async checkSession(vehicles: VehicleEntity[]) {
     try {
-      const vehicles = await this.vehicleService.getAllVehicles();
       const vehicleIds = vehicles.map((v) => v.veId);
 
       // Recupero le ultime sessioni per tutti i veicoli in parallelo
@@ -346,9 +347,14 @@ export class ControlService {
    * Controlla se è presente una sessione aperta e se i dati sono bloccati
    * @param dateFrom data inizio ricerca
    * @param dateTo data fine ricerca
+   * @param vehicles lista veicoli
    * @returns
    */
-  private async checkOpenSession(dateFrom: Date, dateTo: Date) {
+  private async checkOpenSession(
+    dateFrom: Date,
+    dateTo: Date,
+    vehicles: VehicleEntity[],
+  ) {
     const validation = validateDateRange(
       dateFrom.toISOString(),
       dateTo.toISOString(),
@@ -361,8 +367,7 @@ export class ControlService {
     const dateTo_new = new Date(dateTo);
 
     const daysInRange = getDaysInRange(dateFrom_new, dateTo_new);
-    const allVehicles = await this.vehicleService.getAllVehicles();
-    const vehicleIds = allVehicles.map((v) => v.veId);
+    const vehicleIds = vehicles.map((v) => v.veId);
 
     // Recupero le ultime sessioni per tutti i veicoli in parallelo
     let historyMap = await this.sessionService.getLastHistoryRedis(vehicleIds);
@@ -379,7 +384,7 @@ export class ControlService {
             startOfDay,
             endOfDay,
           );
-        return allVehicles.map((vehicle) => {
+        return vehicles.map((vehicle) => {
           const sessionsDay = sessionMap.get(vehicle.veId) || [];
           if (!Array.isArray(sessionsDay) || sessionsDay.length === 0) {
             return null;
@@ -548,9 +553,13 @@ export class ControlService {
     let openSession: any = []; // Controllo errori Sessione aperta
     let quality: any = []; // Controllo errori detection_quality
     const mergedData = [];
+
+    // recupero tutti i veicoli
+    const allVehicles = await this.vehicleService.getAllVehicles();
+
     // Controlla errore di GPS
     try {
-      gpsErrors = await this.checkGPS(dateFrom, dateTo);
+      gpsErrors = await this.checkGPS(dateFrom, dateTo, allVehicles);
       gpsErrors = Array.isArray(gpsErrors) ? gpsErrors : [];
     } catch (error) {
       console.error('Errore nel controllo errori del GPS:', error);
@@ -580,14 +589,14 @@ export class ControlService {
     }
     // Controlla errore inizio e fine sessione (last event)
     try {
-      comparison = await this.checkSession();
+      comparison = await this.checkSession(allVehicles);
       comparison = Array.isArray(comparison) ? comparison : [];
     } catch (error) {
       console.error('Errore nel controllo del last event:', error);
     }
 
     try {
-      openSession = await this.checkOpenSession(dateFrom, dateTo);
+      openSession = await this.checkOpenSession(dateFrom, dateTo, allVehicles);
       openSession = Array.isArray(openSession) ? openSession : [];
     } catch (error) {
       console.error('Errore nel controllo della sessione aperta:', error);
