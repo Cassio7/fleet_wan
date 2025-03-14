@@ -199,57 +199,55 @@ export class AppService implements OnModuleInit {
       }
     }
     const vehiclesRFID = vehicles.filter((v) => v.allestimento);
-    const vehiclesNoRFID = vehicles.filter((v) => !v.allestimento);
 
-    const vehicleNoRFIDRequest = vehiclesNoRFID.map((vehicle) => {
-      console.log(
-        `${vehicle.veId} con targa: ${vehicle.plate} - ${vehicle.id}`,
-      );
+    const batchSize = 50; // Dimensione del batch
 
-      const company = companyMap.get(vehicle.veId);
-      if (company) {
-        return this.sessionService.getSessionist(
-          company.suId,
-          vehicle.veId,
-          startDate,
-          endDate,
-        );
+    // Funzione per processare i veicoli in batch
+    const processBatch = async (vehicles) => {
+      for (let i = 0; i < vehicles.length; i += batchSize) {
+        const batch = vehicles.slice(i, i + batchSize); // Prendi un sottoinsieme di 50 veicoli
+
+        const vehicleRequests = batch.map((vehicle) => {
+          console.log(
+            `${vehicle.veId} con targa: ${vehicle.plate} - ${vehicle.id}`,
+          );
+
+          const company = companyMap.get(vehicle.veId);
+          if (company) {
+            return this.sessionService.getSessionist(
+              company.suId,
+              vehicle.veId,
+              startDate,
+              endDate,
+            );
+          }
+        });
+
+        await Promise.all(vehicleRequests); // Aspetta che il batch corrente termini prima di passare al prossimo
       }
-    });
-    await Promise.all(vehicleNoRFIDRequest);
+    };
+
+    // Esegui la funzione con il tuo array di veicoli
+    await processBatch(vehicles);
 
     // Invece di elaborare tutti i veicoli in parallelo con Promise.all
     for (const vehicle of vehiclesRFID.filter((vehicle) =>
       companyMap.has(vehicle.veId),
     )) {
       console.log(
-        `${vehicle.veId} con targa: ${vehicle.plate} - ${vehicle.id}`,
+        `Tag ${vehicle.veId} con targa: ${vehicle.plate} - ${vehicle.id}`,
       );
 
       const company = companyMap.get(vehicle.veId);
 
-      // Per ogni veicolo, possiamo eseguire le operazioni di session e tag in parallelo
-      const promises = [
-        this.sessionService.getSessionist(
+      if (vehicle.allestimento) {
+        await this.tagService.putTagHistory(
           company.suId,
           vehicle.veId,
           startDate,
           endDate,
-        ),
-      ];
-
-      if (vehicle.allestimento) {
-        promises.push(
-          this.tagService.putTagHistory(
-            company.suId,
-            vehicle.veId,
-            startDate,
-            endDate,
-          ),
         );
       }
-
-      await Promise.all(promises);
     }
 
     // inserire il calcolo dell ultima sessione valida
