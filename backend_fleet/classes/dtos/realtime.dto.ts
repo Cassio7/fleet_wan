@@ -1,4 +1,4 @@
-import { IsDate, IsNumber } from 'class-validator';
+import { IsBoolean, IsDate, IsNumber } from 'class-validator';
 import { CommonDTO } from 'classes/common/common.dto';
 
 export class RealtimeDTO extends CommonDTO {
@@ -18,4 +18,6 @@ export class RealtimeDTO extends CommonDTO {
   speed: number;
   @IsNumber()
   direction: number;
+  @IsBoolean()
+  active: boolean;
 }

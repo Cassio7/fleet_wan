@@ -7,6 +7,7 @@ export class Realtime {
     public longitude: number,
     public nav_mode: number,
     public speed: number,
-    public direction: number
+    public direction: number,
+    public active: boolean
   ) {}
 }
