@@ -31,16 +31,9 @@ export class WorksiteService {
    * @returns
    */
   async getWorksitesByUser(userId: number): Promise<WorksiteEntity[]> {
-    const vehicles =
-      await this.associationService.getVehiclesAssociateUserRedis(userId);
-    if (!vehicles || vehicles.length === 0)
-      throw new HttpException(
-        'Nessun veicolo associato per questo utente',
-        HttpStatus.NOT_FOUND,
-      );
     try {
-      const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
-      const veIdArray = Array.isArray(vehicleIds) ? vehicleIds : [vehicleIds];
+      const veIdArray =
+        await this.associationService.getVehiclesRedisAllSet(userId);
       const worksites = await this.worksiteRepository.find({
         select: {
           id: true,

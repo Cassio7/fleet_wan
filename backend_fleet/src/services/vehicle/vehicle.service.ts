@@ -447,16 +447,9 @@ export class VehicleService {
    * @returns
    */
   async getAllVehicleByUser(userId: number): Promise<VehicleDTO[] | null> {
-    const vehicles =
-      await this.associationService.getVehiclesAssociateUserRedis(userId);
-    if (!vehicles || vehicles.length === 0)
-      throw new HttpException(
-        'Nessun veicolo associato per questo utente',
-        HttpStatus.NOT_FOUND,
-      );
     try {
-      const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
-      const veIdArray = Array.isArray(vehicleIds) ? vehicleIds : [vehicleIds];
+      const veIdArray =
+        await this.associationService.getVehiclesRedisAllSet(userId);
       const vehiclesDB = await this.vehicleRepository.find({
         where: { veId: In(veIdArray) },
         relations: {
@@ -544,13 +537,7 @@ export class VehicleService {
     userId: number,
     veId: number,
   ): Promise<VehicleDTO | null> {
-    const vehicles =
-      await this.associationService.getVehiclesAssociateUserRedis(userId);
-    if (!vehicles || vehicles.length === 0)
-      throw new HttpException(
-        'Nessun veicolo associato per questo utente',
-        HttpStatus.NOT_FOUND,
-      );
+    await this.associationService.getVehiclesRedisAllSet(userId);
     try {
       const vehicle = await this.vehicleRepository.findOne({
         where: {
@@ -573,11 +560,7 @@ export class VehicleService {
       });
       if (!vehicle)
         throw new HttpException('Veicolo non trovato', HttpStatus.NOT_FOUND);
-      if (!vehicles.find((v) => v.veId === veId))
-        throw new HttpException(
-          'Non hai il permesso per visualizzare questo veicolo',
-          HttpStatus.FORBIDDEN,
-        );
+      await this.associationService.checkVehicleAssociateUserSet(userId, veId);
       return vehicle ? this.toDTO(vehicle) : null;
     } catch (error) {
       if (error instanceof HttpException) throw error;

@@ -511,17 +511,9 @@ export class TagService {
     dateTo: Date,
     worksiteId: number,
   ): Promise<TagDTO[]> {
-    const vehicles =
-      await this.associationService.getVehiclesAssociateUserRedis(userId);
-    if (!vehicles || vehicles.length === 0)
-      throw new HttpException(
-        'Nessun veicolo associato per questo utente',
-        HttpStatus.NOT_FOUND,
-      );
-
     try {
-      const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
-      const veIdArray = Array.isArray(vehicleIds) ? vehicleIds : [vehicleIds];
+      const veIdArray =
+        await this.associationService.getVehiclesRedisAllSet(userId);
       let tags;
       if (worksiteId && Number(worksiteId)) {
         tags = await this.tagHistoryRepository

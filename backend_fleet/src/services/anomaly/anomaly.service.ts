@@ -44,16 +44,9 @@ export class AnomalyService {
    * @returns
    */
   async getAllAnomalyByUserId(userId: number): Promise<any> {
-    const vehicles =
-      await this.associationService.getVehiclesAssociateUserRedis(userId);
-    if (!vehicles || vehicles.length === 0)
-      throw new HttpException(
-        'Nessun veicolo associato per questo utente',
-        HttpStatus.NOT_FOUND,
-      );
     try {
-      const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
-      const veIdArray = Array.isArray(vehicleIds) ? vehicleIds : [vehicleIds];
+      const veIdArray =
+        await this.associationService.getVehiclesRedisAllSet(userId);
       const anomalies = await this.anomalyRepository.find({
         where: {
           vehicle: {
@@ -158,19 +151,11 @@ export class AnomalyService {
       anomalies: AnomalyDTO[];
     }>
   > {
-    const vehicles =
-      await this.associationService.getVehiclesAssociateUserRedis(userId);
-    if (!vehicles || vehicles.length === 0)
-      throw new HttpException(
-        'Nessun veicolo associato per questo utente',
-        HttpStatus.NOT_FOUND,
-      );
-    const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
-    const veIdArray = Array.isArray(vehicleIds) ? vehicleIds : [vehicleIds];
-
     const today = new Date();
     today.setUTCHours(0, 0, 0, 0);
     try {
+      const veIdArray =
+        await this.associationService.getVehiclesRedisAllSet(userId);
       // Recupero le ultime 2 anomalie per ogni veicolo
       const anomalies = await this.anomalyRepository
         .createQueryBuilder('anomalies')
@@ -257,16 +242,9 @@ export class AnomalyService {
    * @returns
    */
   async getAnomalyByDate(userId: number, date: Date): Promise<any> {
-    const vehicles =
-      await this.associationService.getVehiclesAssociateUserRedis(userId);
-    if (!vehicles || vehicles.length === 0)
-      throw new HttpException(
-        'Nessun veicolo associato per questo utente',
-        HttpStatus.NOT_FOUND,
-      );
     try {
-      const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
-      const veIdArray = Array.isArray(vehicleIds) ? vehicleIds : [vehicleIds];
+      const veIdArray =
+        await this.associationService.getVehiclesRedisAllSet(userId);
       date.setHours(0, 0, 0, 0);
       const anomalies = await this.anomalyRepository.find({
         where: {
@@ -310,16 +288,9 @@ export class AnomalyService {
     dateFrom: Date,
     dateTo: Date,
   ): Promise<any> {
-    const vehicles =
-      await this.associationService.getVehiclesAssociateUserRedis(userId);
-    if (!vehicles || vehicles.length === 0)
-      throw new HttpException(
-        'Nessun veicolo associato per questo utente',
-        HttpStatus.NOT_FOUND,
-      );
     try {
-      const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
-      const veIdArray = Array.isArray(vehicleIds) ? vehicleIds : [vehicleIds];
+      const veIdArray =
+        await this.associationService.getVehiclesRedisAllSet(userId);
       dateFrom.setHours(0, 0, 0, 0);
       dateTo.setHours(0, 0, 0, 0);
       const anomalies = await this.anomalyRepository.find({
@@ -365,18 +336,10 @@ export class AnomalyService {
     dateFrom: Date,
     dateTo: Date,
   ) {
-    const vehicles =
-      await this.associationService.getVehiclesAssociateUserRedis(userId);
-    if (!vehicles || vehicles.length === 0)
-      throw new HttpException(
-        'Nessun veicolo associato per questo utente',
-        HttpStatus.NOT_FOUND,
-      );
-    if (!vehicles.find((v) => v.veId === veId))
-      throw new HttpException(
-        'Non hai il permesso per visualizzare le anomalie di questo veicolo',
-        HttpStatus.FORBIDDEN,
-      );
+    await this.associationService.hasVehiclesAssociateUserRedisSet(
+      userId,
+      veId,
+    );
     dateFrom.setHours(0, 0, 0, 0);
     dateTo.setHours(0, 0, 0, 0);
     try {
@@ -441,17 +404,11 @@ export class AnomalyService {
    * @returns
    */
   async getTodayAnomalyRedis(userId: number, dateFrom: Date): Promise<any> {
-    const vehicles =
-      await this.associationService.getVehiclesAssociateUserRedis(userId);
-    if (!vehicles || vehicles.length === 0)
-      throw new HttpException(
-        'Nessun veicolo associato per questo utente',
-        HttpStatus.NOT_FOUND,
-      );
-    const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
     try {
+      const veIdArray =
+        await this.associationService.getVehiclesRedisAllSet(userId);
       const lastUpdate = await this.redis.get('todayAnomaly:lastUpdate');
-      const redisPromises = vehicleIds.map(async (id) => {
+      const redisPromises = veIdArray.map(async (id) => {
         const key = `todayAnomaly:${id}`;
         try {
           const data = await this.redis.get(key);
@@ -498,16 +455,10 @@ export class AnomalyService {
    * @returns
    */
   async getLastAnomalyRedis(userId: number): Promise<any> {
-    const vehicles =
-      await this.associationService.getVehiclesAssociateUserRedis(userId);
-    if (!vehicles || vehicles.length === 0)
-      throw new HttpException(
-        'Nessun veicolo associato per questo utente',
-        HttpStatus.NOT_FOUND,
-      );
-    const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
     try {
-      const redisPromises = vehicleIds.map(async (id) => {
+      const veIdArray =
+        await this.associationService.getVehiclesRedisAllSet(userId);
+      const redisPromises = veIdArray.map(async (id) => {
         const key = `lastAnomaly:${id}`;
         try {
           const data = await this.redis.get(key);
@@ -661,18 +612,12 @@ export class AnomalyService {
     userId: number,
     date: Date,
   ): Promise<rankedAnomalies[]> {
-    const vehicles =
-      await this.associationService.getVehiclesAssociateUserRedis(userId);
-    if (!vehicles || vehicles.length === 0)
-      throw new HttpException(
-        'Nessun veicolo associato per questo utente',
-        HttpStatus.NOT_FOUND,
-      );
-    const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
-    const veIdArray = Array.isArray(vehicleIds) ? vehicleIds : [vehicleIds];
-    const formattedDate = date.toISOString().split('T')[0];
+    try {
+      const veIdArray =
+        await this.associationService.getVehiclesRedisAllSet(userId);
+      const formattedDate = date.toISOString().split('T')[0];
 
-    const query = `
+      const query = `
     WITH 
       RANKED_ANOMALIES AS (
         SELECT
@@ -738,17 +683,24 @@ export class AnomalyService {
       r."veId";
   `;
 
-    const datas = await this.anomalyRepository.query(query);
-    const ranked: rankedAnomalies[] = datas.map((item) => ({
-      veId: item.veId,
-      consecutive: {
-        gps: Number(item.consecutive_gps),
-        antenna: Number(item.consecutive_antenna),
-        session: Number(item.consecutive_session),
-      },
-    }));
+      const datas = await this.anomalyRepository.query(query);
+      const ranked: rankedAnomalies[] = datas.map((item) => ({
+        veId: item.veId,
+        consecutive: {
+          gps: Number(item.consecutive_gps),
+          antenna: Number(item.consecutive_antenna),
+          session: Number(item.consecutive_session),
+        },
+      }));
 
-    return ranked;
+      return ranked;
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new HttpException(
+        `Errore durante il calcolo del conteggio degli errori ripetuti`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   /**

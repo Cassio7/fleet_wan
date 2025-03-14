@@ -54,16 +54,9 @@ export class NotesService {
    * @returns
    */
   async getAllNotesByUser(userId: number): Promise<NoteDto[]> {
-    const vehicles =
-      await this.associationService.getVehiclesAssociateUserRedis(userId);
-    if (!vehicles || vehicles.length === 0)
-      throw new HttpException(
-        'Nessun veicolo associato per questo utente',
-        HttpStatus.NOT_FOUND,
-      );
     try {
-      const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
-      const veIdArray = Array.isArray(vehicleIds) ? vehicleIds : [vehicleIds];
+      const veIdArray =
+        await this.associationService.getVehiclesRedisAllSet(userId);
       const notes = await this.noteRepository.find({
         relations: {
           vehicle: true,
@@ -249,10 +242,10 @@ export class NotesService {
       );
 
     if (user.role.name !== 'Admin') {
-      const vehicles =
-        await this.associationService.getVehiclesAssociateUserRedis(user.id);
+      const veIdArray =
+        await this.associationService.getVehiclesRedisAllSet(userId);
       if (
-        !vehicles.find((v) => v.veId === note.vehicle.veId) ||
+        !veIdArray.find((veId) => veId === note.vehicle.veId) ||
         note.user.id !== user.id
       )
         throw new HttpException(
@@ -306,10 +299,10 @@ export class NotesService {
       );
 
     if (user.role.name !== 'Admin') {
-      const vehicles =
-        await this.associationService.getVehiclesAssociateUserRedis(user.id);
+      const veIdArray =
+        await this.associationService.getVehiclesRedisAllSet(userId);
       if (
-        !vehicles.find((v) => v.veId === note.vehicle.veId) ||
+        !veIdArray.find((veId) => veId === note.vehicle.veId) ||
         note.user.id !== user.id
       )
         throw new HttpException(
