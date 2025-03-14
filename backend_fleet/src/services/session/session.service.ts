@@ -826,6 +826,7 @@ export class SessionService {
           'h.latitude as latitude',
           'h.longitude as longitude',
           'h.direction as direction',
+          'h.speed as speed',
           'v.veId AS veId',
         ])
         .innerJoin('vehicles', 'v', 'h.vehicleId = v.id')
@@ -896,18 +897,10 @@ export class SessionService {
    */
   async getAllActiveSession(
     userId: number,
-  ): Promise<{ veid: number; active: boolean }[] | null> {
-    const vehicles =
-      await this.associationService.getVehiclesAssociateUserRedis(userId);
-    if (!vehicles || vehicles.length === 0)
-      throw new HttpException(
-        'Nessun veicolo associato per questo utente',
-        HttpStatus.NOT_FOUND,
-      );
+  ): Promise<{ veId: number; active: boolean }[] | null> {
     try {
-      const vehicleIds = vehicles.map((vehicle) => vehicle.veId);
-      const veIdArray = Array.isArray(vehicleIds) ? vehicleIds : [vehicleIds];
-
+      const veIdArray =
+        await this.associationService.getVehiclesRedisAllSet(userId);
       const rawQuery = `
         WITH ranked_sessions AS (
           SELECT 
@@ -947,9 +940,9 @@ export class SessionService {
       if (!sessionMap) {
         return null;
       }
-      let lastSession = await this.getLastValidSessionRedis(vehicleIds);
+      let lastSession = await this.getLastValidSessionRedis(veIdArray);
       if (!lastSession || lastSession.size === 0)
-        lastSession = await this.getLastValidSessionByVeIds(vehicleIds);
+        lastSession = await this.getLastValidSessionByVeIds(veIdArray);
       if (!lastSession || lastSession.size === 0) {
         return null;
       }
