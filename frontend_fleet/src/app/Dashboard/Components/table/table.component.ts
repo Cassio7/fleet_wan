@@ -85,6 +85,7 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
   today = true;
 
   displayedColumns: string[] = [
+    'Active',
     'Servizio',
     'Targa',
     'Cantiere',
@@ -178,10 +179,14 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
     .subscribe({
       next: (switchTo: string) => {
         if (switchTo == 'today') {
+          this.today = true;
           this.fillTable();
+          if(!this.displayedColumns.includes("Active")) this.displayedColumns.unshift("Active"); //Riaggiunta colonna mappa se mancante
           if(!this.displayedColumns.includes("Map")) this.displayedColumns.push("Map"); //Riaggiunta colonna mappa se mancante
         } else if (switchTo == 'last') {
+          this.today = false;
           this.displayedColumns = this.displayedColumns.filter(col => col !== "Map"); //Rimozione colonna mappa
+          this.displayedColumns = this.displayedColumns.filter(col => col !== "Active"); //Rimozione colonna mappa
           this.getAllLastSessionAnomalies();
         } else {
           console.error('Cambio controllo a periodo sconosciuto');

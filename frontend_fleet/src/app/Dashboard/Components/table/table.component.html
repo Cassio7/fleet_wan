@@ -15,10 +15,22 @@
     (matSortChange)="vehicleTableData.data = sortVehiclesByMatSort(vehicleTableData.data)"
     class="table"
   >
+
+    <!-- Tipologia column -->
+    <ng-container matColumnDef="Active">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let vehicleData">
+        <div class="centra-icona">
+          <span [ngStyle]="{ 'visibility': vehicleData?.realtime?.active ? 'visible' : 'hidden' }" class="movimento-icona" style="font-size: 18px;">🚀</span>
+        </div>
+      </td>
+    </ng-container>
+
+
     <!-- Tipologia column -->
     <ng-container matColumnDef="Servizio">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header>Servizio</th>
-      <td mat-cell *matCellDef="let vehicleData">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header [ngClass]="{'servicePadding': !today}">Servizio</th>
+      <td mat-cell *matCellDef="let vehicleData" [ngClass]="{'servicePadding': !today}">
         <div style="display: flex; align-items: center; gap: 8px;">
           <mat-icon
             style="cursor: pointer"
@@ -182,7 +194,7 @@
 
     <!-- Sessione Column -->
     <ng-container matColumnDef="Sessione">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header>Stato Sessione</th>
+      <th mat-header-cell *matHeaderCellDef>Stato Sessione</th>
       <td mat-cell *matCellDef="let vehicleData">
         <!-- se non c'è errore, data nera -->
         <span
