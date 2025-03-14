@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import * as L from 'leaflet';
 import { MapService, pathData, positionData } from '../../Common-services/map/map.service';
-import { skip, Subject, takeUntil } from 'rxjs';
+import { skip, Subject, takeUntil, timestamp } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { RealtimeData } from '../../Models/RealtimeData';
@@ -96,7 +96,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
           );
 
           const filteredMarkers: L.Marker[] = filteredPositionDatas.map(data => {
-            return this.mapService.createVehicleMarker(data.position, data.plate, data.cantiere, data.veId, undefined, data.direction == null ? undefined : data.direction);
+            return this.mapService.createVehicleMarker(data.position, data.plate, data.cantiere, data.veId, undefined, data.direction, data.timestamp, data.active);
           });
 
           this.mapService.removeAllRelevantLayers(this.map);
@@ -178,7 +178,10 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             realtimeData.vehicle.plate,
             realtimeData.vehicle.worksite?.name || null,
             realtimeData.vehicle.veId,
-            undefined
+            undefined,
+            realtimeData.realtime.direction,
+            realtimeData.realtime.timestamp,
+            realtimeData.realtime.active
           );
           if(this.router.url != "/home-mappa") {
             marker.on("add", () => {
