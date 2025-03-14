@@ -47,7 +47,20 @@ export class RealtimeService {
           realtime,
         };
       });
-    return realtimeData.map((data) => this.toDTO(data.vehicle, data.realtime));
+    const activeVehiclesMap: Map<number, boolean> = new Map();
+
+    const activeVehicles =
+      await this.sessionService.getAllActiveSession(userId);
+    activeVehicles.forEach((vehicle) => {
+      activeVehiclesMap.set(vehicle.veId, vehicle.active);
+    });
+    return realtimeData.map((data) =>
+      this.toDTO(
+        data.vehicle,
+        data.realtime,
+        activeVehiclesMap.get(data.vehicle.veId),
+      ),
+    );
   }
 
   /**
@@ -56,7 +69,11 @@ export class RealtimeService {
    * @param realtime dati per il realtime da estrapolare
    * @returns
    */
-  private toDTO(vehicle: VehicleEntity, realtime: any): RealtimeData {
+  private toDTO(
+    vehicle: VehicleEntity,
+    realtime: any,
+    active: boolean,
+  ): RealtimeData {
     const vehicleDTO = new VehicleDTO();
     vehicleDTO.plate = vehicle.plate;
     vehicleDTO.veId = vehicle.veId;
@@ -68,6 +85,8 @@ export class RealtimeService {
     realtimeDTO.latitude = realtime.latitude;
     realtimeDTO.longitude = realtime.longitude;
     realtimeDTO.direction = realtime.direction;
+    realtimeDTO.speed = realtime.speed;
+    realtimeDTO.active = active || false;
 
     return {
       vehicle: { ...vehicleDTO, worksite: worksiteDTO },
