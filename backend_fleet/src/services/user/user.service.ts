@@ -247,13 +247,28 @@ export class UserService {
     if (userDTO.password) {
       const salt = await bcrypt.genSalt(10);
       hashPassword = await bcrypt.hash(userDTO.password, salt);
-      const regex = /\d/;
-      if (!userDTO.username || regex.test(userDTO.username))
+    }
+    const regex = /[0-9\s]/; // Controlla se ci sono numeri o spazi
+    const regexPunto = /\./; // Controlla se c'è almeno un punto
+
+    if (userDTO.username) {
+      // Controlla se l'username contiene numeri o spazi
+      if (regex.test(userDTO.username)) {
         throw new HttpException(
-          'Inserisci un username valido, non vuoto e non devono esserci numeri',
+          'Inserisci un username valido, non devono esserci numeri o spazi',
           HttpStatus.BAD_REQUEST,
         );
+      }
+
+      // Controlla se l'username contiene almeno un punto
+      if (!regexPunto.test(userDTO.username)) {
+        throw new HttpException(
+          'Inserisci un username valido, deve contenere almeno un punto',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
     }
+
     const updateUser = {
       username: userDTO.username || user.username,
       email: userDTO.email || user.email,
