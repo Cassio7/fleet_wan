@@ -34,7 +34,6 @@ import { ProfileService } from '../../Profile/Services/profile/profile.service';
 export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
   private readonly destroy$: Subject<void> = new Subject<void>();
   currentPage: string = '';
-  isKanban: boolean = false;
   icon: string = '';
   name: string = "";
   surname: string = "";
@@ -42,14 +41,11 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
 
   constructor(
     private loginService: LoginService,
-    private cookieService: CookiesService,
     private authService: AuthService,
     private kanbanAntennaService: KanbanAntennaService,
     private kanbanGpsService: KanbanGpsService,
     private kanabanTableService: KanbanTableService,
-    private activatedRoute: ActivatedRoute,
     private profileService: ProfileService,
-    private sessionStorageService: SessionStorageService,
     private router: Router,
     private cd: ChangeDetectorRef
   ){}
@@ -60,83 +56,50 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
   }
 
   ngOnInit(): void {
-    this.updateNavbarState(this.router.url);
+    this.updateNavbarIcon(this.router.url);
 
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
-      this.updateNavbarState(event.url);
+      this.updateNavbarIcon(event.url);
     });
   }
 
-  private updateNavbarState(url: string): void {
-    const regex = /\/dettaglio-mezzo\/(\d+)/;
-    const match = url.match(regex);
+  private updateNavbarIcon(url: string): void {
+    const match = url.match(/\/profile\/[^\/]+/);
 
     if (match) {
-      const id = match[1];
-      this.currentPage = `Dettaglio Mezzo/${id}`;
-      this.isKanban = false;
-      this.icon = "directions_car";
+      this.currentPage = match[0];
     } else {
-      switch (url) {
-        case '/dashboard':
-          this.currentPage = "Riepilogo";
-          this.isKanban = false;
-          this.icon = "dashboard";
-          const dashboardSection = this.sessionStorageService.getItem("dashboard-section");
-          if(dashboardSection){
-            switch(dashboardSection){
-              case 'table':
-                this.isKanban = false;
-                break;
-              case 'GPS':
-                this.isKanban = true;
-                break;
-              case 'Antenna':
-                this.isKanban = true;
-                break;
-              case 'Sessione':
-                this.isKanban = true;
-                break;
-            }
-          }
-          break;
-        case '/home-mezzi':
-          this.currentPage = "Parco mezzi";
-          this.isKanban = false;
-          this.icon = "local_shipping";
-          break;
-        case '/storico-mezzi':
-          this.currentPage = "Storico mezzi";
-          this.isKanban = false;
-          this.icon = "inventory_2";
-          break;
-        case "/home-mappa":
-          this.currentPage = "Mappa";
-          this.isKanban = false;
-          this.icon = "map";
-          break;
-        case "/gestione-utenti":
-          this.currentPage = "Utenti";
-          this.isKanban = false;
-          this.icon = "manage_accounts";
-          break;
-        default:
-          console.log('navbar router url: ', this.router.url);
-          if(this.router.url.includes("/profile")){
-            this.currentPage = "profilo";
-            this.isKanban = false;
-            this.icon = "account_circle";
-          }else{
-            this.currentPage = "Riepilogo";
-            this.isKanban = true;
-            this.icon = "dashboard";
-          }
-      }
+      this.currentPage = url;
     }
+
+    switch (this.currentPage) {
+      case '/dashboard':
+        this.icon = "dashboard";
+        break;
+      case '/home-mezzi':
+        this.icon = "local_shipping";
+        break;
+      case '/storico-mezzi':
+        this.icon = "inventory_2";
+        break;
+      case "/home-mappa":
+        this.icon = "map";
+        break;
+      case "/gestione-utenti":
+        this.icon = "manage_accounts";
+        break;
+      case "/profile":
+        this.icon = "account_circle";
+        break;
+      default:
+        this.icon = "dashboard";
+    }
+
     this.cd.detectChanges();
   }
+
 
 
   ngAfterViewInit(): void {
@@ -156,7 +119,6 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
         this.kanbanGpsService.loadKanbanGps$.pipe(takeUntil(this.destroy$))
       ).subscribe({
         next: () => {
-          this.isKanban = true;
           this.cd.detectChanges();
         },
         error: error => console.error("Errore nel cambio del path: ", error)
@@ -165,7 +127,6 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
       .subscribe({
         next: () => {
           this.currentPage = "Riepilogo";
-          this.isKanban = false;
           this.cd.detectChanges();
         },
         error: error => console.error("Errore nel cambio del path: ", error)
