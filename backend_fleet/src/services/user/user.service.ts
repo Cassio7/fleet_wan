@@ -164,45 +164,45 @@ export class UserService {
   ): Promise<UserDTO> {
     const user = await this.checkUser(userId);
     let hashPassword = null;
-    const queryRunner = this.connection.createQueryRunner();
-    try {
-      if (currentPassword) {
-        const isPasswordMatch = await bcrypt.compare(
-          currentPassword,
-          user.password,
+    if (currentPassword) {
+      const isPasswordMatch = await bcrypt.compare(
+        currentPassword,
+        user.password,
+      );
+      if (!isPasswordMatch)
+        throw new HttpException(
+          'Password attuale errata',
+          HttpStatus.UNAUTHORIZED,
         );
-        if (!isPasswordMatch)
+      const newPassword = userDTO.password;
+      if (newPassword) {
+        if (currentPassword.toLowerCase() === newPassword.toLowerCase())
           throw new HttpException(
-            'Password attuale errata',
-            HttpStatus.UNAUTHORIZED,
+            'Password attuale uguale alla precedente!',
+            HttpStatus.BAD_REQUEST,
           );
-        const newPassword = userDTO.password;
-        if (newPassword) {
-          if (currentPassword.toLowerCase() === newPassword.toLowerCase())
-            throw new HttpException(
-              'Password attuale uguale alla precedente!',
-              HttpStatus.BAD_REQUEST,
-            );
-          // Controllo sulla sicurezza della password
-          const passwordRegex = /^(?=.*[A-Z])(?=.*[\W_])(?=.{8,})/;
-          if (!passwordRegex.test(newPassword)) {
-            throw new HttpException(
-              'La password deve contenere almeno 8 caratteri, una lettera maiuscola e un simbolo speciale.',
-              HttpStatus.BAD_REQUEST,
-            );
-          }
-          const salt = await bcrypt.genSalt(10);
-          hashPassword = await bcrypt.hash(newPassword, salt);
+        // Controllo sulla sicurezza della password
+        const passwordRegex = /^(?=.*[A-Z])(?=.*[\W_])(?=.{8,})/;
+        if (!passwordRegex.test(newPassword)) {
+          throw new HttpException(
+            'La password deve contenere almeno 8 caratteri, una lettera maiuscola e un simbolo speciale.',
+            HttpStatus.BAD_REQUEST,
+          );
         }
+        const salt = await bcrypt.genSalt(10);
+        hashPassword = await bcrypt.hash(newPassword, salt);
       }
+    }
 
-      const updateUser = {
-        email: userDTO.email || user.email,
-        name: userDTO.name || user.name,
-        surname: userDTO.surname || user.surname,
-        password: hashPassword || user.password,
-      };
+    const updateUser = {
+      email: userDTO.email || user.email,
+      name: userDTO.name || user.name,
+      surname: userDTO.surname || user.surname,
+      password: hashPassword || user.password,
+    };
+    const queryRunner = this.connection.createQueryRunner();
 
+    try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
       await queryRunner.manager.getRepository(UserEntity).update(
@@ -368,14 +368,15 @@ export class UserService {
         userDTO.name = user.name;
         userDTO.surname = user.surname;
         userDTO.username = user.username;
-        userDTO.role = user.role.name;
         userDTO.active = user.active;
+        userDTO.role = user.role.name;
         return userDTO;
       } else {
         userDTO.email = user.email;
         userDTO.name = user.name;
         userDTO.surname = user.surname;
         userDTO.username = user.username;
+        userDTO.active = user.active;
         userDTO.role = user.role.name;
         return userDTO;
       }
