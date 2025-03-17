@@ -1,1 +1,10 @@
-<p>home-profile works!</p>
+<div class="content">
+  <div class="section-header">
+    <p class="title">{{header.title}}</p>
+    <p class="subtitle">{{header.subtitle}}</p>
+  </div>
+  <div class="cards" *ngIf="user">
+    <app-profile-data [user]="user"></app-profile-data>
+    <app-profile-psw-reset [userId]="user.id"></app-profile-psw-reset>
+  </div>
+</div>

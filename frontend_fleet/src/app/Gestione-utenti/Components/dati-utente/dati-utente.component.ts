@@ -98,8 +98,6 @@ export class DatiUtenteComponent implements OnDestroy, AfterViewInit{
       role: formValues.role
     };
 
-    console.log('updatedProfileInfo: ', updatedProfileInfo);
-
     this.authService.updateUserInfoById(this.user.id, updatedProfileInfo).pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (response: {user: User, message: string}) => {
