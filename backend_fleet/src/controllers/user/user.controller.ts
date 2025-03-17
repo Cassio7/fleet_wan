@@ -143,7 +143,7 @@ export class UserController {
     };
 
     try {
-      const user = await this.userService.getUserById(req.user.id);
+      const user = await this.userService.getUserById(req.user.id, false);
 
       if (!user) {
         this.loggerService.logCrudSuccess(
@@ -231,7 +231,7 @@ export class UserController {
     };
 
     try {
-      const user = await this.userService.getUserById(userId);
+      const user = await this.userService.getUserById(userId, true);
       if (!user) {
         this.loggerService.logCrudSuccess(
           context,
