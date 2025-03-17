@@ -421,6 +421,10 @@ export class VehicleService {
     return vehicles;
   }
 
+  /**
+   * Recupera i veicoli per utente admin, prima quelli senza cantiere
+   * @returns
+   */
   async getAllVehiclesAdmin(): Promise<VehicleDTO[] | null> {
     const vehicles = await this.vehicleRepository.find({
       relations: {
@@ -433,12 +437,12 @@ export class VehicleService {
         },
       },
       order: {
+        worksite: {
+          name: 'DESC',
+        },
         plate: 'ASC',
       },
     });
-    this.notificationsService.sendNotification(
-      'veicoli recuperati amminiastratore',
-    );
     return vehicles ? vehicles.map((vehicle) => this.toDTO(vehicle)) : null;
   }
   /**
