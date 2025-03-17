@@ -157,7 +157,11 @@ export class UserService {
    * @param currentPassword password attuale utente
    * @param userDTO nuovi dati da aggiornare per utente
    */
-  async updateUser(userId: number, currentPassword: string, userDTO: UserDTO) {
+  async updateUser(
+    userId: number,
+    currentPassword: string,
+    userDTO: UserDTO,
+  ): Promise<UserDTO> {
     const user = await this.checkUser(userId);
     let hashPassword = null;
     const queryRunner = this.connection.createQueryRunner();
@@ -218,6 +222,7 @@ export class UserService {
     } finally {
       await queryRunner.release();
     }
+    return await this.getUserById(userId, false);
   }
 
   /**
@@ -225,7 +230,7 @@ export class UserService {
    * @param userId user id
    * @param userDTO nuovi dati utente
    */
-  async updateUserForAdmin(userId: number, userDTO: UserDTO) {
+  async updateUserForAdmin(userId: number, userDTO: UserDTO): Promise<UserDTO> {
     const user = await this.checkUser(userId);
     if (user.username === 'admin')
       throw new HttpException(
@@ -294,6 +299,7 @@ export class UserService {
     } finally {
       await queryRunner.release();
     }
+    return await this.getUserById(userId, true);
   }
 
   /**

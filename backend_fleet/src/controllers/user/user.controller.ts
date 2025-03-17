@@ -186,7 +186,11 @@ export class UserController {
       resource: 'User me',
     };
     try {
-      await this.userService.updateUser(req.user.id, currentPassword, userDTO);
+      const user = await this.userService.updateUser(
+        req.user.id,
+        currentPassword,
+        userDTO,
+      );
 
       this.loggerService.logCrudSuccess(
         context,
@@ -194,6 +198,7 @@ export class UserController {
         `Utente con username ${userDTO.username} aggiornato!`,
       );
       return res.status(200).json({
+        user,
         message: `Il tuo profilo è stato aggiornato!`,
       });
     } catch (error) {
@@ -284,7 +289,7 @@ export class UserController {
     };
 
     try {
-      await this.userService.updateUserForAdmin(userId, userDTO);
+      const user = await this.userService.updateUserForAdmin(userId, userDTO);
 
       this.loggerService.logCrudSuccess(
         context,
@@ -292,6 +297,7 @@ export class UserController {
         `Utente con username ${userDTO.username} aggiornato!`,
       );
       return res.status(200).json({
+        user,
         message: `Utente con username ${userDTO.username} aggiornato!`,
       });
     } catch (error) {
