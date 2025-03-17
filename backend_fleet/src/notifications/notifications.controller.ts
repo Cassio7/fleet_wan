@@ -74,7 +74,7 @@ export class NotificationsController {
   }
 
   /**
-   * API per aggiornare e segnare una notifica come letta
+   * API per aggiornare lo stato di lettura di una notifica
    * @param req user data
    * @param body id della notifica da aggiornare
    * @param res

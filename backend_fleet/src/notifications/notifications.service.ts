@@ -64,7 +64,7 @@ export class NotificationsService {
   }
 
   /**
-   * Aggiorna lo stato della notifica a letta
+   * Aggiorna lo stato della notifica da letta a non letta e vicersa
    * @param notificationId
    * @returns
    */
@@ -88,19 +88,22 @@ export class NotificationsService {
         await queryRunner.rollbackTransaction();
         return null;
       }
+      const newIsReadStatus = !notification.isRead;
+
       await queryRunner.manager.getRepository(NotificationEntity).update(
         {
           key: notification.key,
         },
-        { isRead: true },
+        { isRead: newIsReadStatus },
       );
       await queryRunner.commitTransaction();
+      notification.isRead = newIsReadStatus;
       return notification;
     } catch (error) {
       await queryRunner.rollbackTransaction();
       if (error instanceof HttpException) throw error;
       throw new HttpException(
-        `Errore durante la creazione dell'utente`,
+        `Errore durante update lettura notifica`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     } finally {
@@ -139,6 +142,7 @@ export class NotificationsService {
 
   private toDTO(notification: NotificationEntity): NotificationDto {
     const notDTO = new NotificationDto();
+    notDTO.id = notification.id;
     notDTO.message = notification.message;
     notDTO.isRead = notification.isRead;
     return notDTO;
