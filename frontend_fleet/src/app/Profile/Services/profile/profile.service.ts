@@ -5,14 +5,6 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { CookiesService } from '../../../Common-services/cookies service/cookies.service';
 import { User } from '../../../Models/User';
 
-export interface EditableProfileInfo {
-  email: string,
-  name: string,
-  surname: string,
-  currentPassword: string,
-  password: string,
-  passwordConfirmation: string
-}
 @Injectable({
   providedIn: 'root'
 })
@@ -33,19 +25,19 @@ export class ProfileService{
    * @returns true se tutti i valori (a parte la password) sono uguali a quelli salvati
    * @returns false se almeno uno dei valori (a parte la password) è diverso
    */
-  checkSameValues(user: User, updatedProfileInfo: EditableProfileInfo): boolean {
+  checkSameValues(user: User, updatedProfileInfo: any): boolean {
     return user.email == updatedProfileInfo.email && user.name == updatedProfileInfo.name && updatedProfileInfo.surname == updatedProfileInfo.surname;
   }
 
 
 
-  saveChanges(updatedProfileInfo: EditableProfileInfo): Observable<EditableProfileInfo>{
+  saveChanges(updatedProfileInfo: any): Observable<any>{
     const access_token = this.cookieService.getCookie("user");
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'
     });
-    return this.http.put<EditableProfileInfo>(`${this.commonService.url}/users/me`, updatedProfileInfo, {headers});
+    return this.http.put<any>(`${this.commonService.url}/users/me`, updatedProfileInfo, {headers});
   }
 
   public get updateUserData$(): BehaviorSubject<User | null> {
