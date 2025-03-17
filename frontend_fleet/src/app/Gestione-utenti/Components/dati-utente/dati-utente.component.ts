@@ -9,10 +9,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { Subject, takeUntil } from 'rxjs';
-import { User } from '../../Models/User';
-import { AuthService } from '../../Common-services/auth/auth.service';
+import { User } from '../../../Models/User';
+import { AuthService } from '../../../Common-services/auth/auth.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { SnackbarComponent } from '../snackbar/snackbar.component';
+import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({

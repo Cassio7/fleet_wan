@@ -6,7 +6,7 @@ import { HomeMezziComponent } from './Mezzi/Components/home-mezzi/home-mezzi.com
 import { DettaglioMezzoComponent } from './Common-components/Scheda-mezzo/dettaglio-mezzo/dettaglio-mezzo.component';
 import { StoricoMezziComponent } from './Storico-mezzi/Components/storico-mezzi/storico-mezzi.component';
 import { HomeMapComponent } from './Mappa/Components/home-map/home-map.component';
-import { UserHomeComponent } from './Common-components/user-home/user-home.component';
+import { UserHomeComponent } from './Gestione-utenti/Components/user-home/user-home.component';
 import { HomeGestioneComponent } from './Gestione-utenti/Components/home-gestione/home-gestione.component';
 import { HomeProfileComponent } from './Profile/Components/home-profile/home-profile.component';
 
