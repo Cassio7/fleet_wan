@@ -8,6 +8,7 @@ import { StoricoMezziComponent } from './Storico-mezzi/Components/storico-mezzi/
 import { HomeMapComponent } from './Mappa/Components/home-map/home-map.component';
 import { UserHomeComponent } from './Common-components/user-home/user-home.component';
 import { HomeGestioneComponent } from './Gestione-utenti/Components/home-gestione/home-gestione.component';
+import { HomeProfileComponent } from './Profile/Components/home-profile/home-profile.component';
 
 export const routes: Routes = [
     { path: 'login', component: LoginComponent },
@@ -18,6 +19,7 @@ export const routes: Routes = [
     { path: 'home-mappa', component: HomeMapComponent},
     { path: 'storico-mezzi', component:StoricoMezziComponent },
     { path: 'profile/:name/:id', component: UserHomeComponent},
+    { path: 'profile', component: HomeProfileComponent},
     { path: 'gestione-utenti', component: HomeGestioneComponent},
     { path: '', component: DashboardComponent },
 ];
