@@ -1,0 +1,72 @@
+<mat-card class="user-data-card">
+  <mat-card-header>
+    <mat-card-title>Dati utente</mat-card-title>
+    <mat-card-subtitle>Ultima modifica 24/01/2025</mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <form [formGroup]="userForm">
+      <div class="container">
+        <p>Nome:</p>
+        <mat-form-field appearance="outline"class="full-width">
+          <input matInput formControlName="name" (keyup)="checkSaveable()">
+        </mat-form-field>
+      </div>
+
+      <div class="container">
+        <p>Cognome:</p>
+      <mat-form-field appearance="outline" class="full-width">
+        <input matInput formControlName="surname" (keyup)="checkSaveable()">
+      </mat-form-field>
+      </div>
+
+      <div class="container">
+        <p>Username:</p>
+      <mat-form-field appearance="outline" class="full-width">
+        <input matInput formControlName="username" (keyup)="checkSaveable()">
+      </mat-form-field>
+      </div>
+
+      <div class="container">
+        <p>Email:</p>
+      <mat-form-field appearance="outline" class="full-width">
+        <input matInput formControlName="email" type="email" (keyup)="checkSaveable()">
+      </mat-form-field>
+      </div>
+
+      <div class="container">
+        <p>Stato utente:</p>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-select formControlName="state" (selectionChange)="checkSaveable()">
+          <mat-option value="Attivo">Attivo</mat-option>
+          <mat-option value="Sospeso">Sospeso</mat-option>
+        </mat-select>
+      </mat-form-field>
+      </div>
+
+      <div class="container">
+        <p>Ruolo utente:</p>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-select formControlName="role" (selectionChange)="checkSaveable()">
+          <mat-option value="Admin">Admin</mat-option>
+          <mat-option value="Responsabile">Responsabile</mat-option>
+          <mat-option value="Capo Cantiere">Capo Cantiere</mat-option>
+        </mat-select>
+      </mat-form-field>
+      </div>
+    </form>
+  </mat-card-content>
+
+  <mat-card-actions align="end">
+    <div class="actions-container">
+      <mat-error>{{errorText}}</mat-error>
+      <span [matTooltip]="!isSaveable ? 'Nessun campo modificato' : ''">
+        <button mat-raised-button color="primary" class="button"
+                (click)="updateData()"
+                [disabled]="!isSaveable">
+          Aggiorna dati utente
+        </button>
+      </span>
+    </div>
+  </mat-card-actions>
+</mat-card>
