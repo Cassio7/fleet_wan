@@ -73,35 +73,14 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
     //sottoscrizione al login
     this.loginService.login$.pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
-        this.ngZone.run(() => { // Run inside Angular's zone
+        this.ngZone.run(() => {
           this.isLogged = true;
-          this.isLoginPage = false; // Update isLoginPage
-          setTimeout(() => {
-            this.cd.detectChanges();
-          });
+          this.isLoginPage = false;
         });
       },
       error: (error) => console.error("Error logging in: ", error),
     });
-    //sottoscrizione a router per i cambiamenti di pagina
-    this.router.events.pipe(filter(event => event instanceof NavigationEnd))
-    .subscribe(()=>{
-      if(this.router.url == "/login"){
-        //chiusura della sidebar in caso sia aperta mentre l'utente si trova nella pagina di login
-        if(this.drawer.opened){
-          this.drawer.toggle();
-        }
-        this.isLogged = false;
-      }
-    });
     this.cd.detectChanges();
-
-    this.router.events.pipe(filter(event => event instanceof NavigationEnd))
-    .subscribe(() => {
-      setTimeout(() => { // Add a small delay
-        const url = this.router.url;
-      }, 10); // 10 milliseconds delay
-    });
   }
 
   ngOnInit(): void {
@@ -111,6 +90,13 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
       this.isLoginPage = this.checkLoginPage(event.urlAfterRedirects);
       if(this.drawer.opened)
         this.drawer.toggle();
+      if(this.router.url == "/login"){
+        //chiusura della sidebar in caso sia aperta mentre l'utente si trova nella pagina di login
+        if(this.drawer.opened){
+          this.drawer.toggle();
+        }
+        this.isLogged = false;
+      }
     });
   }
 

@@ -36,13 +36,17 @@ export class UtentiTableComponent implements AfterViewInit{
     this.authService.getAllUser().pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (users: User[]) => {
-        this.utentiTableData = users;
+        this.utentiTableData = users.filter(user => user.role != "Admin");
         this.utentiTable.renderRows();
       },
       error: error => console.error("Errore nel recupero di tutti gli utenti: ",error)
     });
   }
 
+  /**
+   * Mostra il profilo di un utente navigando alla pagina del suo profilo per modificarne gli attributi
+   * @param user utente di cui visionare il profilo da poter modificare
+   */
   showProfile(user: User){
     this.router.navigate(['/profile', user.name, user.id]);
   }

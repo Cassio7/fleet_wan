@@ -38,7 +38,7 @@
             <mat-icon>inventory_2</mat-icon><span class="drawerIcon-text">Storico mezzi</span>
           </button>
           <button class="button" routerLink="home-mappa" [ngClass]="{'selectedBtn': router.url == '/home-mappa'}" (click)="drawer.toggle(); fixedDrawer.toggle()"><mat-icon>map</mat-icon><span><span class="drawerIcon-text">Mappa</span></span></button>
-          <button class="button" routerLink="gestione-utenti"><mat-icon>manage_accounts</mat-icon><span class="drawerIcon-text" (click)="drawer.toggle(); fixedDrawer.toggle()">Gestione utenti</span></button>
+          <button class="button" routerLink="gestione-utenti" ngif><mat-icon>manage_accounts</mat-icon><span class="drawerIcon-text" (click)="drawer.toggle(); fixedDrawer.toggle()">Gestione utenti</span></button>
           <button class="button"><mat-icon>settings</mat-icon><span class="drawerIcon-text" (click)="drawer.toggle(); fixedDrawer.toggle()">Impostazioni</span></button>
 
           <button class="button" [matMenuTriggerFor]="menu">
