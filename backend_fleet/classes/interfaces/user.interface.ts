@@ -6,4 +6,5 @@ export interface UserInterface extends CommonInterface {
   name: string;
   surname: string;
   password: string;
+  active: boolean;
 }

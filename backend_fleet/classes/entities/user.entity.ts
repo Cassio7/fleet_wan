@@ -34,6 +34,8 @@ export class UserEntity extends CommonEntity implements UserInterface {
   @Column({ type: 'varchar', length: 100, nullable: false })
   password: string;
 
+  @Column({ type: 'boolean', nullable: true })
+  active: boolean;
   // funzione per hashare password prima dell'inserimento nel db
   @BeforeInsert()
   async setPassword(password: string) {

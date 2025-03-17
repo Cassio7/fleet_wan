@@ -24,6 +24,7 @@ export class UserFactoryService {
         username: 'admin',
         email: this.configService.get<string>('ADMIN_EMAIL'),
         password: this.configService.get<string>('USER_PASSWORD'),
+        active: true,
         role: role[0],
       },
       {
@@ -32,6 +33,7 @@ export class UserFactoryService {
         username: 'm.rossi',
         email: 'm.rossi@nomail.com',
         password: this.configService.get<string>('USER_PASSWORD'),
+        active: true,
         role: role[1],
       },
       {
@@ -40,6 +42,7 @@ export class UserFactoryService {
         username: 'l.neri',
         email: 'l.neri@nomail.com',
         password: this.configService.get<string>('USER_PASSWORD'),
+        active: true,
         role: role[2],
       },
     ];
@@ -50,6 +53,7 @@ export class UserFactoryService {
       user.username = userData.username;
       user.email = userData.email;
       user.password = userData.password;
+      user.active = userData.active;
       user.role = userData.role;
       return user;
     });

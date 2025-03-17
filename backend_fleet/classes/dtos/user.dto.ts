@@ -1,5 +1,5 @@
 import { Exclude } from 'class-transformer';
-import { IsEmail, IsString } from 'class-validator';
+import { IsBoolean, IsEmail, IsString } from 'class-validator';
 import { CommonDTO } from 'classes/common/common.dto';
 
 export class UserDTO extends CommonDTO {
@@ -16,4 +16,6 @@ export class UserDTO extends CommonDTO {
   @Exclude()
   @IsString()
   password: string;
+  @IsBoolean()
+  active: boolean;
 }
