@@ -1,0 +1,12 @@
+.user-table {
+  width: 100%;
+  table-layout: fixed;
+}
+.user-container{
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.right-text{
+  text-align: right;
+}
