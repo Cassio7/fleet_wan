@@ -1,0 +1,10 @@
+<div class="content">
+  <div class="section-header">
+    <p class="title">{{header.title}}</p>
+    <p class="subtitle">{{header.subtitle}}</p>
+  </div>
+  <div class="cards" *ngIf="user">
+    <app-dati-utente [user]="user"></app-dati-utente>
+    <app-password-reset [userId]="user.id"></app-password-reset>
+  </div>
+</div>

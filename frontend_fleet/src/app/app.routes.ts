@@ -6,7 +6,8 @@ import { HomeMezziComponent } from './Mezzi/Components/home-mezzi/home-mezzi.com
 import { DettaglioMezzoComponent } from './Common-components/Scheda-mezzo/dettaglio-mezzo/dettaglio-mezzo.component';
 import { StoricoMezziComponent } from './Storico-mezzi/Components/storico-mezzi/storico-mezzi.component';
 import { HomeMapComponent } from './Mappa/Components/home-map/home-map.component';
-import { HomeProfileComponent } from './Profile/Components/home-profile/home-profile.component';
+import { UserHomeComponent } from './Common-components/user-home/user-home.component';
+import { HomeGestioneComponent } from './Gestione-utenti/Components/home-gestione/home-gestione.component';
 
 export const routes: Routes = [
     { path: 'login', component: LoginComponent },
@@ -16,6 +17,7 @@ export const routes: Routes = [
     { path: 'dettaglio-mezzo/:id', component:DettaglioMezzoComponent },
     { path: 'home-mappa', component: HomeMapComponent},
     { path: 'storico-mezzi', component:StoricoMezziComponent },
-    { path: 'profile', component: HomeProfileComponent},
+    { path: 'profile/:name/:id', component: UserHomeComponent},
+    { path: 'gestione-utenti', component: HomeGestioneComponent},
     { path: '', component: DashboardComponent },
 ];
