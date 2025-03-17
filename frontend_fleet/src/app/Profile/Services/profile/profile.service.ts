@@ -30,14 +30,18 @@ export class ProfileService{
   }
 
 
-
-  saveChanges(updatedProfileInfo: any): Observable<any>{
+  /**
+   * Salva i cambiamenti effettuati al profilo
+   * @param updatedProfileInfo informazioni del profilo aggiornate
+   * @returns observable http put
+   */
+  saveChanges(updatedProfileInfo: any): Observable<User>{
     const access_token = this.cookieService.getCookie("user");
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'
     });
-    return this.http.put<any>(`${this.commonService.url}/users/me`, updatedProfileInfo, {headers});
+    return this.http.put<User>(`${this.commonService.url}/users/me`, updatedProfileInfo, {headers});
   }
 
   public get updateUserData$(): BehaviorSubject<User | null> {

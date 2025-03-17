@@ -13,6 +13,7 @@ import { AuthService } from '../../../Common-services/auth/auth.service';
 import { User } from '../../../Models/User';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.component';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-password-reset',
@@ -26,6 +27,7 @@ import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.
     MatButtonModule,
     MatCardModule,
     MatTooltipModule,
+    MatIconModule,
     MatDividerModule
   ],
   templateUrl: './password-reset.component.html',
@@ -41,6 +43,8 @@ export class PasswordResetComponent {
   passwordForm: FormGroup;
   errorText: string = "";
   isSaveable: boolean = false;
+  showNewPassword: boolean = false;
+  showPasswordConfirmation: boolean = false;
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -67,6 +71,7 @@ export class PasswordResetComponent {
         next: (response: {user: User, message: string}) => {
           this.isSaveable = false;
           this.openSnackbar("Password salvata con successo!");
+          this.passwordForm.reset();
         },
         error: error => {
           console.error("Errore nell'aggiornamento delle informazioni dell'utente: ", error);
