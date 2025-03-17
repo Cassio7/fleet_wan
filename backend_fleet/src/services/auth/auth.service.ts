@@ -35,7 +35,9 @@ export class AuthService {
         HttpStatus.UNAUTHORIZED,
       );
     }
-
+    if (!user.active) {
+      throw new HttpException('Account disabilitato', HttpStatus.UNAUTHORIZED);
+    }
     // Verifica password
     if (!password) {
       throw new HttpException(
@@ -50,7 +52,6 @@ export class AuthService {
         HttpStatus.UNAUTHORIZED,
       );
     }
-
     try {
       const payload: JwtPayload = {
         username: user.username,

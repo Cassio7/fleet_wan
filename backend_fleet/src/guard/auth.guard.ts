@@ -5,15 +5,23 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { extractTokenFromHeader } from 'src/utils/utils';
-import { AuthService } from 'src/services/auth/auth.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { UserEntity } from 'classes/entities/user.entity';
 import { LoggerService } from 'src/log/service/logger.service';
+import { AuthService } from 'src/services/auth/auth.service';
+import { extractTokenFromHeader } from 'src/utils/utils';
+import { Repository } from 'typeorm';
+import Redis from 'ioredis';
+import { InjectRedis } from '@nestjs-modules/ioredis';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
     private readonly authService: AuthService,
     private readonly loggerService: LoggerService,
+    @InjectRepository(UserEntity, 'readOnlyConnection')
+    private readonly userRepository: Repository<UserEntity>,
+    @InjectRedis() private readonly redis: Redis,
   ) {}
 
   /**
@@ -30,6 +38,23 @@ export class AuthGuard implements CanActivate {
     }
     try {
       const user = await this.authService.validateToken(token);
+      const key = `user:${user.id}:active`;
+      let userActiveStr = await this.redis.get(key);
+      if (userActiveStr === null) {
+        const userDB = await this.userRepository.findOne({
+          select: {
+            active: true,
+          },
+          where: { id: user.id },
+        });
+        userActiveStr = userDB.active ? '1' : '0';
+        await this.redis.set(key, userActiveStr, 'EX', 300);
+      }
+      const userActive = userActiveStr === '1';
+
+      if (!userActive) {
+        throw new UnauthorizedException('Account disabilitato');
+      }
       request.user = user;
       return true;
     } catch (error) {
