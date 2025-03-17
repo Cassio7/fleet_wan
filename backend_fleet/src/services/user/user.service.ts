@@ -129,9 +129,10 @@ export class UserService {
   /**
    * Ritorna utente in base all'id
    * @param id id utente
+   * @param admin indica se la richiesta viene fatta dall'admin per avere più dati di ritorno
    * @returns oggetto utente
    */
-  async getUserById(id: number): Promise<UserDTO | null> {
+  async getUserById(id: number, admin: boolean): Promise<UserDTO | null> {
     try {
       const user = await this.userRepository.findOne({
         where: { id: id },
@@ -140,7 +141,7 @@ export class UserService {
         },
       });
       if (!user) return null;
-      return await this.formatUserDTO(user, false);
+      return await this.formatUserDTO(user, admin);
     } catch (error) {
       if (error instanceof HttpException) throw error;
       throw new HttpException(
@@ -158,44 +159,46 @@ export class UserService {
    */
   async updateUser(userId: number, currentPassword: string, userDTO: UserDTO) {
     const user = await this.checkUser(userId);
-
-    const isPasswordMatch = await bcrypt.compare(
-      currentPassword,
-      user.password,
-    );
-    if (!isPasswordMatch)
-      throw new HttpException(
-        'Password attuale errata',
-        HttpStatus.UNAUTHORIZED,
-      );
-    const newPassword = userDTO.password;
     let hashPassword = null;
-    if (newPassword) {
-      if (currentPassword.toLowerCase() === newPassword.toLowerCase())
-        throw new HttpException(
-          'Password attuale uguale alla precedente!',
-          HttpStatus.BAD_REQUEST,
-        );
-      // Controllo sulla sicurezza della password
-      const passwordRegex = /^(?=.*[A-Z])(?=.*[\W_])(?=.{8,})/;
-      if (!passwordRegex.test(newPassword)) {
-        throw new HttpException(
-          'La password deve contenere almeno 8 caratteri, una lettera maiuscola e un simbolo speciale.',
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-      const salt = await bcrypt.genSalt(10);
-      hashPassword = await bcrypt.hash(newPassword, salt);
-    }
-
-    const updateUser = {
-      email: userDTO.email || user.email,
-      name: userDTO.name || user.name,
-      surname: userDTO.surname || user.surname,
-      password: hashPassword || user.password,
-    };
     const queryRunner = this.connection.createQueryRunner();
     try {
+      if (currentPassword) {
+        const isPasswordMatch = await bcrypt.compare(
+          currentPassword,
+          user.password,
+        );
+        if (!isPasswordMatch)
+          throw new HttpException(
+            'Password attuale errata',
+            HttpStatus.UNAUTHORIZED,
+          );
+        const newPassword = userDTO.password;
+        if (newPassword) {
+          if (currentPassword.toLowerCase() === newPassword.toLowerCase())
+            throw new HttpException(
+              'Password attuale uguale alla precedente!',
+              HttpStatus.BAD_REQUEST,
+            );
+          // Controllo sulla sicurezza della password
+          const passwordRegex = /^(?=.*[A-Z])(?=.*[\W_])(?=.{8,})/;
+          if (!passwordRegex.test(newPassword)) {
+            throw new HttpException(
+              'La password deve contenere almeno 8 caratteri, una lettera maiuscola e un simbolo speciale.',
+              HttpStatus.BAD_REQUEST,
+            );
+          }
+          const salt = await bcrypt.genSalt(10);
+          hashPassword = await bcrypt.hash(newPassword, salt);
+        }
+      }
+
+      const updateUser = {
+        email: userDTO.email || user.email,
+        name: userDTO.name || user.name,
+        surname: userDTO.surname || user.surname,
+        password: hashPassword || user.password,
+      };
+
       await queryRunner.connect();
       await queryRunner.startTransaction();
       await queryRunner.manager.getRepository(UserEntity).update(
@@ -229,17 +232,23 @@ export class UserService {
         'Utente Admin non puo essere aggiornato',
         HttpStatus.UNAUTHORIZED,
       );
-    const role = await this.roleService.getRoleByName(userDTO.role);
-    if (!role)
-      throw new HttpException('Ruolo non trovato', HttpStatus.NOT_FOUND);
-    const salt = await bcrypt.genSalt(10);
-    const hashPassword = await bcrypt.hash(userDTO.password, salt);
-    const regex = /\d/;
-    if (!userDTO.username || regex.test(userDTO.username))
-      throw new HttpException(
-        'Inserisci un username valido, non vuoto e non devono esserci numeri',
-        HttpStatus.BAD_REQUEST,
-      );
+    let role = null;
+    if (userDTO.role != undefined) {
+      role = await this.roleService.getRoleByName(userDTO.role);
+      if (!role)
+        throw new HttpException('Ruolo non trovato', HttpStatus.NOT_FOUND);
+    }
+    let hashPassword = null;
+    if (userDTO.password) {
+      const salt = await bcrypt.genSalt(10);
+      hashPassword = await bcrypt.hash(userDTO.password, salt);
+      const regex = /\d/;
+      if (!userDTO.username || regex.test(userDTO.username))
+        throw new HttpException(
+          'Inserisci un username valido, non vuoto e non devono esserci numeri',
+          HttpStatus.BAD_REQUEST,
+        );
+    }
 
     const updateUser = {
       username: userDTO.username || user.username,
@@ -259,9 +268,8 @@ export class UserService {
         },
         updateUser,
       );
-      await queryRunner.commitTransaction();
       // se il ruolo è stato cambiato rimuovo tutte le associazioni del vecchio ruolo
-      if (user.role.id !== role.id) {
+      if (role && user.role.id !== role?.id) {
         const associationsRemove = await this.associationRepository.find({
           where: {
             user: {
@@ -275,6 +283,7 @@ export class UserService {
         await this.associationService.setVehiclesAssociateAllUsersRedis();
         await this.associationService.setVehiclesAssociateAllUsersRedisSet();
       }
+      await queryRunner.commitTransaction();
     } catch (error) {
       await queryRunner.rollbackTransaction();
       if (error instanceof HttpException) throw error;
@@ -339,6 +348,7 @@ export class UserService {
         userDTO.surname = user.surname;
         userDTO.username = user.username;
         userDTO.role = user.role.name;
+        userDTO.active = user.active;
         return userDTO;
       } else {
         userDTO.email = user.email;
