@@ -32,9 +32,9 @@
                       (keydown)="checkCapslock($event)"
                       formControlName="username"
                       placeholder="Username" />
-              <button mat-icon-button matSuffix type="button">
-                <mat-icon>person</mat-icon>
-              </button>
+                <button mat-icon-button matSuffix type="button" tabindex="-1">
+                  <mat-icon>person</mat-icon>
+                </button>
               <mat-error *ngIf="loginForm.controls['username'].errors?.['required']">
                 L'username è obbligatorio.
               </mat-error>
@@ -48,7 +48,7 @@
                       (keydown)="checkCapslock($event)"
                       formControlName="password"
                       placeholder="Password" />
-              <button mat-icon-button matSuffix type="button" class="" (click)="showPassword = !showPassword">
+              <button mat-icon-button matSuffix type="button" class="" (click)="showPassword = !showPassword" tabindex="-1">
                 <mat-icon>{{ showPassword ? 'visibility' : 'visibility_off' }}</mat-icon>
               </button>
               <mat-error *ngIf="loginForm.controls['password'].errors?.['required']">
