@@ -249,13 +249,13 @@ export class UserService {
           HttpStatus.BAD_REQUEST,
         );
     }
-
     const updateUser = {
       username: userDTO.username || user.username,
       email: userDTO.email || user.email,
       name: userDTO.name || user.name,
       surname: userDTO.surname || user.surname,
       password: hashPassword || user.password,
+      active: userDTO.active ?? user.active,
       role: role || user.role,
     };
     const queryRunner = this.connection.createQueryRunner();
