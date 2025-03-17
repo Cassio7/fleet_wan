@@ -235,3 +235,6 @@ table:not(.mat-calendar-table) tr:nth-child(even) {
     }
   }
 }
+mat-card{
+  box-shadow: none !important;
+}

@@ -73,7 +73,7 @@
 
   .left-container .section-header .main-logo {
     height: 5vh;
-    width: 5vw;
+    width: 6vw;
     margin: 0;
     display: flex;
     align-self: flex-end;
@@ -254,7 +254,7 @@
 
   .left-container .section-header .main-logo {
     height: 4vh;
-    width: 4vw;
+    width: 5vw;
   }
 
   .left-container .footer {
