@@ -117,15 +117,22 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
           this.isKanban = false;
           this.icon = "map";
           break;
-        case "/profile":
-          this.currentPage = "profilo";
+        case "/gestione-utenti":
+          this.currentPage = "Utenti";
           this.isKanban = false;
-          this.icon = "account_circle";
+          this.icon = "manage_accounts";
           break;
         default:
-          this.currentPage = "Riepilogo";
-          this.isKanban = true;
-          this.icon = "dashboard";
+          console.log('navbar router url: ', this.router.url);
+          if(this.router.url.includes("/profile")){
+            this.currentPage = "profilo";
+            this.isKanban = false;
+            this.icon = "account_circle";
+          }else{
+            this.currentPage = "Riepilogo";
+            this.isKanban = true;
+            this.icon = "dashboard";
+          }
       }
     }
     this.cd.detectChanges();
@@ -185,7 +192,7 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
   }
 
   showProfile(){
-    this.router.navigate(["/profile"]);
+    this.router.navigate(["/profile", this.name, 1]);
   }
 
   logout(){

@@ -6,11 +6,11 @@
 <path fill-rule="evenodd" clip-rule="evenodd" d="M12.8855 6H20.8855V8H12.8855V6ZM4.88547 16H12.8855V18H4.88547V16ZM20.8855 11H4.88547V13H20.8855V11Z" fill="white"/>
 </svg>
 </button>
-        <button routerLink="dashboard" [ngClass]="{'selectedBtn': router.url == '/dashboard' || router.url == ''}" ><mat-icon>dashboard</mat-icon></button>
+        <button routerLink="dashboard" [ngClass]="{'selectedBtn': router.url == '/dashboard' || router.url == '/'}" ><mat-icon>dashboard</mat-icon></button>
         <button routerLink="home-mezzi" [ngClass]="{'selectedBtn': router.url == '/home-mezzi'}"><mat-icon>local_shipping</mat-icon></button>
         <button routerLink="storico-mezzi" [ngClass]="{'selectedBtn': router.url == '/storico-mezzi'}"><mat-icon>inventory_2</mat-icon></button>
         <button routerLink="home-mappa" [ngClass]="{'selectedBtn': router.url == '/home-mappa'}"><mat-icon>map</mat-icon></button>
-        <button><mat-icon>manage_accounts</mat-icon></button>
+        <button routerLink="gestione-utenti" [ngClass]="{'selectedBtn': router.url == '/gestione-utenti'}"><mat-icon>manage_accounts</mat-icon></button>
         <button><mat-icon>settings</mat-icon></button>
       </div>
       <div class="log-out">
@@ -38,7 +38,7 @@
             <mat-icon>inventory_2</mat-icon><span class="drawerIcon-text">Storico mezzi</span>
           </button>
           <button class="button" routerLink="home-mappa" [ngClass]="{'selectedBtn': router.url == '/home-mappa'}" (click)="drawer.toggle(); fixedDrawer.toggle()"><mat-icon>map</mat-icon><span><span class="drawerIcon-text">Mappa</span></span></button>
-          <button class="button"><mat-icon>manage_accounts</mat-icon><span class="drawerIcon-text" (click)="drawer.toggle(); fixedDrawer.toggle()">Gestione utenti</span></button>
+          <button class="button" routerLink="gestione-utenti"><mat-icon>manage_accounts</mat-icon><span class="drawerIcon-text" (click)="drawer.toggle(); fixedDrawer.toggle()">Gestione utenti</span></button>
           <button class="button"><mat-icon>settings</mat-icon><span class="drawerIcon-text" (click)="drawer.toggle(); fixedDrawer.toggle()">Impostazioni</span></button>
 
           <button class="button" [matMenuTriggerFor]="menu">

@@ -173,6 +173,7 @@ mat-drawer {
   flex: 1;
   overflow: hidden;
   display: flex;
+  background-color: var(--background-color);
   flex-direction: column;
 }
 
