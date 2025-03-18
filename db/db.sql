@@ -31,6 +31,7 @@ CREATE TABLE "groups" (
   "id" int PRIMARY KEY,
   "vgId" int,
   "name" string,
+  "worksiteId" int,
   "companyId" it
 );
 
@@ -113,13 +114,8 @@ CREATE TABLE "devices" (
 
 CREATE TABLE "worksite" (
   "id" int PRIMARY KEY,
-  "name" string
-);
-
-CREATE TABLE "vehicle_group" (
-  "id" int PRIMARY KEY,
-  "groupId" int,
-  "worksiteId" int
+  "name" string,
+  "groupId" int
 );
 
 CREATE TABLE "realtime_positions" (
@@ -208,6 +204,8 @@ ALTER TABLE "associations" ADD FOREIGN KEY ("companyId") REFERENCES "companies" 
 
 ALTER TABLE "associations" ADD FOREIGN KEY ("worksiteId") REFERENCES "worksite" ("id");
 
+ALTER TABLE "groups" ADD FOREIGN KEY ("worksiteId") REFERENCES "worksite" ("id");
+
 ALTER TABLE "groups" ADD FOREIGN KEY ("companyId") REFERENCES "companies" ("id");
 
 ALTER TABLE "vehicles" ADD FOREIGN KEY ("deviceId") REFERENCES "devices" ("id");
@@ -226,9 +224,7 @@ ALTER TABLE "notes" ADD FOREIGN KEY ("userId") REFERENCES "users" ("id");
 
 ALTER TABLE "notes" ADD FOREIGN KEY ("vehicleId") REFERENCES "vehicles" ("id");
 
-ALTER TABLE "vehicle_group" ADD FOREIGN KEY ("groupId") REFERENCES "groups" ("id");
-
-ALTER TABLE "vehicle_group" ADD FOREIGN KEY ("worksiteId") REFERENCES "worksite" ("id");
+ALTER TABLE "worksite" ADD FOREIGN KEY ("groupId") REFERENCES "groups" ("id");
 
 ALTER TABLE "realtime_positions" ADD FOREIGN KEY ("vehicleId") REFERENCES "vehicles" ("id");
 

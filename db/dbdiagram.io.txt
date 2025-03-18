@@ -31,6 +31,7 @@ table groups{
   id int [primary key]
   vgId int
   name string
+  worksiteId int [ref: > worksite.id]
   companyId it [ref: > companies.id]
 }
 
@@ -114,14 +115,10 @@ table devices{
 table worksite{
   id int [primary key]
   name string
-
-}
-
-table vehicle_group {
-  id int [primary key]
   groupId int [ref: > groups.id]
-  worksiteId int [ref: > worksite.id]
+
 }
+
 
 table realtime_positions{
   id int [primary key]
