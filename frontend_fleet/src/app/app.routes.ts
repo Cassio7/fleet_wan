@@ -18,7 +18,7 @@ export const routes: Routes = [
     { path: 'dettaglio-mezzo/:id', component:DettaglioMezzoComponent },
     { path: 'home-mappa', component: HomeMapComponent},
     { path: 'storico-mezzi', component:StoricoMezziComponent },
-    { path: 'profile/:name/:id', component: UserHomeComponent},
+    { path: 'profile/:id', component: UserHomeComponent},
     { path: 'profile', component: HomeProfileComponent},
     { path: 'gestione-utenti', component: HomeGestioneComponent},
     { path: '', component: DashboardComponent },
