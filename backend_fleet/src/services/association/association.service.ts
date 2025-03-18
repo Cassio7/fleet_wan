@@ -275,16 +275,12 @@ export class AssociationService {
       },
       relations: {
         worksite: {
-          vehicle: {
-            worksite: true,
-          },
+          vehicle: true, // Carica i veicoli associati al worksite
         },
         company: {
           group: {
-            worksite_group: {
-              worksite: {
-                vehicle: { worksite: true },
-              },
+            worksite: {
+              vehicle: true, // Carica i veicoli associati al worksite nel gruppo
             },
           },
         },
@@ -297,30 +293,38 @@ export class AssociationService {
         },
       },
     });
-    const vehicles = new Set<VehicleEntity>();
+
+    const vehicles = new Set<VehicleEntity>(); // Set per evitare duplicati
 
     associations.forEach((association) => {
-      // Prendo i veicoli se hanno direttamente associazione con worksite
+      // Prendo i veicoli se sono direttamente associati al worksite
       if (association.worksite?.vehicle) {
         association.worksite.vehicle.forEach((vehicle) =>
           vehicles.add(vehicle),
         );
       }
-      // Prendo tutti i veicoli passando da company -> group -> worksite_group -> worksite considerando soltanto il comune principale per evitare duplicati
+
+      // Se c'è un gruppo associato alla company
       if (association?.company?.group) {
-        const firstGroup = association.company.group[0];
-        if (firstGroup?.worksite_group) {
-          firstGroup.worksite_group.forEach((worksiteGroup) => {
-            if (worksiteGroup.worksite?.vehicle) {
-              worksiteGroup.worksite.vehicle.forEach((vehicle) =>
-                vehicles.add(vehicle),
-              );
-            }
-          });
-        }
+        // Se il gruppo è un array, itero su ciascun gruppo
+        const groups = Array.isArray(association.company.group)
+          ? association.company.group
+          : [association.company.group];
+
+        groups.forEach((group) => {
+          // Se anche worksite è un array, itero su ciascun worksite
+          if (Array.isArray(group.worksite)) {
+            group.worksite.forEach((worksite) => {
+              if (worksite?.vehicle) {
+                worksite.vehicle.forEach((vehicle) => vehicles.add(vehicle));
+              }
+            });
+          }
+        });
       }
     });
-    return Array.from(vehicles);
+
+    return Array.from(vehicles); // Restituisco l'array di veicoli senza duplicati
   }
 
   /**

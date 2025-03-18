@@ -41,11 +41,9 @@ export class CompanyService {
     const company = await this.companyEntity.findOne({
       where: {
         group: {
-          worksite_group: {
-            worksite: {
-              vehicle: {
-                veId: veId,
-              },
+          worksite: {
+            vehicle: {
+              veId: veId,
             },
           },
         },

@@ -26,7 +26,6 @@ import { TagHistoryEntity } from 'classes/entities/tag_history.entity';
 import { UserEntity } from 'classes/entities/user.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { WorksiteEntity } from 'classes/entities/worksite.entity';
-import { WorksiteGroupEntity } from 'classes/entities/worksite_group.entity';
 import { WorkzoneEntity } from 'classes/entities/workzone.entity';
 
 // importo i servizi
@@ -68,7 +67,6 @@ import { RentalFactoryService } from './factory/rental.factory';
 import { ServiceFactoryService } from './factory/service.factory';
 import { UserFactoryService } from './factory/user.factory';
 import { WorksiteFactoryService } from './factory/worksite.factory';
-import { WorksiteGroupFactoryService } from './factory/worksite_group.factory';
 import { WorkzoneFacotoryService } from './factory/workzone.factory';
 import { ControlService } from './services/control/control.service';
 import { NotificationsService } from './notifications/notifications.service';
@@ -109,7 +107,6 @@ import { WorksiteController } from './controllers/worksite/worksite.controller';
           AssociationEntity,
           CompanyEntity,
           WorksiteEntity,
-          WorksiteGroupEntity,
           NoteEntity,
           ServiceEntity,
           AnomalyEntity,
@@ -137,7 +134,6 @@ import { WorksiteController } from './controllers/worksite/worksite.controller';
         AssociationEntity,
         CompanyEntity,
         WorksiteEntity,
-        WorksiteGroupEntity,
         NoteEntity,
         ServiceEntity,
         AnomalyEntity,
@@ -173,7 +169,6 @@ import { WorksiteController } from './controllers/worksite/worksite.controller';
           AssociationEntity,
           CompanyEntity,
           WorksiteEntity,
-          WorksiteGroupEntity,
           NoteEntity,
           ServiceEntity,
           AnomalyEntity,
@@ -200,7 +195,6 @@ import { WorksiteController } from './controllers/worksite/worksite.controller';
         AssociationEntity,
         CompanyEntity,
         WorksiteEntity,
-        WorksiteGroupEntity,
         NoteEntity,
         ServiceEntity,
         AnomalyEntity,
@@ -259,7 +253,6 @@ import { WorksiteController } from './controllers/worksite/worksite.controller';
     UserFactoryService,
     WorksiteFactoryService,
     GroupFactoryService,
-    WorksiteGroupFactoryService,
     RentalFactoryService,
     NotesService,
     AssociationFactoryService,
