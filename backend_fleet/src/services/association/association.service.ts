@@ -280,7 +280,7 @@ export class AssociationService {
         company: {
           group: {
             worksite: {
-              vehicle: true, // Carica i veicoli associati al worksite nel gruppo
+              vehicle: { worksite: true }, // Carica i veicoli associati al worksite nel gruppo
             },
           },
         },
