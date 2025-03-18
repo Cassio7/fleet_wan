@@ -1,5 +1,4 @@
 .content {
-  height: 100vh; /* Occupa tutta l'altezza della finestra */
   width: 100%;
   overflow: hidden;
   display: flex;
@@ -14,43 +13,69 @@
 
 .vehicleHandling-container {
   position: absolute;
-  top: 100px;
-  left: 60px;
-  width: 400px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  padding: 50px 60px 0 60px;
+  width: 100%;
+  box-sizing: border-box;
   z-index: 1000;
 }
 
-.filters-container,
-.info-container {
-  width: 100%;
+.filters-container {
+  position: absolute;
+  left: 60px;
+  width: 400px;
   background: #FFFFFF;
   box-shadow: 6px 6px 54px rgba(0, 0, 0, 0.05);
   border-radius: 6px;
   padding: 10px;
 }
 
-.info-container {
-  height: 400px;
+.legend-container {
+  position: absolute;
+  right: 60px;
+  width: 400px;
+  background-color: transparent;
+  box-shadow: none;
+  border-radius: 6px;
+  background-color: white;
+  padding: 20px;
 }
+
+.info-container {
+  position: absolute;
+  left: 60px;
+
+  top: 400px;
+  width: 400px;
+  height: 400px;
+  background: #FFFFFF;
+  box-shadow: 6px 6px 54px rgba(0, 0, 0, 0.05);
+  border-radius: 6px;
+  padding: 10px;
+}
+
 .hidden {
   display: none;
 }
 
 @media screen and (max-width: 1366px) {
   .vehicleHandling-container {
-    position: absolute;
-    top: 50px;
+    padding: 20px 60px 0 60px;
+  }
+
+  .filters-container {
     left: 50px;
     width: 300px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    z-index: 1000;
   }
-  .info-container{
+
+  .legend-container {
+    right: 50px;
+    width: 300px;
+  }
+
+  .info-container {
+    left: 50px;
+    top: 250px;
+    width: 300px;
     height: 310px;
   }
 }

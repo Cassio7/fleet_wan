@@ -1,0 +1,47 @@
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.description {
+  flex: 1;
+  text-align: left;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: right;
+}
+
+.circle {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.green {
+  background-color: var(--green);
+}
+
+.yellow {
+  background-color: var(--yellow);
+}
+
+.red {
+  background-color: var(--red);
+}
+
+mat-list-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 10px 0;
+}
+.section-header{
+  gap: 10px;
+}

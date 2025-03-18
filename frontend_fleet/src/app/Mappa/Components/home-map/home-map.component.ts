@@ -8,6 +8,7 @@ import { RealtimeData } from '../../../Models/RealtimeData';
 import { MapFilterComponent } from "../map-filter/map-filter.component";
 import { MappaInfoComponent } from "../mappa-info/mappa-info.component";
 import { CommonModule } from '@angular/common';
+import { LegendComponent } from "../legend/legend.component";
 
 @Component({
   selector: 'app-home-map',
@@ -16,8 +17,9 @@ import { CommonModule } from '@angular/common';
     CommonModule,
     MapComponent,
     MapFilterComponent,
-    MappaInfoComponent
-  ],
+    MappaInfoComponent,
+    LegendComponent
+],
   templateUrl: './home-map.component.html',
   styleUrl: './home-map.component.css'
 })
