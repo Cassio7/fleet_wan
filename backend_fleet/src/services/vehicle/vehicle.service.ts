@@ -428,6 +428,7 @@ export class VehicleService {
   async getAllVehiclesAdmin(): Promise<VehicleDTO[] | null> {
     const vehicles = await this.vehicleRepository.find({
       relations: {
+        device: true,
         worksite: {
           worksite_group: {
             group: {
