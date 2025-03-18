@@ -118,14 +118,18 @@ td.mat-cell {
 }
 
 .movimento-icona {
-  font-size: 1.2rem;
-  color: green;
-  animation: blink 2s infinite alternate;
+  animation: traslazione 4s linear infinite;
 }
-@keyframes blink {
-  from { opacity: 0; }
-  to { opacity: 1; }
+
+@keyframes traslazione {
+  0% {
+    transform: translateX(-125%); /* Inizia fuori dalla pagina a sinistra */
+  }
+  100% {
+    transform: translateX(126%); /* Arriva fuori dalla pagina a destra */
+  }
 }
+
 .mdc-data-table__cell{
   padding: 0;
   padding-left: 0px;
@@ -134,12 +138,15 @@ td.mat-cell {
   padding: 0;
   padding-left: 0px;
 }
-.servicePadding{
-  padding-left: 10px;
+.targaPadding{
+  padding-left: 5px;
 }
 
 .centra-icona {
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
+  overflow: hidden; /* Impedisce all'icona di uscire */
+  width: 100%; /* Assicura che il contenitore prenda lo spazio corretto */
 }

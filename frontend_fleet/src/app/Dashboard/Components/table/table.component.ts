@@ -41,9 +41,7 @@ import {
   FiltersCommonService,
 } from '../../../Common-services/filters-common/filters-common.service';
 import { GpsGraphService } from '../../Services/gps-graph/gps-graph.service';
-import {
-  MatSlideToggleModule,
-} from '@angular/material/slide-toggle';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { RealtimeData } from '../../../Models/RealtimeData';
 import { RealtimeApiService } from '../../../Common-services/realtime-api/realtime-api.service';
 import { MapService } from '../../../Common-services/map/map.service';
@@ -53,6 +51,7 @@ import { Point } from '../../../Models/Point';
 import { KanbanTableService } from '../../Services/kanban-table/kanban-table.service';
 import { LoginService } from '../../../Common-services/login service/login.service';
 import { DashboardService } from '../../Services/dashboard/dashboard.service';
+import { SvgService } from '../../../Common-services/svg/svg.service';
 
 @Component({
   selector: 'app-table',
@@ -65,8 +64,8 @@ import { DashboardService } from '../../Services/dashboard/dashboard.service';
     MatTooltipModule,
     MatProgressBarModule,
     MatSortModule,
-    MatSlideToggleModule
-],
+    MatSlideToggleModule,
+  ],
   templateUrl: './table.component.html',
   styleUrls: ['./table.component.css'],
 })
@@ -83,15 +82,14 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
   loadingProgress: number = 0;
   loadingText: string = '';
   today = true;
-
   displayedColumns: string[] = [
     'Active',
-    'Servizio',
     'Targa',
+    'Servizio',
     'Cantiere',
     'GPS',
     'Antenna',
-    "Detection quality",
+    'Detection quality',
     'Sessione',
     'Map',
   ];
@@ -103,6 +101,7 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
 
   constructor(
     public checkErrorsService: CheckErrorsService,
+    public svgService: SvgService,
     private gpsGraphService: GpsGraphService,
     private sessioneGraphService: SessioneGraphService,
     private antennaGraphService: AntennaGraphService,
@@ -151,21 +150,24 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
           ),
       });
 
-    const allData = JSON.parse(this.sessionStorageService.getItem("allData"));
+    const allData = JSON.parse(this.sessionStorageService.getItem('allData'));
     const activeFilters = this.kanbanTableService.filtersValue();
-    if(allData && activeFilters){
-      const filteredData = this.filtersCommonService.applyAllFiltersOnVehicles(allData, activeFilters) as VehicleData[]
+    if (allData && activeFilters) {
+      const filteredData = this.filtersCommonService.applyAllFiltersOnVehicles(
+        allData,
+        activeFilters
+      ) as VehicleData[];
       this.vehicleTableData.data = filteredData;
       this.loadGraphs(filteredData);
       this.loadingProgress = 100;
-    }else if(allData){
+    } else if (allData) {
       this.vehicleTableData.data = allData;
       this.loadGraphs(allData);
       this.loadingProgress = 100;
       setTimeout(() => {
         this.tableLoaded = true;
       }, 500);
-    }else{
+    } else {
       this.fillTable();
     }
   }
@@ -173,28 +175,29 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
   /**
    * Gestisce la sottoscrizione al subject per il cambio della data dei controlli
    */
-  private handleCheckDaySwitch(){
+  private handleCheckDaySwitch() {
     this.checkErrorsService.switchCheckDay$
-    .pipe(takeUntil(this.destroy$), skip(1))
-    .subscribe({
-      next: (switchTo: string) => {
-        if (switchTo == 'today') {
-          this.today = true;
-          this.fillTable();
-          if(!this.displayedColumns.includes("Active")) this.displayedColumns.unshift("Active"); //Riaggiunta colonna mappa se mancante
-          if(!this.displayedColumns.includes("Map")) this.displayedColumns.push("Map"); //Riaggiunta colonna mappa se mancante
-        } else if (switchTo == 'last') {
-          this.today = false;
-          this.displayedColumns = this.displayedColumns.filter(col => col !== "Map"); //Rimozione colonna mappa
-          this.displayedColumns = this.displayedColumns.filter(col => col !== "Active"); //Rimozione colonna mappa
-          this.getAllLastSessionAnomalies();
-        } else {
-          console.error('Cambio controllo a periodo sconosciuto');
-        }
-      },
-      error: (error) =>
-        console.error('Errore nel cambio del giorno di controllo: ', error),
-    });
+      .pipe(takeUntil(this.destroy$), skip(1))
+      .subscribe({
+        next: (switchTo: string) => {
+          if (switchTo == 'today') {
+            this.today = true;
+            this.fillTable();
+            if (!this.displayedColumns.includes('Map'))
+              this.displayedColumns.push('Map'); //Riaggiunta colonna mappa se mancante
+          } else if (switchTo == 'last') {
+            this.today = false;
+            this.displayedColumns = this.displayedColumns.filter(
+              (col) => col !== 'Map'
+            ); //Rimozione colonna mappa //Rimozione colonna mappa
+            this.getAllLastSessionAnomalies();
+          } else {
+            console.error('Cambio controllo a periodo sconosciuto');
+          }
+        },
+        error: (error) =>
+          console.error('Errore nel cambio del giorno di controllo: ', error),
+      });
   }
 
   /**
@@ -205,16 +208,22 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
       .pipe(takeUntil(this.destroy$), skip(1))
       .subscribe({
         next: (filters: Filters) => {
-          const allData = JSON.parse(this.sessionStorageService.getItem('allData'));
-          const filteredVehicles = this.filtersCommonService.applyAllFiltersOnVehicles(allData,filters) as VehicleData[];
-          const sortedFilteredVehicles = this.sortVehiclesByMatSort(filteredVehicles);
+          const allData = JSON.parse(
+            this.sessionStorageService.getItem('allData')
+          );
+          const filteredVehicles =
+            this.filtersCommonService.applyAllFiltersOnVehicles(
+              allData,
+              filters
+            ) as VehicleData[];
+          const sortedFilteredVehicles =
+            this.sortVehiclesByMatSort(filteredVehicles);
           this.vehicleTableData.data = sortedFilteredVehicles;
           this.vehicleTable.renderRows();
           this.loadGraphs(filteredVehicles);
         },
       });
   }
-
 
   /**
    * Ordina i veicoli passati in base ai valori del MatSort della tabella
@@ -228,80 +237,109 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
     switch (column) {
       case 'Cantiere':
         if (sortDirection == 'asc') {
-          return this.sortService.sortVehiclesByCantiereAsc(vehicles) as VehicleData[];
+          return this.sortService.sortVehiclesByCantiereAsc(
+            vehicles
+          ) as VehicleData[];
         } else {
-          return this.sortService.sortVehiclesByCantiereDesc(vehicles) as VehicleData[];
+          return this.sortService.sortVehiclesByCantiereDesc(
+            vehicles
+          ) as VehicleData[];
         }
       case 'Targa':
         if (sortDirection == 'asc') {
-          return this.sortService.sortVehiclesByPlateAsc(vehicles) as VehicleData[];
+          return this.sortService.sortVehiclesByPlateAsc(
+            vehicles
+          ) as VehicleData[];
         } else {
-          return this.sortService.sortVehiclesByPlateDesc(vehicles) as VehicleData[];
+          return this.sortService.sortVehiclesByPlateDesc(
+            vehicles
+          ) as VehicleData[];
         }
       case 'Sessione':
         if (sortDirection == 'asc') {
-          return this.sortService.sortVehiclesBySessioneAsc(vehicles) as VehicleData[];
+          return this.sortService.sortVehiclesBySessioneAsc(
+            vehicles
+          ) as VehicleData[];
         } else {
-          return this.sortService.sortVehiclesBySessioneDesc(vehicles) as VehicleData[];
+          return this.sortService.sortVehiclesBySessioneDesc(
+            vehicles
+          ) as VehicleData[];
         }
     }
     return vehicles;
   }
 
-
   /**
    * Riempe la tabella con i dati recuperati dalla chiamata API
    */
   private fillTable() {
-    console.log("CHIAMATO FILL TABLE!");
+    console.log('CHIAMATO FILL TABLE!');
     this.resetGraphs();
 
     // this.errorGraphService.resetGraphs();
     this.vehicleTableData.data = [];
-    this.checkErrorsService.checkErrorsAllToday().pipe(takeUntil(this.destroy$), tap(() => {
-      this.loadingProgress+=50;
-      this.loadingText = "Caricamento dei veicoli...";
-    })).subscribe({
-      next: (responseObj: any) => {
-        const vehiclesData = responseObj.vehicles;
-        this.updateLastUpdate(responseObj.lastUpdate);
-        this.addLastRealtime(vehiclesData).pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (mergedVehicles: VehicleData[]) => {
-            this.sessionStorageService.setItem("allData", JSON.stringify(mergedVehicles));
-            const activeFilters = this.kanbanTableService.filtersValue();
-            if(activeFilters){
-              const filteredMergedVehicles: VehicleData[] = this.filtersCommonService.applyAllFiltersOnVehicles(mergedVehicles, activeFilters) as VehicleData[];
-              this.vehicleTableData.data = filteredMergedVehicles;
-              this.loadGraphs(filteredMergedVehicles);
-            }else{
-              this.vehicleTableData.data = mergedVehicles;
-              this.loadGraphs(mergedVehicles);
-            }
-            this.kanbanTableService.tableLoaded$.next();
-            this.mapService.resizeMap$.next();
-          },
-          error: error => console.error("Errore nell'aggiunta dei realtime ai veicoli: ", error)
-        });
-        this.sort = this.sortService.resetMatSort(this.sort);
-      },
-      error: (err) => {
-        console.error("Errore nel caricamento iniziale dei dati: ", err);
-      }
-    });
+    this.checkErrorsService
+      .checkErrorsAllToday()
+      .pipe(
+        takeUntil(this.destroy$),
+        tap(() => {
+          this.loadingProgress += 50;
+          this.loadingText = 'Caricamento dei veicoli...';
+        })
+      )
+      .subscribe({
+        next: (responseObj: any) => {
+          const vehiclesData = responseObj.vehicles;
+          this.updateLastUpdate(responseObj.lastUpdate);
+          this.addLastRealtime(vehiclesData)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+              next: (mergedVehicles: VehicleData[]) => {
+                this.sessionStorageService.setItem(
+                  'allData',
+                  JSON.stringify(mergedVehicles)
+                );
+                const activeFilters = this.kanbanTableService.filtersValue();
+                if (activeFilters) {
+                  const filteredMergedVehicles: VehicleData[] =
+                    this.filtersCommonService.applyAllFiltersOnVehicles(
+                      mergedVehicles,
+                      activeFilters
+                    ) as VehicleData[];
+                  this.vehicleTableData.data = filteredMergedVehicles;
+                  this.loadGraphs(filteredMergedVehicles);
+                } else {
+                  this.vehicleTableData.data = mergedVehicles;
+                  this.loadGraphs(mergedVehicles);
+                }
+                this.kanbanTableService.tableLoaded$.next();
+                this.mapService.resizeMap$.next();
+              },
+              error: (error) =>
+                console.error(
+                  "Errore nell'aggiunta dei realtime ai veicoli: ",
+                  error
+                ),
+            });
+          this.sort = this.sortService.resetMatSort(this.sort);
+        },
+        error: (err) => {
+          console.error('Errore nel caricamento iniziale dei dati: ', err);
+        },
+      });
   }
 
   /**
    * Imposta il valore del testo dell'ultimo aggiornamento visualizzato sulla dashboard
    * @param lastUpdate stringa ultimo aggiornamento
    */
-  private updateLastUpdate(lastUpdate: string){
-    if(lastUpdate){
-      this.sessionStorageService.setItem("lastUpdate", lastUpdate);
+  private updateLastUpdate(lastUpdate: string) {
+    if (lastUpdate) {
+      this.sessionStorageService.setItem('lastUpdate', lastUpdate);
       this.dashboardService.lastUpdate.set(lastUpdate);
-    }else{
-      this.sessionStorageService.setItem("lastUpdate", "recente");
-      this.dashboardService.lastUpdate.set("recente");
+    } else {
+      this.sessionStorageService.setItem('lastUpdate', 'recente');
+      this.dashboardService.lastUpdate.set('recente');
     }
   }
 
@@ -314,22 +352,25 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
     return this.realtimeApiService.getAllLastRealtime().pipe(
       tap(() => {
         this.loadingProgress += 50;
-        this.loadingText = "Caricamento dati del tempo reale...";
+        this.loadingText = 'Caricamento dati del tempo reale...';
       }),
       map((realtimeDataObj: RealtimeData[]) => {
-        console.log("realtime data fetched from dashboard: ", realtimeDataObj);
+        console.log('realtime data fetched from dashboard: ', realtimeDataObj);
 
-        const mergedVehicles: VehicleData[] = this.realtimeApiService.mergeVehiclesWithRealtime(vehicles, realtimeDataObj) as VehicleData[];
+        const mergedVehicles: VehicleData[] =
+          this.realtimeApiService.mergeVehiclesWithRealtime(
+            vehicles,
+            realtimeDataObj
+          ) as VehicleData[];
 
         return mergedVehicles;
       }),
-      catchError(error => {
-        console.error("Errore nel caricamento dei dati realtime: ", error);
+      catchError((error) => {
+        console.error('Errore nel caricamento dei dati realtime: ', error);
         return throwError(() => error);
       })
     );
   }
-
 
   /**
    * Ottiene i dati dell'ultimo andamento di ciscun veicolo
@@ -338,25 +379,38 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
     this.resetGraphs();
     this.vehicleTableData.data = [];
 
-    this.sessionApiService.getAllLastSessionAnomalies().pipe(takeUntil(this.destroy$))
+    this.sessionApiService
+      .getAllLastSessionAnomalies()
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (responseObj: any) => {
-        const vehiclesData = responseObj.vehicles;
-        this.sessionStorageService.setItem("allData", JSON.stringify(vehiclesData));
-        this.updateLastUpdate(responseObj.lastUpdate);
-        const activeFilters = this.kanbanTableService.filtersValue();
-        if(activeFilters){
-          const filteredVehicles: VehicleData[] = this.filtersCommonService.applyAllFiltersOnVehicles(vehiclesData, activeFilters) as VehicleData[];
-          this.vehicleTableData.data = filteredVehicles;
-          this.loadGraphs(filteredVehicles);
-        }else{
-          this.vehicleTableData.data = vehiclesData;
-          this.loadGraphs(vehiclesData);
-        }
-        this.kanbanTableService.tableLoaded$.next();
-        this.sort = this.sortService.resetMatSort(this.sort);
+          const vehiclesData = responseObj.vehicles;
+          this.sessionStorageService.setItem(
+            'allData',
+            JSON.stringify(vehiclesData)
+          );
+          this.updateLastUpdate(responseObj.lastUpdate);
+          const activeFilters = this.kanbanTableService.filtersValue();
+          if (activeFilters) {
+            const filteredVehicles: VehicleData[] =
+              this.filtersCommonService.applyAllFiltersOnVehicles(
+                vehiclesData,
+                activeFilters
+              ) as VehicleData[];
+            this.vehicleTableData.data = filteredVehicles;
+            this.loadGraphs(filteredVehicles);
+          } else {
+            this.vehicleTableData.data = vehiclesData;
+            this.loadGraphs(vehiclesData);
+          }
+          this.kanbanTableService.tableLoaded$.next();
+          this.sort = this.sortService.resetMatSort(this.sort);
         },
-        error: error => console.error("Errore nel recupero delle ultime sessioni dei veicoli: ", error)
+        error: (error) =>
+          console.error(
+            'Errore nel recupero delle ultime sessioni dei veicoli: ',
+            error
+          ),
       });
   }
 
@@ -382,13 +436,16 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
       realtime: vehicleData.realtime,
       anomaly: vehicleData.anomalies[0],
     };
-    if(realtimeData.realtime){
+    if (realtimeData.realtime) {
       this.mapService.initMap$.next({
-        point: new Point(realtimeData.realtime.latitude, realtimeData.realtime.longitude)
+        point: new Point(
+          realtimeData.realtime.latitude,
+          realtimeData.realtime.longitude
+        ),
       });
       this.mapService.loadPosition$.next(realtimeData);
-    }else{
-      console.log("Nessun dato realtime!");
+    } else {
+      console.log('Nessun dato realtime!');
     }
   }
 
@@ -398,7 +455,7 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
    */
   onGraphClick(vehiclesData: VehicleData[]) {
     this.cantieriFilterService.updateCantieriFilterOptions$.next(vehiclesData);
-    if(vehiclesData){
+    if (vehiclesData) {
       this.vehicleTableData.data = vehiclesData;
     }
     this.loadGraphs(vehiclesData);
@@ -415,7 +472,7 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
     this.sessioneGraphService.loadChartData$.next(newVehicles);
   }
 
-  resetGraphs(){
+  resetGraphs() {
     this.antennaGraphService.resetGraph();
     this.sessioneGraphService.resetGraph();
     this.gpsGraphService.resetGraph();
