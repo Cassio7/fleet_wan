@@ -16,7 +16,15 @@
         <div class="cards">
           <mat-card class="generalInfo-card">
             <mat-card-header>
-              <mat-card-title><mat-icon>local_shipping</mat-icon>{{ vehicle.plate }}</mat-card-title>
+              <mat-card-title>
+                <img
+                  [src]="svgService.getServiceIcon(vehicle.service?.id ?? 0)"
+                  alt="Service Icon"
+                  width="28"
+                  height="28"
+                />
+                {{ vehicle.plate }}</mat-card-title
+              >
               <mat-card-subtitle
                 >ID: {{ vehicle.veId }} — Dismesso:
                 {{
@@ -99,7 +107,11 @@
                 <mat-list-item
                   ><span class="list-label">Data installazione Fleet</span>
                   <p>
-                    {{ vehicle.fleet_install ? (vehicle.fleet_install | date: "dd/MM/yyyy") : '' }}
+                    {{
+                      vehicle.fleet_install
+                        ? (vehicle.fleet_install | date : "dd/MM/yyyy")
+                        : ""
+                    }}
                   </p></mat-list-item
                 >
               </mat-list>
@@ -108,7 +120,8 @@
           <mat-card class="deviceInfo-card">
             <mat-card-header>
               <mat-card-title
-                ><mat-icon>display_settings</mat-icon>Dispositivo</mat-card-title
+                ><mat-icon>display_settings</mat-icon
+                >Dispositivo</mat-card-title
               >
             </mat-card-header>
             <mat-divider></mat-divider>
@@ -121,20 +134,26 @@
                 <mat-divider></mat-divider>
                 <mat-list-item
                   ><span class="list-label">Data costruzione</span>
-                  <p>{{ vehicle.device.date_build | date: "dd/MM/yyyy" }}</p></mat-list-item
+                  <p>
+                    {{ vehicle.device.date_build | date : "dd/MM/yyyy" }}
+                  </p></mat-list-item
                 >
               </mat-list>
               <mat-divider></mat-divider>
               <mat-list>
                 <mat-list-item
                   ><span class="list-label">Aggiornamenti firmware</span>
-                  <p>{{ vehicle.device.fw_upgrade_disable ? "Disabilitati" : "Abilitati" }}</p></mat-list-item
+                  <p>
+                    {{
+                      vehicle.device.fw_upgrade_disable
+                        ? "Disabilitati"
+                        : "Abilitati"
+                    }}
+                  </p></mat-list-item
                 >
                 <mat-divider></mat-divider>
                 <mat-list-item
-                  ><span class="list-label"
-                    >Cali di tensione</span
-                  >
+                  ><span class="list-label">Cali di tensione</span>
                   <p>{{ vehicle.device.power_fail_detected }}</p></mat-list-item
                 >
               </mat-list>
@@ -142,26 +161,26 @@
               <mat-list>
                 <mat-list-item
                   ><span class="list-label">Ultimo aggiornamento</span>
-                  <p>{{ vehicle.device.fw_update | date:'dd/MM/yyyy'}}</p></mat-list-item
+                  <p>
+                    {{ vehicle.device.fw_update | date : "dd/MM/yyyy" }}
+                  </p></mat-list-item
                 >
                 <mat-divider></mat-divider>
                 <mat-list-item
                   ><span class="list-label">Batteria RTC</span>
-                  <p>{{ vehicle.device.rtc_battery_fail ? "Ok" :"Error" }}</p></mat-list-item
+                  <p>
+                    {{ vehicle.device.rtc_battery_fail ? "Ok" : "Error" }}
+                  </p></mat-list-item
                 >
               </mat-list>
               <mat-list>
                 <mat-list-item
-                ><span class="list-label"
-                  >Aggiornamenti ricevuti</span
+                  ><span class="list-label">Aggiornamenti ricevuti</span>
+                  <p>{{ vehicle.device.fw_upgrade_received }}</p></mat-list-item
                 >
-                <p>{{ vehicle.device.fw_upgrade_received }}</p></mat-list-item
-              >
                 <mat-divider></mat-divider>
                 <mat-list-item
-                  ><span class="list-label"
-                    >Ripristino alimentazione</span
-                  >
+                  ><span class="list-label">Ripristino alimentazione</span>
                   <p>
                     {{ vehicle.device.power_on_off_detected }}
                   </p></mat-list-item

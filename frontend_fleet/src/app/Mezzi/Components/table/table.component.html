@@ -1,6 +1,6 @@
 <div class="content">
   <div class="nVehicles-container">
-    Numero di veicoli: {{vehicleTableData.data.length}}
+    Numero di veicoli: {{ vehicleTableData.data.length }}
   </div>
   <div class="loading-progress" *ngIf="loadingProgress < 100">
     <p class="loading-p">{{ loadingText }}</p>
@@ -19,18 +19,28 @@
       class="table"
       matSort
       multiTemplateDataRows
-      (matSortChange)="vehicleTableData.data = sortVehiclesByMatSort(vehicleTableData.data)"
+      (matSortChange)="
+        vehicleTableData.data = sortVehiclesByMatSort(vehicleTableData.data)
+      "
     >
       <!-- Colonna Proprietario -->
       <ng-container matColumnDef="Proprietario">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Proprietario/Locatario</th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>
+          Proprietario/Locatario
+        </th>
         <td mat-cell *matCellDef="let vehicle">
           <span class="proprietario-container">
-            <mat-icon style="cursor: pointer;" matTooltip="Click per maggiori dettagli sul veicolo" (click)="displayVehicleDetail(vehicle.veId)">
-            local_shipping
-          </mat-icon>
-
-          {{ vehicle?.rental?.name || vehicle?.company?.name || "No data" }}
+            <img
+              [src]="svgService.getServiceIcon(vehicle.service.id)"
+              alt="Service Icon"
+              width="28"
+              height="28"
+              style="cursor: pointer"
+              (click)="displayVehicleDetail(vehicle.veId)"
+              matTooltip="Click per maggiori dettagli sul veicolo"
+              class="mezzo-icon"
+            />
+            {{ vehicle?.rental?.name || vehicle?.company?.name || "No data" }}
           </span>
         </td>
       </ng-container>
@@ -45,7 +55,9 @@
 
       <!-- Colonna Immatricolazione -->
       <ng-container matColumnDef="Immatricolazione">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Immatricolazione</th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>
+          Immatricolazione
+        </th>
         <td mat-cell *matCellDef="let vehicle">
           {{ vehicle?.registration || "" }}
         </td>
@@ -83,9 +95,15 @@
 
       <!-- Colonna Installazione fleet -->
       <ng-container matColumnDef="Installazione fleet">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Installazione fleet</th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>
+          Installazione fleet
+        </th>
         <td mat-cell *matCellDef="let vehicle">
-          {{ vehicle?.fleet_install ? (vehicle.fleet_install | date:'dd/MM/yyyy') : '' }}
+          {{
+            vehicle?.fleet_install
+              ? (vehicle.fleet_install | date : "dd/MM/yyyy")
+              : ""
+          }}
         </td>
       </ng-container>
 
