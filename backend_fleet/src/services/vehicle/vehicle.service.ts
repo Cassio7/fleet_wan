@@ -429,10 +429,8 @@ export class VehicleService {
     const vehicles = await this.vehicleRepository.find({
       relations: {
         worksite: {
-          worksite_group: {
-            group: {
-              company: true,
-            },
+          group: {
+            company: true,
           },
         },
       },
@@ -459,10 +457,8 @@ export class VehicleService {
         relations: {
           device: true,
           worksite: {
-            worksite_group: {
-              group: {
-                company: true,
-              },
+            group: {
+              company: true,
             },
           },
           workzone: true,
@@ -550,10 +546,8 @@ export class VehicleService {
         relations: {
           device: true,
           worksite: {
-            worksite_group: {
-              group: {
-                company: true,
-              },
+            group: {
+              company: true,
             },
           },
           workzone: true,
@@ -654,21 +648,16 @@ export class VehicleService {
     let rentalDTO: RentalDTO | null = null;
 
     if (vehicle.worksite) {
-      if (vehicle.worksite.worksite_group) {
-        for (const item of vehicle.worksite.worksite_group) {
-          if (item.group.name && !item.group.name.includes('Comuni')) {
-            groupDTO = new GroupDTO();
-            groupDTO.vgId = item.group.vgId;
-            groupDTO.name = item.group.name;
-            break;
-          }
-        }
+      if (vehicle.worksite.group) {
+        groupDTO = new GroupDTO();
+        groupDTO.vgId = vehicle.worksite.group.vgId;
+        groupDTO.name = vehicle.worksite.group.name;
       }
 
-      if (vehicle.worksite.worksite_group[0].group.company) {
+      if (vehicle.worksite.group.company) {
         companyDTO = new CompanyDTO();
-        companyDTO.suId = vehicle.worksite.worksite_group[0].group.company.suId;
-        companyDTO.name = vehicle.worksite.worksite_group[0].group.company.name;
+        companyDTO.suId = vehicle.worksite.group.company.suId;
+        companyDTO.name = vehicle.worksite.group.company.name;
       }
     }
 

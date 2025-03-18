@@ -1,9 +1,9 @@
 import { CommonEntity } from 'classes/common/common.entity';
 import { WorksiteInterface } from 'classes/interfaces/worksite.interface';
-import { Column, Entity, OneToMany } from 'typeorm';
-import { WorksiteGroupEntity } from './worksite_group.entity';
-import { VehicleEntity } from './vehicle.entity';
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { AssociationEntity } from './association.entity';
+import { GroupEntity } from './group.entity';
+import { VehicleEntity } from './vehicle.entity';
 
 @Entity({
   name: 'worksites',
@@ -13,11 +13,8 @@ export class WorksiteEntity extends CommonEntity implements WorksiteInterface {
   @Column()
   name: string;
 
-  @OneToMany(
-    () => WorksiteGroupEntity,
-    (worksite_group) => worksite_group.worksite,
-  )
-  worksite_group: WorksiteGroupEntity[];
+  @ManyToOne(() => GroupEntity, (group) => group.worksite)
+  group: GroupEntity;
 
   @OneToMany(() => VehicleEntity, (vehicle) => vehicle.worksite)
   vehicle: VehicleEntity[];

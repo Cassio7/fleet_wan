@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EquipmentEntity } from 'classes/entities/equipment.entity';
+import { GroupEntity } from 'classes/entities/group.entity';
 import { RentalEntity } from 'classes/entities/rental.entity';
 import { ServiceEntity } from 'classes/entities/service.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
@@ -27,16 +28,23 @@ export class WorksiteFactoryService {
     private rentalRepository: Repository<RentalEntity>,
     @InjectRepository(VehicleEntity, 'mainConnection')
     private vehicleRepository: Repository<VehicleEntity>,
+    @InjectRepository(GroupEntity, 'mainConnection')
+    private groupRepository: Repository<GroupEntity>,
   ) {}
 
   async createDefaultWorksite(): Promise<WorksiteEntity[]> {
     const worksiteData = await parseCsvFile(this.cvsPath);
 
-    const worksiteEntities = worksiteData.map((data) => {
-      const worksite = new WorksiteEntity();
-      worksite.name = data.name;
-      return worksite;
-    });
+    const worksiteEntities = await Promise.all(
+      worksiteData.map(async (data) => {
+        const worksite = new WorksiteEntity();
+        worksite.name = data.name;
+        worksite.group = await this.groupRepository.findOne({
+          where: { id: data.groupId },
+        });
+        return worksite;
+      }),
+    );
 
     return this.worksiteRepository.save(worksiteEntities);
   }

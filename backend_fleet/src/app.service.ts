@@ -4,7 +4,6 @@ import { CompanyFactoryService } from './factory/company.factory';
 import { GroupFactoryService } from './factory/group.factory';
 import { UserFactoryService } from './factory/user.factory';
 import { WorksiteFactoryService } from './factory/worksite.factory';
-import { WorksiteGroupFactoryService } from './factory/worksite_group.factory';
 import { CompanyService } from './services/company/company.service';
 import { SessionService } from './services/session/session.service';
 import { TagService } from './services/tag/tag.service';
@@ -35,7 +34,6 @@ export class AppService implements OnModuleInit {
     private readonly companyFactoryService: CompanyFactoryService,
     private readonly worksiteFactoryService: WorksiteFactoryService,
     private readonly groupFactoryService: GroupFactoryService,
-    private readonly worksiteGroupFactoryService: WorksiteGroupFactoryService,
     private readonly associationFactoryService: AssociationFactoryService,
     private readonly serviceFactoryService: ServiceFactoryService,
     private readonly rentalFactoryService: RentalFactoryService,
@@ -50,7 +48,7 @@ export class AppService implements OnModuleInit {
 
   // popolo database all'avvio
   async onModuleInit() {
-    const startDate = '2025-03-04T00:00:00.000Z';
+    const startDate = '2025-03-17T00:00:00.000Z';
     //const endDate = '2025-03-05T00:00:00.000Z';
     const endDate = new Date(
       new Date().getTime() + 2 * 60 * 60 * 1000,
@@ -72,7 +70,6 @@ export class AppService implements OnModuleInit {
     await this.companyFactoryService.createDefaultCompanies();
     await this.groupFactoryService.createDefaultGroup();
     await this.worksiteFactoryService.createDefaultWorksite();
-    await this.worksiteGroupFactoryService.createDefaultWorksiteGroup();
     await this.associationFactoryService.createDefaultAssociation();
     await this.serviceFactoryService.createDefaultService();
     await this.rentalFactoryService.createDefaultRental();
