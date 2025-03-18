@@ -24,10 +24,8 @@ export class WorksiteService {
       const worksites = await this.worksiteRepository.find({
         relations: {
           vehicle: true,
-          worksite_group: {
-            group: {
-              company: true,
-            },
+          group: {
+            company: true,
           },
         },
       });
@@ -101,25 +99,25 @@ export class WorksiteService {
     worksiteDTO.updatedAt = worksite.updatedAt;
     worksiteDTO.name = worksite.name;
     worksiteDTO.vehicleCount = worksite.vehicle.length;
-    if (worksite.worksite_group && worksite.worksite_group.length > 0) {
-      for (const item of worksite.worksite_group) {
-        if (item.group?.name && !item.group.name.includes('Comuni')) {
-          worksiteDTO.group = new GroupDTO();
-          worksiteDTO.group.id = item.group.id;
-          worksiteDTO.group.vgId = item.group.vgId;
-          worksiteDTO.group.name = item.group.name;
-          break;
-        }
-      }
+    // if (worksite.worksite_group && worksite.worksite_group.length > 0) {
+    //   for (const item of worksite.worksite_group) {
+    //     if (item.group?.name && !item.group.name.includes('Comuni')) {
+    //       worksiteDTO.group = new GroupDTO();
+    //       worksiteDTO.group.id = item.group.id;
+    //       worksiteDTO.group.vgId = item.group.vgId;
+    //       worksiteDTO.group.name = item.group.name;
+    //       break;
+    //     }
+    //   }
 
-      const company = worksite.worksite_group[0]?.group?.company;
-      if (company) {
-        worksiteDTO.group.company = new CompanyDTO();
-        worksiteDTO.group.company.id = company.id;
-        worksiteDTO.group.company.suId = company.suId;
-        worksiteDTO.group.company.name = company.name;
-      }
-    }
+    //   const company = worksite.worksite_group[0]?.group?.company;
+    //   if (company) {
+    //     worksiteDTO.group.company = new CompanyDTO();
+    //     worksiteDTO.group.company.id = company.id;
+    //     worksiteDTO.group.company.suId = company.suId;
+    //     worksiteDTO.group.company.name = company.name;
+    //   }
+    // }
 
     return worksiteDTO;
   }
