@@ -1,24 +1,22 @@
 <div class="content" [formGroup]="userFiltersForm">
-  <mat-form-field class="targa-filter" appearance="outline" subscriptSizing="dynamic">
-    <input matInput formControlName="utente" type="text" placeholder="Cerca utenti" #targa class="targa-input" (input)="searchUser()">
-    <button *ngIf="targa.value" matSuffix mat-icon-button aria-label="Clear" (click)="searchUser()">
+  <mat-form-field class="username-filter" appearance="outline" subscriptSizing="dynamic">
+    <input matInput formControlName="username" type="text" placeholder="Cerca utenti" #username class="username-input" >
+    <button *ngIf="username.value" matSuffix mat-icon-button aria-label="Clear" (click)="username.value = ''">
       <mat-icon>close</mat-icon>
     </button>
-    <mat-icon matSuffix *ngIf="!targa.value">search</mat-icon>
+    <mat-icon matSuffix *ngIf="!username.value">search</mat-icon>
   </mat-form-field>
   <mat-form-field class="cantieri-filter filter" appearance="outline" subscriptSizing="dynamic">
     <mat-select formControlName="roles" placeholder="Tutti i ruoli" multiple class="cantiere-input" (openedChange)="rolesSelectOpened = !rolesSelectOpened">
       <mat-option value="Seleziona tutto" (click)="selectAll()" *ngIf="rolesSelectOpened">Seleziona tutto</mat-option>
       <mat-divider></mat-divider>
       <mat-option
-      [value]="cantiere"
-      (click)="selectRole()"
-      *ngFor="let cantiere of listUtenti"
+      [value]="role"
+      *ngFor="let role of listaRuoli"
       >
-        {{ cantiere }}
+        {{ role }}
       </mat-option>
     </mat-select>
     <mat-icon matSuffix>engineering</mat-icon>
   </mat-form-field>
-  <button mat-raised-button class="reset-btn button">Reimposta filtri</button>
 </div>
