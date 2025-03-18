@@ -28,6 +28,9 @@ export class AuthService {
   ): Promise<{ access_token: string }> {
     const user = await this.userRepository.findOne({
       where: { username: username },
+      relations: {
+        role: true,
+      },
     });
     if (!user) {
       throw new HttpException(
@@ -59,6 +62,7 @@ export class AuthService {
         email: user.email,
         name: user.name,
         surname: user.surname,
+        idR: user.role.id,
       };
       return {
         access_token: await this.jwtService.signAsync(payload),
