@@ -115,7 +115,7 @@ import { NotificationsController } from './notifications/notifications.controlle
           NotificationEntity,
         ],
         synchronize: true,
-        dropSchema: true, // if true drop db
+        //dropSchema: true, // if true drop db
       }),
     }),
     TypeOrmModule.forFeature(
