@@ -8,10 +8,12 @@ import { NavbarComponent } from './Common-components/navbar/navbar.component';
 import { MatButtonModule } from '@angular/material/button';
 import { LoginService } from './Common-services/login service/login.service';
 import { CommonModule } from '@angular/common';
-import { CookiesService } from './Common-services/cookies service/cookies.service';
 import { MatMenuModule } from '@angular/material/menu';
 import { NavigationService } from './Common-services/navigation/navigation.service';
 import { SessionStorageService } from './Common-services/sessionStorage/session-storage.service';
+import { User } from './Models/User';
+import { AuthService } from './Common-services/auth/auth.service';
+import { CookieService } from 'ngx-cookie-service';
 
 @Component({
   selector: 'app-root',
@@ -39,13 +41,15 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
   isLoginPage = true;
   isLogged = false;
   title = 'frontend_fleet';
+  user!: any;
   private readonly destroy$: Subject<void> = new Subject<void>();
 
 
   constructor(
     public router: Router,
     private loginService: LoginService,
-    private cookiesService: CookiesService,
+    private cookieService: CookieService,
+    private authService: AuthService,
     private sessionStorageService: SessionStorageService,
     private ngZone: NgZone,
     private navigationService: NavigationService, //servizio importato per farlo caricare ad inizio applicazione
@@ -55,16 +59,16 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-    this.cookiesService.deleteCookie("user");
+    this.cookieService.delete("user");
   }
 
   ngAfterViewInit(): void {
-    const user = this.cookiesService.getCookie("user");
-
-    user ? this.isLogged=true : this.isLogged=false; //se è stato impostato l'user
+    const access_token = this.cookieService.get("user");
+    access_token ? this.isLogged=true : this.isLogged=false; //se è stato impostato l'user
+    this.user = this.authService.decodeToken(access_token);
 
     //se non loggato, redirect a login
-    if(user){
+    if(access_token){
       this.isLogged = true;
     }else{
       this.isLogged = false;
@@ -73,10 +77,13 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
     //sottoscrizione al login
     this.loginService.login$.pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
+        const current_token = this.cookieService.get("user");
+        this.user = this.authService.decodeToken(current_token);
         this.ngZone.run(() => {
           this.isLogged = true;
           this.isLoginPage = false;
         });
+        this.cd.detectChanges();
       },
       error: (error) => console.error("Error logging in: ", error),
     });
@@ -102,6 +109,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
 
   logout(){
     this.loginService.logout();
+    this.user = null;
     this.router.navigate(['/login']);
   }
 
