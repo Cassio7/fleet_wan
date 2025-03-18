@@ -50,8 +50,8 @@ export class AppService implements OnModuleInit {
 
   // popolo database all'avvio
   async onModuleInit() {
-    const startDate = '2025-03-04T00:00:00.000Z';
-    //const endDate = '2025-03-05T00:00:00.000Z';
+    const startDate = '2025-03-17T00:00:00.000Z';
+    //const endDate = '2023-01-01T00:00:00.000Z';
     const endDate = new Date(
       new Date().getTime() + 2 * 60 * 60 * 1000,
     ).toISOString();
@@ -91,7 +91,7 @@ export class AppService implements OnModuleInit {
     const endDate = end;
 
     console.log('Data inizio: ' + startDate + ' Data fine: ' + endDate);
-    const batchSize = 50;
+    const batchSize = 30;
 
     // Carica tutti i veicoli dalle varie aziende
     await this.vehicleService.getVehicleList(254, 313, true); //Gesenu principale
@@ -172,7 +172,7 @@ export class AppService implements OnModuleInit {
   }
 
   /**
-   * Inserisce i veicoli no RFID in parallelo, gli altri uno dopo l altro
+   * Inserisce tutti i veicoli in parallelo in batch, ma i tag sequenzialmente
    */
   //@Cron('*/10 * * * *')
   async putDbDataCronOne() {
