@@ -2,7 +2,7 @@
 <table mat-table [dataSource]="utentiTableData" #utentiTable class="user-table table">
   <ng-container matColumnDef="Id">
     <th mat-header-cell *matHeaderCellDef> Id </th>
-    <td mat-cell *matCellDef="let user"> id </td>
+    <td mat-cell *matCellDef="let user"> {{user.id}} </td>
   </ng-container>
 
   <ng-container matColumnDef="Utente">

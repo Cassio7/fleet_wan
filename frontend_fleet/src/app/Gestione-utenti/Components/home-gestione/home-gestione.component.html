@@ -1,7 +1,7 @@
-<div class="content">
+<div class="content" *ngIf="users?.length">
   <h4 class="title">Gestione utenti</h4>
   <div class="filters-container">
-    <app-gestione-filters></app-gestione-filters>
+    <app-gestione-filters [users]="users"></app-gestione-filters>
   </div>
-  <app-utenti-table></app-utenti-table>
+  <app-utenti-table [users]="users"></app-utenti-table>
 </div>
