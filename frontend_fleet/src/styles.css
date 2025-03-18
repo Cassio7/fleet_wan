@@ -3,6 +3,35 @@
 @import 'leaflet.markercluster/dist/MarkerCluster.css';
 @import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 
+/* For small size */
+.marker-cluster-small {
+  background-color: #3498db !important;
+}
+
+.marker-cluster-small div {
+  background-color: #5dade2 !important;
+  color: #fff !important;
+}
+
+/* For medium size */
+.marker-cluster-medium {
+  background-color: #2980b9 !important;
+}
+
+.marker-cluster-medium div {
+  background-color: #5499c7 !important;
+  color: #fff !important;
+}
+
+/* For large size */
+.marker-cluster-large {
+  background-color: #1f618d !important;
+}
+
+.marker-cluster-large div {
+  background-color: #2e86c1 !important;
+  color: #fff !important;
+}
 html,
 body {
   height: 100%;
@@ -238,3 +267,5 @@ table:not(.mat-calendar-table) tr:nth-child(even) {
 mat-card{
   box-shadow: none !important;
 }
+
+
