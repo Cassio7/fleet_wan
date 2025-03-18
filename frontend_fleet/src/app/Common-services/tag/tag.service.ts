@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
 import { CommonService } from '../common service/common.service';
 import { Observable } from 'rxjs';
-import { CookiesService } from '../cookies service/cookies.service';
+import { CookieService } from 'ngx-cookie-service';
 
 export interface tagData{
   epc: string,
@@ -20,7 +20,7 @@ export class TagService {
 
   constructor(
     private commonService: CommonService,
-    private cookieService: CookiesService,
+    private cookieService: CookieService,
     private http: HttpClient
   ) { }
 
@@ -32,7 +32,7 @@ export class TagService {
    * @returns observable http get
    */
   getTagsByVeIdRanged(veId: number): Observable<tagData[]>{
-    const access_token = this.cookieService.getCookie("user");
+    const access_token = this.cookieService.get("user");
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'

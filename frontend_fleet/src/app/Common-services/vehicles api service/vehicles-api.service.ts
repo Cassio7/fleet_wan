@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Vehicle } from '../../Models/Vehicle';
-import { CookiesService } from '../cookies service/cookies.service';
+import { CookieService } from 'ngx-cookie-service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +13,7 @@ export class VehiclesApiService {
   constructor(
     private http: HttpClient,
     private commonService: CommonService,
-    private cookieService: CookiesService
+    private cookieService: CookieService
   ) { }
 
   /**
@@ -21,7 +21,7 @@ export class VehiclesApiService {
    * @returns observable http
    */
   public getAllVehicles(): Observable<Vehicle[]> {
-    const access_token = this.cookieService.getCookie("user");
+    const access_token = this.cookieService.get("user");
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${access_token}`
     });
@@ -35,7 +35,7 @@ export class VehiclesApiService {
    * @returns observable http
    */
   public getVehicleByPlate(plate: string): Observable<Vehicle> {
-    const access_token = this.cookieService.getCookie("user");
+    const access_token = this.cookieService.get("user");
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${access_token}`
     });
@@ -52,7 +52,7 @@ export class VehiclesApiService {
    * @returns observable http
    */
   public getVehicleByVeId(veId: number): Observable<Vehicle> {
-    const access_token = this.cookieService.getCookie("user");
+    const access_token = this.cookieService.get("user");
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${access_token}`
     });

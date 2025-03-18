@@ -7,9 +7,9 @@ import { Subject, takeUntil } from "rxjs";
 import { NotesService } from "../../Common-services/notes/notes.service";
 import { Note } from "../../Models/Note";
 import { Vehicle } from "../../Models/Vehicle";
-import { CookiesService } from "../../Common-services/cookies service/cookies.service";
 import { AuthService } from "../../Common-services/auth/auth.service";
 import { SnackbarComponent } from "../snackbar/snackbar.component";
+import { CookieService } from "ngx-cookie-service";
 
 @Component({
   selector: 'app-note-section',
@@ -40,7 +40,7 @@ export class NoteSectionComponent implements AfterViewInit, OnDestroy{
 
   constructor(
     public notesService: NotesService,
-    private cookieService: CookiesService,
+    private cookieService: CookieService,
     private authService: AuthService,
     private cd: ChangeDetectorRef
   ){}
@@ -62,7 +62,7 @@ export class NoteSectionComponent implements AfterViewInit, OnDestroy{
       });
     });
 
-    const jwt = this.cookieService.getCookie("user");
+    const jwt = this.cookieService.get("user");
     const user = this.authService.decodeToken(jwt);
     this.username = user.username;
   }

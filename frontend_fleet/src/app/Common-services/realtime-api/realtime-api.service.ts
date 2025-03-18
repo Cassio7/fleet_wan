@@ -4,9 +4,9 @@ import { SessionStorageService } from '../sessionStorage/session-storage.service
 import { RealtimeData } from '../../Models/RealtimeData';
 import { CommonService } from '../common service/common.service';
 import { Observable } from 'rxjs';
-import { CookiesService } from '../cookies service/cookies.service';
 import { VehicleData } from '../../Models/VehicleData';
 import { Vehicle } from '../../Models/Vehicle';
+import { CookieService } from 'ngx-cookie-service';
 
 
 @Injectable({
@@ -17,7 +17,7 @@ export class RealtimeApiService {
   constructor(
     private http: HttpClient,
     private commonService: CommonService,
-    private cookieService: CookiesService
+    private cookieService: CookieService
   ) { }
 
   /**
@@ -25,7 +25,7 @@ export class RealtimeApiService {
    * @returns JSON con i dati
    */
   getAllLastRealtime(): Observable<RealtimeData[]>{
-    const access_token = this.cookieService.getCookie("user");
+    const access_token = this.cookieService.get("user");
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'

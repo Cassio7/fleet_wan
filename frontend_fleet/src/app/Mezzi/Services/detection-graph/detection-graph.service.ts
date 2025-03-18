@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { DetectionQuality } from '../../../Models/DetectionQuality';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { CookiesService } from '../../../Common-services/cookies service/cookies.service';
 import { CommonService } from '../../../Common-services/common service/common.service';
+import { CookieService } from 'ngx-cookie-service';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +14,7 @@ export class DetectionGraphService {
   constructor(
     private commonService: CommonService,
     private http: HttpClient,
-    private cookiesService: CookiesService
+    private cookiesService: CookieService
   ) { }
 
   /**
@@ -29,7 +29,7 @@ export class DetectionGraphService {
       days: number
     }
   ): Observable<DetectionQuality[]>{
-    const access_token = this.cookiesService.getCookie("user");
+    const access_token = this.cookiesService.get("user");
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'

@@ -6,7 +6,6 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { ActivatedRoute, NavigationEnd, Router, RouterModule } from '@angular/router';
 import { Subject, filter, merge, takeUntil } from 'rxjs';
 import { LoginService } from '../../Common-services/login service/login.service';
-import { CookiesService } from '../../Common-services/cookies service/cookies.service';
 import { AuthService } from '../../Common-services/auth/auth.service';
 import { KanbanAntennaService } from '../../Dashboard/Services/kanban-antenna/kanban-antenna.service';
 import { KanbanGpsService } from '../../Dashboard/Services/kanban-gps/kanban-gps.service';

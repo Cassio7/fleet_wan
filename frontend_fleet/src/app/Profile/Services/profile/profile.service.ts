@@ -2,8 +2,8 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { CommonService } from '../../../Common-services/common service/common.service';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { CookiesService } from '../../../Common-services/cookies service/cookies.service';
 import { User } from '../../../Models/User';
+import { CookieService } from 'ngx-cookie-service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +13,7 @@ export class ProfileService{
 
   constructor(
     private commonService: CommonService,
-    private cookieService: CookiesService,
+    private cookieService: CookieService,
     private http: HttpClient
   ) { }
 
@@ -36,7 +36,7 @@ export class ProfileService{
    * @returns observable http put
    */
   saveChanges(updatedProfileInfo: any): Observable<User>{
-    const access_token = this.cookieService.getCookie("user");
+    const access_token = this.cookieService.get("user");
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'

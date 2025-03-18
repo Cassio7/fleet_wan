@@ -4,7 +4,7 @@ import { Note } from '../../Models/Note';
 import { CommonService } from '../common service/common.service';
 import { Observable, Subject, throwError } from 'rxjs';
 import { Vehicle } from '../../Models/Vehicle';
-import { CookiesService } from '../cookies service/cookies.service';
+import { CookieService } from 'ngx-cookie-service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +13,7 @@ export class NotesService {
   private readonly _loadNote$: Subject<void> = new Subject<void>();
 
   constructor(
-    private cookieService: CookiesService,
+    private cookieService: CookieService,
     private commonService: CommonService,
     private http: HttpClient
   ) { }
@@ -39,7 +39,7 @@ export class NotesService {
    * @returns Un Observable della risposta HTTP.
    */
   createNote(vehicle: Vehicle, content: string): Observable<Note>{
-    const access_token = this.cookieService.getCookie("user");
+    const access_token = this.cookieService.get("user");
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'
@@ -63,7 +63,7 @@ export class NotesService {
     }
 
     const noteId = vehicle.note.id;
-    const access_token = this.cookieService.getCookie("user");
+    const access_token = this.cookieService.get("user");
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'
@@ -85,7 +85,7 @@ export class NotesService {
     }
 
     const noteId = vehicle.note.id;
-    const access_token = this.cookieService.getCookie("user");
+    const access_token = this.cookieService.get("user");
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'
@@ -99,7 +99,7 @@ export class NotesService {
   * @returns observable
   */
   getAllNotes(): Observable<Note[]>{
-    const access_token = this.cookieService.getCookie("user");
+    const access_token = this.cookieService.get("user");
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'
@@ -109,7 +109,7 @@ export class NotesService {
   }
 
   getNoteByVeId(veId: number): Observable<Note>{
-    const access_token = this.cookieService.getCookie("user");
+    const access_token = this.cookieService.get("user");
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'

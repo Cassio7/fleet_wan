@@ -81,11 +81,9 @@ private readonly destroy$: Subject<void> = new Subject<void>();
       });
     }
 
-    if(this.user.role != "Admin"){
-      this.userForm.get('username')?.disable();
-      this.userForm.get('state')?.disable();
-      this.userForm.get('role')?.disable();
-    }
+    this.userForm.get('username')?.disable();
+    this.userForm.get('state')?.disable();
+    this.userForm.get('role')?.disable();
   }
 
   updateData(){

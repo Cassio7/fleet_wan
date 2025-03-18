@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { jwtDecode } from 'jwt-decode';
-import { CookiesService } from '../cookies service/cookies.service';
 import { User } from '../../Models/User';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { CommonService } from '../common service/common.service';
 import { Observable } from 'rxjs';
+import { CookieService } from 'ngx-cookie-service';
 
 
 @Injectable({
@@ -14,7 +14,7 @@ export class AuthService {
 
   constructor(
     private commonService: CommonService,
-    private cookieService: CookiesService,
+    private cookieService: CookieService,
     private http: HttpClient
   ) { }
 
@@ -37,7 +37,7 @@ export class AuthService {
    * @returns observable http get
    */
   getUserInfo(): Observable<User>{
-    const access_token = this.cookieService.getCookie("user");
+    const access_token = this.cookieService.get("user");
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'
@@ -53,7 +53,7 @@ export class AuthService {
    * @returns observable http get
    */
   getUserInfoById(id: number): Observable<User>{
-    const access_token = this.cookieService.getCookie("user");
+    const access_token = this.cookieService.get("user");
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'
@@ -70,7 +70,7 @@ export class AuthService {
    * @returns observable http put
    */
   updateUserInfoById(id: number, updatedInfo: any): Observable<{user: User, message: string}>{
-    const access_token = this.cookieService.getCookie("user");
+    const access_token = this.cookieService.get("user");
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'
@@ -97,7 +97,7 @@ export class AuthService {
    * @returns observable http get
    */
   getAllUser(): Observable<User[]>{
-    const access_token = this.cookieService.getCookie("user");
+    const access_token = this.cookieService.get("user");
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'
@@ -112,7 +112,7 @@ export class AuthService {
    * @returns l'oggetto contenente le informazioni dell'utente
    */
   getParsedAccessToken(): User{
-    const access_token = this.cookieService.getCookie("user");
+    const access_token = this.cookieService.get("user");
     return this.decodeToken(access_token);
   }
 }

@@ -6,12 +6,12 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import { Router, RouterModule } from '@angular/router';
 import { LoginService } from '../../Common-services/login service/login.service';
-import { CookiesService } from '../../Common-services/cookies service/cookies.service';
 import { Subject, takeUntil } from 'rxjs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { SessionStorageService } from '../../Common-services/sessionStorage/session-storage.service';
+import { CookieService } from 'ngx-cookie-service';
 
 @Component({
   selector: 'app-login',
@@ -53,7 +53,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy{
 
   constructor(
     private router: Router,
-    private cookiesService: CookiesService,
+    private cookieService: CookieService,
     private loginService: LoginService,
     private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef
@@ -75,14 +75,14 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy{
   }
 
   ngOnInit(): void {
-    this.attempts = parseInt(this.cookiesService.getCookie("attempts")) || 0;
-    this.timeoutTime = parseInt(this.cookiesService.getCookie("timeoutTime")) || 0;
+    this.attempts = parseInt(this.cookieService.get("attempts")) || 0;
+    this.timeoutTime = parseInt(this.cookieService.get("timeoutTime")) || 0;
   }
 
   ngAfterViewInit(): void {
-    this.attempts = parseInt(this.cookiesService.getCookie("attempts")) || 0;
-    this.timeoutTime = parseInt(this.cookiesService.getCookie("timeoutTime")) || 0;
-    const currentTimeout = parseInt(this.cookiesService.getCookie('currentTimeout'));
+    this.attempts = parseInt(this.cookieService.get("attempts")) || 0;
+    this.timeoutTime = parseInt(this.cookieService.get("timeoutTime")) || 0;
+    const currentTimeout = parseInt(this.cookieService.get('currentTimeout'));
 
     if(currentTimeout){
       this.setBlockingCountdown(currentTimeout);
@@ -97,11 +97,13 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy{
    */
   login() {
     if (this.loginForm.valid) {
+      console.log('login form value: ', this.loginForm.value);
       this.loginService.login(this.loginForm.value).pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (response) => {
             this.sessionStorageService.setItem("dashboard-section", "table");
-            this.cookiesService.setCookie("user", response.access_token);
+            console.log('response.access_token: ', response.access_token);
+            this.cookieService.set("user", response.access_token);
             this.deleteCookies();
             this.loginSuccess = true;
             this.attempts = 0;
@@ -120,7 +122,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy{
           error: (error) => {
             console.error("Errore nel login: ", error);
             this.attempts++;
-            this.cookiesService.setCookie("attempts", this.attempts.toString());
+            this.cookieService.set("attempts", this.attempts.toString());
 
             if (this.credentialsWarning) {
               this.credentialsWarning = false;
@@ -159,7 +161,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy{
    */
   timeoutUser() {
     this.timeoutTime += 30000; //incremento della durata del timer di 30 secondi
-    this.cookiesService.setCookie("timeoutTime", this.timeoutTime.toString());
+    this.cookieService.set("timeoutTime", this.timeoutTime.toString());
 
     //se il tempo calcolato è più del tempo massimo di timeout, imposta timeout a tempo massimo
     this.timeoutTime > this.maxTimeoutTime * 1000 ? this.timeoutCountdown = this.maxTimeoutTime * 1000 : this.timeoutCountdown = this.timeoutTime;
@@ -177,13 +179,13 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy{
     const timer = setInterval(() => {
       this.timeoutCountdown -= 1000; //decremento del countdown di 1 secondo
 
-      this.cookiesService.setCookie("currentTimeout", this.timeoutCountdown.toString());
+      this.cookieService.set("currentTimeout", this.timeoutCountdown.toString());
       this.cd.detectChanges();
 
       if (this.timeoutCountdown <= 0) {
         clearInterval(timer); //blocca il timer una volta finito
 
-        this.cookiesService.deleteCookie("currentTimeout");
+        this.cookieService.delete("currentTimeout");
         this.credentialsError = false;//nascondi errore credenziali
 
         this.cd.detectChanges();
@@ -202,9 +204,9 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy{
    * Elimina i cookies salvati
    */
   private deleteCookies(){
-    this.cookiesService.deleteCookie("timeoutTime");
-    this.cookiesService.deleteCookie("attempts");
-    this.cookiesService.deleteCookie("currentTimeout");
+    this.cookieService.delete("timeoutTime");
+    this.cookieService.delete("attempts");
+    this.cookieService.delete("currentTimeout");
   }
 
   /**

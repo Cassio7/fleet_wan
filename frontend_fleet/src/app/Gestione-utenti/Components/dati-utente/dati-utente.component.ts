@@ -124,16 +124,7 @@ export class DatiUtenteComponent implements OnDestroy, AfterViewInit{
       this.user.email !== this.userForm.get("email")?.value ||
       this.user.active !== stateValue ||  // Ora confronta due booleani
       this.user.role !== this.userForm.get("role")?.value;
-
-    console.log('isSaveable:', this.isSaveable);
-
-    console.log('Confronti:');
-    console.log('Name:', this.user.name, '->', this.userForm.get("name")?.value);
-    console.log('Surname:', this.user.surname, '->', this.userForm.get("surname")?.value);
-    console.log('Email:', this.user.email, '->', this.userForm.get("email")?.value);
-    console.log('Active:', this.user.active, '->', stateValue);  // Stampa valore booleano
-    console.log('Role:', this.user.role, '->', this.userForm.get("role")?.value);
-}
+  }
 
 
 

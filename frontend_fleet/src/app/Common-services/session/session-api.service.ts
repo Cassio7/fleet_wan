@@ -3,8 +3,8 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, Observable} from 'rxjs';
 import { Session } from '../../Models/Session';
 import { CommonService } from '../common service/common.service';
-import { CookiesService } from '../cookies service/cookies.service';
 import { VehicleAnomalies } from '../../Models/VehicleAnomalies';
+import { CookieService } from 'ngx-cookie-service';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +14,7 @@ export class SessionApiService {
 
   constructor(
     private http: HttpClient,
-    private cookieService: CookiesService,
+    private cookieService: CookieService,
     private commonService: CommonService
   ) { }
 
@@ -23,7 +23,7 @@ export class SessionApiService {
    * @returns observable get http
    */
   public getAllSessions(): Observable<Session[]>{
-    const access_token = this.cookieService.getCookie("user");
+    const access_token = this.cookieService.get("user");
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'
@@ -39,7 +39,7 @@ export class SessionApiService {
    * @returns array di sessioni effettuate dal mezzo a cui appartiene il veId nel range di tempo specificato
    */
   public getSessionsByVeIdRanged(veId: number, dateFrom: Date, dateTo: Date): Observable<Session[]>{
-    const access_token = this.cookieService.getCookie("user");
+    const access_token = this.cookieService.get("user");
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'
@@ -57,7 +57,7 @@ export class SessionApiService {
    * @returns observable get http
    */
   public getAllLastSessionAnomalies(): Observable<any>{
-    const access_token = this.cookieService.getCookie("user");
+    const access_token = this.cookieService.get("user");
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'
@@ -74,7 +74,7 @@ export class SessionApiService {
    * @returns observable<VehicleAnomalies> http post
    */
   public getDaysAnomaliesRangedByVeid(veId: number, dateFrom: Date, dateTo: Date): Observable<VehicleAnomalies>{
-    const access_token = this.cookieService.getCookie("user");
+    const access_token = this.cookieService.get("user");
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'

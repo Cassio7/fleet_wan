@@ -2,10 +2,10 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, Observable, Subject, throwError } from 'rxjs';
 import { CommonService } from '../common service/common.service';
-import { CookiesService } from '../cookies service/cookies.service';
 import { VehicleData} from '../../Models/VehicleData';
 import { Anomaly } from '../../Models/Anomaly';
 import { VehicleAnomalies } from '../../Models/VehicleAnomalies';
+import { CookieService } from 'ngx-cookie-service';
 
 @Injectable({
   providedIn: 'root'
@@ -21,7 +21,7 @@ export class CheckErrorsService {
 
   constructor(
     private http: HttpClient,
-    private cookieService: CookiesService,
+    private cookieService: CookieService,
     private commonService: CommonService
   ) { }
 
@@ -318,7 +318,7 @@ export class CheckErrorsService {
    * @returns oggetto VehicleAnomalies con numero di elementi nell'array anomalies quanto il valore di "count"
    */
   public checkAnomaliesByVeId(veId: number, count: number): Observable<VehicleAnomalies>{
-    const access_token = this.cookieService.getCookie("user");
+    const access_token = this.cookieService.get("user");
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'
@@ -338,7 +338,7 @@ export class CheckErrorsService {
    * @returns observable http get
    */
   updateAnomalies(): Observable<any>{
-    const access_token = this.cookieService.getCookie("user");
+    const access_token = this.cookieService.get("user");
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'
@@ -355,7 +355,7 @@ export class CheckErrorsService {
    * @returns observable http
    */
   public checkErrorsAllRanged(dateFrom: Date, dateTo: Date): Observable<any> {
-    const access_token = this.cookieService.getCookie("user");
+    const access_token = this.cookieService.get("user");
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'
