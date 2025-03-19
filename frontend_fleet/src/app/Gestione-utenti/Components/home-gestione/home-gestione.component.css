@@ -7,12 +7,17 @@
   padding: 20px;
 }
 
+.section-header{
+  width: 100%;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 20px;
+}
+
 .filters-container{
   width: 100%;
   display: flex;
   justify-content: flex-start;
 }
 
-.title{
-  width: 100%;
-}

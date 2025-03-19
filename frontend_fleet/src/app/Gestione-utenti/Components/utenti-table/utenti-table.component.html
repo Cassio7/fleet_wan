@@ -1,67 +1,71 @@
 <div class="table-container">
-<table mat-table [dataSource]="utentiTableData" #utentiTable class="user-table table" matSort (matSortChange)="utentiTableData.data = sortUsersByMatSort(utentiTableData.data)">
-  <ng-container matColumnDef="Id">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header> Id </th>
-    <td mat-cell *matCellDef="let user"> {{user.id}} </td>
-  </ng-container>
+  <table mat-table [dataSource]="utentiTableData" #utentiTable class="user-table table" matSort (matSortChange)="utentiTableData.data = sortUsersByMatSort(utentiTableData.data)">
+    <ng-container matColumnDef="Id">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Id </th>
+      <td mat-cell *matCellDef="let user"> {{user.id}} </td>
+    </ng-container>
 
-  <ng-container matColumnDef="Utente">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header> Utente </th>
-    <td mat-cell *matCellDef="let user">
-      <div class="user-container" >
-        @if(user.name == "admin"){
-          <span><mat-icon>person</mat-icon> Admin</span>
-        }@else {
-          <span><mat-icon>person</mat-icon> {{user.name}} {{user.surname}}</span>
-        }
-      </div>
-    </td>
-  </ng-container>
+    <ng-container matColumnDef="Utente">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Utente </th>
+      <td mat-cell *matCellDef="let user">
+        <div class="user-container" >
+          @if(user.name == "admin"){
+            <span><mat-icon>person</mat-icon> Admin</span>
+          }@else {
+            <span><mat-icon>person</mat-icon> {{user.name}} {{user.surname}}</span>
+          }
+        </div>
+      </td>
+    </ng-container>
 
-  <ng-container matColumnDef="Username">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header> Username </th>
-    <td mat-cell *matCellDef="let user"> {{user.username}} </td>
-  </ng-container>
+    <ng-container matColumnDef="Username">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Username </th>
+      <td mat-cell *matCellDef="let user"> {{user.username}} </td>
+    </ng-container>
 
-  <ng-container matColumnDef="E-mail">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header> E-mail </th>
-    <td mat-cell *matCellDef="let user"> {{user.email}} </td>
-  </ng-container>
+    <ng-container matColumnDef="E-mail">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> E-mail </th>
+      <td mat-cell *matCellDef="let user"> {{user.email}} </td>
+    </ng-container>
 
-  <ng-container matColumnDef="Ruolo">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header> Ruolo </th>
-    <td mat-cell *matCellDef="let user"> {{user.role}} </td>
-  </ng-container>
+    <ng-container matColumnDef="Ruolo">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Ruolo </th>
+      <td mat-cell *matCellDef="let user"> {{user.role}} </td>
+    </ng-container>
 
-  <ng-container matColumnDef="Stato">
-    <th mat-header-cell *matHeaderCellDef> Stato </th>
-    <td mat-cell *matCellDef="let user"> {{user.active ? "Attivo" : "Sospeso"}} </td>
-  </ng-container>
+    <ng-container matColumnDef="Stato">
+      <th mat-header-cell *matHeaderCellDef> Stato </th>
+      <td mat-cell *matCellDef="let user"> {{user.active ? "Attivo" : "Sospeso"}} </td>
+    </ng-container>
 
-  <ng-container matColumnDef="Azioni">
-    <th mat-header-cell *matHeaderCellDef class="right-text"> Azioni </th>
-    <td mat-cell *matCellDef="let user" class="right-text">
-      <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
-        <mat-icon>more_vert</mat-icon>
-      </button>
-      <mat-menu #menu="matMenu">
-        <button mat-menu-item (click)="showProfile(user)">
-          <mat-icon>dialpad</mat-icon>
-          <span>Modifica</span>
+    <ng-container matColumnDef="Azioni">
+      <th mat-header-cell *matHeaderCellDef class="right-text"> Azioni </th>
+      <td mat-cell *matCellDef="let user" class="right-text">
+        <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
+          <mat-icon>more_vert</mat-icon>
         </button>
-        <button mat-menu-item (click)="disabilitateUser(user)">
-          <mat-icon>do_not_disturb</mat-icon>
-          <span>Disattiva</span>
-        </button>
-        <button mat-menu-item (click)="deleteUser(user)">
-          <mat-icon>delete_outline</mat-icon>
-          <span>Elimina</span>
-        </button>
-      </mat-menu>
-    </td>
-  </ng-container>
+        <mat-menu #menu="matMenu">
+          <button mat-menu-item (click)="showProfile(user)">
+            <mat-icon>dialpad</mat-icon>
+            <span>Modifica</span>
+          </button>
+          <button mat-menu-item (click)="ablitateUser(user)">
+            <mat-icon>power_settings_new</mat-icon>
+            <span>Abilita</span>
+          </button>
+          <button mat-menu-item (click)="disabilitateUser(user)">
+            <mat-icon>do_not_disturb</mat-icon>
+            <span>Disattiva</span>
+          </button>
+          <button mat-menu-item (click)="deleteUser(user)">
+            <mat-icon>delete_outline</mat-icon>
+            <span>Elimina</span>
+          </button>
+        </mat-menu>
+      </td>
+    </ng-container>
 
-  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-</table>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns;sticky: true"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
 </div>

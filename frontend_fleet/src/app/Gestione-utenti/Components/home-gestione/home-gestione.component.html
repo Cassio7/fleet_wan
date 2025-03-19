@@ -1,5 +1,8 @@
 <div class="content" *ngIf="users?.length">
-  <h4 class="title">Gestione utenti</h4>
+  <div class="section-header">
+    <h4 class="title">Gestione utenti</h4>
+    <button mat-button (click)="createUser()" class="button">Crea utente</button>
+  </div>
   <div class="filters-container">
     <app-gestione-filters [users]="users"></app-gestione-filters>
   </div>

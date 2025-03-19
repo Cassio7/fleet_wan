@@ -5,11 +5,12 @@ import { GestioneFiltersComponent } from "../gestione-filters/gestione-filters.c
 import { AuthService } from '../../../Common-services/auth/auth.service';
 import { User } from '../../../Models/User';
 import { Subject, takeUntil } from 'rxjs';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-home-gestione',
   standalone: true,
-  imports: [CommonModule, UtentiTableComponent, GestioneFiltersComponent],
+  imports: [CommonModule, MatButtonModule, UtentiTableComponent, GestioneFiltersComponent],
   templateUrl: './home-gestione.component.html',
   styleUrl: './home-gestione.component.css'
 })
@@ -34,5 +35,9 @@ export class HomeGestioneComponent implements OnInit, OnDestroy{
       },
       error: error => console.error("Errore nel recupero di tutti gli utenti: ",error)
     });
+  }
+
+  createUser(){
+
   }
 }

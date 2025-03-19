@@ -1,6 +1,9 @@
 import { Injectable } from '@angular/core';
 import { User } from '../../../Models/User';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { CookieService } from 'ngx-cookie-service';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { CommonService } from '../../../Common-services/common service/common.service';
 
 export interface GestioneFilters {
   usernameResearch: string,
@@ -12,7 +15,50 @@ export interface GestioneFilters {
 export class GestioneService {
   private readonly _filterUsers$: BehaviorSubject<GestioneFilters | null> = new BehaviorSubject<GestioneFilters | null>(null);
 
-  constructor() { }
+  constructor(
+    private http: HttpClient,
+    private commonService: CommonService,
+    private cookieService: CookieService
+  ) { }
+
+
+  deleteUserById(userId: number): Observable<{message: string}>{
+    const access_token = this.cookieService.get("user");
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${access_token}`,
+      'Content-Type': 'application/json'
+    });
+
+    return this.http.delete<{message: string}>(`${this.commonService.url}/users/${userId}`, {headers});
+  }
+
+  abilitateUser(userId: number): Observable<{message: string}>{
+    const access_token = this.cookieService.get("user");
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${access_token}`,
+      'Content-Type': 'application/json'
+    });
+
+    const body = {
+      active: true
+    };
+
+    return this.http.put<{message: string}>(`${this.commonService.url}/users/${userId}`, body, {headers});
+  }
+
+  disabilitateUser(userId: number): Observable<{message: string}>{
+    const access_token = this.cookieService.get("user");
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${access_token}`,
+      'Content-Type': 'application/json'
+    });
+
+    const body = {
+      active: false
+    };
+
+    return this.http.put<{message: string}>(`${this.commonService.url}/users/${userId}`, body, {headers});
+  }
 
   /**
    * Filtra gli utenti passati per i ruoli selezionati
