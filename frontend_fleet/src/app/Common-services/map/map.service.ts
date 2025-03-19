@@ -347,8 +347,21 @@ export class MapService {
       autoPan: false,
     });
 
+    marker.on('mouseover', (event) => {
+      marker.openPopup();
+      marker.on('mouseout', (event) => {
+        marker.closePopup();
+      });
+    });
+
     marker.on('click', (event) => {
       this.selectMarker$.next(positionData);
+      if(marker.getPopup()?.isOpen()){
+        marker.openPopup();
+      }else{
+        marker.closePopup();
+      }
+      marker.off('mouseout');
     });
 
     if (!this.positionDatas.some((data) => data.plate === positionData.plate))
