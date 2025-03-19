@@ -95,8 +95,6 @@ export class WorksiteService {
       });
       return worksites.map((worksite) => this.toDTO(worksite));
     } catch (error) {
-      console.error(error);
-
       if (error instanceof HttpException) throw error;
       throw new HttpException(
         `Errore durante recupero dei cantieri per admin`,
@@ -111,18 +109,26 @@ export class WorksiteService {
    * @returns
    */
   async getWorksiteById(id: number): Promise<WorksiteDTO | null> {
-    const worksite = await this.worksiteRepository.findOne({
-      where: {
-        id: id,
-      },
-      relations: {
-        vehicle: true,
-        group: {
-          company: true,
+    try {
+      const worksite = await this.worksiteRepository.findOne({
+        where: {
+          id: id,
         },
-      },
-    });
-    return worksite ? this.toDTO(worksite) : null;
+        relations: {
+          vehicle: true,
+          group: {
+            company: true,
+          },
+        },
+      });
+      return worksite ? this.toDTO(worksite) : null;
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new HttpException(
+        `Errore durante recupero del cantiere`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   /**
@@ -216,7 +222,6 @@ export class WorksiteService {
         worksiteDTO.group.company.name = company.name;
       }
     }
-
     return worksiteDTO;
   }
 }
