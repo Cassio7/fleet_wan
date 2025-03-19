@@ -180,10 +180,10 @@ export class WorksiteController {
 
   /**
    * API per eliminare un cantiere
-   * @param req 
-   * @param res 
+   * @param req
+   * @param res
    * @param worksiteId id del cantiere
-   * @returns 
+   * @returns
    */
   @Delete(':id')
   @UsePipes(ParseIntPipe)
