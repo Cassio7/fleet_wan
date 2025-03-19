@@ -67,7 +67,7 @@ export class UserService {
       });
       await queryRunner.manager.getRepository(UserEntity).save(newUser);
       await queryRunner.commitTransaction();
-      return newUser;
+      return this.formatUserDTO(newUser, true);
     } catch (error) {
       await queryRunner.rollbackTransaction();
       if (error instanceof HttpException) throw error;
