@@ -19,6 +19,7 @@ import { LogContext } from 'src/log/logger.types';
 import { LoggerService } from 'src/log/service/logger.service';
 import { TagService } from 'src/services/tag/tag.service';
 import { sameDate, validateDateRange } from 'src/utils/utils';
+import { Workbook } from 'exceljs';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Roles(Role.Admin, Role.Responsabile, Role.Capo)
@@ -36,10 +37,10 @@ export class TagController {
    * @param dateFrom facoltativo, indica data e ora di inizio ricerca
    * @param dateTo facoltativo, indica data e ora fine ricerca
    * @param last indica se api deve recuperare solo l'ultima lettura
+   * @param less diminuisce al 25% il numero di tag recuperati
    * @param res
    * @returns
    */
-
   @Get()
   async getTagByVeId(
     @Req() req: Request & { user: UserFromToken },
@@ -146,6 +147,8 @@ export class TagController {
    * @param dateFrom data inizio ricerca
    * @param dateTo data fine ricerca
    * @param worksite id del cantiere
+   * @param count boolean che indica se ritorno soltanto il numero di tag
+   * @param preview boolean che ritorna il numero di tag e i primi 100 tag limitati
    * @param res
    * @returns
    */
@@ -155,6 +158,8 @@ export class TagController {
     @Query('dateFrom') dateFrom: string,
     @Query('dateTo') dateTo: string,
     @Query('worksite') worksite: number,
+    @Query('count') count: string,
+    @Query('preview') preview: string,
     @Res() res: Response,
   ) {
     const context: LogContext = {
@@ -180,11 +185,49 @@ export class TagController {
       if (equal) {
         parsedDateTo.setHours(23, 59, 59, 0);
       }
+      const isCount = count === 'true';
+      const isPreview = preview === 'true';
+
+      if (isCount) {
+        const count = await this.tagService.getNCountTagsRange(
+          req.user.id,
+          parsedDateFrom,
+          parsedDateTo,
+          worksite,
+        );
+        if (!count) {
+          this.loggerService.logCrudSuccess(context, 'list', 'Tag non trovati');
+          return res.status(204).json();
+        }
+        this.loggerService.logCrudSuccess(
+          context,
+          'list',
+          `Conteggio tag numero: ${count}`,
+        );
+        return res.status(200).json({ count: count });
+      }
+      if (isPreview) {
+        const count = await this.tagService.getNCountTagsRange(
+          req.user.id,
+          parsedDateFrom,
+          parsedDateTo,
+          worksite,
+        );
+        const tags = await this.tagService.getTagsByRangeWorksite(
+          req.user.id,
+          parsedDateFrom,
+          parsedDateTo,
+          worksite,
+          isPreview,
+        );
+        return res.status(200).json({ count: count, tags: tags });
+      }
       const tags = await this.tagService.getTagsByRangeWorksite(
         req.user.id,
         parsedDateFrom,
         parsedDateTo,
         worksite,
+        isPreview,
       );
       if (!tags?.length) {
         this.loggerService.logCrudSuccess(context, 'list', 'Tag non trovati');
@@ -196,7 +239,43 @@ export class TagController {
         `Numero di tag recuperati ${tags.length}`,
       );
 
-      return res.status(200).json(tags);
+      const workbook = new Workbook();
+      const worksheet = workbook.addWorksheet(
+        `tags date ${dateFrom}-${dateTo}`,
+      );
+      worksheet.addRow([
+        `EPC,"Type","Timestamp","Latitude","Longitude","Plate","Group","Quality"`,
+      ]);
+      tags.forEach((tag) => {
+        const date = new Date(tag.timestamp);
+
+        const day = String(date.getDate()).padStart(2, '0'); // Ottieni il giorno (con 2 cifre)
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Ottieni il mese (con 2 cifre, +1 perché i mesi partono da 0)
+        const year = date.getFullYear(); // Ottieni l'anno
+        const hours = String(date.getHours()).padStart(2, '0'); // Ottieni le ore (con 2 cifre)
+        const minutes = String(date.getMinutes()).padStart(2, '0'); // Ottieni i minuti (con 2 cifre)
+        const seconds = String(date.getSeconds()).padStart(2, '0'); // Ottieni i secondi (con 2 cifre)
+
+        // Crea la variabile date nel formato desiderato
+        const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+
+        const row = [
+          `EPC_${tag.epc},UHF-EPC,${formattedDate},"${tag.latitude}","${tag.longitude}",${tag.plate},${tag.worksite ?? 'N/A'},${tag.detection_quality}`,
+        ];
+        worksheet.addRow(row);
+      });
+
+      // Imposta intestazioni per il download
+      res.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      );
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename=tags-date-${dateFrom}-${dateTo}.xlsx`,
+      );
+      await workbook.xlsx.write(res);
+      return res.end();
     } catch (error) {
       this.loggerService.logCrudError({
         error,

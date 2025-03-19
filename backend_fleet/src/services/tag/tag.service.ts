@@ -510,13 +510,14 @@ export class TagService {
     dateFrom: Date,
     dateTo: Date,
     worksiteId: number,
+    limit: boolean,
   ): Promise<TagDTO[]> {
     try {
       const veIdArray =
         await this.associationService.getVehiclesRedisAllSet(userId);
-      let tags;
+      let query;
       if (worksiteId && Number(worksiteId)) {
-        tags = await this.tagHistoryRepository
+        query = this.tagHistoryRepository
           .createQueryBuilder('tagHistory')
           .select([
             'tagHistory.timestamp',
@@ -536,10 +537,9 @@ export class TagService {
             dateFrom,
             dateTo,
           })
-          .andWhere('worksite.id = :worksiteId', { worksiteId })
-          .getMany();
+          .andWhere('worksite.id = :worksiteId', { worksiteId });
       } else {
-        tags = await this.tagHistoryRepository
+        query = this.tagHistoryRepository
           .createQueryBuilder('tagHistory')
           .select([
             'tagHistory.timestamp',
@@ -548,18 +548,22 @@ export class TagService {
             'detectiontag.detection_quality',
             'tag.epc',
             'vehicle.plate',
+            'worksite.name',
           ])
           .leftJoin('tagHistory.detectiontag', 'detectiontag')
           .leftJoin('detectiontag.tag', 'tag')
           .leftJoin('tagHistory.vehicle', 'vehicle')
+          .leftJoin('vehicle.worksite', 'worksite')
           .where('vehicle.veId IN (:...veIdArray)', { veIdArray })
           .andWhere('tagHistory.timestamp BETWEEN :dateFrom AND :dateTo', {
             dateFrom,
             dateTo,
-          })
-          .getMany();
+          });
       }
-
+      if (limit) {
+        query.limit(100);
+      }
+      const tags = await query.getMany();
       return tags.flatMap((tag) => this.toDTOTagLessInfo(tag));
     } catch (error) {
       if (error instanceof HttpException) throw error;
@@ -571,10 +575,63 @@ export class TagService {
   }
 
   /**
+   * Ritorno il numero di tag letti in quel periodo
+   * @param userId id utente
+   * @param dateFrom inizio ricerca
+   * @param dateTo fine ricerca
+   * @param worksiteId id del cantiere se esiste
+   * @returns
+   */
+  async getNCountTagsRange(
+    userId: number,
+    dateFrom: Date,
+    dateTo: Date,
+    worksiteId: number,
+  ): Promise<number> {
+    const veIdArray =
+      await this.associationService.getVehiclesRedisAllSet(userId);
+    let tags;
+    if (worksiteId && Number(worksiteId)) {
+      tags = await this.tagHistoryRepository
+        .createQueryBuilder('tagHistory')
+        .leftJoin('tagHistory.detectiontag', 'detectiontag')
+        .leftJoin('detectiontag.tag', 'tag')
+        .leftJoin('tagHistory.vehicle', 'vehicle')
+        .leftJoin('vehicle.worksite', 'worksite')
+        .where('vehicle.veId IN (:...veIdArray)', { veIdArray })
+        .andWhere('tagHistory.timestamp BETWEEN :dateFrom AND :dateTo', {
+          dateFrom,
+          dateTo,
+        })
+        .andWhere('worksite.id = :worksiteId', { worksiteId })
+        .select('COUNT(tag.id)', 'count') // Conta il numero di tag
+        .getRawOne(); // Usa getRawOne per ottenere il conteggio del tag
+    } else {
+      tags = await this.tagHistoryRepository
+        .createQueryBuilder('tagHistory')
+        .leftJoin('tagHistory.detectiontag', 'detectiontag')
+        .leftJoin('detectiontag.tag', 'tag')
+        .leftJoin('tagHistory.vehicle', 'vehicle')
+        .leftJoin('vehicle.worksite', 'worksite')
+        .where('vehicle.veId IN (:...veIdArray)', { veIdArray })
+        .andWhere('tagHistory.timestamp BETWEEN :dateFrom AND :dateTo', {
+          dateFrom,
+          dateTo,
+        })
+        .select('COUNT(tag.id)', 'count') // Conta il numero di tag
+        .getRawOne(); // Usa getRawOne per ottenere il conteggio del tag
+    }
+    const count = tags ? parseInt(tags.count, 10) : 0;
+    return count;
+  }
+
+  /**
    * Funzione che ritorna i detection quality in base al veicolo inserito, in base al mese o giorno.
    * Una volta stabilito il range corretto, le letture vengono prese e viene fatta una media giornaliera e vengono tornati
    * @param userId id utente
    * @param veId veid veicolo
+   * @param months numero mesi
+   * @param days numero giorni
    * @returns
    */
   async getDetectionQualityByVeId(
