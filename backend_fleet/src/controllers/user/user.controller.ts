@@ -109,9 +109,10 @@ export class UserController {
         `Utente con username ${user.username} salvato!`,
       );
 
-      return res
-        .status(200)
-        .json({ message: `Utente con username ${user.username} salvato!` });
+      return res.status(200).json({
+        message: `Utente con username ${user.username} salvato!`,
+        user: user,
+      });
     } catch (error) {
       this.loggerService.logCrudError({
         error,
