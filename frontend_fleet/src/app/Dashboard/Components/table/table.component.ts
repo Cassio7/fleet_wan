@@ -119,6 +119,7 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
+    this.checkCheckDay();
     this.vehicleTableData.sort = this.sort;
   }
 
@@ -130,7 +131,6 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
     // this.vehicleTableData.connect().subscribe((data) => {
     //   console.log('data added: ', data);
     // });
-
     this.handleCheckDaySwitch();
 
     this.checkErrorsService.updateAnomalies$
@@ -172,6 +172,17 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
     }
   }
 
+  private checkCheckDay(){
+    const lastUpdate = this.sessionStorageService.getItem("lastUpdate");
+    if(lastUpdate == "recente"){
+      this.today = false;
+    }else{
+      this.today = true;
+    }
+    this.cd.detectChanges();
+    console.log('today value: ', this.today);
+  }
+
   /**
    * Gestisce la sottoscrizione al subject per il cambio della data dei controlli
    */
@@ -194,6 +205,7 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
           } else {
             console.error('Cambio controllo a periodo sconosciuto');
           }
+          console.log('today value: ',this.today);
         },
         error: (error) =>
           console.error('Errore nel cambio del giorno di controllo: ', error),
@@ -231,42 +243,7 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
    * @returns array di vehiclesData ordinato
    */
   sortVehiclesByMatSort(vehicles: VehicleData[]): VehicleData[] {
-    const column = this.sort.active;
-    const sortDirection = this.sort.direction;
-
-    switch (column) {
-      case 'Cantiere':
-        if (sortDirection == 'asc') {
-          return this.sortService.sortVehiclesByCantiereAsc(
-            vehicles
-          ) as VehicleData[];
-        } else {
-          return this.sortService.sortVehiclesByCantiereDesc(
-            vehicles
-          ) as VehicleData[];
-        }
-      case 'Targa':
-        if (sortDirection == 'asc') {
-          return this.sortService.sortVehiclesByPlateAsc(
-            vehicles
-          ) as VehicleData[];
-        } else {
-          return this.sortService.sortVehiclesByPlateDesc(
-            vehicles
-          ) as VehicleData[];
-        }
-      case 'Sessione':
-        if (sortDirection == 'asc') {
-          return this.sortService.sortVehiclesBySessioneAsc(
-            vehicles
-          ) as VehicleData[];
-        } else {
-          return this.sortService.sortVehiclesBySessioneDesc(
-            vehicles
-          ) as VehicleData[];
-        }
-    }
-    return vehicles;
+    return this.sortService.sortVehiclesByMatSort(vehicles, this.sort) as VehicleData[];
   }
 
   /**

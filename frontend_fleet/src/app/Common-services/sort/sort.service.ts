@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Vehicle } from '../../Models/Vehicle';
 import { VehicleData } from '../../Models/VehicleData';
 import { MatSort } from '@angular/material/sort';
+import { User } from '../../Models/User';
 
 @Injectable({
   providedIn: 'root'
@@ -170,5 +171,83 @@ export class SortService {
     return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
   }
 
+  /**
+   * Ordina i veicoli passati in base ai valori contenuti nel MatSort passato
+   * @param users array di veicoli da ordinare
+   * @param sort MatSort che contiene colonna e direzione per cui ordinare
+   * @returns array di veicoli ordinato
+   */
+  sortVehiclesByMatSort(vehicles: VehicleData[], matSort: MatSort): VehicleData[] {
+    const column = matSort.active;
+    const sortDirection = matSort.direction;
 
+    switch (column) {
+      case 'Cantiere':
+        if (sortDirection == 'asc') {
+          return this.sortVehiclesByCantiereAsc(
+            vehicles
+          ) as VehicleData[];
+        } else {
+          return this.sortVehiclesByCantiereDesc(
+            vehicles
+          ) as VehicleData[];
+        }
+      case 'Targa':
+        if (sortDirection == 'asc') {
+          return this.sortVehiclesByPlateAsc(
+            vehicles
+          ) as VehicleData[];
+        } else {
+          return this.sortVehiclesByPlateDesc(
+            vehicles
+          ) as VehicleData[];
+        }
+      case 'Sessione':
+        if (sortDirection == 'asc') {
+          return this.sortVehiclesBySessioneAsc(
+            (vehicles as VehicleData[])
+          ) as VehicleData[];
+        } else {
+          return this.sortVehiclesBySessioneDesc(
+            (vehicles as VehicleData[])
+          ) as VehicleData[];
+        }
+    }
+    return vehicles;
+  }
+
+  /**
+   * Ordina gli utenti passati in base ai valori contenuti nel MatSort passato
+   * @param users array di utenti da ordinare
+   * @param sort MatSort che contiene colonna e direzione per cui ordinare
+   * @returns array di utenti ordinato
+   */
+  sortUsersByMatSort(users: User[], sort: MatSort): User[]{
+    const column = sort.active;
+    const direction = sort.direction;
+
+    switch(column){
+      case "Id":
+        return users.sort((a,b)=>{
+          return this.compare(a.id , b.id, direction == "asc");
+        });
+      case "Utente":
+        return users.sort((a,b)=>{
+          return this.compare(a.name , b.name, direction == "asc");
+        });
+      case "Username":
+        return users.sort((a,b)=>{
+          return this.compare(a.username , b.username, direction == "asc");
+        });
+      case "E-mail":
+        return users.sort((a,b)=>{
+          return this.compare(a.email , b.email, direction == "asc");
+        });
+      case "Ruolo":
+        return users.sort((a,b)=>{
+          return this.compare(a.role , b.role, direction == "asc");
+        });
+      default: return users;
+    }
+  }
 }
