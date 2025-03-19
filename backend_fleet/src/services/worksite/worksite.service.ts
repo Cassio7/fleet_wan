@@ -1,19 +1,80 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { CompanyDTO } from 'classes/dtos/company.dto';
 import { GroupDTO } from 'classes/dtos/group.dto';
 import { WorksiteDTO } from 'classes/dtos/worksite.dto';
 import { WorksiteEntity } from 'classes/entities/worksite.entity';
-import { In, Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import { AssociationService } from '../association/association.service';
+import { GroupEntity } from 'classes/entities/group.entity';
 
 @Injectable()
 export class WorksiteService {
   constructor(
     @InjectRepository(WorksiteEntity, 'readOnlyConnection')
     private readonly worksiteRepository: Repository<WorksiteEntity>,
+    @InjectRepository(GroupEntity, 'readOnlyConnection')
+    private readonly groupRepository: Repository<GroupEntity>,
     private readonly associationService: AssociationService,
+    @InjectDataSource('mainConnection')
+    private readonly connection: DataSource,
   ) {}
+
+  /**
+   * Crea un nuovo cantiere se non esiste
+   * @param name nome cantiere
+   * @param groupId id comune da associare
+   * @returns
+   */
+  async createWorksite(name: string, groupId: number): Promise<WorksiteEntity> {
+    const exists = await this.worksiteRepository.findOne({
+      where: {
+        name: name.trim(),
+      },
+    });
+    if (exists)
+      throw new HttpException(
+        'Nome cantiere già inserito',
+        HttpStatus.CONFLICT,
+      );
+    let group: GroupEntity | null = null;
+    if (groupId) {
+      group = await this.groupRepository.findOne({
+        where: {
+          id: groupId,
+        },
+      });
+      if (!group)
+        throw new HttpException(
+          'Non trovato il comune associato',
+          HttpStatus.NOT_FOUND,
+        );
+    }
+
+    const queryRunner = this.connection.createQueryRunner();
+    try {
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+      const newWorksite = queryRunner.manager
+        .getRepository(WorksiteEntity)
+        .create({
+          name: name.trim(),
+          group: group,
+        });
+      await queryRunner.manager.getRepository(WorksiteEntity).save(newWorksite);
+      await queryRunner.commitTransaction();
+      return newWorksite;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      if (error instanceof HttpException) throw error;
+      throw new HttpException(
+        `Errore durante la creazione del cantiere`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    } finally {
+      await queryRunner.release();
+    }
+  }
 
   /**
    * Ritorna tutti i cantieri nel db
@@ -49,14 +110,21 @@ export class WorksiteService {
    * @param id identificativo cantiere
    * @returns
    */
-  async getWorksiteById(id: number): Promise<WorksiteEntity> {
+  async getWorksiteById(id: number): Promise<WorksiteDTO | null> {
     const worksite = await this.worksiteRepository.findOne({
       where: {
         id: id,
       },
+      relations: {
+        vehicle: true,
+        group: {
+          company: true,
+        },
+      },
     });
-    return worksite;
+    return worksite ? this.toDTO(worksite) : null;
   }
+
   /**
    * Recupera i cantieri associati in base all'utente che li richiede
    * @param userId id utente
@@ -90,6 +158,38 @@ export class WorksiteService {
     }
   }
 
+  /**
+   * Eliminazione cantiere
+   * @param worksiteId id del cantiere
+   */
+  async deleteWorksite(worksiteId: number) {
+    const worksite = await this.worksiteRepository.findOne({
+      where: {
+        id: worksiteId,
+      },
+    });
+    if (!worksite)
+      throw new HttpException(
+        'Non trovato il cantiere associato',
+        HttpStatus.NOT_FOUND,
+      );
+    const queryRunner = this.connection.createQueryRunner();
+    try {
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+      await queryRunner.manager.getRepository(WorksiteEntity).remove(worksite);
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      if (error instanceof HttpException) throw error;
+      throw new HttpException(
+        `Errore durante eliminazione utente`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    } finally {
+      await queryRunner.release();
+    }
+  }
   /**
    * Formatta oggetto del database in dto
    * @param worksite oggetto entità
