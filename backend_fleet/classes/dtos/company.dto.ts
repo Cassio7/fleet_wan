@@ -5,4 +5,8 @@ export class CompanyDTO extends CommonDTO {
   suId: number;
   @IsString()
   name: string;
+  @IsNumber()
+  groupCount;
+  @IsNumber()
+  worsksiteCount;
 }

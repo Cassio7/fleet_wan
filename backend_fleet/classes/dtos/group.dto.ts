@@ -8,4 +8,6 @@ export class GroupDTO extends CommonDTO {
   @IsString()
   name: string;
   company: CompanyDTO;
+  @IsNumber()
+  worksiteCount: number;
 }
