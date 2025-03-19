@@ -62,6 +62,7 @@ export class UserService {
         username: user.username,
         email: user.email,
         password: user.password,
+        active: true,
         role: role,
       });
       await queryRunner.manager.getRepository(UserEntity).save(newUser);
