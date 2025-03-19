@@ -48,7 +48,8 @@ export class AuthGuard implements CanActivate {
           where: { id: user.id },
         });
         userActiveStr = userDB.active ? '1' : '0';
-        await this.redis.set(key, userActiveStr, 'EX', 300);
+        // rimane su redis 30 minuti
+        await this.redis.set(key, userActiveStr, 'EX', 1800);
       }
       const userActive = userActiveStr === '1';
 
