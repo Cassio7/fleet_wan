@@ -1,138 +1,78 @@
-import { Injectable } from '@nestjs/common';
-import axios from 'axios';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { GroupDTO } from 'classes/dtos/group.dto';
 import { GroupEntity } from 'classes/entities/group.entity';
-import { parseStringPromise } from 'xml2js';
+import { DataSource, Repository } from 'typeorm';
 
 @Injectable()
 export class GroupService {
-  private serviceUrl = 'https://ws.fleetcontrol.it/FWANWs3/services/FWANSOAP';
-
   constructor(
     @InjectRepository(GroupEntity, 'readOnlyConnection')
     private readonly groupRepository: Repository<GroupEntity>,
     @InjectDataSource('mainConnection')
     private readonly connection: DataSource,
   ) {}
-  // Costruisce la richiesta SOAP
-  private buildSoapRequest(methodName: string, suId: number): string {
-    return `<?xml version="1.0" encoding="UTF-8"?>
-      <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:fwan="http://www.fleetcontrol/FWAN/">
-        <soapenv:Header/>
-        <soapenv:Body>
-          <fwan:${methodName}>
-            <suId>${suId}</suId>
-          </fwan:${methodName}>
-        </soapenv:Body>
-      </soapenv:Envelope>`;
-  }
 
   /**
-   * Inserisci la lista dei gruppi nel database
-   * @param suId identificativo del società
-   * @returns
+   * Recupera tutti i comuni
+   * @returns oggetto DTO
    */
-  async setGroupList(suId: number): Promise<any> {
-    const methodName = 'groupList';
-    const requestXml = this.buildSoapRequest(methodName, suId);
-    const headers = {
-      'Content-Type': 'text/xml; charset=utf-8',
-      SOAPAction: `"${methodName}"`,
-    };
-
-    const queryRunner = this.connection.createQueryRunner();
+  async getAllGroups(): Promise<GroupDTO[]> {
     try {
-      await queryRunner.connect();
-      await queryRunner.startTransaction();
-      const response = await axios.post(this.serviceUrl, requestXml, {
-        headers,
+      const groups = await this.groupRepository.find({
+        order: {
+          id: 'ASC',
+        },
+        relations: {
+          worksite: true,
+        },
       });
-      const jsonResult = await parseStringPromise(response.data, {
-        explicitArray: false,
-      });
-      // Estrarre i dati necessari dall'oggetto JSON risultante
-      const lists =
-        jsonResult['soapenv:Envelope']['soapenv:Body']['groupListResponse'][
-          'list'
-        ];
-      if (!lists) {
-        await queryRunner.rollbackTransaction();
-        await queryRunner.release();
-        return false; // se item.list non esiste, salto elemento
-      }
-
-      // se lists è un singolo oggetto, lo converto in un array contenente quell'oggetto
-      const normalizedLists = Array.isArray(lists) ? lists : [lists];
-
-      // Filtra i dati necessari
-      const filteredData = normalizedLists.map((item: any) => ({
-        vgId: item['vgId'],
-        vgName: item['vgName'],
-      }));
-
-      // Verifica se il gruppo esiste e salva solo quelli nuovi
-      const newGroups = [];
-      for (const group of filteredData) {
-        const exists = await queryRunner.manager
-          .getRepository(GroupEntity)
-          .findOne({
-            where: { vgId: group.vgId },
-          });
-        if (!exists) {
-          if (group.vgId == 313) {
-            group.vgName = 'Gruppo principale GESENU';
-          } else if (group.vgId == 650) {
-            group.vgName = 'Gruppo principale TSA';
-          } else if (group.vgId == 688) {
-            group.vgName = 'Gruppo principale Fiumicino';
-          }
-          const newGroup = queryRunner.manager
-            .getRepository(GroupEntity)
-            .create({
-              vgId: group.vgId,
-              name: group.vgName,
-            });
-          newGroups.push(newGroup);
-        }
-      }
-      // Salva tutti i nuovi gruppi nel database
-      if (newGroups.length > 0) {
-        await queryRunner.manager.getRepository(GroupEntity).save(newGroups);
-      }
-      await queryRunner.commitTransaction();
-      await queryRunner.release();
-      return newGroups;
+      return groups.map((group) => this.toDTO(group));
     } catch (error) {
-      await queryRunner.rollbackTransaction();
-      await queryRunner.release();
-      console.error('Errore nella richiesta SOAP:', error);
-      throw new Error('Errore durante la richiesta al servizio SOAP');
+      if (error instanceof HttpException) throw error;
+      throw new HttpException(
+        `Errore durante recupero dei comuni per admin`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
   /**
-   * Recupera tutti i gruppi salvati
+   * Recupera il comune passato con id
+   * @param id id del comune
    * @returns
    */
-  async getAllGroups(): Promise<any> {
-    const groups = await this.groupRepository.find({
-      order: {
-        id: 'ASC',
-      },
-    });
-    return groups;
+  async getGroupById(id: number): Promise<GroupDTO | null> {
+    try {
+      const group = await this.groupRepository.findOne({
+        where: { id: id },
+        relations: {
+          worksite: true,
+        },
+      });
+      return group ? this.toDTO(group) : null;
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new HttpException(
+        `Errore durante recupero del comune`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   /**
-   * Recupera il gruppo in base al VgId
-   * @param id VgId identificativo del gruppo
-   * @returns
+   * Crea il DTO da inviare 
+   * @param group oggetto entità
+   * @returns DTO
    */
-  async getGroupById(id: number): Promise<any> {
-    const groups = await this.groupRepository.findOne({
-      where: { vgId: id },
-    });
-    return groups;
+  private toDTO(group: GroupEntity): GroupDTO {
+    const groupDTO = new GroupDTO();
+    groupDTO.id = group.id;
+    groupDTO.createdAt = group.createdAt;
+    groupDTO.updatedAt = group.updatedAt;
+    groupDTO.name = group.name;
+    groupDTO.vgId = group.vgId;
+    groupDTO.worksiteCount = group.worksite.length;
+    return groupDTO;
   }
 }
