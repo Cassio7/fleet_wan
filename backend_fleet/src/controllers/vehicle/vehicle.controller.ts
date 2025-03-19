@@ -204,7 +204,7 @@ export class VehicleController {
       if (!vehicle) {
         this.loggerService.logCrudSuccess(
           context,
-          'list',
+          'read',
           'Nessun veicolo trovato',
         );
         return res.status(404).json({
@@ -214,7 +214,7 @@ export class VehicleController {
 
       this.loggerService.logCrudSuccess(
         context,
-        'list',
+        'read',
         `Recuperato Veicolo veId: ${vehicle.veId} - targa: ${vehicle.plate}`,
       );
       return res.status(200).json(vehicle);
@@ -222,7 +222,7 @@ export class VehicleController {
       this.loggerService.logCrudError({
         error,
         context,
-        operation: 'list',
+        operation: 'read',
       });
 
       return res.status(error.status || 500).json({
