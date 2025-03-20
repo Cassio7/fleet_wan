@@ -68,11 +68,10 @@ export class CompanyController {
   }
 
   @Get(':id')
-  @UsePipes(ParseIntPipe)
   async getCompanyById(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
-    @Param('id') companyId: number,
+    @Param('id', ParseIntPipe) companyId: number,
   ) {
     const context: LogContext = {
       userId: req.user.id,
@@ -155,11 +154,10 @@ export class CompanyController {
   }
 
   @Put(':id')
-  // @UsePipes(ParseIntPipe)
   async updateCompany(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
-    @Param('id') companyId: number,
+    @Param('id', ParseIntPipe) companyId: number,
     @Body() body: { suId?: number; name?: string },
   ) {
     const { suId, name } = body;
@@ -200,11 +198,10 @@ export class CompanyController {
   }
 
   @Delete(':id')
-  @UsePipes(ParseIntPipe)
   async deleteCompany(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
-    @Param('id') companyId: number,
+    @Param('id', ParseIntPipe) companyId: number,
   ) {
     const context: LogContext = {
       userId: req.user.id,
