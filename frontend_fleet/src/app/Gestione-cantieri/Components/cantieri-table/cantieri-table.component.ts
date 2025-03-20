@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, effect, EventEmitter, inject, Input, input, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, effect, EventEmitter, inject, Input, input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { WorkSite } from '../../../Models/Worksite';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -27,7 +27,7 @@ import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.
   templateUrl: './cantieri-table.component.html',
   styleUrl: './cantieri-table.component.css'
 })
-export class CantieriTableComponent implements AfterViewInit{
+export class CantieriTableComponent implements AfterViewInit, OnChanges{
   private readonly destroy$: Subject<void> = new Subject<void>();
   @ViewChild('utentiTable', {static: false}) cantieriTable!: MatTable<WorkSite>;
   @ViewChild(MatSort) sort!: MatSort;
@@ -46,6 +46,12 @@ export class CantieriTableComponent implements AfterViewInit{
       const selectedCantieri = this.gestioneCantieriService.cantieriFilter() as string[];
       this.cantieriTableData.data = this.cantieri.filter((cantiere: WorkSite) => selectedCantieri.includes(cantiere.name));
     });
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['cantieri']) {
+      this.cantieriTableData.data = this.cantieri;
+    }
   }
 
 

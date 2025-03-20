@@ -1,4 +1,4 @@
-<div class="content" [formGroup]="userFiltersForm">
+<div class="content" [formGroup]="cantieriFiltersForm">
   <mat-form-field class="cantieri-filter filter" appearance="outline" subscriptSizing="dynamic">
     <mat-select formControlName="cantieri" placeholder="Tutti i ruoli" multiple class="cantiere-input" (openedChange)="cantieriSelectOpened = !cantieriSelectOpened">
       <mat-option value="Seleziona tutto" (click)="selectAll()" *ngIf="cantieriSelectOpened">Seleziona tutto</mat-option>

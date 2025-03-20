@@ -1,5 +1,5 @@
 import { GestioneCantieriService } from '../../Services/gestione-cantieri/gestione-cantieri.service';
-import { AfterViewInit, Component, Input, OnDestroy } from '@angular/core';
+import { AfterViewInit, Component, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
 import { WorkSite } from '../../../Models/Worksite';
 import { FormGroup, FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -30,10 +30,10 @@ import { Subject, takeUntil } from 'rxjs';
   templateUrl: './cantieri-filters.component.html',
   styleUrl: './cantieri-filters.component.css'
 })
-export class CantieriFiltersComponent implements AfterViewInit, OnDestroy{
+export class CantieriFiltersComponent implements OnChanges, AfterViewInit, OnDestroy{
   private readonly destroy$: Subject<void> = new Subject<void>();
   @Input() cantieri!: WorkSite[];
-  userFiltersForm!: FormGroup;
+  cantieriFiltersForm!: FormGroup;
 
   cantieriSelectOpened: boolean = false;
 
@@ -44,9 +44,16 @@ export class CantieriFiltersComponent implements AfterViewInit, OnDestroy{
   constructor(
     public gestioneCantieriService: GestioneCantieriService
   ){
-    this.userFiltersForm = new FormGroup({
+    this.cantieriFiltersForm = new FormGroup({
       cantieri: new FormControl('')
     });
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if(changes['cantieri']){
+      this.listaCantieri = this.cantieri.map(cantiere => cantiere.name);
+      this.cantieriFiltersForm.get('cantieri')?.setValue(["Seleziona tutto", ...this.listaCantieri]);
+    }
   }
 
   ngOnDestroy(): void {
@@ -58,21 +65,21 @@ export class CantieriFiltersComponent implements AfterViewInit, OnDestroy{
     this.listaCantieri = this.cantieri.map(cantiere => cantiere.name);
     this.gestioneCantieriService.cantieriFilter.set(this.listaCantieri);
 
-    this.userFiltersForm.get('cantieri')?.setValue(["Seleziona tutto", ...this.listaCantieri]);
+    this.cantieriFiltersForm.get('cantieri')?.setValue(["Seleziona tutto", ...this.listaCantieri]);
     this.allSelected = true;
 
-    this.userFiltersForm.valueChanges.pipe(takeUntil(this.destroy$))
+    this.cantieriFiltersForm.valueChanges.pipe(takeUntil(this.destroy$))
     .subscribe(() => {
-      this.gestioneCantieriService.cantieriFilter.set(this.userFiltersForm.get('cantieri')?.value || [])
+      this.gestioneCantieriService.cantieriFilter.set(this.cantieriFiltersForm.get('cantieri')?.value || [])
     });
   }
 
   selectAll(){
     if(this.allSelected){
-      this.userFiltersForm.get('cantieri')?.setValue([]);
+      this.cantieriFiltersForm.get('cantieri')?.setValue([]);
       this.allSelected = false;
     }else{
-      this.userFiltersForm.get('cantieri')?.setValue(["Seleziona tutto", ...this.listaCantieri]);
+      this.cantieriFiltersForm.get('cantieri')?.setValue(["Seleziona tutto", ...this.listaCantieri]);
       this.allSelected = true;
     }
   }

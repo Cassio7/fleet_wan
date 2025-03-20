@@ -1,1 +1,35 @@
-<p>cantieri-create-dialog works!</p>
+<h4 mat-dialog-title class="title">Crea nuovo cantiere</h4>
+<mat-dialog-content>
+  <mat-dialog-content>
+    <p>Nuovo cantiere</p>
+    <form [formGroup]="createCantiereForm" (ngSubmit)="onConfirm()">
+
+      <!-- Campo Worksite Name -->
+      <mat-form-field appearance="outline">
+        <input matInput formControlName="name" #name placeholder="Worksite Name" />
+        <mat-error *ngIf="createCantiereForm.get('worksiteName')?.hasError('required') && createCantiereForm.get('worksiteName')?.touched">
+          Worksite Name è obbligatorio.
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Campo Comune (Opzionale) -->
+      <mat-form-field appearance="outline">
+        <mat-select formControlName="comune" placeholder="Seleziona Comune">
+          <mat-option *ngFor="let comune of comuniList" [value]="comune">{{ comune }}</mat-option>
+        </mat-select>
+        <mat-error *ngIf="createCantiereForm.get('comune')?.hasError('required') && createCantiereForm.get('comune')?.touched">
+          Comune è obbligatorio.
+        </mat-error>
+      </mat-form-field>
+
+    </form>
+  </mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button class="button no-button" (click)="onNoClick()">No Thanks</button>
+  <div class="okButton-container"   [matTooltip]="checkExistingWorksiteName(name.value) ? 'Nome cantiere già presente' : ''"
+  [matTooltip]="!name.value.length ? 'Inserire un nome per il cantiere' : ''">
+    <button mat-button class="button ok-button"
+    [disabled]="checkExistingWorksiteName(name.value) || !name.value.length"
+    [mat-dialog-close]="createCantiereForm.value" cdkFocusInitial>Ok</button>
+  </div>
+</mat-dialog-actions>
