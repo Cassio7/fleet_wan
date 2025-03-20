@@ -61,7 +61,7 @@ export class GroupService {
   }
 
   /**
-   * Crea il DTO da inviare 
+   * Crea il DTO da inviare
    * @param group oggetto entità
    * @returns DTO
    */
@@ -70,6 +70,7 @@ export class GroupService {
     groupDTO.id = group.id;
     groupDTO.createdAt = group.createdAt;
     groupDTO.updatedAt = group.updatedAt;
+    groupDTO.version = group.version;
     groupDTO.name = group.name;
     groupDTO.vgId = group.vgId;
     groupDTO.worksiteCount = group.worksite.length;
