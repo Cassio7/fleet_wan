@@ -10,17 +10,16 @@ import {
   Req,
   Res,
   UseGuards,
-  UsePipes,
 } from '@nestjs/common';
 import { Role } from 'classes/enum/role.enum';
+import { UserFromToken } from 'classes/interfaces/userToken.interface';
+import { Response } from 'express';
 import { Roles } from 'src/decorators/roles.decorator';
 import { AuthGuard } from 'src/guard/auth.guard';
 import { RolesGuard } from 'src/guard/roles.guard';
+import { LogContext } from 'src/log/logger.types';
 import { LoggerService } from 'src/log/service/logger.service';
 import { WorksiteService } from 'src/services/worksite/worksite.service';
-import { Response } from 'express';
-import { UserFromToken } from 'classes/interfaces/userToken.interface';
-import { LogContext } from 'src/log/logger.types';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Roles(Role.Admin)
@@ -127,7 +126,46 @@ export class WorksiteController {
       });
     }
   }
+  
+  /**
+   * API per il recupero dei cantieri associati in base al utente loggato
+   * @param req used data
+   * @param res
+   * @returns
+   */
+  @Roles(Role.Admin, Role.Responsabile, Role.Capo)
+  @Get('me')
+  async getWorksiteMe(
+    @Req() req: Request & { user: UserFromToken },
+    @Res() res: Response,
+  ) {
+    const context: LogContext = {
+      userId: req.user.id,
+      username: req.user.username,
+      resource: 'Worksite',
+    };
+    try {
+      const worksites = await this.worksiteService.getWorksitesByUser(
+        req.user.id,
+      );
+      this.loggerService.logCrudSuccess(
+        context,
+        'list',
+        `Numero di cantieri recuperati ${worksites.length}`,
+      );
+      return res.status(200).json(worksites);
+    } catch (error) {
+      this.loggerService.logCrudError({
+        error,
+        context,
+        operation: 'list',
+      });
 
+      return res.status(error.status || 500).json({
+        message: error.message || 'Errore durante il recupero dei cantieri',
+      });
+    }
+  }
   /**
    * API per recuperare soltanto 1 cantiere tramite id
    * @param req user data
@@ -136,11 +174,10 @@ export class WorksiteController {
    * @returns
    */
   @Get(':id')
-  @UsePipes(ParseIntPipe)
   async getWorksiteById(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
-    @Param('id') worksiteId: number,
+    @Param('id', ParseIntPipe) worksiteId: number,
   ) {
     const context: LogContext = {
       userId: req.user.id,
@@ -186,10 +223,9 @@ export class WorksiteController {
    * @param name Nuovo nome del cantiere
    */
   @Put(':id')
-  // @UsePipes(ParseIntPipe)
   async updateWorksite(
     @Req() req: Request & { user: UserFromToken },
-    @Param('id') worksiteId: number,
+    @Param('id', ParseIntPipe) worksiteId: number,
     @Body() body: { name?: string; groupId?: number },
     @Res() res: Response,
   ) {
@@ -237,11 +273,10 @@ export class WorksiteController {
    * @returns
    */
   @Delete(':id')
-  @UsePipes(ParseIntPipe)
   async deleteWorksite(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
-    @Param('id') worksiteId: number,
+    @Param('id', ParseIntPipe) worksiteId: number,
   ) {
     const context: LogContext = {
       userId: req.user.id,
