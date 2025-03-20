@@ -45,10 +45,6 @@ export class CantieriCreateDialogComponent {
     this.comuniList = data.groups.map(group => group.name);
   }
 
-  onNoClick(): void {
-    this.dialogRef.close("test value");
-  }
-
   onConfirm(): void {
     const newWorksiteName = this.createCantiereForm.get('name')?.value;
 

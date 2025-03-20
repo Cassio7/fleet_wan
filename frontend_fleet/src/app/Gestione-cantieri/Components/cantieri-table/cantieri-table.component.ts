@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, effect, EventEmitter, inject, Input, input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, effect, EventEmitter, inject, Input, input, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { WorkSite } from '../../../Models/Worksite';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,6 +13,8 @@ import { User } from '../../../Models/User';
 import { GestioneCantieriService } from '../../Services/gestione-cantieri/gestione-cantieri.service';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.component';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { DeleteCantiereDialogComponent } from '../delete-cantiere-dialog/delete-cantiere-dialog.component';
 
 @Component({
   selector: 'app-cantieri-table',
@@ -27,8 +29,9 @@ import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.
   templateUrl: './cantieri-table.component.html',
   styleUrl: './cantieri-table.component.css'
 })
-export class CantieriTableComponent implements AfterViewInit, OnChanges{
+export class CantieriTableComponent implements AfterViewInit, OnDestroy, OnChanges{
   private readonly destroy$: Subject<void> = new Subject<void>();
+  readonly dialog = inject(MatDialog);
   @ViewChild('utentiTable', {static: false}) cantieriTable!: MatTable<WorkSite>;
   @ViewChild(MatSort) sort!: MatSort;
   snackBar= inject(MatSnackBar);
@@ -46,6 +49,11 @@ export class CantieriTableComponent implements AfterViewInit, OnChanges{
       const selectedCantieri = this.gestioneCantieriService.cantieriFilter() as string[];
       this.cantieriTableData.data = this.cantieri.filter((cantiere: WorkSite) => selectedCantieri.includes(cantiere.name));
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -78,16 +86,28 @@ export class CantieriTableComponent implements AfterViewInit, OnChanges{
   // }
 
   deleteCantiere(cantiere: WorkSite){
-    const worksiteId = cantiere.id;
-    this.gestioneCantieriService.deleteWorksiteById(worksiteId).pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: () => {
-        this.cantieri = this.cantieri.filter(cantiere => cantiere.id != worksiteId);
-        this.cantieriTableData.data = this.cantieri;
-        this.cantieriChange.emit(this.cantieri);
-        this.openSnackbar(`cantiere ${cantiere.name} eliminato`)
-      },
-      error: error => console.error("Errore nella cancellazione del cantiere: ", error)
+    const dialogRef = this.dialog.open(DeleteCantiereDialogComponent, {
+      data: {worksiteName: cantiere.name}
+    });
+
+    dialogRef.afterClosed()
+    .pipe(takeUntil(this.destroy$))
+    .subscribe(result => {
+      if(result){
+        const worksiteId = cantiere.id;
+        this.gestioneCantieriService.deleteWorksiteById(worksiteId).pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            this.cantieri = this.cantieri.filter(cantiere => cantiere.id != worksiteId);
+            this.cantieriTableData.data = this.cantieri;
+            this.cantieriChange.emit(this.cantieri);
+            this.openSnackbar(`cantiere ${cantiere.name} eliminato`)
+          },
+          error: error => console.error("Errore nella cancellazione del cantiere: ", error)
+        });
+      }else{
+        this.openSnackbar("Annullata eliminazione del cantiere");
+      }
     });
   }
 
