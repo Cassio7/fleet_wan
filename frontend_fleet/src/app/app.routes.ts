@@ -8,7 +8,7 @@ import { HomeMapComponent } from './Mappa/Components/home-map/home-map.component
 import { UserHomeComponent } from './Gestione-utenti/Components/user-home/user-home.component';
 import { HomeGestioneComponent } from './Gestione-utenti/Components/home-gestione/home-gestione.component';
 import { HomeProfileComponent } from './Profile/Components/home-profile/home-profile.component';
-import { HomeGestioneCantieriComponent } from './Gestione-cantieri/home-gestione-cantieri/home-gestione-cantieri.component';
+import { HomeGestioneCantieriComponent } from './Gestione-cantieri/Components/home-gestione-cantieri/home-gestione-cantieri.component';
 
 export const routes: Routes = [
     { path: 'login', component: LoginComponent },

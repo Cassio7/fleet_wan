@@ -1,6 +1,6 @@
-import { GestioneCantieriService } from './../Services/gestione-cantieri/gestione-cantieri.service';
+import { GestioneCantieriService } from '../../Services/gestione-cantieri/gestione-cantieri.service';
 import { AfterViewInit, Component, Input, OnDestroy } from '@angular/core';
-import { WorkSite } from '../../Models/Worksite';
+import { WorkSite } from '../../../Models/Worksite';
 import { FormGroup, FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
