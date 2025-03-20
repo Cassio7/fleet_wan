@@ -87,6 +87,10 @@ export class UtentiTableComponent implements AfterViewInit{
     return this.sortService.sortUsersByMatSort(users, this.sort);
   }
 
+  /**
+   * Disabilita un utente
+   * @param user utente da disabilitare
+   */
   disabilitateUser(user: User){
     const userId = user.id;
     this.gestioneService.disabilitateUser(userId).pipe(takeUntil(this.destroy$))
@@ -107,6 +111,10 @@ export class UtentiTableComponent implements AfterViewInit{
     });
   }
 
+  /**
+   * Abilita un utente
+   * @param user utente da Abilitare
+   */
   ablitateUser(user: User){
     const userId = user.id;
     this.gestioneService.disabilitateUser(userId).pipe(takeUntil(this.destroy$))
@@ -130,6 +138,10 @@ export class UtentiTableComponent implements AfterViewInit{
     });
   }
 
+  /**
+   * Elimina un utente
+   * @param user utente da eliminare
+   */
   deleteUser(user: User){
     const userId = user.id;
     this.gestioneService.deleteUserById(userId).pipe(takeUntil(this.destroy$))
@@ -144,6 +156,10 @@ export class UtentiTableComponent implements AfterViewInit{
     });
   }
 
+  /**
+   * Apre la snackbar con il contenuto passato
+   * @param content stringa contenuto della snackbar
+   */
   openSnackbar(content: string): void {
     this.snackBar.openFromComponent(SnackbarComponent, {
       duration: 2 * 1000,
