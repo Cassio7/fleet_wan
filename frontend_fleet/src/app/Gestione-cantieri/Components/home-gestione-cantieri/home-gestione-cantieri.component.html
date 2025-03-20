@@ -1,0 +1,10 @@
+<div class="content" *ngIf="cantieri?.length">
+  <div class="section-header">
+    <h4 class="title">Gestione cantieri</h4>
+    <button mat-button class="button">Crea cantiere</button>
+  </div>
+  <div class="filters-container">
+    <app-cantieri-filters [cantieri]="cantieri"></app-cantieri-filters>
+  </div>
+  <app-cantieri-table [(cantieri)]="cantieri"></app-cantieri-table>
+</div>

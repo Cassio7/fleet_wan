@@ -25,4 +25,14 @@ export class GestioneCantieriService {
     });
     return this.http.get<WorkSite[]>(`${this.commonService.url}/worksites`, {headers});
   }
+
+  deleteWorksiteById(id: number){
+    const access_token = this.cookieService.get("user");
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${access_token}`,
+      'Content-Type': 'application/json'
+    });
+
+    return this.http.delete<WorkSite[]>(`${this.commonService.url}/worksites/${id}`, {headers})
+  }
 }

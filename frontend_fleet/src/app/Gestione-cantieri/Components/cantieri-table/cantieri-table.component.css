@@ -1,0 +1,20 @@
+.table-container {
+  height: 70vh;
+  overflow-y: auto;
+  width: 100%;
+}
+
+.cantiere-table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.cantiere-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.right-text {
+  text-align: right;
+}
