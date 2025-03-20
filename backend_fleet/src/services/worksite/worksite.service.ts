@@ -63,7 +63,17 @@ export class WorksiteService {
         });
       await queryRunner.manager.getRepository(WorksiteEntity).save(newWorksite);
       await queryRunner.commitTransaction();
-      return this.toDTO(newWorksite);
+      const newWorksiteData = await this.worksiteRepository.findOne({
+        where: {
+          key: newWorksite.key,
+        },
+        relations: {
+          group: {
+            company: true,
+          },
+        },
+      });
+      return this.toDTO(newWorksiteData);
     } catch (error) {
       await queryRunner.rollbackTransaction();
       if (error instanceof HttpException) throw error;
@@ -264,10 +274,7 @@ export class WorksiteService {
       },
     });
     if (!worksite)
-      throw new HttpException(
-        'Non trovato il cantiere associato',
-        HttpStatus.NOT_FOUND,
-      );
+      throw new HttpException('Cantiere non trovato', HttpStatus.NOT_FOUND);
     const queryRunner = this.connection.createQueryRunner();
     try {
       await queryRunner.connect();
@@ -278,7 +285,7 @@ export class WorksiteService {
       await queryRunner.rollbackTransaction();
       if (error instanceof HttpException) throw error;
       throw new HttpException(
-        `Errore durante eliminazione utente`,
+        `Errore durante eliminazione cantiere`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     } finally {
