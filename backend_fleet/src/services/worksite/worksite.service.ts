@@ -26,7 +26,7 @@ export class WorksiteService {
    * @param groupId id comune da associare
    * @returns
    */
-  async createWorksite(name: string, groupId: number): Promise<WorksiteEntity> {
+  async createWorksite(name: string, groupId: number): Promise<WorksiteDTO> {
     const exists = await this.worksiteRepository.findOne({
       where: {
         name: name.trim(),
@@ -63,7 +63,7 @@ export class WorksiteService {
         });
       await queryRunner.manager.getRepository(WorksiteEntity).save(newWorksite);
       await queryRunner.commitTransaction();
-      return newWorksite;
+      return this.toDTO(newWorksite);
     } catch (error) {
       await queryRunner.rollbackTransaction();
       if (error instanceof HttpException) throw error;
@@ -90,7 +90,7 @@ export class WorksiteService {
           },
         },
         order: {
-          name: 'ASC',
+          id: 'ASC',
         },
       });
       return worksites.map((worksite) => this.toDTO(worksite));
@@ -164,11 +164,100 @@ export class WorksiteService {
     }
   }
 
+  async updateWorksite(
+    worksiteId: number,
+    name?: string,
+    groupId?: number,
+  ): Promise<WorksiteDTO> {
+    if (!worksiteId || isNaN(worksiteId) || worksiteId <= 0) {
+      throw new HttpException('ID cantiere non valido', HttpStatus.BAD_REQUEST);
+    }
+
+    // Recupero il cantiere esistente
+    const worksite = await this.worksiteRepository.findOne({
+      where: { id: worksiteId },
+    });
+    if (!worksite) {
+      throw new HttpException('Cantiere non trovato', HttpStatus.NOT_FOUND);
+    }
+
+    // Oggetto di aggiornamento che conterrà solo i valori modificati
+    const updateWorksite = {
+      name: name?.trim() || worksite.name,
+    };
+
+    // Controllo se il nome è già esistente (se fornito)
+    if (name !== undefined && name.trim()) {
+      const existingByName = await this.worksiteRepository.findOne({
+        where: { name: name.trim() },
+      });
+      if (existingByName && existingByName.id !== worksiteId) {
+        throw new HttpException(
+          'Un altro cantiere ha già questo nome',
+          HttpStatus.CONFLICT,
+        );
+      }
+      updateWorksite.name = name.trim();
+    }
+
+    // Verifica se il gruppo esiste, se fornito
+    if (groupId !== undefined) {
+      let group: GroupEntity | null = null;
+      if (groupId) {
+        group = await this.groupRepository.findOne({
+          where: { id: groupId },
+        });
+        if (!group) {
+          throw new HttpException(
+            'Non trovato il gruppo associato',
+            HttpStatus.NOT_FOUND,
+          );
+        }
+      }
+      updateWorksite['group'] = group;
+    }
+    console.log(updateWorksite);
+    // Aggiungo l'aggiornamento dei campi version e updatedAt
+    const queryRunner = this.connection.createQueryRunner();
+    try {
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+
+      //Uso il metodo update per applicare le modifiche
+      await queryRunner.manager
+        .getRepository(WorksiteEntity)
+        .update({ key: worksite.key }, updateWorksite);
+
+      await queryRunner.commitTransaction();
+
+      // Recupero l'oggetto aggiornato
+      const updatedWorksite = await this.worksiteRepository.findOne({
+        where: { id: worksiteId },
+        relations: {
+          group: {
+            company: true,
+          },
+        },
+      });
+
+      return this.toDTO(updatedWorksite);
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      if (error instanceof HttpException) throw error;
+      throw new HttpException(
+        "Errore durante l'aggiornamento del cantiere",
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
   /**
    * Eliminazione cantiere
    * @param worksiteId id del cantiere
    */
-  async deleteWorksite(worksiteId: number) {
+  async deleteWorksite(worksiteId: number): Promise<void> {
     const worksite = await this.worksiteRepository.findOne({
       where: {
         id: worksiteId,
@@ -206,8 +295,9 @@ export class WorksiteService {
     worksiteDTO.id = worksite.id;
     worksiteDTO.createdAt = worksite.createdAt;
     worksiteDTO.updatedAt = worksite.updatedAt;
+    worksiteDTO.version = worksite.version;
     worksiteDTO.name = worksite.name;
-    worksiteDTO.vehicleCount = worksite.vehicle.length;
+    worksiteDTO.vehicleCount = worksite.vehicle?.length || 0;
     if (worksite.group) {
       worksiteDTO.group = new GroupDTO();
       worksiteDTO.group.id = worksite.group.id;

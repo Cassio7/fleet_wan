@@ -1,8 +1,12 @@
 import {
+  Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
+  Post,
+  Put,
   Req,
   Res,
   UseGuards,
@@ -100,6 +104,137 @@ export class CompanyController {
     } catch (error) {
       console.error('Errore nel recupero della società: ', error);
       res.status(500).json({ message: 'Errore nel recupero della società.' });
+    }
+  }
+
+  @Post()
+  async createCompany(
+    @Req() req: Request & { user: UserFromToken },
+    @Res() res: Response,
+    @Body() body: { suId: number; name: string },
+  ) {
+    const { suId, name } = body;
+
+    const context: LogContext = {
+      userId: req.user.id,
+      username: req.user.username,
+      resource: 'Company',
+    };
+
+    try {
+      if (!name) {
+        return res
+          .status(400)
+          .json({ message: 'Inserisci un nome per la società' });
+      }
+      const newCompany = await this.companyService.createCompany(
+        Number(suId),
+        name,
+      );
+      this.loggerService.logCrudSuccess(
+        { ...context, resourceId: newCompany.id },
+        'create',
+        `Creata società ${newCompany.name} con id: ${newCompany.id}`,
+      );
+
+      return res.status(201).json({
+        message: `Società con nome ${newCompany.name} salvata!`,
+        company: newCompany,
+      });
+    } catch (error) {
+      this.loggerService.logCrudError({
+        error,
+        context,
+        operation: 'create',
+      });
+      return res.status(error.status || 500).json({
+        message:
+          error.message || 'Errore nella registrazione della nuova società',
+      });
+    }
+  }
+
+  @Put(':id')
+  // @UsePipes(ParseIntPipe)
+  async updateCompany(
+    @Req() req: Request & { user: UserFromToken },
+    @Res() res: Response,
+    @Param('id') companyId: number,
+    @Body() body: { suId?: number; name?: string },
+  ) {
+    const { suId, name } = body;
+
+    const context: LogContext = {
+      userId: req.user.id,
+      username: req.user.username,
+      resource: 'Company',
+      resourceId: companyId,
+    };
+
+    try {
+      // Chiama il servizio per aggiornare la compagnia
+      const updatedCompany = await this.companyService.updateCompany(
+        companyId,
+        Number(suId),
+        name,
+      );
+
+      this.loggerService.logCrudSuccess(
+        context,
+        'update',
+        `Aggiornata società ${updatedCompany.name} con id: ${updatedCompany.id}`,
+      );
+
+      return res.status(200).json(updatedCompany);
+    } catch (error) {
+      this.loggerService.logCrudError({
+        error,
+        context,
+        operation: 'update',
+      });
+
+      return res.status(error.status || 500).json({
+        message: error.message || 'Errore aggiornamento società',
+      });
+    }
+  }
+
+  @Delete(':id')
+  @UsePipes(ParseIntPipe)
+  async deleteCompany(
+    @Req() req: Request & { user: UserFromToken },
+    @Res() res: Response,
+    @Param('id') companyId: number,
+  ) {
+    const context: LogContext = {
+      userId: req.user.id,
+      username: req.user.username,
+      resource: 'Company',
+      resourceId: companyId,
+    };
+
+    try {
+      await this.companyService.deleteCompany(Number(companyId));
+
+      this.loggerService.logCrudSuccess(
+        context,
+        'delete',
+        `Eliminata società con id: ${companyId}`,
+      );
+
+      return res.status(200).json({
+        message: `Società con id ${companyId} eliminata!`,
+      });
+    } catch (error) {
+      this.loggerService.logCrudError({
+        error,
+        context,
+        operation: 'delete',
+      });
+
+      return res.status(error.status || 500).json({
+        message: error.message || 'Errore eliminazione società',
+      });
     }
   }
 }

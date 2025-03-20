@@ -6,6 +6,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Put,
   Req,
   Res,
   UseGuards,
@@ -65,9 +66,10 @@ export class WorksiteController {
         `Cantiere con nome ${worksite.name} salvato!`,
       );
 
-      return res
-        .status(200)
-        .json({ message: `Cantiere con nome ${worksite.name} salvato!` });
+      return res.status(201).json({
+        message: `Cantiere con nome ${worksite.name} salvato!`,
+        worksite: worksite,
+      });
     } catch (error) {
       this.loggerService.logCrudError({
         error,
@@ -174,6 +176,55 @@ export class WorksiteController {
 
       return res.status(error.status || 500).json({
         message: error.message || 'Errore recupero cantiere',
+      });
+    }
+  }
+
+  /**
+   * Metodo per aggiornare i dati di un cantiere
+   * @param worksiteId ID del cantiere
+   * @param name Nuovo nome del cantiere
+   */
+  @Put(':id')
+  // @UsePipes(ParseIntPipe)
+  async updateWorksite(
+    @Req() req: Request & { user: UserFromToken },
+    @Param('id') worksiteId: number,
+    @Body() body: { name?: string; groupId?: number },
+    @Res() res: Response,
+  ) {
+    const { groupId, name } = body;
+
+    const context = {
+      userId: req.user.id,
+      username: req.user.username,
+      resource: 'Worksite',
+      resourceId: worksiteId,
+    };
+
+    try {
+      const updatedWorksite = await this.worksiteService.updateWorksite(
+        worksiteId,
+        name,
+        Number(groupId),
+      );
+
+      this.loggerService.logCrudSuccess(
+        context,
+        'update',
+        `Cantiere con id: ${updatedWorksite.id} aggiornato con successo`,
+      );
+
+      return res.status(200).json(updatedWorksite);
+    } catch (error) {
+      this.loggerService.logCrudError({
+        error,
+        context,
+        operation: 'update',
+      });
+
+      return res.status(error.status || 500).json({
+        message: error.message || 'Errore aggiornamento cantiere',
       });
     }
   }
