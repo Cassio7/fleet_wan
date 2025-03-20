@@ -1,0 +1,58 @@
+<h4 mat-dialog-title class="title">Crea nuovo utente</h4>
+<mat-dialog-content>
+  <mat-dialog-content>
+    <p>Crea utente</p>
+    <form [formGroup]="createUserForm" (ngSubmit)="onConfirm()">
+      <mat-form-field appearance="outline">
+        <input matInput formControlName="name" placeholder="Nome" />
+        <mat-error *ngIf="createUserForm.get('name')?.hasError('required') && createUserForm.get('name')?.touched">
+          Nome è obbligatorio.
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <input matInput formControlName="surname" placeholder="Cognome" />
+        <mat-error *ngIf="createUserForm.get('surname')?.hasError('required') && createUserForm.get('surname')?.touched">
+          Cognome è obbligatorio.
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <input matInput formControlName="username" placeholder="Username" />
+        <mat-error *ngIf="createUserForm.get('username')?.hasError('required') && createUserForm.get('username')?.touched">
+          Username è obbligatorio.
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <input matInput formControlName="email" placeholder="Email" />
+        <mat-error *ngIf="createUserForm.get('email')?.hasError('required') && createUserForm.get('email')?.touched">
+          Email è obbligatoria.
+        </mat-error>
+        <mat-error *ngIf="createUserForm.get('email')?.hasError('email') && createUserForm.get('email')?.touched">
+          Email non valida.
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <input matInput formControlName="password" type="password" placeholder="Password" />
+        <mat-error *ngIf="createUserForm.get('password')?.hasError('required') && createUserForm.get('password')?.touched">
+          Password è obbligatoria.
+        </mat-error>
+        <mat-error *ngIf="createUserForm.get('password')?.hasError('minlength') && createUserForm.get('password')?.touched">
+          Password deve avere almeno 6 caratteri.
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <input matInput formControlName="role" placeholder="Ruolo" />
+        <mat-error *ngIf="createUserForm.get('role')?.hasError('required') && createUserForm.get('role')?.touched">
+          Ruolo è obbligatorio.
+        </mat-error>
+      </mat-form-field>
+    </form>
+  </mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button class="button no-button" (click)="onNoClick()">No Thanks</button>
+  <button mat-button class="button" [mat-dialog-close]="createUserForm.value" cdkFocusInitial>Ok</button>
+</mat-dialog-actions>

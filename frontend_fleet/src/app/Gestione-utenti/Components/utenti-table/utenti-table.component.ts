@@ -1,5 +1,5 @@
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { AfterViewInit, Component, inject, Inject, Input, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, inject, Inject, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Subject, takeUntil } from 'rxjs';
 import { User } from '../../../Models/User';
@@ -23,35 +23,47 @@ import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.
     MatSortModule
   ],
   templateUrl: './utenti-table.component.html',
-  styleUrl: './utenti-table.component.css'
+  styleUrl: './utenti-table.component.css',
 })
 export class UtentiTableComponent implements AfterViewInit{
   private readonly destroy$: Subject<void> = new Subject<void>();
   @ViewChild('utentiTable', {static: false}) utentiTable!: MatTable<User>;
   @ViewChild(MatSort) sort!: MatSort;
+
   displayedColumns: string[] = ['Id', 'Utente', 'Username', 'E-mail', 'Ruolo', 'Stato', 'Azioni'];
   utentiTableData = new MatTableDataSource<User>();
   private snackBar = inject(MatSnackBar);
   @Input() users!: User[];
+  @Output() usersChange = new EventEmitter<User[]>();
 
   constructor(
     private gestioneService: GestioneService,
     private sortService: SortService,
+    private cd: ChangeDetectorRef,
     private router: Router
   ){}
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['users']) {
+      this.utentiTableData.data = this.users;
+    }
+  }
 
 
   ngAfterViewInit(): void {
-    this.users = this.users.filter(user => user.role != "Admin");
-    this.utentiTableData.data = this.users;
+    setTimeout(() => {
+      this.utentiTableData.data = this.users;
 
-    this.utentiTable.renderRows();
+      this.utentiTableData.sort = this.sort;
+
+      this.utentiTable.renderRows();
+      this.cd.detectChanges();
+    });
 
     this.gestioneService.filterUsers$.pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (gestoneFilters: GestioneFilters | null) => {
         if(gestoneFilters){
-          this.utentiTableData.data = this.gestioneService.filterUsersByUsernameResearchAndRoles(this.users.filter(user => user.role != "Admin"), gestoneFilters);
+          this.utentiTableData.data = this.gestioneService.filterUsersByUsernameResearchAndRoles(this.users, gestoneFilters);
         }
       },
       error: error => console.error("Errore nell'applicazione dei filtri sugli utenti: ", error)
@@ -64,7 +76,7 @@ export class UtentiTableComponent implements AfterViewInit{
    */
   showProfile(user: User){
     const userId = user.id;
-    this.router.navigate(['/profile', user.id]);
+    this.router.navigate(['/profile', userId]);
   }
 
   /**
@@ -107,9 +119,12 @@ export class UtentiTableComponent implements AfterViewInit{
           return user;
         });
 
+        this.usersChange.emit(this.users);
+
         this.utentiTableData.data = this.users;
 
-        this.openSnackbar(`Utente ${user.username} disabilitato`);
+
+        this.openSnackbar(`Utente ${user.username} abilitato`);
       },
       error: error => console.error(`Errore nella cancellazione dell'utente con id ${userId}: ${error}`)
     });
@@ -120,7 +135,9 @@ export class UtentiTableComponent implements AfterViewInit{
     this.gestioneService.deleteUserById(userId).pipe(takeUntil(this.destroy$))
     .subscribe({
       next: () => {
-        this.utentiTableData.data = this.utentiTableData.data.filter(user => user.id != userId);
+        this.users = this.users.filter(user => user.id != userId);
+        this.utentiTableData.data = this.users;
+        this.usersChange.emit(this.users);
         this.openSnackbar(`Utente ${user.username} eliminato`);
       },
       error: error => console.error(`Errore nella cancellazione dell'utente con id ${userId}: ${error}`)

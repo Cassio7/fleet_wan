@@ -55,16 +55,18 @@ export class GestioneFiltersComponent implements AfterViewInit{
   }
 
   ngAfterViewInit(): void {
-    this.listaRuoli.push(...this.users.map(user => user.role).filter(role => role != "Admin"));
     this.filters = {
       usernameResearch: "",
       selectedRoles: this.listaRuoli
     }
     this.gestioneService.filterUsers$.next(this.filters);
+    this.listaRuoli = [...new Set(this.users.map(user => user.role))];
+
     this.userFiltersForm.get('roles')?.setValue(["Seleziona tutto", ...this.listaRuoli]);
     this.allSelected = true;
 
     this.userFiltersForm.valueChanges.subscribe(changes => {
+      console.log('changed!');
       this.filters = {
         usernameResearch: this.userFiltersForm.get('username')?.value,
         selectedRoles: this.userFiltersForm.get('roles')?.value

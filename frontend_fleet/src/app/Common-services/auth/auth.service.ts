@@ -6,7 +6,6 @@ import { CommonService } from '../common service/common.service';
 import { Observable } from 'rxjs';
 import { CookieService } from 'ngx-cookie-service';
 
-
 @Injectable({
   providedIn: 'root'
 })
@@ -104,6 +103,28 @@ export class AuthService {
     });
 
     return this.http.get<User[]>(`${this.commonService.url}/users`, {headers});
+  }
+
+
+  createUser(user: User): Observable<{message: string, user: User}>{
+    const access_token = this.cookieService.get("user");
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${access_token}`,
+      'Content-Type': 'application/json'
+    });
+
+    const { email, name, surname, username, password, role } = user;
+
+    const body = {
+      email,
+      name,
+      surname,
+      username,
+      password,
+      role
+    };
+
+    return this.http.post<{message: string, user: User}>(`${this.commonService.url}/users`, body, {headers});
   }
 
 

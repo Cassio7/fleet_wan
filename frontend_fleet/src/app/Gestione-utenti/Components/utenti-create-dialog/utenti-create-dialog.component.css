@@ -1,0 +1,9 @@
+.title{
+  padding-left: 20px;
+  padding-top: 20px;
+}
+.no-button{
+  background-color: white !important;
+  color: black !important;
+  border: 1px solid var(--navbarANDstats-background);
+}

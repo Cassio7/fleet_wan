@@ -1,13 +1,14 @@
 export class User {
+  public id!: number;
+  public active!: boolean
+
   constructor(
-    public id: number,
     public name: string,
     public surname: string,
     public username: string,
     public email: string,
     public role: string,
-    public active: boolean,
-    private _password: string
+    private _password: string,
   ) {}
 
   public get password(): string {
