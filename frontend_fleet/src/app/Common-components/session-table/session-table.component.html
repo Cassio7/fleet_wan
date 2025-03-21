@@ -127,7 +127,7 @@
 
             <!-- Colonna Sequence ID -->
             <ng-container matColumnDef="Sequence ID">
-              <th mat-header-cell *matHeaderCellDef class="sequence-column"> Sequence ID </th>
+              <th mat-header-cell *matHeaderCellDef class="sequence-column"> Id </th>
               <td mat-cell *matCellDef="let session" class="sequence-column"> {{session.sequence_id}} </td>
             </ng-container>
 
@@ -146,7 +146,7 @@
             <!-- Colonna Distanza -->
             <ng-container matColumnDef="Distanza">
               <th mat-header-cell *matHeaderCellDef> Distanza </th>
-              <td mat-cell *matCellDef="let session"> {{session.distance}} km </td>
+              <td mat-cell *matCellDef="let session"> {{session.distance.toFixed(1)}} km </td>
             </ng-container>
 
             <!-- Colonna Mappa -->
