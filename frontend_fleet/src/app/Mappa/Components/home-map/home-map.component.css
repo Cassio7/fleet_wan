@@ -32,12 +32,33 @@
 .legend-container {
   position: absolute;
   right: 60px;
-  width: 400px;
   background-color: transparent;
   box-shadow: none;
   border-radius: 6px;
   background-color: white;
-  padding: 20px;
+  padding: 10px;
+
+  .opened {
+    width: 400px;
+
+    .closeButton-container {
+      cursor: pointer;
+      display: flex;
+      justify-content: flex-end;
+    }
+  }
+
+  mat-icon {
+    overflow: visible !important;
+  }
+
+  .closed{
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
 }
 
 .info-container {

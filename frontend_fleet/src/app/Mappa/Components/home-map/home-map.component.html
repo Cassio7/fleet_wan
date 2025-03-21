@@ -7,7 +7,8 @@
       <app-map-filter></app-map-filter>
     </div>
     <div class="legend-container">
-      <app-legend></app-legend>
+      <div class="closed" *ngIf="!legendOpen" (click)="legendOpen = !legendOpen" matTooltip="Apri la legenda"><mat-icon>legend_toggle</mat-icon></div>
+      <div class="opened" *ngIf="legendOpen"><div class="closeButton-container"><mat-icon matTooltip="Chiudi la legenda" (click)="legendOpen = !legendOpen">legend_toggle</mat-icon></div><app-legend></app-legend></div>
     </div>
     <div class="info-container" [ngClass]="{'hidden': !vehicleSelected}">
       <app-mappa-info
