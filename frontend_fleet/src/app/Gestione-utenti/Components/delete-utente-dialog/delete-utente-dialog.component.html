@@ -1,0 +1,8 @@
+<h2 mat-dialog-title>Eliminazione cantiere</h2>
+<mat-dialog-content>
+  Sei sicuro di voler eliminare l'utente <span style="font-weight: bold;">{{data.username}}</span>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button (click)="noClick()" class="button no-button" mat-dialog-close>No</button>
+  <button mat-button (click)="yesClick()" class="button ok-button" mat-dialog-close cdkFocusInitial>Si</button>
+</mat-dialog-actions>

@@ -11,6 +11,8 @@ import { GestioneFilters, GestioneService } from '../../Services/gestione/gestio
 import {Sort, MatSortModule, MatSort} from '@angular/material/sort';
 import { SortService } from '../../../Common-services/sort/sort.service';
 import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.component';
+import { MatDialog } from '@angular/material/dialog';
+import { DeleteUtenteDialogComponent } from '../delete-utente-dialog/delete-utente-dialog.component';
 
 @Component({
   selector: 'app-utenti-table',
@@ -29,6 +31,7 @@ export class UtentiTableComponent implements AfterViewInit{
   private readonly destroy$: Subject<void> = new Subject<void>();
   @ViewChild('utentiTable', {static: false}) utentiTable!: MatTable<User>;
   @ViewChild(MatSort) sort!: MatSort;
+  readonly dialog = inject(MatDialog);
 
   displayedColumns: string[] = ['Id', 'Utente', 'Username', 'E-mail', 'Ruolo', 'Stato', 'Azioni'];
   utentiTableData = new MatTableDataSource<User>();
@@ -144,16 +147,29 @@ export class UtentiTableComponent implements AfterViewInit{
    */
   deleteUser(user: User){
     const userId = user.id;
-    this.gestioneService.deleteUserById(userId).pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: () => {
-        this.users = this.users.filter(user => user.id != userId);
-        this.utentiTableData.data = this.users;
-        this.usersChange.emit(this.users);
-        this.openSnackbar(`Utente ${user.username} eliminato`);
-      },
-      error: error => console.error(`Errore nella cancellazione dell'utente con id ${userId}: ${error}`)
+
+    const dialogRef = this.dialog.open(DeleteUtenteDialogComponent, {
+      data: {username: user.username}
     });
+
+    dialogRef.afterClosed().pipe(takeUntil(this.destroy$))
+    .subscribe((result) => {
+      if(result){
+        this.gestioneService.deleteUserById(userId).pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            this.users = this.users.filter(user => user.id != userId);
+            this.utentiTableData.data = this.users;
+            this.usersChange.emit(this.users);
+            this.openSnackbar(`Utente ${user.username} eliminato`);
+          },
+          error: error => console.error(`Errore nella cancellazione dell'utente con id ${userId}: ${error}`)
+        });
+      }else{
+        this.openSnackbar("Eliminazione utente annullata");
+      }
+    });
+
   }
 
   /**

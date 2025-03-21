@@ -81,10 +81,6 @@ export class CantieriTableComponent implements AfterViewInit, OnDestroy, OnChang
 
   }
 
-  // disabilitateCantiere(cantiere: WorkSite){
-
-  // }
-
   deleteCantiere(cantiere: WorkSite){
     const dialogRef = this.dialog.open(DeleteCantiereDialogComponent, {
       data: {worksiteName: cantiere.name}

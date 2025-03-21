@@ -7,7 +7,7 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
   standalone: true,
   imports: [
     MatButtonModule,
-    MatDialogModule, // Import the entire MatDialogModule instead of individual directives
+    MatDialogModule,
   ],
   templateUrl: './delete-cantiere-dialog.component.html',
   styleUrl: './delete-cantiere-dialog.component.css',
