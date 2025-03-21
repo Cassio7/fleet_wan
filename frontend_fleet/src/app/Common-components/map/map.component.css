@@ -90,3 +90,10 @@ body {
   color: gray;
   padding: 0;
 }
+
+.legend-header{
+  font-family: 'Inter';
+  .subtitle{
+    font-size: 10px;
+  }
+}

@@ -8,7 +8,6 @@ import { RealtimeData } from '../../../Models/RealtimeData';
 import { MapFilterComponent } from "../map-filter/map-filter.component";
 import { MappaInfoComponent } from "../mappa-info/mappa-info.component";
 import { CommonModule } from '@angular/common';
-import { LegendComponent } from "../legend/legend.component";
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
@@ -20,7 +19,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MapComponent,
     MapFilterComponent,
     MappaInfoComponent,
-    LegendComponent,
     MatTooltipModule,
     MatIconModule
 ],
@@ -30,7 +28,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 export class HomeMapComponent implements AfterViewInit, OnDestroy{
   private readonly destroy$: Subject<void> = new Subject<void>();
 
-  legendOpen: boolean = false;
 
   constructor(
     private mapService: MapService,

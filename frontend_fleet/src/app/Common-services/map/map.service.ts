@@ -205,6 +205,79 @@ export class MapService {
   constructor(private sessionStorageService: SessionStorageService) {}
 
   /**
+   * Crea e ritorna una legenda
+   * @param title Titolo della legenda
+   * @param subtitle Sottotitolo della legenda
+   * @param values Oggetto contenente chiave: valore, dove ogni valore è un oggetto con una chiave 'icon' (SVG) e 'description' (descrizione)
+   * @returns L.Control La legenda
+   */
+  createLegend(title: string, subtitle: string, values: { [key: string]: { icon: string, description: string } }): L.Control {
+    const legend = new L.Control({ position: 'topright' });
+
+    legend.onAdd = (map: L.Map) => {
+      const div = L.DomUtil.create('div', 'info legend');
+      div.style.backgroundColor = 'white';
+      div.style.padding = '6px';
+      div.style.border = '1px solid #ccc';
+      div.style.borderRadius = '5px';
+
+      //creazione dell'header
+      const header = document.createElement('div');
+      header.innerHTML = `<div class='legend-header'><strong class='title'>${title} ▼</strong><br><span class='subtitle'>${subtitle}</span></div>`;
+      header.style.cursor = 'pointer';
+      header.style.marginBottom = "0px";
+
+      //creazione del contenuto
+      const content = document.createElement('div');
+      content.style.display = 'none'; // legenda chiusa inizialmente
+      content.style.marginTop = '5px';
+
+      //valori nel contenuto della legend
+      Object.keys(values).forEach(key => {
+        const value = values[key];
+        const row = document.createElement('div');
+        row.style.display = 'flex';
+        row.style.alignItems = 'center';
+
+        //icona a sinistra
+        const icon = document.createElement('span');
+        icon.innerHTML = value.icon;  // SVG come stringa
+        row.appendChild(icon);
+
+        //descrizione icona
+        const description = document.createElement('span');
+        description.style.marginLeft = '5px';
+        description.textContent = value.description;
+        row.appendChild(description);
+
+        content.appendChild(row); //aggiunta dell'oggetto al div contenuto
+      });
+
+      //aggiunta di header e contenuto al div princpale
+      div.appendChild(header);
+      div.appendChild(content);
+
+      //aggiunta funzionalità di apertura e chiusura
+      let isOpen = false;
+      header.addEventListener('click', function() {
+        if (isOpen) {
+          content.style.display = 'none';
+          header.innerHTML = `<div class='legend-header'><strong class='title'>${title} ▶</strong><br><span class='subtitle'>${subtitle}</span></div>`;
+          isOpen = false;
+        } else {
+          content.style.display = 'block';
+          header.innerHTML = `<div class='legend-header'><strong class='title'>${title} ▼</strong><br><span class='subtitle'>${subtitle}</span></div>`;
+          isOpen = true;
+        }
+      });
+
+      return div;
+    };
+
+    return legend;
+  }
+
+  /**
    * Inizializza una mappa tramite un punto
    * @param lat latitudine
    * @param long longitudine
@@ -220,14 +293,43 @@ export class MapService {
       {
         maxZoom: 18,
         minZoom: 3,
-        attribution:
-          '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
       }
     );
 
     tiles.addTo(map);
+
+    //dati della legend
+    const legendData = {
+      title: 'Legenda',
+      subtitle: 'Ultima trasmissione GPS',
+      values: {
+        moving: {
+          icon: this.movingMarkerGreen,
+          description: 'in movimento',
+        },
+        ok: {
+          icon: this.OkMarker,
+          description: 'entro 30 minuti',
+        },
+        warning: {
+          icon: this.warningMarker,
+          description: 'tra 30 minuti e 12 ore',
+        },
+        error: {
+          icon: this.errorMarker,
+          description: 'oltre 12 ore',
+        },
+      },
+    };
+
+    //creazione e aggiunta della legenda alla mappa
+    const legend = this.createLegend(legendData.title, legendData.subtitle, legendData.values);
+    legend.addTo(map);
+
     return map;
   }
+
 
   /**
    * rimuove una mappa, se esiste

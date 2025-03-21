@@ -56,6 +56,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.handleMapResizing();
   }
 
+  /**
+   * Gestisce il subject per il ridimensionamento della mappa
+   */
   private handleMapResizing(){
     this.mapService.resizeMap$.pipe(takeUntil(this.destroy$))
     .subscribe({
@@ -67,6 +70,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   }
 
 
+  /**
+   * Gestisce il subject per lo zoom in sulla mappa
+   */
   private handleZoomIn(){
     this.mapService.zoomIn$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({

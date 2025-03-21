@@ -13,7 +13,8 @@
 
 .vehicleHandling-container {
   position: absolute;
-  padding: 50px 60px 0 60px;
+  padding: 0px 60px 0 60px;
+  margin-top: 50px;
   width: 100%;
   box-sizing: border-box;
   z-index: 1000;
@@ -80,7 +81,8 @@
 
 @media screen and (max-width: 1366px) {
   .vehicleHandling-container {
-    padding: 20px 60px 0 60px;
+    padding: 0px 60px 0 60px;
+    margin-top: 20px;
   }
 
   .filters-container {
