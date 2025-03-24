@@ -562,7 +562,7 @@ export class MapService {
       //creazione di 5 colonne con le targhe
       clusterMarkers.forEach((marker: any) => {
         if (marker.feature?.properties?.dc_name) {
-          rowContent += `<td>${marker.feature.properties.dc_name}</td>`;
+          rowContent += `<td style="white-space: nowrap">${marker.feature.properties.dc_name}</td>`;
           columnCount++;
 
           if (columnCount === 5) {
