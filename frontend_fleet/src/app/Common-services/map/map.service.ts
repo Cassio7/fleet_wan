@@ -500,7 +500,9 @@ export class MapService {
   createMarkerClusterGroupByRealtimeData(
     realtimeDatas: RealtimeData[]
   ): L.MarkerClusterGroup {
-    const clusterGroup = L.markerClusterGroup();
+    const clusterGroup = L.markerClusterGroup({
+      showCoverageOnHover: false,
+    });
     realtimeDatas.forEach((realtimeData) => {
       const vehicle = realtimeData.vehicle;
       const realtime = realtimeData.realtime;
@@ -531,7 +533,10 @@ export class MapService {
     const plateToggle = JSON.parse(
       this.sessionStorageService.getItem('plateToggle')
     );
-    const clusterGroup = L.markerClusterGroup();
+    const clusterGroup = L.markerClusterGroup({
+      spiderfyOnMaxZoom:false,
+      showCoverageOnHover: false,
+    });
 
     markers.forEach((marker) => {
       if (plateToggle) {
