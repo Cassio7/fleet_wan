@@ -49,14 +49,22 @@
             <mat-icon>dialpad</mat-icon>
             <span>Modifica</span>
           </button>
-          <button mat-menu-item (click)="ablitateUser(user)">
-            <mat-icon>power_settings_new</mat-icon>
-            <span>Abilita</span>
+
+          <button mat-menu-item (click)="toggleUserAbilitation(user)">
+            <ng-container *ngIf="user.active; else enable">
+              <div style="display: flex; align-items: center;">
+                <mat-icon>do_not_disturb</mat-icon>
+                <span>Disattiva</span>
+              </div>
+            </ng-container>
+            <ng-template #enable>
+              <div style="display: flex; align-items: center;">
+                <mat-icon>power_settings_new</mat-icon>
+                <span>Abilita</span>
+              </div>
+            </ng-template>
           </button>
-          <button mat-menu-item (click)="disabilitateUser(user)">
-            <mat-icon>do_not_disturb</mat-icon>
-            <span>Disattiva</span>
-          </button>
+
           <button mat-menu-item (click)="deleteUser(user)">
             <mat-icon>delete_outline</mat-icon>
             <span>Elimina</span>

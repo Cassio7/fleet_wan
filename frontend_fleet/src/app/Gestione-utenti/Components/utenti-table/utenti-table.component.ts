@@ -13,11 +13,13 @@ import { SortService } from '../../../Common-services/sort/sort.service';
 import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.component';
 import { MatDialog } from '@angular/material/dialog';
 import { DeleteUtenteDialogComponent } from '../delete-utente-dialog/delete-utente-dialog.component';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-utenti-table',
   standalone: true,
   imports: [
+    CommonModule,
     MatTableModule,
     MatIconModule,
     MatButtonModule,
@@ -170,6 +172,14 @@ export class UtentiTableComponent implements AfterViewInit{
       }
     });
 
+  }
+
+  toggleUserAbilitation(user: User){
+    if(user.active){
+      this.disabilitateUser(user);
+    }else{
+      this.ablitateUser(user);
+    }
   }
 
   /**
