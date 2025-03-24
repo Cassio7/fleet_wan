@@ -37,7 +37,7 @@ export class CantieriTableComponent implements AfterViewInit, OnDestroy, OnChang
   snackBar= inject(MatSnackBar);
   displayedColumns: string[] = ['Id', 'Cantiere', 'Comune', 'Societa', 'Veicoli associati', 'Azioni'];
   cantieriTableData = new MatTableDataSource<WorkSite>();
-  @Input() cantieri!: WorkSite[];
+  @Input() cantieri: WorkSite[] = [];
   @Output() cantieriChange: EventEmitter<WorkSite[]> = new EventEmitter<WorkSite[]>();
 
   constructor(

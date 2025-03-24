@@ -9,6 +9,7 @@ import { UserHomeComponent } from './Gestione-utenti/Components/user-home/user-h
 import { HomeGestioneComponent } from './Gestione-utenti/Components/home-gestione/home-gestione.component';
 import { HomeProfileComponent } from './Profile/Components/home-profile/home-profile.component';
 import { HomeGestioneCantieriComponent } from './Gestione-cantieri/Components/home-gestione-cantieri/home-gestione-cantieri.component';
+import { HomeLettureComponent } from './Scarico-letture/home-letture/home-letture.component';
 
 export const routes: Routes = [
     { path: 'login', component: LoginComponent },
@@ -21,5 +22,6 @@ export const routes: Routes = [
     { path: 'profile', component: HomeProfileComponent},
     { path: 'gestione-utenti', component: HomeGestioneComponent},
     { path: 'gestione-cantieri', component: HomeGestioneCantieriComponent},
+    { path: 'scarico-letture', component: HomeLettureComponent },
     { path: '', component: DashboardComponent },
 ];

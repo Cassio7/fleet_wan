@@ -61,9 +61,10 @@
 .go-back button {
   height: 50px;
   width: 50px;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  color: black;
 }
 
 .go-back button mat-icon {
@@ -73,13 +74,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.go-back button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: black;
 }
 
 .title {

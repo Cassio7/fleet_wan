@@ -1,0 +1,47 @@
+<table mat-table [dataSource]="tagTableData" class="mat-elevation-z8">
+  <!-- EPC Column -->
+  <ng-container matColumnDef="EPC">
+    <th mat-header-cell *matHeaderCellDef> EPC </th>
+    <td mat-cell *matCellDef="let tagData"> {{tagData.epc}} </td>
+  </ng-container>
+
+  <!-- Type Column -->
+  <ng-container matColumnDef="Type">
+    <th mat-header-cell *matHeaderCellDef> Type </th>
+    <td mat-cell *matCellDef="let tagData"> {{tagData?.type || "no data"}} </td>
+  </ng-container>
+
+  <!-- Timestamp Column -->
+  <ng-container matColumnDef="Timestamp">
+    <th mat-header-cell *matHeaderCellDef> Timestamp </th>
+    <td mat-cell *matCellDef="let tagData"> {{tagData.timestamp | date: 'dd/MM/yyyy'}} </td>
+  </ng-container>
+
+  <!-- Latitude Column -->
+  <ng-container matColumnDef="Latitude">
+    <th mat-header-cell *matHeaderCellDef> Latitude </th>
+    <td mat-cell *matCellDef="let tagData"> {{tagData.latitude}} </td>
+  </ng-container>
+
+  <!-- Longitude Column -->
+  <ng-container matColumnDef="Longitude">
+    <th mat-header-cell *matHeaderCellDef> Longitude </th>
+    <td mat-cell *matCellDef="let tagData"> {{tagData.longitude}} </td>
+  </ng-container>
+
+  <!-- Plate Column -->
+  <ng-container matColumnDef="Plate">
+    <th mat-header-cell *matHeaderCellDef> Plate </th>
+    <td mat-cell *matCellDef="let tagData"> {{tagData.plate}} </td>
+  </ng-container>
+
+  <!-- Group Column -->
+  <ng-container matColumnDef="Cantiere">
+    <th mat-header-cell *matHeaderCellDef> Cantiere </th>
+    <td mat-cell *matCellDef="let tagData"> {{tagData.worksite}} </td>
+  </ng-container>
+
+  <!-- Table Rows -->
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns; sticky: true"></tr>
+</table>

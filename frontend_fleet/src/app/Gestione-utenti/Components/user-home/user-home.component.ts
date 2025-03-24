@@ -6,6 +6,8 @@ import { DatiUtenteComponent } from "../dati-utente/dati-utente.component";
 import { Subject, takeUntil } from 'rxjs';
 import { AuthService } from '../../../Common-services/auth/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-user-home',
@@ -13,7 +15,9 @@ import { ActivatedRoute, Router } from '@angular/router';
   imports: [
     CommonModule,
     PasswordResetComponent,
-    DatiUtenteComponent
+    DatiUtenteComponent,
+    MatIconModule,
+    MatButtonModule
 ],
   templateUrl: './user-home.component.html',
   styleUrl: './user-home.component.css'
@@ -49,5 +53,9 @@ export class UserHomeComponent implements AfterViewInit{
       },
       error: error => console.error("Errore nella ricezione dei parametri dall'url: ", error)
     });
+  }
+
+  goBack(){
+    this.router.navigate(['/gestione-utenti']);
   }
 }

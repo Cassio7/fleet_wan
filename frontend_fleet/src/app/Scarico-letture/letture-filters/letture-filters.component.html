@@ -1,0 +1,24 @@
+<div class="filters-container">
+  <form [formGroup]="lettureFilterForm">
+    <!-- Select multipla per i cantieri -->
+    <mat-form-field appearance="outline" class="filter" subscriptSizing="dynamic">
+      <mat-select formControlName="worksite" multiple placeholder="Cantieri">
+        <mat-option *ngFor="let cantiere of cantieri" [value]="cantiere.name">
+          {{ cantiere.name }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <!-- Range datepicker -->
+    <mat-form-field appearance="outline" class="filter" subscriptSizing="dynamic">
+      <mat-date-range-input [rangePicker]="picker">
+        <input matStartDate placeholder="Data inizio" formControlName="dateFrom">
+        <input matEndDate placeholder="Data fine" formControlName="dateTo">
+      </mat-date-range-input>
+      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-date-range-picker #picker></mat-date-range-picker>
+    </mat-form-field>
+
+    <button mat-raised-button class="button" (click)="applyFilters()">Applica Filtri</button>
+  </form>
+</div>
