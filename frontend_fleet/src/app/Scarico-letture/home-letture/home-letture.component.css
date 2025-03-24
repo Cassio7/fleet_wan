@@ -6,8 +6,11 @@
   align-items: center;
   justify-content: center;
   gap: 20px;
+  padding: 20px;
+
+  .table-container{
+    max-height: 70vh;
+    overflow-y: auto;
+  }
 }
-.table-container{
-  max-height: 70vh;
-  overflow-y: auto;
-}
+

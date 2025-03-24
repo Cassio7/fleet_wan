@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, effect, inject, Input, OnDestroy, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, effect, EventEmitter, inject, Input, OnDestroy, Output, ViewChild } from '@angular/core';
 import { WorkSite } from '../../Models/Worksite';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
@@ -29,21 +29,19 @@ export class LettureTableComponent implements AfterViewInit, OnDestroy{
   displayedColumns: string[] = ['EPC', 'Type', 'Timestamp', 'Latitude', 'Longitude', 'Plate', 'Cantiere'];
   tagTableData = new MatTableDataSource<TagDownloadData>();
 
+  @Output() setTagDownloadData = new EventEmitter<TagDownloadData[]>();
+
   constructor(
     private lettureFilterService: LettureFilterService,
     private tagService: TagService
-  ){
-    effect(() => {
-
-    });
-  }
+  ){}
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
-ngAfterViewInit(): void {
+  ngAfterViewInit(): void {
   this.lettureFilterService.filterByLettureFilters$
     .pipe(takeUntil(this.destroy$))
     .subscribe({
@@ -55,6 +53,7 @@ ngAfterViewInit(): void {
             next: (downloadData: tagDownloadResponse) => {
               console.log('downloadData: ', downloadData);
               this.tagTableData.data = downloadData.tags;
+              this.setTagDownloadData.emit(downloadData.tags);
             },
             error: error => console.error("Errore nel recupero dei tag da scaricare: ", error)
           });
@@ -62,8 +61,6 @@ ngAfterViewInit(): void {
       },
       error: (error) => console.error("Errore nel filtraggio delle letture: ", error),
     });
-}
-
-
+  }
 
 }

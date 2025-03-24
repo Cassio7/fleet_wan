@@ -1,4 +1,4 @@
-<table mat-table [dataSource]="tagTableData" class="mat-elevation-z8">
+<table mat-table [dataSource]="tagTableData" class="table">
   <!-- EPC Column -->
   <ng-container matColumnDef="EPC">
     <th mat-header-cell *matHeaderCellDef> EPC </th>
@@ -42,6 +42,6 @@
   </ng-container>
 
   <!-- Table Rows -->
-  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-  <tr mat-row *matRowDef="let row; columns: displayedColumns; sticky: true"></tr>
+  <tr mat-header-row *matHeaderRowDef="displayedColumns" sticky></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 </table>

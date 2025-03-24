@@ -1,10 +1,14 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { TagDownloadData } from './../../Common-services/tag/tag.service';
+import { AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { LettureTableComponent } from "../letture-table/letture-table.component";
 import { GestioneCantieriService } from '../../Gestione-cantieri/Services/gestione-cantieri/gestione-cantieri.service';
 import { Subject, takeUntil } from 'rxjs';
 import { WorkSite } from '../../Models/Worksite';
 import { LettureFiltersComponent } from "../letture-filters/letture-filters.component";
-import { TagDownloadData } from '../../Common-services/tag/tag.service';
+import { FileExportService } from '../../Common-services/fileExport/file-export.service';
+import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatIconModule } from '@angular/material/icon';
 
 export interface tagDownloadResponse{
   count: number,
@@ -13,16 +17,24 @@ export interface tagDownloadResponse{
 @Component({
   selector: 'app-home-letture',
   standalone: true,
-  imports: [LettureTableComponent, LettureFiltersComponent],
+  imports: [
+    MatButtonModule,
+    MatTooltipModule,
+    MatIconModule,
+    LettureTableComponent,
+    LettureFiltersComponent
+  ],
   templateUrl: './home-letture.component.html',
   styleUrl: './home-letture.component.css'
 })
 export class HomeLettureComponent implements OnInit, OnDestroy{
   private readonly destroy$: Subject<void> = new Subject<void>();
   cantieri: WorkSite[] = [];
+  @Input() tagDownloadData: TagDownloadData[] = [];
 
   constructor(
     private gestioneCantieriService: GestioneCantieriService,
+    private fileExportService: FileExportService,
     private cd: ChangeDetectorRef
   ){}
   ngOnDestroy(): void {
@@ -41,4 +53,11 @@ export class HomeLettureComponent implements OnInit, OnDestroy{
     });
   }
 
+  exportToExcel(){
+    this.fileExportService.exportToExcel(this.tagDownloadData, 'tag.xlsx');
+  }
+
+  setDownloadData(tagDownloadData: TagDownloadData[]){
+    this.tagDownloadData = tagDownloadData;
+  }
 }

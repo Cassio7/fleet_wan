@@ -9,4 +9,9 @@
 .filter {
   flex: 1;
   min-width: 0;
+  margin-right: 10px;
+}
+
+.filter:last-child {
+  margin-right: 0;
 }
