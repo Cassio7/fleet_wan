@@ -4,7 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatSort } from '@angular/material/sort';
+import { MatSort, MatSortModule } from '@angular/material/sort';
 import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { SortService } from '../../../Common-services/sort/sort.service';
@@ -25,6 +25,7 @@ import { DeleteCantiereDialogComponent } from '../delete-cantiere-dialog/delete-
     MatButtonModule,
     MatSnackBarModule,
     MatMenuModule,
+    MatSortModule
   ],
   templateUrl: './cantieri-table.component.html',
   styleUrl: './cantieri-table.component.css'
@@ -73,8 +74,7 @@ export class CantieriTableComponent implements AfterViewInit, OnDestroy, OnChang
    * @returns Richiama la funzione nel servizio per ordinare i canteri
    */
   sortCantieriByMatSort(canteri: WorkSite[]): WorkSite[]{
-    return canteri;
-    // return this.sortService.sortUsersByMatSort(users, this.sort);
+    return this.sortService.sortWorksiteByMatSort(canteri, this.sort);
   }
 
   editCantiere(cantiere: WorkSite){

@@ -3,6 +3,7 @@ import { Vehicle } from '../../Models/Vehicle';
 import { VehicleData } from '../../Models/VehicleData';
 import { MatSort } from '@angular/material/sort';
 import { User } from '../../Models/User';
+import { WorkSite } from '../../Models/Worksite';
 
 @Injectable({
   providedIn: 'root'
@@ -246,6 +247,41 @@ export class SortService {
       case "Ruolo":
         return users.sort((a,b)=>{
           return this.compare(a.role , b.role, direction == "asc");
+        });
+      default: return users;
+    }
+  }
+
+  /**
+   * Ordina i cantieri passati in base ai valori contenuti nel MatSort passato
+   * @param users array di cantieri da ordinare
+   * @param sort MatSort che contiene colonna e direzione per cui ordinare
+   * @returns array di cantieri ordinato
+   */
+  sortWorksiteByMatSort(users: WorkSite[], sort: MatSort): WorkSite[]{
+    const column = sort.active;
+    const direction = sort.direction;
+
+    switch(column){
+      case "Id":
+        return users.sort((a,b)=>{
+          return this.compare(a.id , b.id, direction == "asc");
+        });
+      case "Cantiere":
+        return users.sort((a,b)=>{
+          return this.compare(a.name , b.name, direction == "asc");
+        });
+      case "Comune":
+        return users.sort((a,b)=>{
+          return this.compare(a.group.name , b.group.name, direction == "asc");
+        });
+      case "Societa":
+        return users.sort((a,b)=>{
+          return this.compare(a.group.company.name , b.group.company.name, direction == "asc");
+        });
+      case "Veicoli associati":
+        return users.sort((a,b)=>{
+          return this.compare(a.vehicleCount , b.vehicleCount, direction == "asc");
         });
       default: return users;
     }
