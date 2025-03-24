@@ -6,6 +6,7 @@ import * as L from 'leaflet';
 import 'leaflet-routing-machine';
 import 'leaflet-rotatedmarker';
 import { Point } from '../../Models/Point';
+import { Feature } from 'geojson';
 import 'leaflet.markercluster';
 import { SessionStorageService } from '../sessionStorage/session-storage.service';
 
@@ -500,13 +501,15 @@ export class MapService {
   createMarkerClusterGroupByRealtimeData(
     realtimeDatas: RealtimeData[]
   ): L.MarkerClusterGroup {
-    const clusterGroup = L.markerClusterGroup({
+    let clusterGroup = L.markerClusterGroup({
       showCoverageOnHover: false,
     });
+
     realtimeDatas.forEach((realtimeData) => {
       const vehicle = realtimeData.vehicle;
       const realtime = realtimeData.realtime;
       const punto = new Point(realtime.latitude, realtime.longitude);
+
       const marker = this.createVehicleMarker(
         punto,
         vehicle.plate,
@@ -516,13 +519,80 @@ export class MapService {
         realtime.direction,
         realtime.timestamp,
         realtime.active
-      );
+      ) as L.Marker & { feature?: { properties?: { dc_name?: string } } };
 
-      marker.addTo(clusterGroup);
+      marker.feature = {
+        type: "Feature",
+        geometry: {
+          type: "Point",
+          coordinates: [punto.long, punto.lat],
+        },
+        properties: {
+          dc_name: vehicle.plate,
+        },
+      };
+
+      clusterGroup.addLayer(marker);
     });
+
+    clusterGroup = this.bindClusterGroupMouseOverEvent(clusterGroup);
 
     return clusterGroup;
   }
+
+  /**
+   * Lega l'evento mouse event al L.MarkeClusterGroup passato per parametro,
+   * in modo tale da mostrare il contenuto dei popup di tutti i marker inclusi nel cluster
+   * @param clusterGroup L.MarkerClusterGroup a cui legare l'evento clustermouseover
+   * @returns clusterGroup con l'evento legato
+   */
+  private bindClusterGroupMouseOverEvent(clusterGroup: L.MarkerClusterGroup): L.MarkerClusterGroup{
+    //evento per mostrare popup al passaggio del mouse su un cluster
+    clusterGroup.on('clustermouseover', (event: any) => {
+      const clusterMarkers = event.propagatedFrom.getAllChildMarkers();
+      let popupContent =
+        '<div class="container">' +
+        '<div class="popup-scrollable">' +
+        '<table>' +
+        '<tbody>';
+
+      let rowContent = '';
+      let columnCount = 0;
+
+      //creazione di 5 colonne con le targhe
+      clusterMarkers.forEach((marker: any) => {
+        if (marker.feature?.properties?.dc_name) {
+          rowContent += `<td>${marker.feature.properties.dc_name}</td>`;
+          columnCount++;
+
+          if (columnCount === 5) {
+            popupContent += `<tr>${rowContent}</tr>`;
+            rowContent = ''; //reset della riga
+            columnCount = 0; //reset del contatore delle colonne
+          }
+        }
+      });
+
+      //se ci sono ancora delle colonne non aggiunte (nel caso di un numero non multiplo di 5)
+      if (columnCount > 0) {
+        popupContent += `<tr>${rowContent}</tr>`;
+      }
+
+      popupContent += '</tbody></table></div>' + '</div>';
+
+      const popup = L.popup({
+        autoPan: false,
+      })
+        .setLatLng(event.latlng)
+        .setContent(this.getCustomPopup(popupContent));
+
+      event.layer.bindPopup(popup).openPopup();
+    });
+    return clusterGroup;
+  }
+
+
+
 
   /**
    * Crea un marker cluster group tramite dei marker
@@ -533,10 +603,12 @@ export class MapService {
     const plateToggle = JSON.parse(
       this.sessionStorageService.getItem('plateToggle')
     );
-    const clusterGroup = L.markerClusterGroup({
+    let clusterGroup = L.markerClusterGroup({
       spiderfyOnMaxZoom:false,
       showCoverageOnHover: false,
     });
+
+    clusterGroup = this.bindClusterGroupMouseOverEvent(clusterGroup);
 
     markers.forEach((marker) => {
       if (plateToggle) {

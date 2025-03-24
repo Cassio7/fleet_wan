@@ -41,12 +41,11 @@ body {
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  padding: 2px;
-  gap: 24px;
-
-  width: 100px;
-  height: 30px;
-
+  padding: 10px;
+  gap: 8px;
+  width: auto;
+  height: auto;
+  min-width: 100px;
   background: #42413c;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   border-radius: 4px;
@@ -58,7 +57,7 @@ body {
   font-style: normal;
   font-weight: 600;
   font-size: 14px;
-  line-height: 10px;
+  line-height: 18px;
   text-align: center;
   color: #ffffff;
 }
@@ -74,6 +73,7 @@ body {
   border-right: 5px solid transparent;
   border-top: 6px solid #42413c;
 }
+
 
 .end-label {
   color: white;
@@ -95,5 +95,14 @@ body {
   font-family: 'Inter';
   .subtitle{
     font-size: 10px;
+  }
+}
+
+.container {
+  font-size: 14px;
+
+  .popup-scrollable {
+    max-height: 200px;
+    overflow-y: auto;
   }
 }
