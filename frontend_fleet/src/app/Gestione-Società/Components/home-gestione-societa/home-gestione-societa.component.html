@@ -1,0 +1,10 @@
+<div class="content" > <!--*ngIf="societa?.length"-->
+  <div class="section-header">
+    <h4 class="title">Gestione societa</h4>
+    <button mat-button class="button" >Crea società</button>
+  </div>
+  <div class="filters-container">
+    <app-societa-filters [societa]="societa"></app-societa-filters>
+  </div>
+  <app-societa-table [(societa)]="societa"></app-societa-table>
+</div>

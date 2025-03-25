@@ -10,6 +10,7 @@ import { HomeGestioneComponent } from './Gestione-utenti/Components/home-gestion
 import { HomeProfileComponent } from './Profile/Components/home-profile/home-profile.component';
 import { HomeGestioneCantieriComponent } from './Gestione-cantieri/Components/home-gestione-cantieri/home-gestione-cantieri.component';
 import { HomeLettureComponent } from './Scarico-letture/home-letture/home-letture.component';
+import { HomeGestioneSocietaComponent } from './Gestione-Società/Components/home-gestione-societa/home-gestione-societa.component';
 
 export const routes: Routes = [
     { path: 'login', component: LoginComponent },
@@ -22,6 +23,7 @@ export const routes: Routes = [
     { path: 'profile', component: HomeProfileComponent},
     { path: 'gestione-utenti', component: HomeGestioneComponent},
     { path: 'gestione-cantieri', component: HomeGestioneCantieriComponent},
+    { path: 'gestione-societa', component: HomeGestioneSocietaComponent},
     { path: 'scarico-letture', component: HomeLettureComponent },
     { path: '', component: DashboardComponent },
 ];
