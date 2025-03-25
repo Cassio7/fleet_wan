@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { WorkSite } from '../../Models/Worksite';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -10,6 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { Subject, takeUntil } from 'rxjs';
 import { LettureFilters, LettureFilterService } from '../Services/letture-filter/letture-filter.service';
+import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
   selector: 'app-letture-filters',
@@ -22,16 +23,21 @@ import { LettureFilters, LettureFilterService } from '../Services/letture-filter
     MatDatepickerModule,
     MatNativeDateModule,
     MatInputModule,
-    MatButtonModule
+    MatButtonModule,
+    MatDividerModule
   ],
   templateUrl: './letture-filters.component.html',
   styleUrl: './letture-filters.component.css'
 })
-export class LettureFiltersComponent implements AfterViewInit{
+export class LettureFiltersComponent implements AfterViewInit, OnChanges{
   private readonly destroy$: Subject<void> = new Subject<void>();
+  allSelected: boolean = false;
+
+  cantieriSelectOpened: boolean = false;
 
   lettureFilterForm: FormGroup;
   @Input() cantieri: WorkSite[] = [];
+  listaCantieri: string[] = [];
   private lettureFilters!: LettureFilters;
 
   constructor(
@@ -44,6 +50,13 @@ export class LettureFiltersComponent implements AfterViewInit{
     });
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if(changes['cantieri']){
+      this.listaCantieri = this.cantieri.map(cantiere => cantiere.name);
+      this.lettureFilterForm.get('worksite')?.setValue(["Seleziona tutto", ...this.listaCantieri]);
+    }
+  }
+
   ngAfterViewInit(): void {
     this.lettureFilterForm.valueChanges.pipe(takeUntil(this.destroy$))
     .subscribe(() => {
@@ -53,5 +66,15 @@ export class LettureFiltersComponent implements AfterViewInit{
 
   applyFilters(){
     this.lettureFilterService.filterByLettureFilters$.next(this.lettureFilters);
+  }
+
+  selectAll(){
+    if(this.allSelected){
+      this.lettureFilterForm.get('cantieri')?.setValue([]);
+      this.allSelected = false;
+    }else{
+      this.lettureFilterForm.get('cantieri')?.setValue(["Seleziona tutto", ...this.listaCantieri]);
+      this.allSelected = true;
+    }
   }
 }
