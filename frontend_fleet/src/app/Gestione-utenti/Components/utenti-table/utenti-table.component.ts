@@ -122,7 +122,7 @@ export class UtentiTableComponent implements AfterViewInit{
    */
   ablitateUser(user: User){
     const userId = user.id;
-    this.gestioneService.disabilitateUser(userId).pipe(takeUntil(this.destroy$))
+    this.gestioneService.abilitateUser(userId).pipe(takeUntil(this.destroy$))
     .subscribe({
       next: () => {
         this.users = this.users.map(user => {
@@ -174,6 +174,11 @@ export class UtentiTableComponent implements AfterViewInit{
 
   }
 
+
+  /**
+   * Alterna lo stato di un utente attivo/disattivo
+   * @param user utente di cui alternare lo stato
+   */
   toggleUserAbilitation(user: User){
     if(user.active){
       this.disabilitateUser(user);
