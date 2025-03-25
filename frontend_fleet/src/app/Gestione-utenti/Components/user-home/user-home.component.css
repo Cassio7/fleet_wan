@@ -7,30 +7,36 @@
   padding-top: 40px;
   padding-left: 35px;
 
-  .section-header{
+  .section-header {
     width: 100%;
-    display: inline-flex;
-    flex-direction: row;
-    align-items: center;
+
+
+    &.go-back {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
 
     button {
       height: 50px;
       width: 50px;
-      display: inline-flex;
+      display: flex;
       align-items: center;
       justify-content: center;
-      color: black;
+      background: none;
+      border: none;
+      cursor: pointer;
 
       mat-icon {
-        width: 100%;
-        height: 100%;
         font-size: 30px;
         display: flex;
         align-items: center;
         justify-content: center;
+        color: black;
       }
     }
   }
+
 }
 .cards{
   height: 100%;
