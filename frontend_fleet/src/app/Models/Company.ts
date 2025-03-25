@@ -2,6 +2,7 @@ export class Company {
   constructor(
     public id: number,
     public suId: number,
-    public name: string
+    public name: string,
+    public worsksiteCount: number
   ) {}
 }

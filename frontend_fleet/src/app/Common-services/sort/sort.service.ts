@@ -4,6 +4,7 @@ import { VehicleData } from '../../Models/VehicleData';
 import { MatSort } from '@angular/material/sort';
 import { User } from '../../Models/User';
 import { WorkSite } from '../../Models/Worksite';
+import { Company } from '../../Models/Company';
 
 @Injectable({
   providedIn: 'root'
@@ -284,6 +285,35 @@ export class SortService {
           return this.compare(a.vehicleCount , b.vehicleCount, direction == "asc");
         });
       default: return users;
+    }
+  }
+
+  sortCompanyByMatSort(companies: Company[], sort: MatSort): Company[]{
+    const column = sort.active;
+    const direction = sort.direction;
+
+    const isAsc = direction == "asc";
+
+    switch(column){
+      case "SuId":
+        return companies.sort((a, b) => {
+          return this.compare(a.suId, b.suId, isAsc);
+        });
+      case "Societa":
+        return companies.sort((a,b) => {
+          return this.compare(a.name, b.name, isAsc);
+        })
+      case "Comune":
+        // return companies.sort((a,b) => {
+        //   return this.compare(a.group.name, b.name, isAsc);
+        // })
+        return companies;
+
+      case "Cantieri associati":
+        return companies.sort((a,b) => {
+          return this.compare(a.worsksiteCount, b.worsksiteCount, isAsc);
+        })
+      default: return companies;
     }
   }
 }

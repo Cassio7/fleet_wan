@@ -67,11 +67,10 @@ private readonly destroy$: Subject<void> = new Subject<void>();
   }
 
   sortSocietaByMatSort(companies: Company[]): Company[]{
-    return [];
+    return this.sortService.sortCompanyByMatSort(companies, this.sort);
   }
 
   editSocieta(company: Company){
-
   }
 
   deleteSocieta(company: Company){

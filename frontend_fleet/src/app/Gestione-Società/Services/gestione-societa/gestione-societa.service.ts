@@ -43,6 +43,21 @@ export class GestioneSocietaService {
   //   }
   // }
 
+  updateCompany(companyId: number, newCompany: Company): Observable<Company>{
+    const access_token = this.cookieService.get("user");
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${access_token}`,
+      'Content-Type': 'application/json'
+    });
+
+    const body = {
+      suId: newCompany.suId,
+      name: newCompany.name
+    }
+
+    return this.http.put<Company>(`${this.commonService.url}/companies/${companyId}`, body, {headers})
+  }
+
   /**
    * Permette di cancellare una società tramite una chiamata API
    * @param companyId id della società da eliminare
