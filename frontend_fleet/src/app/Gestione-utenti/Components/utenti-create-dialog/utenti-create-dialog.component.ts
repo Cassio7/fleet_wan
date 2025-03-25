@@ -1,19 +1,17 @@
-import {ChangeDetectionStrategy, Component, inject, model, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {
-  MAT_DIALOG_DATA,
-  MatDialog,
   MatDialogActions,
-  MatDialogClose,
   MatDialogContent,
   MatDialogRef,
-  MatDialogTitle,
 } from '@angular/material/dialog';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
-import { DialogData, HomeGestioneComponent } from '../home-gestione/home-gestione.component';
+import { HomeGestioneComponent } from '../home-gestione/home-gestione.component';
 import { CommonModule } from '@angular/common';
+import { MatOptionModule } from '@angular/material/core';
+import { MatSelectModule } from '@angular/material/select';
 
 
 @Component({
@@ -25,10 +23,11 @@ import { CommonModule } from '@angular/common';
     MatInputModule,
     ReactiveFormsModule,
     FormsModule,
+    MatOptionModule,
+    MatSelectModule,
     MatButtonModule,
     MatDialogContent,
     MatDialogActions,
-    MatDialogClose,
   ],
   templateUrl: './utenti-create-dialog.component.html',
   styleUrl: './utenti-create-dialog.component.css',
@@ -37,15 +36,17 @@ import { CommonModule } from '@angular/common';
 export class UtentiCreateDialogComponent {
   readonly dialogRef = inject(MatDialogRef<HomeGestioneComponent>);
   createUserForm: FormGroup;
+  formError: string = "";
+  roles: string[] = ["Admin", "Capo Cantiere", "Responsabile"];
 
   constructor(){
     this.createUserForm = new FormGroup({
-      name: new FormControl('giulio', Validators.required),
-      surname: new FormControl('Verdi', Validators.required),
-      username: new FormControl('PEDRO', Validators.required),
-      email: new FormControl('marco@nomail.com', [Validators.required, Validators.email]),
-      password: new FormControl('password', [Validators.required, Validators.minLength(6)]),
-      role: new FormControl('Capo Cantiere', Validators.required)
+      name: new FormControl('', Validators.required),
+      surname: new FormControl('', Validators.required),
+      username: new FormControl('', [Validators.required, Validators.pattern(/\./)]),
+      email: new FormControl('', [Validators.required, Validators.email]),
+      password: new FormControl('', [Validators.required, Validators.minLength(6)]),
+      role: new FormControl('', Validators.required)
     });
   }
 
@@ -54,8 +55,12 @@ export class UtentiCreateDialogComponent {
   }
 
   onConfirm(): void {
+    console.log('this.createUserForm.valid: ', this.createUserForm.valid);
     if (this.createUserForm.valid) {
       this.dialogRef.close(this.createUserForm.value);
+      this.formError = "";
+    }else{
+      this.formError = "Informazioni non valide";
     }
   }
 }

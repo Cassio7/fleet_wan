@@ -7,3 +7,6 @@
   color: black !important;
   border: 1px solid var(--navbarANDstats-background);
 }
+.formError-container{
+  min-height: 50px;
+}

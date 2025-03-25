@@ -22,6 +22,9 @@
         <mat-error *ngIf="createUserForm.get('username')?.hasError('required') && createUserForm.get('username')?.touched">
           Username è obbligatorio.
         </mat-error>
+        <mat-error *ngIf="createUserForm.get('username')?.hasError('pattern') && createUserForm.get('username')?.touched">
+          L'username deve contenere almeno un punto
+        </mat-error>
       </mat-form-field>
 
       <mat-form-field appearance="outline">
@@ -45,14 +48,20 @@
       </mat-form-field>
 
       <mat-form-field appearance="outline">
-        <input matInput formControlName="role" placeholder="Ruolo" />
+        <mat-select formControlName="role" placeholder="Ruolo">
+          <mat-option *ngFor="let r of roles" [value]="r">{{ r }}</mat-option>
+        </mat-select>
         <mat-error *ngIf="createUserForm.get('role')?.hasError('required') && createUserForm.get('role')?.touched">
           Ruolo è obbligatorio.
         </mat-error>
       </mat-form-field>
+
+      <div class="formError-container">
+        <mat-error *ngIf="formError" class="form-error">{{formError}}</mat-error>
+      </div>
     </form>
   </mat-dialog-content>
 <mat-dialog-actions>
   <button mat-button class="button no-button" (click)="onNoClick()">No Thanks</button>
-  <button mat-button class="button" [mat-dialog-close]="createUserForm.value" cdkFocusInitial>Ok</button>
+  <button mat-button class="button" (click)="onConfirm()" cdkFocusInitial>Ok</button>
 </mat-dialog-actions>
