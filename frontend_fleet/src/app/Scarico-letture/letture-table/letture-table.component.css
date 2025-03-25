@@ -1,10 +1,14 @@
+.nTag-container{
+  width: 100%;
+  text-align: right;
+}
 .table-container {
   height: 70vh;
   overflow-y: auto;
-}
 
-.table {
-  width: 100%;
+  .table {
+    width: 100%;
+  }
 }
 @media screen and (max-width: 1366px){
   .table-container{
