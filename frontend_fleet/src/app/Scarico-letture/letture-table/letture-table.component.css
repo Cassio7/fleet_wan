@@ -1,4 +1,14 @@
-.table{
-  min-width: 800px;
+.table-container {
+  height: 70vh;
   overflow-y: auto;
+}
+
+.table {
+  width: 100%;
+}
+@media screen and (max-width: 1366px){
+  .table-container{
+    height: 60vh;
+    overflow: auto;
+  }
 }

@@ -1,10 +1,14 @@
-<div class="content">
-  <app-letture-filters [cantieri]="cantieri"></app-letture-filters>
-  <span class="button-container" [matTooltip]="tagDownloadData.length <= 0 ? 'Nessun dato da scaricare' : ''">
-    <button mat-button (click)="exportToExcel()" class="button" [disabled]="tagDownloadData.length <= 0"><mat-icon>download</mat-icon>Scarica excel</button>
-  </span>
+<main class="main-content">
+  <header class="section-header">
+    <span class="title">Scarico letture</span>
+    <span class="subtitle">In questa sezione è possibile scaricare le letture in un file excel</span>
+  </header>
+  <section class="content">
+    <app-letture-filters [cantieri]="cantieri"></app-letture-filters>
+    <span class="button-container" [matTooltip]="tagDownloadData.length <= 0 ? 'Nessun dato da scaricare' : ''">
+      <button mat-button (click)="exportToExcel()" class="button" [disabled]="tagDownloadData.length <= 0"><mat-icon>download</mat-icon>Scarica excel</button>
+    </span>
 
-  <div class="table-container">
     <app-letture-table (setTagDownloadData)="setDownloadData($event)"></app-letture-table>
-  </div>
-</div>
+  </section>
+</main>
