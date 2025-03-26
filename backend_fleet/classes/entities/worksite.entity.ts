@@ -19,6 +19,9 @@ export class WorksiteEntity extends CommonEntity implements WorksiteInterface {
   @OneToMany(() => VehicleEntity, (vehicle) => vehicle.worksite)
   vehicle: VehicleEntity[];
 
-  @OneToMany(() => AssociationEntity, (association) => association.worksite)
+  @OneToMany(() => AssociationEntity, (association) => association.worksite, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   association: AssociationEntity[];
 }
