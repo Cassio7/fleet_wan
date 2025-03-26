@@ -31,6 +31,7 @@ import { WorkzoneEntity } from 'classes/entities/workzone.entity';
 // importo i servizi
 import { LoggerService } from './log/service/logger.service';
 import { AnomalyService } from './services/anomaly/anomaly.service';
+import { StatsService } from './services/anomaly/stats/stats.service';
 import { AssociationService } from './services/association/association.service';
 import { AuthService } from './services/auth/auth.service';
 import { CompanyService } from './services/company/company.service';
@@ -43,7 +44,6 @@ import { TagService } from './services/tag/tag.service';
 import { UserService } from './services/user/user.service';
 import { VehicleService } from './services/vehicle/vehicle.service';
 import { WorksiteService } from './services/worksite/worksite.service';
-import { StatsService } from './services/anomaly/stats/stats.service';
 
 // importo i controller
 import { AnomalyController } from './controllers/anomaly/anomaly.controller';
@@ -59,6 +59,8 @@ import { UserController } from './controllers/user/user.controller';
 import { VehicleController } from './controllers/vehicle/vehicle.controller';
 
 // importo i factory
+import { NotificationEntity } from 'classes/entities/notification.entity';
+import { WorksiteController } from './controllers/worksite/worksite.controller';
 import { AssociationFactoryService } from './factory/association.factory';
 import { CompanyFactoryService } from './factory/company.factory';
 import { EquipmentFacotoryService } from './factory/equipment.factory';
@@ -68,12 +70,16 @@ import { ServiceFactoryService } from './factory/service.factory';
 import { UserFactoryService } from './factory/user.factory';
 import { WorksiteFactoryService } from './factory/worksite.factory';
 import { WorkzoneFacotoryService } from './factory/workzone.factory';
-import { ControlService } from './services/control/control.service';
-import { NotificationsService } from './notifications/notifications.service';
-import { NotificationsGateway } from './notifications/notifications.gateway';
-import { NotificationEntity } from 'classes/entities/notification.entity';
 import { NotificationsController } from './notifications/notifications.controller';
-import { WorksiteController } from './controllers/worksite/worksite.controller';
+import { NotificationsGateway } from './notifications/notifications.gateway';
+import { NotificationsService } from './notifications/notifications.service';
+import { ControlService } from './services/control/control.service';
+import { EquipmentService } from './services/equipment/equipment.service';
+import { RentalService } from './services/rental/rental.service';
+import { ServiceService } from './services/service/service.service';
+import { EquipmentController } from './controllers/equipment/equipment.controller';
+import { RentalController } from './controllers/rental/rental.controller';
+import { ServiceController } from './controllers/service/service.controller';
 
 @Global()
 @Module({
@@ -238,6 +244,9 @@ import { WorksiteController } from './controllers/worksite/worksite.controller';
     AssociationController,
     NotificationsController,
     WorksiteController,
+    EquipmentController,
+    RentalController,
+    ServiceController,
   ],
   providers: [
     AppService,
@@ -268,6 +277,9 @@ import { WorksiteController } from './controllers/worksite/worksite.controller';
     NotificationsService,
     NotificationsGateway,
     StatsService,
+    ServiceService,
+    EquipmentService,
+    RentalService,
   ],
 })
 export class AppModule {}
