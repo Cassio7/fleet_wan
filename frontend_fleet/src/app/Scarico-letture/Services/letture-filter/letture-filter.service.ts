@@ -4,7 +4,7 @@ import { Tag } from '../../../Models/Tag';
 import { TagHistory } from '../../../Models/TagHistory';
 
 export interface LettureFilters{
-  worksite: string[],
+  cantieriNames: string[],
   dateFrom: Date,
   dateTo: Date
 }

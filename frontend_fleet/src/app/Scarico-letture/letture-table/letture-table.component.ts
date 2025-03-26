@@ -1,14 +1,14 @@
+import { TagDownloadData, TagService } from './../../Common-services/tag/tag.service';
 import { AfterViewInit, Component, effect, EventEmitter, inject, Input, OnDestroy, Output, ViewChild } from '@angular/core';
 import { WorkSite } from '../../Models/Worksite';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Tag } from '../../Models/Tag';
-import { firstValueFrom, Subject, takeUntil } from 'rxjs';
+import { firstValueFrom, skip, Subject, takeUntil } from 'rxjs';
 import { LettureFilters, LettureFilterService } from '../Services/letture-filter/letture-filter.service';
-import { TagDownloadData, TagService } from '../../Common-services/tag/tag.service';
-import { tagDownloadResponse } from '../home-letture/home-letture.component';
 import { CommonModule } from '@angular/common';
+import { tagDownloadResponse } from '../home-letture/home-letture.component';
 
 @Component({
   selector: 'app-letture-table',
@@ -32,6 +32,7 @@ export class LettureTableComponent implements AfterViewInit, OnDestroy{
   tagCount!: number;
 
   @Output() setTagDownloadData = new EventEmitter<TagDownloadData[]>();
+  @Input() cantieri: WorkSite[] = [];
 
   constructor(
     private lettureFilterService: LettureFilterService,
@@ -45,19 +46,21 @@ export class LettureTableComponent implements AfterViewInit, OnDestroy{
 
   ngAfterViewInit(): void {
     this.lettureFilterService.filterByLettureFilters$
-    .pipe(takeUntil(this.destroy$))
+    .pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (lettureFilters: LettureFilters | null) => {
           if (lettureFilters) {
           this.lettureFilters = lettureFilters;
-          const { worksite, dateFrom, dateTo } = lettureFilters;
-          this.tagService.getDownloadTagsRangedPreview(15, dateFrom, dateTo).pipe(takeUntil(this.destroy$))
+          const { cantieriNames, dateFrom, dateTo } = lettureFilters;
+          const worksitesIds: number[] = this.cantieri
+          .filter(cantiere => cantieriNames.includes(cantiere.name))
+          .map(cantiere => cantiere.id);
+          this.tagService.getDownloadTagsRangedPreview(worksitesIds, dateFrom, dateTo).pipe(takeUntil(this.destroy$))
           .subscribe({
             next: (downloadData: tagDownloadResponse) => {
               this.tagCount = downloadData.count;
-              console.log('tag count: ', this.tagCount);
               this.tagTableData.data = downloadData.tags;
-              this.setTagDownloadData.emit(downloadData.tags);
+              this.setTagDownloadData.emit(this.tagTableData.data);
             },
             error: error => console.error("Errore nel recupero dei tag da scaricare: ", error)
           });

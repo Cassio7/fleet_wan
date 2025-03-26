@@ -2,7 +2,7 @@
   <form [formGroup]="lettureFilterForm">
     <!-- Select multipla per i cantieri -->
     <mat-form-field appearance="outline" class="filter" subscriptSizing="dynamic">
-      <mat-select formControlName="worksite" multiple placeholder="Cantieri" (openedChange)="cantieriSelectOpened = !cantieriSelectOpened">
+      <mat-select formControlName="cantieriNames" multiple placeholder="Cantieri" (openedChange)="cantieriSelectOpened = !cantieriSelectOpened">
         <mat-option value="Seleziona tutto" (click)="selectAll()" *ngIf="cantieriSelectOpened">Seleziona tutto</mat-option>
         <mat-divider></mat-divider>
         <mat-option *ngFor="let cantiere of cantieri" [value]="cantiere.name">

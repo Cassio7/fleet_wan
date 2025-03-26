@@ -44,7 +44,7 @@ export class LettureFiltersComponent implements AfterViewInit, OnChanges{
     private lettureFilterService: LettureFilterService
   ){
     this.lettureFilterForm = new FormGroup({
-      worksite: new FormControl([]),
+      cantieriNames: new FormControl([]),
       dateFrom: new FormControl(),
       dateTo: new FormControl()
     });
@@ -53,7 +53,8 @@ export class LettureFiltersComponent implements AfterViewInit, OnChanges{
   ngOnChanges(changes: SimpleChanges): void {
     if(changes['cantieri']){
       this.listaCantieri = this.cantieri.map(cantiere => cantiere.name);
-      this.lettureFilterForm.get('worksite')?.setValue(["Seleziona tutto", ...this.listaCantieri]);
+      this.lettureFilterForm.get('cantieriNames')?.setValue(["Seleziona tutto", ...this.listaCantieri]);
+      console.log('chiamato!');
     }
   }
 

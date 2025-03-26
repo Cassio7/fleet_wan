@@ -2,7 +2,7 @@ import { TagDownloadData, TagService } from './../../Common-services/tag/tag.ser
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { LettureTableComponent } from "../letture-table/letture-table.component";
 import { GestioneCantieriService } from '../../Gestione-cantieri/Services/gestione-cantieri/gestione-cantieri.service';
-import { Subject, takeUntil } from 'rxjs';
+import { skip, Subject, takeUntil } from 'rxjs';
 import { WorkSite } from '../../Models/Worksite';
 import { LettureFiltersComponent } from "../letture-filters/letture-filters.component";
 import { MatButtonModule } from '@angular/material/button';
@@ -60,7 +60,7 @@ export class HomeLettureComponent implements OnInit, OnDestroy{
       error: error => console.error("Errore nell'ottenere tutti i cantieri: ", error)
     });
 
-    this.lettureFilterService.filterByLettureFilters$.pipe(takeUntil(this.destroy$))
+    this.lettureFilterService.filterByLettureFilters$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (lettureFilters: LettureFilters | null) => {
         this.lettureFilters = lettureFilters;
@@ -72,23 +72,26 @@ export class HomeLettureComponent implements OnInit, OnDestroy{
   exportToExcel() {
     this.downloading = true;
     if(this.lettureFilters){
-      this.tagService.downloadTagsRanged(15, this.lettureFilters.dateFrom, this.lettureFilters.dateTo)
+      const { dateFrom, dateTo, cantieriNames } = this.lettureFilters;
+      const worksitesIds: number[] = this.cantieri
+      .filter(cantiere => cantieriNames.includes(cantiere.name))
+      .map(cantiere => cantiere.id);
+
+      this.tagService.downloadTagsRanged(worksitesIds, dateFrom, dateTo)
       .pipe(
         takeUntil(this.destroy$)
       )
       .subscribe({
-        next: (blob) => {
+        next: (blob: Blob) => {
           if(this.lettureFilters){
-            console.log('downloading to true: ', this.downloading);
             const link = document.createElement('a');
             const url = window.URL.createObjectURL(blob);
             link.href = url;
 
-            link.download = `tags-${this.lettureFilters.dateFrom}-${this.lettureFilters.dateTo}.xlsx`;
+            link.download = `tags-${dateFrom}-${dateTo}.xlsx`;
 
             link.click();
 
-            console.log('downloading to false: ', this.downloading);
             this.downloading = false;
 
             window.URL.revokeObjectURL(url);

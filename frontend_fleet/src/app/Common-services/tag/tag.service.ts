@@ -68,45 +68,59 @@ export class TagService {
    * @param dateTo data di fine ricerca
    * @returns observable http get<Tag[]>
    */
-  getDownloadTagsRangedPreview(workSiteId: number, dateFrom: Date | string, dateTo: Date | string): Observable<tagDownloadResponse>{
-    console.log('date from: ', dateFrom);
-    console.log('date to: ', dateTo);
+  getDownloadTagsRangedPreview(workSiteIds: number[], dateFrom: Date | string, dateTo: Date | string): Observable<tagDownloadResponse> {
     const access_token = this.cookieService.get("user");
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'
     });
 
-    let params = new HttpParams().set('worksite', workSiteId.toString());
+    // Crea i parametri con i worksite
+    let params = new HttpParams();
 
-    // Format dateFrom properly
-    if(dateFrom instanceof Date) {
+    // Aggiungi tutti i worksite come parametri multipli
+    workSiteIds.forEach(id => {
+      params = params.append('worksite', id.toString());
+    });
+
+    // Gestione di dateFrom
+    if (dateFrom instanceof Date) {
       params = params.set('dateFrom', this.formatDate(dateFrom) || '');
-    } else if(dateFrom) {
+    } else if (dateFrom) {
       params = params.set('dateFrom', dateFrom);
     }
 
-    // Format dateTo properly
-    if(dateTo instanceof Date) {
+    // Gestione di dateTo
+    if (dateTo instanceof Date) {
       params = params.set('dateTo', this.formatDate(dateTo) || '');
-    } else if(dateTo) {
+    } else if (dateTo) {
       params = params.set('dateTo', dateTo);
     }
 
-    // Add preview parameter to the query string
-    params = params.set("preview", 'true');
+    // Aggiungi il parametro preview
+    params = params.set('preview', 'true');
 
-    return this.http.get<tagDownloadResponse>(`${this.commonService.url}/tags/download`, {headers, params});
+    // Stampa dei parametri per debug (opzionale)
+    console.log('Parametri inviati:', params.toString());
+
+    return this.http.get<tagDownloadResponse>(`${this.commonService.url}/tags/download`, {
+      headers,
+      params
+    });
   }
 
-  downloadTagsRanged(workSiteId: number, dateFrom: Date | string, dateTo: Date | string): Observable<Blob> {
+  downloadTagsRanged(worksiteIds: number[], dateFrom: Date | string, dateTo: Date | string): Observable<Blob> {
     const access_token = this.cookieService.get("user");
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'
     });
 
-    let params = new HttpParams().set('worksite', workSiteId.toString());
+    let params = new HttpParams()
+
+    worksiteIds.forEach(worksiteId => {
+      params.append('worksite', worksiteId.toString());
+    })
 
     // Format dateFrom properly
     if(dateFrom instanceof Date) {
