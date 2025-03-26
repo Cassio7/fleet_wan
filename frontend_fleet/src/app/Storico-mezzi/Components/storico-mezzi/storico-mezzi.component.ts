@@ -123,7 +123,6 @@ export class StoricoMezziComponent implements OnInit, AfterViewInit, OnDestroy{
   onVehicleSelection(vehicle: Vehicle){
     this.selectedVehicle = vehicle;
     this.cd.detectChanges();
-    console.log("veicolo arrivato a padre: ", vehicle);
   }
 
   togglePathType(){
@@ -137,8 +136,6 @@ export class StoricoMezziComponent implements OnInit, AfterViewInit, OnDestroy{
 
     let pathData: pathData = JSON.parse(this.sessionStorageService.getItem("pathData"));
     const pathType = this.mapService.pathType();
-
-    console.log("path type: ", pathType);
 
     if(pathData){
       //trasformazione oggetti {_lat, _long} in Point
