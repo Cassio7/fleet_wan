@@ -33,7 +33,7 @@ private readonly destroy$: Subject<void> = new Subject<void>();
   @ViewChild('societaTable', {static: false}) societaTable!: MatTable<Company>;
   @ViewChild(MatSort) sort!: MatSort;
   snackBar= inject(MatSnackBar);
-  displayedColumns: string[] = ['SuId', 'Societa', 'Comune', 'Cantieri associati', 'Azioni'];
+  displayedColumns: string[] = ['SuId', 'Societa', 'Numero comuni', 'Cantieri associati', 'Azioni'];
   societaTableData = new MatTableDataSource<Company>();
   @Input() societa: Company[] = [];
   @Output() societaChange: EventEmitter<Company[]> = new EventEmitter<Company[]>();

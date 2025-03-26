@@ -15,9 +15,9 @@
       </td>
     </ng-container>
 
-    <ng-container matColumnDef="Comune">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> Comune </th>
-      <td mat-cell *matCellDef="let societa"> {{societa.group?.name || "-"}} </td>
+    <ng-container matColumnDef="Numero comuni">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Numero coomuni </th>
+      <td mat-cell *matCellDef="let societa"> {{societa.groupCount || "-"}} </td>
     </ng-container>
 
     <ng-container matColumnDef="Cantieri associati">
