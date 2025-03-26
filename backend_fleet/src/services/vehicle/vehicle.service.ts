@@ -13,7 +13,7 @@ import { DeviceEntity } from 'classes/entities/device.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { createHash } from 'crypto';
 import { NotificationsService } from 'src/notifications/notifications.service';
-import { DataSource, In, Repository } from 'typeorm';
+import { DataSource, In, IsNull, Repository } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
 import { AssociationService } from '../association/association.service';
 import { WorksiteDTO } from './../../../classes/dtos/worksite.dto';
@@ -411,6 +411,9 @@ export class VehicleService {
    */
   async getAllVehicles(): Promise<VehicleEntity[]> {
     const vehicles = await this.vehicleRepository.find({
+      where: {
+        retired_event: IsNull(),
+      },
       relations: {
         worksite: true,
       },
@@ -576,7 +579,7 @@ export class VehicleService {
    */
   async getVehiclesByReader(): Promise<VehicleEntity[]> {
     const vehicles = await this.vehicleRepository.find({
-      where: { allestimento: true },
+      where: { allestimento: true, retired_event: IsNull() },
       order: {
         id: 'ASC',
       },
