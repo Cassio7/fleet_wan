@@ -30,6 +30,19 @@ export class VehiclesApiService {
   }
 
   /**
+   * Prende tutti i dati dei veicoli dall'api gestita nel backend
+   * @returns observable http
+   */
+  public getAllVehiclesAdmin(): Observable<Vehicle[]> {
+    const access_token = this.cookieService.get("user");
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${access_token}`
+    });
+
+    return this.http.get<Vehicle[]>(`${this.commonService.url}/vehicles/admin`, { headers });
+  }
+
+  /**
    * Ricerca i dati del veicolo con una specifica targa
    * @param plate targa del veicolo da ricercare
    * @returns observable http

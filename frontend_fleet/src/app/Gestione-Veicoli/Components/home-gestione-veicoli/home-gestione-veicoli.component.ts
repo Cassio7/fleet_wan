@@ -44,7 +44,7 @@ export class HomeGestioneVeicoliComponent implements OnInit, OnDestroy{
   }
 
   ngOnInit(): void {
-    this.vehiclesApiService.getAllVehicles().pipe(takeUntil(this.destroy$))
+    this.vehiclesApiService.getAllVehiclesAdmin().pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (vehicles: Vehicle[]) => {
         this.veicoli = vehicles;
