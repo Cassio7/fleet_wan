@@ -84,7 +84,6 @@ private readonly destroy$: Subject<void> = new Subject<void>();
 
     this.veicoliFiltersForm.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(() =>{
       this.gestioneVeicoliService.gestioneVeicoliFilters.set(this.veicoliFiltersForm.value);
-      console.log('new value set!');
     });
   }
 

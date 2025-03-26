@@ -10,6 +10,7 @@ import { VehicleAnomalies } from '../../../Models/VehicleAnomalies';
 import { MatButtonModule } from '@angular/material/button';
 import { Router } from '@angular/router';
 import { Vehicle } from '../../../Models/Vehicle';
+import { SvgService } from '../../../Common-services/svg/svg.service';
 
 @Component({
   selector: 'app-mappa-info',
@@ -40,6 +41,7 @@ export class MappaInfoComponent implements AfterViewInit, OnDestroy{
   selectedVehicle!: Vehicle;
 
   constructor(
+    public svgService: SvgService,
     public checkErrorsService: CheckErrorsService,
     private mapService:MapService,
     private router: Router
@@ -60,6 +62,7 @@ export class MappaInfoComponent implements AfterViewInit, OnDestroy{
         this.checkErrorsService.checkAnomaliesByVeId(positionData.veId, 1).pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (vehicleAnomalies: VehicleAnomalies) => {
+            console.log('selected vehicle.service.id: ', this.selectedVehicle?.service?.id);
             this.plate = positionData.plate;
             this.cantiere = positionData.cantiere || "";
             this.setData(vehicleAnomalies);

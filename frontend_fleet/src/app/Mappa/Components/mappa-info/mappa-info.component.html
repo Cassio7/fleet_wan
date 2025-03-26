@@ -1,6 +1,13 @@
 <div class="content">
   <div class="title-container">
-    <p class="title"><mat-icon>local_shipping</mat-icon><span class="plate-container"><span class="plate">{{plate}}</span></span> (<span class="session-date">{{ anomalyDate | date : "dd/MM/yyyy" }}</span>)</p>
+    <p class="title"><img
+      [src]="selectedVehicle && selectedVehicle.service && selectedVehicle.service.id ? svgService.getServiceIcon(selectedVehicle.service.id) : ''"
+      alt="Service Icon"
+      width="28"
+      height="28"
+      style="cursor: pointer"
+      class="mezzo-icon"
+    /><span class="plate-container"><span class="plate">{{plate}}</span></span> (<span class="session-date">{{ anomalyDate | date : "dd/MM/yyyy" }}</span>)</p>
     <mat-icon (click)="closePopup.emit()" class="close">close</mat-icon>
   </div>
   <mat-divider></mat-divider>

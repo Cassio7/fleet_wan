@@ -17,6 +17,7 @@ import { CommonModule } from '@angular/common';
 import { gestioneVeicoliFilters, GestioneVeicoliService } from '../../Services/gestione-veicoli.service';
 import { Filters, FiltersCommonService } from '../../../Common-services/filters-common/filters-common.service';
 import { FormControl } from '@angular/forms';
+import { SvgService } from '../../../Common-services/svg/svg.service';
 
 @Component({
   selector: 'app-veicoli-table',
@@ -54,6 +55,7 @@ private readonly destroy$: Subject<void> = new Subject<void>();
 
 
   constructor(
+    public svgService: SvgService,
     private gestioneVeicoliService: GestioneVeicoliService,
     private filtersCommonService: FiltersCommonService,
     private sortService: SortService,
@@ -67,7 +69,6 @@ private readonly destroy$: Subject<void> = new Subject<void>();
         this.filters.cantieri.setValue(cantieri);
         this.filters.societa.setValue(societa);
 
-        console.log('set filters: ', this.filters);
         this.veicoliTableData.data = filtersCommonService.applyAllFiltersOnVehicles(this.veicoli, this.filters) as Vehicle[];
       }
     });
@@ -94,7 +95,7 @@ private readonly destroy$: Subject<void> = new Subject<void>();
     return this.sortService.sortVehiclesByMatSort(veicoli, this.sort) as Vehicle[];
   }
 
-  editVeicolo(vehiVehicle: Vehicle){
+  editVeicolo(vehicle: Vehicle){
   }
 
   /**
