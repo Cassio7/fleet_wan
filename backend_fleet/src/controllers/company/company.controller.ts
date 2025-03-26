@@ -10,7 +10,6 @@ import {
   Req,
   Res,
   UseGuards,
-  UsePipes,
 } from '@nestjs/common';
 import { Role } from 'classes/enum/role.enum';
 import { UserFromToken } from 'classes/interfaces/userToken.interface';
