@@ -509,7 +509,7 @@ export class TagService {
     userId: number,
     dateFrom: Date,
     dateTo: Date,
-    worksiteId: number,
+    worksiteId: number[],
     limit: boolean,
   ): Promise<TagDTO[]> {
     try {
@@ -537,7 +537,7 @@ export class TagService {
             dateFrom,
             dateTo,
           })
-          .andWhere('worksite.id = :worksiteId', { worksiteId });
+          .andWhere('worksite.id IN (:...worksiteId)', { worksiteId });
       } else {
         query = this.tagHistoryRepository
           .createQueryBuilder('tagHistory')
@@ -586,12 +586,12 @@ export class TagService {
     userId: number,
     dateFrom: Date,
     dateTo: Date,
-    worksiteId: number,
+    worksiteId: number[],
   ): Promise<number> {
     const veIdArray =
       await this.associationService.getVehiclesRedisAllSet(userId);
     let tags;
-    if (worksiteId && Number(worksiteId)) {
+    if (worksiteId) {
       tags = await this.tagHistoryRepository
         .createQueryBuilder('tagHistory')
         .leftJoin('tagHistory.detectiontag', 'detectiontag')
@@ -603,7 +603,7 @@ export class TagService {
           dateFrom,
           dateTo,
         })
-        .andWhere('worksite.id = :worksiteId', { worksiteId })
+        .andWhere('worksite.id IN (:...worksiteId)', { worksiteId })
         .select('COUNT(tag.id)', 'count') // Conta il numero di tag
         .getRawOne(); // Usa getRawOne per ottenere il conteggio del tag
     } else {

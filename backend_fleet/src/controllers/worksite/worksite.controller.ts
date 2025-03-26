@@ -126,7 +126,7 @@ export class WorksiteController {
       });
     }
   }
-  
+
   /**
    * API per il recupero dei cantieri associati in base al utente loggato
    * @param req used data

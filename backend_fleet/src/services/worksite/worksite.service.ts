@@ -7,6 +7,7 @@ import { WorksiteEntity } from 'classes/entities/worksite.entity';
 import { DataSource, In, Repository } from 'typeorm';
 import { AssociationService } from '../association/association.service';
 import { GroupEntity } from 'classes/entities/group.entity';
+import { VehicleEntity } from 'classes/entities/vehicle.entity';
 
 @Injectable()
 export class WorksiteService {
@@ -15,6 +16,8 @@ export class WorksiteService {
     private readonly worksiteRepository: Repository<WorksiteEntity>,
     @InjectRepository(GroupEntity, 'readOnlyConnection')
     private readonly groupRepository: Repository<GroupEntity>,
+    @InjectRepository(VehicleEntity, 'readOnlyConnection')
+    private readonly vehicleRepository: Repository<VehicleEntity>,
     private readonly associationService: AssociationService,
     @InjectDataSource('mainConnection')
     private readonly connection: DataSource,
@@ -279,8 +282,16 @@ export class WorksiteService {
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
+      // rimuove associazione al cantiere di riferimento inserendo null
+      await this.vehicleRepository.update(
+        { worksite: { id: worksite.id } },
+        { worksite: null },
+      );
       await queryRunner.manager.getRepository(WorksiteEntity).remove(worksite);
       await queryRunner.commitTransaction();
+      //update associations
+      this.associationService.setVehiclesAssociateAllUsersRedis();
+      this.associationService.setVehiclesAssociateAllUsersRedisSet();
     } catch (error) {
       await queryRunner.rollbackTransaction();
       if (error instanceof HttpException) throw error;
