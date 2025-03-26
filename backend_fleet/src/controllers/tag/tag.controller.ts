@@ -157,7 +157,7 @@ export class TagController {
     @Req() req: Request & { user: UserFromToken },
     @Query('dateFrom') dateFrom: string,
     @Query('dateTo') dateTo: string,
-    @Query('worksite') worksite: number,
+    @Query('worksite') worksite: number | number[],
     @Query('count') count: string,
     @Query('preview') preview: string,
     @Res() res: Response,
@@ -188,12 +188,18 @@ export class TagController {
       const isCount = count === 'true';
       const isPreview = preview === 'true';
 
+      const worksites = Array.isArray(worksite)
+        ? worksite
+        : worksite
+          ? [worksite]
+          : [];
+
       if (isCount) {
         const count = await this.tagService.getNCountTagsRange(
           req.user.id,
           parsedDateFrom,
           parsedDateTo,
-          worksite,
+          worksites,
         );
         if (!count) {
           this.loggerService.logCrudSuccess(context, 'list', 'Tag non trovati');
@@ -211,13 +217,13 @@ export class TagController {
           req.user.id,
           parsedDateFrom,
           parsedDateTo,
-          worksite,
+          worksites,
         );
         const tags = await this.tagService.getTagsByRangeWorksite(
           req.user.id,
           parsedDateFrom,
           parsedDateTo,
-          worksite,
+          worksites,
           isPreview,
         );
         return res.status(200).json({ count: count, tags: tags });
@@ -226,7 +232,7 @@ export class TagController {
         req.user.id,
         parsedDateFrom,
         parsedDateTo,
-        worksite,
+        worksites,
         isPreview,
       );
       if (!tags?.length) {
