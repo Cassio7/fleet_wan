@@ -4,7 +4,6 @@ import {
   Get,
   Param,
   ParseIntPipe,
-  Post,
   Put,
   Req,
   Res,
@@ -52,7 +51,12 @@ export class VehicleController {
         transform: true,
       }),
     )
-    vehicleDTO: VehicleDTO,
+    body: VehicleDTO & {
+      worksiteId?: number | null;
+      serviceId?: number | null;
+      equipmentId?: number | null;
+      rentalId?: number | null;
+    },
   ) {
     const context: LogContext = {
       userId: req.user.id,
@@ -60,10 +64,16 @@ export class VehicleController {
       resource: 'Vehicle',
       resourceId: vehicleVeId,
     };
+    const { worksiteId, serviceId, equipmentId, rentalId, ...vehicleDTO } =
+      body;
     try {
       const vehicle = await this.vehicleService.updateVehicle(
         vehicleVeId,
         vehicleDTO,
+        worksiteId,
+        serviceId,
+        equipmentId,
+        rentalId,
       );
       if (!vehicle) {
         this.loggerService.logCrudSuccess(
