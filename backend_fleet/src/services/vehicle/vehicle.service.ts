@@ -10,7 +10,11 @@ import { ServiceDTO } from 'classes/dtos/service.dto';
 import { VehicleDTO } from 'classes/dtos/vehicle.dto';
 import { WorkzoneDTO } from 'classes/dtos/workzone.dto';
 import { DeviceEntity } from 'classes/entities/device.entity';
+import { EquipmentEntity } from 'classes/entities/equipment.entity';
+import { RentalEntity } from 'classes/entities/rental.entity';
+import { ServiceEntity } from 'classes/entities/service.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
+import { WorksiteEntity } from 'classes/entities/worksite.entity';
 import { createHash } from 'crypto';
 import { NotificationsService } from 'src/notifications/notifications.service';
 import { DataSource, In, IsNull, Repository } from 'typeorm';
@@ -25,6 +29,14 @@ export class VehicleService {
   constructor(
     @InjectRepository(VehicleEntity, 'readOnlyConnection')
     private readonly vehicleRepository: Repository<VehicleEntity>,
+    @InjectRepository(WorksiteEntity, 'readOnlyConnection')
+    private readonly worksiteRepository: Repository<WorksiteEntity>,
+    @InjectRepository(ServiceEntity, 'readOnlyConnection')
+    private readonly serviceRepository: Repository<ServiceEntity>,
+    @InjectRepository(EquipmentEntity, 'readOnlyConnection')
+    private readonly equipmentRepository: Repository<EquipmentEntity>,
+    @InjectRepository(RentalEntity, 'readOnlyConnection')
+    private readonly rentalRepository: Repository<RentalEntity>,
     @InjectDataSource('mainConnection')
     private readonly connection: DataSource,
     private readonly associationService: AssociationService,
@@ -415,19 +427,84 @@ export class VehicleService {
   async updateVehicle(
     vehicleVeId: number,
     vehicleDTO: VehicleDTO,
+    worksiteId: number | null,
+    serviceId: number | null,
+    equipmentId: number | null,
+    rentalId: number | null,
   ): Promise<VehicleEntity> {
     const vehicle = await this.vehicleRepository.findOne({
+      select: {
+        key: true,
+      },
       where: {
         veId: Number(vehicleVeId),
       },
     });
     if (!vehicle)
       throw new HttpException('Veicolo non trovato', HttpStatus.NOT_FOUND);
+    const updateData: Partial<VehicleEntity> = { ...vehicleDTO };
+
+    // se viene inserito un cantiere lo censisco
+    if (worksiteId !== undefined) {
+      if (worksiteId !== null) {
+        const worksite = await this.worksiteRepository.findOne({
+          where: { id: worksiteId },
+        });
+        if (!worksite)
+          throw new HttpException('Cantiere non trovato', HttpStatus.NOT_FOUND);
+        updateData.worksite = worksite;
+      } else {
+        // se inserisco null rimuovo il cantiere
+        updateData.worksite = null;
+      }
+    }
+
+    if (serviceId !== undefined) {
+      if (serviceId !== null) {
+        const service = await this.serviceRepository.findOne({
+          where: { id: serviceId },
+        });
+        if (!service)
+          throw new HttpException('Servizio non trovato', HttpStatus.NOT_FOUND);
+        updateData.service = service;
+      } else {
+        updateData.service = null;
+      }
+    }
+
+    if (equipmentId !== undefined) {
+      if (equipmentId !== null) {
+        const equipment = await this.equipmentRepository.findOne({
+          where: { id: equipmentId },
+        });
+        if (!equipment)
+          throw new HttpException(
+            'Equipaggiamento non trovato',
+            HttpStatus.NOT_FOUND,
+          );
+        updateData.equipment = equipment;
+      } else {
+        updateData.equipment = null;
+      }
+    }
+
+    if (rentalId !== undefined) {
+      if (rentalId !== null) {
+        const rental = await this.rentalRepository.findOne({
+          where: { id: rentalId },
+        });
+        if (!rental)
+          throw new HttpException('Noleggio non trovato', HttpStatus.NOT_FOUND);
+        updateData.rental = rental;
+      } else {
+        updateData.rental = null;
+      }
+    }
     await this.vehicleRepository.update(
       {
         key: vehicle.key,
       },
-      vehicleDTO,
+      updateData,
     );
     const vehicleUpdate = await this.vehicleRepository.findOne({
       where: {
