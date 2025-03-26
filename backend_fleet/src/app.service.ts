@@ -95,6 +95,7 @@ export class AppService implements OnModuleInit {
     //await this.vehicleService.getVehicleList(254, 683); //Gesenu dismessi
     await this.vehicleService.getVehicleList(305, 650, true); //TSA principale
     await this.vehicleService.getVehicleList(324, 688, true); //Fiumicino principale
+    await this.vehicleService.getVehicleList(336, 688, true); //GSA principale
 
     const dateFrom_new = new Date(startDate);
     const dateTo_new = new Date(endDate);
@@ -184,6 +185,7 @@ export class AppService implements OnModuleInit {
     await this.vehicleService.getVehicleList(254, 313, false); //Gesenu principale
     await this.vehicleService.getVehicleList(305, 650, false); //TSA principale
     await this.vehicleService.getVehicleList(324, 688, false); //Fiumicino principale
+    await this.vehicleService.getVehicleList(336, 688, true); //GSA principale
 
     const vehicles = await this.vehicleService.getAllVehicles();
 
