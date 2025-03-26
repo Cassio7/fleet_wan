@@ -169,15 +169,9 @@
 
   .login-success {
     display: inline-flex;
-    color: green;
+    color: var(--green);
     gap: 1vw;
     align-items: center;
-  }
-
-  .success-spinner {
-    width: 1vw !important;
-    height: 1vh !important;
-    margin: 0;
   }
 
   .copyright{

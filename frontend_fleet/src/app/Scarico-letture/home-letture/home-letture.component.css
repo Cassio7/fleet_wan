@@ -14,6 +14,23 @@
     .button-container{
       width: fit-content;
     }
+
+    .download-row{
+      display: inline-flex;
+      align-items: center;
+      gap: 2vw;
+
+      .loading-container{
+        display: flex;
+        align-items: center;
+        gap: 1w;
+
+        .loading-spinner {
+          width: 2vw !important;
+          height: 2vh !important;
+          margin: 0;
+        }
+      }
+    }
   }
 }
-

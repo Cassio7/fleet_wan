@@ -5,9 +5,14 @@
   </header>
   <section class="content">
     <app-letture-filters [cantieri]="cantieri"></app-letture-filters>
-    <span class="button-container" [matTooltip]="tagDownloadData.length <= 0 ? 'Nessun dato da scaricare' : ''">
-      <button mat-button (click)="exportToExcel()" class="button" [disabled]="tagDownloadData.length <= 0"><mat-icon>download</mat-icon>Scarica excel</button>
-    </span>
+    <div class="download-row">
+      <span class="button-container" [matTooltip]="downloading ? 'Scaricando...': ''" [matTooltip]="tagDownloadData.length <= 0 ? 'Nessun dato da scaricare' : ''">
+        <button mat-button (click)="exportToExcel()" class="button" [disabled]="tagDownloadData.length <= 0 || downloading"><mat-icon>download</mat-icon>Scarica excel</button>
+      </span>
+      <div class="loading-container" *ngIf="downloading">
+        <span>Scaricando...</span><mat-spinner mode="indeterminate" class="loading-spinner"></mat-spinner>
+      </div>
+    </div>
 
     <app-letture-table (setTagDownloadData)="setDownloadData($event)"></app-letture-table>
   </section>

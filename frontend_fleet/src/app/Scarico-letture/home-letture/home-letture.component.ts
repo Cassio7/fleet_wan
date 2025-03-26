@@ -1,5 +1,5 @@
-import { TagDownloadData } from './../../Common-services/tag/tag.service';
-import { AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { TagDownloadData, TagService } from './../../Common-services/tag/tag.service';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { LettureTableComponent } from "../letture-table/letture-table.component";
 import { GestioneCantieriService } from '../../Gestione-cantieri/Services/gestione-cantieri/gestione-cantieri.service';
 import { Subject, takeUntil } from 'rxjs';
@@ -9,6 +9,9 @@ import { FileExportService } from '../../Common-services/fileExport/file-export.
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
+import { LettureFilters, LettureFilterService } from '../Services/letture-filter/letture-filter.service';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { CommonModule } from '@angular/common';
 
 export interface tagDownloadResponse{
   count: number,
@@ -18,9 +21,11 @@ export interface tagDownloadResponse{
   selector: 'app-home-letture',
   standalone: true,
   imports: [
+    CommonModule,
     MatButtonModule,
     MatTooltipModule,
     MatIconModule,
+    MatProgressSpinnerModule,
     LettureTableComponent,
     LettureFiltersComponent
   ],
@@ -32,9 +37,14 @@ export class HomeLettureComponent implements OnInit, OnDestroy{
   cantieri: WorkSite[] = [];
   @Input() tagDownloadData: TagDownloadData[] = [];
 
+  downloading: boolean = false;
+  private lettureFilters!: LettureFilters | null;
+
   constructor(
     private gestioneCantieriService: GestioneCantieriService,
+    private lettureFilterService: LettureFilterService,
     private fileExportService: FileExportService,
+    private tagService: TagService,
     private cd: ChangeDetectorRef
   ){}
   ngOnDestroy(): void {
@@ -51,10 +61,46 @@ export class HomeLettureComponent implements OnInit, OnDestroy{
       },
       error: error => console.error("Errore nell'ottenere tutti i cantieri: ", error)
     });
+
+    this.lettureFilterService.filterByLettureFilters$.pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (lettureFilters: LettureFilters | null) => {
+        this.lettureFilters = lettureFilters;
+      },
+      error: error => console.error("Errore nel recapito dei filtri delle letture in home letture: ", error)
+    });
   }
 
-  exportToExcel(){
-    this.fileExportService.exportToExcel(this.tagDownloadData, 'tag.xlsx');
+  exportToExcel() {
+    this.downloading = true;
+    if(this.lettureFilters){
+      this.tagService.downloadTagsRanged(15, this.lettureFilters.dateFrom, this.lettureFilters.dateTo)
+      .pipe(
+        takeUntil(this.destroy$)
+      )
+      .subscribe({
+        next: (blob) => {
+          if(this.lettureFilters){
+            console.log('downloading to true: ', this.downloading);
+            const link = document.createElement('a');
+            const url = window.URL.createObjectURL(blob);
+            link.href = url;
+
+            link.download = `tags-${this.lettureFilters.dateFrom}-${this.lettureFilters.dateTo}.xlsx`;
+
+            link.click();
+
+            console.log('downloading to false: ', this.downloading);
+            this.downloading = false;
+
+            window.URL.revokeObjectURL(url);
+          }
+        },
+        error: (error) => {
+          console.error("Errore nel download dei tag: ", error);
+        }
+      });
+    }
   }
 
   setDownloadData(tagDownloadData: TagDownloadData[]){

@@ -68,7 +68,7 @@ export class TagService {
    * @param dateTo data di fine ricerca
    * @returns observable http get<Tag[]>
    */
-  downloadTagRanged(workSiteId: number, dateFrom: Date | string, dateTo: Date | string): Observable<tagDownloadResponse>{
+  getDownloadTagsRangedPreview(workSiteId: number, dateFrom: Date | string, dateTo: Date | string): Observable<tagDownloadResponse>{
     console.log('date from: ', dateFrom);
     console.log('date to: ', dateTo);
     const access_token = this.cookieService.get("user");
@@ -97,6 +97,37 @@ export class TagService {
     params = params.set("preview", 'true');
 
     return this.http.get<tagDownloadResponse>(`${this.commonService.url}/tags/download`, {headers, params});
+  }
+
+  downloadTagsRanged(workSiteId: number, dateFrom: Date | string, dateTo: Date | string): Observable<Blob> {
+    const access_token = this.cookieService.get("user");
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${access_token}`,
+      'Content-Type': 'application/json'
+    });
+
+    let params = new HttpParams().set('worksite', workSiteId.toString());
+
+    // Format dateFrom properly
+    if(dateFrom instanceof Date) {
+      params = params.set('dateFrom', this.formatDate(dateFrom) || '');
+    } else if(dateFrom) {
+      params = params.set('dateFrom', dateFrom);
+    }
+
+    // Format dateTo properly
+    if(dateTo instanceof Date) {
+      params = params.set('dateTo', this.formatDate(dateTo) || '');
+    } else if(dateTo) {
+      params = params.set('dateTo', dateTo);
+    }
+
+    // Add preview parameter to the query string
+    return this.http.get(`${this.commonService.url}/tags/download`, {
+      headers,
+      params,
+      responseType: 'blob'  // Crucial change: specify blob response type
+    });
   }
 
 
