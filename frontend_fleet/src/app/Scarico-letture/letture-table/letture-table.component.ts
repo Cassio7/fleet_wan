@@ -28,6 +28,7 @@ export class LettureTableComponent implements AfterViewInit, OnDestroy{
   snackBar= inject(MatSnackBar);
   displayedColumns: string[] = ['EPC', 'Type', 'Timestamp', 'Latitude', 'Longitude', 'Plate', 'Cantiere'];
   tagTableData = new MatTableDataSource<TagDownloadData>();
+  lettureFilters!: LettureFilters;
   tagCount!: number;
 
   @Output() setTagDownloadData = new EventEmitter<TagDownloadData[]>();
@@ -43,16 +44,18 @@ export class LettureTableComponent implements AfterViewInit, OnDestroy{
   }
 
   ngAfterViewInit(): void {
-  this.lettureFilterService.filterByLettureFilters$
+    this.lettureFilterService.filterByLettureFilters$
     .pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (lettureFilters: LettureFilters | null) => {
-        if (lettureFilters) {
-          const { worksite, dateFrom, dateTo } = lettureFilters; // Extract filter values
-          this.tagService.downloadTagRanged(15, dateFrom, dateTo).pipe(takeUntil(this.destroy$))
+          if (lettureFilters) {
+          this.lettureFilters = lettureFilters;
+          const { worksite, dateFrom, dateTo } = lettureFilters;
+          this.tagService.getDownloadTagsRangedPreview(15, dateFrom, dateTo).pipe(takeUntil(this.destroy$))
           .subscribe({
             next: (downloadData: tagDownloadResponse) => {
               this.tagCount = downloadData.count;
+              console.log('tag count: ', this.tagCount);
               this.tagTableData.data = downloadData.tags;
               this.setTagDownloadData.emit(downloadData.tags);
             },

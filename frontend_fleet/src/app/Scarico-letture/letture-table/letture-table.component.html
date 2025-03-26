@@ -49,4 +49,5 @@
     <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
   </table>
+  <span *ngIf="tagCount <= 0">Nessun tag letto nel range di tempo: {{lettureFilters.dateFrom | date: 'dd/MM/yyyy'}} - {{lettureFilters.dateTo | date: 'dd/MM/yyyy'}}</span>
 </div>
