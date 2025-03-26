@@ -1,0 +1,32 @@
+.table-container {
+  height: 70vh;
+  overflow-y: auto;
+  width: 100%;
+}
+
+.veicolo-table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.veicolo-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.right-text {
+  text-align: right;
+}
+
+.state-circle{
+  height: 10px;
+  width: 10px;
+  border-radius: 50%;
+}
+.active-circle{
+  background-color: lightgreen;
+}
+.inactive-circle{
+  background-color: var(--red);
+}

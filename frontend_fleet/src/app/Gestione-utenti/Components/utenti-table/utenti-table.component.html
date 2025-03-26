@@ -10,9 +10,9 @@
       <td mat-cell *matCellDef="let user">
         <div class="user-container" >
           @if(user.name == "admin"){
-            <span><mat-icon>person</mat-icon> Admin</span>
+            <span class="inline-container"><mat-icon>person</mat-icon> Admin</span>
           }@else {
-            <span><mat-icon>person</mat-icon> {{user.name}} {{user.surname}}</span>
+            <span class="inline-container"><mat-icon>person</mat-icon> {{user.name}} {{user.surname}}</span>
           }
         </div>
       </td>

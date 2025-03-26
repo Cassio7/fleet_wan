@@ -98,6 +98,13 @@ body {
   font-weight: 600;
 }
 
+.inline-container{
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
 .table {
   tr:hover {
     background-color: var(--background-color) !important;

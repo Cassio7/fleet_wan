@@ -1,0 +1,10 @@
+<div class="content" > <!--*ngIf="societa?.length"-->
+  <div class="section-header">
+    <h4 class="title">Gestione veicoli</h4>
+    <!-- <button mat-button class="button" >Crea veicolo</button> -->
+  </div>
+  <div class="filters-container">
+    <app-veicoli-filters [veicoli]="veicoli"></app-veicoli-filters>
+  </div>
+  <app-veicoli-table [(veicoli)]="veicoli"></app-veicoli-table>
+</div>

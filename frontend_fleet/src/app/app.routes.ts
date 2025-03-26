@@ -11,6 +11,7 @@ import { HomeProfileComponent } from './Profile/Components/home-profile/home-pro
 import { HomeGestioneCantieriComponent } from './Gestione-cantieri/Components/home-gestione-cantieri/home-gestione-cantieri.component';
 import { HomeLettureComponent } from './Scarico-letture/home-letture/home-letture.component';
 import { HomeGestioneSocietaComponent } from './Gestione-Società/Components/home-gestione-societa/home-gestione-societa.component';
+import { HomeGestioneVeicoliComponent } from './Gestione-Veicoli/Components/home-gestione-veicoli/home-gestione-veicoli.component';
 
 export const routes: Routes = [
     { path: 'login', component: LoginComponent },
@@ -24,6 +25,7 @@ export const routes: Routes = [
     { path: 'gestione-utenti', component: HomeGestioneComponent},
     { path: 'gestione-cantieri', component: HomeGestioneCantieriComponent},
     { path: 'gestione-societa', component: HomeGestioneSocietaComponent},
+    { path: 'gestione-veicoli', component: HomeGestioneVeicoliComponent},
     { path: 'scarico-letture', component: HomeLettureComponent },
     { path: '', component: DashboardComponent },
 ];

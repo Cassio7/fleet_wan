@@ -1,0 +1,32 @@
+<div class="content" [formGroup]="veicoliFiltersForm">
+  <mat-form-field class="cantieri-filter filter" appearance="outline" subscriptSizing="dynamic">
+    <input matInput formControlName="targa" placeholder="Inserisci targa">
+    <mat-icon matSuffix>engineering</mat-icon>
+  </mat-form-field>
+  <mat-form-field class="cantieri-filter filter" appearance="outline" subscriptSizing="dynamic">
+    <mat-select formControlName="cantieri" placeholder="Cantieri" multiple class="societa-input" (openedChange)="societaSelectOpened = !societaSelectOpened">
+      <mat-option value="Seleziona tutto" (click)="selectAll()" *ngIf="societaSelectOpened">Seleziona tutto</mat-option>
+      <mat-divider></mat-divider>
+      <mat-option
+      [value]="veicolo"
+      *ngFor="let veicolo of veicoli"
+      >
+        {{ veicolo }}
+      </mat-option>
+    </mat-select>
+    <mat-icon matSuffix>engineering</mat-icon>
+  </mat-form-field>
+  <mat-form-field class="cantieri-filter filter" appearance="outline" subscriptSizing="dynamic">
+    <mat-select formControlName="societa" placeholder="Societa" multiple class="societa-input" (openedChange)="societaSelectOpened = !societaSelectOpened">
+      <mat-option value="Seleziona tutto" (click)="selectAll()" *ngIf="societaSelectOpened">Seleziona tutto</mat-option>
+      <mat-divider></mat-divider>
+      <mat-option
+      [value]="veicolo"
+      *ngFor="let veicolo of veicoli"
+      >
+        {{ veicolo }}
+      </mat-option>
+    </mat-select>
+    <mat-icon matSuffix>engineering</mat-icon>
+  </mat-form-field>
+</div>

@@ -25,6 +25,7 @@ export class Vehicle {
     public retired_event: Date | null,
     public fleet_number: number | null,
     public fleet_install: Date | null,
+    public active: boolean,
     public registration?: string,
     public rental?: Rental,
     public worksite?: WorkSite,

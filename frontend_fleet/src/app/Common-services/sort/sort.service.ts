@@ -175,11 +175,11 @@ export class SortService {
 
   /**
    * Ordina i veicoli passati in base ai valori contenuti nel MatSort passato
-   * @param users array di veicoli da ordinare
+   * @param vehicles array di veicoli da ordinare
    * @param sort MatSort che contiene colonna e direzione per cui ordinare
    * @returns array di veicoli ordinato
    */
-  sortVehiclesByMatSort(vehicles: VehicleData[], matSort: MatSort): VehicleData[] {
+  sortVehiclesByMatSort(vehicles: (VehicleData | Vehicle)[], matSort: MatSort): (VehicleData | Vehicle)[] {
     const column = matSort.active;
     const sortDirection = matSort.direction;
 
@@ -255,39 +255,45 @@ export class SortService {
 
   /**
    * Ordina i cantieri passati in base ai valori contenuti nel MatSort passato
-   * @param users array di cantieri da ordinare
+   * @param worksites array di cantieri da ordinare
    * @param sort MatSort che contiene colonna e direzione per cui ordinare
    * @returns array di cantieri ordinato
    */
-  sortWorksiteByMatSort(users: WorkSite[], sort: MatSort): WorkSite[]{
+  sortWorksiteByMatSort(worksites: WorkSite[], sort: MatSort): WorkSite[]{
     const column = sort.active;
     const direction = sort.direction;
 
     switch(column){
       case "Id":
-        return users.sort((a,b)=>{
+        return worksites.sort((a,b)=>{
           return this.compare(a.id , b.id, direction == "asc");
         });
       case "Cantiere":
-        return users.sort((a,b)=>{
+        return worksites.sort((a,b)=>{
           return this.compare(a.name , b.name, direction == "asc");
         });
       case "Comune":
-        return users.sort((a,b)=>{
+        return worksites.sort((a,b)=>{
           return this.compare(a.group.name , b.group.name, direction == "asc");
         });
       case "Societa":
-        return users.sort((a,b)=>{
+        return worksites.sort((a,b)=>{
           return this.compare(a.group.company.name , b.group.company.name, direction == "asc");
         });
       case "Veicoli associati":
-        return users.sort((a,b)=>{
+        return worksites.sort((a,b)=>{
           return this.compare(a.vehicleCount , b.vehicleCount, direction == "asc");
         });
-      default: return users;
+      default: return worksites;
     }
   }
 
+  /**
+   * Ordina le società passate in base ai valori contenuti nel MatSort passato
+   * @param worksites array di società da ordinare
+   * @param sort MatSort che contiene colonna e direzione per cui ordinare
+   * @returns array di società ordinato
+   */
   sortCompanyByMatSort(companies: Company[], sort: MatSort): Company[]{
     const column = sort.active;
     const direction = sort.direction;
