@@ -16,6 +16,7 @@ export interface Filters {
   gps: FormControl<string[] | null>;
   antenna: FormControl<string[] | null>;
   sessione: FormControl<string[] | null>;
+  societa: FormControl<string[] | null>;
 }
 @Injectable({
   providedIn: 'root'
@@ -26,7 +27,8 @@ export class FiltersCommonService {
     cantieri: new FormControl(null),
     gps: new FormControl(null),
     antenna: new FormControl(null),
-    sessione: new FormControl(null)
+    sessione: new FormControl(null),
+    societa: new FormControl(null)
   });
 
   constructor(
@@ -65,7 +67,8 @@ export class FiltersCommonService {
         (!filters.cantieri?.value || filters.cantieri.value.length === 0) &&
         (!filters.gps?.value || filters.gps.value.length === 0) &&
         (!filters.antenna?.value || filters.antenna.value.length === 0) &&
-        (!filters.sessione?.value || filters.sessione.value.length === 0);
+        (!filters.sessione?.value || filters.sessione.value.length === 0) &&
+        (!filters.societa?.value || filters.societa.value.length === 0);
 
     if (areAllFiltersEmpty) return []; //ritorno array vuoto in caso tutti i filtri siano vuoti
 
@@ -74,6 +77,7 @@ export class FiltersCommonService {
     let arrayGps: number[] = [];
     let arrayAntenne: number[] = [];
     let arraySessioni: number[] = [];
+    let arraySocieta: number[] = [];
 
     if (filters.plate) {
       arrayTarghe = this.getVeIds(this.plateFilterService.filterVehiclesByPlateResearch(filters.plate, vehicles) as VehicleData[]);
@@ -81,7 +85,10 @@ export class FiltersCommonService {
 
     if ('veId' in vehicles[0]) {
       if (filters.cantieri?.value) {
-          arrayCantieri = (this.cantieriFilterService.filterVehiclesByCantieri(vehicles, filters.cantieri.value) as Vehicle[]).map(vehicle => vehicle.veId);
+        arrayCantieri = (this.cantieriFilterService.filterVehiclesByCantieri(vehicles, filters.cantieri.value) as Vehicle[]).map(vehicle => vehicle.veId);
+      }
+      if(filters.societa?.value){
+        arraySocieta = this.filterVehiclesByCompanies((vehicles as Vehicle[]), filters.societa.value).map((vehicle: Vehicle) => vehicle.veId);
       }
     }
 
@@ -125,6 +132,7 @@ export class FiltersCommonService {
       } else if ('veId' in veicolo) {
           if (filters.plate && arrayTarghe.indexOf(veicolo.veId) === -1) return false;
           if (filters.cantieri?.value?.length && arrayCantieri.indexOf(veicolo.veId) === -1) return false;
+          if (filters.societa?.value?.length && arraySocieta.indexOf(veicolo.veId) === -1) return false;
       }
       return true;
     });
@@ -132,14 +140,31 @@ export class FiltersCommonService {
     return filteredVehicles;
   }
 
-
-  getVeIds(vehicles: (VehicleData | Vehicle)[]): number[] {
+  /**
+   * Estrae i veId dei veicoli passati
+   * @param vehicles veicoli di cui estrarre i veId
+   * @returns array di veId
+   */
+  private getVeIds(vehicles: (VehicleData | Vehicle)[]): number[] {
     return vehicles.map(vehicle => {
       if ('vehicle' in vehicle) {
         return vehicle.vehicle.veId;
       } else {
         return vehicle.veId;
       }
+    });
+  }
+
+  /**
+   * Filtra i veicoli in base alle società (company)
+   * @param vehicles veicoli fa filtrare
+   * @param companies compagnie selezionate
+   * @returns array di Vehicle[] filtrato
+   */
+  private filterVehiclesByCompanies(vehicles: Vehicle[], companies: string[]): Vehicle[]{
+    return vehicles.filter(vehicle => {
+      const companyName = vehicle.company?.name;
+      return companyName ? companies.includes(companyName) : false;
     });
   }
 

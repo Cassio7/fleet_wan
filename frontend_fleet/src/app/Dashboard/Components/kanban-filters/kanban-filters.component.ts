@@ -49,6 +49,7 @@ export class KanbanFiltersComponent implements AfterViewInit, OnDestroy{
     gps: new FormControl(null),
     antenna: new FormControl(null),
     sessione: new FormControl(null),
+    societa: new FormControl(null)
   };
 
   kanbanCantieri: string[] = [];

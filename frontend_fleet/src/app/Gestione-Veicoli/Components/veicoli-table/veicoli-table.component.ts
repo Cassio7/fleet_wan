@@ -14,6 +14,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { CommonModule } from '@angular/common';
+import { gestioneVeicoliFilters, GestioneVeicoliService } from '../../Services/gestione-veicoli.service';
+import { Filters, FiltersCommonService } from '../../../Common-services/filters-common/filters-common.service';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-veicoli-table',
@@ -40,14 +43,34 @@ private readonly destroy$: Subject<void> = new Subject<void>();
   @Input() veicoli: Vehicle[] = [];
   @Output() veicoliChange: EventEmitter<Vehicle[]> = new EventEmitter<Vehicle[]>();
 
+  private filters: Filters = {
+    plate: '',
+    cantieri: new FormControl<string[] | null>(null),
+    gps: new FormControl<string[] | null>(null),
+    antenna: new FormControl<string[] | null>(null),
+    sessione: new FormControl<string[] | null>(null),
+    societa: new FormControl<string[] | null>(null)
+  };
+
+
   constructor(
-    private gestioneSocietaService: GestioneSocietaService,
+    private gestioneVeicoliService: GestioneVeicoliService,
+    private filtersCommonService: FiltersCommonService,
     private sortService: SortService,
     private router: Router
   ){
-    // effect(() => {
+    effect(() => {
+      const currentFilters = gestioneVeicoliService.gestioneVeicoliFilters();
+      if(currentFilters){
+        const { targa, cantieri, societa } = currentFilters;
+        this.filters.plate = targa;
+        this.filters.cantieri.setValue(cantieri);
+        this.filters.societa.setValue(societa);
 
-    // });
+        console.log('set filters: ', this.filters);
+        this.veicoliTableData.data = filtersCommonService.applyAllFiltersOnVehicles(this.veicoli, this.filters) as Vehicle[];
+      }
+    });
   }
 
   ngOnDestroy(): void {

@@ -42,7 +42,8 @@ export class ListaFiltersComponent implements AfterViewInit{
     cantieri: this.cantieri,
     gps: new FormControl(null),
     antenna: new FormControl(null),
-    sessione: new FormControl(null)
+    sessione: new FormControl(null),
+    societa: new FormControl(null)
   };
 
   constructor(

@@ -59,7 +59,8 @@ export class RowFilterComponent implements OnInit, AfterViewInit, OnDestroy{
     cantieri: new FormControl<string[]>([]),
     gps: new FormControl<string[]>([]),
     antenna: new FormControl<string[]>([]),
-    sessione: new FormControl<string[]>([])
+    sessione: new FormControl<string[]>([]),
+    societa: new FormControl(null)
   };
 
 

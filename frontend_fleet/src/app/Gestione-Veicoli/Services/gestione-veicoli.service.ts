@@ -1,11 +1,19 @@
 import { Injectable, signal, WritableSignal } from '@angular/core';
-import { Vehicle } from '../../Models/Vehicle';
 
+export interface gestioneVeicoliFilters{
+  targa: string,
+  cantieri: string[],
+  societa: string[]
+}
 @Injectable({
   providedIn: 'root'
 })
 export class GestioneVeicoliService {
-  targaFilter: WritableSignal<string> = signal<string>("");
+  private readonly _gestioneVeicoliFilters: WritableSignal<gestioneVeicoliFilters | null> = signal(null);
 
   constructor() { }
+
+  public get gestioneVeicoliFilters(): WritableSignal<gestioneVeicoliFilters | null> {
+    return this._gestioneVeicoliFilters;
+  }
 }
