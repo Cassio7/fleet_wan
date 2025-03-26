@@ -5,11 +5,14 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Put,
   Req,
   Res,
   UseGuards,
   UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
+import { VehicleDTO } from 'classes/dtos/vehicle.dto';
 import { Role } from 'classes/enum/role.enum';
 import { UserFromToken } from 'classes/interfaces/userToken.interface';
 import { Response } from 'express';
@@ -27,6 +30,67 @@ export class VehicleController {
     private readonly vehicleService: VehicleService,
     private readonly loggerService: LoggerService,
   ) {}
+
+  /**
+   * API per modificare i dati di un veicolo dato il suo veId
+   * @param req user data
+   * @param res
+   * @param vehicleVeId identificativo del veicolo
+   * @param vehicleDTO dati in input veicolo DTO
+   * @returns
+   */
+  @Roles(Role.Admin)
+  @Put(':id')
+  async updateVehicle(
+    @Req() req: Request & { user: UserFromToken },
+    @Res() res: Response,
+    @Param('id', ParseIntPipe) vehicleVeId: number,
+    @Body(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+      }),
+    )
+    vehicleDTO: VehicleDTO,
+  ) {
+    const context: LogContext = {
+      userId: req.user.id,
+      username: req.user.username,
+      resource: 'Vehicle',
+      resourceId: vehicleVeId,
+    };
+    try {
+      const vehicle = await this.vehicleService.updateVehicle(
+        vehicleVeId,
+        vehicleDTO,
+      );
+      if (!vehicle) {
+        this.loggerService.logCrudSuccess(
+          context,
+          'update',
+          'Veicolo non trovato',
+        );
+        return res.status(204).json();
+      }
+      this.loggerService.logCrudSuccess(
+        context,
+        'update',
+        `Aggiornato veicolo con veId : ${vehicle.veId}`,
+      );
+      return res.status(200).json(vehicle);
+    } catch (error) {
+      this.loggerService.logCrudError({
+        error,
+        context,
+        operation: 'update',
+      });
+
+      return res.status(error.status || 500).json({
+        message: error.message || 'Errore aggiornamento del veicolo',
+      });
+    }
+  }
 
   /**
    * Ritorna tutti i veicoli associati in base all utente token utente che fa la richiesta
@@ -109,59 +173,6 @@ export class VehicleController {
         `Recuperati ${vehicles.length} Veicoli`,
       );
       return res.status(200).json(vehicles);
-    } catch (error) {
-      this.loggerService.logCrudError({
-        error,
-        context,
-        operation: 'list',
-      });
-
-      return res.status(error.status || 500).json({
-        message: error.message || 'Errore recupero veicolo',
-      });
-    }
-  }
-  /**
-   * API che restituisce un veicolo in base alla targa inserita
-   * @param res
-   * @param body
-   */
-  @Roles(Role.Admin, Role.Responsabile, Role.Capo)
-  @Post()
-  async getVehicleByPlate(
-    @Req() req: Request & { user: UserFromToken },
-    @Res() res: Response,
-    @Body() body: any,
-  ) {
-    const context: LogContext = {
-      userId: req.user.id,
-      username: req.user.username,
-      resource: 'Vehicle plate',
-      resourceId: body.plate,
-    };
-    try {
-      const plateNumber = body.plate;
-      const vehicle = await this.vehicleService.getVehicleByPlate(
-        req.user.id,
-        plateNumber,
-      );
-
-      if (!vehicle) {
-        this.loggerService.logCrudSuccess(
-          context,
-          'list',
-          'Nessun veicolo trovato',
-        );
-        return res.status(404).json({
-          message: 'Nessun veicolo trovato',
-        });
-      }
-      this.loggerService.logCrudSuccess(
-        context,
-        'list',
-        `Recuperato Veicolo veId: ${vehicle.veId} - targa: ${vehicle.plate}`,
-      );
-      return res.status(200).json(vehicle);
     } catch (error) {
       this.loggerService.logCrudError({
         error,

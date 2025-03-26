@@ -405,6 +405,50 @@ export class VehicleService {
       await queryRunner.release();
     }
   }
+
+  /**
+   * Aggiornamento veicolo
+   * @param vehicleVeId veId veicolo
+   * @param vehicleDTO dati in arrivo DTO per controllo types
+   * @returns
+   */
+  async updateVehicle(
+    vehicleVeId: number,
+    vehicleDTO: VehicleDTO,
+  ): Promise<VehicleEntity> {
+    const vehicle = await this.vehicleRepository.findOne({
+      where: {
+        veId: Number(vehicleVeId),
+      },
+    });
+    if (!vehicle)
+      throw new HttpException('Veicolo non trovato', HttpStatus.NOT_FOUND);
+    await this.vehicleRepository.update(
+      {
+        key: vehicle.key,
+      },
+      vehicleDTO,
+    );
+    const vehicleUpdate = await this.vehicleRepository.findOne({
+      where: {
+        key: vehicle.key,
+      },
+      relations: {
+        device: true,
+        worksite: {
+          group: {
+            company: true,
+          },
+        },
+        workzone: true,
+        service: true,
+        equipment: true,
+        rental: true,
+      },
+    });
+    return this.toDTO(vehicleUpdate, true);
+  }
+
   /**
    * Recupera tutti i veicoli dal database in ordine, viene usata dentro il server
    * @returns
@@ -437,6 +481,10 @@ export class VehicleService {
             company: true,
           },
         },
+        workzone: true,
+        service: true,
+        equipment: true,
+        rental: true,
       },
       order: {
         worksite: {
@@ -445,7 +493,9 @@ export class VehicleService {
         plate: 'ASC',
       },
     });
-    return vehicles ? vehicles.map((vehicle) => this.toDTO(vehicle)) : null;
+    return vehicles
+      ? vehicles.map((vehicle) => this.toDTO(vehicle, true))
+      : null;
   }
   /**
    * Recupera una lista di veicoli in base all utente loggato
@@ -477,51 +527,6 @@ export class VehicleService {
       return vehiclesDB
         ? vehiclesDB.map((vehicle) => this.toDTO(vehicle))
         : null;
-    } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new HttpException(
-        `Errore durante recupero dei veicoli`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  /**
-   * Recupera un veicolo e controlla se utente ha i permessi per accederci
-   * @param userId user id
-   * @param plateNumber targa del veicolo
-   * @returns ritorna un oggetto DTO oppure null
-   */
-  async getVehicleByPlate(
-    userId: number,
-    plateNumber: string,
-  ): Promise<VehicleDTO | null> {
-    const vehicles =
-      await this.associationService.getVehiclesAssociateUserRedis(userId);
-    if (!vehicles || vehicles.length === 0)
-      throw new HttpException(
-        'Nessun veicolo associato per questo utente',
-        HttpStatus.NOT_FOUND,
-      );
-
-    try {
-      const vehicle = await this.vehicleRepository.findOne({
-        where: {
-          plate: plateNumber,
-        },
-        relations: {
-          device: true,
-          worksite: true,
-        },
-      });
-      if (!vehicle)
-        throw new HttpException('Veicolo non trovato', HttpStatus.NOT_FOUND);
-      if (!vehicles.find((v) => v.plate === plateNumber))
-        throw new HttpException(
-          'Non hai il permesso per visualizzare questo veicolo',
-          HttpStatus.FORBIDDEN,
-        );
-      return vehicle ? this.toDTO(vehicle) : null;
     } catch (error) {
       if (error instanceof HttpException) throw error;
       throw new HttpException(
@@ -592,10 +597,15 @@ export class VehicleService {
    * @param vehicle VehicleEntity
    * @returns oggetto formattato
    */
-  private toDTO(vehicle: VehicleEntity): any {
-    // Crea VehicleDTO
+  private toDTO(vehicle: VehicleEntity, admin?: boolean): any {
     const vehicleDTO = new VehicleDTO();
     vehicleDTO.id = vehicle.id;
+
+    if (admin) {
+      vehicleDTO.createdAt = vehicle.createdAt;
+      vehicleDTO.updatedAt = vehicle.updatedAt;
+    }
+    // Crea VehicleDTO
     vehicleDTO.veId = vehicle.veId;
     vehicleDTO.active = vehicle.active;
     vehicleDTO.active_csv = vehicle.active_csv ?? null;
