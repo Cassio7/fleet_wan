@@ -93,7 +93,7 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
   profileName: string;
 
   @Column({ type: 'timestamptz', nullable: true })
-  retired_event: Date;
+  retired_event: Date | null;
 
   @Column({ nullable: true })
   worksite_priority: number;
