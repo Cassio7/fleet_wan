@@ -5,7 +5,6 @@ import { GestioneCantieriService } from '../../Gestione-cantieri/Services/gestio
 import { Subject, takeUntil } from 'rxjs';
 import { WorkSite } from '../../Models/Worksite';
 import { LettureFiltersComponent } from "../letture-filters/letture-filters.component";
-import { FileExportService } from '../../Common-services/fileExport/file-export.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
@@ -43,7 +42,6 @@ export class HomeLettureComponent implements OnInit, OnDestroy{
   constructor(
     private gestioneCantieriService: GestioneCantieriService,
     private lettureFilterService: LettureFilterService,
-    private fileExportService: FileExportService,
     private tagService: TagService,
     private cd: ChangeDetectorRef
   ){}
