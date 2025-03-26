@@ -296,12 +296,13 @@ export class AssociationService {
 
     const vehicles = new Set<VehicleEntity>(); // Set per evitare duplicati
 
+    // recupero i veicoli sono una volta, recuperando soltanto quelli che non sono stati dismessi
     associations.forEach((association) => {
       // Prendo i veicoli se sono direttamente associati al worksite
       if (association.worksite?.vehicle) {
-        association.worksite.vehicle.forEach((vehicle) =>
-          vehicles.add(vehicle),
-        );
+        association.worksite.vehicle
+          .filter((vehicle) => vehicle.retired_event === null)
+          .forEach((vehicle) => vehicles.add(vehicle));
       }
 
       // Se c'è un gruppo associato alla company
@@ -316,7 +317,9 @@ export class AssociationService {
           if (Array.isArray(group.worksite)) {
             group.worksite.forEach((worksite) => {
               if (worksite?.vehicle) {
-                worksite.vehicle.forEach((vehicle) => vehicles.add(vehicle));
+                worksite.vehicle
+                  .filter((vehicle) => vehicle.retired_event === null)
+                  .forEach((vehicle) => vehicles.add(vehicle));
               }
             });
           }
