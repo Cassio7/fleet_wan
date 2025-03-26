@@ -8,10 +8,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { Subject, takeUntil } from 'rxjs';
+import { of, Subject, takeUntil } from 'rxjs';
 import { GestioneSocietaService } from '../../../Gestione-Società/Services/gestione-societa/gestione-societa.service';
 import { Company } from '../../../Models/Company';
 import { Vehicle } from '../../../Models/Vehicle';
+import { CantieriFilterService } from '../../../Common-services/cantieri-filter/cantieri-filter.service';
 
 @Component({
   selector: 'app-veicoli-filters',
@@ -36,14 +37,17 @@ private readonly destroy$: Subject<void> = new Subject<void>();
   @Input() veicoli!: Vehicle[];
   veicoliFiltersForm!: FormGroup;
 
+  cantieriSelectOpened: boolean = false;
   societaSelectOpened: boolean = false;
 
+  listaCantieri: string[] = [];
   listaSocieta: string[] = [];
 
   allSelected: boolean = false;
 
   constructor(
-    public gestioneSocietaService: GestioneSocietaService
+    public gestioneSocietaService: GestioneSocietaService,
+    private cantieriFilterService: CantieriFilterService
   ){
     this.veicoliFiltersForm = new FormGroup({
       targa: new FormControl(''),
@@ -51,12 +55,22 @@ private readonly destroy$: Subject<void> = new Subject<void>();
       societa: new FormControl([])
     });
   }
-
   ngOnChanges(changes: SimpleChanges): void {
-    // if(changes['societa']){
-    //   this.listaSocieta = this.veicoli.map(cantiere => cantiere.name);
-    //   this.societaFiltersForm.get('societa')?.setValue(["Seleziona tutto", ...this.listaSocieta]);
-    // }
+    if(changes['veicoli']){
+      if(this.veicoli.length > 0){
+        this.listaCantieri = this.cantieriFilterService.vehiclesCantieriOnce(this.veicoli);
+        this.listaSocieta = Array.from(
+          new Set(
+            this.veicoli
+              .map(veicolo => veicolo.company?.name)
+              .filter(name => name !== undefined)
+          )
+        );
+
+        this.veicoliFiltersForm.get('cantieri')?.setValue(["Seleziona tutto", ...this.listaCantieri]);
+        this.veicoliFiltersForm.get('societa')?.setValue(["Seleziona tutto", ...this.listaSocieta]);
+      }
+    }
   }
 
   ngOnDestroy(): void {
@@ -65,8 +79,6 @@ private readonly destroy$: Subject<void> = new Subject<void>();
   }
 
   ngAfterViewInit(): void {
-    // this.listaSocieta = this.societa.map(cantiere => cantiere.name);
-    // this.gestioneSocietaService.societaFilter.set(this.listaSocieta);
 
     this.veicoliFiltersForm.get('societa')?.setValue(["Seleziona tutto", ...this.listaSocieta]);
     this.allSelected = true;
