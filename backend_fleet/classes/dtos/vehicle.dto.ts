@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import {
   IsBoolean,
   IsDate,
@@ -6,19 +7,22 @@ import {
   IsString,
 } from 'class-validator';
 import { CommonDTO } from 'classes/common/common.dto';
-import { WorksiteDTO } from './worksite.dto';
 
 export class VehicleDTO extends CommonDTO {
   @IsNumber()
+  @IsOptional()
   veId: number;
   @IsBoolean()
+  @IsOptional()
   active: boolean;
   @IsOptional()
   @IsBoolean()
   active_csv: boolean | null;
   @IsString()
+  @IsOptional()
   plate: string;
   @IsString()
+  @IsOptional()
   model: string;
   @IsOptional()
   @IsString()
@@ -39,17 +43,20 @@ export class VehicleDTO extends CommonDTO {
   @IsDate()
   lastSessionEvent?: Date | null;
   @IsBoolean()
+  @IsOptional()
   isCan: boolean;
   @IsOptional()
   @IsString()
   fleet_number: string | null;
   @IsOptional()
   @IsDate()
+  @Type(() => Date)
   fleet_install: Date | null;
   @IsOptional()
   @IsBoolean()
   electrical: boolean | null;
   @IsBoolean()
+  @IsOptional()
   isRFIDReader: boolean;
   @IsOptional()
   @IsBoolean()
@@ -62,12 +69,15 @@ export class VehicleDTO extends CommonDTO {
   fleet_antenna_number: string | null;
   @IsOptional()
   @IsDate()
+  @Type(() => Date)
   retired_event?: Date | null;
   @IsOptional()
   @IsNumber()
   worksite_priority: number | null;
+  @IsOptional()
   @IsNumber()
   profileId: number;
+  @IsOptional()
   @IsString()
   profileName: string;
 }
