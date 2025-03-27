@@ -21,6 +21,18 @@
       <mat-date-range-picker #picker></mat-date-range-picker>
     </mat-form-field>
 
-    <button mat-raised-button class="button" (click)="applyFilters()">Applica Filtri</button>
+    <span
+      class="apply-container"
+      [matTooltip]="getApplyFilterTooltip()"
+    >
+      <button
+        mat-raised-button
+        class="button"
+        (click)="applyFilters()"
+        [disabled]="!isApplyFilterEnabled()"
+      >
+        Applica Filtri
+      </button>
+    </span>
   </form>
 </div>

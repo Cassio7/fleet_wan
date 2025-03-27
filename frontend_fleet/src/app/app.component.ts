@@ -164,7 +164,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
 
   /**
    * Permette di modificare lo stato dell'animazione del bottone di logout
-   * @param state stato alla quale si vuole cambiare
+   * @param state stato alla quale si vuole
    */
   triggerLogoutButtonAnimation(state: string): void {
     this.logoutButtonAnimationState = state;
