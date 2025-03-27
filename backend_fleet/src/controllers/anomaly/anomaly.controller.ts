@@ -110,7 +110,7 @@ export class AnomalyController {
       });
       return res.status(400).json({ message: 'Inserisci una data di inizio' });
     }
-    const dateFrom = new Date(body.dateFrom);
+    const dateFrom = new Date(body.dateFrom + 'Z');
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -124,7 +124,7 @@ export class AnomalyController {
       return res.status(400).json({ message: 'Inserisci una data di fine' });
     }
 
-    const dateTo = new Date(body.dateTo);
+    const dateTo = new Date(body.dateTo + 'Z');
     if (dateTo < dateFrom) {
       this.loggerService.logCrudError({
         context,
@@ -558,7 +558,7 @@ export class AnomalyController {
       });
       return res.status(400).json({ message: 'Inserisci una data di inizio' });
     }
-    const dateFrom = new Date(body.dateFrom);
+    const dateFrom = new Date(body.dateFrom + 'Z');
 
     if (!body.dateTo) {
       this.loggerService.logCrudError({
@@ -569,7 +569,7 @@ export class AnomalyController {
       return res.status(400).json({ message: 'Inserisci una data di fine' });
     }
 
-    const dateTo = new Date(body.dateTo);
+    const dateTo = new Date(body.dateTo + 'Z');
     if (dateTo < dateFrom) {
       this.loggerService.logCrudError({
         context,

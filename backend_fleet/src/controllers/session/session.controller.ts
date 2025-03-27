@@ -138,8 +138,8 @@ export class SessionController {
       });
       return res.status(400).json({ message: validation.message });
     }
-    const dateFrom_new = new Date(dateFrom);
-    const dateTo_new = new Date(dateTo);
+    const dateFrom_new = new Date(dateFrom + 'Z');
+    const dateTo_new = new Date(dateTo + 'Z');
     const equal = sameDate(dateFrom_new, dateTo_new);
     if (equal) {
       dateTo_new.setHours(23, 59, 59, 0);
