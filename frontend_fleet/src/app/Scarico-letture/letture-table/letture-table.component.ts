@@ -26,7 +26,7 @@ export class LettureTableComponent implements AfterViewInit, OnDestroy{
   @ViewChild('utentiTable', {static: false}) tagTable!: MatTable<TagDownloadData>;
   @ViewChild(MatSort) sort!: MatSort;
   snackBar= inject(MatSnackBar);
-  displayedColumns: string[] = ['EPC', 'Type', 'Timestamp', 'Latitude', 'Longitude', 'Plate', 'Cantiere'];
+  displayedColumns: string[] = ['EPC', 'Timestamp', 'Latitude', 'Longitude', 'Plate', 'Cantiere'];
   tagTableData = new MatTableDataSource<TagDownloadData>();
   lettureFilters!: LettureFilters;
   tagCount!: number;

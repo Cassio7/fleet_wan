@@ -1,6 +1,7 @@
 .nTag-container{
   width: 100%;
-  text-align: right;
+  display: flex;
+  justify-content: space-between;
 }
 .table-container {
   height: 70vh;

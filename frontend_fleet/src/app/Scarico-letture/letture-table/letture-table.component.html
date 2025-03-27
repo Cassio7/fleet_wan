@@ -1,6 +1,9 @@
 <div class="nTag-container" *ngIf="tagCount && tagCount != 0">
-  Numero di tag letti: {{tagCount}}
+  <span>Prime 100 letture: </span>
+  <span>Numero di tag letti: {{tagCount}}</span>
 </div>
+
+
 <div class="table-container">
   <table mat-table [dataSource]="tagTableData" class="table">
     <!-- EPC Column -->
@@ -9,16 +12,10 @@
       <td mat-cell *matCellDef="let tagData"> {{tagData.epc}} </td>
     </ng-container>
 
-    <!-- Type Column -->
-    <ng-container matColumnDef="Type">
-      <th mat-header-cell *matHeaderCellDef> Type </th>
-      <td mat-cell *matCellDef="let tagData"> {{tagData?.type || "no data"}} </td>
-    </ng-container>
-
     <!-- Timestamp Column -->
     <ng-container matColumnDef="Timestamp">
       <th mat-header-cell *matHeaderCellDef> Timestamp </th>
-      <td mat-cell *matCellDef="let tagData"> {{tagData.timestamp | date: 'dd/MM/yyyy'}} </td>
+      <td mat-cell *matCellDef="let tagData"> {{tagData.timestamp | date: 'dd/MM/yyyy MM:ss'}} </td>
     </ng-container>
 
     <!-- Latitude Column -->
