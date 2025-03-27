@@ -88,8 +88,8 @@ export class TagController {
         }
 
         // Parse dates and get filtered tags
-        const parsedDateFrom = new Date(dateFrom);
-        const parsedDateTo = new Date(dateTo);
+        const parsedDateFrom = new Date(dateFrom + 'Z');
+        const parsedDateTo = new Date(dateTo + 'Z');
         const equal = sameDate(parsedDateFrom, parsedDateTo);
         if (equal) {
           parsedDateTo.setHours(23, 59, 59, 0);
@@ -179,8 +179,10 @@ export class TagController {
       }
 
       // Parse dates and get filtered tags
-      const parsedDateFrom = new Date(dateFrom);
-      const parsedDateTo = new Date(dateTo);
+      const parsedDateFrom = new Date(dateFrom + 'Z');
+      const parsedDateTo = new Date(dateTo + 'Z');
+      parsedDateFrom.setHours(0, 0, 0, 0);
+      parsedDateTo.setHours(0, 0, 0, 0);
       const equal = sameDate(parsedDateFrom, parsedDateTo);
       if (equal) {
         parsedDateTo.setHours(23, 59, 59, 0);
@@ -226,6 +228,11 @@ export class TagController {
           worksites,
           isPreview,
         );
+        this.loggerService.logCrudSuccess(
+          context,
+          'list',
+          `Preview tag numero: ${count}`,
+        );
         return res.status(200).json({ count: count, tags: tags });
       }
       const tags = await this.tagService.getTagsByRangeWorksite(
@@ -242,12 +249,18 @@ export class TagController {
       this.loggerService.logCrudSuccess(
         context,
         'list',
-        `Numero di tag recuperati ${tags.length}`,
+        `Numero di tag scaricati ${tags.length}`,
       );
 
       const workbook = new Workbook();
+      const dateFromName = parsedDateFrom
+        .toLocaleDateString('it-IT')
+        .replace(/\//g, '-');
+      const dateToName = parsedDateFrom
+        .toLocaleDateString('it-IT')
+        .replace(/\//g, '-');
       const worksheet = workbook.addWorksheet(
-        `tags date ${dateFrom}-${dateTo}`,
+        `tags date ${dateFromName}-${dateToName}`,
       );
       worksheet.addRow([
         `EPC,"Type","Timestamp","Latitude","Longitude","Plate","Group","Quality"`,
@@ -278,7 +291,7 @@ export class TagController {
       );
       res.setHeader(
         'Content-Disposition',
-        `attachment; filename=tags-date-${dateFrom}-${dateTo}.xlsx`,
+        `attachment; filename=tags-${dateFromName}-${dateToName}.xlsx`,
       );
       await workbook.xlsx.write(res);
       return res.end();
