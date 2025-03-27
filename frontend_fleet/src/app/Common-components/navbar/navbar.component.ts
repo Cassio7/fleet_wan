@@ -14,6 +14,7 @@ import { CommonModule } from '@angular/common';
 import { User } from '../../Models/User';
 import { SessionStorageService } from '../../Common-services/sessionStorage/session-storage.service';
 import { ProfileService } from '../../Profile/Services/profile/profile.service';
+import { KanbanSessioneService } from '../../Dashboard/Services/kanban-sessione/kanban-sessione.service';
 
 @Component({
   selector: 'app-navbar',
@@ -38,11 +39,14 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
   surname: string = "";
   role: string = "";
 
+  isKanban: boolean = false;
+
   constructor(
     private loginService: LoginService,
     private authService: AuthService,
     private kanbanAntennaService: KanbanAntennaService,
     private kanbanGpsService: KanbanGpsService,
+    private kanbanSessioneService: KanbanSessioneService,
     private kanabanTableService: KanbanTableService,
     private profileService: ProfileService,
     private router: Router,
@@ -115,9 +119,11 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
       });
       merge(
         this.kanbanAntennaService.loadKanbanAntenna$.pipe(takeUntil(this.destroy$)),
-        this.kanbanGpsService.loadKanbanGps$.pipe(takeUntil(this.destroy$))
+        this.kanbanGpsService.loadKanbanGps$.pipe(takeUntil(this.destroy$)),
+        this.kanbanSessioneService.loadKanbanSessione$.pipe(takeUntil(this.destroy$))
       ).subscribe({
         next: () => {
+          this.isKanban = true;
           this.cd.detectChanges();
         },
         error: error => console.error("Errore nel cambio del path: ", error)
@@ -125,7 +131,7 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
       this.kanabanTableService.loadKabanTable$.pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          this.currentPage = "Riepilogo";
+          this.currentPage = "dashboard";
           this.cd.detectChanges();
         },
         error: error => console.error("Errore nel cambio del path: ", error)
