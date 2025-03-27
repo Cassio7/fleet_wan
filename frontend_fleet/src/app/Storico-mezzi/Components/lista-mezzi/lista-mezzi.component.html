@@ -45,4 +45,7 @@
     matTooltip="Click per selezionare"
     [ngClass]="{ 'selected-row': selectedVehicle === vehicle }"
   ></tr>
+  <tr class="mat-row" *matNoDataRow>
+    <td class="mat-cell" colspan="7">Nessun veicolo trovato</td>
+  </tr>
 </table>
