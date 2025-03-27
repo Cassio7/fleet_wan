@@ -1,4 +1,4 @@
-<div class="nTag-container" *ngIf="tagCount && tagCount != 0">
+<div class="nTag-container" [ngStyle]="{'visibility': tagCount && tagCount !== 0 ? 'visible' : 'hidden'}">
   <span>Prime 100 letture: </span>
   <span>Numero di tag letti: {{tagCount}}</span>
 </div>
