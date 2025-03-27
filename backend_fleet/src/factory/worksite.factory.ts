@@ -1,82 +1,107 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { EquipmentEntity } from 'classes/entities/equipment.entity';
 import { GroupEntity } from 'classes/entities/group.entity';
 import { RentalEntity } from 'classes/entities/rental.entity';
 import { ServiceEntity } from 'classes/entities/service.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { WorksiteEntity } from 'classes/entities/worksite.entity';
+import { WorksiteHistoryEntity } from 'classes/entities/worksite_history.entity';
 import { WorkzoneEntity } from 'classes/entities/workzone.entity';
 import * as path from 'path';
 import { parseCsvFile } from 'src/utils/utils';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 
 @Injectable()
 export class WorksiteFactoryService {
   private readonly cvsPath = path.resolve(process.cwd(), 'files/CANTIERI.csv');
   private readonly cvsPathV = path.resolve(process.cwd(), 'files/VEICOLI.csv');
   constructor(
-    @InjectRepository(WorksiteEntity, 'mainConnection')
+    @InjectRepository(WorksiteEntity, 'readOnlyConnection')
     private worksiteRepository: Repository<WorksiteEntity>,
-    @InjectRepository(WorkzoneEntity, 'mainConnection')
+    @InjectRepository(WorkzoneEntity, 'readOnlyConnection')
     private workzoneRepository: Repository<WorkzoneEntity>,
-    @InjectRepository(ServiceEntity, 'mainConnection')
+    @InjectRepository(ServiceEntity, 'readOnlyConnection')
     private serviceRepository: Repository<ServiceEntity>,
-    @InjectRepository(EquipmentEntity, 'mainConnection')
+    @InjectRepository(EquipmentEntity, 'readOnlyConnection')
     private equipmentRepository: Repository<EquipmentEntity>,
-    @InjectRepository(RentalEntity, 'mainConnection')
+    @InjectRepository(RentalEntity, 'readOnlyConnection')
     private rentalRepository: Repository<RentalEntity>,
-    @InjectRepository(VehicleEntity, 'mainConnection')
+    @InjectRepository(VehicleEntity, 'readOnlyConnection')
     private vehicleRepository: Repository<VehicleEntity>,
-    @InjectRepository(GroupEntity, 'mainConnection')
+    @InjectRepository(GroupEntity, 'readOnlyConnection')
     private groupRepository: Repository<GroupEntity>,
+    @InjectDataSource('mainConnection')
+    private readonly connection: DataSource,
   ) {}
 
-  async createDefaultWorksite(): Promise<WorksiteEntity[]> {
+  async createDefaultWorksite(): Promise<void> {
     const worksiteData = await parseCsvFile(this.cvsPath);
+    const queryRunner = this.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-    const worksiteEntities = await Promise.all(
-      worksiteData.map(async (data) => {
-        const worksite = new WorksiteEntity();
-        worksite.name = data.name;
-        worksite.group = await this.groupRepository.findOne({
-          where: { id: data.groupId },
-        });
-        return worksite;
-      }),
-    );
+    try {
+      for (const data of worksiteData) {
+        const worksite = queryRunner.manager
+          .getRepository(WorksiteEntity)
+          .create({
+            name: data.name,
+            group: await this.groupRepository.findOne({
+              where: { id: data.groupId },
+            }),
+          });
 
-    return this.worksiteRepository.save(worksiteEntities);
+        await queryRunner.manager.save(worksite);
+      }
+
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      console.error('Errore durante la creazione dei cantieri:', error);
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async createDefaultVehicleWorksite() {
     const vehicleWorksiteData = await parseCsvFile(this.cvsPathV);
-    await Promise.all(
-      vehicleWorksiteData.map(async (data) => {
+    const queryRunner = this.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      for (const data of vehicleWorksiteData) {
         const vehicle = await this.vehicleRepository.findOne({
           where: {
             veId: data.veId,
           },
         });
+
         if (!vehicle) {
           console.log(`Veicolo con veId: ${data.veId} non trovato`);
-          return;
+          continue;
         }
+
         vehicle.worksite = await this.worksiteRepository.findOne({
           where: {
             id: data.worksiteId,
           },
         });
+
         vehicle.workzone = await this.workzoneRepository.findOne({
           where: {
             id: data.workzoneId,
           },
         });
+
         vehicle.service = await this.serviceRepository.findOne({
           where: {
             id: data.serviceId,
           },
         });
+
         if (data.equipmentId) {
           vehicle.equipment = await this.equipmentRepository.findOne({
             where: {
@@ -84,6 +109,7 @@ export class WorksiteFactoryService {
             },
           });
         }
+
         if (data.rentalId) {
           vehicle.rental = await this.rentalRepository.findOne({
             where: {
@@ -91,6 +117,7 @@ export class WorksiteFactoryService {
             },
           });
         }
+
         vehicle.allestimento = data.Allestimento;
         if (data.antenna_setting) {
           vehicle.antenna_setting = data.antenna_setting;
@@ -110,9 +137,37 @@ export class WorksiteFactoryService {
           vehicle.fleet_antenna_number = data.fleet_antenna_number;
         }
         vehicle.active_csv = data.active_csv;
-        // uso save invece di update così si aggiorna la variabile di version
-        await this.vehicleRepository.save(vehicle);
-      }),
-    );
+
+        await queryRunner.manager.getRepository(VehicleEntity).update(
+          {
+            key: vehicle.key,
+          },
+          vehicle,
+        );
+        const worksiteHistory = queryRunner.manager
+          .getRepository(WorksiteHistoryEntity)
+          .create({
+            dateFrom: new Date(),
+            dateTo: null,
+            comment: 'Assegnazione iniziale',
+            vehicle: vehicle,
+            worksite: vehicle.worksite,
+          });
+        await queryRunner.manager
+          .getRepository(WorksiteHistoryEntity)
+          .save(worksiteHistory);
+      }
+
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      console.error(
+        'Errore durante la creazione del veicolo e della sua storia:',
+        error,
+      );
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
   }
 }
