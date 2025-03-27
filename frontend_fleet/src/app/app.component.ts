@@ -11,9 +11,14 @@ import { CommonModule } from '@angular/common';
 import { MatMenuModule } from '@angular/material/menu';
 import { NavigationService } from './Common-services/navigation/navigation.service';
 import { SessionStorageService } from './Common-services/sessionStorage/session-storage.service';
-import { User } from './Models/User';
 import { AuthService } from './Common-services/auth/auth.service';
 import { CookieService } from 'ngx-cookie-service';
+
+import { MAT_DATE_FORMATS, MAT_DATE_LOCALE, DateAdapter } from '@angular/material/core';
+import { MomentDateAdapter } from '@angular/material-moment-adapter';
+import * as moment from 'moment';
+import 'moment/locale/it';
+import { MY_DATE_FORMATS } from './Utils/date-format';
 
 @Component({
   selector: 'app-root',
@@ -22,18 +27,23 @@ import { CookieService } from 'ngx-cookie-service';
     RouterOutlet,
     RouterModule,
     CommonModule,
-    // FooterComponent,
     MatIconModule,
     MatButtonModule,
     NavbarComponent,
     MatSidenavModule,
     MatMenuModule,
     MatToolbarModule
-],
+  ],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  styleUrl: './app.component.css',
+  providers: [
+    { provide: DateAdapter, useClass: MomentDateAdapter, deps: [MAT_DATE_LOCALE] },
+    { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
+    { provide: MAT_DATE_LOCALE, useValue: 'it-IT' }
+  ]
 })
 export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
+  private readonly destroy$: Subject<void> = new Subject<void>();
   @ViewChild('drawer') drawer!: MatDrawer; //sidebar mobile
   @ViewChild('fixedDrawer') fixedDrawer!: MatDrawer; //sidebar fissa
 
@@ -42,7 +52,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
   isLogged = false;
   title = 'frontend_fleet';
   user!: any;
-  private readonly destroy$: Subject<void> = new Subject<void>();
 
 
   constructor(
@@ -54,7 +63,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
     private ngZone: NgZone,
     private navigationService: NavigationService, //servizio importato per farlo caricare ad inizio applicazione
     private cd: ChangeDetectorRef
-  ){}
+  ){
+    moment.locale('it');
+  }
 
   ngOnDestroy(): void {
     this.destroy$.next();
