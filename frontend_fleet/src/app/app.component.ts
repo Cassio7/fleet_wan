@@ -19,6 +19,7 @@ import { MomentDateAdapter } from '@angular/material-moment-adapter';
 import * as moment from 'moment';
 import 'moment/locale/it';
 import { MY_DATE_FORMATS } from './Utils/date-format';
+import { trigger, state, style, transition, animate } from '@angular/animations';
 
 @Component({
   selector: 'app-root',
@@ -40,7 +41,15 @@ import { MY_DATE_FORMATS } from './Utils/date-format';
     { provide: DateAdapter, useClass: MomentDateAdapter, deps: [MAT_DATE_LOCALE] },
     { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
     { provide: MAT_DATE_LOCALE, useValue: 'it-IT' }
-  ]
+  ],
+  animations: [
+    trigger('rotatedState', [
+      state('default', style({ transform: 'rotate(0)' })),
+      state('rotated', style({ transform: 'rotate(-360deg)' })),
+      transition('rotated => default', animate('500ms ease-out')),
+      transition('default => rotated', animate('500ms ease-in')),
+    ]),
+  ],
 })
 export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
   private readonly destroy$: Subject<void> = new Subject<void>();
@@ -53,6 +62,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
   title = 'frontend_fleet';
   user!: any;
 
+  logoutButtonAnimationState = 'default';
 
   constructor(
     public router: Router,
@@ -143,7 +153,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
     }
   }
 
-
   /**
    * Controlla se la pagina attuale è quella di login
    * @param url url da controllare
@@ -151,5 +160,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
    */
   checkLoginPage(url: string): boolean {
     return url === '/login';
+  }
+
+  triggerLogoutButtonAnimation(){
+    this.logoutButtonAnimationState = this.logoutButtonAnimationState === 'default' ? 'rotated' : 'default';
   }
 }
