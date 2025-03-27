@@ -52,9 +52,17 @@
       </mat-drawer>
 
       <div class="sidebar-content">
-          <div class="content-area">
-          <app-navbar *ngIf="isLogged"></app-navbar>
-          <router-outlet></router-outlet>
+        <div class="content-area">
+          <ng-container *ngIf="!isLogged; else authenticatedContent">
+            <app-login></app-login>
+          </ng-container>
+
+          <ng-template #authenticatedContent>
+            <div class="content">
+              <app-navbar></app-navbar>
+              <router-outlet></router-outlet>
+            </div>
+          </ng-template>
         </div>
       </div>
     </mat-drawer-container>

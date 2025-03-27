@@ -20,6 +20,7 @@ import * as moment from 'moment';
 import 'moment/locale/it';
 import { MY_DATE_FORMATS } from './Utils/date-format';
 import { trigger, state, style, transition, animate } from '@angular/animations';
+import { LoginComponent } from "./Common-components/login/login.component";
 
 @Component({
   selector: 'app-root',
@@ -33,8 +34,9 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
     NavbarComponent,
     MatSidenavModule,
     MatMenuModule,
-    MatToolbarModule
-  ],
+    MatToolbarModule,
+    LoginComponent
+],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
   providers: [
