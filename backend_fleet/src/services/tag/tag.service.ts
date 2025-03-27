@@ -516,7 +516,7 @@ export class TagService {
       const veIdArray =
         await this.associationService.getVehiclesRedisAllSet(userId);
       let query;
-      if (worksiteId && Number(worksiteId)) {
+      if (worksiteId.length > 0) {
         query = this.tagHistoryRepository
           .createQueryBuilder('tagHistory')
           .select([
@@ -591,7 +591,7 @@ export class TagService {
     const veIdArray =
       await this.associationService.getVehiclesRedisAllSet(userId);
     let tags;
-    if (worksiteId) {
+    if (worksiteId.length > 0) {
       tags = await this.tagHistoryRepository
         .createQueryBuilder('tagHistory')
         .leftJoin('tagHistory.detectiontag', 'detectiontag')
