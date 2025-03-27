@@ -87,8 +87,10 @@ export class HomeLettureComponent implements OnInit, OnDestroy{
             const link = document.createElement('a');
             const url = window.URL.createObjectURL(blob);
             link.href = url;
+            const parsedDateFrom = new Date(dateFrom).toLocaleDateString('it-IT').replace(/\//g, '-');
+            const parsedDateTo = new Date(dateTo).toLocaleDateString('it-IT').replace(/\//g, '-');
 
-            link.download = `tags-${dateFrom}-${dateTo}.xlsx`;
+            link.download = `tags-${parsedDateFrom}-${parsedDateTo}.xlsx`;
 
             link.click();
 
