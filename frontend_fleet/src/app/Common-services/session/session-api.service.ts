@@ -82,20 +82,13 @@ export class SessionApiService {
 
     const body = {
       veId: veId,
-      dateFrom: this.formatDate(dateFrom),
-      dateTo: this.formatDate(dateTo)
+      dateFrom: dateFrom,
+      dateTo: dateTo
     }
 
     console.log("request body: ", body);
 
     return this.http.post<VehicleAnomalies>(`${this.commonService.url}/anomaly/veId/ranged`, body, {headers});
-  }
-
-  private formatDate(date: Date): string {
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    return `${year}-${month}-${day}`;
   }
 
   /**
