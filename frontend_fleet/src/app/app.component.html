@@ -10,8 +10,8 @@
         <button routerLink="home-mezzi" [ngClass]="{'selectedBtn': router.url == '/home-mezzi'}"><mat-icon>local_shipping</mat-icon></button>
         <button routerLink="storico-mezzi" [ngClass]="{'selectedBtn': router.url == '/storico-mezzi'}"><mat-icon>inventory_2</mat-icon></button>
         <button routerLink="home-mappa" [ngClass]="{'selectedBtn': router.url == '/home-mappa'}"><mat-icon>map</mat-icon></button>
+        <button routerLink="scarico-letture" [ngClass]="{'selectedBtn': router.url == '/scarico-letture'}"><mat-icon>download</mat-icon></button>
         <button routerLink="gestione-utenti" *ngIf="user?.idR == 1" [ngClass]="{'selectedBtn': router.url == '/gestione-utenti'}"><mat-icon>group</mat-icon></button>
-        <button><mat-icon>settings</mat-icon></button>
       </div>
       <div class="log-out" (mouseover)="triggerLogoutButtonAnimation('rotated')" (mouseleave)="triggerLogoutButtonAnimation('default')">
         <button [matMenuTriggerFor]="menu" class="logout-btn">
@@ -40,8 +40,8 @@
             <mat-icon>inventory_2</mat-icon><span class="drawerIcon-text">Storico mezzi</span>
           </button>
           <button class="button" routerLink="home-mappa" [ngClass]="{'selectedBtn': router.url == '/home-mappa'}" (click)="drawer.toggle(); fixedDrawer.toggle()"><mat-icon>map</mat-icon><span><span class="drawerIcon-text">Mappa</span></span></button>
+          <button class="button" routerLink="scarico-letture" [ngClass]="{'selectedBtn': router.url == '/scarico-letture'}" (click)="drawer.toggle(); fixedDrawer.toggle()"><mat-icon>download</mat-icon><span><span class="drawerIcon-text">Scarico letture</span></span></button>
           <button class="button" routerLink="gestione-utenti" [ngClass]="{'selectedBtn': router.url == '/gestione-utenti'}" *ngIf="user?.idR == 1"><mat-icon>group</mat-icon><span class="drawerIcon-text" (click)="drawer.toggle(); fixedDrawer.toggle()">Gestione utenti</span></button>
-          <button class="button"><mat-icon>settings</mat-icon><span class="drawerIcon-text" (click)="drawer.toggle(); fixedDrawer.toggle()">Impostazioni</span></button>
 
           <button class="button" [matMenuTriggerFor]="menu">
             <mat-icon>power_settings_new</mat-icon><span class="drawerIcon-text">Esci</span>
