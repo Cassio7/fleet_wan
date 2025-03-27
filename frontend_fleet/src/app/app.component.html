@@ -13,8 +13,10 @@
         <button routerLink="gestione-utenti" *ngIf="user?.idR == 1" [ngClass]="{'selectedBtn': router.url == '/gestione-utenti'}"><mat-icon>group</mat-icon></button>
         <button><mat-icon>settings</mat-icon></button>
       </div>
-      <div class="log-out">
-        <button (mouseover)="triggerLogoutButtonAnimation()" [matMenuTriggerFor]="menu" class="logout-btn"><mat-icon class="logout-icon" [@rotatedState]='logoutButtonAnimationState'>power_settings_new</mat-icon></button>
+      <div class="log-out" (mouseover)="triggerLogoutButtonAnimation('rotated')" (mouseleave)="triggerLogoutButtonAnimation('default')">
+        <button [matMenuTriggerFor]="menu" class="logout-btn">
+          <mat-icon class="logout-icon" [@rotatedState]="logoutButtonAnimationState">power_settings_new</mat-icon>
+        </button>
         <mat-menu #menu="matMenu">
           <button mat-menu-item (click)="logout()">Esci</button>
         </mat-menu>

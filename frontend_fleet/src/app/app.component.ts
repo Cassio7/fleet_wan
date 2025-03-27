@@ -162,7 +162,11 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
     return url === '/login';
   }
 
-  triggerLogoutButtonAnimation(){
-    this.logoutButtonAnimationState = this.logoutButtonAnimationState === 'default' ? 'rotated' : 'default';
+  /**
+   * Permette di modificare lo stato dell'animazione del bottone di logout
+   * @param state stato alla quale si vuole cambiare
+   */
+  triggerLogoutButtonAnimation(state: string): void {
+    this.logoutButtonAnimationState = state;
   }
 }
