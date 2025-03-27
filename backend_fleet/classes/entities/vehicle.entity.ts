@@ -19,6 +19,7 @@ import { ServiceEntity } from './service.entity';
 import { TagHistoryEntity } from './tag_history.entity';
 import { WorksiteEntity } from './worksite.entity';
 import { WorkzoneEntity } from './workzone.entity';
+import { WorksiteHistoryEntity } from './worksite_history.entity';
 
 @Entity({
   name: 'vehicles',
@@ -133,6 +134,12 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
 
   @OneToMany(() => AnomalyEntity, (anomaly) => anomaly.vehicle)
   anomaly: AnomalyEntity[];
+
+  @OneToMany(
+    () => WorksiteHistoryEntity,
+    (worksiteHistory) => worksiteHistory.vehicle,
+  )
+  worksiteHistory: WorksiteHistoryEntity;
 
   @Column({ type: 'varchar', length: 100 })
   @Index()

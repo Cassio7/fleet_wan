@@ -4,6 +4,7 @@ import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { AssociationEntity } from './association.entity';
 import { GroupEntity } from './group.entity';
 import { VehicleEntity } from './vehicle.entity';
+import { WorksiteHistoryEntity } from './worksite_history.entity';
 
 @Entity({
   name: 'worksites',
@@ -24,4 +25,10 @@ export class WorksiteEntity extends CommonEntity implements WorksiteInterface {
     onDelete: 'CASCADE',
   })
   association: AssociationEntity[];
+
+  @OneToMany(
+    () => WorksiteHistoryEntity,
+    (worksiteHistory) => worksiteHistory.worksite,
+  )
+  worksiteHistory: WorksiteHistoryEntity;
 }

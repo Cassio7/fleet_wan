@@ -27,6 +27,7 @@ import { UserEntity } from 'classes/entities/user.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { WorksiteEntity } from 'classes/entities/worksite.entity';
 import { WorkzoneEntity } from 'classes/entities/workzone.entity';
+import { WorksiteHistoryEntity } from 'classes/entities/worksite_history.entity';
 
 // importo i servizi
 import { LoggerService } from './log/service/logger.service';
@@ -120,6 +121,7 @@ import { ServiceController } from './controllers/service/service.controller';
           RentalEntity,
           EquipmentEntity,
           NotificationEntity,
+          WorksiteHistoryEntity,
         ],
         synchronize: true,
         //dropSchema: true, // if true drop db
@@ -147,6 +149,7 @@ import { ServiceController } from './controllers/service/service.controller';
         RentalEntity,
         EquipmentEntity,
         NotificationEntity,
+        WorksiteHistoryEntity,
       ],
       'mainConnection',
     ),
@@ -182,6 +185,7 @@ import { ServiceController } from './controllers/service/service.controller';
           RentalEntity,
           EquipmentEntity,
           NotificationEntity,
+          WorksiteHistoryEntity,
         ],
         synchronize: false,
       }),
@@ -208,6 +212,7 @@ import { ServiceController } from './controllers/service/service.controller';
         RentalEntity,
         EquipmentEntity,
         NotificationEntity,
+        WorksiteHistoryEntity,
       ],
       'readOnlyConnection',
     ),
