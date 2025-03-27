@@ -55,11 +55,6 @@ export class TagService {
 
   }
 
-  private formatDate(date: Date | null): string | null {
-    if(date)
-      return date.toISOString().split('T')[0];
-    return null;
-  }
 
   /**
    * Permette di scaricare i tag letti dai veicoli di un determinato cantiere in un range di tempo
@@ -68,7 +63,7 @@ export class TagService {
    * @param dateTo data di fine ricerca
    * @returns observable http get<Tag[]>
    */
-  getDownloadTagsRangedPreview(workSiteIds: number[], dateFrom: Date | string, dateTo: Date | string): Observable<tagDownloadResponse> {
+  getDownloadTagsRangedPreview(workSiteIds: number[], dateFrom: string, dateTo: string): Observable<tagDownloadResponse> {
     const access_token = this.cookieService.get("user");
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${access_token}`,
@@ -84,16 +79,12 @@ export class TagService {
     });
 
     // Gestione di dateFrom
-    if (dateFrom instanceof Date) {
-      params = params.set('dateFrom', this.formatDate(dateFrom) || '');
-    } else if (dateFrom) {
+if (dateFrom) {
       params = params.set('dateFrom', dateFrom);
     }
 
     // Gestione di dateTo
-    if (dateTo instanceof Date) {
-      params = params.set('dateTo', this.formatDate(dateTo) || '');
-    } else if (dateTo) {
+ if (dateTo) {
       params = params.set('dateTo', dateTo);
     }
 
@@ -109,7 +100,7 @@ export class TagService {
     });
   }
 
-  downloadTagsRanged(worksiteIds: number[], dateFrom: Date | string, dateTo: Date | string): Observable<Blob> {
+  downloadTagsRanged(worksiteIds: number[], dateFrom: string, dateTo: string): Observable<Blob> {
     const access_token = this.cookieService.get("user");
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${access_token}`,
@@ -122,17 +113,12 @@ export class TagService {
       params.append('worksite', worksiteId.toString());
     })
 
-    // Format dateFrom properly
-    if(dateFrom instanceof Date) {
-      params = params.set('dateFrom', this.formatDate(dateFrom) || '');
-    } else if(dateFrom) {
+    if(dateFrom) {
       params = params.set('dateFrom', dateFrom);
     }
 
     // Format dateTo properly
-    if(dateTo instanceof Date) {
-      params = params.set('dateTo', this.formatDate(dateTo) || '');
-    } else if(dateTo) {
+if(dateTo) {
       params = params.set('dateTo', dateTo);
     }
 

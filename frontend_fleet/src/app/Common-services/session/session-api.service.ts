@@ -44,10 +44,11 @@ export class SessionApiService {
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'
     });
+    const dateFromFormat = new Date(dateFrom)
     const body={
       veId: veId,
-      dateFrom: dateFrom,
-      dateTo: dateTo
+      dateFrom: dateFromFormat.toString(),
+      dateTo: dateTo.toString()
     }
     return this.http.post<Session[]>(`${this.commonService.url}/sessions/veId/ranged?filter=true`, body, {headers});
   }
@@ -82,8 +83,8 @@ export class SessionApiService {
 
     const body = {
       veId: veId,
-      dateFrom: dateFrom,
-      dateTo: dateTo
+      dateFrom: dateFrom.toString(),
+      dateTo: dateTo.toString()
     }
 
     console.log("request body: ", body);
@@ -98,8 +99,8 @@ export class SessionApiService {
    * @returns observable post http
    */
   public getAllSessionsRanged(start_date: Date, end_date: Date) {
-    const dateFrom = start_date.toISOString();
-    const dateTo = end_date.toISOString();
+    const dateFrom = start_date.toString();
+    const dateTo = end_date.toString();
 
     // Parametri nel corpo della richiesta
     const body = {

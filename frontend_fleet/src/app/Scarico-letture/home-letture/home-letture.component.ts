@@ -77,7 +77,7 @@ export class HomeLettureComponent implements OnInit, OnDestroy{
       .filter(cantiere => cantieriNames.includes(cantiere.name))
       .map(cantiere => cantiere.id);
 
-      this.tagService.downloadTagsRanged(worksitesIds, dateFrom, dateTo)
+      this.tagService.downloadTagsRanged(worksitesIds, dateFrom.toString(), dateTo.toString())
       .pipe(
         takeUntil(this.destroy$)
       )

@@ -55,7 +55,7 @@ export class LettureTableComponent implements AfterViewInit, OnDestroy{
           const worksitesIds: number[] = this.cantieri
           .filter(cantiere => cantieriNames.includes(cantiere.name))
           .map(cantiere => cantiere.id);
-          this.tagService.getDownloadTagsRangedPreview(worksitesIds, dateFrom, dateTo).pipe(takeUntil(this.destroy$))
+          this.tagService.getDownloadTagsRangedPreview(worksitesIds, dateFrom.toString(), dateTo.toString()).pipe(takeUntil(this.destroy$))
           .subscribe({
             next: (downloadData: tagDownloadResponse) => {
               this.tagCount = downloadData.count;
