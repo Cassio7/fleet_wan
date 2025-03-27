@@ -65,6 +65,7 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
       this.updateNavbarIcon(event.url);
+      this.isKanban = false;
     });
   }
 
@@ -132,6 +133,7 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
       .subscribe({
         next: () => {
           this.currentPage = "dashboard";
+          this.isKanban = false;
           this.cd.detectChanges();
         },
         error: error => console.error("Errore nel cambio del path: ", error)
