@@ -13,3 +13,26 @@
   display: flex;
   gap: 1.04vw;
 }
+.go-back button {
+  height: 50px;
+  width: 50px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: black;
+}
+
+.go-back.title {
+  font-size: 24px;
+  font-family: Inter;
+}
+
+
+.go-back button mat-icon {
+  width: 100%;
+  height: 100%;
+  font-size: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

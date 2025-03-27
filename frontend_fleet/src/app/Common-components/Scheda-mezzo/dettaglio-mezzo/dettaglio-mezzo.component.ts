@@ -50,7 +50,7 @@ import { SvgService } from '../../../Common-services/svg/svg.service';
   styleUrl: './dettaglio-mezzo.component.css',
 })
 export class DettaglioMezzoComponent
-  implements OnInit, AfterViewInit, OnDestroy
+  implements OnInit, OnDestroy
 {
   private readonly destroy$: Subject<void> = new Subject<void>();
 
@@ -79,6 +79,7 @@ export class DettaglioMezzoComponent
   ) {}
 
   ngOnInit(): void {
+    if(this.navigationService.getPreviousUrl() != "/profile")
     this.previous_url = this.navigationService.getPreviousUrl() || null;
 
     this.vehicle = JSON.parse(this.sessionStorageService.getItem('detail'));
@@ -89,9 +90,7 @@ export class DettaglioMezzoComponent
         this.fetchVehicle();
       });
     }
-  }
 
-  ngAfterViewInit(): void {
     if (this.previous_url) {
       this.sessionStorageService.setItem('previous_url', this.previous_url);
     } else if (this.sessionStorageService.getItem('previous_url')) {
