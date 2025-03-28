@@ -229,7 +229,6 @@ export class WorksiteService {
       }
       updateWorksite['group'] = group;
     }
-    console.log(updateWorksite);
     // Aggiungo l'aggiornamento dei campi version e updatedAt
     const queryRunner = this.connection.createQueryRunner();
     try {
