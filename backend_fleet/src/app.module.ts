@@ -75,6 +75,7 @@ import { UserService } from './services/user/user.service';
 import { VehicleService } from './services/vehicle/vehicle.service';
 import { WorksiteHistoryService } from './services/worksite-history/worksite-history.service';
 import { WorksiteService } from './services/worksite/worksite.service';
+import { ExportService } from './services/tag/export/export.service';
 
 @Global()
 @Module({
@@ -281,6 +282,7 @@ import { WorksiteService } from './services/worksite/worksite.service';
     EquipmentService,
     RentalService,
     WorksiteHistoryService,
+    ExportService,
   ],
 })
 export class AppModule {}
