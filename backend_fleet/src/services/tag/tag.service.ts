@@ -537,7 +537,8 @@ export class TagService {
             dateFrom,
             dateTo,
           })
-          .andWhere('worksite.id IN (:...worksiteId)', { worksiteId });
+          .andWhere('worksite.id IN (:...worksiteId)', { worksiteId })
+          .orderBy('tagHistory.timestamp', 'ASC');
       } else {
         query = this.tagHistoryRepository
           .createQueryBuilder('tagHistory')
@@ -558,7 +559,8 @@ export class TagService {
           .andWhere('tagHistory.timestamp BETWEEN :dateFrom AND :dateTo', {
             dateFrom,
             dateTo,
-          });
+          })
+          .orderBy('tagHistory.timestamp', 'ASC');
       }
       if (limit) {
         query.limit(100);
