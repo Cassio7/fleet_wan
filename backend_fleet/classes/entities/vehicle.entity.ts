@@ -19,7 +19,7 @@ import { ServiceEntity } from './service.entity';
 import { TagHistoryEntity } from './tag_history.entity';
 import { WorksiteEntity } from './worksite.entity';
 import { WorkzoneEntity } from './workzone.entity';
-import { WorksiteHistoryEntity } from './worksite_history.entity';
+import { WorksiteHistoryEntity } from './worksite-history.entity';
 
 @Entity({
   name: 'vehicles',
