@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { getDaysInRange, validateDateRange } from 'src/utils/utils';
+import { getDaysInRange, validateDateRangeNoZ } from 'src/utils/utils';
 import { SessionService } from '../session/session.service';
 import { TagService } from '../tag/tag.service';
 import { VehicleService } from '../vehicle/vehicle.service';
@@ -37,7 +37,7 @@ export class ControlService {
    * @returns
    */
   async checkGPS(dateFrom: Date, dateTo: Date, vehicles: VehicleEntity[]) {
-    const validation = validateDateRange(
+    const validation = validateDateRangeNoZ(
       dateFrom.toISOString(),
       dateTo.toISOString(),
     );
@@ -205,7 +205,7 @@ export class ControlService {
    * @returns
    */
   private async checkAntenna(dateFrom: Date, dateTo: Date) {
-    const validation = validateDateRange(
+    const validation = validateDateRangeNoZ(
       dateFrom.toISOString(),
       dateTo.toISOString(),
     );
@@ -355,7 +355,7 @@ export class ControlService {
     dateTo: Date,
     vehicles: VehicleEntity[],
   ) {
-    const validation = validateDateRange(
+    const validation = validateDateRangeNoZ(
       dateFrom.toISOString(),
       dateTo.toISOString(),
     );
@@ -445,7 +445,7 @@ export class ControlService {
   }
 
   private async checkQuality(dateFrom: Date, dateTo: Date) {
-    const validation = validateDateRange(
+    const validation = validateDateRangeNoZ(
       dateFrom.toISOString(),
       dateTo.toISOString(),
     );
