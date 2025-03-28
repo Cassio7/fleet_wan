@@ -14,7 +14,6 @@ import { EquipmentEntity } from 'classes/entities/equipment.entity';
 import { RentalEntity } from 'classes/entities/rental.entity';
 import { ServiceEntity } from 'classes/entities/service.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
-import { WorksiteEntity } from 'classes/entities/worksite.entity';
 import { createHash } from 'crypto';
 import { NotificationsService } from 'src/notifications/notifications.service';
 import { DataSource, In, IsNull, Repository } from 'typeorm';
@@ -29,8 +28,6 @@ export class VehicleService {
   constructor(
     @InjectRepository(VehicleEntity, 'readOnlyConnection')
     private readonly vehicleRepository: Repository<VehicleEntity>,
-    @InjectRepository(WorksiteEntity, 'readOnlyConnection')
-    private readonly worksiteRepository: Repository<WorksiteEntity>,
     @InjectRepository(ServiceEntity, 'readOnlyConnection')
     private readonly serviceRepository: Repository<ServiceEntity>,
     @InjectRepository(EquipmentEntity, 'readOnlyConnection')
@@ -427,15 +424,11 @@ export class VehicleService {
   async updateVehicle(
     vehicleVeId: number,
     vehicleDTO: VehicleDTO,
-    worksiteId: number | null,
     serviceId: number | null,
     equipmentId: number | null,
     rentalId: number | null,
   ): Promise<VehicleEntity> {
     const vehicle = await this.vehicleRepository.findOne({
-      select: {
-        key: true,
-      },
       where: {
         veId: Number(vehicleVeId),
       },
@@ -443,21 +436,6 @@ export class VehicleService {
     if (!vehicle)
       throw new HttpException('Veicolo non trovato', HttpStatus.NOT_FOUND);
     const updateData: Partial<VehicleEntity> = { ...vehicleDTO };
-
-    // se viene inserito un cantiere lo censisco
-    if (worksiteId !== undefined) {
-      if (worksiteId !== null) {
-        const worksite = await this.worksiteRepository.findOne({
-          where: { id: worksiteId },
-        });
-        if (!worksite)
-          throw new HttpException('Cantiere non trovato', HttpStatus.NOT_FOUND);
-        updateData.worksite = worksite;
-      } else {
-        // se inserisco null rimuovo il cantiere
-        updateData.worksite = null;
-      }
-    }
 
     if (serviceId !== undefined) {
       if (serviceId !== null) {

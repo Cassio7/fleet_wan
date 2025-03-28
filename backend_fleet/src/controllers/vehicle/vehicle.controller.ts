@@ -52,7 +52,6 @@ export class VehicleController {
       }),
     )
     body: VehicleDTO & {
-      worksiteId?: number | null;
       serviceId?: number | null;
       equipmentId?: number | null;
       rentalId?: number | null;
@@ -64,13 +63,11 @@ export class VehicleController {
       resource: 'Vehicle',
       resourceId: vehicleVeId,
     };
-    const { worksiteId, serviceId, equipmentId, rentalId, ...vehicleDTO } =
-      body;
+    const { serviceId, equipmentId, rentalId, ...vehicleDTO } = body;
     try {
       const vehicle = await this.vehicleService.updateVehicle(
         vehicleVeId,
         vehicleDTO,
-        worksiteId,
         serviceId,
         equipmentId,
         rentalId,
