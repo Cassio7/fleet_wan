@@ -16,3 +16,14 @@
 .right-text{
   text-align: right;
 }
+.state-circle{
+  height: 11px;
+  width: 11px;
+  border-radius: 50%;
+}
+.active-circle{
+  background-color: lightgreen;
+}
+.inactive-circle{
+  background-color: var(--red);
+}
