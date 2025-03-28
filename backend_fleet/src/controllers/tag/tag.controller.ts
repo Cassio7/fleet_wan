@@ -182,7 +182,7 @@ export class TagController {
       const parsedDateFrom = new Date(dateFrom + 'Z');
       const parsedDateTo = new Date(dateTo + 'Z');
       parsedDateFrom.setHours(0, 0, 0, 0);
-      parsedDateTo.setHours(0, 0, 0, 0);
+      parsedDateTo.setHours(23, 59, 59, 999);
       const equal = sameDate(parsedDateFrom, parsedDateTo);
       if (equal) {
         parsedDateTo.setHours(23, 59, 59, 0);
