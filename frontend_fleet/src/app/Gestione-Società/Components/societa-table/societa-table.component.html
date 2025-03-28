@@ -1,34 +1,52 @@
 <div class="table-container">
-  <table mat-table [dataSource]="societaTableData" #societaTable class="societa-table table" matSort (matSortChange)="societaTableData.data = sortSocietaByMatSort(societaTableData.data)">
-
+  <table
+    mat-table
+    [dataSource]="societaTableData"
+    #societaTable
+    class="societa-table table"
+    matSort
+    (matSortChange)="
+      societaTableData.data = sortSocietaByMatSort(societaTableData.data)
+    "
+  >
     <ng-container matColumnDef="SuId">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> SuId </th>
-      <td mat-cell *matCellDef="let societa"> {{societa.suId || "-"}} </td>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>SuId</th>
+      <td mat-cell *matCellDef="let societa">{{ societa.suId || "-" }}</td>
     </ng-container>
 
     <ng-container matColumnDef="Societa">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> Società </th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Società</th>
       <td mat-cell *matCellDef="let societa">
         <div class="societa-container">
-          <span class="inline-container"><mat-icon>business</mat-icon> {{societa.name}} </span>
+          <span style="font-weight: 500"> {{ societa.name }} </span>
         </div>
       </td>
     </ng-container>
 
-    <ng-container matColumnDef="Numero comuni">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> Numero coomuni </th>
-      <td mat-cell *matCellDef="let societa"> {{societa.groupCount || "-"}} </td>
+    <ng-container matColumnDef="Comuni associati">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>
+        Comuni associati
+      </th>
+      <td mat-cell *matCellDef="let societa">
+        {{ societa.groupCount }}
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="Cantieri associati">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> Cantieri associati </th>
-      <td mat-cell *matCellDef="let societa"> {{societa.worsksiteCount}} </td>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>
+        Cantieri associati
+      </th>
+      <td mat-cell *matCellDef="let societa">{{ societa.worsksiteCount }}</td>
     </ng-container>
 
     <ng-container matColumnDef="Azioni">
-      <th mat-header-cell *matHeaderCellDef class="right-text"> Azioni </th>
+      <th mat-header-cell *matHeaderCellDef class="right-text">Azioni</th>
       <td mat-cell *matCellDef="let societa" class="right-text">
-        <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
+        <button
+          mat-icon-button
+          [matMenuTriggerFor]="menu"
+          aria-label="Example icon-button with a menu"
+        >
           <mat-icon>more_vert</mat-icon>
         </button>
         <mat-menu #menu="matMenu">
@@ -45,7 +63,7 @@
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
     <tr class="mat-row" *matNoDataRow>
       <td class="mat-cell" colspan="7">Nessuna società trovata</td>
     </tr>

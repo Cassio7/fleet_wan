@@ -1,7 +1,11 @@
 <div class="content" *ngIf="cantieri?.length">
   <div class="section-header">
-    <h4 class="title">Gestione cantieri</h4>
-    <button mat-button class="button" (click)="createNewCantiere()">Crea cantiere</button>
+    <h4 class="title inline-container">
+      <mat-icon>location_city</mat-icon>Gestione cantieri
+    </h4>
+    <button mat-button class="button" (click)="createNewCantiere()">
+      Crea cantiere
+    </button>
   </div>
   <div class="filters-container">
     <app-cantieri-filters [cantieri]="cantieri"></app-cantieri-filters>

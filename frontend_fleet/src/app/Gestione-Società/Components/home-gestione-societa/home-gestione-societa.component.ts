@@ -1,8 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, inject, OnDestroy, OnInit } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  inject,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { Company } from '../../../Models/Company';
-import { SocietaTableComponent } from "../societa-table/societa-table.component";
-import { SocietaFiltersComponent } from "../societa-filters/societa-filters.component";
+import { SocietaTableComponent } from '../societa-table/societa-table.component';
+import { SocietaFiltersComponent } from '../societa-filters/societa-filters.component';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonService } from '../../../Common-services/common service/common.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -10,15 +16,22 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject, takeUntil } from 'rxjs';
 import { Group } from '../../../Models/Group';
 import { GestioneSocietaService } from '../../Services/gestione-societa/gestione-societa.service';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-home-gestione-societa',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, SocietaTableComponent, SocietaFiltersComponent],
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    SocietaTableComponent,
+    SocietaFiltersComponent,
+    MatIconModule,
+  ],
   templateUrl: './home-gestione-societa.component.html',
-  styleUrl: './home-gestione-societa.component.css'
+  styleUrl: './home-gestione-societa.component.css',
 })
-export class HomeGestioneSocietaComponent implements OnInit, OnDestroy{
+export class HomeGestioneSocietaComponent implements OnInit, OnDestroy {
   private readonly destroy$: Subject<void> = new Subject<void>();
   societa: Company[] = [];
   groups: Group[] = [];
@@ -28,23 +41,27 @@ export class HomeGestioneSocietaComponent implements OnInit, OnDestroy{
   constructor(
     private gestioneSocietaService: GestioneSocietaService,
     private commonService: CommonService,
-    private cd: ChangeDetectorRef){}
+    private cd: ChangeDetectorRef
+  ) {}
 
   ngOnDestroy(): void {
-    this.destroy$.next()
+    this.destroy$.next();
     this.destroy$.complete();
   }
 
   ngOnInit(): void {
-    this.gestioneSocietaService.getAllSocieta().pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: (companies: Company[]) => {
-        this.societa = companies;
-        console.log('societa fetched from home getsione: ', companies);
-        this.cd.detectChanges();
-      },
-      error: error => console.error("Errore nell'ottenere tutti i societa: ", error)
-    });
+    this.gestioneSocietaService
+      .getAllSocieta()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (companies: Company[]) => {
+          this.societa = companies;
+          console.log('societa fetched from home getsione: ', companies);
+          this.cd.detectChanges();
+        },
+        error: (error) =>
+          console.error("Errore nell'ottenere tutti i societa: ", error),
+      });
 
     // this.gestioneSocietaService.getAllGroups().pipe(takeUntil(this.destroy$))
     // .subscribe({
