@@ -4,10 +4,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-
-// Importa le entità
 import { AnomalyEntity } from 'classes/entities/anomaly.entity';
 import { AssociationEntity } from 'classes/entities/association.entity';
 import { CompanyEntity } from 'classes/entities/company.entity';
@@ -17,6 +13,7 @@ import { EquipmentEntity } from 'classes/entities/equipment.entity';
 import { GroupEntity } from 'classes/entities/group.entity';
 import { HistoryEntity } from 'classes/entities/history.entity';
 import { NoteEntity } from 'classes/entities/note.entity';
+import { NotificationEntity } from 'classes/entities/notification.entity';
 import { RentalEntity } from 'classes/entities/rental.entity';
 import { RoleEntity } from 'classes/entities/role.entity';
 import { ServiceEntity } from 'classes/entities/service.entity';
@@ -25,42 +22,26 @@ import { TagEntity } from 'classes/entities/tag.entity';
 import { TagHistoryEntity } from 'classes/entities/tag_history.entity';
 import { UserEntity } from 'classes/entities/user.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
+import { WorksiteHistoryEntity } from 'classes/entities/worksite-history.entity';
 import { WorksiteEntity } from 'classes/entities/worksite.entity';
 import { WorkzoneEntity } from 'classes/entities/workzone.entity';
-import { WorksiteHistoryEntity } from 'classes/entities/worksite_history.entity';
-
-// importo i servizi
-import { LoggerService } from './log/service/logger.service';
-import { AnomalyService } from './services/anomaly/anomaly.service';
-import { StatsService } from './services/anomaly/stats/stats.service';
-import { AssociationService } from './services/association/association.service';
-import { AuthService } from './services/auth/auth.service';
-import { CompanyService } from './services/company/company.service';
-import { GroupService } from './services/group/group.service';
-import { NotesService } from './services/notes/notes.service';
-import { RealtimeService } from './services/realtime/realtime.service';
-import { RoleService } from './services/role/role.service';
-import { SessionService } from './services/session/session.service';
-import { TagService } from './services/tag/tag.service';
-import { UserService } from './services/user/user.service';
-import { VehicleService } from './services/vehicle/vehicle.service';
-import { WorksiteService } from './services/worksite/worksite.service';
-
-// importo i controller
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 import { AnomalyController } from './controllers/anomaly/anomaly.controller';
 import { AssociationController } from './controllers/association/association.controller';
 import { AuthController } from './controllers/auth/auth.controller';
 import { CompanyController } from './controllers/company/company.controller';
+import { EquipmentController } from './controllers/equipment/equipment.controller';
 import { GroupController } from './controllers/group/group.controller';
 import { NotesController } from './controllers/notes/notes.controller';
 import { RealtimeController } from './controllers/realtime/realtime.controller';
+import { RentalController } from './controllers/rental/rental.controller';
+import { ServiceController } from './controllers/service/service.controller';
 import { SessionController } from './controllers/session/session.controller';
 import { TagController } from './controllers/tag/tag.controller';
 import { UserController } from './controllers/user/user.controller';
 import { VehicleController } from './controllers/vehicle/vehicle.controller';
-
-// importo i factory
-import { NotificationEntity } from 'classes/entities/notification.entity';
+import { WorksiteHistoryController } from './controllers/worksite-history/worksite-history.controller';
 import { WorksiteController } from './controllers/worksite/worksite.controller';
 import { AssociationFactoryService } from './factory/association.factory';
 import { CompanyFactoryService } from './factory/company.factory';
@@ -71,16 +52,29 @@ import { ServiceFactoryService } from './factory/service.factory';
 import { UserFactoryService } from './factory/user.factory';
 import { WorksiteFactoryService } from './factory/worksite.factory';
 import { WorkzoneFacotoryService } from './factory/workzone.factory';
+import { LoggerService } from './log/service/logger.service';
 import { NotificationsController } from './notifications/notifications.controller';
 import { NotificationsGateway } from './notifications/notifications.gateway';
 import { NotificationsService } from './notifications/notifications.service';
+import { AnomalyService } from './services/anomaly/anomaly.service';
+import { StatsService } from './services/anomaly/stats/stats.service';
+import { AssociationService } from './services/association/association.service';
+import { AuthService } from './services/auth/auth.service';
+import { CompanyService } from './services/company/company.service';
 import { ControlService } from './services/control/control.service';
 import { EquipmentService } from './services/equipment/equipment.service';
+import { GroupService } from './services/group/group.service';
+import { NotesService } from './services/notes/notes.service';
+import { RealtimeService } from './services/realtime/realtime.service';
 import { RentalService } from './services/rental/rental.service';
+import { RoleService } from './services/role/role.service';
 import { ServiceService } from './services/service/service.service';
-import { EquipmentController } from './controllers/equipment/equipment.controller';
-import { RentalController } from './controllers/rental/rental.controller';
-import { ServiceController } from './controllers/service/service.controller';
+import { SessionService } from './services/session/session.service';
+import { TagService } from './services/tag/tag.service';
+import { UserService } from './services/user/user.service';
+import { VehicleService } from './services/vehicle/vehicle.service';
+import { WorksiteHistoryService } from './services/worksite-history/worksite-history.service';
+import { WorksiteService } from './services/worksite/worksite.service';
 
 @Global()
 @Module({
@@ -252,6 +246,7 @@ import { ServiceController } from './controllers/service/service.controller';
     EquipmentController,
     RentalController,
     ServiceController,
+    WorksiteHistoryController,
   ],
   providers: [
     AppService,
@@ -285,6 +280,7 @@ import { ServiceController } from './controllers/service/service.controller';
     ServiceService,
     EquipmentService,
     RentalService,
+    WorksiteHistoryService,
   ],
 })
 export class AppModule {}

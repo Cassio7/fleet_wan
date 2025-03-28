@@ -60,7 +60,6 @@ export class AppService implements OnModuleInit {
     //await this.anomalyCheck(startDate, endDate);
     //await this.dailyAnomalyCheck();
     //await this.setAnomaly();
-    await this.redis.publish('realtime_channel', 'Applicazione inizializzata');
   }
 
   async putDefaultData() {
