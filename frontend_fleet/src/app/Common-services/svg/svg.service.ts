@@ -20,6 +20,6 @@ export class SvgService {
     const imageName = this.serviceMap.get(serviceId);
     return imageName
       ? `assets/service/${imageName}`
-      : 'assets/service/default.svg'; // Default per servizi non trovati
+      : 'assets/service/raccolta.svg'; // Default per servizi non trovati
   }
 }

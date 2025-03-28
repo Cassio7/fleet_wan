@@ -31,7 +31,7 @@
         <td mat-cell *matCellDef="let vehicle">
           <span class="proprietario-container">
             <img
-              [src]="svgService.getServiceIcon(vehicle.service.id)"
+              [src]="svgService.getServiceIcon(vehicle?.service?.id || 0)"
               alt="Service Icon"
               width="28"
               height="28"
@@ -66,14 +66,14 @@
       <!-- Colonna Marca -->
       <ng-container matColumnDef="Marca">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>Marca</th>
-        <td mat-cell *matCellDef="let vehicle">{{ vehicle.model }}</td>
+        <td mat-cell *matCellDef="let vehicle">{{ vehicle?.model || "" }}</td>
       </ng-container>
 
       <!-- Colonna Attrezzatura -->
       <ng-container matColumnDef="Tipologia">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>Attrezzatura</th>
         <td mat-cell *matCellDef="let vehicle">
-          {{ vehicle.equipment?.name || "" }}
+          {{ vehicle?.equipment?.name || "" }}
         </td>
       </ng-container>
 
@@ -89,7 +89,13 @@
       <ng-container matColumnDef="Allestimento">
         <th mat-header-cell *matHeaderCellDef>Allestimento</th>
         <td mat-cell *matCellDef="let vehicle">
-          {{ vehicle.allestimento ? "Blackbox+antenna" : "Blackbox" }}
+          {{
+            vehicle?.allestimento
+              ? vehicle?.allestimento
+                ? "Blackbox+antenna"
+                : "Blackbox"
+              : ""
+          }}
         </td>
       </ng-container>
 
