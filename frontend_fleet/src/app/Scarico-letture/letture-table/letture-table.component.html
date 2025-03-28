@@ -1,50 +1,60 @@
-<div class="nTag-container" [ngStyle]="{'visibility': tagCount && tagCount !== 0 ? 'visible' : 'hidden'}">
+<div
+  class="nTag-container"
+  [ngStyle]="{ visibility: tagCount && tagCount !== 0 ? 'visible' : 'hidden' }"
+>
   <span>Prime 100 letture: </span>
-  <span>Numero di tag letti: {{tagCount}}</span>
+  <span>Numero di tag letti: {{ tagCount }}</span>
 </div>
-
 
 <div class="table-container">
   <table mat-table [dataSource]="tagTableData" class="table">
     <!-- EPC Column -->
     <ng-container matColumnDef="EPC">
-      <th mat-header-cell *matHeaderCellDef> EPC </th>
-      <td mat-cell *matCellDef="let tagData"> {{tagData.epc}} </td>
+      <th mat-header-cell *matHeaderCellDef>EPC</th>
+      <td mat-cell *matCellDef="let tagData">{{ tagData.epc }}</td>
     </ng-container>
 
     <!-- Timestamp Column -->
     <ng-container matColumnDef="Timestamp">
-      <th mat-header-cell *matHeaderCellDef> Timestamp </th>
-      <td mat-cell *matCellDef="let tagData"> {{tagData.timestamp | date: 'dd/MM/yyyy MM:ss'}} </td>
+      <th mat-header-cell *matHeaderCellDef>Timestamp</th>
+      <td mat-cell *matCellDef="let tagData">
+        {{ tagData.timestamp | date : "dd/MM/yyyy HH:mm:ss" }}
+      </td>
     </ng-container>
 
     <!-- Latitude Column -->
     <ng-container matColumnDef="Latitude">
-      <th mat-header-cell *matHeaderCellDef> Latitude </th>
-      <td mat-cell *matCellDef="let tagData"> {{tagData.latitude}} </td>
+      <th mat-header-cell *matHeaderCellDef>Latitude</th>
+      <td mat-cell *matCellDef="let tagData">{{ tagData.latitude }}</td>
     </ng-container>
 
     <!-- Longitude Column -->
     <ng-container matColumnDef="Longitude">
-      <th mat-header-cell *matHeaderCellDef> Longitude </th>
-      <td mat-cell *matCellDef="let tagData"> {{tagData.longitude}} </td>
+      <th mat-header-cell *matHeaderCellDef>Longitude</th>
+      <td mat-cell *matCellDef="let tagData">{{ tagData.longitude }}</td>
     </ng-container>
 
     <!-- Plate Column -->
     <ng-container matColumnDef="Plate">
-      <th mat-header-cell *matHeaderCellDef> Plate </th>
-      <td mat-cell *matCellDef="let tagData"> {{tagData.plate}} </td>
+      <th mat-header-cell *matHeaderCellDef>Plate</th>
+      <td mat-cell *matCellDef="let tagData">
+        <span class="plate-container">{{ tagData.plate }}</span>
+      </td>
     </ng-container>
 
     <!-- Group Column -->
     <ng-container matColumnDef="Cantiere">
-      <th mat-header-cell *matHeaderCellDef> Cantiere </th>
-      <td mat-cell *matCellDef="let tagData"> {{tagData.worksite}} </td>
+      <th mat-header-cell *matHeaderCellDef>Cantiere</th>
+      <td mat-cell *matCellDef="let tagData">{{ tagData.worksite }}</td>
     </ng-container>
 
     <!-- Table Rows -->
     <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
   </table>
-  <span *ngIf="tagCount <= 0">Nessun tag letto nel range di tempo: {{lettureFilters.dateFrom | date: 'dd/MM/yyyy'}} - {{lettureFilters.dateTo | date: 'dd/MM/yyyy'}}</span>
+  <span *ngIf="tagCount <= 0"
+    >Nessun tag letto nel range di tempo:
+    {{ lettureFilters.dateFrom | date : "dd/MM/yyyy" }} -
+    {{ lettureFilters.dateTo | date : "dd/MM/yyyy" }}</span
+  >
 </div>

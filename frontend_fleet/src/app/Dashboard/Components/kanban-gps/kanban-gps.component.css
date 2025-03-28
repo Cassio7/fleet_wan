@@ -89,12 +89,6 @@
   color: var(--green);
 }
 
-.plate {
-  text-align: right;
-  background-color: #EFEEE4;
-  padding: 5px;
-}
-
 mat-form-field {
   width: 100%;
 }

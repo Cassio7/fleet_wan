@@ -8,19 +8,48 @@
           <mat-icon class="gpsIcon-OK">location_on</mat-icon>
           OK
         </div>
-        <span class="nMezzi">{{ kanbanGpsService.workingVehicles.length }}</span>
+        <span class="nMezzi">{{
+          kanbanGpsService.workingVehicles.length
+        }}</span>
       </div>
-      {{kanbanGpsService.getVehiclesPercentage(kanbanGpsService.workingVehicles).toFixed(0) + '%'}}
-      <mat-progress-bar mode="determinate" [value]="kanbanGpsService.getVehiclesPercentage(kanbanGpsService.workingVehicles)" class="progress-bar working-bar" color="accent"></mat-progress-bar>
+      {{
+        kanbanGpsService
+          .getVehiclesPercentage(kanbanGpsService.workingVehicles)
+          .toFixed(0) + "%"
+      }}
+      <mat-progress-bar
+        mode="determinate"
+        [value]="
+          kanbanGpsService.getVehiclesPercentage(
+            kanbanGpsService.workingVehicles
+          )
+        "
+        class="progress-bar working-bar"
+        color="accent"
+      ></mat-progress-bar>
       <div class="scrollable-list">
         <mat-list>
-          <mat-list-item *ngFor="let vehicleData of kanbanGpsService.workingVehicles">
+          <mat-list-item
+            *ngFor="let vehicleData of kanbanGpsService.workingVehicles"
+          >
             <div class="vehicle" matTooltip="GPS funzionante">
               <div class="left-container">
-                <p class="cantiere">{{ vehicleData.vehicle.worksite?.name ? vehicleData.vehicle.worksite?.name : "non assegnato"}}</p>
-                <mat-icon (click)="showMap(vehicleData)" *ngIf="today" matTooltip="Click per visualizzare l'ultima posizione registrata sulla mappa" class="map-icon">map</mat-icon>
+                <p class="cantiere">
+                  {{
+                    vehicleData.vehicle.worksite?.name
+                      ? vehicleData.vehicle.worksite?.name
+                      : "non assegnato"
+                  }}
+                </p>
+                <mat-icon
+                  (click)="showMap(vehicleData)"
+                  *ngIf="today"
+                  matTooltip="Click per visualizzare l'ultima posizione registrata sulla mappa"
+                  class="map-icon"
+                  >map</mat-icon
+                >
               </div>
-              <p class="plate">{{ vehicleData.vehicle.plate }}</p>
+              <span class="plate-container">{{ vehicleData.vehicle.plate }}</span>
             </div>
           </mat-list-item>
         </mat-list>
@@ -34,19 +63,53 @@
           <mat-icon class="gpsIcon-warning">location_on</mat-icon>
           Warning
         </div>
-        <span class="nMezzi">{{ kanbanGpsService.warningVehicles.length }}</span>
+        <span class="nMezzi">{{
+          kanbanGpsService.warningVehicles.length
+        }}</span>
       </div>
-      {{kanbanGpsService.getVehiclesPercentage(kanbanGpsService.warningVehicles).toFixed(0) + '%'}}
-      <mat-progress-bar mode="determinate" [value]="kanbanGpsService.getVehiclesPercentage(kanbanGpsService.warningVehicles)" class="progress-bar warning-bar" color="accent"></mat-progress-bar>
+      {{
+        kanbanGpsService
+          .getVehiclesPercentage(kanbanGpsService.warningVehicles)
+          .toFixed(0) + "%"
+      }}
+      <mat-progress-bar
+        mode="determinate"
+        [value]="
+          kanbanGpsService.getVehiclesPercentage(
+            kanbanGpsService.warningVehicles
+          )
+        "
+        class="progress-bar warning-bar"
+        color="accent"
+      ></mat-progress-bar>
       <div class="scrollable-list">
         <mat-list>
-          <mat-list-item *ngFor="let vehicleData of kanbanGpsService.warningVehicles" >
-            <div class="vehicle" [matTooltip]="checkErrorsService.checkVehicleGPSWarning(vehicleData)">
+          <mat-list-item
+            *ngFor="let vehicleData of kanbanGpsService.warningVehicles"
+          >
+            <div
+              class="vehicle"
+              [matTooltip]="
+                checkErrorsService.checkVehicleGPSWarning(vehicleData)
+              "
+            >
               <div class="left-container">
-                <p class="cantiere">{{ vehicleData.vehicle.worksite?.name ? vehicleData.vehicle.worksite?.name : "non assegnato"}}</p>
-                <mat-icon (click)="showMap(vehicleData)" *ngIf="today" matTooltip="Click per visualizzare l'ultima posizione registrata sulla mappa" class="map-icon">map</mat-icon>
+                <p class="cantiere">
+                  {{
+                    vehicleData.vehicle.worksite?.name
+                      ? vehicleData.vehicle.worksite?.name
+                      : "non assegnato"
+                  }}
+                </p>
+                <mat-icon
+                  (click)="showMap(vehicleData)"
+                  *ngIf="today"
+                  matTooltip="Click per visualizzare l'ultima posizione registrata sulla mappa"
+                  class="map-icon"
+                  >map</mat-icon
+                >
               </div>
-                <p class="plate">{{ vehicleData.vehicle.plate }}</p>
+              <span class="plate-container">{{ vehicleData.vehicle.plate }}</span>
             </div>
           </mat-list-item>
         </mat-list>
@@ -62,18 +125,47 @@
         </div>
         <span class="nMezzi">{{ kanbanGpsService.errorVehicles.length }}</span>
       </div>
-      {{kanbanGpsService.getVehiclesPercentage(kanbanGpsService.errorVehicles).toFixed(0) + '%'}}
-      <mat-progress-bar mode="determinate" color="accent"
-      [value]="kanbanGpsService.getVehiclesPercentage(kanbanGpsService.errorVehicles)" class="progress-bar error-bar"></mat-progress-bar>
+      {{
+        kanbanGpsService
+          .getVehiclesPercentage(kanbanGpsService.errorVehicles)
+          .toFixed(0) + "%"
+      }}
+      <mat-progress-bar
+        mode="determinate"
+        color="accent"
+        [value]="
+          kanbanGpsService.getVehiclesPercentage(kanbanGpsService.errorVehicles)
+        "
+        class="progress-bar error-bar"
+      ></mat-progress-bar>
       <div class="scrollable-list">
         <mat-list>
-          <mat-list-item *ngFor="let vehicleData of kanbanGpsService.errorVehicles">
-            <div class="vehicle" [matTooltip]="checkErrorsService.checkVehicleGpsError(vehicleData)">
+          <mat-list-item
+            *ngFor="let vehicleData of kanbanGpsService.errorVehicles"
+          >
+            <div
+              class="vehicle"
+              [matTooltip]="
+                checkErrorsService.checkVehicleGpsError(vehicleData)
+              "
+            >
               <div class="left-container">
-                <p class="cantiere">{{ vehicleData.vehicle.worksite?.name ? vehicleData.vehicle.worksite?.name : "non assegnato"}}</p>
-                <mat-icon (click)="showMap(vehicleData)" *ngIf="today" matTooltip="Click per visualizzare l'ultima posizione registrata sulla mappa" class="map-icon">map</mat-icon>
+                <p class="cantiere">
+                  {{
+                    vehicleData.vehicle.worksite?.name
+                      ? vehicleData.vehicle.worksite?.name
+                      : "non assegnato"
+                  }}
+                </p>
+                <mat-icon
+                  (click)="showMap(vehicleData)"
+                  *ngIf="today"
+                  matTooltip="Click per visualizzare l'ultima posizione registrata sulla mappa"
+                  class="map-icon"
+                  >map</mat-icon
+                >
               </div>
-              <p class="plate">{{ vehicleData.vehicle.plate }}</p>
+              <span class="plate-container">{{ vehicleData.vehicle.plate }}</span>
             </div>
           </mat-list-item>
         </mat-list>
