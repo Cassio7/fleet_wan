@@ -6,7 +6,7 @@ import { RentalEntity } from 'classes/entities/rental.entity';
 import { ServiceEntity } from 'classes/entities/service.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { WorksiteEntity } from 'classes/entities/worksite.entity';
-import { WorksiteHistoryEntity } from 'classes/entities/worksite_history.entity';
+import { WorksiteHistoryEntity } from 'classes/entities/worksite-history.entity';
 import { WorkzoneEntity } from 'classes/entities/workzone.entity';
 import * as path from 'path';
 import { parseCsvFile } from 'src/utils/utils';
@@ -144,18 +144,21 @@ export class WorksiteFactoryService {
           },
           vehicle,
         );
-        const worksiteHistory = queryRunner.manager
-          .getRepository(WorksiteHistoryEntity)
-          .create({
-            dateFrom: new Date(),
-            dateTo: null,
-            comment: 'Assegnazione iniziale',
-            vehicle: vehicle,
-            worksite: vehicle.worksite,
-          });
-        await queryRunner.manager
-          .getRepository(WorksiteHistoryEntity)
-          .save(worksiteHistory);
+
+        if (vehicle.worksite) {
+          const worksiteHistory = queryRunner.manager
+            .getRepository(WorksiteHistoryEntity)
+            .create({
+              dateFrom: new Date(),
+              dateTo: null,
+              comment: 'Assegnazione iniziale',
+              vehicle: vehicle,
+              worksite: vehicle.worksite,
+            });
+          await queryRunner.manager
+            .getRepository(WorksiteHistoryEntity)
+            .save(worksiteHistory);
+        }
       }
 
       await queryRunner.commitTransaction();
