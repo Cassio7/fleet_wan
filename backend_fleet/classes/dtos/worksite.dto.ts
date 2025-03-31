@@ -1,6 +1,7 @@
 import { IsNumber, IsOptional, IsString } from 'class-validator';
 import { CommonDTO } from 'classes/common/common.dto';
 import { GroupDTO } from './group.dto';
+import { VehicleDTO } from './vehicle.dto';
 export class WorksiteDTO extends CommonDTO {
   @IsOptional()
   @IsString()
@@ -8,4 +9,5 @@ export class WorksiteDTO extends CommonDTO {
   @IsNumber()
   vehicleCount: number;
   group: GroupDTO;
+  vehicle: VehicleDTO[];
 }
