@@ -224,7 +224,11 @@ import { ExportService } from './services/tag/export/export.service';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         type: 'single',
-        url: configService.get<string>('REDIS_URL'),
+        config: {
+          host: 'localhost',
+          port: 6379,
+          password: configService.get<string>('REDIS_PASSWORD'),
+        },
       }),
     }),
   ],
