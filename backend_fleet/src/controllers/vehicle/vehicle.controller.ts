@@ -5,6 +5,7 @@ import {
   Param,
   ParseIntPipe,
   Put,
+  Query,
   Req,
   Res,
   UseGuards,
@@ -157,6 +158,7 @@ export class VehicleController {
   @Get('admin')
   async getAllVehiclesAdmin(
     @Req() req: Request & { user: UserFromToken },
+    @Query('free') free: string,
     @Res() res: Response,
   ) {
     const context: LogContext = {
@@ -164,8 +166,10 @@ export class VehicleController {
       username: req.user.username,
       resource: 'Vehicle All Admin',
     };
+    const isFree = free === 'true';
+
     try {
-      const vehicles = await this.vehicleService.getAllVehiclesAdmin();
+      const vehicles = await this.vehicleService.getAllVehiclesAdmin(isFree);
       if (!vehicles?.length) {
         this.loggerService.logCrudSuccess(
           context,
