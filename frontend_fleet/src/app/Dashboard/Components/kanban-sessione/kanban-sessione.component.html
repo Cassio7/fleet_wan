@@ -76,7 +76,7 @@
             [disabled]="kanbanSessioneService.errorVehicles.nullVehicles.length <= 0"
             [ngClass]="{'selected' : selectedAnomalies.includes('Nulla')}"
             (click)="filterKanbanAnomalies('Nulla')">
-            Nulla
+            Nulla {{errorVehicles.nullVehicles.length}}
           </mat-chip-option>
           </span>
           <span
@@ -86,7 +86,7 @@
             [disabled]="kanbanSessioneService.errorVehicles.stuckVehicles.length <= 0"
             [ngClass]="{'selected' : selectedAnomalies.includes('Bloccata')}"
             (click)="filterKanbanAnomalies('Bloccata')">
-            Bloccata
+            Bloccata {{errorVehicles.stuckVehicles.length}}
           </mat-chip-option>
           </span>
           <span
@@ -96,7 +96,7 @@
             [ngClass]="{'selected' : selectedAnomalies.includes('Alimentazione')}"
             [disabled]="kanbanSessioneService.errorVehicles.powerVehicles.length <= 0"
             (click)="filterKanbanAnomalies('Alimentazione')">
-            Alimentazione
+            Alimentazione {{errorVehicles.powerVehicles.length}}
           </mat-chip-option>
           </span>
         </mat-chip-listbox>
