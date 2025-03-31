@@ -527,7 +527,35 @@ export class VehicleService {
    * Recupera i veicoli per utente admin, prima quelli senza cantiere
    * @returns
    */
-  async getAllVehiclesAdmin(): Promise<VehicleDTO[] | null> {
+  async getAllVehiclesAdmin(free: boolean): Promise<VehicleDTO[] | null> {
+    if (free) {
+      const vehicles = await this.vehicleRepository.find({
+        where: {
+          worksite: IsNull(),
+        },
+        relations: {
+          device: true,
+          worksite: {
+            group: {
+              company: true,
+            },
+          },
+          workzone: true,
+          service: true,
+          equipment: true,
+          rental: true,
+        },
+        order: {
+          worksite: {
+            name: 'DESC',
+          },
+          plate: 'ASC',
+        },
+      });
+      return vehicles
+        ? vehicles.map((vehicle) => this.toDTO(vehicle, true))
+        : null;
+    }
     const vehicles = await this.vehicleRepository.find({
       relations: {
         device: true,
