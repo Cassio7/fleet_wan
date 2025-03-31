@@ -79,6 +79,57 @@ export class AssociationController {
   }
 
   /**
+   * API per recuperare tutte le associazioni di un utente ed anche quelle possibili (libere)
+   * @param req token data
+   * @param userId id utente da cercare
+   * @param res
+   * @returns
+   */
+  @Roles(Role.Admin)
+  @Get(':id')
+  async getAssociationsById(
+    @Req() req: Request & { user: UserFromToken },
+    @Param('id', ParseIntPipe) userId: number,
+    @Res() res: Response,
+  ) {
+    const context: LogContext = {
+      userId: req.user.id,
+      username: req.user.username,
+      resource: 'Association (admin)',
+      resourceId: userId,
+    };
+    try {
+      const result = await this.associationService.getAssociationsById(userId);
+      if (!result.associations?.length) {
+        this.loggerService.logCrudSuccess(
+          context,
+          'list',
+          'Nessuna associazione trovata',
+        );
+        return res.status(204).json();
+      }
+
+      this.loggerService.logCrudSuccess(
+        context,
+        'list',
+        `Trovate ${result.associations?.length} associazioni`,
+      );
+
+      return res.status(200).json(result);
+    } catch (error) {
+      this.loggerService.logCrudError({
+        error,
+        context,
+        operation: 'list',
+      });
+
+      return res.status(error.status || 500).json({
+        message: error.message || 'Errore nel recupero delle associazioni',
+      });
+    }
+  }
+
+  /**
    * API per inserire una nuova associazione tra un cantiere/società ed un utente,
    * rispettando il ruolo associato e la visualizzazione corretta
    * @param res

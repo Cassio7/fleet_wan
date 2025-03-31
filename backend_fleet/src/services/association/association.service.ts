@@ -7,7 +7,6 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { CommonDTO } from 'classes/common/common.dto';
 import { CompanyDTO } from 'classes/dtos/company.dto';
 import { UserDTO } from 'classes/dtos/user.dto';
 import { WorksiteDTO } from 'classes/dtos/worksite.dto';
@@ -19,6 +18,14 @@ import { WorksiteEntity } from 'classes/entities/worksite.entity';
 import Redis from 'ioredis';
 import { DataSource, Repository } from 'typeorm';
 import { UserService } from '../user/user.service';
+
+interface AssociationDTOData {
+  id: number;
+  createdAt: Date;
+  user: UserDTO;
+  company: CompanyDTO;
+  worksite: WorksiteDTO;
+}
 
 @Injectable()
 export class AssociationService {
@@ -240,7 +247,7 @@ export class AssociationService {
    * Recupera tutte le associazioni dal database
    * @returns
    */
-  async getAllAssociation(): Promise<AssociationEntity[]> {
+  async getAllAssociation(): Promise<AssociationDTOData[]> {
     try {
       const associations = await this.associationRepository.find({
         relations: {
@@ -252,6 +259,108 @@ export class AssociationService {
         },
       });
       return associations.map((association) => this.toDTO(association));
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new HttpException(
+        `Errore durante il recupero delle associazioni`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  /**
+   * Recupera le associazioni in base all utente passato e recupero anche i cantieri/società liberi da poter assegnare
+   * @param userId user id
+   * @returns
+   */
+  async getAssociationsById(userId: number): Promise<{
+    associations: AssociationDTOData[];
+    worksiteFree?: WorksiteEntity[];
+    companyFree?: CompanyEntity[];
+  }> {
+    try {
+      // recupero utente
+      const user = await this.userRepository.findOne({
+        select: {
+          id: true,
+          role: {
+            id: true,
+          },
+        },
+        where: { id: userId },
+        relations: {
+          role: true,
+        },
+      });
+      const associations = await this.associationRepository.find({
+        relations: {
+          user: {
+            role: true,
+          },
+          company: true,
+          worksite: true,
+        },
+        where: {
+          user: {
+            id: userId,
+          },
+        },
+        order: {
+          id: 'ASC',
+        },
+      });
+      let worksiteFree: WorksiteEntity[];
+      let companyFree: CompanyEntity[];
+
+      //se utente esiste
+      if (user) {
+        // utente Capo Cantiere
+        const roleId = user.role.id;
+        if (roleId === 3) {
+          const worksites = await this.worksiteRepository.find({
+            select: {
+              id: true,
+              name: true,
+            },
+          });
+          // se ci sono associazioni
+          if (associations.length > 0) {
+            const associationWorksiteIds = associations.map(
+              (item) => item.worksite.id,
+            );
+            // filtro e rimuovo i cantieri già associati
+            worksiteFree = worksites.filter(
+              (worksite) => !associationWorksiteIds.includes(worksite.id),
+            );
+          }
+        }
+        // utente admin oppure Responsabile
+        else if (roleId === 1 || roleId === 2) {
+          const companies = await this.companyRepository.find({
+            select: {
+              id: true,
+              name: true,
+            },
+          });
+          if (associations.length > 0) {
+            const associationCompanyIds = associations.map(
+              (item) => item.company.id,
+            );
+
+            companyFree = companies.filter(
+              (company) => !associationCompanyIds.includes(company.id),
+            );
+          }
+        }
+      }
+      const associationsDTO = associations.map((association) =>
+        this.toDTO(association),
+      );
+      return {
+        associations: associationsDTO,
+        worksiteFree: user?.role.id === 3 ? worksiteFree : undefined,
+        companyFree: user?.role.id !== 3 ? companyFree : undefined,
+      };
     } catch (error) {
       if (error instanceof HttpException) throw error;
       throw new HttpException(
@@ -474,11 +583,7 @@ export class AssociationService {
    * @param association oggetto di ritorno dal database
    * @returns
    */
-  private toDTO(association: AssociationEntity): any {
-    const commonDTO = new CommonDTO();
-    commonDTO.id = association.id;
-    commonDTO.createdAt = association.createdAt;
-
+  private toDTO(association: AssociationEntity): AssociationDTOData {
     const userDTO = new UserDTO();
     userDTO.id = association.user.id;
     userDTO.username = association.user.username;
@@ -500,11 +605,13 @@ export class AssociationService {
       worksiteDTO.name = association.worksite.name;
     }
 
-    return {
-      ...commonDTO,
+    const data: AssociationDTOData = {
+      id: association.id,
+      createdAt: association.createdAt,
       user: userDTO,
       company: companyDTO,
       worksite: worksiteDTO,
     };
+    return data;
   }
 }
