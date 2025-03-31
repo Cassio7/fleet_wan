@@ -10,7 +10,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { KanbanFiltersComponent } from '../kanban-filters/kanban-filters.component';
-import { KanbanSessioneService } from '../../Services/kanban-sessione/kanban-sessione.service';
+import { KanbanSessioneService, SessionErrorVehicles } from '../../Services/kanban-sessione/kanban-sessione.service';
 import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
 import {
   Filters,
@@ -26,6 +26,7 @@ import { SessioneGraphService } from '../../Services/sessione-graph/sessione-gra
 import { Point } from '../../../Models/Point';
 import { SessionApiService } from '../../../Common-services/session/session-api.service';
 import { DashboardService } from '../../Services/dashboard/dashboard.service';
+import { MatChipsModule } from '@angular/material/chips';
 
 @Component({
   selector: 'app-kanban-sessione',
@@ -40,6 +41,7 @@ import { DashboardService } from '../../Services/dashboard/dashboard.service';
     MatIconModule,
     MatListModule,
     MatTooltipModule,
+    MatChipsModule,
     KanbanFiltersComponent,
   ],
   templateUrl: './kanban-sessione.component.html',
@@ -48,8 +50,18 @@ import { DashboardService } from '../../Services/dashboard/dashboard.service';
 export class KanbanSessioneComponent implements AfterViewInit, OnDestroy {
   private readonly destroy$: Subject<void> = new Subject<void>();
 
+  selectedAnomalies: string[] = [];
+
   today: boolean = true;
   last: boolean = false;
+
+  workingVehicles: VehicleData[] = [];
+
+  errorVehicles: SessionErrorVehicles = {
+    nullVehicles: [],
+    stuckVehicles: [],
+    powerVehicles: []
+  };
 
   constructor(
     public kanbanSessioneService: KanbanSessioneService,
@@ -74,7 +86,9 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy {
       this.sessionStorageService.getItem('allData')
     );
     let kanbanVehicles = allData;
+    this.setKanbanData(kanbanVehicles);
     this.kanbanSessioneService.setKanbanData(kanbanVehicles);
+    this.setSelectedAnomalies();
     this.sessioneGraphService.loadChartData$.next(kanbanVehicles);
 
     this.verifyCheckDay();
@@ -88,9 +102,12 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy {
             .pipe(takeUntil(this.destroy$))
             .subscribe({
               next: (responseObj: any) => {
-                this.kanbanSessioneService.setKanbanData([]);
+                this.setKanbanData([]);
+                this.kanbanSessioneService.setKanbanData(kanbanVehicles);
+                this.setSelectedAnomalies();
                 const lastUpdate = responseObj.lastUpdate;
                 const vehiclesData = responseObj.vehicles;
+
                 this.loadRealtimeVehicles(vehiclesData, lastUpdate);
               },
               error: (error) =>
@@ -114,7 +131,8 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy {
           allData,
           filters
         ) as VehicleData[];
-        this.kanbanSessioneService.setKanbanData(kanbanVehicles);
+        this.setKanbanData(kanbanVehicles);
+        this.setSelectedAnomalies();
         this.sessioneGraphService.loadChartData$.next(kanbanVehicles);
       });
 
@@ -147,7 +165,7 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy {
 
   private loadKanbanWithApiCall(){
     this.sessioneGraphService.resetGraph();
-    this.kanbanSessioneService.clearVehicles();
+    this.clearVehicles();
     this.checkErrorsService.checkErrorsAllToday().pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (responseObj: any) => {
@@ -155,6 +173,7 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy {
         const vehiclesData = responseObj.vehicles;
         this.sessionStorageService.setItem("lastUpdate", lastUpdate);
         this.loadRealtimeVehicles(vehiclesData, lastUpdate);
+
       },
       error: error => console.error("Errore nella chiamata per il controllo degli errori di oggi: ", error)
     });
@@ -162,14 +181,13 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy {
 
   private getAllLastSessionAnomalies() {
     this.sessioneGraphService.resetGraph();
-    this.kanbanSessioneService.clearVehicles();
+    this.clearVehicles();
 
     this.sessionApiService.getAllLastSessionAnomalies().pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (responseObj: any) => {
           const lastUpdate = responseObj.lastUpdate;
           const vehiclesData: VehicleData[] = responseObj.vehicles;
-          console.log("Last session vehiclesData fetched: ", vehiclesData);
           try {
             if (vehiclesData && vehiclesData.length > 0) {
               this.sessionStorageService.setItem("lastUpdate", responseObj.lastUpdate);
@@ -198,7 +216,9 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy {
             vehicles,
             realtimeDataObj
           );
+          this.setKanbanData(realtimeVehicles);
           this.kanbanSessioneService.setKanbanData(realtimeVehicles);
+          this.setSelectedAnomalies();
           this.sessioneGraphService.loadChartData$.next(realtimeVehicles);
           this.sessionStorageService.setItem(
             'allData',
@@ -212,6 +232,25 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy {
       });
     return [];
   }
+
+  private setSelectedAnomalies(){
+    this.selectedAnomalies = [];
+    const { nullVehicles, stuckVehicles, powerVehicles } = this.errorVehicles;
+
+    if(nullVehicles.length > 0){
+      this.selectedAnomalies.push("Nulla");
+    }
+
+    if(stuckVehicles.length > 0){
+      this.selectedAnomalies.push("Bloccata");
+    }
+
+    if(powerVehicles.length > 0){
+      this.selectedAnomalies.push("Alimentazione");
+    }
+
+  }
+
 
   /**
    * Unisce un array di veicoli con uno di dati realtime
@@ -248,6 +287,18 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy {
     }
   }
 
+  filterKanbanAnomalies(anomaly: string){
+    if(!this.selectedAnomalies.includes(anomaly)){
+      this.selectedAnomalies.push(anomaly);
+    }else{
+      this.selectedAnomalies = this.selectedAnomalies.filter(a => a !== anomaly);
+    }
+
+    const filteredErrorVehicles = this.kanbanSessioneService.filterVehiclesBySelectedAnomalyTypes(this.kanbanSessioneService.getAllErrorVehicles(), this.selectedAnomalies);
+    this.setKanbanData([...this.workingVehicles, ...filteredErrorVehicles]);
+    this.cd.detectChanges();
+  }
+
   showMap(vehicleData: VehicleData) {
     const realtimeData: RealtimeData = {
       vehicle: {
@@ -271,6 +322,83 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy {
       point: new Point(realtimeData.realtime.latitude, realtimeData.realtime.longitude)
     });
     this.mapService.loadPosition$.next(realtimeData);
+  }
+
+
+  /**
+   * Permette di ottenere tutti i veicoli di tutte le colonne del kanban gps
+   * @returns array di veicoli così formato: [prima colonna, seconda colonna, terza colonna]
+   */
+  getAllKanbanVehicles() {
+    return [...this.workingVehicles, ...this.errorVehicles.nullVehicles, ...this.errorVehicles.stuckVehicles, ... this.errorVehicles.powerVehicles];
+  }
+
+
+  getAllErrorVehicles(){
+    return [...this.errorVehicles.nullVehicles, ...this.errorVehicles.stuckVehicles, ... this.errorVehicles.powerVehicles];
+  }
+
+  /**
+   * Calcola la percentuale dei veicoli passati in base al totale dei mezzi nel kanaban
+   * @returns risultato del calcolo
+   */
+  getVehiclesPercentage(vehicles: VehicleData[]){
+    const calc = this.getAllKanbanVehicles().length ? (vehicles.length / this.getAllKanbanVehicles().length * 100) : 0;
+    return calc;
+  }
+
+  /**
+   * Imposta i dati delle colonne del kanban
+   * @param vehicles elementi con cui riempire le colonne
+   */
+  private setKanbanData(vehicles: VehicleData[]){
+    this.clearVehicles();
+    const series = this.checkErrorsService.checkVehiclesSessionErrors(vehicles);//recupero dati dei veicoli controllati
+    this.workingVehicles = series[0];
+    series[1].map(vehicle => this.addVehicle('error', vehicle));
+  }
+
+  /**
+  * Elimina gli elementi nel kanban gps
+  */
+  private clearVehicles(){
+   this.workingVehicles = [];
+   this.clearErrorVehicles();
+  }
+
+  private clearErrorVehicles(){
+    this.errorVehicles = {
+      nullVehicles: [],
+      stuckVehicles: [],
+      powerVehicles: []
+    }
+  }
+
+  /**
+   * Aggiunge un item ad una colonna del kanban GPS
+   * @param column colonna sulla quale aggiungere
+   */
+  private addVehicle(column: 'working' | 'error', vehicle: VehicleData) {
+    switch (column) {
+      case 'working':
+        this.workingVehicles.push(vehicle);
+        break;
+      case 'error':
+        this.addErrorVehicle(vehicle);
+        break;
+    }
+  }
+
+  private addErrorVehicle(vehicle: VehicleData){
+    const anomalyType = this.checkErrorsService.getVehicleSessionAnomalyType(vehicle);
+
+    if (anomalyType === "Nulla") {
+      this.errorVehicles.nullVehicles.push(vehicle);
+    } else if (anomalyType === "Bloccata") {
+      this.errorVehicles.stuckVehicles.push(vehicle);
+    } else if (anomalyType === "Alimentazione") {
+      this.errorVehicles.powerVehicles.push(vehicle);
+    }
   }
 
   /**

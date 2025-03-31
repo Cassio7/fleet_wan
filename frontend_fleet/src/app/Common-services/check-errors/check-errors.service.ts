@@ -6,6 +6,7 @@ import { VehicleData} from '../../Models/VehicleData';
 import { Anomaly } from '../../Models/Anomaly';
 import { VehicleAnomalies } from '../../Models/VehicleAnomalies';
 import { CookieService } from 'ngx-cookie-service';
+import { SessionErrorVehicles } from '../../Dashboard/Services/kanban-sessione/kanban-sessione.service';
 
 @Injectable({
   providedIn: 'root'
@@ -224,6 +225,45 @@ export class CheckErrorsService {
       return "Warning";
     }else{
       return "Funzionante";
+    }
+  }
+
+  /**
+   * Permette di dividere i veicoli passati in base al loro tipo di anomalia di sessione
+   * @param vehicles veicoli da analizzare
+   * @returns oggetto SessionErrorVehicles
+   */
+  getVehiclesSessionAnomalyTypes(vehicles: VehicleData[]): SessionErrorVehicles {
+    const filterVehiclesByAnomaly = (anomalyType: string) => {
+      return vehicles.filter(vehicle => {
+        const sessionAnomaly = this.checkVehicleAnomaly(vehicle)?.session;
+        return sessionAnomaly?.includes(anomalyType);
+      });
+    };
+
+    const nullVehicles = filterVehiclesByAnomaly("nulla");
+    const stuckVehicles = filterVehiclesByAnomaly("bloccati");
+    const powerVehicles = filterVehiclesByAnomaly("alimentazione");
+
+    const errorVehicles: SessionErrorVehicles = {
+      nullVehicles,
+      stuckVehicles,
+      powerVehicles
+    };
+
+    return errorVehicles;
+  }
+
+
+  getVehicleSessionAnomalyType(vehicleData: VehicleData): string{
+    const vehicleSessionAnomaly = this.checkVehicleAnomaly(vehicleData)?.session;
+
+    if(vehicleSessionAnomaly?.includes("Nulla") || vehicleSessionAnomaly?.includes("nulla")){
+      return "Nulla";
+    }else if(vehicleSessionAnomaly?.includes("Bloccati") || vehicleSessionAnomaly?.includes("bloccati")){
+      return "Bloccata";
+    }else{
+      return "Alimentazione";
     }
   }
 

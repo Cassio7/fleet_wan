@@ -9,19 +9,18 @@
           OK
         </div>
         <span class="nMezzi">{{
-          kanbanSessioneService.workingVehicles.length
+          workingVehicles.length
         }}</span>
       </div>
       {{
-        kanbanSessioneService
-          .getVehiclesPercentage(kanbanSessioneService.workingVehicles)
+          getVehiclesPercentage(workingVehicles)
           .toFixed(0) + "%"
       }}
       <mat-progress-bar
         mode="determinate"
         [value]="
-          kanbanSessioneService.getVehiclesPercentage(
-            kanbanSessioneService.workingVehicles
+          getVehiclesPercentage(
+            workingVehicles
           )
         "
         class="progress-bar working-bar"
@@ -30,7 +29,7 @@
       <div class="scrollable-list">
         <mat-list>
           <mat-list-item
-            *ngFor="let vehicleData of kanbanSessioneService.workingVehicles"
+            *ngFor="let vehicleData of workingVehicles"
           >
             <div class="vehicle" matTooltip="Sessione corretta">
               <div class="left-container">
@@ -66,20 +65,52 @@
           Error
         </div>
         <span class="nMezzi">{{
-          kanbanSessioneService.errorVehicles.length
+         getAllErrorVehicles().length
         }}</span>
+
+        <mat-chip-listbox class="mat-chip-listbox-inline" aria-label="Cutest dog breeds" [hideSingleSelectionIndicator]="true">
+          <span
+          [matTooltip]="kanbanSessioneService.errorVehicles.nullVehicles.length <= 0 ? 'Nessuna anomalia di sessione nulla': ''"
+          >
+            <mat-chip-option
+            [disabled]="kanbanSessioneService.errorVehicles.nullVehicles.length <= 0"
+            [ngClass]="{'selected' : selectedAnomalies.includes('Nulla')}"
+            (click)="filterKanbanAnomalies('Nulla')">
+            Nulla
+          </mat-chip-option>
+          </span>
+          <span
+          [matTooltip]="kanbanSessioneService.errorVehicles.stuckVehicles.length <= 0 ? 'Nessuna anomalia di sessione bloccata': ''"
+          >
+            <mat-chip-option
+            [disabled]="kanbanSessioneService.errorVehicles.stuckVehicles.length <= 0"
+            [ngClass]="{'selected' : selectedAnomalies.includes('Bloccata')}"
+            (click)="filterKanbanAnomalies('Bloccata')">
+            Bloccata
+          </mat-chip-option>
+          </span>
+          <span
+          [matTooltip]="kanbanSessioneService.errorVehicles.powerVehicles.length <= 0 ? 'Nessuna anomalia di alimentazione': ''"
+          >
+            <mat-chip-option
+            [ngClass]="{'selected' : selectedAnomalies.includes('Alimentazione')}"
+            [disabled]="kanbanSessioneService.errorVehicles.powerVehicles.length <= 0"
+            (click)="filterKanbanAnomalies('Alimentazione')">
+            Alimentazione
+          </mat-chip-option>
+          </span>
+        </mat-chip-listbox>
       </div>
       {{
-        kanbanSessioneService
-          .getVehiclesPercentage(kanbanSessioneService.errorVehicles)
+          getVehiclesPercentage(getAllErrorVehicles())
           .toFixed(0) + "%"
       }}
       <mat-progress-bar
         mode="determinate"
         color="accent"
         [value]="
-          kanbanSessioneService.getVehiclesPercentage(
-            kanbanSessioneService.errorVehicles
+          getVehiclesPercentage(
+            getAllErrorVehicles()
           )
         "
         class="progress-bar error-bar"
@@ -87,7 +118,7 @@
       <div class="scrollable-list">
         <mat-list>
           <mat-list-item
-            *ngFor="let vehicleData of kanbanSessioneService.errorVehicles"
+            *ngFor="let vehicleData of getAllErrorVehicles()"
           >
             <div
               class="vehicle"

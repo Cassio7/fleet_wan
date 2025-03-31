@@ -174,3 +174,22 @@ mat-progress-bar.working-bar .mdc-linear-progress {
   height: 10px !important;
   border-radius: 10px !important; /* Modifica il valore a piacere */
 }
+.selected-chip {
+  background-color: var(--red) !important;
+  color: white !important;
+}
+.mat-mdc-chip {
+  background-color: white !important;
+  --mdc-chip-label-text-color: black;
+  --mdc-chip-outline-color: var(--red);
+}
+
+.mat-mdc-chip.selected {
+  background-color: var(--red) !important;
+  --mdc-chip-label-text-color: white;
+  --mdc-chip-outline-color: transparent;
+}
+
+.mat-chip-listbox-inline mat-chip-option {
+  width: auto;
+}
