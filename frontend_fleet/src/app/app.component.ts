@@ -21,7 +21,6 @@ import 'moment/locale/it';
 import { MY_DATE_FORMATS } from './Utils/date-format';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { LoginComponent } from "./Common-components/login/login.component";
-import 'leaflet-routing-machine';
 
 @Component({
   selector: 'app-root',
