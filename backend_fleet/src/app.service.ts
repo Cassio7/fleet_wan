@@ -19,9 +19,9 @@ import Redis from 'ioredis';
 import { EquipmentFacotoryService } from './factory/equipment.factory';
 import { RentalFactoryService } from './factory/rental.factory';
 import { WorkzoneFacotoryService } from './factory/workzone.factory';
+import { StatsService } from './services/anomaly/stats/stats.service';
 import { AssociationService } from './services/association/association.service';
 import { ControlService } from './services/control/control.service';
-import { StatsService } from './services/anomaly/stats/stats.service';
 
 @Injectable()
 export class AppService implements OnModuleInit {
@@ -55,7 +55,7 @@ export class AppService implements OnModuleInit {
     ).toISOString();
     //await this.putDefaultData();
     //await this.putDbDataMix(startDate, endDate); // da usare nuovo
-    //await this.setAssociations(),
+    //await this.setAssociations();
     //await this.putDbDataCronOne();
     //await this.anomalyCheck(startDate, endDate);
     //await this.dailyAnomalyCheck();
