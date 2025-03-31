@@ -90,8 +90,12 @@ export class TagController {
         }
 
         // Parse dates and get filtered tags
-        const parsedDateFrom = new Date(dateFrom + 'Z');
-        const parsedDateTo = new Date(dateTo + 'Z');
+        const parsedDateFrom = dateFrom.endsWith('Z')
+          ? new Date(dateFrom)
+          : new Date(dateFrom + 'Z');
+        const parsedDateTo = dateTo.endsWith('Z')
+          ? new Date(dateTo)
+          : new Date(dateTo + 'Z');
         const equal = sameDate(parsedDateFrom, parsedDateTo);
         if (equal) {
           parsedDateTo.setHours(23, 59, 59, 0);
@@ -236,6 +240,26 @@ export class TagController {
           `Preview tag numero: ${count}`,
         );
         return res.status(200).json({ count: count, tags: tags });
+      }
+      const tagsCount = await this.tagService.getNCountTagsRange(
+        req.user.id,
+        parsedDateFrom,
+        parsedDateTo,
+        worksites,
+      );
+      await this.exportService.checkRedisExport(
+        tagsCount,
+        parsedDateFrom,
+        parsedDateTo,
+        res,
+      );
+      if (res.headersSent) {
+        this.loggerService.logCrudSuccess(
+          context,
+          'list',
+          `Numero di tag scaricati ${tagsCount}`,
+        );
+        return;
       }
       const tags = await this.tagService.getTagsByRangeWorksite(
         req.user.id,

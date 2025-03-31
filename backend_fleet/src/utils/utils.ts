@@ -81,8 +81,13 @@ export function validateDateRange(
     return { isValid: false, message: 'Date non fornite.' };
   }
   // Crea un oggetto Date dalla stringa fornita
-  const dateFrom_new = new Date(dateFrom + 'Z');
-  const dateTo_new = new Date(dateTo + 'Z');
+  const dateFrom_new = dateFrom.endsWith('Z')
+    ? new Date(dateFrom)
+    : new Date(dateFrom + 'Z');
+  const dateTo_new = dateTo.endsWith('Z')
+    ? new Date(dateTo)
+    : new Date(dateTo + 'Z');
+
   // Controlla se la data è valida
   if (isNaN(dateFrom_new.getTime()) || isNaN(dateTo_new.getTime())) {
     return { isValid: false, message: 'Formato della data non valido.' };
