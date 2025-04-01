@@ -10,6 +10,13 @@ import Redis from 'ioredis';
 export class ExportService {
   constructor(@InjectRedis() private readonly redis: Redis) {}
 
+  /**
+   * Fa export del file excel
+   * @param tags
+   * @param parsedDateFrom
+   * @param parsedDateTo
+   * @param res
+   */
   async exportExcel(
     tags: TagDTO[],
     parsedDateFrom: Date,
@@ -68,6 +75,11 @@ export class ExportService {
     await workbook.xlsx.write(res);
   }
 
+  /**
+   * Recupera dal redis il file excel se presente
+   * @param redisKey chiave univoca
+   * @returns
+   */
   async getRedisExport(redisKey: string): Promise<Buffer | null> {
     const existingExport = await this.redis.get(redisKey);
 
@@ -79,6 +91,11 @@ export class ExportService {
     return null;
   }
 
+  /**
+   * Imposta il redis con il contenuto del excel
+   * @param workbook oggetto workbook
+   * @param redisKey chiave univoca generata
+   */
   async setRedisExport(workbook: Workbook, redisKey: string) {
     // Crea un buffer per il file Excel
     const buffer = await workbook.xlsx.writeBuffer();
@@ -128,6 +145,13 @@ export class ExportService {
     return null;
   }
 
+  /**
+   * Genera chiave univoca per riconoscere un recupero uguale di dati
+   * @param tags numero di tag
+   * @param dateFrom data inizio
+   * @param dateTo data fine
+   * @returns
+   */
   private generateUniqueKey(
     tags: number,
     dateFrom: string,

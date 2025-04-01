@@ -1,4 +1,3 @@
-import { ExportService } from './../../services/tag/export/export.service';
 import {
   Body,
   Controller,
@@ -20,7 +19,7 @@ import { LogContext } from 'src/log/logger.types';
 import { LoggerService } from 'src/log/service/logger.service';
 import { TagService } from 'src/services/tag/tag.service';
 import { sameDate, validateDateRange } from 'src/utils/utils';
-import { Workbook } from 'exceljs';
+import { ExportService } from './../../services/tag/export/export.service';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Roles(Role.Admin, Role.Responsabile, Role.Capo)
