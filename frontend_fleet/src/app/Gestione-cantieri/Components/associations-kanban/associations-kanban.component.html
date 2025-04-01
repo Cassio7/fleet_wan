@@ -1,0 +1,36 @@
+<div cdkDropListGroup class="vehicle-columns">
+  <div class="own column">
+    <div class="section-header">
+      <p class="title">Veicoli in questo cantiere</p>
+      <span>0</span>
+    </div>
+
+    <div
+      cdkDropList
+      [cdkDropListData]="items"
+      class="column-list"
+      cdkDropListSortingDisabled
+      (cdkDropListDropped)="drop($event)">
+      @for (item of items; track item) {
+        <div class="example-box" cdkDrag>{{item}}</div>
+      }
+    </div>
+  </div>
+
+  <div class="free column">
+    <div class="section-header">
+      <p class="title">Veicoli liberi</p>
+      <span>0</span>
+    </div>
+
+    <div
+      cdkDropList
+      [cdkDropListData]="basket"
+      class="column-list"
+      (cdkDropListDropped)="drop($event)">
+      @for (item of basket; track item) {
+        <div class="example-box" cdkDrag>{{item}}</div>
+      }
+    </div>
+  </div>
+</div>
