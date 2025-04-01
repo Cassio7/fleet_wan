@@ -1,0 +1,14 @@
+<main class="content">
+  <header class="section-header">
+    <p class="title">Modifica cantiere</p>
+    <p class="subtitle">Modifica i dati del cantiere</p>
+  </header>
+  <article class="main-content">
+    <section class="left-section">
+      <app-dati-cantiere *ngIf="cantiere && groups.length > 0" [worksite]="cantiere" [groups]="groups"></app-dati-cantiere>
+    </section>
+    <section class="right-section">
+      <app-associations-kanban></app-associations-kanban>
+    </section>
+  </article>
+</main>

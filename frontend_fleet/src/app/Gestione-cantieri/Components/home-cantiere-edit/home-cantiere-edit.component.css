@@ -1,0 +1,35 @@
+.content {
+  padding: 50px;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 20px;
+  max-width: 100%;
+}
+
+.main-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 50px;
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+  }
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: #666;
+}
+
+.left-section, .right-section {
+  border-radius: 8px;
+}

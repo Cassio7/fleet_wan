@@ -13,6 +13,7 @@ import { HomeLettureComponent } from './Scarico-letture/home-letture/home-lettur
 import { HomeGestioneSocietaComponent } from './Gestione-Società/Components/home-gestione-societa/home-gestione-societa.component';
 import { HomeGestioneVeicoliComponent } from './Gestione-Veicoli/Components/home-gestione-veicoli/home-gestione-veicoli.component';
 import { AuthGuardService } from './Common-services/authGuard/auth-guard.service';
+import { HomeCantiereEditComponent } from './Gestione-cantieri/Components/home-cantiere-edit/home-cantiere-edit.component';
 
 export const routes: Routes = [
   {
@@ -62,6 +63,11 @@ export const routes: Routes = [
   {
     path: 'gestione-cantieri',
     component: HomeGestioneCantieriComponent,
+    canActivate: [AuthGuardService]
+  },
+  {
+    path: 'cantiere/:id',
+    component: HomeCantiereEditComponent,
     canActivate: [AuthGuardService]
   },
   {
