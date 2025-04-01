@@ -15,8 +15,7 @@ import { TagService } from '../../Common-services/tag/tag.service';
     MatNativeDateModule,
     MatDatepickerModule,
     MatFormFieldModule,
-    MatInputModule,
-    MatNativeDateModule
+    MatInputModule
   ],
   templateUrl: './session-filters.component.html',
   styleUrl: './session-filters.component.css',
