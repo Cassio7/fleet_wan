@@ -110,7 +110,7 @@ if (dateFrom) {
     let params = new HttpParams()
 
     worksiteIds.forEach(worksiteId => {
-      params.append('worksite', worksiteId.toString());
+      params = params.append('worksite', worksiteId.toString());
     })
 
     if(dateFrom) {
