@@ -10,7 +10,7 @@ import {
 import { CantieriTableComponent } from '../cantieri-table/cantieri-table.component';
 import { CantieriFiltersComponent } from '../cantieri-filters/cantieri-filters.component';
 import { Subject, takeUntil } from 'rxjs';
-import { GestioneCantieriService } from '../../Services/gestione-cantieri/gestione-cantieri.service';
+import { GestioneCantieriService } from '../../../Common-services/gestione-cantieri/gestione-cantieri.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { CantieriCreateDialogComponent } from '../cantieri-create-dialog/cantieri-create-dialog.component';

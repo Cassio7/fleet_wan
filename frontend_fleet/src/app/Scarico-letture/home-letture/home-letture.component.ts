@@ -1,7 +1,7 @@
 import { TagDownloadData, TagService } from './../../Common-services/tag/tag.service';
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { LettureTableComponent } from "../letture-table/letture-table.component";
-import { GestioneCantieriService } from '../../Gestione-cantieri/Services/gestione-cantieri/gestione-cantieri.service';
+import { GestioneCantieriService } from '../../Common-services/gestione-cantieri/gestione-cantieri.service';
 import { skip, Subject, takeUntil } from 'rxjs';
 import { WorkSite } from '../../Models/Worksite';
 import { LettureFiltersComponent } from "../letture-filters/letture-filters.component";
