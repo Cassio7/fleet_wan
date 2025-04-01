@@ -1,0 +1,30 @@
+<div class="section-header">
+  <h4 mat-dialog-title class="title">Inserisci le informazioni sullo spostamento del cantiere</h4>
+</div>
+<mat-dialog-content>
+  <form [formGroup]="moveCantiereForm" (ngSubmit)="onConfirm()" class="move-form">
+    <mat-form-field class="example-form-field" subscriptSizing="dynamic">
+      <input matInput [matDatepicker]="datepicker" formControlName="dateFrom" placeholder="data di trasferimento" />
+      <mat-hint>MM/DD/YYYY</mat-hint>
+      <mat-datepicker-toggle matIconSuffix [for]="datepicker"></mat-datepicker-toggle>
+      <mat-datepicker #datepicker>
+        <mat-datepicker-actions>
+          <button mat-button matDatepickerCancel>Cancel</button>
+          <button mat-raised-button matDatepickerApply>Apply</button>
+        </mat-datepicker-actions>
+      </mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <textarea matInput formControlName="comment" #name placeholder="Inserisci un commento"></textarea>
+    </mat-form-field>
+
+    <mat-dialog-actions>
+      <span>sicuro di voler confermare?</span>
+      <button mat-button class="button no-button" [mat-dialog-close]="null">No</button>
+      <div class="okButton-container">
+        <button mat-button class="button ok-button" type="submit" cdkFocusInitial>Conferma</button>
+      </div>
+    </mat-dialog-actions>
+  </form>
+</mat-dialog-content>
