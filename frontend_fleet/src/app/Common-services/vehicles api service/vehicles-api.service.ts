@@ -1,5 +1,5 @@
 import { CommonService } from '../common service/common.service';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Vehicle } from '../../Models/Vehicle';
@@ -41,6 +41,23 @@ export class VehiclesApiService {
 
     return this.http.get<Vehicle[]>(`${this.commonService.url}/vehicles/admin`, { headers });
   }
+
+  /**
+   * Permette di prendere tutti i veicoli non assegnati a nessun cantiere
+   * @returns observable http get
+   */
+  public getAllFreeVehiclesAdmin(): Observable<Vehicle[]> {
+    const access_token = this.cookieService.get("user");
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${access_token}`
+    });
+
+    // Correct way to set parameters
+    const params = new HttpParams().set('free', 'true');
+
+    return this.http.get<Vehicle[]>(`${this.commonService.url}/vehicles/admin`, { headers, params });
+  }
+
 
   /**
    * Ricerca i dati del veicolo con una specifica targa
