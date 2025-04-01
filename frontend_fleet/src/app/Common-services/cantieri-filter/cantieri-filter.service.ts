@@ -48,10 +48,10 @@ export class CantieriFilterService{
         // Verifica se è un VehicleData e ottieni il worksite
         let worksite = 'vehicle' in vehicle ? vehicle.vehicle.worksite : (vehicle as Vehicle).worksite;
 
-        if (!worksite) return null;
+        if (!worksite) return 'Libero';
 
         let name = worksite.name?.toLowerCase();
-        return name ? name.charAt(0).toUpperCase() + name.slice(1) : null;
+        return name ? name.charAt(0).toUpperCase() + name.slice(1) : 'Libero';
       })
       .filter((name): name is string => {
         if (!name || seen.has(name)) return false;
@@ -94,7 +94,7 @@ export class CantieriFilterService{
       }
 
       if (typeof workSiteName !== 'string') {
-        return false; // Skip if worksite name is invalid or not present
+        return true // Skip if worksite name is invalid or not present
       }
 
       return cantieriLower.includes(workSiteName.toLowerCase());

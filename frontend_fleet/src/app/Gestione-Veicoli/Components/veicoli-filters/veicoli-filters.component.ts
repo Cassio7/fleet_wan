@@ -61,7 +61,7 @@ private readonly destroy$: Subject<void> = new Subject<void>();
         this.listaSocieta = Array.from(
           new Set(
             this.veicoli
-              .map(veicolo => veicolo.company?.name)
+              .map(veicolo => veicolo.company?.name || "Libero")
               .filter(name => name !== undefined)
           )
         );

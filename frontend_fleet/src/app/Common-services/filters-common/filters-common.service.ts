@@ -164,7 +164,7 @@ export class FiltersCommonService {
   private filterVehiclesByCompanies(vehicles: Vehicle[], companies: string[]): Vehicle[]{
     return vehicles.filter(vehicle => {
       const companyName = vehicle.company?.name;
-      return companyName ? companies.includes(companyName) : false;
+      return companyName ? companies.includes(companyName) : companies.includes('Libero');
     });
   }
 
