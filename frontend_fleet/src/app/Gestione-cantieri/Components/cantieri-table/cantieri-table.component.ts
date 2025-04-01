@@ -10,7 +10,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { SortService } from '../../../Common-services/sort/sort.service';
 import { GestioneService, GestioneFilters } from '../../../Gestione-utenti/Services/gestione/gestione.service';
 import { User } from '../../../Models/User';
-import { GestioneCantieriService } from '../../Services/gestione-cantieri/gestione-cantieri.service';
+import { GestioneCantieriService } from '../../../Common-services/gestione-cantieri/gestione-cantieri.service';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.component';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -78,7 +78,7 @@ export class CantieriTableComponent implements AfterViewInit, OnDestroy, OnChang
   }
 
   editCantiere(cantiere: WorkSite){
-
+    this.router.navigate(['/cantiere', cantiere.id]);
   }
 
   deleteCantiere(cantiere: WorkSite){
