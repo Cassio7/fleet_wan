@@ -14,11 +14,7 @@
       <td mat-cell *matCellDef="let veicolo">
         <div class="inline-container">
           <img
-            [src]="
-              veicolo?.service?.id
-                ? svgService.getServiceIcon(veicolo?.service?.id)
-                : 'no icon'
-            "
+            [src]="svgService.getServiceIcon(veicolo?.service?.id || 0)"
             alt="Service Icon"
             width="28"
             height="28"
@@ -42,7 +38,7 @@
       <td mat-cell *matCellDef="let veicolo">
         <div class="veicolo-container">
           <span class="inline-container">
-            {{ veicolo?.group?.name || "non assegnato" }}
+            {{ veicolo?.group?.name || "-" }}
           </span>
         </div>
       </td>
@@ -51,14 +47,14 @@
     <ng-container matColumnDef="Societa">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Societa</th>
       <td mat-cell *matCellDef="let veicolo">
-        {{ veicolo?.company?.name || "non assegnato" }}
+        {{ veicolo?.company?.name || "Libero" }}
       </td>
     </ng-container>
 
     <ng-container matColumnDef="Cantiere">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Cantiere</th>
-      <td mat-cell *matCellDef="let veicolo">
-        {{ veicolo?.worksite?.name || "non assegnato" }}
+      <td mat-cell *matCellDef="let veicolo" style="font-weight: 600">
+        {{ veicolo?.worksite?.name || "Libero" }}
       </td>
     </ng-container>
 
@@ -67,15 +63,16 @@
       <td mat-cell *matCellDef="let veicolo">
         <ng-container *ngIf="!veicolo.retired_event; else notActive">
           <div class="inline-container">
-            Operativo
             <div class="state-circle active-circle"></div>
+            Operativo
           </div>
         </ng-container>
 
         <ng-template #notActive>
           <div class="inline-container">
-            Dismesso
             <div class="state-circle inactive-circle"></div>
+            Dismesso
+            {{ veicolo.retired_event | date : "dd/MM/yyyy" }}
           </div>
         </ng-template>
       </td>

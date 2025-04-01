@@ -62,9 +62,9 @@ export class VeicoliTableComponent {
   displayedColumns: string[] = [
     'Targa',
     'VeId',
+    'Cantiere',
     'Comune',
     'Societa',
-    'Cantiere',
     'Stato',
     'Azioni',
   ];
