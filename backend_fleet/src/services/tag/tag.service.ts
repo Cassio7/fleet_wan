@@ -15,7 +15,7 @@ import { AssociationService } from '../association/association.service';
 export class TagService {
   private serviceUrl = 'https://ws.fleetcontrol.it/FWANWs3/services/FWANSOAP';
   constructor(
-    @InjectRepository(TagHistoryEntity, 'readOnlyConnection')
+    @InjectRepository(TagHistoryEntity, 'tagReadOnly')
     private readonly tagHistoryRepository: Repository<TagHistoryEntity>,
     @InjectDataSource('mainConnection')
     private readonly connection: DataSource,
