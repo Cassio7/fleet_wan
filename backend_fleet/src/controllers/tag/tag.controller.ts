@@ -221,19 +221,21 @@ export class TagController {
         return res.status(200).json({ count: count });
       }
       if (isPreview) {
-        const count = await this.tagService.getNCountTagsRange(
-          req.user.id,
-          parsedDateFrom,
-          parsedDateTo,
-          worksites,
-        );
-        const tags = await this.tagService.getTagsByRangeWorksite(
-          req.user.id,
-          parsedDateFrom,
-          parsedDateTo,
-          worksites,
-          isPreview,
-        );
+        const [count, tags] = await Promise.all([
+          this.tagService.getNCountTagsRange(
+            req.user.id,
+            parsedDateFrom,
+            parsedDateTo,
+            worksites,
+          ),
+          this.tagService.getTagsByRangeWorksite(
+            req.user.id,
+            parsedDateFrom,
+            parsedDateTo,
+            worksites,
+            isPreview,
+          ),
+        ]);
         this.loggerService.logCrudSuccess(
           context,
           'list',
@@ -261,6 +263,7 @@ export class TagController {
         );
         return;
       }
+      console.time('query');
       const tags = await this.tagService.getTagsByRangeWorksite(
         req.user.id,
         parsedDateFrom,
@@ -268,20 +271,23 @@ export class TagController {
         worksites,
         isPreview,
       );
+      console.timeEnd('query');
       if (!tags?.length) {
         this.loggerService.logCrudSuccess(context, 'list', 'Tag non trovati');
         return res.status(204).json();
       }
-      this.loggerService.logCrudSuccess(
-        context,
-        'list',
-        `Numero di tag scaricati ${tags.length}`,
-      );
+      console.time('export');
       await this.exportService.exportExcel(
         tags,
         parsedDateFrom,
         parsedDateTo,
         res,
+      );
+      console.timeEnd('export');
+      this.loggerService.logCrudSuccess(
+        context,
+        'list',
+        `Numero di tag scaricati ${tags.length}`,
       );
       return res.end();
     } catch (error) {
