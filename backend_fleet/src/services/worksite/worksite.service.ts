@@ -2,12 +2,13 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { CompanyDTO } from 'classes/dtos/company.dto';
 import { GroupDTO } from 'classes/dtos/group.dto';
+import { VehicleDTO } from 'classes/dtos/vehicle.dto';
 import { WorksiteDTO } from 'classes/dtos/worksite.dto';
+import { GroupEntity } from 'classes/entities/group.entity';
+import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { WorksiteEntity } from 'classes/entities/worksite.entity';
 import { DataSource, In, Repository } from 'typeorm';
 import { AssociationService } from '../association/association.service';
-import { GroupEntity } from 'classes/entities/group.entity';
-import { VehicleEntity } from 'classes/entities/vehicle.entity';
 
 @Injectable()
 export class WorksiteService {
@@ -76,7 +77,7 @@ export class WorksiteService {
           },
         },
       });
-      return this.toDTO(newWorksiteData);
+      return this.toDTO(newWorksiteData, false);
     } catch (error) {
       await queryRunner.rollbackTransaction();
       if (error instanceof HttpException) throw error;
@@ -106,7 +107,7 @@ export class WorksiteService {
           id: 'ASC',
         },
       });
-      return worksites.map((worksite) => this.toDTO(worksite));
+      return worksites.map((worksite) => this.toDTO(worksite, false));
     } catch (error) {
       if (error instanceof HttpException) throw error;
       throw new HttpException(
@@ -128,14 +129,17 @@ export class WorksiteService {
           id: id,
         },
         relations: {
-          vehicle: true,
+          vehicle: {
+            service: true,
+          },
           group: {
             company: true,
           },
         },
       });
-      return worksite ? this.toDTO(worksite) : null;
+      return worksite ? this.toDTO(worksite, true) : null;
     } catch (error) {
+      console.log(error);
       if (error instanceof HttpException) throw error;
       throw new HttpException(
         `Errore durante recupero del cantiere`,
@@ -252,7 +256,7 @@ export class WorksiteService {
         },
       });
 
-      return this.toDTO(updatedWorksite);
+      return this.toDTO(updatedWorksite, false);
     } catch (error) {
       await queryRunner.rollbackTransaction();
       if (error instanceof HttpException) throw error;
@@ -307,7 +311,7 @@ export class WorksiteService {
    * @param worksite oggetto entità
    * @returns dto
    */
-  private toDTO(worksite: WorksiteEntity): WorksiteDTO {
+  private toDTO(worksite: WorksiteEntity, vehicleList: boolean): WorksiteDTO {
     const worksiteDTO = new WorksiteDTO();
     worksiteDTO.id = worksite.id;
     worksiteDTO.createdAt = worksite.createdAt;
@@ -315,6 +319,19 @@ export class WorksiteService {
     worksiteDTO.version = worksite.version;
     worksiteDTO.name = worksite.name;
     worksiteDTO.vehicleCount = worksite.vehicle?.length || 0;
+    if (vehicleList) {
+      if (!worksiteDTO.vehicle) {
+        worksiteDTO.vehicle = []; // Inizializza come array vuoto se è undefined
+      }
+      worksite.vehicle.map((item) => {
+        const newVehicleDTO = new VehicleDTO();
+        newVehicleDTO.id = item.id;
+        newVehicleDTO.plate = item.plate;
+        newVehicleDTO.veId = item.veId;
+        newVehicleDTO.allestimento = item.allestimento;
+        worksiteDTO.vehicle.push(newVehicleDTO);
+      });
+    }
     if (worksite.group) {
       worksiteDTO.group = new GroupDTO();
       worksiteDTO.group.id = worksite.group.id;
