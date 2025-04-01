@@ -3,7 +3,7 @@
     <th mat-header-cell *matHeaderCellDef></th>
     <td mat-cell *matCellDef="let vehicle">
       <img
-        [src]="svgService.getServiceIcon(vehicle.service.id)"
+        [src]="svgService.getServiceIcon(vehicle.service?.id || 0)"
         alt="Service Icon"
         width="28"
         height="28"
