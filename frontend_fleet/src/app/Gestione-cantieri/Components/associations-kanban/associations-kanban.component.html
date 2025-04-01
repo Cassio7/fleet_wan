@@ -2,17 +2,24 @@
   <div class="own column">
     <div class="section-header">
       <p class="title">Veicoli in questo cantiere</p>
-      <span>0</span>
+      <span>{{worksiteVehicles.length}}</span>
     </div>
 
     <div
       cdkDropList
-      [cdkDropListData]="items"
+      [cdkDropListData]="worksiteList"
       class="column-list"
       cdkDropListSortingDisabled
       (cdkDropListDropped)="drop($event)">
-      @for (item of items; track item) {
-        <div class="example-box" cdkDrag>{{item}}</div>
+      @for (vehicle of worksiteList; track vehicle) {
+        <div class="vehicle" cdkDrag>
+          <mat-icon>local_shipping</mat-icon>
+          <div class="info">
+            <div class="veId">{{vehicle.veId}}</div>
+            <div class="allestimento">{{vehicle.allestimento ? "Blackbox + antenna" : "Blackbox"}}</div>
+          </div>
+          <span class="plate-container">{{vehicle.plate}}</span>
+        </div>
       }
     </div>
   </div>
@@ -20,16 +27,23 @@
   <div class="free column">
     <div class="section-header">
       <p class="title">Veicoli liberi</p>
-      <span>0</span>
+      <span>{{freeVehicles.length}}</span>
     </div>
 
     <div
       cdkDropList
-      [cdkDropListData]="basket"
+      [cdkDropListData]="freeList"
       class="column-list"
       (cdkDropListDropped)="drop($event)">
-      @for (item of basket; track item) {
-        <div class="example-box" cdkDrag>{{item}}</div>
+      @for (vehicle of freeList; track vehicle) {
+        <div class="vehicle" cdkDrag>
+          <mat-icon>local_shipping</mat-icon>
+          <div class="info">
+            <div class="veId">{{vehicle.veId}}</div>
+            <div class="allestimento">{{vehicle.allestimento ? "Blackbox + antenna" : "Blackbox"}}</div>
+          </div>
+          <span class="plate-container">{{vehicle.plate}}</span>
+        </div>
       }
     </div>
   </div>

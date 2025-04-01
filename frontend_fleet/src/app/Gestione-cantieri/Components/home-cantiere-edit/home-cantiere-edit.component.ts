@@ -7,6 +7,8 @@ import { Subject, takeUntil } from 'rxjs';
 import { WorkSite } from '../../../Models/Worksite';
 import { GestioneCantieriService } from '../../../Common-services/gestione-cantieri/gestione-cantieri.service';
 import { Group } from '../../../Models/Group';
+import { Vehicle } from '../../../Models/Vehicle';
+import { VehiclesApiService } from '../../../Common-services/vehicles api service/vehicles-api.service';
 
 @Component({
   selector: 'app-home-cantiere-edit',
@@ -19,9 +21,15 @@ export class HomeCantiereEditComponent implements OnInit, OnDestroy{
   private readonly destroy$: Subject<void> = new Subject<void>();
 
   cantiere!: WorkSite;
+  freeVehicles: Vehicle[] = [];
   groups: Group[] = [];
 
-  constructor(private gestioneCantieriService: GestioneCantieriService, private router: Router, private route: ActivatedRoute, private cd: ChangeDetectorRef){}
+  constructor(
+    private gestioneCantieriService: GestioneCantieriService,
+    private vehiclesApiService: VehiclesApiService,
+    private route: ActivatedRoute,
+    private cd: ChangeDetectorRef
+  ){}
 
 
   ngOnDestroy(): void {
@@ -41,6 +49,7 @@ export class HomeCantiereEditComponent implements OnInit, OnDestroy{
             this.cantiere = worksite;
             this.cd.detectChanges();
             console.log('fetched worksite: ', this.cantiere);
+            console.log('worksite vehicles: ', this.cantiere.vehicle);
           },
           error: error => console.error(`Errore nell'ottenere il cantiere tramite l'id: ${error}`)
         });
@@ -60,5 +69,15 @@ export class HomeCantiereEditComponent implements OnInit, OnDestroy{
         error: (error) =>
           console.error("Errore nell'ottenere tutti i cantieri: ", error),
       });
+
+    this.vehiclesApiService.getAllFreeVehiclesAdmin().pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (vehicles: Vehicle[]) => {
+        this.freeVehicles = vehicles;
+        console.log('freeVehicles fetched: ', this.freeVehicles);
+        this.cd.detectChanges();
+      },
+      error: error => console.error("Errore nell'ottenere tutti i veicoli liberi: ", error)
+    });
   }
 }
