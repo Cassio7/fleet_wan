@@ -70,12 +70,12 @@ import { RentalService } from './services/rental/rental.service';
 import { RoleService } from './services/role/role.service';
 import { ServiceService } from './services/service/service.service';
 import { SessionService } from './services/session/session.service';
+import { ExportService } from './services/tag/export/export.service';
 import { TagService } from './services/tag/tag.service';
 import { UserService } from './services/user/user.service';
 import { VehicleService } from './services/vehicle/vehicle.service';
 import { WorksiteHistoryService } from './services/worksite-history/worksite-history.service';
 import { WorksiteService } from './services/worksite/worksite.service';
-import { ExportService } from './services/tag/export/export.service';
 
 @Global()
 @Module({
