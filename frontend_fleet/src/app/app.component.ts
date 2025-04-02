@@ -59,8 +59,10 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
   @ViewChild('fixedDrawer') fixedDrawer!: MatDrawer; //sidebar fissa
 
   selectedBtn: string = "dashboard";
-  isLoginPage = true;
-  isLogged = false;
+  isLoginPage: boolean = true;
+  isLogged: boolean = false;
+  isGestioneOpen: boolean = false;
+
   title = 'frontend_fleet';
   user!: any;
 
@@ -89,6 +91,12 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
     const access_token = this.cookieService.get("user");
     access_token ? this.isLogged=true : this.isLogged=false; //se è stato impostato l'user
     this.user = this.authService.decodeToken(access_token);
+
+    if(this.checkLoginPage(this.router.url)){
+      this.isLoginPage = true;
+    }else{
+      this.isLoginPage = false;
+    }
 
     //se non loggato, redirect a login
     if(access_token){

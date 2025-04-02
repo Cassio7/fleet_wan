@@ -11,13 +11,19 @@
         <button routerLink="storico-mezzi" [ngClass]="{'selectedBtn': router.url == '/storico-mezzi'}"><mat-icon>inventory_2</mat-icon></button>
         <button routerLink="home-mappa" [ngClass]="{'selectedBtn': router.url == '/home-mappa'}"><mat-icon>map</mat-icon></button>
         <button routerLink="scarico-letture" [ngClass]="{'selectedBtn': router.url == '/scarico-letture'}"><mat-icon>download</mat-icon></button>
-        <button routerLink="gestione-utenti" *ngIf="user?.idR == 1" [ngClass]="{'selectedBtn': router.url == '/gestione-utenti'}"><mat-icon>group</mat-icon></button>
+        <button [matMenuTriggerFor]="gestioneMenu"><mat-icon>settings</mat-icon></button>
+        <mat-menu #gestioneMenu="matMenu" [xPosition]="'after'" [yPosition]="'below'">
+          <button routerLink="gestione-utenti" mat-menu-item>Gestione utenti</button>
+          <button routerLink="gestione-veicoli" mat-menu-item>Gestione veicoli</button>
+          <button routerLink="gestione-cantieri" mat-menu-item>Gestione cantieri</button>
+          <button routerLink="gestione-societa" mat-menu-item>Gestione società</button>
+        </mat-menu>
       </div>
       <div class="log-out" (mouseover)="triggerLogoutButtonAnimation('rotated')" (mouseleave)="triggerLogoutButtonAnimation('default')">
-        <button [matMenuTriggerFor]="menu" class="logout-btn">
+        <button [matMenuTriggerFor]="logoutMenu" class="logout-btn">
           <mat-icon class="logout-icon" [@rotatedState]="logoutButtonAnimationState">power_settings_new</mat-icon>
         </button>
-        <mat-menu #menu="matMenu">
+        <mat-menu #logoutMenu="matMenu">
           <button mat-menu-item (click)="logout()">Esci</button>
         </mat-menu>
       </div>
@@ -26,29 +32,39 @@
   <mat-drawer-content>
     <mat-drawer-container class="drawer-container" [ngClass]="{'bg-image': isLoginPage}">
       <mat-drawer #drawer mode="over" class="sidebar" class="dynamic-drawer">
-          <button class="menu-btn button" (click)="drawer.toggle(); fixedDrawer.toggle()"><svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path fill-rule="evenodd" clip-rule="evenodd" d="M12.8855 6H20.8855V8H12.8855V6ZM4.88547 16H12.8855V18H4.88547V16ZM20.8855 11H4.88547V13H20.8855V11Z" fill="white"/>
-          </svg>
-          </button>
-          <button class="dashboard-btn button" routerLink="dashboard" [ngClass]="{'selectedBtn': router.url == '/dashboard'}" (click)="drawer.toggle(); fixedDrawer.toggle()">
-            <mat-icon>dashboard</mat-icon><span class="drawerIcon-text">Dashboard</span>
-          </button>
-          <button class="mezzi-btn button" routerLink="home-mezzi" [ngClass]="{'selectedBtn': router.url == '/home-mezzi'}" (click)="drawer.toggle(); fixedDrawer.toggle()">
-            <mat-icon>local_shipping</mat-icon><span class="drawerIcon-text">Mezzi</span>
-          </button>
-          <button class="session-history-btn button" routerLink="storico-mezzi" [ngClass]="{'selectedBtn': router.url == '/storico-mezzi'}" (click)="drawer.toggle(); fixedDrawer.toggle()">
-            <mat-icon>inventory_2</mat-icon><span class="drawerIcon-text">Storico mezzi</span>
-          </button>
-          <button class="button" routerLink="home-mappa" [ngClass]="{'selectedBtn': router.url == '/home-mappa'}" (click)="drawer.toggle(); fixedDrawer.toggle()"><mat-icon>map</mat-icon><span><span class="drawerIcon-text">Mappa</span></span></button>
-          <button class="button" routerLink="scarico-letture" [ngClass]="{'selectedBtn': router.url == '/scarico-letture'}" (click)="drawer.toggle(); fixedDrawer.toggle()"><mat-icon>download</mat-icon><span><span class="drawerIcon-text">Scarico letture</span></span></button>
-          <button class="button" routerLink="gestione-utenti" [ngClass]="{'selectedBtn': router.url == '/gestione-utenti'}" *ngIf="user?.idR == 1"><mat-icon>group</mat-icon><span class="drawerIcon-text" (click)="drawer.toggle(); fixedDrawer.toggle()">Gestione utenti</span></button>
+          <div class="main-actions">
+            <button class="menu-btn button" (click)="drawer.toggle(); fixedDrawer.toggle()"><svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M12.8855 6H20.8855V8H12.8855V6ZM4.88547 16H12.8855V18H4.88547V16ZM20.8855 11H4.88547V13H20.8855V11Z" fill="white"/>
+              </svg>
+              </button>
+              <button class="dashboard-btn button" routerLink="dashboard" [ngClass]="{'selectedBtn': router.url == '/dashboard'}" (click)="drawer.toggle(); fixedDrawer.toggle()">
+                <mat-icon>dashboard</mat-icon><span class="drawerIcon-text">Dashboard</span>
+              </button>
+              <button class="mezzi-btn button" routerLink="home-mezzi" [ngClass]="{'selectedBtn': router.url == '/home-mezzi'}" (click)="drawer.toggle(); fixedDrawer.toggle()">
+                <mat-icon>local_shipping</mat-icon><span class="drawerIcon-text">Mezzi</span>
+              </button>
+              <button class="session-history-btn button" routerLink="storico-mezzi" [ngClass]="{'selectedBtn': router.url == '/storico-mezzi'}" (click)="drawer.toggle(); fixedDrawer.toggle()">
+                <mat-icon>inventory_2</mat-icon><span class="drawerIcon-text">Storico mezzi</span>
+              </button>
+              <button class="button" routerLink="home-mappa" [ngClass]="{'selectedBtn': router.url == '/home-mappa'}" (click)="drawer.toggle(); fixedDrawer.toggle()"><mat-icon>map</mat-icon><span><span class="drawerIcon-text">Mappa</span></span></button>
+              <button class="button" routerLink="scarico-letture" [ngClass]="{'selectedBtn': router.url == '/scarico-letture'}" (click)="drawer.toggle(); fixedDrawer.toggle()"><mat-icon>download</mat-icon><span><span class="drawerIcon-text">Scarico letture</span></span></button>
+              <div class="gestione-container" *ngIf="user?.idR == 1">
+                <button class="button" (click)="isGestioneOpen = !isGestioneOpen"><mat-icon>settings</mat-icon><span class="drawerIcon-text"><span class="inline-container">Gestione <mat-icon>{{isGestioneOpen ? 'arrow_drop_up' : 'arrow_drop_down'}}</mat-icon></span></span></button>
+                <div class="indent" *ngIf="isGestioneOpen">
+                  <button class="button" routerLink="gestione-veicoli" [ngClass]="{'selectedBtn': router.url == '/gestione-veicoli'}" ><mat-icon>local_shipping</mat-icon><span class="drawerIcon-text" (click)="drawer.toggle(); fixedDrawer.toggle()">Gestione veicoli</span></button>
+                  <button class="button" routerLink="gestione-utenti" [ngClass]="{'selectedBtn': router.url == '/gestione-utenti'}" ><mat-icon>group</mat-icon><span class="drawerIcon-text" (click)="drawer.toggle(); fixedDrawer.toggle()">Gestione utenti</span></button>
+                  <button class="button" routerLink="gestione-cantieri" [ngClass]="{'selectedBtn': router.url == '/gestione-cantieri'}" ><mat-icon>location_city</mat-icon><span class="drawerIcon-text" (click)="drawer.toggle(); fixedDrawer.toggle()">Gestione cantieri</span></button>
+                  <button class="button" routerLink="gestione-societa" [ngClass]="{'selectedBtn': router.url == '/gestione-societa'}" ><mat-icon>business</mat-icon><span class="drawerIcon-text" (click)="drawer.toggle(); fixedDrawer.toggle()">Gestione società</span></button>
+                </div>
+              </div>
 
-          <button class="button" [matMenuTriggerFor]="menu">
-            <mat-icon>power_settings_new</mat-icon><span class="drawerIcon-text">Esci</span>
-          </button>
-          <mat-menu #menu="matMenu">
-            <button mat-menu-item (click)="logout()">Esci</button>
-          </mat-menu>
+              <button class="button" [matMenuTriggerFor]="menu">
+                <mat-icon>power_settings_new</mat-icon><span class="drawerIcon-text">Esci</span>
+              </button>
+              <mat-menu #menu="matMenu">
+                <button mat-menu-item (click)="logout()">Esci</button>
+              </mat-menu>
+          </div>
       </mat-drawer>
 
       <div class="sidebar-content">
