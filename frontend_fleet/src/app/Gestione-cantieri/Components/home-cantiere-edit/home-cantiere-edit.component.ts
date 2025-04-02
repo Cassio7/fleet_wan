@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { AssociationsKanbanComponent } from "../associations-kanban/associations-kanban.component";
 import { DatiCantiereComponent } from "../dati-cantiere/dati-cantiere.component";
 import { Router, ActivatedRoute } from '@angular/router';
@@ -9,11 +9,12 @@ import { GestioneCantieriService } from '../../../Common-services/gestione-canti
 import { Group } from '../../../Models/Group';
 import { Vehicle } from '../../../Models/Vehicle';
 import { VehiclesApiService } from '../../../Common-services/vehicles api service/vehicles-api.service';
+import { CantiereEditFiltersComponent } from "../cantiere-edit-filters/cantiere-edit-filters.component";
 
 @Component({
   selector: 'app-home-cantiere-edit',
   standalone: true,
-  imports: [CommonModule, AssociationsKanbanComponent, DatiCantiereComponent],
+  imports: [CommonModule, AssociationsKanbanComponent, DatiCantiereComponent, CantiereEditFiltersComponent],
   templateUrl: './home-cantiere-edit.component.html',
   styleUrl: './home-cantiere-edit.component.css'
 })
@@ -21,6 +22,7 @@ export class HomeCantiereEditComponent implements OnInit, OnDestroy{
   private readonly destroy$: Subject<void> = new Subject<void>();
 
   cantiere!: WorkSite;
+  plateResearch: string = "";
   freeVehicles: Vehicle[] = [];
   groups: Group[] = [];
 

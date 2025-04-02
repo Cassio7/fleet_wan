@@ -1,14 +1,19 @@
 <main class="content">
-  <header class="section-header">
-    <p class="title">Modifica cantiere</p>
-    <p class="subtitle">Modifica i dati del cantiere</p>
-  </header>
+  <article class="top-content">
+    <header class="section-header">
+      <p class="title">Modifica cantiere</p>
+      <p class="subtitle">Modifica i dati del cantiere</p>
+    </header>
+    <header class="filters-container">
+      <app-cantiere-edit-filters [(cantiere)]="cantiere" (plateResearch)="plateResearch = $event"></app-cantiere-edit-filters>
+    </header>
+  </article>
   <article class="main-content">
     <section class="left-section">
       <app-dati-cantiere *ngIf="cantiere && groups.length > 0" [worksite]="cantiere" [groups]="groups"></app-dati-cantiere>
     </section>
     <section class="right-section">
-      <app-associations-kanban *ngIf="cantiere && freeVehicles.length > 0" [worksiteVehicles]="cantiere.vehicle" [freeVehicles]="freeVehicles" [worksite]="cantiere"></app-associations-kanban>
+      <app-associations-kanban *ngIf="cantiere && freeVehicles.length > 0" [freeVehicles]="freeVehicles" [worksite]="cantiere" [plateResearch]="plateResearch"></app-associations-kanban>
     </section>
   </article>
 </main>

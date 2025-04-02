@@ -2,7 +2,7 @@
   <div class="own column">
     <div class="section-header">
       <p class="title">Veicoli in questo cantiere</p>
-      <span>{{worksiteVehicles.length}}</span>
+      <span>{{worksiteList.length}}</span>
     </div>
 
     <div
@@ -11,23 +11,21 @@
       class="column-list"
       cdkDropListSortingDisabled
       (cdkDropListDropped)="drop($event)">
-      @for (vehicle of worksiteList; track vehicle) {
-        <div class="vehicle" cdkDrag>
-          <mat-icon>local_shipping</mat-icon>
-          <div class="info">
-            <div class="veId">{{vehicle.veId}}</div>
-            <div class="allestimento">{{vehicle.allestimento ? "Blackbox + antenna" : "Blackbox"}}</div>
-          </div>
-          <span class="plate-container">{{vehicle.plate}}</span>
+      <div *ngFor="let vehicle of worksiteList; trackBy: trackByVehicle" class="vehicle" cdkDrag>
+        <mat-icon>local_shipping</mat-icon>
+        <div class="info">
+          <div class="veId">{{vehicle.veId}}</div>
+          <div class="allestimento">{{vehicle.allestimento ? "Blackbox + antenna" : "Blackbox"}}</div>
         </div>
-      }
+        <span class="plate-container">{{vehicle.plate}}</span>
+      </div>
     </div>
   </div>
 
   <div class="free column">
     <div class="section-header">
       <p class="title">Veicoli liberi</p>
-      <span>{{freeVehicles.length}}</span>
+      <span>{{freeList.length}}</span>
     </div>
 
     <div
@@ -35,16 +33,14 @@
       [cdkDropListData]="freeList"
       class="column-list"
       (cdkDropListDropped)="drop($event)">
-      @for (vehicle of freeList; track vehicle) {
-        <div class="vehicle" cdkDrag>
-          <mat-icon>local_shipping</mat-icon>
-          <div class="info">
-            <div class="veId">{{vehicle.veId}}</div>
-            <div class="allestimento">{{vehicle.allestimento ? "Blackbox + antenna" : "Blackbox"}}</div>
-          </div>
-          <span class="plate-container">{{vehicle.plate}}</span>
+      <div *ngFor="let vehicle of freeList; trackBy: trackByVehicle" class="vehicle" cdkDrag>
+        <mat-icon>local_shipping</mat-icon>
+        <div class="info">
+          <div class="veId">{{vehicle.veId}}</div>
+          <div class="allestimento">{{vehicle.allestimento ? "Blackbox + antenna" : "Blackbox"}}</div>
         </div>
-      }
+        <span class="plate-container">{{vehicle.plate}}</span>
+      </div>
     </div>
   </div>
 </div>

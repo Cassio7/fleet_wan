@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, Input, OnDestroy } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, inject, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
 import {
   CdkDrag,
   CdkDragDrop,
@@ -16,11 +16,14 @@ import { Subject, takeUntil } from 'rxjs';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.component';
 import { GestioneCantieriService } from '../../../Common-services/gestione-cantieri/gestione-cantieri.service';
+import { PlateFilterService } from '../../../Common-services/plate-filter/plate-filter.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-associations-kanban',
   standalone: true,
   imports: [
+    CommonModule,
     CdkDropListGroup,
     CdkDropList,
     CdkDrag,
@@ -29,23 +32,39 @@ import { GestioneCantieriService } from '../../../Common-services/gestione-canti
   templateUrl: './associations-kanban.component.html',
   styleUrl: './associations-kanban.component.css'
 })
-export class AssociationsKanbanComponent implements AfterViewInit, OnDestroy{
+export class AssociationsKanbanComponent implements AfterViewInit, OnDestroy, OnChanges{
   private readonly destroy$: Subject<void> = new Subject<void>();
 
   readonly dialog = inject(MatDialog);
   private snackbar = inject(MatSnackBar);
 
   @Input() worksite!: WorkSite;
-  @Input() worksiteVehicles: Vehicle[] = [];
   @Input() freeVehicles: Vehicle[] = [];
+  @Input() plateResearch: string = "";
 
+  //dati delle liste
   worksiteList: Vehicle[] = [];
-
   freeList: Vehicle[] = [];
 
   constructor(
-    private gestioneCantieriService: GestioneCantieriService
+    private gestioneCantieriService: GestioneCantieriService,
+    private plateFilterService: PlateFilterService,
+    private cd: ChangeDetectorRef
   ){}
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if(changes['plateResearch']){
+      const plateFilteredWorksiteVehicles = this.plateFilterService.filterVehiclesByPlateResearch(this.plateResearch, this.worksite.vehicle) as Vehicle[];
+      const plateFilteredFreeVehicles = this.plateFilterService.filterVehiclesByPlateResearch(this.plateResearch, this.freeVehicles) as Vehicle[];
+      this.freeList = plateFilteredFreeVehicles;
+      this.worksiteList = plateFilteredWorksiteVehicles;
+      this.cd.detectChanges();
+    }
+  }
+
+  trackVehicle(index: number, vehicle: Vehicle): any {
+    return vehicle.veId;  // Use the unique vehicle ID to track each item
+  }
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -53,11 +72,13 @@ export class AssociationsKanbanComponent implements AfterViewInit, OnDestroy{
   }
 
   ngAfterViewInit(): void {
-    console.log('worksiteVehicles: ', this.worksiteVehicles);
-    console.log('this.freeVehicles: ', this.freeVehicles);
-    this.worksiteVehicles.forEach(vehicle => {
-      this.worksiteList.push(vehicle)
+    this.worksite.vehicle.forEach(vehicle => {
+      if (!this.worksiteList.some(existingVehicle => existingVehicle.veId === vehicle.veId)) {
+        this.worksiteList.push(vehicle);
+      }
     });
+
+    console.log('association kanban vehicles: ', this.worksite.vehicle);
     this.freeVehicles.forEach(vehicle => {
       this.freeList.push(vehicle)
     });
@@ -119,12 +140,16 @@ export class AssociationsKanbanComponent implements AfterViewInit, OnDestroy{
           }else{
             this.openSnackbar("Spostamento del veicolo annullato.");
           }
-          console.log('worksiteVehicles: ', this.worksiteVehicles);
+          console.log('worksite.vehicle: ', this.worksite.vehicle);
           console.log('this.freeVehicles: ', this.freeVehicles);
         },
         error: error => console.error("Errore nella chiusura del dialog per lo spostamento del veicolo: ", error)
       });
     }
+  }
+
+  trackByVehicle(index: number, vehicle: any): any {
+    return vehicle.veId; // Assuming veId is a unique identifier for each vehicle
   }
 
   /**
