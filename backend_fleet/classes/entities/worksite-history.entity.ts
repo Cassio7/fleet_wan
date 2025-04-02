@@ -1,4 +1,4 @@
-import { CommonEntity } from 'classes/common/common.entity';
+import { CommonEntity } from 'classes/entities/common.entity';
 import { WorksiteHistoryInterface } from 'classes/interfaces/worksite-history.interface';
 import { Column, Entity, ManyToOne } from 'typeorm';
 import { VehicleEntity } from './vehicle.entity';

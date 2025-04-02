@@ -1,4 +1,4 @@
-import { CommonEntity } from 'classes/common/common.entity';
+import { CommonEntity } from 'classes/entities/common.entity';
 import { SessionInterface } from 'classes/interfaces/session.interface';
 import { Column, Entity, OneToMany, Index } from 'typeorm';
 import { HistoryEntity } from './history.entity';

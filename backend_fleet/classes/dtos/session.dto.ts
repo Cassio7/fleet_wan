@@ -1,5 +1,5 @@
 import { IsBoolean, IsDate, IsNumber } from 'class-validator';
-import { CommonDTO } from 'classes/common/common.dto';
+import { CommonDTO } from 'classes/dtos/common.dto';
 import { HistoryDTO } from './history.dto';
 
 export class SessionDTO extends CommonDTO {

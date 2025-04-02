@@ -1,4 +1,4 @@
-import { CommonEntity } from 'classes/common/common.entity';
+import { CommonEntity } from 'classes/entities/common.entity';
 import { CompanyInterface } from 'classes/interfaces/company.interface';
 import { Column, Entity, OneToMany } from 'typeorm';
 import { GroupEntity } from './group.entity';

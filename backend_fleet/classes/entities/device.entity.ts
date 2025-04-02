@@ -1,4 +1,4 @@
-import { CommonEntity } from 'classes/common/common.entity';
+import { CommonEntity } from 'classes/entities/common.entity';
 import { DeviceInterface } from 'classes/interfaces/device.interface';
 import { Column, Entity, Index } from 'typeorm';
 

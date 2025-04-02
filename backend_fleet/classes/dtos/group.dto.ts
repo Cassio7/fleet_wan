@@ -1,5 +1,5 @@
 import { IsNumber, IsString } from 'class-validator';
-import { CommonDTO } from 'classes/common/common.dto';
+import { CommonDTO } from 'classes/dtos/common.dto';
 import { CompanyDTO } from './company.dto';
 
 export class GroupDTO extends CommonDTO {

@@ -4,5 +4,6 @@ export interface CommonInterface {
 
   createdAt: Date;
   updatedAt: Date;
+  deletedAt: Date;
   version: number;
 }

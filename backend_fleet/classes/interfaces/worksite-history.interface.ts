@@ -1,4 +1,4 @@
-import { CommonInterface } from 'classes/common/common.interface';
+import { CommonInterface } from 'classes/interfaces/common.interface';
 import { VehicleInterface } from './vehicle.interface';
 import { WorksiteInterface } from './worksite.interface';
 

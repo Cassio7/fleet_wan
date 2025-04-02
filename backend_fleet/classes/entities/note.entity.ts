@@ -1,4 +1,4 @@
-import { CommonEntity } from 'classes/common/common.entity';
+import { CommonEntity } from 'classes/entities/common.entity';
 import { NoteInterface } from 'classes/interfaces/note.interface';
 import { Column, Entity, ManyToOne } from 'typeorm';
 import { UserEntity } from './user.entity';

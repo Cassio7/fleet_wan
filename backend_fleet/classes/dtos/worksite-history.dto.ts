@@ -1,5 +1,5 @@
 import { IsBoolean, IsDate, IsString } from 'class-validator';
-import { CommonDTO } from 'classes/common/common.dto';
+import { CommonDTO } from 'classes/dtos/common.dto';
 import { WorksiteDTO } from './worksite.dto';
 
 export class WorksiteHistoryDTO extends CommonDTO {

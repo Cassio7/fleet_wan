@@ -1,4 +1,4 @@
-import { CommonInterface } from 'classes/common/common.interface';
+import { CommonInterface } from 'classes/interfaces/common.interface';
 
 export interface RoleInterface extends CommonInterface {
   name: string;

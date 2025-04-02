@@ -1,4 +1,4 @@
-import { CommonEntity } from 'classes/common/common.entity';
+import { CommonEntity } from 'classes/entities/common.entity';
 import { RentalInterface } from 'classes/interfaces/rental.interface';
 import { Column, Entity, OneToMany } from 'typeorm';
 import { VehicleEntity } from './vehicle.entity';

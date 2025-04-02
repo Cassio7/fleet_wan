@@ -1,6 +1,6 @@
 import { IsDate, IsNumber, IsOptional, IsString } from 'class-validator';
 import { Exclude } from 'class-transformer';
-import { CommonInterface } from './common.interface';
+import { CommonInterface } from '../interfaces/common.interface';
 
 export class CommonDTO implements CommonInterface {
   @IsNumber()
@@ -16,6 +16,9 @@ export class CommonDTO implements CommonInterface {
   @IsDate()
   @IsOptional()
   updatedAt: Date;
+  @IsDate()
+  @IsOptional()
+  deletedAt: Date;
   @IsNumber()
   @IsOptional()
   version: number;

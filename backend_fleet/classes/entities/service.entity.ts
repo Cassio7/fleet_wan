@@ -1,4 +1,4 @@
-import { CommonEntity } from 'classes/common/common.entity';
+import { CommonEntity } from 'classes/entities/common.entity';
 import { ServiceInterface } from 'classes/interfaces/service.interface';
 import { Column, Entity, OneToMany } from 'typeorm';
 import { VehicleEntity } from './vehicle.entity';

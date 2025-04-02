@@ -1,4 +1,4 @@
-import { CommonEntity } from 'classes/common/common.entity';
+import { CommonEntity } from 'classes/entities/common.entity';
 import { Column, Entity, Index, OneToMany } from 'typeorm';
 import { DetectionTagEntity } from './detection_tag.entity';
 import { TagInterface } from 'classes/interfaces/tag.interface';

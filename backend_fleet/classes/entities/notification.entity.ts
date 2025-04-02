@@ -1,4 +1,4 @@
-import { CommonEntity } from 'classes/common/common.entity';
+import { CommonEntity } from 'classes/entities/common.entity';
 import { NotificationInterface } from 'classes/interfaces/notification.interface';
 import { Column, Entity, ManyToOne } from 'typeorm';
 import { UserEntity } from './user.entity';

@@ -2,13 +2,14 @@ import {
   BeforeInsert,
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   Index,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
   VersionColumn,
 } from 'typeorm';
-import { CommonInterface } from './common.interface';
+import { CommonInterface } from '../interfaces/common.interface';
 import { v4 as uuidv4 } from 'uuid';
 
 @Entity()
@@ -33,4 +34,7 @@ export class CommonEntity implements CommonInterface {
 
   @VersionColumn({ type: 'timestamptz' })
   version: number;
+
+  @DeleteDateColumn({ type: 'timestamptz' })
+  deletedAt: Date;
 }

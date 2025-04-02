@@ -1,4 +1,4 @@
-import { CommonEntity } from 'classes/common/common.entity';
+import { CommonEntity } from 'classes/entities/common.entity';
 import { AssociationInterface } from 'classes/interfaces/association.interface';
 import { Entity, ManyToOne } from 'typeorm';
 import { CompanyEntity } from './company.entity';

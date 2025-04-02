@@ -1,4 +1,4 @@
-import { CommonEntity } from 'classes/common/common.entity';
+import { CommonEntity } from 'classes/entities/common.entity';
 import { VehicleInterface } from 'classes/interfaces/vehicle.interface';
 import {
   Column,

@@ -1,5 +1,5 @@
 import * as bcrypt from 'bcrypt';
-import { CommonEntity } from 'classes/common/common.entity';
+import { CommonEntity } from 'classes/entities/common.entity';
 import { UserInterface } from 'classes/interfaces/user.interface';
 import {
   BeforeInsert,
