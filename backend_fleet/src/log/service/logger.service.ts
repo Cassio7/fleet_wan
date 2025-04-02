@@ -14,6 +14,7 @@ export class LoggerService extends Logger {
       resource: context.resource,
       operation,
       resourceId: context.resourceId || null,
+      resourceKey: context.resourceKey || null,
       userId: context.userId,
       username: context.username,
     };

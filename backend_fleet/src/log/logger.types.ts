@@ -3,6 +3,7 @@ export type LogContext = {
   username: string;
   resource: string;
   resourceId?: number;
+  resourceKey?: string;
 };
 
 export type LogError = {
