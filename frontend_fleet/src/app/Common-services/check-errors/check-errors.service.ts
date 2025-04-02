@@ -1,38 +1,48 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, catchError, Observable, Subject, throwError } from 'rxjs';
+import {
+  BehaviorSubject,
+  catchError,
+  Observable,
+  Subject,
+  throwError,
+} from 'rxjs';
 import { CommonService } from '../common service/common.service';
-import { VehicleData} from '../../Models/VehicleData';
+import { VehicleData } from '../../Models/VehicleData';
 import { Anomaly } from '../../Models/Anomaly';
 import { VehicleAnomalies } from '../../Models/VehicleAnomalies';
 import { CookieService } from 'ngx-cookie-service';
 import { SessionErrorVehicles } from '../../Dashboard/Services/kanban-sessione/kanban-sessione.service';
+import { Stats } from '../../Models/Stats';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CheckErrorsService {
   /**
    * Trasporta i dati dei veicoli nel caso uno spicchio venga deselezionato
    */
-  private readonly _fillTable$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
-  private readonly _switchCheckDay$: BehaviorSubject<string> = new BehaviorSubject<string>("");
+  private readonly _fillTable$: BehaviorSubject<any[]> = new BehaviorSubject<
+    any[]
+  >([]);
+  private readonly _switchCheckDay$: BehaviorSubject<string> =
+    new BehaviorSubject<string>('');
   private readonly _updateAnomalies$: Subject<void> = new Subject<void>();
-
 
   constructor(
     private http: HttpClient,
     private cookieService: CookieService,
     private commonService: CommonService
-  ) { }
+  ) {}
 
   /**
    * Controlla se è presente un errore di GPS nella sessione, nel range temporale , del veicolo preso in input
    * @param vehicle
    * @returns l'anomalia se viene riscontrata, altrimenti "null"
    */
-  checkVehicleGpsError(vehicleData: VehicleData): string | null | undefined{
-    const gpsAnomaly: string | undefined | null = this.checkVehicleAnomaly(vehicleData)?.gps;
+  checkVehicleGpsError(vehicleData: VehicleData): string | null | undefined {
+    const gpsAnomaly: string | undefined | null =
+      this.checkVehicleAnomaly(vehicleData)?.gps;
     return this.checkGpsError(gpsAnomaly);
   }
 
@@ -43,7 +53,13 @@ export class CheckErrorsService {
    * @returns null se l'anomalia non è un errore
    */
   checkGpsError(anomaly: string | null | undefined): string | null {
-    if (anomaly && typeof anomaly === 'string' && (anomaly.includes("TOTALE") || anomaly.includes("totale") || anomaly.includes("Totale"))) {
+    if (
+      anomaly &&
+      typeof anomaly === 'string' &&
+      (anomaly.includes('TOTALE') ||
+        anomaly.includes('totale') ||
+        anomaly.includes('Totale'))
+    ) {
       return anomaly;
     }
     return null;
@@ -55,7 +71,8 @@ export class CheckErrorsService {
    * @returns l'anomalia se viene riscontrata, altrimenti "null"
    */
   checkVehicleGPSWarning(vehicleData: VehicleData): string | null {
-    const gpsAnomaly: string | undefined | null = this.checkVehicleAnomaly(vehicleData)?.gps;
+    const gpsAnomaly: string | undefined | null =
+      this.checkVehicleAnomaly(vehicleData)?.gps;
 
     return this.checkGpsWarning(gpsAnomaly);
   }
@@ -67,7 +84,15 @@ export class CheckErrorsService {
    * @returns null se l'anomalia non è uno warning
    */
   checkGpsWarning(anomaly: string | null | undefined): string | null {
-    if (anomaly && typeof anomaly === 'string' && !(anomaly.includes("TOTALE") || anomaly.includes("totale") || anomaly.includes("Totale"))) {
+    if (
+      anomaly &&
+      typeof anomaly === 'string' &&
+      !(
+        anomaly.includes('TOTALE') ||
+        anomaly.includes('totale') ||
+        anomaly.includes('Totale')
+      )
+    ) {
       return anomaly;
     }
     return null;
@@ -107,7 +132,7 @@ export class CheckErrorsService {
    * @returns oggetto anomalia se presente
    * @returns null se non sono presenti anomalie
    */
-  checkVehicleAnomaly(vehicleData: VehicleData): Anomaly | null{
+  checkVehicleAnomaly(vehicleData: VehicleData): Anomaly | null {
     const anomalies: Anomaly[] = vehicleData.anomalies;
     //controllo sulla presenza anomalie
     if (!anomalies) {
@@ -115,48 +140,49 @@ export class CheckErrorsService {
     }
 
     //ricerca anomalia nell'arco di tempo richiesto
-    const foundAnomaly: any = Object.values(anomalies).find((anomaliesObj: Anomaly) => {
-      const anomalyDate = new Date(anomaliesObj.date); // Data delle anomalie
-      anomalyDate.setHours(0,0,0,0);
-      return anomalyDate;
-    });
+    const foundAnomaly: any = Object.values(anomalies).find(
+      (anomaliesObj: Anomaly) => {
+        const anomalyDate = new Date(anomaliesObj.date); // Data delle anomalie
+        anomalyDate.setHours(0, 0, 0, 0);
+        return anomalyDate;
+      }
+    );
 
     return foundAnomaly ? foundAnomaly : null;
   }
 
-
-  getVehicleSessionAnomalyCount(vehicleData: VehicleData): number | null{
+  getVehicleSessionAnomalyCount(vehicleData: VehicleData): number | null {
     const anomalies = this.checkVehicleAnomaly(vehicleData);
-    if(anomalies){
+    if (anomalies) {
       return anomalies.session_count;
     }
     return null;
   }
 
-  getVehicleAntennaAnomalyCount(vehicleData: VehicleData): number | null{
+  getVehicleAntennaAnomalyCount(vehicleData: VehicleData): number | null {
     const anomalies = this.checkVehicleAnomaly(vehicleData);
-    if(anomalies){
+    if (anomalies) {
       return anomalies.antenna_count;
     }
     return null;
   }
 
-  getVehicleGPSAnomalyCount(vehicleData: VehicleData): number | null{
+  getVehicleGPSAnomalyCount(vehicleData: VehicleData): number | null {
     const anomalies = this.checkVehicleAnomaly(vehicleData);
-    if(anomalies){
+    if (anomalies) {
       return anomalies.gps_count;
     }
     return null;
   }
-
-
 
   /**
    * Calcola da quanti giorni le sessioni di un veicolo sono in errore
    * @param vehicle veicolo da cui prendere l'ultimo evento
    * @returns differenza in giorni: oggi - lastevent
    */
-  public calculateVehicleSessionErrorDays(vehicleData: VehicleData): number | null {
+  public calculateVehicleSessionErrorDays(
+    vehicleData: VehicleData
+  ): number | null {
     const anomaly: Anomaly | null = this.checkVehicleAnomaly(vehicleData);
 
     if (anomaly && anomaly.date) {
@@ -181,20 +207,19 @@ export class CheckErrorsService {
     }
   }
 
-
-
-
   /**
    * Controlla i gps dei veicoli passati come parametro
    * @param vehicles veicoli da controllare
    * @returns array formato da: [workingVehicles, warningVehicles, errorVehicles]
    */
-  public checkVehiclesGpsErrors(vehiclesData: VehicleData[]): [VehicleData[], VehicleData[], VehicleData[]] {
+  public checkVehiclesGpsErrors(
+    vehiclesData: VehicleData[]
+  ): [VehicleData[], VehicleData[], VehicleData[]] {
     const workingVehicles: VehicleData[] = [];
     const warningVehicles: VehicleData[] = [];
     const errorVehicles: VehicleData[] = [];
 
-    vehiclesData.forEach(vehicleData => {
+    vehiclesData.forEach((vehicleData) => {
       //controllo errore gps
       if (this.checkVehicleGpsError(vehicleData)) {
         errorVehicles.push(vehicleData);
@@ -218,13 +243,13 @@ export class CheckErrorsService {
    * @returns "Errore", "Warning" in base al tipo di anomalia e "Funzionante"
    * nel caso non sia presente anomalia
    */
-  checkGPSAnomalyType(gpsAnomaly: string | null){
-    if(this.checkGpsError(gpsAnomaly)){
-      return "Errore";
-    }else if(gpsAnomaly){
-      return "Warning";
-    }else{
-      return "Funzionante";
+  checkGPSAnomalyType(gpsAnomaly: string | null) {
+    if (this.checkGpsError(gpsAnomaly)) {
+      return 'Errore';
+    } else if (gpsAnomaly) {
+      return 'Warning';
+    } else {
+      return 'Funzionante';
     }
   }
 
@@ -233,57 +258,63 @@ export class CheckErrorsService {
    * @param vehicles veicoli da analizzare
    * @returns oggetto SessionErrorVehicles
    */
-  getVehiclesSessionAnomalyTypes(vehicles: VehicleData[]): SessionErrorVehicles {
+  getVehiclesSessionAnomalyTypes(
+    vehicles: VehicleData[]
+  ): SessionErrorVehicles {
     const filterVehiclesByAnomaly = (anomalyType: string) => {
-      return vehicles.filter(vehicle => {
+      return vehicles.filter((vehicle) => {
         const sessionAnomaly = this.checkVehicleAnomaly(vehicle)?.session;
         return sessionAnomaly?.includes(anomalyType);
       });
     };
 
-    const nullVehicles = filterVehiclesByAnomaly("nulla");
-    const stuckVehicles = filterVehiclesByAnomaly("bloccati");
-    const powerVehicles = filterVehiclesByAnomaly("alimentazione");
+    const nullVehicles = filterVehiclesByAnomaly('nulla');
+    const stuckVehicles = filterVehiclesByAnomaly('bloccati');
+    const powerVehicles = filterVehiclesByAnomaly('alimentazione');
 
     const errorVehicles: SessionErrorVehicles = {
       nullVehicles,
       stuckVehicles,
-      powerVehicles
+      powerVehicles,
     };
 
     return errorVehicles;
   }
 
+  getVehicleSessionAnomalyType(vehicleData: VehicleData): string {
+    const vehicleSessionAnomaly =
+      this.checkVehicleAnomaly(vehicleData)?.session;
 
-  getVehicleSessionAnomalyType(vehicleData: VehicleData): string{
-    const vehicleSessionAnomaly = this.checkVehicleAnomaly(vehicleData)?.session;
-
-    if(vehicleSessionAnomaly?.includes("Nulla") || vehicleSessionAnomaly?.includes("nulla")){
-      return "Nulla";
-    }else if(vehicleSessionAnomaly?.includes("Bloccati") || vehicleSessionAnomaly?.includes("bloccati")){
-      return "Bloccata";
-    }else{
-      return "Alimentazione";
+    if (
+      vehicleSessionAnomaly?.includes('Nulla') ||
+      vehicleSessionAnomaly?.includes('nulla')
+    ) {
+      return 'Nulla';
+    } else if (
+      vehicleSessionAnomaly?.includes('Bloccati') ||
+      vehicleSessionAnomaly?.includes('bloccati')
+    ) {
+      return 'Bloccata';
+    } else {
+      return 'Alimentazione';
     }
   }
-
-
 
   /**
    * Controlla le antenne dei veicoli passati come parametro
    * @param vehicles veicoli da controllare
    * @returns array formato da: [workingVehicles, errorVehicles]
    */
-  public checkVehiclesAntennaErrors(vehiclesData: VehicleData[]){
+  public checkVehiclesAntennaErrors(vehiclesData: VehicleData[]) {
     const workingVehicles: VehicleData[] = [];
     const errorVehicles: VehicleData[] = [];
 
-    vehiclesData.map(vehicleData => {
-      if(vehicleData.vehicle?.isRFIDReader){
+    vehiclesData.map((vehicleData) => {
+      if (vehicleData.vehicle?.isRFIDReader) {
         const antennaCheck = this.checkVehicleAntennaError(vehicleData);
-        if(antennaCheck){
+        if (antennaCheck) {
           errorVehicles.push(vehicleData);
-        }else{
+        } else {
           workingVehicles.push(vehicleData);
         }
       }
@@ -296,15 +327,15 @@ export class CheckErrorsService {
    * @param vehicles veicoli da controllare
    * @returns array formato da: [workingVehicles, errorVehicles]
    */
-  checkVehiclesSessionErrors(vehiclesData: VehicleData[]){
+  checkVehiclesSessionErrors(vehiclesData: VehicleData[]) {
     const workingVehicles: VehicleData[] = [];
     const errorVehicles: VehicleData[] = [];
 
-    vehiclesData.map(vehicleData => {
+    vehiclesData.map((vehicleData) => {
       const sessionCheck = this.checkVehicleSessionError(vehicleData);
-      if(sessionCheck){
+      if (sessionCheck) {
         errorVehicles.push(vehicleData);
-      }else{
+      } else {
         workingVehicles.push(vehicleData);
       }
     });
@@ -320,7 +351,7 @@ export class CheckErrorsService {
     const anomalies: Anomaly[] = vehicleData.anomalies;
 
     if (!anomalies || !Array.isArray(anomalies)) {
-        return null;
+      return null;
     }
 
     const foundAnomaly = anomalies[0];
@@ -334,7 +365,7 @@ export class CheckErrorsService {
    * @returns data dell'anomalia
    * @returns null se la data non è presente
    */
-  getAnomalyDate(anomaly: Anomaly): Date | null{
+  getAnomalyDate(anomaly: Anomaly): Date | null {
     return anomaly ? new Date(anomaly.date) : null;
   }
 
@@ -350,43 +381,64 @@ export class CheckErrorsService {
     return `${year}-${month}-${day}`;
   }
 
-
   /**
    * Permette di eseguire una chiamata al database che ritorna le anomalie di GPS, antenna e sessione di un veicolo
    * @param veId veId del veicolo di cui ricercare le anomalie
    * @param count numero di giornate, a partire da oggi, di cui prendere le anomalie
    * @returns oggetto VehicleAnomalies con numero di elementi nell'array anomalies quanto il valore di "count"
    */
-  public checkAnomaliesByVeId(veId: number, count: number): Observable<VehicleAnomalies>{
-    const access_token = this.cookieService.get("user");
+  public checkAnomaliesByVeId(
+    veId: number,
+    count: number
+  ): Observable<VehicleAnomalies> {
+    const access_token = this.cookieService.get('user');
     const headers = new HttpHeaders({
-      'Authorization': `Bearer ${access_token}`,
-      'Content-Type': 'application/json'
+      Authorization: `Bearer ${access_token}`,
+      'Content-Type': 'application/json',
     });
 
     const body = {
       veId: veId,
-      count: count
+      count: count,
     };
 
-    return this.http.post<VehicleAnomalies>(`${this.commonService.url}/anomaly/veId`, body, {headers});
+    return this.http.post<VehicleAnomalies>(
+      `${this.commonService.url}/anomaly/veId`,
+      body,
+      { headers }
+    );
   }
 
+  getStatsByVeId(veId: number): Observable<Stats> {
+    const access_token = this.cookieService.get('user');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${access_token}`,
+      'Content-Type': 'application/json',
+    });
+
+    const params = new HttpParams().set('veId', veId);
+
+    return this.http.get<Stats>(`${this.commonService.url}/anomaly/stats`, {
+      headers,
+      params,
+    });
+  }
 
   /**
    * Richiama l'API per l'aggiornamento delle anomalie ad oggi
    * @returns observable http get
    */
-  updateAnomalies(): Observable<any>{
-    const access_token = this.cookieService.get("user");
+  updateAnomalies(): Observable<any> {
+    const access_token = this.cookieService.get('user');
     const headers = new HttpHeaders({
-      'Authorization': `Bearer ${access_token}`,
-      'Content-Type': 'application/json'
+      Authorization: `Bearer ${access_token}`,
+      'Content-Type': 'application/json',
     });
 
-    return this.http.get(`${this.commonService.url}/anomaly/updatetoday`, {headers});
+    return this.http.get(`${this.commonService.url}/anomaly/updatetoday`, {
+      headers,
+    });
   }
-
 
   /**
    * Controlla gli errori di tutti i veicoli con sessioni in un determinato arco di tempo
@@ -395,30 +447,32 @@ export class CheckErrorsService {
    * @returns observable http
    */
   public checkErrorsAllRanged(dateFrom: Date, dateTo: Date): Observable<any> {
-    const access_token = this.cookieService.get("user");
+    const access_token = this.cookieService.get('user');
     const headers = new HttpHeaders({
-      'Authorization': `Bearer ${access_token}`,
-      'Content-Type': 'application/json'
+      Authorization: `Bearer ${access_token}`,
+      'Content-Type': 'application/json',
     });
 
     const body = {
       dateFrom: this.formatDate(dateFrom),
-      dateTo: this.formatDate(dateTo)
+      dateTo: this.formatDate(dateTo),
     };
 
-    return this.http.post(`${this.commonService.url}/anomaly`, body, { headers }).pipe(
-      catchError((error) => {
-        console.error('An error occurred:', error);
-        return throwError(() => error);
-      })
-    );
+    return this.http
+      .post(`${this.commonService.url}/anomaly`, body, { headers })
+      .pipe(
+        catchError((error) => {
+          console.error('An error occurred:', error);
+          return throwError(() => error);
+        })
+      );
   }
 
   /**
- * Controlla gli errori di tutti i veicoli con sessioni nella giornata di oggi
- * @returns observable http
-  */
-  public checkErrorsAllToday(): Observable<any>{
+   * Controlla gli errori di tutti i veicoli con sessioni nella giornata di oggi
+   * @returns observable http
+   */
+  public checkErrorsAllToday(): Observable<any> {
     return this.checkErrorsAllRanged(new Date(), new Date());
   }
 

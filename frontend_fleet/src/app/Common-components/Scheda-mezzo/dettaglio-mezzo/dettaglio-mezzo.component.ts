@@ -1,3 +1,4 @@
+import { CheckErrorsService } from './../../../Common-services/check-errors/check-errors.service';
 import {
   AfterViewInit,
   ChangeDetectorRef,
@@ -28,6 +29,7 @@ import { SessionFiltersComponent } from '../../session-filters/session-filters.c
 import { NavigationService } from '../../../Common-services/navigation/navigation.service';
 import { SessionTableComponent } from '../../session-table/session-table.component';
 import { SvgService } from '../../../Common-services/svg/svg.service';
+import { Stats } from '../../../Models/Stats';
 
 @Component({
   selector: 'app-dettaglio-mezzo',
@@ -49,15 +51,13 @@ import { SvgService } from '../../../Common-services/svg/svg.service';
   templateUrl: './dettaglio-mezzo.component.html',
   styleUrl: './dettaglio-mezzo.component.css',
 })
-export class DettaglioMezzoComponent
-  implements OnInit, OnDestroy
-{
+export class DettaglioMezzoComponent implements OnInit, OnDestroy {
   private readonly destroy$: Subject<void> = new Subject<void>();
 
   private veId!: number;
   user!: User;
   vehicle!: Vehicle;
-
+  stats!: Stats;
   previous_url: string | null = '/dashboard';
   goBack_text: string = 'Torna alla dashboard';
 
@@ -75,12 +75,13 @@ export class DettaglioMezzoComponent
     private authService: AuthService,
     private navigationService: NavigationService,
     private sessionStorageService: SessionStorageService,
+    private checkErrorsService: CheckErrorsService,
     private cd: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
-    if(this.navigationService.getPreviousUrl() != "/profile")
-    this.previous_url = this.navigationService.getPreviousUrl() || null;
+    if (this.navigationService.getPreviousUrl() != '/profile')
+      this.previous_url = this.navigationService.getPreviousUrl() || null;
 
     this.vehicle = JSON.parse(this.sessionStorageService.getItem('detail'));
     this.user = this.authService.getParsedAccessToken();
@@ -89,8 +90,24 @@ export class DettaglioMezzoComponent
         this.veId = parseInt(params['id']);
         this.fetchVehicle();
       });
+      this.checkErrorsService
+        .getStatsByVeId(this.veId)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (stats: Stats) => {
+            this.stats = stats;
+          },
+        });
+    } else {
+      this.checkErrorsService
+        .getStatsByVeId(this.vehicle.veId)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (stats: Stats) => {
+            this.stats = stats;
+          },
+        });
     }
-
     if (this.previous_url) {
       this.sessionStorageService.setItem('previous_url', this.previous_url);
     } else if (this.sessionStorageService.getItem('previous_url')) {
