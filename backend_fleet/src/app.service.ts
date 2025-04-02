@@ -271,7 +271,7 @@ export class AppService implements OnModuleInit {
         dateto.setDate(dateto.getDate() + 1);
 
         const data = await this.controlService.checkErrors(
-          datefrom,
+          datefrom.toISOString(),
           dateto.toISOString(),
         );
 
