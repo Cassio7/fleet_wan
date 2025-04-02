@@ -1,21 +1,22 @@
 import {
-  Body,
   Controller,
   Get,
-  Put,
+  Param,
+  Patch,
   Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { NotificationsService } from './notifications.service';
-import { LoggerService } from 'src/log/service/logger.service';
-import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from 'classes/enum/role.enum';
 import { UserFromToken } from 'classes/interfaces/userToken.interface';
 import { Response } from 'express';
-import { LogContext } from 'src/log/logger.types';
+import { Roles } from 'src/decorators/roles.decorator';
 import { AuthGuard } from 'src/guard/auth.guard';
 import { RolesGuard } from 'src/guard/roles.guard';
+import { LogContext } from 'src/log/logger.types';
+import { LoggerService } from 'src/log/service/logger.service';
+import { isUUID } from 'src/utils/utils';
+import { NotificationsService } from './notifications.service';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Controller('notifications')
@@ -26,7 +27,7 @@ export class NotificationsController {
   ) {}
 
   /**
-   * API per recuperare le notifiche
+   * API per recuperare le notifiche in base all'utente
    * @param req user data
    * @param res
    * @returns
@@ -40,26 +41,26 @@ export class NotificationsController {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
-      resource: 'Notification All',
+      resource: 'Notification All Admin',
     };
     try {
-      const notification = await this.notificationsService.getNotifications(
+      const notifications = await this.notificationsService.getNotifications(
         req.user.id,
       );
-      if (!notification?.length) {
+      if (!notifications?.length) {
         this.loggerService.logCrudSuccess(
           context,
           'list',
-          'Nessuna notifica trovato',
+          'Nessuna notifica trovata',
         );
         return res.status(204).json();
       }
       this.loggerService.logCrudSuccess(
         context,
         'list',
-        `Recuperate ${notification.length} Notifiche`,
+        `Recuperate ${notifications.length} notifiche`,
       );
-      return res.status(200).json(notification);
+      return res.status(200).json(notifications);
     } catch (error) {
       this.loggerService.logCrudError({
         error,
@@ -76,51 +77,54 @@ export class NotificationsController {
   /**
    * API per aggiornare lo stato di lettura di una notifica
    * @param req user data
-   * @param body id della notifica da aggiornare
+   * @param key chiave univoca
    * @param res
    * @returns
    */
   @Roles(Role.Admin)
-  @Put()
+  @Patch(':key')
   async updateNotificationRead(
     @Req() req: Request & { user: UserFromToken },
-    @Body() body: { notificationId: number },
+    @Param('key') key: string,
     @Res() res: Response,
   ) {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
-      resource: 'Notification update read',
-      resourceId: body.notificationId,
+      resource: 'Notification Admin',
+      resourceKey: key,
     };
-    const notificationId = Number(body.notificationId);
-    if (isNaN(notificationId)) {
+    const notificationkey = key;
+    if (isUUID(notificationkey)) {
       this.loggerService.logCrudError({
-        error: new Error('Id deve essere un numero valido'),
+        error: new Error('Key deve essere una stringa valida'),
         context,
         operation: 'update',
       });
       return res.status(400).json({
-        message: 'Id deve essere un numero valido',
+        message: 'Key deve essere una stringa valida',
       });
     }
     try {
-      const data =
-        await this.notificationsService.updateNotificationRead(notificationId);
-      if (!data) {
+      const notification =
+        await this.notificationsService.updateNotificationRead(notificationkey);
+      if (!notification) {
         this.loggerService.logCrudSuccess(
           context,
           'update',
-          `Notifica con id: ${notificationId} non trovata`,
+          `Notifica con key: ${notificationkey} non trovata`,
         );
-        return res.status(204).json();
+        return res.status(404).json({
+          message: `Notifica con key: ${notificationkey} non trovata`,
+        });
       }
       this.loggerService.logCrudSuccess(
         context,
-        'list',
-        `Aggiornata la vista della notifica id: ${notificationId}`,
+        'update',
+        `Aggiornata la vista della notifica key: ${notificationkey}`,
       );
       return res.status(200).json({
+        notification: notification,
         message: 'Notifica aggiornata con successo!',
       });
     } catch (error) {
