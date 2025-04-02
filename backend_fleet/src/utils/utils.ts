@@ -1,6 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
 import { parse } from 'csv-parse';
 import * as fs from 'fs';
+import { validate as isUUID } from 'uuid';
 
 /**
  * Funzione che converte un orario del timestamp in base al fuso orario
@@ -31,7 +32,7 @@ export function convertHours(timestamp: string): string {
  * @param endDate data di fine
  * @returns
  */
-export function getDaysInRange(startDate, endDate) {
+export function getDaysInRange(startDate, endDate): Date[] {
   const currentDate = new Date(startDate);
   const dates = [];
 
@@ -177,7 +178,7 @@ export function extractTokenFromHeader(request: Request): string | undefined {
  * @param data solitamente anomalie
  * @returns
  */
-export function sortRedisData(data: any) {
+export function sortRedisData(data: any): number {
   return data.sort((a: any, b: any) => {
     if (a.vehicle.plate < b.vehicle.plate) {
       return -1;
@@ -202,4 +203,13 @@ export function passwordLogMask(
     clonedBody.password = '******'; // Maschera la password
   }
   return clonedBody;
+}
+
+/**
+ * Controllo se la chiave passata rispetta il tipo UUID, se rispetta torna false e viceversa
+ * @param key chiave univoca da controllare
+ * @returns
+ */
+export function isUUID(key: string): boolean {
+  return isUUID(key) ? false : true;
 }
