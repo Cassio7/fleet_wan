@@ -26,7 +26,7 @@ export class NotificationsService {
    * @param userId user id
    * @param message messaggio
    */
-  async createNotification(userId: number, message: string) {
+  async createNotification(userId: number, title: string, message: string) {
     const queryRunner = this.connection.createQueryRunner();
     try {
       await queryRunner.connect();
@@ -44,6 +44,7 @@ export class NotificationsService {
         .getRepository(NotificationEntity)
         .create({
           isRead: false,
+          title: title,
           message: message,
           user: user,
         });
@@ -65,23 +66,23 @@ export class NotificationsService {
 
   /**
    * Aggiorna lo stato della notifica da letta a non letta e vicersa
-   * @param notificationId
+   * @param notificationKey key univoca notifica
    * @returns
    */
   async updateNotificationRead(
-    notificationId: number,
-  ): Promise<NotificationEntity | null> {
+    notificationKey: string,
+  ): Promise<NotificationDto | null> {
     const queryRunner = this.connection.createQueryRunner();
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
-      if (!Number(notificationId)) {
+      if (!String(notificationKey)) {
         await queryRunner.rollbackTransaction();
         return null;
       }
       const notification = await this.notificationRepository.findOne({
         where: {
-          id: notificationId,
+          key: notificationKey,
         },
       });
       if (!notification) {
@@ -98,7 +99,7 @@ export class NotificationsService {
       );
       await queryRunner.commitTransaction();
       notification.isRead = newIsReadStatus;
-      return notification;
+      return this.toDTO(notification);
     } catch (error) {
       await queryRunner.rollbackTransaction();
       if (error instanceof HttpException) throw error;
@@ -142,7 +143,8 @@ export class NotificationsService {
 
   private toDTO(notification: NotificationEntity): NotificationDto {
     const notDTO = new NotificationDto();
-    notDTO.id = notification.id;
+    notDTO.key = notification.key;
+    notDTO.title = notification.title;
     notDTO.message = notification.message;
     notDTO.isRead = notification.isRead;
     return notDTO;
