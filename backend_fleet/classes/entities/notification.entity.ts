@@ -12,6 +12,9 @@ export class NotificationEntity
   implements NotificationInterface
 {
   @Column({ type: 'text' })
+  title: string;
+
+  @Column({ type: 'text' })
   message: string;
 
   @Column({ type: 'boolean' })

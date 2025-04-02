@@ -233,8 +233,13 @@ export class VehicleService {
             });
           newVehicles.push(newVehicle);
           if (!first) {
+            const title = 'Nuovo Veicolo';
             const message = `Nuovo veicolo da censire, targa: ${newVehicle.plate} e veId: ${newVehicle.veId}`;
-            await this.notificationsService.createNotification(1, message);
+            await this.notificationsService.createNotification(
+              1,
+              title,
+              message,
+            );
             this.notificationsService.sendNotification(message);
           }
         } else if (existingVehicle.hash !== vehicle.hash) {

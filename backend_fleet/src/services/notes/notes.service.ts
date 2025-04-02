@@ -189,8 +189,9 @@ export class NotesService {
       });
       await queryRunner.manager.getRepository(NoteEntity).save(newNote);
       await queryRunner.commitTransaction();
+      const title = 'Nota creata';
       const message = `Nota creata dall utente: ${user.username} al veicolo con targa: ${vehicle.plate}, con il seguente contenuto: ${content}`;
-      await this.notificationsService.createNotification(1, message);
+      await this.notificationsService.createNotification(1, title, message);
       this.notificationsService.sendNotification(message);
       return this.toDTO(newNote);
     } catch (error) {
