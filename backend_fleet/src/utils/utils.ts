@@ -178,7 +178,7 @@ export function extractTokenFromHeader(request: Request): string | undefined {
  * @param data solitamente anomalie
  * @returns
  */
-export function sortRedisData(data: any): number {
+export function sortRedisData(data: any): any {
   return data.sort((a: any, b: any) => {
     if (a.vehicle.plate < b.vehicle.plate) {
       return -1;
