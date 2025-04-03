@@ -63,6 +63,12 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy {
     powerVehicles: []
   };
 
+  errorLists: SessionErrorVehicles = {
+    nullVehicles: [],
+    stuckVehicles: [],
+    powerVehicles: []
+  };
+
   constructor(
     public kanbanSessioneService: KanbanSessioneService,
     private dashboardService: DashboardService,
@@ -87,6 +93,7 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy {
     );
     let kanbanVehicles = allData;
     this.setKanbanData(kanbanVehicles);
+    this.errorLists = this.errorVehicles;
     this.kanbanSessioneService.setKanbanData(kanbanVehicles);
     this.setSelectedAnomalies();
     this.sessioneGraphService.loadChartData$.next(kanbanVehicles);
@@ -104,6 +111,7 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy {
               next: (responseObj: any) => {
                 this.setKanbanData([]);
                 this.kanbanSessioneService.setKanbanData(kanbanVehicles);
+                this.errorLists = this.errorVehicles;
                 this.setSelectedAnomalies();
                 const lastUpdate = responseObj.lastUpdate;
                 const vehiclesData = responseObj.vehicles;
@@ -132,6 +140,9 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy {
           filters
         ) as VehicleData[];
         this.setKanbanData(kanbanVehicles);
+        this.kanbanSessioneService.setKanbanData(kanbanVehicles);
+        this.errorLists = this.errorVehicles;
+        console.log('errorvehicles dopo filtro: ', this.errorVehicles);
         this.setSelectedAnomalies();
         this.sessioneGraphService.loadChartData$.next(kanbanVehicles);
       });
@@ -217,6 +228,7 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy {
             realtimeDataObj
           );
           this.setKanbanData(realtimeVehicles);
+          this.errorLists = this.errorVehicles;
           this.kanbanSessioneService.setKanbanData(realtimeVehicles);
           this.setSelectedAnomalies();
           this.sessioneGraphService.loadChartData$.next(realtimeVehicles);
