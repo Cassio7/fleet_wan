@@ -53,6 +53,6 @@ export class HistoryEntity extends CommonEntity implements HistoryInterface {
   session: SessionEntity;
 
   @Column({ type: 'varchar', length: 100 })
-  @Index()
+  @Index('IDX-history-hash')
   hash: string;
 }

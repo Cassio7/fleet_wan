@@ -27,7 +27,7 @@ import { WorksiteHistoryEntity } from './worksite-history.entity';
 })
 export class VehicleEntity extends CommonEntity implements VehicleInterface {
   @Column()
-  @Index()
+  @Index('IDX-vehicle-veId')
   veId: number;
 
   @Column({ type: 'boolean' })
@@ -37,7 +37,6 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
   active_csv: boolean;
 
   @Column({ type: 'varchar', length: 20 })
-  @Index()
   plate: string;
 
   @Column({ type: 'varchar', length: 50 })
@@ -74,11 +73,10 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
   electrical: boolean;
 
   @Column({ type: 'boolean' })
-  @Index()
   isRFIDReader: boolean;
 
   @Column({ type: 'boolean', nullable: true })
-  @Index()
+  @Index('IDX-vehicle-allestimento')
   allestimento: boolean;
 
   @Column({ type: 'varchar', length: 20, nullable: true })
@@ -142,6 +140,6 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
   worksiteHistory: WorksiteHistoryEntity;
 
   @Column({ type: 'varchar', length: 100 })
-  @Index()
+  @Index('IDX-vehicle-asc')
   hash: string;
 }

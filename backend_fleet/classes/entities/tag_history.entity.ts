@@ -39,6 +39,6 @@ export class TagHistoryEntity
   detectiontag: DetectionTagEntity[];
 
   @Column({ type: 'varchar', length: 100 })
-  @Index()
+  @Index('IDX-taghistory-hash')
   hash: string;
 }

@@ -39,6 +39,6 @@ export class SessionEntity extends CommonEntity implements SessionInterface {
   history: HistoryEntity[];
 
   @Column({ type: 'varchar', length: 100 })
-  @Index()
+  @Index('IDX-session-hash')
   hash: string;
 }

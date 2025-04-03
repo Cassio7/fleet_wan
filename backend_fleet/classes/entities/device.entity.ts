@@ -41,6 +41,6 @@ export class DeviceEntity extends CommonEntity implements DeviceInterface {
   power_on_off_detected: number;
 
   @Column({ type: 'varchar', length: 100 })
-  @Index()
+  @Index('IDX-device-hash')
   hash: string;
 }

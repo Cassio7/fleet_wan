@@ -29,6 +29,6 @@ export class AnomalyEntity extends CommonEntity implements AnomalyInterface {
   vehicle: VehicleEntity;
 
   @Column({ type: 'varchar', length: 100 })
-  @Index()
+  @Index('IDX-anomaly-hash')
   hash: string;
 }
