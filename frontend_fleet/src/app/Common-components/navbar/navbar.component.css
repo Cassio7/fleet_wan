@@ -45,10 +45,20 @@
   align-items: center;
   gap: 1.2vw;
 
-  .notification-icon{
-    cursor: pointer;
+  .notification-button{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .notification-icon{
+      height: 100%;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
   }
-  .notification-icon:hover{
+  .notification-button:hover{
     opacity: .5;
   }
 }
