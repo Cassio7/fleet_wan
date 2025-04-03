@@ -15,10 +15,10 @@ import { User } from '../../Models/User';
 import { SessionStorageService } from '../../Common-services/sessionStorage/session-storage.service';
 import { ProfileService } from '../../Profile/Services/profile/profile.service';
 import { KanbanSessioneService } from '../../Dashboard/Services/kanban-sessione/kanban-sessione.service';
-import { Notifica, NotificationService } from '../../Common-services/notification/notification.service';
 import { MatDividerModule } from '@angular/material/divider';
 import { WebsocketService } from '../../Common-services/websocket/websocket.service';
 import { MatBadgeModule } from '@angular/material/badge';
+import { Notifica } from '../../Models/Notifica';
 
 @Component({
   selector: 'app-navbar',

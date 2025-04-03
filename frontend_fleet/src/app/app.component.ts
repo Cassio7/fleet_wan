@@ -22,7 +22,8 @@ import { MY_DATE_FORMATS } from './Utils/date-format';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { LoginComponent } from "./Common-components/login/login.component";
 import { WebsocketService } from './Common-services/websocket/websocket.service';
-import { Notifica, NotificationService } from './Common-services/notification/notification.service';
+import { NotificationService } from './Common-services/notification/notification.service';
+import { Notifica } from './Models/Notifica';
 
 @Component({
   selector: 'app-root',

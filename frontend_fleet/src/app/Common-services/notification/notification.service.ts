@@ -3,13 +3,7 @@ import { Injectable } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { Observable } from 'rxjs';
 import { CommonService } from '../common service/common.service';
-
-export interface Notifica {
-  key: string;
-  title: string;
-  message: string;
-  isRead: boolean;
-}
+import { Notifica } from '../../Models/Notifica';
 
 @Injectable({
   providedIn: 'root'

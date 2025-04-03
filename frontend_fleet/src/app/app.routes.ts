@@ -14,6 +14,7 @@ import { HomeGestioneSocietaComponent } from './Gestione-Società/Components/hom
 import { HomeGestioneVeicoliComponent } from './Gestione-Veicoli/Components/home-gestione-veicoli/home-gestione-veicoli.component';
 import { AuthGuardService } from './Common-services/authGuard/auth-guard.service';
 import { HomeCantiereEditComponent } from './Gestione-cantieri/Components/home-cantiere-edit/home-cantiere-edit.component';
+import { NotificationsHomeComponent } from './Notifications/Components/notifications-home/notifications-home.component';
 
 export const routes: Routes = [
   {
@@ -83,6 +84,11 @@ export const routes: Routes = [
   {
     path: 'scarico-letture',
     component: HomeLettureComponent,
+    canActivate: [AuthGuardService]
+  },
+  {
+    path: 'notifications',
+    component: NotificationsHomeComponent,
     canActivate: [AuthGuardService]
   },
   {
