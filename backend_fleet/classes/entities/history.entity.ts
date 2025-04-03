@@ -43,13 +43,13 @@ export class HistoryEntity extends CommonEntity implements HistoryInterface {
   brushes: number;
 
   @ManyToOne(() => VehicleEntity, (vehicle) => vehicle.history)
-  @Index()
+  @Index('IDX-history-vehicle')
   vehicle: VehicleEntity;
 
   @ManyToOne(() => SessionEntity, (session) => session.history, {
     onDelete: 'CASCADE',
   })
-  @Index()
+  @Index('IDX-history-session')
   session: SessionEntity;
 
   @Column({ type: 'varchar', length: 100 })

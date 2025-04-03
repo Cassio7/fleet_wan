@@ -9,7 +9,7 @@ import { TagInterface } from 'classes/interfaces/tag.interface';
 })
 export class TagEntity extends CommonEntity implements TagInterface {
   @Column()
-  @Index()
+  @Index('IDX-tag-epc')
   epc: string;
 
   @OneToMany(() => DetectionTagEntity, (detectiontag) => detectiontag.tag)

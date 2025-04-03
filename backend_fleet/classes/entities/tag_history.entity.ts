@@ -13,7 +13,7 @@ export class TagHistoryEntity
   implements TagHistoryInterface
 {
   @Column({ type: 'timestamptz', nullable: true })
-  @Index()
+  @Index('IDX-taghistory-timestamp')
   timestamp: Date;
 
   @Column('double precision')
@@ -29,7 +29,7 @@ export class TagHistoryEntity
   geozone: string;
 
   @ManyToOne(() => VehicleEntity, (vehicle) => vehicle.taghistory)
-  @Index()
+  @Index('IDX-taghistory-vehicle')
   vehicle: VehicleEntity;
 
   @OneToMany(

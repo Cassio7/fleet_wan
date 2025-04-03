@@ -17,9 +17,9 @@ import { NoteEntity } from './note.entity';
 import { RentalEntity } from './rental.entity';
 import { ServiceEntity } from './service.entity';
 import { TagHistoryEntity } from './tag_history.entity';
+import { WorksiteHistoryEntity } from './worksite-history.entity';
 import { WorksiteEntity } from './worksite.entity';
 import { WorkzoneEntity } from './workzone.entity';
-import { WorksiteHistoryEntity } from './worksite-history.entity';
 
 @Entity({
   name: 'vehicles',
@@ -99,7 +99,7 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
 
   @OneToOne(() => DeviceEntity)
   @JoinColumn({ name: 'device_id' })
-  @Index()
+  @Index('IDX-vehicle-device')
   device: DeviceEntity;
 
   @OneToMany(() => HistoryEntity, (history) => history.vehicle)
@@ -140,6 +140,6 @@ export class VehicleEntity extends CommonEntity implements VehicleInterface {
   worksiteHistory: WorksiteHistoryEntity;
 
   @Column({ type: 'varchar', length: 100 })
-  @Index('IDX-vehicle-asc')
+  @Index('IDX-vehicle-hash')
   hash: string;
 }

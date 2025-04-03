@@ -9,22 +9,22 @@ import { HistoryEntity } from './history.entity';
 })
 export class SessionEntity extends CommonEntity implements SessionInterface {
   @Column({ type: 'timestamptz', nullable: true })
-  @Index()
+  @Index('IDX-session-period_from')
   period_from: Date;
 
   @Column({ type: 'timestamptz', nullable: true })
-  @Index()
+  @Index('IDX-session-period_to')
   period_to: Date;
 
   @Column()
-  @Index()
+  @Index('IDX-session-sequence_id')
   sequence_id: number;
 
   @Column({ type: 'boolean' })
   closed: boolean;
 
   @Column({ type: 'double precision' })
-  @Index()
+  @Index('IDX-session-distance')
   distance: number;
 
   @Column()

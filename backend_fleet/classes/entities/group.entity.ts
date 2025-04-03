@@ -10,7 +10,6 @@ import { WorksiteEntity } from './worksite.entity';
 })
 export class GroupEntity extends CommonEntity implements GroupInterface {
   @Column()
-  @Index()
   vgId: number;
 
   @Column()

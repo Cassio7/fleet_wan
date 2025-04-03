@@ -19,10 +19,10 @@ export class DetectionTagEntity
   detection_quality: number;
 
   @ManyToOne(() => TagEntity, (tag) => tag.detectiontag)
-  @Index()
+  @Index('IDX-detectiontag-tag')
   tag: TagEntity;
 
   @ManyToOne(() => TagHistoryEntity, (tag_history) => tag_history.detectiontag)
-  @Index()
+  @Index('IDX-detectiontag-taghistory')
   tagHistory: TagHistoryEntity;
 }
