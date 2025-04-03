@@ -56,6 +56,9 @@ export class HomeProfileComponent implements OnInit, AfterViewInit{
       case '/scarico-letture':
         this.goBack_text = 'Torna allo scarico delle letture';
         break;
+      case '/notifications':
+        this.goBack_text = "Torna alla visualizzazione delle notifiche";
+        break;
       default:
         if (this.previous_url?.includes("dettaglio-mezzo")) {
           const match = this.previous_url.match(/dettaglio-mezzo\/(\d+)/);
