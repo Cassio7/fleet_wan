@@ -1,10 +1,10 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { NotificationDto } from 'classes/dtos/notification.dto';
 import { NotificationEntity } from 'classes/entities/notification.entity';
+import { UserEntity } from 'classes/entities/user.entity';
 import { DataSource, Repository } from 'typeorm';
 import { NotificationsGateway } from './notifications.gateway';
-import { UserEntity } from 'classes/entities/user.entity';
-import { NotificationDto } from 'classes/dtos/notification.dto';
 
 @Injectable()
 export class NotificationsService {
@@ -17,8 +17,8 @@ export class NotificationsService {
   ) {}
 
   // Metodo per inviare una notifica tramite WebSocket
-  sendNotification(message: string) {
-    this.notificationsGateway.handleSendNotificationServer(message);
+  sendNotification(notification: NotificationDto) {
+    this.notificationsGateway.handleSendNotificationServer(notification);
   }
 
   /**
@@ -26,7 +26,11 @@ export class NotificationsService {
    * @param userId user id
    * @param message messaggio
    */
-  async createNotification(userId: number, title: string, message: string) {
+  async createNotification(
+    userId: number,
+    title: string,
+    message: string,
+  ): Promise<NotificationDto> {
     const queryRunner = this.connection.createQueryRunner();
     try {
       await queryRunner.connect();
@@ -52,6 +56,7 @@ export class NotificationsService {
         .getRepository(NotificationEntity)
         .save(notification);
       await queryRunner.commitTransaction();
+      return this.toDTO(notification);
     } catch (error) {
       await queryRunner.rollbackTransaction();
       if (error instanceof HttpException) throw error;
@@ -133,7 +138,7 @@ export class NotificationsService {
             },
           },
           order: {
-            createdAt: 'DESC', 
+            createdAt: 'DESC',
           },
         });
         return notifications
@@ -149,10 +154,10 @@ export class NotificationsService {
           isRead: isRead,
         },
         order: {
-          createdAt: 'DESC', 
+          createdAt: 'DESC',
         },
       });
-      
+
       return notifications
         ? notifications.map((notification) => this.toDTO(notification))
         : null;
@@ -166,38 +171,40 @@ export class NotificationsService {
   }
 
   /**
-   * Elimina una nota 
+   * Elimina una nota
    * @param notificationKey key della notifica da eliminare
-   * @returns 
+   * @returns
    */
   async deleteNotification(notificationKey: string): Promise<boolean> {
     const queryRunner = this.connection.createQueryRunner();
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
-  
+
       if (!String(notificationKey)) {
         await queryRunner.rollbackTransaction();
-        return false; 
+        return false;
       }
-  
-      const notification = await queryRunner.manager.getRepository(NotificationEntity).findOne({
-        where: {
-          key: notificationKey
-        },
-      });
-  
+
+      const notification = await queryRunner.manager
+        .getRepository(NotificationEntity)
+        .findOne({
+          where: {
+            key: notificationKey,
+          },
+        });
+
       if (!notification) {
         await queryRunner.rollbackTransaction();
-        return false; 
+        return false;
       }
-  
+
       await queryRunner.manager.getRepository(NotificationEntity).softDelete({
         key: notificationKey,
       });
-  
+
       await queryRunner.commitTransaction();
-      return true; 
+      return true;
     } catch (error) {
       await queryRunner.rollbackTransaction();
       if (error instanceof HttpException) throw error;
@@ -209,9 +216,6 @@ export class NotificationsService {
       await queryRunner.release();
     }
   }
-  
-  
-  
 
   private toDTO(notification: NotificationEntity): NotificationDto {
     const notDTO = new NotificationDto();
