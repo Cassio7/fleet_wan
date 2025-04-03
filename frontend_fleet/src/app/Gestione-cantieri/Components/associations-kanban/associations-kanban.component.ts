@@ -79,9 +79,10 @@ export class AssociationsKanbanComponent implements AfterViewInit, OnDestroy, On
     });
 
     console.log('association kanban vehicles: ', this.worksite.vehicle);
-    this.freeVehicles.forEach(vehicle => {
-      this.freeList.push(vehicle)
-    });
+    // commentato per evitare duplicati kanban
+    // this.freeVehicles.forEach(vehicle => {
+    //   this.freeList.push(vehicle)
+    // });
   }
 
   drop(event: CdkDragDrop<Vehicle[]>) {
