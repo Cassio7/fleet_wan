@@ -321,6 +321,10 @@ export class NotesService {
       await queryRunner.startTransaction();
       await queryRunner.manager.getRepository(NoteEntity).remove(note);
       await queryRunner.commitTransaction();
+      const title = `Nota eliminata utente ${user.username}`;
+      const message = `Nota con il seguente contenuto: ${note.content} del veicolo ${note.vehicle.plate} eliminata.`;
+      await this.notificationsService.createNotification(1, title, message);
+      this.notificationsService.sendNotification(message);
     } catch (error) {
       await queryRunner.rollbackTransaction();
       if (error instanceof HttpException) throw error;
