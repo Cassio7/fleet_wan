@@ -21,6 +21,8 @@ import 'moment/locale/it';
 import { MY_DATE_FORMATS } from './Utils/date-format';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { LoginComponent } from "./Common-components/login/login.component";
+import { WebsocketService } from './Common-services/websocket/websocket.service';
+import { Notifica, NotificationService } from './Common-services/notification/notification.service';
 
 @Component({
   selector: 'app-root',
@@ -63,6 +65,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
   isLogged: boolean = false;
   isGestioneOpen: boolean = false;
 
+  notifiche: Notifica[] = [];
+
   title = 'frontend_fleet';
   user!: any;
 
@@ -73,8 +77,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
     private loginService: LoginService,
     private cookieService: CookieService,
     private authService: AuthService,
-    private sessionStorageService: SessionStorageService,
+    private webSocketService: WebsocketService,
     private ngZone: NgZone,
+    private notificationService: NotificationService,
     private navigationService: NavigationService, //servizio importato per farlo caricare ad inizio applicazione
     private cd: ChangeDetectorRef
   ){
@@ -127,15 +132,26 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
     ).subscribe((event: NavigationEnd) => {
       this.isLoginPage = this.checkLoginPage(event.urlAfterRedirects);
       if(this.drawer.opened)
-        this.drawer.toggle();
+        this.drawer.close();
       if(this.router.url == "/login"){
         //chiusura della sidebar in caso sia aperta mentre l'utente si trova nella pagina di login
         if(this.drawer.opened){
-          this.drawer.toggle();
+          this.drawer.close();
         }
         this.isLogged = false;
       }
     });
+  }
+
+  getNotifications() {
+    this.notificationService.getAllNotifications()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (notifiche: Notifica[]) => {
+          this.notifiche = notifiche;
+        },
+        error: (error) => console.error("Errore nell'ottenimento delle notifiche: ", error),
+      });
   }
 
   logout(){

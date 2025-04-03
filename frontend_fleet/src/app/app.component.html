@@ -2,17 +2,18 @@
   <mat-drawer #fixedDrawer mode="side" class="fixed-drawer-container" [opened]="isLogged && !isLoginPage"  [style.display]="isLoginPage ? 'none' : 'block'">
     <div class="fixed-drawer-content">
       <div class="fixed-main-actions">
-        <button class="menu-btn" (click)="drawer.toggle(); fixedDrawer.toggle()"><svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path fill-rule="evenodd" clip-rule="evenodd" d="M12.8855 6H20.8855V8H12.8855V6ZM4.88547 16H12.8855V18H4.88547V16ZM20.8855 11H4.88547V13H20.8855V11Z" fill="white"/>
-</svg>
-</button>
+        <button class="menu-btn" (click)="drawer.toggle(); fixedDrawer.toggle()">
+        <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M12.8855 6H20.8855V8H12.8855V6ZM4.88547 16H12.8855V18H4.88547V16ZM20.8855 11H4.88547V13H20.8855V11Z" fill="white"/>
+        </svg>
+        </button>
         <button routerLink="dashboard" [ngClass]="{'selectedBtn': router.url == '/dashboard' || router.url == '/'}" ><mat-icon>dashboard</mat-icon></button>
         <button routerLink="home-mezzi" [ngClass]="{'selectedBtn': router.url == '/home-mezzi'}"><mat-icon>local_shipping</mat-icon></button>
         <button routerLink="storico-mezzi" [ngClass]="{'selectedBtn': router.url == '/storico-mezzi'}"><mat-icon>inventory_2</mat-icon></button>
         <button routerLink="home-mappa" [ngClass]="{'selectedBtn': router.url == '/home-mappa'}"><mat-icon>map</mat-icon></button>
         <button routerLink="scarico-letture" [ngClass]="{'selectedBtn': router.url == '/scarico-letture'}"><mat-icon>download</mat-icon></button>
-        <button [matMenuTriggerFor]="gestioneMenu"><mat-icon>settings</mat-icon></button>
-        <mat-menu #gestioneMenu="matMenu" [xPosition]="'after'" [yPosition]="'below'">
+        <button [matMenuTriggerFor]="gestioneMenu" *ngIf="user?.idR == 1"><mat-icon>settings</mat-icon></button>
+        <mat-menu #gestioneMenu="matMenu" [xPosition]="'after'" >
           <button routerLink="gestione-utenti" mat-menu-item>Gestione utenti</button>
           <button routerLink="gestione-veicoli" mat-menu-item>Gestione veicoli</button>
           <button routerLink="gestione-cantieri" mat-menu-item>Gestione cantieri</button>
@@ -49,7 +50,7 @@
               <button class="button" routerLink="home-mappa" [ngClass]="{'selectedBtn': router.url == '/home-mappa'}" (click)="drawer.toggle(); fixedDrawer.toggle()"><mat-icon>map</mat-icon><span><span class="drawerIcon-text">Mappa</span></span></button>
               <button class="button" routerLink="scarico-letture" [ngClass]="{'selectedBtn': router.url == '/scarico-letture'}" (click)="drawer.toggle(); fixedDrawer.toggle()"><mat-icon>download</mat-icon><span><span class="drawerIcon-text">Scarico letture</span></span></button>
               <div class="gestione-container" *ngIf="user?.idR == 1">
-                <button class="button" (click)="isGestioneOpen = !isGestioneOpen"><mat-icon>settings</mat-icon><span class="drawerIcon-text"><span class="inline-container">Gestione <mat-icon>{{isGestioneOpen ? 'arrow_drop_up' : 'arrow_drop_down'}}</mat-icon></span></span></button>
+                <button class="button" (click)="isGestioneOpen = !isGestioneOpen" *ngIf="user?.idR == 1"><mat-icon>settings</mat-icon><span class="drawerIcon-text"><span class="inline-container">Gestione <mat-icon>{{isGestioneOpen ? 'arrow_drop_up' : 'arrow_drop_down'}}</mat-icon></span></span></button>
                 <div class="indent" *ngIf="isGestioneOpen">
                   <button class="button" routerLink="gestione-veicoli" [ngClass]="{'selectedBtn': router.url == '/gestione-veicoli'}" ><mat-icon>local_shipping</mat-icon><span class="drawerIcon-text" (click)="drawer.toggle(); fixedDrawer.toggle()">Gestione veicoli</span></button>
                   <button class="button" routerLink="gestione-utenti" [ngClass]="{'selectedBtn': router.url == '/gestione-utenti'}" ><mat-icon>group</mat-icon><span class="drawerIcon-text" (click)="drawer.toggle(); fixedDrawer.toggle()">Gestione utenti</span></button>
@@ -75,7 +76,7 @@
 
           <ng-template #authenticatedContent>
             <div class="content">
-              <app-navbar></app-navbar>
+              <app-navbar [notifiche]="notifiche" (getNotifications)="getNotifications()"></app-navbar>
               <router-outlet></router-outlet>
             </div>
           </ng-template>
