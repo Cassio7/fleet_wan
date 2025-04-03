@@ -232,8 +232,8 @@ export class VehicleService {
             });
           newVehicles.push(newVehicle);
           if (!first) {
-            const title = 'Nuovo Veicolo';
-            const message = `Nuovo veicolo da censire, targa: ${newVehicle.plate} e veId: ${newVehicle.veId}`;
+            const title = `Nuovo Veicolo inserito ${newVehicle.plate}`;
+            const message = `Censire il veicolo con veId ${newVehicle.veId} per iniziare il controllo`;
             await this.notificationsService.createNotification(
               1,
               title,
