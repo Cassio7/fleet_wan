@@ -57,12 +57,14 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy {
 
   workingVehicles: VehicleData[] = [];
 
+  // per rappresentare i veicoli in errore nel kanban
   errorVehicles: SessionErrorVehicles = {
     nullVehicles: [],
     stuckVehicles: [],
     powerVehicles: []
   };
 
+  // per rappresentare il conteggio dei veicoli nel kanban
   errorLists: SessionErrorVehicles = {
     nullVehicles: [],
     stuckVehicles: [],

@@ -21,7 +21,7 @@ export class KanbanSessioneService {
 
   private _allSelected: boolean = false;
 
-
+  // per gestire la disabilitazione delle chips nel kanban
   errorVehicles: SessionErrorVehicles = {
     nullVehicles: [],
     stuckVehicles: [],
