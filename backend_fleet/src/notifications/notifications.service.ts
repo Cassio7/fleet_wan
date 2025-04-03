@@ -132,6 +132,9 @@ export class NotificationsService {
               id: userId,
             },
           },
+          order: {
+            createdAt: 'DESC', 
+          },
         });
         return notifications
           ? notifications.map((notification) => this.toDTO(notification))
@@ -145,7 +148,11 @@ export class NotificationsService {
           },
           isRead: isRead,
         },
+        order: {
+          createdAt: 'DESC', 
+        },
       });
+      
       return notifications
         ? notifications.map((notification) => this.toDTO(notification))
         : null;
