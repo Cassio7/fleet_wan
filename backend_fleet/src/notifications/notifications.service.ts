@@ -67,7 +67,7 @@ export class NotificationsService {
   /**
    * Aggiorna lo stato della notifica da letta a non letta e vicersa
    * @param notificationKey key univoca notifica
-   * @returns
+   * @returns messaggio
    */
   async updateNotificationRead(
     notificationKey: string,
@@ -157,6 +157,54 @@ export class NotificationsService {
       );
     }
   }
+
+  /**
+   * Elimina una nota 
+   * @param notificationKey key della notifica da eliminare
+   * @returns 
+   */
+  async deleteNotification(notificationKey: string): Promise<boolean> {
+    const queryRunner = this.connection.createQueryRunner();
+    try {
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+  
+      if (!String(notificationKey)) {
+        await queryRunner.rollbackTransaction();
+        return false; 
+      }
+  
+      const notification = await queryRunner.manager.getRepository(NotificationEntity).findOne({
+        where: {
+          key: notificationKey
+        },
+      });
+  
+      if (!notification) {
+        await queryRunner.rollbackTransaction();
+        return false; 
+      }
+  
+      await queryRunner.manager.getRepository(NotificationEntity).softDelete({
+        key: notificationKey,
+      });
+  
+      await queryRunner.commitTransaction();
+      return true; 
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      if (error instanceof HttpException) throw error;
+      throw new HttpException(
+        `Errore durante l'eliminazione della notifica`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    } finally {
+      await queryRunner.release();
+    }
+  }
+  
+  
+  
 
   private toDTO(notification: NotificationEntity): NotificationDto {
     const notDTO = new NotificationDto();

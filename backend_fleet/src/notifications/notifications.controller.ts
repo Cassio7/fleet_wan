@@ -1,5 +1,6 @@
 import {
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -76,6 +77,65 @@ export class NotificationsController {
       });
     }
   }
+
+
+  /**
+   * API per eliminare una notifica
+   * @param req user data
+   * @param key key della notifica da eliminare
+   * @param res 
+   * @returns messaggio
+   */
+  @Roles(Role.Admin)
+  @Delete(':key')  
+  async deleteNotification(
+    @Req() req: Request & { user: UserFromToken },
+    @Param('key') key: string,
+    @Res() res: Response,
+  ) {
+    const context: LogContext = {
+      userId: req.user.id,
+      username: req.user.username,
+      resource: 'Notification Delete Admin',  
+    };
+    
+    try {
+      const result = await this.notificationsService.deleteNotification(key);
+
+      if (!result) {
+        this.loggerService.logCrudSuccess(
+          context,
+          'delete',
+          `Notifica con key ${key} non trovata.`,
+        );
+        return res.status(404).json({
+          message: `Notifica con key ${key} non trovata.`,
+        });
+      }
+
+      this.loggerService.logCrudSuccess(
+        context,
+        'delete',
+        `Notifica con key ${key} eliminata con successo.`,
+      );
+      
+      return res.status(200).json({
+        message: `Notifica con key ${key} eliminata con successo.`,
+      });
+
+    } catch (error) {
+      this.loggerService.logCrudError({
+        error,
+        context,
+        operation: 'delete',
+      });
+
+      return res.status(error.status || 500).json({
+        message: error.message || 'Errore durante l\'eliminazione della notifica',
+      });
+    }
+  }
+
 
   /**
    * API per aggiornare lo stato di lettura di una notifica
