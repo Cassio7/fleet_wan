@@ -18,9 +18,9 @@ import { AuthGuard } from 'src/guard/auth.guard';
 import { RolesGuard } from 'src/guard/roles.guard';
 import { LogContext } from 'src/log/logger.types';
 import { LoggerService } from 'src/log/service/logger.service';
+import { StatsService } from 'src/services/anomaly/stats/stats.service';
 import { ControlService } from 'src/services/control/control.service';
 import { AnomalyService } from './../../services/anomaly/anomaly.service';
-import { StatsService } from 'src/services/anomaly/stats/stats.service';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Controller('anomaly')
