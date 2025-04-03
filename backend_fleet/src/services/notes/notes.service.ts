@@ -189,7 +189,7 @@ export class NotesService {
       });
       await queryRunner.manager.getRepository(NoteEntity).save(newNote);
       await queryRunner.commitTransaction();
-      const title = `Nota creata utente ${user.username}`;
+      const title = `Nota creata`;
       const message = `Veicolo ${vehicle.plate}, con il seguente contenuto: ${content}`;
       const notification = await this.notificationsService.createNotification(1, title, message);
       this.notificationsService.sendNotification(notification);
@@ -321,8 +321,8 @@ export class NotesService {
       await queryRunner.startTransaction();
       await queryRunner.manager.getRepository(NoteEntity).remove(note);
       await queryRunner.commitTransaction();
-      const title = `Nota eliminata utente ${user.username}`;
-      const message = `Nota con il seguente contenuto: ${note.content} del veicolo ${note.vehicle.plate} eliminata.`;
+      const title = `Nota eliminata`;
+      const message = `Nota con il seguente contenuto: "${note.content}" del veicolo ${note.vehicle.plate} eliminata.`;
       const notification = await this.notificationsService.createNotification(1, title, message);
       this.notificationsService.sendNotification(notification);
     } catch (error) {

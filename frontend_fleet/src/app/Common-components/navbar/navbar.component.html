@@ -2,15 +2,22 @@
   <div class="left-side">
     <p class="page-p"><mat-icon>{{icon}}</mat-icon>{{currentPage}}{{isKanban ? '/kanban' : ''}}</p>
   </div>
-  <div class="right-side">
-    <mat-icon
-    class="notification-icon"
-    [mat-menu-trigger-for]="notificationsMenu"
-    (click)="getNotifications.emit()"
-    [matBadge]="notifiche && notifiche.length || 0"
-    matBadgeColor="warn">
-    notifications
-    </mat-icon>
+  <div class="right-side custom-menu-container">
+    <a mat-icon-button
+      [mat-menu-trigger-for]="notificationsMenu"
+      class="notification-button"
+      aria-label="Notifications">
+      <mat-icon
+        class="notification-icon"
+        (click)="getNotifications.emit()"
+        [matBadge]="notifiche && notifiche.length || 0"
+        matBadgeColor="warn"
+        aria-hidden="false">
+        notifications
+      </mat-icon>
+    </a>
+
+
 
     <mat-menu #notificationsMenu="matMenu" yPosition="below" xPosition="before">
       <ng-container *ngFor="let notifica of notifiche; let i = index">
@@ -18,9 +25,9 @@
           <div class="title">{{notifica.title}}</div>
           <div class="content">{{notifica.message}}</div>
         </div>
-
-        <mat-divider *ngIf="i < notifiche.length - 1"></mat-divider>
+        <mat-divider></mat-divider>
       </ng-container>
+      <button mat-button class="button" routerLink="notifications">Mostra di più</button>
     </mat-menu>
 
 
