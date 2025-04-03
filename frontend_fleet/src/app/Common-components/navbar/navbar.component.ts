@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -15,6 +15,10 @@ import { User } from '../../Models/User';
 import { SessionStorageService } from '../../Common-services/sessionStorage/session-storage.service';
 import { ProfileService } from '../../Profile/Services/profile/profile.service';
 import { KanbanSessioneService } from '../../Dashboard/Services/kanban-sessione/kanban-sessione.service';
+import { Notifica, NotificationService } from '../../Common-services/notification/notification.service';
+import { MatDividerModule } from '@angular/material/divider';
+import { WebsocketService } from '../../Common-services/websocket/websocket.service';
+import { MatBadgeModule } from '@angular/material/badge';
 
 @Component({
   selector: 'app-navbar',
@@ -26,7 +30,9 @@ import { KanbanSessioneService } from '../../Dashboard/Services/kanban-sessione/
     MatIconModule,
     MatMenuModule,
     MatButtonModule,
-    RouterModule
+    MatBadgeModule,
+    MatDividerModule,
+    RouterModule,
   ],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css'
@@ -39,6 +45,10 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
   surname: string = "";
   role: string = "";
 
+  @Input() notifiche: Notifica[] = [];
+  @Output() getNotifications: EventEmitter<Notifica[]> = new EventEmitter<Notifica[]>();
+
+  user!: any;
   isKanban: boolean = false;
 
   constructor(
@@ -49,6 +59,7 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
     private kanbanSessioneService: KanbanSessioneService,
     private kanabanTableService: KanbanTableService,
     private profileService: ProfileService,
+    private webSocketService: WebsocketService,
     private router: Router,
     private cd: ChangeDetectorRef
   ){}
@@ -66,6 +77,14 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
     ).subscribe((event: NavigationEnd) => {
       this.updateNavbarIcon(event.url);
       this.isKanban = false;
+    });
+
+    this.webSocketService.getNotifyMessages().pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (notification: Notifica) => {
+        this.notifiche.push(notification);
+      },
+      error: error => console.error("Errore nella ricezione della notifica: ", error)
     });
   }
 
@@ -149,6 +168,7 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
     .subscribe({
       next: (user: User | null) => {
         if(user){
+          this.user = user;
           const { name, surname } = user;
           if(name) this.name = name;
           if(surname) this.surname = surname;
@@ -158,6 +178,7 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
       error: error => console.error("Errore nell'aggiornamento dei nuovi dati dell'utente nella navbar: ", error)
     });
   }
+
 
   showProfile(){
     this.router.navigate(["/profile"]);

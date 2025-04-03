@@ -43,7 +43,14 @@
 .right-side {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 1.2vw;
+
+  .notification-icon{
+    cursor: pointer;
+  }
+  .notification-icon:hover{
+    opacity: .5;
+  }
 }
 
 .account-circle {
@@ -108,23 +115,23 @@
   font-size: 40px;
 }
 
-.notifications-btn {
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.notifications-btn mat-icon {
-  font-size: 40px;
-  line-height: 1;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.notification-container{
+  .title{
+    font-weight: bold;
+  }
 }
 p{
   font-family: 'Inter';
 }
+.user-info{
+  display: inline-flex;
+  align-items: center;
+  gap: .5vw;
+}
+::ng-deep .cdk-overlay-pane {
+  max-height: 350px !important; /* Adjust 350px to your desired max height */
+}
+.mat-mdc-menu-content {
+  padding: 16px; /* Adjust the padding value as needed */
+}
+

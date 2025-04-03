@@ -3,23 +3,43 @@
     <p class="page-p"><mat-icon>{{icon}}</mat-icon>{{currentPage}}{{isKanban ? '/kanban' : ''}}</p>
   </div>
   <div class="right-side">
-    <!-- <button mat-button class="notifications-btn"><mat-icon>notifications</mat-icon></button> -->
-    <div class="profile-info" >
-      @if(name == "admin" || name == "Admin"){
-        <p class="username">{{name}}</p>
-        <p class="role">{{role}}</p>
-      }@else {
-        <p class="username">{{name}} {{surname}}</p>
-        <p class="role">{{role}}</p>
-      }
-    </div>
-    <div mat-card-avatar class="account-circle" (click)="showProfile()">
-      @if(name == "admin" || name == "Admin"){
-        <span class="admin-name">A</span>
-      }@else {
-        <span class="name">{{name[0]}}</span>
-        <span class="surname">{{surname[0]}}</span>
-      }
+    <mat-icon
+    class="notification-icon"
+    [mat-menu-trigger-for]="notificationsMenu"
+    (click)="getNotifications.emit()"
+    [matBadge]="notifiche.length"
+    matBadgeColor="warn">
+    notifications
+    </mat-icon>
+
+    <mat-menu #notificationsMenu="matMenu" yPosition="below" xPosition="before">
+      <ng-container *ngFor="let notifica of notifiche">
+        <div class="notification-container">
+          <div class="title">{{notifica.title}}</div>
+          <div class="content">{{notifica.message}}</div>
+        </div>
+        <mat-divider *ngIf="notifiche.length > 1"></mat-divider>
+      </ng-container>
+    </mat-menu>
+
+    <div class="user-info">
+      <div class="profile-info" >
+        @if(name == "admin" || name == "Admin"){
+          <p class="username">{{name}}</p>
+          <p class="role">{{role}}</p>
+        }@else {
+          <p class="username">{{name}} {{surname}}</p>
+          <p class="role">{{role}}</p>
+        }
+      </div>
+      <div mat-card-avatar class="account-circle" (click)="showProfile()">
+        @if(name == "admin" || name == "Admin"){
+          <span class="admin-name">A</span>
+        }@else {
+          <span class="name">{{name[0]}}</span>
+          <span class="surname">{{surname[0]}}</span>
+        }
+      </div>
     </div>
     <mat-menu #menu="matMenu">
       <button mat-menu-item (click)="logout()">Esci</button>
