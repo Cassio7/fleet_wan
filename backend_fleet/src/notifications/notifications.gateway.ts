@@ -6,6 +6,7 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
+import { NotificationDto } from 'classes/dtos/notification.dto';
 import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway({
@@ -28,7 +29,11 @@ export class NotificationsGateway
     console.log(`❌ Client disconnesso: ${client.id}`);
   }
 
-  handleSendNotificationServer(@MessageBody() data: string) {
-    this.server.emit('notify', data); // Invia la notifica a tutti i client connessi
+  handleSendNotificationServer(@MessageBody() notification: NotificationDto) {
+    try {
+      this.server.emit('notify', notification);
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
