@@ -239,7 +239,8 @@ export class VehicleService {
               title,
               message,
             );
-            this.notificationsService.sendNotification(message);
+            const notification = await this.notificationsService.createNotification(1, title, message);
+            this.notificationsService.sendNotification(notification);
           }
         } else if (existingVehicle.hash !== vehicle.hash) {
           // Aggiorniamo il veicolo solo se l'hash è cambiato

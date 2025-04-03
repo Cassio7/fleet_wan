@@ -191,8 +191,8 @@ export class NotesService {
       await queryRunner.commitTransaction();
       const title = `Nota creata utente ${user.username}`;
       const message = `Veicolo ${vehicle.plate}, con il seguente contenuto: ${content}`;
-      await this.notificationsService.createNotification(1, title, message);
-      this.notificationsService.sendNotification(message);
+      const notification = await this.notificationsService.createNotification(1, title, message);
+      this.notificationsService.sendNotification(notification);
       return this.toDTO(newNote);
     } catch (error) {
       await queryRunner.rollbackTransaction();
@@ -323,8 +323,8 @@ export class NotesService {
       await queryRunner.commitTransaction();
       const title = `Nota eliminata utente ${user.username}`;
       const message = `Nota con il seguente contenuto: ${note.content} del veicolo ${note.vehicle.plate} eliminata.`;
-      await this.notificationsService.createNotification(1, title, message);
-      this.notificationsService.sendNotification(message);
+      const notification = await this.notificationsService.createNotification(1, title, message);
+      this.notificationsService.sendNotification(notification);
     } catch (error) {
       await queryRunner.rollbackTransaction();
       if (error instanceof HttpException) throw error;
