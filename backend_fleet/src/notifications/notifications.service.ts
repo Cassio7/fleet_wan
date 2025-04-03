@@ -117,16 +117,33 @@ export class NotificationsService {
    * @param userId
    * @returns
    */
-  async getNotifications(userId: number): Promise<NotificationDto[] | null> {
+  async getNotifications(
+    userId: number,
+    read?: string,
+  ): Promise<NotificationDto[] | null> {
     try {
       if (!Number(userId)) {
-        return;
+        return null;
       }
+      if (read === undefined) {
+        const notifications = await this.notificationRepository.find({
+          where: {
+            user: {
+              id: userId,
+            },
+          },
+        });
+        return notifications
+          ? notifications.map((notification) => this.toDTO(notification))
+          : null;
+      }
+      const isRead = read === 'true';
       const notifications = await this.notificationRepository.find({
         where: {
           user: {
             id: userId,
           },
+          isRead: isRead,
         },
       });
       return notifications

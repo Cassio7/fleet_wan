@@ -3,6 +3,7 @@ import {
   Get,
   Param,
   Patch,
+  Query,
   Req,
   Res,
   UseGuards,
@@ -36,6 +37,7 @@ export class NotificationsController {
   @Get()
   async getNotifications(
     @Req() req: Request & { user: UserFromToken },
+    @Query('read') read: string,
     @Res() res: Response,
   ) {
     const context: LogContext = {
@@ -46,6 +48,7 @@ export class NotificationsController {
     try {
       const notifications = await this.notificationsService.getNotifications(
         req.user.id,
+        read,
       );
       if (!notifications?.length) {
         this.loggerService.logCrudSuccess(
