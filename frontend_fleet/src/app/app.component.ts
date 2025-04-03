@@ -77,9 +77,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
     private loginService: LoginService,
     private cookieService: CookieService,
     private authService: AuthService,
-    private webSocketService: WebsocketService,
     private ngZone: NgZone,
     private notificationService: NotificationService,
+    private webSocketService: WebsocketService,
     private navigationService: NavigationService, //servizio importato per farlo caricare ad inizio applicazione
     private cd: ChangeDetectorRef
   ){
@@ -141,25 +141,48 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
         this.isLogged = false;
       }
     });
+
+    //connessione al canale per l'avviso in tempo reale delle notifiche
+    this.webSocketService.getNotifyMessages().pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (notification: Notifica) => {
+        if (notification) {
+          if (!Array.isArray(this.notifiche))
+            this.notifiche = [];
+
+          this.notifiche.unshift(notification);
+        } else {
+          console.error('Notifica ricevuta è null o undefined');
+        }
+      },
+      error: error => console.error("Errore nella ricezione della notifica: ", error)
+    });
+
+
+    //ottenimento delle notifiche da leggere
+    this.notificationService.getToReadNotifications()
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (notifiche: Notifica[]) => {
+        console.log('to read notification fetched: ', notifiche);
+        this.notifiche = notifiche;
+      },
+      error: (error) => console.error("Errore nell'ottenimento delle notifiche da leggere: ", error),
+    });
   }
 
-  getNotifications() {
-    this.notificationService.getAllNotifications()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (notifiche: Notifica[]) => {
-          this.notifiche = notifiche;
-        },
-        error: (error) => console.error("Errore nell'ottenimento delle notifiche: ", error),
-      });
-  }
-
+  /**
+   * richiama la funzion nel servizio per effettuare il logout e naviga alla pagina di login
+   */
   logout(){
     this.loginService.logout();
     this.user = null;
     this.router.navigate(['/login']);
   }
 
+  /**
+   * Gestisce la chisura e l'apertura dinamica delle sidebar fissa e mobile
+   */
   toggleDrawers() {
     if (this.fixedDrawer.opened) {
       // Se il fixedDrawer è aperto, chiudilo e apri il drawer normale

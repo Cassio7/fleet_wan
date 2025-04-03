@@ -59,7 +59,6 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
     private kanbanSessioneService: KanbanSessioneService,
     private kanabanTableService: KanbanTableService,
     private profileService: ProfileService,
-    private webSocketService: WebsocketService,
     private router: Router,
     private cd: ChangeDetectorRef
   ){}
@@ -77,14 +76,6 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
     ).subscribe((event: NavigationEnd) => {
       this.updateNavbarIcon(event.url);
       this.isKanban = false;
-    });
-
-    this.webSocketService.getNotifyMessages().pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: (notification: Notifica) => {
-        this.notifiche.push(notification);
-      },
-      error: error => console.error("Errore nella ricezione della notifica: ", error)
     });
   }
 
