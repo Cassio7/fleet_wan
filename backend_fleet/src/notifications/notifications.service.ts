@@ -161,6 +161,7 @@ export class NotificationsService {
   private toDTO(notification: NotificationEntity): NotificationDto {
     const notDTO = new NotificationDto();
     notDTO.key = notification.key;
+    notDTO.createdAt = notification.createdAt;
     notDTO.title = notification.title;
     notDTO.message = notification.message;
     notDTO.isRead = notification.isRead;
