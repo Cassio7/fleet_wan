@@ -331,7 +331,10 @@ export class AnomalyController {
    * @param body
    */
   @Post('checkerrors')
-  async checkErrors(@Res() res: Response, @Body() body) {
+  async checkErrors(
+    @Res() res: Response,
+    @Body() body: { dateFrom: string; dateTo: string },
+  ) {
     const data = await this.controlService.checkErrors(
       body.dateFrom,
       body.dateTo,

@@ -322,7 +322,7 @@ export class UserService {
    * Elimina utente dal database
    * @param userId user id
    */
-  async deleteUser(userId: number) {
+  async deleteUser(userId: number): Promise<void> {
     const user = await this.checkUser(userId);
     if (user.username === 'admin')
       throw new HttpException(

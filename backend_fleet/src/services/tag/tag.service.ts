@@ -209,7 +209,7 @@ export class TagService {
     }
   }
 
-  private async setTag(tagHistoryArray) {
+  private async setTag(tagHistoryArray): Promise<boolean> {
     const queryRunner = this.connection.createQueryRunner();
 
     try {

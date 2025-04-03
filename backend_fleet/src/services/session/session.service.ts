@@ -363,7 +363,7 @@ export class SessionService {
    * @param sessionArray
    * @returns
    */
-  private async setHistory(veId, sessionArray) {
+  private async setHistory(veId, sessionArray): Promise<boolean> {
     const queryRunner = this.connection.createQueryRunner();
     try {
       await queryRunner.connect();
@@ -775,7 +775,7 @@ export class SessionService {
    * per un recupero piu veloce
    * @param sessionMap
    */
-  async setLastValidSessionRedis(sessionMap: Map<number, any>) {
+  async setLastValidSessionRedis(sessionMap: Map<number, any>): Promise<void> {
     for (const [veId, session] of sessionMap) {
       const key = `lastValidSession:${veId}`;
       await this.redis.set(key, JSON.stringify(session));
@@ -857,7 +857,7 @@ export class SessionService {
    * per un recupero piu veloce
    * @param historyMap
    */
-  async setLastHistoryRedis(historyMap: Map<number, any>) {
+  async setLastHistoryRedis(historyMap: Map<number, any>): Promise<void> {
     for (const [veId, history] of historyMap) {
       const key = `lastHistory:${veId}`;
       await this.redis.set(key, JSON.stringify(history));

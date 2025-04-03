@@ -11,7 +11,7 @@ export class EquipmentService {
     private readonly equipmentRepository: Repository<EquipmentEntity>,
   ) {}
 
-  async getEquipments() {
+  async getEquipments(): Promise<EquipmentDTO[]> {
     const equipments = await this.equipmentRepository.find();
     return equipments.map((equipment) => this.toDTO(equipment));
   }

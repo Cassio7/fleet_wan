@@ -47,7 +47,7 @@ export class AppService implements OnModuleInit {
   ) {}
 
   // popolo database all'avvio
-  async onModuleInit() {
+  async onModuleInit(): Promise<void> {
     const startDate = '2025-03-17T00:00:00.000Z';
     //const endDate = '2025-03-05T00:00:00.000Z';
     const endDate = new Date(
@@ -62,7 +62,7 @@ export class AppService implements OnModuleInit {
     //await this.setAnomaly();
   }
 
-  async putDefaultData() {
+  async putDefaultData(): Promise<void> {
     //await this.redis.flushdb();
     await this.userFactoryService.createDefaultRoles();
     await this.userFactoryService.createDefaultUser();
@@ -82,7 +82,7 @@ export class AppService implements OnModuleInit {
    * @param start inizio
    * @param end fine
    */
-  async putDbDataMix(start: string, end: string) {
+  async putDbDataMix(start: string, end: string): Promise<void> {
     const startDate = start;
     const endDate = end;
 
@@ -172,7 +172,7 @@ export class AppService implements OnModuleInit {
    * Inserisce tutti i veicoli in parallelo in batch, ma i tag sequenzialmente
    */
   //@Cron('*/10 * * * *')
-  async putDbDataCronOne() {
+  async putDbDataCronOne(): Promise<void> {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
     const startDate = now.toISOString();
@@ -257,7 +257,7 @@ export class AppService implements OnModuleInit {
     console.log('Fine recupero');
   }
 
-  async anomalyCheck(start: string, end: string) {
+  async anomalyCheck(start: string, end: string): Promise<void> {
     try {
       const dateFrom = new Date(start);
       const dateTo = new Date(end);
@@ -319,7 +319,7 @@ export class AppService implements OnModuleInit {
 
   //@Cron('58 22 * * *') // prima di finire la giornata
   //@Cron('30 6 * * *') // per la mattina
-  async dailyAnomalyCheck() {
+  async dailyAnomalyCheck(): Promise<void> {
     try {
       const datefrom = new Date();
       const dateto = new Date(datefrom);
@@ -386,7 +386,7 @@ export class AppService implements OnModuleInit {
    */
 
   //@Cron('40 6 * * *')
-  async setAnomaly() {
+  async setAnomaly(): Promise<void> {
     const keys = await this.redis.keys('*Anomaly:*');
     if (keys.length > 0) {
       await this.redis.del(keys);

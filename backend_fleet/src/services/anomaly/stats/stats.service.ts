@@ -173,7 +173,7 @@ export class StatsService {
   /**
    * Calcola tutte le statistiche per tutti i veicoli in parallelo e le salva su redis
    */
-  async setAllStatsRedis() {
+  async setAllStatsRedis(): Promise<void> {
     try {
       const allVehicles = await this.vehicleService.getAllVehicles();
       const stats = await Promise.all(
@@ -198,7 +198,7 @@ export class StatsService {
    * Salva statistiche su redis
    * @param stats oggetto statistica
    */
-  async setRedisStats(stats: Stats[]) {
+  async setRedisStats(stats: Stats[]): Promise<void> {
     for (const stat of stats) {
       const key = `stats:${stat.veId}`;
       await this.redis.set(key, JSON.stringify(stat));

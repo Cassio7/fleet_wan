@@ -213,7 +213,11 @@ export class NotesService {
    * @param noteId id della nota da modificare
    * @param updatedContent contenuto modificato
    */
-  async updateNote(userId: number, noteId: number, updatedContent: string) {
+  async updateNote(
+    userId: number,
+    noteId: number,
+    updatedContent: string,
+  ): Promise<void> {
     if (!updatedContent || updatedContent.trim().length === 0)
       throw new HttpException(
         'Il contenuto della nota non può essere vuoto',
@@ -282,7 +286,7 @@ export class NotesService {
    * @param userId id utente loggato
    * @param noteId id della nota
    */
-  async deleteNote(userId: number, noteId: number) {
+  async deleteNote(userId: number, noteId: number): Promise<void> {
     const user = await this.userService.checkUser(userId);
     const note = await this.noteRepository.findOne({
       where: {
@@ -331,8 +335,12 @@ export class NotesService {
 
   /**
    * Formatta il ritorno
+   * @param note
+   * @returns
    */
-  private toDTO(note: NoteEntity) {
+  private toDTO(
+    note: NoteEntity,
+  ): NoteDto & { vehicle: VehicleDTO; user: UserDTO } {
     const noteDTO = new NoteDto();
     noteDTO.id = note.id;
     noteDTO.updatedAt = note.updatedAt;

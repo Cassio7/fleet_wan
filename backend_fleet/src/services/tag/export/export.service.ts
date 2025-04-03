@@ -22,7 +22,7 @@ export class ExportService {
     parsedDateFrom: Date,
     parsedDateTo: Date,
     res: Response,
-  ) {
+  ): Promise<void> {
     const workbook = new Workbook();
     const dateFromName = parsedDateFrom
       .toLocaleDateString('it-IT')
@@ -96,7 +96,7 @@ export class ExportService {
    * @param workbook oggetto workbook
    * @param redisKey chiave univoca generata
    */
-  async setRedisExport(workbook: Workbook, redisKey: string) {
+  async setRedisExport(workbook: Workbook, redisKey: string): Promise<void> {
     // Crea un buffer per il file Excel
     const buffer = await workbook.xlsx.writeBuffer();
 

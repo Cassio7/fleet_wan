@@ -32,7 +32,7 @@ export function convertHours(timestamp: string): string {
  * @param endDate data di fine
  * @returns
  */
-export function getDaysInRange(startDate, endDate): Date[] {
+export function getDaysInRange(startDate: Date, endDate: Date): Date[] {
   const currentDate = new Date(startDate);
   const dates = [];
 

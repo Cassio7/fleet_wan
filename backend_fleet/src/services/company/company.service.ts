@@ -129,7 +129,7 @@ export class CompanyService {
    * @param veId Ricerca in base all veId del veicolo
    * @returns
    */
-  async getCompanyByVeId(veId): Promise<CompanyEntity> {
+  async getCompanyByVeId(veId: number): Promise<CompanyEntity> {
     const company = await this.companyRepository.findOne({
       where: {
         group: {

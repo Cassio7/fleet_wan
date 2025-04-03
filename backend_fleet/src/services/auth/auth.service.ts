@@ -81,7 +81,7 @@ export class AuthService {
    * @param token JWT token
    * @returns true = corretto , false = NON corretto
    */
-  async validateToken(token: string) {
+  async validateToken(token: string): Promise<JwtPayload> {
     try {
       return this.jwtService.verify(token, {
         secret: this.configService.get<string>('SECRET_TOKEN'),

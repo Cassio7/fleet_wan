@@ -372,7 +372,7 @@ export class UserController {
   async getUserByUsername(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
-    @Body() body: any,
+    @Body() body: { username: string },
   ) {
     const context: LogContext = {
       userId: req.user.id,

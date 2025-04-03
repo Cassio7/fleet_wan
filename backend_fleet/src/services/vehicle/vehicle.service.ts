@@ -41,7 +41,7 @@ export class VehicleService {
   ) {}
 
   // Prepara la richiesta SOAP
-  private buildSoapRequest(methodName, suId, vgId) {
+  private buildSoapRequest(methodName, suId, vgId): string {
     return `<?xml version="1.0" encoding="UTF-8"?>
   <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:fwan="http://www.fleetcontrol/FWAN/">
       <soapenv:Header/>
@@ -66,7 +66,7 @@ export class VehicleService {
     suId: number,
     vgId: number,
     first: boolean,
-  ): Promise<any> {
+  ): Promise<boolean> {
     const methodName = 'VehiclesListExtended';
     const requestXml = this.buildSoapRequest(methodName, suId, vgId);
     const headers = {
@@ -120,11 +120,10 @@ export class VehicleService {
         await queryRunner.release();
         return false; // se item.list non esiste, salto elemento
       }
-      const newVehicles = await this.putAllVehicle(lists, first);
+      await this.putAllVehicle(lists, first);
 
       await queryRunner.commitTransaction();
       await queryRunner.release();
-      return newVehicles;
     } catch (error) {
       await queryRunner.rollbackTransaction();
       await queryRunner.release();
@@ -137,7 +136,7 @@ export class VehicleService {
    * @param lists lista dei veicoli
    * @returns
    */
-  private async putAllVehicle(lists: any[], first: boolean): Promise<any> {
+  private async putAllVehicle(lists: any[], first: boolean): Promise<void> {
     const queryRunner = this.connection.createQueryRunner();
     const hashVehicle = (vehicle: any): string => {
       const toHash = {
@@ -205,7 +204,7 @@ export class VehicleService {
       const deviceMap = new Map(
         devices.map((device) => [device.device_id, device]),
       );
-      const newVehicles = [];
+      const newVehicles: VehicleEntity[] = [];
       const updatedVehicles = [];
 
       for (const vehicle of filteredDataVehicles) {
@@ -280,7 +279,6 @@ export class VehicleService {
       }
 
       await queryRunner.commitTransaction();
-      return newVehicles;
     } catch (error) {
       await queryRunner.rollbackTransaction();
       console.error('Errore nella richiesta SOAP:', error);

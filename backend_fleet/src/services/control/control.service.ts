@@ -36,7 +36,11 @@ export class ControlService {
    * @param vehicles lista veicoli
    * @returns
    */
-  async checkGPS(dateFrom: Date, dateTo: Date, vehicles: VehicleEntity[]) {
+  async checkGPS(
+    dateFrom: Date,
+    dateTo: Date,
+    vehicles: VehicleEntity[],
+  ): Promise<any> {
     const validation = validateDateRangeNoZ(
       dateFrom.toISOString(),
       dateTo.toISOString(),
