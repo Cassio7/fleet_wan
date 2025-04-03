@@ -45,13 +45,14 @@ export class NotificationsService {
         return;
       }
       const notification = queryRunner.manager
-        .getRepository(NotificationEntity)
-        .create({
-          isRead: false,
-          title: title,
-          message: message,
-          user: user,
-        });
+      .getRepository(NotificationEntity)
+      .create({
+        isRead: false,
+        author: user.username, 
+        title: title,
+        message: message,
+        user: user, 
+      });
       await queryRunner.manager
         .getRepository(NotificationEntity)
         .save(notification);
@@ -224,6 +225,7 @@ export class NotificationsService {
     notDTO.title = notification.title;
     notDTO.message = notification.message;
     notDTO.isRead = notification.isRead;
+    notDTO.author = notification.author; 
     return notDTO;
   }
 }

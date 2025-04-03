@@ -20,6 +20,10 @@ export class NotificationEntity
   @Column({ type: 'boolean' })
   isRead: boolean;
 
+  @Column({ type: 'text'  }) 
+  author: string;
+
   @ManyToOne(() => UserEntity, (user) => user.notification)
   user: UserEntity;
 }
+
