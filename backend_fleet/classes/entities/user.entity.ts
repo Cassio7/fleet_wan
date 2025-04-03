@@ -1,18 +1,11 @@
 import * as bcrypt from 'bcrypt';
 import { CommonEntity } from 'classes/entities/common.entity';
 import { UserInterface } from 'classes/interfaces/user.interface';
-import {
-  BeforeInsert,
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  OneToMany,
-} from 'typeorm';
+import { BeforeInsert, Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { AssociationEntity } from './association.entity';
 import { NoteEntity } from './note.entity';
-import { RoleEntity } from './role.entity';
 import { NotificationEntity } from './notification.entity';
+import { RoleEntity } from './role.entity';
 
 @Entity({
   name: 'users',
@@ -50,7 +43,6 @@ export class UserEntity extends CommonEntity implements UserInterface {
   note: NoteEntity[];
 
   @ManyToOne(() => RoleEntity, (role) => role.user)
-  @JoinColumn()
   role: RoleEntity;
 
   @OneToMany(() => NotificationEntity, (notification) => notification.user)
