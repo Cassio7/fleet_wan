@@ -7,20 +7,22 @@
     class="notification-icon"
     [mat-menu-trigger-for]="notificationsMenu"
     (click)="getNotifications.emit()"
-    [matBadge]="notifiche.length"
+    [matBadge]="notifiche && notifiche.length || 0"
     matBadgeColor="warn">
     notifications
     </mat-icon>
 
     <mat-menu #notificationsMenu="matMenu" yPosition="below" xPosition="before">
-      <ng-container *ngFor="let notifica of notifiche">
+      <ng-container *ngFor="let notifica of notifiche; let i = index">
         <div class="notification-container">
           <div class="title">{{notifica.title}}</div>
           <div class="content">{{notifica.message}}</div>
         </div>
-        <mat-divider *ngIf="notifiche.length > 1"></mat-divider>
+
+        <mat-divider *ngIf="i < notifiche.length - 1"></mat-divider>
       </ng-container>
     </mat-menu>
+
 
     <div class="user-info">
       <div class="profile-info" >

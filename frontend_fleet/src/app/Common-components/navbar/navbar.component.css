@@ -129,9 +129,10 @@ p{
   gap: .5vw;
 }
 ::ng-deep .cdk-overlay-pane {
-  max-height: 350px !important; /* Adjust 350px to your desired max height */
+  max-height: 350px !important;
 }
-.mat-mdc-menu-content {
-  padding: 16px; /* Adjust the padding value as needed */
+::ng-deep .mat-mdc-menu-content {
+  padding: 16px;  /* Imposta il padding desiderato */
 }
+
 
