@@ -57,7 +57,11 @@ export class AuthController {
       );
       return res
         .status(200)
-        .json({ message: 'Autenticazione riuscita', access_token });
+        .json({
+          success: true,
+          message: 'Autenticazione riuscita',
+          access_token,
+        });
     } catch (error) {
       this.loggerService.logCrudError({
         error,
