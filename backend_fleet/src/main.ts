@@ -5,7 +5,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { fileLogger } from './log/file-logger';
 
-async function bootstrap() {
+async function bootstrap(): Promise<void> {
   const port = 3001;
 
   const logger = new Logger();
