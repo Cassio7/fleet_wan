@@ -546,34 +546,38 @@ export class MapService {
    * @param clusterGroup L.MarkerClusterGroup a cui legare l'evento clustermouseover
    * @returns clusterGroup con l'evento legato
    */
-  private bindClusterGroupMouseOverEvent(clusterGroup: L.MarkerClusterGroup): L.MarkerClusterGroup{
-    //evento per mostrare popup al passaggio del mouse su un cluster
+  private bindClusterGroupMouseOverEvent(clusterGroup: L.MarkerClusterGroup): L.MarkerClusterGroup {
     clusterGroup.on('clustermouseover', (event: any) => {
       const clusterMarkers = event.propagatedFrom.getAllChildMarkers();
+
+      // Estrazione e ordinamento marker
+      const sortedMarkers = clusterMarkers
+        .filter((marker: any) => marker.feature?.properties?.dc_name)
+        .sort((a: any, b: any) =>
+          a.feature.properties.dc_name.localeCompare(b.feature.properties.dc_name)
+        );
+
       let popupContent =
         '<div class="container">' +
         '<div class="popup-scrollable">' +
-        '<table>' +
+        "<table class='clusterPopup-table'>" +
         '<tbody>';
 
       let rowContent = '';
       let columnCount = 0;
 
-      //creazione di 5 colonne con le targhe
-      clusterMarkers.forEach((marker: any) => {
-        if (marker.feature?.properties?.dc_name) {
-          rowContent += `<td style="white-space: nowrap">${marker.feature.properties.dc_name}</td>`;
-          columnCount++;
+      // Creazione di 5 colonne con le targhe ordinate
+      sortedMarkers.forEach((marker: any) => {
+        rowContent += `<td style="white-space: nowrap">${marker.feature.properties.dc_name} |</td>`;
+        columnCount++;
 
-          if (columnCount === 5) {
-            popupContent += `<tr>${rowContent}</tr>`;
-            rowContent = ''; //reset della riga
-            columnCount = 0; //reset del contatore delle colonne
-          }
+        if (columnCount === 5) {
+          popupContent += `<tr>${rowContent}</tr>`;
+          rowContent = ''; // reset della riga
+          columnCount = 0; // reset del contatore delle colonne
         }
       });
 
-      //se ci sono ancora delle colonne non aggiunte (nel caso di un numero non multiplo di 5)
       if (columnCount > 0) {
         popupContent += `<tr>${rowContent}</tr>`;
       }
@@ -588,8 +592,10 @@ export class MapService {
 
       event.layer.bindPopup(popup).openPopup();
     });
+
     return clusterGroup;
   }
+
 
 
 
