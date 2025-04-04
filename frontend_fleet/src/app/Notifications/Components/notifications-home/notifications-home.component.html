@@ -1,1 +1,10 @@
-<app-notifications-table [notifiche]="notifiche"></app-notifications-table>
+<div class="content" >
+  <div class="section-header">
+    <h4 class="title">Notifiche: {{ this.notifiche.length }}</h4>
+  </div>
+  <div class="filters-container">
+    <app-notifications-filters [notifiche]="notifiche" (notificheChange)="displayedNotifiche = $event"></app-notifications-filters>
+  </div>
+  <app-notifications-table [notifiche]="displayedNotifiche" *ngIf="notifiche?.length"></app-notifications-table>
+</div>
+

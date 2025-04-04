@@ -3,11 +3,17 @@ import { NotificationsTableComponent } from "../notifications-table/notification
 import { NotificationService } from '../../../Common-services/notification/notification.service';
 import { Subject, takeUntil } from 'rxjs';
 import { Notifica } from '../../../Models/Notifica';
+import { CommonModule } from '@angular/common';
+import { NotificationsFiltersComponent } from "../notifications-filters/notifications-filters.component";
 
 @Component({
   selector: 'app-notifications-home',
   standalone: true,
-  imports: [NotificationsTableComponent],
+  imports: [
+    CommonModule,
+    NotificationsTableComponent,
+    NotificationsFiltersComponent
+],
   templateUrl: './notifications-home.component.html',
   styleUrl: './notifications-home.component.css'
 })
@@ -15,6 +21,7 @@ export class NotificationsHomeComponent implements OnInit{
   private readonly destroy$: Subject<void> = new Subject<void>();
 
   notifiche: Notifica[] = [];
+  displayedNotifiche: Notifica[] = [];
 
 
   constructor(
@@ -28,6 +35,7 @@ export class NotificationsHomeComponent implements OnInit{
       next: (notifiche: Notifica[]) => {
         console.log('notifications fetched from notifiche home: ', notifiche);
         this.notifiche = notifiche;
+        this.displayedNotifiche = notifiche;
         this.cd.detectChanges();
       },
       error: error => console.error("Errore nell'ottenimento di tutte le notifiche: ", error)
