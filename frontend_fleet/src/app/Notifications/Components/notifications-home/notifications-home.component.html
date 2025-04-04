@@ -1,4 +1,9 @@
 <div class="content" >
+  <h2 class="go-back title">
+    <button mat-button (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon></button
+    >{{ goBack_text }}
+  </h2>
   <div class="section-header">
     <h4 class="title">Notifiche: {{ this.notifiche.length }}</h4>
   </div>
