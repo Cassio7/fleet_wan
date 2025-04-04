@@ -1,4 +1,4 @@
-<div class="content" [formGroup]="userFiltersForm">
+<div class="filters-container" [formGroup]="userFiltersForm">
   <mat-form-field class="username-filter" appearance="outline" subscriptSizing="dynamic">
     <input matInput formControlName="username" type="text" placeholder="Cerca utenti" #username class="username-input" >
     <button *ngIf="username.value" matSuffix mat-icon-button aria-label="Clear" (click)="userFiltersForm.get('username')?.reset()">

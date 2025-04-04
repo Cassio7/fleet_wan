@@ -12,11 +12,5 @@
     align-items: center;
     gap: 20px;
   }
-
-  .filters-container{
-    width: 100%;
-    display: flex;
-    justify-content: flex-start;
-  }
 }
 

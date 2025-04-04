@@ -1,11 +1,4 @@
-.content{
-  height: 100%;
-  display: inline-flex;
-  align-items: center;
+.filters-container{
   gap: 2vw;
-  background-color: white;
-  padding: 10px;
-  border-radius: 6px;
-  box-sizing: border-box;
 }
 

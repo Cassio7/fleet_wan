@@ -15,10 +15,9 @@
   gap: 20px;
 }
 
-.filters-container{
+.filters{
   width: 100%;
   display: inline-flex;
   justify-content: flex-start;
   align-items: center;
-  gap: 10px;
 }

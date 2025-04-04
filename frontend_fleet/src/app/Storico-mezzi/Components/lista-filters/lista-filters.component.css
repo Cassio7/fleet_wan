@@ -1,11 +1,3 @@
-.filters-container {
-  width: auto !important;
-  display: inline-flex;
-  background-color: white;
-  padding: 5px;
-  border-radius: 6px;
-}
-
 .filter {
   flex: 1;
   min-width: 0;

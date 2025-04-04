@@ -1,13 +1,3 @@
-.content{
-  height: 100%;
-  display: inline-flex;
-  align-items: center;
-  gap: 2vw;
-  background-color: white;
-  padding: 10px;
-  border-radius: 6px;
-  box-sizing: border-box;
-}
 .reset-btn{
   background-color: var(--green);
   border-radius: 5px;

@@ -24,10 +24,7 @@
         color: #666;
       }
     }
-    .filters-container{
-      background-color: white;
-      padding: 10px;
-      border-radius: 5px;
+    .filters{
       flex: 1;
     }
   }

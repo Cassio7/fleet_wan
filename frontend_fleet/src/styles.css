@@ -147,6 +147,18 @@ table:not(.mat-calendar-table) tr:nth-child(even) {
   }
 }
 
+.filters-container {
+  height: fit-content;
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 1vw;
+  flex-wrap: wrap;
+  background-color: white;
+  padding: 10px;
+  border-radius: 6px;
+}
+
 .button {
   display: flex;
   gap: 2px;

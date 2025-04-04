@@ -20,7 +20,7 @@
   z-index: 1000;
 }
 
-.filters-container {
+.filters {
   position: absolute;
   left: 60px;
   width: 400px;
