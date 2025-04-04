@@ -10,14 +10,14 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Role } from 'classes/enum/role.enum';
+import { UserFromToken } from 'classes/interfaces/userToken.interface';
+import { Response } from 'express';
 import { Roles } from 'src/decorators/roles.decorator';
 import { AuthGuard } from 'src/guard/auth.guard';
 import { RolesGuard } from 'src/guard/roles.guard';
+import { LogContext } from 'src/log/logger.types';
 import { LoggerService } from 'src/log/service/logger.service';
 import { WorksiteHistoryService } from './../../services/worksite-history/worksite-history.service';
-import { Response } from 'express';
-import { LogContext } from 'src/log/logger.types';
-import { UserFromToken } from 'classes/interfaces/userToken.interface';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Controller('worksitehistory')
@@ -39,7 +39,7 @@ export class WorksiteHistoryController {
       comment: string;
     },
     @Res() res: Response,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
@@ -111,7 +111,7 @@ export class WorksiteHistoryController {
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
     @Param('id', ParseIntPipe) veId: number,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
@@ -168,7 +168,7 @@ export class WorksiteHistoryController {
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
     @Param('id', ParseIntPipe) veId: number,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,

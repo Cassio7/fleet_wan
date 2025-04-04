@@ -57,7 +57,7 @@ export class VehicleController {
       equipmentId?: number | null;
       rentalId?: number | null;
     },
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
@@ -111,7 +111,7 @@ export class VehicleController {
   async getAllVehicles(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
@@ -160,7 +160,7 @@ export class VehicleController {
     @Req() req: Request & { user: UserFromToken },
     @Query('free') free: string,
     @Res() res: Response,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
@@ -211,7 +211,7 @@ export class VehicleController {
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
     @Param('veId') veId: number,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,

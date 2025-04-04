@@ -20,7 +20,7 @@ export class LoggerService extends Logger {
     };
   }
 
-  logClientData(request: Request) {
+  logClientData(request: Request): void {
     const logData = {
       client: {
         ip: request.ip,
@@ -63,7 +63,11 @@ export class LoggerService extends Logger {
     fileLogger.info(logData); // Salva nel file come JSON
   }
 
-  logCrudSuccess(context: LogContext, operation: string, details?: string) {
+  logCrudSuccess(
+    context: LogContext,
+    operation: string,
+    details?: string,
+  ): void {
     const logData = this.formatBaseMessage(context, operation);
     if (details) {
       logData['details'] = details;
@@ -73,7 +77,7 @@ export class LoggerService extends Logger {
     fileLogger.info(logData); // Salva nel file come JSON
   }
 
-  logCrudError({ error, context, operation }: LogError) {
+  logCrudError({ error, context, operation }: LogError): void {
     const baseMessage = this.formatBaseMessage(context, operation);
     const logData = {
       ...baseMessage,

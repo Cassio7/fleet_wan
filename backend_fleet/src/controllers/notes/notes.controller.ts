@@ -42,7 +42,7 @@ export class NotesController {
   async getAllNotesByUser(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
@@ -93,7 +93,7 @@ export class NotesController {
     @Req() req: Request & { user: UserFromToken },
     @Body() body: { veId: number },
     @Res() res: Response,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
@@ -151,7 +151,7 @@ export class NotesController {
   async getAllNotes(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
@@ -202,7 +202,7 @@ export class NotesController {
     @Req() req: Request & { user: UserFromToken },
     @Body() body: { veId: number; content: string },
     @Res() res: Response,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
@@ -264,7 +264,7 @@ export class NotesController {
     @Param('id', ParseIntPipe) noteId: number,
     @Body() body: NoteDto,
     @Res() res: Response,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
@@ -312,7 +312,7 @@ export class NotesController {
     @Req() req: Request & { user: UserFromToken },
     @Param('id') noteId: number,
     @Res() res: Response,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,

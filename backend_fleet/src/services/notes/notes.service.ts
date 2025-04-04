@@ -191,7 +191,11 @@ export class NotesService {
       await queryRunner.commitTransaction();
       const title = `Nota creata`;
       const message = `Veicolo ${vehicle.plate}, con il seguente contenuto: ${content}`;
-      const notification = await this.notificationsService.createNotification(1, title, message);
+      const notification = await this.notificationsService.createNotification(
+        1,
+        title,
+        message,
+      );
       this.notificationsService.sendNotification(notification);
       return this.toDTO(newNote);
     } catch (error) {
@@ -323,7 +327,11 @@ export class NotesService {
       await queryRunner.commitTransaction();
       const title = `Nota eliminata`;
       const message = `Nota con il seguente contenuto: "${note.content}" del veicolo ${note.vehicle.plate} eliminata.`;
-      const notification = await this.notificationsService.createNotification(1, title, message);
+      const notification = await this.notificationsService.createNotification(
+        1,
+        title,
+        message,
+      );
       this.notificationsService.sendNotification(notification);
     } catch (error) {
       await queryRunner.rollbackTransaction();

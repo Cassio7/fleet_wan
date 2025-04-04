@@ -22,7 +22,7 @@ export class EquipmentController {
   async getEquipment(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,

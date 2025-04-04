@@ -42,7 +42,7 @@ export class WorksiteController {
     @Req() req: Request & { user: UserFromToken },
     @Body() body: { name: string; groupId: number },
     @Res() res: Response,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
@@ -92,7 +92,7 @@ export class WorksiteController {
   async getWorksites(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
@@ -138,7 +138,7 @@ export class WorksiteController {
   async getWorksiteMe(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
@@ -178,7 +178,7 @@ export class WorksiteController {
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
     @Param('id', ParseIntPipe) worksiteId: number,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
@@ -228,7 +228,7 @@ export class WorksiteController {
     @Param('id', ParseIntPipe) worksiteId: number,
     @Body() body: { name?: string; groupId?: number },
     @Res() res: Response,
-  ) {
+  ): Promise<Response> {
     const { groupId, name } = body;
 
     const context = {
@@ -277,7 +277,7 @@ export class WorksiteController {
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
     @Param('id', ParseIntPipe) worksiteId: number,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,

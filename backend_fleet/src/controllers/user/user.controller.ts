@@ -42,7 +42,7 @@ export class UserController {
   async getAllUsers(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
@@ -93,7 +93,7 @@ export class UserController {
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
     @Body() userDTO: UserDTO,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
@@ -136,7 +136,7 @@ export class UserController {
   async getMyProfile(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
@@ -180,7 +180,7 @@ export class UserController {
     @Res() res: Response,
     @Body() userDTO: UserDTO,
     @Body('currentPassword') currentPassword: string,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
@@ -228,7 +228,7 @@ export class UserController {
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
     @Param('id') userId: number,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
@@ -281,7 +281,7 @@ export class UserController {
     @Res() res: Response,
     @Param('id', ParseIntPipe) userId: number,
     @Body() userDTO: UserDTO,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
@@ -327,7 +327,7 @@ export class UserController {
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
     @Param('id') userId: number,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
@@ -373,7 +373,7 @@ export class UserController {
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
     @Body() body: { username: string },
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,

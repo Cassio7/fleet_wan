@@ -20,16 +20,18 @@ export class NotificationsGateway
   server: Server;
 
   // Metodo chiamato quando un client si connette
-  handleConnection(client: Socket) {
+  handleConnection(client: Socket): void {
     console.log(`🔗 Client connesso: ${client.id}`);
   }
 
   // Metodo chiamato quando un client si disconnette
-  handleDisconnect(client: Socket) {
+  handleDisconnect(client: Socket): void {
     console.log(`❌ Client disconnesso: ${client.id}`);
   }
 
-  handleSendNotificationServer(@MessageBody() notification: NotificationDto) {
+  handleSendNotificationServer(
+    @MessageBody() notification: NotificationDto,
+  ): void {
     try {
       this.server.emit('notify', notification);
     } catch (error) {

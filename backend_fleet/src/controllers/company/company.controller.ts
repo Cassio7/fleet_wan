@@ -31,14 +31,16 @@ export class CompanyController {
   ) {}
 
   /**
-   * Recupera tutte le società salvate
+   * API per recuperare tutte le società presenti
+   * @param req user data
    * @param res
+   * @returns
    */
   @Get()
   async getAllCompany(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
@@ -66,12 +68,19 @@ export class CompanyController {
     }
   }
 
+  /**
+   * API per recuperare la società in base all id
+   * @param req user data
+   * @param res
+   * @param companyId id società
+   * @returns
+   */
   @Get(':id')
   async getCompanyById(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
     @Param('id', ParseIntPipe) companyId: number,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
@@ -105,12 +114,19 @@ export class CompanyController {
     }
   }
 
+  /**
+   * API per la creazione di una società
+   * @param req user data
+   * @param res
+   * @param body dati società
+   * @returns
+   */
   @Post()
   async createCompany(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
     @Body() body: { suId: number; name: string },
-  ) {
+  ): Promise<Response> {
     const { suId, name } = body;
 
     const context: LogContext = {
@@ -152,13 +168,21 @@ export class CompanyController {
     }
   }
 
+  /**
+   * API per aggiornare una società
+   * @param req
+   * @param res
+   * @param companyId id società
+   * @param body nuovo contenuto se passato
+   * @returns
+   */
   @Put(':id')
   async updateCompany(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
     @Param('id', ParseIntPipe) companyId: number,
     @Body() body: { suId?: number; name?: string },
-  ) {
+  ): Promise<Response> {
     const { suId, name } = body;
 
     const context: LogContext = {
@@ -196,12 +220,19 @@ export class CompanyController {
     }
   }
 
+  /**
+   * API per eliminare una società
+   * @param req user data
+   * @param res
+   * @param companyId id società
+   * @returns
+   */
   @Delete(':id')
   async deleteCompany(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
     @Param('id', ParseIntPipe) companyId: number,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,

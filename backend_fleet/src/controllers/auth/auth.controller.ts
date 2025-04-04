@@ -33,7 +33,7 @@ export class AuthController {
     @Req() req: Request,
     @Body() body: Record<string, any>,
     @Res() res: any,
-  ) {
+  ): Promise<Response> {
     this.loggerService.logClientData(req);
     const context: LogContext = {
       userId: 0,
@@ -55,13 +55,11 @@ export class AuthController {
         'read',
         `Autenticazione di ${body.username} riuscita`,
       );
-      return res
-        .status(200)
-        .json({
-          success: true,
-          message: 'Autenticazione riuscita',
-          access_token,
-        });
+      return res.status(200).json({
+        success: true,
+        message: 'Autenticazione riuscita',
+        access_token,
+      });
     } catch (error) {
       this.loggerService.logCrudError({
         error,
@@ -82,7 +80,10 @@ export class AuthController {
   @Get('logout')
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.Admin, Role.Capo, Role.Responsabile)
-  async logOut(@Req() req: Request & { user: UserFromToken }, @Res() res: any) {
+  async logOut(
+    @Req() req: Request & { user: UserFromToken },
+    @Res() res: any,
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,

@@ -239,7 +239,12 @@ export class VehicleService {
               title,
               message,
             );
-            const notification = await this.notificationsService.createNotification(1, title, message);
+            const notification =
+              await this.notificationsService.createNotification(
+                1,
+                title,
+                message,
+              );
             this.notificationsService.sendNotification(notification);
           }
         } else if (existingVehicle.hash !== vehicle.hash) {

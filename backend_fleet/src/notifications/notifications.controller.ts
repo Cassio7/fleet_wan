@@ -40,7 +40,7 @@ export class NotificationsController {
     @Req() req: Request & { user: UserFromToken },
     @Query('read') read: string,
     @Res() res: Response,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
@@ -78,27 +78,27 @@ export class NotificationsController {
     }
   }
 
-
   /**
    * API per eliminare una notifica
    * @param req user data
    * @param key key della notifica da eliminare
-   * @param res 
+   * @param res
    * @returns messaggio
    */
   @Roles(Role.Admin)
-  @Delete(':key')  
+  @Delete(':key')
   async deleteNotification(
     @Req() req: Request & { user: UserFromToken },
     @Param('key') key: string,
     @Res() res: Response,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
-      resource: 'Notification Delete Admin',  
+      resource: 'Notification Admin',
+      resourceKey: key,
     };
-    
+
     try {
       const result = await this.notificationsService.deleteNotification(key);
 
@@ -118,11 +118,10 @@ export class NotificationsController {
         'delete',
         `Notifica con key ${key} eliminata con successo.`,
       );
-      
+
       return res.status(200).json({
         message: `Notifica con key ${key} eliminata con successo.`,
       });
-
     } catch (error) {
       this.loggerService.logCrudError({
         error,
@@ -131,11 +130,10 @@ export class NotificationsController {
       });
 
       return res.status(error.status || 500).json({
-        message: error.message || 'Errore durante l\'eliminazione della notifica',
+        message: error.message || 'Errore durante eliminazione della notifica',
       });
     }
   }
-
 
   /**
    * API per aggiornare lo stato di lettura di una notifica
@@ -150,7 +148,7 @@ export class NotificationsController {
     @Req() req: Request & { user: UserFromToken },
     @Param('key') key: string,
     @Res() res: Response,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
