@@ -98,13 +98,10 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
     this.authService.getUserInfo().pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (user: User) => {
-        console.log('fetched');
         this.user = user;
         this.isLogged = true;
         this.isLoginPage = this.checkLoginPage(this.router.url);
 
-        console.log('isLogged: ', this.isLogged);
-        console.log('isLoginPage: ', this.isLoginPage);
         this.cd.detectChanges();
       },
       error: error => console.error("Errore nella ricezione dei dat dell'utente: ", error)
@@ -167,7 +164,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
     .pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (notifiche: Notifica[]) => {
-        console.log('to read notification fetched: ', notifiche);
         this.notifiche = notifiche;
       },
       error: (error) => console.error("Errore nell'ottenimento delle notifiche da leggere: ", error),
