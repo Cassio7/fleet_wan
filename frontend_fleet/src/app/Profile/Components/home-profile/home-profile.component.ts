@@ -22,7 +22,7 @@ export class HomeProfileComponent implements OnInit, AfterViewInit{
 
   @Input() user!: User;
 
-  previous_url: string | null = '/dashboard';
+  previous_url: string = '/dashboard';
   goBack_text: string = 'Torna alla dashboard';
 
   header = {
@@ -38,34 +38,9 @@ export class HomeProfileComponent implements OnInit, AfterViewInit{
   ){}
 
   ngOnInit(): void {
-    this.previous_url = this.navigationService.getPreviousUrl() || null;
+    this.previous_url = this.navigationService.getPreviousUrl() || "";
 
-    switch (this.previous_url) {
-      case '/dashboard':
-        this.goBack_text = 'Torna alla dashboard';
-        break;
-      case '/home-mezzi':
-        this.goBack_text = 'Torna al parco mezzi';
-        break;
-      case '/storico-mezzi':
-        this.goBack_text = 'Torna allo storico mezzi';
-        break;
-      case '/home-mappa':
-        this.goBack_text = 'Torna alla mappa dei mezzi';
-        break;
-      case '/scarico-letture':
-        this.goBack_text = 'Torna allo scarico delle letture';
-        break;
-      case '/notifications':
-        this.goBack_text = "Torna alla visualizzazione delle notifiche";
-        break;
-      default:
-        if (this.previous_url?.includes("dettaglio-mezzo")) {
-          const match = this.previous_url.match(/dettaglio-mezzo\/(\d+)/);
-          const veId = match ? match[1] : "";
-          this.goBack_text = `Torna al dettaglio del mezzo ${veId}`;
-        }
-    }
+    this.goBack_text = this.navigationService.getGoBackTextByUrl(this.previous_url);
   }
 
   ngAfterViewInit(): void {

@@ -5,12 +5,18 @@ import { Subject, takeUntil } from 'rxjs';
 import { Notifica } from '../../../Models/Notifica';
 import { CommonModule } from '@angular/common';
 import { NotificationsFiltersComponent } from "../notifications-filters/notifications-filters.component";
+import { MatIconModule } from '@angular/material/icon';
+import { NavigationService } from '../../../Common-services/navigation/navigation.service';
+import { MatButtonModule } from '@angular/material/button';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-notifications-home',
   standalone: true,
   imports: [
     CommonModule,
+    MatIconModule,
+    MatButtonModule,
     NotificationsTableComponent,
     NotificationsFiltersComponent
 ],
@@ -23,13 +29,22 @@ export class NotificationsHomeComponent implements OnInit{
   notifiche: Notifica[] = [];
   displayedNotifiche: Notifica[] = [];
 
+  goBack_text: string = "";
+  previous_url: string = "/dashboard";
+
 
   constructor(
     private notificationService: NotificationService,
-    private cd: ChangeDetectorRef
+    private navigationService: NavigationService,
+    private cd: ChangeDetectorRef,
+    private router: Router
   ){}
 
   ngOnInit(): void {
+    this.previous_url = this.navigationService.getPreviousUrl() || "";
+
+    this.goBack_text = this.navigationService.getGoBackTextByUrl(this.previous_url);
+
     this.notificationService.getAllNotifications().pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (notifiche: Notifica[]) => {
@@ -42,4 +57,7 @@ export class NotificationsHomeComponent implements OnInit{
     });
   }
 
+  goBack(){
+    this.router.navigate([this.previous_url]);
+  }
 }
