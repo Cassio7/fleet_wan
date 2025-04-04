@@ -2,11 +2,13 @@
   <div class="left-side">
     <p class="page-p"><mat-icon>{{icon}}</mat-icon>{{currentPage}}{{isKanban ? '/kanban' : ''}}</p>
   </div>
-  <div class="right-side custom-menu-container">
+  <div class="right-side custom-menu-container" *ngIf="user">
     <a mat-icon-button
+      *ngIf="user.idR == 1"
       [mat-menu-trigger-for]="notificationsMenu"
       class="notification-button"
-      aria-label="Notifications">
+      aria-label="Notifications"
+      >
       <mat-icon
         class="notification-icon"
         (click)="getNotifications.emit()"
@@ -22,7 +24,10 @@
     <mat-menu #notificationsMenu="matMenu" yPosition="below" xPosition="before">
       <ng-container *ngFor="let notifica of notifiche; let i = index">
         <div class="notification-container">
-          <div class="title">{{notifica.title}}</div>
+          <div class="title-container">
+            <div class="title"><b>{{notifica.title}}</b></div>
+            <div class="author">~<b>{{notifica.author}}</b></div>
+          </div>
           <div class="content">{{notifica.message}}</div>
         </div>
         <mat-divider></mat-divider>
@@ -33,20 +38,20 @@
 
     <div class="user-info">
       <div class="profile-info" >
-        @if(name == "admin" || name == "Admin"){
-          <p class="username">{{name}}</p>
-          <p class="role">{{role}}</p>
+        @if(user.name == "admin" || user.name == "Admin"){
+          <p class="username">{{user.name}}</p>
+          <p class="role">{{user.role}}</p>
         }@else {
-          <p class="username">{{name}} {{surname}}</p>
-          <p class="role">{{role}}</p>
+          <p class="username">{{user.name}} {{user.surname}}</p>
+          <p class="role">{{user.role}}</p>
         }
       </div>
       <div mat-card-avatar class="account-circle" (click)="showProfile()">
-        @if(name == "admin" || name == "Admin"){
+        @if(user.name == "admin" || user.name == "Admin"){
           <span class="admin-name">A</span>
         }@else {
-          <span class="name">{{name[0]}}</span>
-          <span class="surname">{{surname[0]}}</span>
+          <span class="name">{{user.name[0]}}</span>
+          <span class="surname">{{user.surname[0]}}</span>
         }
       </div>
     </div>

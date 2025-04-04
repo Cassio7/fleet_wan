@@ -24,6 +24,7 @@ import { LoginComponent } from "./Common-components/login/login.component";
 import { WebsocketService } from './Common-services/websocket/websocket.service';
 import { NotificationService } from './Common-services/notification/notification.service';
 import { Notifica } from './Models/Notifica';
+import { User } from './Models/User';
 
 @Component({
   selector: 'app-root',
@@ -63,7 +64,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
 
   selectedBtn: string = "dashboard";
   isLoginPage: boolean = true;
-  isLogged: boolean = false;
+  isLogged: boolean = true;
   isGestioneOpen: boolean = false;
 
   notifiche: Notifica[] = [];
@@ -94,23 +95,21 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
   }
 
   ngAfterViewInit(): void {
-    const access_token = this.cookieService.get("user");
-    access_token ? this.isLogged=true : this.isLogged=false; //se è stato impostato l'user
-    this.user = this.authService.decodeToken(access_token);
+    this.authService.getUserInfo().pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (user: User) => {
+        console.log('fetched');
+        this.user = user;
+        this.isLogged = true;
+        this.isLoginPage = this.checkLoginPage(this.router.url);
 
-    if(this.checkLoginPage(this.router.url)){
-      this.isLoginPage = true;
-    }else{
-      this.isLoginPage = false;
-    }
+        console.log('isLogged: ', this.isLogged);
+        console.log('isLoginPage: ', this.isLoginPage);
+        this.cd.detectChanges();
+      },
+      error: error => console.error("Errore nella ricezione dei dat dell'utente: ", error)
+    });
 
-    //se non loggato, redirect a login
-    if(access_token){
-      this.isLogged = true;
-    }else{
-      this.isLogged = false;
-      this.router.navigate(['/login']);
-    }
     //sottoscrizione al login
     this.loginService.login$.pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
@@ -120,10 +119,12 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
           this.isLogged = true;
           this.isLoginPage = false;
         });
+        this.getToReadNotification();
         this.cd.detectChanges();
       },
       error: (error) => console.error("Error logging in: ", error),
     });
+    this.getToReadNotification();
     this.cd.detectChanges();
   }
 
@@ -158,8 +159,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
       },
       error: error => console.error("Errore nella ricezione della notifica: ", error)
     });
+  }
 
-
+  getToReadNotification(){
     //ottenimento delle notifiche da leggere
     this.notificationService.getToReadNotifications()
     .pipe(takeUntil(this.destroy$))

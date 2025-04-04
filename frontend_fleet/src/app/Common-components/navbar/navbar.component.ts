@@ -19,6 +19,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { WebsocketService } from '../../Common-services/websocket/websocket.service';
 import { MatBadgeModule } from '@angular/material/badge';
 import { Notifica } from '../../Models/Notifica';
+import { CookieService } from 'ngx-cookie-service';
 
 @Component({
   selector: 'app-navbar',
@@ -48,7 +49,7 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
   @Input() notifiche: Notifica[] = [];
   @Output() getNotifications: EventEmitter<Notifica[]> = new EventEmitter<Notifica[]>();
 
-  user!: any;
+  user!: User;
   isKanban: boolean = false;
 
   constructor(
@@ -59,6 +60,7 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
     private kanbanSessioneService: KanbanSessioneService,
     private kanabanTableService: KanbanTableService,
     private profileService: ProfileService,
+    private cookieService: CookieService,
     private router: Router,
     private cd: ChangeDetectorRef
   ){}
@@ -118,16 +120,9 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
 
   ngAfterViewInit(): void {
     setTimeout(() => {
-      this.authService.getUserInfo().pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (user: User) => {
-          this.name = user.name;
-          this.surname = user.surname;
-          this.role = user.role;
-          this.cd.detectChanges();
-        },
-        error: error => console.error("Errore nella ricezione dei dat dell'utente: ", error)
-      });
+      const access_token = this.cookieService.get("user");
+      this.user = this.authService.decodeToken(access_token);
+      console.log('user from token: ', this.user);
       merge(
         this.kanbanAntennaService.loadKanbanAntenna$.pipe(takeUntil(this.destroy$)),
         this.kanbanGpsService.loadKanbanGps$.pipe(takeUntil(this.destroy$)),
@@ -150,7 +145,7 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
       });
       this.cd.detectChanges();
     });
-
+    this.handleProfileInfoUpdate();
 
   }
 

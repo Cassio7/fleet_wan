@@ -126,8 +126,10 @@
 }
 
 .notification-container{
-  .title{
-    font-weight: bold;
+  .title-container{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
   }
 }
 p{
