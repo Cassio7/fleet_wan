@@ -26,12 +26,11 @@ import {
   FiltersCommonService,
 } from '../../../Common-services/filters-common/filters-common.service';
 import { MapService } from '../../../Common-services/map/map.service';
-import { RealtimeApiService } from '../../../Common-services/realtime-api/realtime-api.service';
+import { RealtimeApiService, RealtimeData } from '../../../Common-services/realtime-api/realtime-api.service';
 import { SessionApiService } from '../../../Common-services/session/session-api.service';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { VehiclesApiService } from '../../../Common-services/vehicles api service/vehicles-api.service';
 import { Point } from '../../../Models/Point';
-import { RealtimeData } from '../../../Models/RealtimeData';
 import { Vehicle } from '../../../Models/Vehicle';
 import { SvgService } from './../../../Common-services/svg/svg.service';
 

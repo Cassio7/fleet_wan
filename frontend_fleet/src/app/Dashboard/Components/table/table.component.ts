@@ -42,8 +42,7 @@ import {
 } from '../../../Common-services/filters-common/filters-common.service';
 import { GpsGraphService } from '../../Services/gps-graph/gps-graph.service';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { RealtimeData } from '../../../Models/RealtimeData';
-import { RealtimeApiService } from '../../../Common-services/realtime-api/realtime-api.service';
+import { RealtimeApiService, RealtimeData } from '../../../Common-services/realtime-api/realtime-api.service';
 import { MapService } from '../../../Common-services/map/map.service';
 import { Router } from '@angular/router';
 import { SessioneGraphService } from '../../Services/sessione-graph/sessione-graph.service';

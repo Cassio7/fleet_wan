@@ -28,8 +28,8 @@ import { LoginService } from '../../../Common-services/login service/login.servi
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.component';
 import { MapService } from '../../../Common-services/map/map.service';
-import { RealtimeData } from '../../../Models/RealtimeData';
 import { DashboardService } from '../../Services/dashboard/dashboard.service';
+import { RealtimeData } from '../../../Common-services/realtime-api/realtime-api.service';
 
 
 @Component({

@@ -1,13 +1,27 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { SessionStorageService } from '../sessionStorage/session-storage.service';
-import { RealtimeData } from '../../Models/RealtimeData';
 import { CommonService } from '../common service/common.service';
 import { Observable } from 'rxjs';
 import { VehicleData } from '../../Models/VehicleData';
 import { Vehicle } from '../../Models/Vehicle';
 import { CookieService } from 'ngx-cookie-service';
+import { Anomaly } from '../../Models/Anomaly';
+import { Realtime } from '../../Models/Realtime';
+import { Service } from '../../Models/Service';
+import { WorkSite } from '../../Models/Worksite';
 
+
+export interface RealtimeData {
+  vehicle: {
+    plate: string;
+    worksite: WorkSite | null;
+    veId: number;
+    service?: Service | null;
+  };
+  realtime: Realtime;
+  anomaly?: Anomaly;
+}
 
 @Injectable({
   providedIn: 'root'

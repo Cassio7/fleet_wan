@@ -14,7 +14,6 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { CommonModule } from '@angular/common';
 import { MapService } from '../../../Common-services/map/map.service';
 import { Observable, of, Subject, takeUntil, tap, map, startWith } from 'rxjs';
-import { RealtimeData } from '../../../Models/RealtimeData';
 import { VehiclesApiService } from '../../../Common-services/vehicles api service/vehicles-api.service';
 import { PlateFilterService } from '../../../Common-services/plate-filter/plate-filter.service';
 import { Vehicle } from '../../../Models/Vehicle';
@@ -22,6 +21,7 @@ import { MapFilterService } from '../../Services/map-filter/map-filter.service';
 import { VehicleData } from '../../../Models/VehicleData';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
+import { RealtimeData } from '../../../Common-services/realtime-api/realtime-api.service';
 
 @Component({
   selector: 'app-map-filter',

@@ -25,8 +25,7 @@ import { AntennaGraphService } from '../../Services/antenna-graph/antenna-graph.
 import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
 import { KanbanFiltersComponent } from '../kanban-filters/kanban-filters.component';
 import { MapService } from '../../../Common-services/map/map.service';
-import { RealtimeApiService } from '../../../Common-services/realtime-api/realtime-api.service';
-import { RealtimeData } from '../../../Models/RealtimeData';
+import { RealtimeApiService, RealtimeData } from '../../../Common-services/realtime-api/realtime-api.service';
 import { Point } from '../../../Models/Point';
 import { SessionApiService } from '../../../Common-services/session/session-api.service';
 import { DashboardService } from '../../Services/dashboard/dashboard.service';

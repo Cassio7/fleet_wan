@@ -10,9 +10,9 @@ import { MapService, pathData, positionData } from '../../Common-services/map/ma
 import { skip, Subject, takeUntil, timestamp } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { RealtimeData } from '../../Models/RealtimeData';
 import { Point } from '../../Models/Point';
 import { Router } from '@angular/router';
+import { RealtimeData } from '../../Common-services/realtime-api/realtime-api.service';
 
 @Component({
   selector: 'app-map',

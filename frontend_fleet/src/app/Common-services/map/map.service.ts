@@ -1,6 +1,5 @@
 import { Injectable, signal } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { RealtimeData } from '../../Models/RealtimeData';
 import { Anomaly } from '../../Models/Anomaly';
 import * as L from 'leaflet';
 import 'leaflet-routing-machine';
@@ -9,6 +8,7 @@ import { Point } from '../../Models/Point';
 import { Feature } from 'geojson';
 import 'leaflet.markercluster';
 import { SessionStorageService } from '../sessionStorage/session-storage.service';
+import { RealtimeData } from '../realtime-api/realtime-api.service';
 
 export interface positionData {
   veId: number;

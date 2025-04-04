@@ -12,12 +12,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MapService, pathData } from '../../../Common-services/map/map.service';
 import { skip, Subject, takeUntil, map, filter } from 'rxjs';
-import { RealtimeData } from '../../../Models/RealtimeData';
 import { CommonModule } from '@angular/common';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { Point } from '../../../Models/Point';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { RealtimeData } from '../../../Common-services/realtime-api/realtime-api.service';
 
 @Component({
   selector: 'app-storico-mezzi',
