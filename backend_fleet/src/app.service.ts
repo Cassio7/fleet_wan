@@ -22,6 +22,7 @@ import { WorkzoneFacotoryService } from './factory/workzone.factory';
 import { StatsService } from './services/anomaly/stats/stats.service';
 import { AssociationService } from './services/association/association.service';
 import { ControlService } from './services/control/control.service';
+import { VehicleEntity } from 'classes/entities/vehicle.entity';
 
 @Injectable()
 export class AppService implements OnModuleInit {
@@ -48,11 +49,11 @@ export class AppService implements OnModuleInit {
 
   // popolo database all'avvio
   async onModuleInit(): Promise<void> {
-    const startDate = '2025-03-17T00:00:00.000Z';
-    //const endDate = '2025-03-05T00:00:00.000Z';
-    const endDate = new Date(
-      new Date().getTime() + 2 * 60 * 60 * 1000,
-    ).toISOString();
+    const startDate = '2024-01-01T00:00:00.000Z';
+    const endDate = '2025-01-01T00:00:00.000Z';
+    // const endDate = new Date(
+    //   new Date().getTime() + 2 * 60 * 60 * 1000,
+    // ).toISOString();
     //await this.putDefaultData();
     //await this.putDbDataMix(startDate, endDate); // da usare nuovo
     //await this.setAssociations();
@@ -87,7 +88,7 @@ export class AppService implements OnModuleInit {
     const endDate = end;
 
     console.log('Data inizio: ' + startDate + ' Data fine: ' + endDate);
-    const batchSize = 30;
+    const batchSize = 20;
 
     // Carica tutti i veicoli dalle varie aziende
     await this.vehicleService.getVehicleList(254, 313, true); //Gesenu principale
@@ -130,7 +131,6 @@ export class AppService implements OnModuleInit {
             const dateto = new Date(datefrom);
             dateto.setHours(23, 59, 59, 0);
             console.log(dateto);
-
             return this.sessionService.getSessionist(
               company.suId,
               vehicle.veId,
@@ -144,6 +144,7 @@ export class AppService implements OnModuleInit {
         }
         if (!vehicle.allestimento) continue;
         // 2. GESTIONE TAG SEQUENZIALE
+        console.log('tags');
         for (const day of daysInRange) {
           const datefrom = day;
           const dateto = new Date(datefrom);
@@ -201,7 +202,7 @@ export class AppService implements OnModuleInit {
     const batchSize = 50; // Dimensione del batch
 
     // Funzione per processare i veicoli in batch
-    const processBatch = async (vehicles) => {
+    const processBatch = async (vehicles: VehicleEntity[]): Promise<void> => {
       for (let i = 0; i < vehicles.length; i += batchSize) {
         const batch = vehicles.slice(i, i + batchSize); // Prendi un sottoinsieme di 50 veicoli
 
@@ -317,8 +318,8 @@ export class AppService implements OnModuleInit {
     }
   }
 
-  //@Cron('58 22 * * *') // prima di finire la giornata
-  //@Cron('30 6 * * *') // per la mattina
+  //@Cron('58 23 * * *') // prima di finire la giornata
+  //@Cron('5 */5 * * *') // ogni 5 ore e 5 minuti
   async dailyAnomalyCheck(): Promise<void> {
     try {
       const datefrom = new Date();
@@ -385,7 +386,7 @@ export class AppService implements OnModuleInit {
    * Imposta le anomalies su redis del giorno precedente, di oggi ed anche il last
    */
 
-  //@Cron('40 6 * * *')
+  //@Cron('8 */5 * * *')
   async setAnomaly(): Promise<void> {
     const keys = await this.redis.keys('*Anomaly:*');
     if (keys.length > 0) {
