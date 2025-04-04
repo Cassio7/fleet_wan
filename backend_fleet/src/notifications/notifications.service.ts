@@ -23,11 +23,15 @@ export class NotificationsService {
 
   /**
    * Creazione di una notifica ed associo all utente
-   * @param userId user id
-   * @param message messaggio
+   * @param userId user id di chi può visua
+   * @param author autore
+   * @param title titolo
+   * @param message contenuto 
+   * @returns NotificationDTO della notifica creata
    */
   async createNotification(
     userId: number,
+    author: string,
     title: string,
     message: string,
   ): Promise<NotificationDto> {
@@ -48,7 +52,7 @@ export class NotificationsService {
       .getRepository(NotificationEntity)
       .create({
         isRead: false,
-        author: user.username, 
+        author: author, 
         title: title,
         message: message,
         user: user, 
