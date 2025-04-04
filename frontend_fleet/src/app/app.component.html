@@ -12,7 +12,7 @@
         <button routerLink="storico-mezzi" [ngClass]="{'selectedBtn': router.url == '/storico-mezzi'}"><mat-icon>inventory_2</mat-icon></button>
         <button routerLink="home-mappa" [ngClass]="{'selectedBtn': router.url == '/home-mappa'}"><mat-icon>map</mat-icon></button>
         <button routerLink="scarico-letture" [ngClass]="{'selectedBtn': router.url == '/scarico-letture'}"><mat-icon>download</mat-icon></button>
-        <button [matMenuTriggerFor]="gestioneMenu" *ngIf="user?.idR == 1"><mat-icon>settings</mat-icon></button>
+        <button [matMenuTriggerFor]="gestioneMenu" *ngIf="user?.role == 'Admin'"><mat-icon>settings</mat-icon></button>
         <mat-menu #gestioneMenu="matMenu" [xPosition]="'after'" >
           <button routerLink="gestione-utenti" mat-menu-item>Gestione utenti</button>
           <button routerLink="gestione-veicoli" mat-menu-item>Gestione veicoli</button>
@@ -49,8 +49,8 @@
               </button>
               <button class="button" routerLink="home-mappa" [ngClass]="{'selectedBtn': router.url == '/home-mappa'}" (click)="drawer.toggle(); fixedDrawer.toggle()"><mat-icon>map</mat-icon><span><span class="drawerIcon-text">Mappa</span></span></button>
               <button class="button" routerLink="scarico-letture" [ngClass]="{'selectedBtn': router.url == '/scarico-letture'}" (click)="drawer.toggle(); fixedDrawer.toggle()"><mat-icon>download</mat-icon><span><span class="drawerIcon-text">Scarico letture</span></span></button>
-              <div class="gestione-container" *ngIf="user?.idR == 1">
-                <button class="button" (click)="isGestioneOpen = !isGestioneOpen" *ngIf="user?.idR == 1"><mat-icon>settings</mat-icon><span class="drawerIcon-text"><span class="inline-container">Gestione <mat-icon>{{isGestioneOpen ? 'arrow_drop_up' : 'arrow_drop_down'}}</mat-icon></span></span></button>
+              <div class="gestione-container" *ngIf="user?.role == 'Admin'">
+                <button class="button" (click)="isGestioneOpen = !isGestioneOpen" *ngIf="user?.role == 'Admin'"><mat-icon>settings</mat-icon><span class="drawerIcon-text"><span class="inline-container">Gestione <mat-icon>{{isGestioneOpen ? 'arrow_drop_up' : 'arrow_drop_down'}}</mat-icon></span></span></button>
                 <div class="indent" *ngIf="isGestioneOpen">
                   <button class="button" routerLink="gestione-veicoli" [ngClass]="{'selectedBtn': router.url == '/gestione-veicoli'}" ><mat-icon>local_shipping</mat-icon><span class="drawerIcon-text" (click)="drawer.toggle(); fixedDrawer.toggle()">Gestione veicoli</span></button>
                   <button class="button" routerLink="gestione-utenti" [ngClass]="{'selectedBtn': router.url == '/gestione-utenti'}" ><mat-icon>group</mat-icon><span class="drawerIcon-text" (click)="drawer.toggle(); fixedDrawer.toggle()">Gestione utenti</span></button>
