@@ -1,8 +1,8 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import { Logger } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
 import * as fs from 'fs';
 import * as path from 'path';
+import { AppModule } from './app.module';
 import { fileLogger } from './log/file-logger';
 
 async function bootstrap(): Promise<void> {
