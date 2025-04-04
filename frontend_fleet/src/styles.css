@@ -120,7 +120,7 @@ body {
 th {
   color: gray !important;
 }
-table:not(.mat-calendar-table) tr:nth-child(even) {
+.table:not(.mat-calendar-table) tr:nth-child(even) {
   background-color: rgba(255, 255, 255, 0.7) !important;
 }
 
