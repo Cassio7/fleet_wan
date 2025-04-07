@@ -100,7 +100,6 @@ export class AssociationController {
     };
     try {
       const result = await this.associationService.getAssociationsById(userId);
-      console.log(result);
       if (
         !result.associations?.length &&
         !result.companyFree &&
@@ -169,7 +168,7 @@ export class AssociationController {
       );
       return res
         .status(200)
-        .json({ message: 'Associazione inserita con successo!' });
+        .json({ message: 'Associazione inserita con successo!', association });
     } catch (error) {
       this.loggerService.logCrudError({
         error,

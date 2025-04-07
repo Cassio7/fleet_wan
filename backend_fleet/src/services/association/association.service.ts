@@ -62,7 +62,7 @@ export class AssociationService {
     userDTO: UserDTO,
     worksiteIds: number[] | null,
     companyIds: number[] | null,
-  ): Promise<AssociationEntity[]> {
+  ): Promise<AssociationDTOData[]> {
     // recupero utente
     const user = await this.userRepository.findOne({
       where: { id: userDTO.id },
@@ -198,7 +198,7 @@ export class AssociationService {
       await queryRunner.commitTransaction();
       await this.setVehiclesAssociateAllUsersRedis();
       await this.setVehiclesAssociateAllUsersRedisSet();
-      return save;
+      return save.map((association) => this.toDTO(association));
     } catch (error) {
       await queryRunner.rollbackTransaction();
       if (error instanceof HttpException) throw error;
