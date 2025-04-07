@@ -314,8 +314,8 @@ export class AssociationService {
 
       //se utente esiste
       if (user) {
-        // utente Capo Cantiere
         const roleId = user.role.id;
+        // utente Capo Cantiere
         if (roleId === 3) {
           const worksites = await this.worksiteRepository.find({
             select: {
@@ -332,7 +332,8 @@ export class AssociationService {
             worksiteFree = worksites.filter(
               (worksite) => !associationWorksiteIds.includes(worksite.id),
             );
-          }
+          } // se non ci sono associazioni prendo la lista completa
+          else worksiteFree = worksites;
         }
         // utente admin oppure Responsabile
         else if (roleId === 1 || roleId === 2) {
@@ -350,7 +351,8 @@ export class AssociationService {
             companyFree = companies.filter(
               (company) => !associationCompanyIds.includes(company.id),
             );
-          }
+          } // se non ci sono associazioni prendo la lista completa
+          else companyFree = companies;
         }
       }
       const associationsDTO = associations.map((association) =>

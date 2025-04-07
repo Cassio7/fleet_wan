@@ -100,7 +100,12 @@ export class AssociationController {
     };
     try {
       const result = await this.associationService.getAssociationsById(userId);
-      if (!result.associations?.length) {
+      console.log(result);
+      if (
+        !result.associations?.length &&
+        !result.companyFree &&
+        !result.worksiteFree
+      ) {
         this.loggerService.logCrudSuccess(
           context,
           'list',
