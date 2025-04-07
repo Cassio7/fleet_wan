@@ -6,11 +6,18 @@ import { passwordLogMask } from 'src/utils/utils';
 
 @Injectable()
 export class LoggerService extends Logger {
+  private serverInfo = 'unknown';
+
+  setServerInfo(info: string) {
+    this.serverInfo = info;
+  }
+
   private formatBaseMessage(
     context: LogContext,
     operation: string,
   ): Record<string, any> {
     return {
+      server: this.serverInfo,
       resource: context.resource,
       operation,
       resourceId: context.resourceId || null,
