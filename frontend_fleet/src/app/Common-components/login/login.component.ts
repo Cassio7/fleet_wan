@@ -97,12 +97,10 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy{
    */
   login() {
     if (this.loginForm.valid) {
-      console.log('login form value: ', this.loginForm.value);
       this.loginService.login(this.loginForm.value).pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (response) => {
             this.sessionStorageService.setItem("dashboard-section", "table");
-            console.log('response.access_token: ', response.access_token);
             this.cookieService.set("user", response.access_token);
             this.deleteCookies();
             this.loginSuccess = true;
