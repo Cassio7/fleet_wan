@@ -57,9 +57,10 @@
       align-items: center;
       justify-content: center;
     }
-  }
-  .notification-button:hover{
-    opacity: .5;
+
+    &:hover{
+      opacity: .5;
+    }
   }
 }
 
@@ -125,13 +126,37 @@
   font-size: 40px;
 }
 
-.notification-container{
-  .title-container{
+.notification-container {
+  padding: 2px;
+  border-radius: 5px;
+  transition: filter 0.2s ease;
+
+  .title-container {
     width: 100%;
     display: flex;
     justify-content: space-between;
   }
+
+  .title {
+    display: inline-flex;
+    align-items: center;
+    gap: 1vw;
+
+    .isRead {
+      background-color: blue;
+      height: 10px;
+      width: 10px;
+      border-radius: 50%;
+    }
+  }
+
+  &:hover {
+    background-color: #c5c2a7; /*darker "--navbarANDstats-background" color*/
+  }
 }
+
+
+
 p{
   font-family: 'Inter';
 }
@@ -144,7 +169,6 @@ p{
   max-height: 350px !important;
 }
 ::ng-deep .mat-mdc-menu-content {
+  background-color: var(--navbarANDstats-background);
   padding: 16px;  /* Imposta il padding desiderato */
 }
-
-

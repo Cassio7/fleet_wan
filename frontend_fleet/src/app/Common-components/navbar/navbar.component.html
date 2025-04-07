@@ -25,7 +25,7 @@
       <ng-container *ngFor="let notifica of notifiche.slice(0,3); let i = index">
         <div class="notification-container">
           <div class="title-container">
-            <div class="title"><b>{{notifica.title}}</b></div>
+            <div class="title"><b>{{notifica.title}}</b> <div class="isRead" *ngIf="!notifica.isRead"></div></div>
             <div class="author">~<b>{{notifica.author}}</b></div>
           </div>
           <div class="content">{{notifica.message}}</div>
