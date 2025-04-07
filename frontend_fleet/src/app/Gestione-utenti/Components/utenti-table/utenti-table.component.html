@@ -11,7 +11,7 @@
   >
     <ng-container matColumnDef="Id">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Id</th>
-      <td mat-cell *matCellDef="let user">{{ user.id }}</td>
+      <td mat-cell *matCellDef="let user; let i = index">{{ i + 1 }}</td>
     </ng-container>
 
     <ng-container matColumnDef="Utente">
