@@ -49,11 +49,11 @@ export class AppService implements OnModuleInit {
 
   // popolo database all'avvio
   async onModuleInit(): Promise<void> {
-    const startDate = '2024-01-01T00:00:00.000Z';
-    const endDate = '2025-01-01T00:00:00.000Z';
-    // const endDate = new Date(
-    //   new Date().getTime() + 2 * 60 * 60 * 1000,
-    // ).toISOString();
+    const startDate = '2025-04-04T00:00:00.000Z';
+    //const endDate = '2025-01-01T00:00:00.000Z';
+    const endDate = new Date(
+      new Date().getTime() + 2 * 60 * 60 * 1000,
+    ).toISOString();
     //await this.putDefaultData();
     //await this.putDbDataMix(startDate, endDate); // da usare nuovo
     //await this.setAssociations();
@@ -88,7 +88,7 @@ export class AppService implements OnModuleInit {
     const endDate = end;
 
     console.log('Data inizio: ' + startDate + ' Data fine: ' + endDate);
-    const batchSize = 20;
+    const batchSize = 30;
 
     // Carica tutti i veicoli dalle varie aziende
     await this.vehicleService.getVehicleList(254, 313, true); //Gesenu principale
@@ -318,7 +318,7 @@ export class AppService implements OnModuleInit {
     }
   }
 
-  //@Cron('58 23 * * *') // prima di finire la giornata
+  //@Cron('59 23 * * *') // prima di finire la giornata
   //@Cron('5 */5 * * *') // ogni 5 ore e 5 minuti
   async dailyAnomalyCheck(): Promise<void> {
     try {
@@ -370,7 +370,6 @@ export class AppService implements OnModuleInit {
       };
 
       await processAnomalies(data, this.anomalyService);
-      await this.statsService.setAllStatsRedis();
       console.log(
         'Daily Anomaly check aggiornato alle: ' + new Date().toISOString(),
       );
@@ -383,9 +382,8 @@ export class AppService implements OnModuleInit {
   }
 
   /**
-   * Imposta le anomalies su redis del giorno precedente, di oggi ed anche il last
+   * Imposta le anomalies su redis del giorno precedente, di oggi ed anche il last e le statistiche
    */
-
   //@Cron('8 */5 * * *')
   async setAnomaly(): Promise<void> {
     const keys = await this.redis.keys('*Anomaly:*');
@@ -399,6 +397,9 @@ export class AppService implements OnModuleInit {
 
     await this.anomalyService.setTodayAnomalyRedis(todayAnomalies);
     await this.anomalyService.setLastAnomalyRedis(lastAnomalies);
+
+    // al momento statistiche non utilizzate
+    //await this.statsService.setAllStatsRedis();
   }
   /**
    * imposta le associazioni su redis
