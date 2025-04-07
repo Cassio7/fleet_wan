@@ -65,7 +65,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
 
   selectedBtn: string = "dashboard";
   isLoginPage: boolean = true;
-  isLogged: boolean = false;
+  isLogged: boolean = true;
   isGestioneOpen: boolean = false;
 
   notifiche: Notifica[] = [];
@@ -96,7 +96,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
   }
 
   ngAfterViewInit(): void {
-    if(this.isLogged){
+    if(this.cookieService.get("user")){
       this.authService.getUserInfo().pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (user: User) => {
@@ -125,7 +125,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
       error: (error) => console.error("Error logging in: ", error),
     });
 
-    if(this.isLogged) this.getToReadNotification();
+    if(this.cookieService.get("user")) this.getToReadNotification();
     this.cd.detectChanges();
   }
 
@@ -214,6 +214,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
   checkLoginPage(url: string): boolean {
     return url === '/login' || url == '/';
   }
+
 
   /**
    * Permette di modificare lo stato dell'animazione del bottone di logout

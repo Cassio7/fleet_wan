@@ -121,29 +121,31 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
   ngAfterViewInit(): void {
     setTimeout(() => {
       const access_token = this.cookieService.get("user");
-      this.user = this.authService.decodeToken(access_token);
-      console.log('user from token: ', this.user);
-      merge(
-        this.kanbanAntennaService.loadKanbanAntenna$.pipe(takeUntil(this.destroy$)),
-        this.kanbanGpsService.loadKanbanGps$.pipe(takeUntil(this.destroy$)),
-        this.kanbanSessioneService.loadKanbanSessione$.pipe(takeUntil(this.destroy$))
-      ).subscribe({
-        next: () => {
-          this.isKanban = true;
-          this.cd.detectChanges();
-        },
-        error: error => console.error("Errore nel cambio del path: ", error)
-      });
-      this.kanabanTableService.loadKabanTable$.pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: () => {
-          this.currentPage = "dashboard";
-          this.isKanban = false;
-          this.cd.detectChanges();
-        },
-        error: error => console.error("Errore nel cambio del path: ", error)
-      });
-      this.cd.detectChanges();
+      if(access_token){
+        this.user = this.authService.decodeToken(access_token);
+        console.log('user from token: ', this.user);
+        merge(
+          this.kanbanAntennaService.loadKanbanAntenna$.pipe(takeUntil(this.destroy$)),
+          this.kanbanGpsService.loadKanbanGps$.pipe(takeUntil(this.destroy$)),
+          this.kanbanSessioneService.loadKanbanSessione$.pipe(takeUntil(this.destroy$))
+        ).subscribe({
+          next: () => {
+            this.isKanban = true;
+            this.cd.detectChanges();
+          },
+          error: error => console.error("Errore nel cambio del path: ", error)
+        });
+        this.kanabanTableService.loadKabanTable$.pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            this.currentPage = "dashboard";
+            this.isKanban = false;
+            this.cd.detectChanges();
+          },
+          error: error => console.error("Errore nel cambio del path: ", error)
+        });
+        this.cd.detectChanges();
+      }
     });
     this.handleProfileInfoUpdate();
 
@@ -159,7 +161,6 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
           if(name) this.name = name;
           if(surname) this.surname = surname;
         }
-        console.log("me so arivati sti dati: ", user)
       },
       error: error => console.error("Errore nell'aggiornamento dei nuovi dati dell'utente nella navbar: ", error)
     });
