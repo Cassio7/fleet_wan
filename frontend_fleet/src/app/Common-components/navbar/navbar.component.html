@@ -22,7 +22,7 @@
 
 
     <mat-menu #notificationsMenu="matMenu" yPosition="below" xPosition="before">
-      <ng-container *ngFor="let notifica of notifiche.slice(0,3); let i = index">
+      <ng-container *ngFor="let notifica of notifiche?.slice(0,3); let i = index">
         <div class="notification-container">
           <div class="title-container">
             <div class="title"><b>{{notifica.title}}</b> <div class="isRead" *ngIf="!notifica.isRead"></div></div>
