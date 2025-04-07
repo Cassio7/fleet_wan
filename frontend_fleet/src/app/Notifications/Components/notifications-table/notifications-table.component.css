@@ -7,3 +7,26 @@
 .table {
   width: 100%;
 }
+
+.statoLettura-container{
+  display: inline-flex;
+  align-items: center;
+  gap: .5vw;
+
+  .stato-lettura{
+    background-color: blue;
+    height: 10px;
+    width: 10px;
+    border-radius: 50%;
+  }
+
+  .read-button {
+    mat-icon{
+      color: var(--green);
+    }
+    &:hover {
+      opacity: 0.5;
+    }
+  }
+
+}

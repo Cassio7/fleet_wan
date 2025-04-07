@@ -1,5 +1,5 @@
 <div class="table-container">
-  <table mat-table [dataSource]="notificheTableData" class="table">
+  <table mat-table #notificheTable [dataSource]="notificheTableData" class="table">
     <ng-container matColumnDef="Id">
       <th mat-header-cell *matHeaderCellDef> Id </th>
       <td mat-cell *matCellDef="let notification; let i = index"> {{i + 1}} </td>
@@ -23,6 +23,26 @@
     <ng-container matColumnDef="Data Creazione">
       <th mat-header-cell *matHeaderCellDef> Data di creazione </th>
       <td mat-cell *matCellDef="let notification"> {{notification.createdAt | date: 'dd/MM/yyyy'}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="Stato lettura">
+      <th mat-header-cell *matHeaderCellDef> Stato lettura </th>
+      <td mat-cell *matCellDef="let notification">
+        <div class="statoLettura-container">
+          <ng-container *ngIf="notification.isRead; else toRead">
+            <a class="read-button" (click)="updateNotificationStatus(notification)" mat-icon-button>
+              <mat-icon>visibility</mat-icon>
+            </a>
+            Letta
+          </ng-container>
+          <ng-template #toRead>
+            <a class="read-button" (click)="updateNotificationStatus(notification)" mat-icon-button>
+              <mat-icon>visibility_off</mat-icon>
+            </a>
+            Da leggere
+          </ng-template>
+        </div>
+      </td>
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
