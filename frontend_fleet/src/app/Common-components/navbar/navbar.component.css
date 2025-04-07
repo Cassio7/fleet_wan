@@ -40,17 +40,21 @@
   cursor: pointer;
 }
 
+/* Your existing styles... */
+
 .right-side {
   display: flex;
   align-items: center;
   gap: 1.2vw;
 
-  .notification-button{
+  /* Remove these nested selectors from here */
+
+  .notification-button {
     display: flex;
     align-items: center;
     justify-content: center;
 
-    .notification-icon{
+    .notification-icon {
       height: 100%;
       width: 100%;
       display: flex;
@@ -58,11 +62,24 @@
       justify-content: center;
     }
 
-    &:hover{
+    &:hover {
       opacity: .5;
     }
   }
 }
+
+::ng-deep .notifications-menu .mat-mdc-menu-content {
+  padding: 16px;
+}
+
+::ng-deep .notifications-menu .cdk-overlay-pane {
+  max-height: 350px !important;
+}
+
+::ng-deep .mat-mdc-menu-content {
+  background-color: var(--navbarANDstats-background);
+}
+
 
 .account-circle {
   height: 35px;
@@ -164,11 +181,4 @@ p{
   display: inline-flex;
   align-items: center;
   gap: .5vw;
-}
-::ng-deep .cdk-overlay-pane {
-  max-height: 350px !important;
-}
-::ng-deep .mat-mdc-menu-content {
-  background-color: var(--navbarANDstats-background);
-  padding: 16px;  /* Imposta il padding desiderato */
 }
