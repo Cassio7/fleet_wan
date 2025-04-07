@@ -7,7 +7,7 @@ import { fileLogger } from './log/file-logger';
 import { LoggerService } from './log/service/logger.service';
 
 async function bootstrap(): Promise<void> {
-  const port = process.env.PORT || 3003;
+  const port = process.env.PORT || 3001;
 
   const logger = new Logger();
   // crea il file per i log dentro la cartella logs
