@@ -1,6 +1,6 @@
 import { CommonEntity } from 'classes/entities/common.entity';
 import { AssociationInterface } from 'classes/interfaces/association.interface';
-import { Entity, ManyToOne } from 'typeorm';
+import { Entity, Index, ManyToOne } from 'typeorm';
 import { CompanyEntity } from './company.entity';
 import { UserEntity } from './user.entity';
 import { WorksiteEntity } from './worksite.entity';
@@ -18,6 +18,7 @@ export class AssociationEntity
     nullable: false,
     onDelete: 'CASCADE',
   })
+  @Index('IDX-association-user')
   user: UserEntity;
 
   @ManyToOne(() => CompanyEntity, (company) => company.association, {
