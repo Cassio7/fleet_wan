@@ -65,7 +65,7 @@ export class WorksiteFactoryService {
     }
   }
 
-  async createDefaultVehicleWorksite() {
+  async createDefaultVehicleWorksite(): Promise<void> {
     const vehicleWorksiteData = await parseCsvFile(this.cvsPathV);
     const queryRunner = this.connection.createQueryRunner();
     await queryRunner.connect();

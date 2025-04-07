@@ -12,8 +12,8 @@ import { AssociationEntity } from 'classes/entities/association.entity';
 import { RoleEntity } from 'classes/entities/role.entity';
 import { UserEntity } from 'classes/entities/user.entity';
 import { DataSource, Repository } from 'typeorm';
-import { RoleService } from '../role/role.service';
 import { AssociationService } from '../association/association.service';
+import { RoleService } from '../role/role.service';
 
 @Injectable()
 export class UserService {
@@ -115,6 +115,7 @@ export class UserService {
         relations: {
           role: true,
         },
+        withDeleted: true,
       });
       if (!user) return null;
       return await this.formatUserDTO(user, false);
@@ -333,7 +334,9 @@ export class UserService {
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
-      await queryRunner.manager.getRepository(UserEntity).remove(user);
+      await queryRunner.manager
+        .getRepository(UserEntity)
+        .softDelete({ key: user.key });
       await queryRunner.commitTransaction();
     } catch (error) {
       await queryRunner.rollbackTransaction();

@@ -39,7 +39,7 @@ export class SessionController {
     @Res() res: Response,
     @Body() body: { veId: number },
     @Req() req: Request & { user: UserFromToken },
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
@@ -105,7 +105,7 @@ export class SessionController {
     @Body() body: { veId: number; dateFrom: string; dateTo: string },
     @Query('filter') filter: string,
     @Req() req: Request & { user: UserFromToken },
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
@@ -194,7 +194,7 @@ export class SessionController {
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
     @Body() body: { veId: number },
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
@@ -264,7 +264,7 @@ export class SessionController {
   async getAllActiveSession(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
@@ -313,7 +313,7 @@ export class SessionController {
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
     @Body() body: { veId: number },
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,

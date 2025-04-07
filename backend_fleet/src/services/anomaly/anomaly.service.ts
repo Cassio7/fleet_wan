@@ -13,7 +13,7 @@ import { sortRedisData } from 'src/utils/utils';
 import { Between, DataSource, In, Repository } from 'typeorm';
 import { AssociationService } from '../association/association.service';
 
-interface rankedAnomalies {
+interface RankedAnomalies {
   veId: number;
   consecutive: {
     gps: number;
@@ -21,6 +21,15 @@ interface rankedAnomalies {
     session: number;
   };
 }
+
+interface VehicleWithAnomaly {
+  vehicle: VehicleDTO & {
+    worksite: WorksiteDTO | null;
+    service: ServiceDTO | null;
+  };
+  anomalies: AnomalyDTO[];
+}
+
 @Injectable()
 export class AnomalyService {
   constructor(
@@ -43,7 +52,7 @@ export class AnomalyService {
    * @param userId user id
    * @returns
    */
-  async getAllAnomalyByUserId(userId: number): Promise<any> {
+  async getAllAnomalyByUserId(userId: number): Promise<VehicleWithAnomaly[]> {
     try {
       const veIdArray =
         await this.associationService.getVehiclesRedisAllSet(userId);
@@ -85,7 +94,7 @@ export class AnomalyService {
     userId: number,
     veId: number,
     count: number,
-  ): Promise<any> {
+  ): Promise<VehicleWithAnomaly[]> {
     await this.associationService.checkVehicleAssociateUserSet(userId, veId);
     try {
       if (count === 0) {
@@ -241,7 +250,10 @@ export class AnomalyService {
    * @param date data da controllare
    * @returns
    */
-  async getAnomalyByDate(userId: number, date: Date): Promise<any> {
+  async getAnomalyByDate(
+    userId: number,
+    date: Date,
+  ): Promise<VehicleWithAnomaly[]> {
     try {
       const veIdArray =
         await this.associationService.getVehiclesRedisAllSet(userId);
@@ -287,7 +299,7 @@ export class AnomalyService {
     userId: number,
     dateFrom: Date,
     dateTo: Date,
-  ): Promise<any> {
+  ): Promise<VehicleWithAnomaly[]> {
     try {
       const veIdArray =
         await this.associationService.getVehiclesRedisAllSet(userId);
@@ -335,7 +347,7 @@ export class AnomalyService {
     veId: number,
     dateFrom: Date,
     dateTo: Date,
-  ) {
+  ): Promise<VehicleWithAnomaly[]> {
     await this.associationService.hasVehiclesAssociateUserRedisSet(
       userId,
       veId,
@@ -611,7 +623,7 @@ export class AnomalyService {
   async countSessionErrors(
     userId: number,
     date: Date,
-  ): Promise<rankedAnomalies[]> {
+  ): Promise<RankedAnomalies[]> {
     try {
       const veIdArray =
         await this.associationService.getVehiclesRedisAllSet(userId);
@@ -684,7 +696,7 @@ export class AnomalyService {
   `;
 
       const datas = await this.anomalyRepository.query(query);
-      const ranked: rankedAnomalies[] = datas.map((item) => ({
+      const ranked: RankedAnomalies[] = datas.map((item) => ({
         veId: item.veId,
         consecutive: {
           gps: Number(item.consecutive_gps),
@@ -719,83 +731,68 @@ export class AnomalyService {
         session: number;
       }
     >,
-  ): Array<{
-    vehicle: VehicleDTO & {
-      worksite: WorksiteDTO | null;
-      service: ServiceDTO | null;
-    };
-    anomalies: AnomalyDTO[];
-  }> {
+  ): VehicleWithAnomaly[] {
     return anomalies
-      .reduce(
-        (acc, anomaly) => {
-          // Trovo il gruppo del veicolo esistente o ne crea uno nuovo
-          let vehicleGroup = acc.find(
-            (group) => group.vehicle.veId === anomaly.vehicle.veId,
-          );
+      .reduce((acc, anomaly) => {
+        // Trovo il gruppo del veicolo esistente o ne crea uno nuovo
+        let vehicleGroup = acc.find(
+          (group) => group.vehicle.veId === anomaly.vehicle.veId,
+        );
 
-          if (!vehicleGroup) {
-            // Crea il DTO del veicolo
-            const vehicleDTO = new VehicleDTO();
-            vehicleDTO.id = anomaly.vehicle.id;
-            vehicleDTO.plate = anomaly.vehicle.plate;
-            vehicleDTO.veId = anomaly.vehicle.veId;
-            // per comodità è stato tenuto il nome isRFIDReader per recupero frontend
-            vehicleDTO.isRFIDReader = anomaly.vehicle.allestimento;
+        if (!vehicleGroup) {
+          // Crea il DTO del veicolo
+          const vehicleDTO = new VehicleDTO();
+          vehicleDTO.id = anomaly.vehicle.id;
+          vehicleDTO.plate = anomaly.vehicle.plate;
+          vehicleDTO.veId = anomaly.vehicle.veId;
+          // per comodità è stato tenuto il nome isRFIDReader per recupero frontend
+          vehicleDTO.isRFIDReader = anomaly.vehicle.allestimento;
 
-            // DTO del worksite se esiste
-            let worksiteDTO: WorksiteDTO | null = null;
-            if (anomaly.vehicle.worksite) {
-              worksiteDTO = new WorksiteDTO();
-              worksiteDTO.id = anomaly.vehicle.worksite.id;
-              worksiteDTO.name = anomaly.vehicle.worksite.name;
-            }
-            // DTO del service se esiste
-            let serviceDTO: ServiceDTO | null = null;
-            if (anomaly.vehicle.worksite) {
-              serviceDTO = new ServiceDTO();
-              serviceDTO.id = anomaly.vehicle.service.id;
-              serviceDTO.name = anomaly.vehicle.service.name;
-            }
-
-            vehicleGroup = {
-              vehicle: {
-                ...vehicleDTO,
-                worksite: worksiteDTO,
-                service: serviceDTO,
-              }, // Aggiungo worksite dentro il VehicleDTO
-              anomalies: [],
-            };
-            acc.push(vehicleGroup);
+          // DTO del worksite se esiste
+          let worksiteDTO: WorksiteDTO | null = null;
+          if (anomaly.vehicle.worksite) {
+            worksiteDTO = new WorksiteDTO();
+            worksiteDTO.id = anomaly.vehicle.worksite.id;
+            worksiteDTO.name = anomaly.vehicle.worksite.name;
+          }
+          // DTO del service se esiste
+          let serviceDTO: ServiceDTO | null = null;
+          if (anomaly.vehicle.worksite) {
+            serviceDTO = new ServiceDTO();
+            serviceDTO.id = anomaly.vehicle.service.id;
+            serviceDTO.name = anomaly.vehicle.service.name;
           }
 
-          // Mappa il DTO per l'anomalia
-          const anomalyDTO = new AnomalyDTO();
-          anomalyDTO.date = anomaly.date;
-          anomalyDTO.gps = anomaly.gps;
-          anomalyDTO.gps_count =
-            countMap?.get(anomaly.vehicle?.veId)?.gps ?? null;
-          anomalyDTO.antenna = anomaly.antenna;
-          anomalyDTO.antenna_count =
-            countMap?.get(anomaly.vehicle?.veId)?.antenna ?? null;
-          anomalyDTO.detection_quality = anomaly.detection_quality;
-          anomalyDTO.session = anomaly.session;
-          anomalyDTO.session_count =
-            countMap?.get(anomaly.vehicle?.veId)?.session ?? null;
-
-          // Aggiungi l'anomalia al gruppo del veicolo
-          vehicleGroup.anomalies.push(anomalyDTO);
-
-          return acc;
-        },
-        [] as Array<{
-          vehicle: VehicleDTO & {
-            worksite: WorksiteDTO | null;
-            service: ServiceDTO | null;
+          vehicleGroup = {
+            vehicle: {
+              ...vehicleDTO,
+              worksite: worksiteDTO,
+              service: serviceDTO,
+            }, // Aggiungo worksite dentro il VehicleDTO
+            anomalies: [],
           };
-          anomalies: AnomalyDTO[];
-        }>,
-      )
+          acc.push(vehicleGroup);
+        }
+
+        // Mappa il DTO per l'anomalia
+        const anomalyDTO = new AnomalyDTO();
+        anomalyDTO.date = anomaly.date;
+        anomalyDTO.gps = anomaly.gps;
+        anomalyDTO.gps_count =
+          countMap?.get(anomaly.vehicle?.veId)?.gps ?? null;
+        anomalyDTO.antenna = anomaly.antenna;
+        anomalyDTO.antenna_count =
+          countMap?.get(anomaly.vehicle?.veId)?.antenna ?? null;
+        anomalyDTO.detection_quality = anomaly.detection_quality;
+        anomalyDTO.session = anomaly.session;
+        anomalyDTO.session_count =
+          countMap?.get(anomaly.vehicle?.veId)?.session ?? null;
+
+        // Aggiungi l'anomalia al gruppo del veicolo
+        vehicleGroup.anomalies.push(anomalyDTO);
+
+        return acc;
+      }, [] as VehicleWithAnomaly[])
       .map((group) => {
         // Ordino le anomalie per data in ordine ascendente per ogni gruppo di veicoli
         group.anomalies.sort((a, b) => a.date.getTime() - b.date.getTime());

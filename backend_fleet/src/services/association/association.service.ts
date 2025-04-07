@@ -211,7 +211,7 @@ export class AssociationService {
    * @param id identificativo associazione
    * @returns
    */
-  async deleteAssociation(id: number) {
+  async deleteAssociation(id: number): Promise<void> {
     // controllo se esiste
     const exist = await this.associationRepository.findOne({
       where: {
@@ -465,7 +465,7 @@ export class AssociationService {
   /**
    * imposta su redis tutti i veicoli associati per ogni utente
    */
-  async setVehiclesAssociateAllUsersRedis() {
+  async setVehiclesAssociateAllUsersRedis(): Promise<void> {
     try {
       const keys = await this.redis.keys('vehicleAssociateUser:*');
       if (keys.length > 0) {
@@ -495,7 +495,7 @@ export class AssociationService {
   /**
    * inserisce su redis le associazioni dei veid ad ogni utente
    */
-  async setVehiclesAssociateAllUsersRedisSet() {
+  async setVehiclesAssociateAllUsersRedisSet(): Promise<void> {
     try {
       const keys = await this.redis.keys('vehicleAssociateUserSet:*');
       if (keys.length > 0) {

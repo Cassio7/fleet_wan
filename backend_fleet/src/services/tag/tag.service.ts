@@ -10,6 +10,7 @@ import { createHash } from 'crypto';
 import { Between, DataSource, In, Repository } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
 import { AssociationService } from '../association/association.service';
+import { WorksiteEntity } from 'classes/entities/worksite.entity';
 
 @Injectable()
 export class TagService {
@@ -17,6 +18,8 @@ export class TagService {
   constructor(
     @InjectRepository(TagHistoryEntity, 'tagReadOnly')
     private readonly tagHistoryRepository: Repository<TagHistoryEntity>,
+    @InjectRepository(WorksiteEntity, 'tagReadOnly')
+    private readonly worksiteRepository: Repository<WorksiteEntity>,
     @InjectDataSource('mainConnection')
     private readonly connection: DataSource,
     private readonly associationService: AssociationService,
@@ -515,8 +518,9 @@ export class TagService {
     try {
       const veIdArray =
         await this.associationService.getVehiclesRedisAllSet(userId);
+      const countWorksites = await this.worksiteRepository.count();
       let query;
-      if (worksiteId.length > 0) {
+      if (worksiteId.length > 0 && worksiteId.length != countWorksites) {
         query = this.tagHistoryRepository
           .createQueryBuilder('tagHistory')
           .select([

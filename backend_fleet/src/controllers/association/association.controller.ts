@@ -41,7 +41,7 @@ export class AssociationController {
   async getAllAssociation(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
@@ -91,7 +91,7 @@ export class AssociationController {
     @Req() req: Request & { user: UserFromToken },
     @Param('id', ParseIntPipe) userId: number,
     @Res() res: Response,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
@@ -144,7 +144,7 @@ export class AssociationController {
     @Res() res: Response,
     @Body() userDTO: UserDTO,
     @Body() body: { worksiteIds: number[]; companyIds: number[] },
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
@@ -193,7 +193,7 @@ export class AssociationController {
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
     @Param('id') id: number,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,

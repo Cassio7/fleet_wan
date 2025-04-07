@@ -17,7 +17,7 @@ export class NotificationsService {
   ) {}
 
   // Metodo per inviare una notifica tramite WebSocket
-  sendNotification(notification: NotificationDto) {
+  sendNotification(notification: NotificationDto): void {
     this.notificationsGateway.handleSendNotificationServer(notification);
   }
 
@@ -229,7 +229,7 @@ export class NotificationsService {
     notDTO.title = notification.title;
     notDTO.message = notification.message;
     notDTO.isRead = notification.isRead;
-    notDTO.author = notification.author; 
+    notDTO.author = notification.author;
     return notDTO;
   }
 }

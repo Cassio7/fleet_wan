@@ -44,7 +44,7 @@ export class AnomalyController {
   async getAllAnomaly(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
@@ -95,7 +95,7 @@ export class AnomalyController {
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
     @Body() body: { dateFrom: string; dateTo: string },
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
@@ -208,7 +208,7 @@ export class AnomalyController {
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
     @Body() body: { veId: number; count: number },
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
@@ -285,7 +285,7 @@ export class AnomalyController {
   async getLastAnomaly(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
@@ -334,7 +334,7 @@ export class AnomalyController {
   async checkErrors(
     @Res() res: Response,
     @Body() body: { dateFrom: string; dateTo: string },
-  ) {
+  ): Promise<Response> {
     const data = await this.controlService.checkErrors(
       body.dateFrom,
       body.dateTo,
@@ -356,7 +356,7 @@ export class AnomalyController {
   async updateTodayAnomaly(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
@@ -380,7 +380,10 @@ export class AnomalyController {
         return res.status(204).json();
       }
 
-      const processAnomalies = async (data, anomalyService) => {
+      const processAnomalies = async (
+        data,
+        anomalyService: AnomalyService,
+      ): Promise<any[]> => {
         const anomalyPromises = data
           .filter((item) => item?.veId)
           .map(async (item) => {
@@ -428,7 +431,6 @@ export class AnomalyController {
 
       const todayAnomalies = await this.anomalyService.getAnomalyByDate(1, now);
       await this.anomalyService.setTodayAnomalyRedis(todayAnomalies);
-      await this.statsService.setAllStatsRedis();
 
       this.loggerService.logCrudSuccess(
         context,
@@ -448,6 +450,7 @@ export class AnomalyController {
       });
     }
   }
+
   /**
    * Recupera alcuni dati riguardanti il veicolo e il suo andamento, come il numero di anomalie, sessioni
    * e tipologia di errori
@@ -461,7 +464,7 @@ export class AnomalyController {
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
     @Query('veId') veId: number,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
@@ -534,7 +537,7 @@ export class AnomalyController {
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
     @Body() body: { veId: number; dateFrom: string; dateTo: string },
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,

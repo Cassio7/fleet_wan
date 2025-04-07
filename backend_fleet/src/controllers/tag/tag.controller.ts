@@ -51,7 +51,7 @@ export class TagController {
     @Query('last') last: string,
     @Query('less') less: string,
     @Res() res: Response,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
@@ -166,7 +166,7 @@ export class TagController {
     @Query('count') count: string,
     @Query('preview') preview: string,
     @Res() res: Response,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
@@ -315,7 +315,7 @@ export class TagController {
     @Req() req: Request & { user: UserFromToken },
     @Body() body: { veId: number; months: number; days: number },
     @Res() res: Response,
-  ) {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
