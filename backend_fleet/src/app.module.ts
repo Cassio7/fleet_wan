@@ -118,7 +118,7 @@ import { WorksiteService } from './services/worksite/worksite.service';
           NotificationEntity,
           WorksiteHistoryEntity,
         ],
-        synchronize: true,
+        synchronize: false,
         //dropSchema: true, // if true drop db
       }),
     }),
