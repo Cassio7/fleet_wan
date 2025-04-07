@@ -49,6 +49,7 @@ import { User } from './Models/User';
     { provide: MAT_DATE_LOCALE, useValue: 'it-IT' }
   ],
   animations: [
+    //animazione per pulsante di log out su fixed sidebar
     trigger('rotatedState', [
       state('default', style({ transform: 'rotate(0)' })),
       state('rotated', style({ transform: 'rotate(-360deg)' })),
@@ -64,7 +65,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
 
   selectedBtn: string = "dashboard";
   isLoginPage: boolean = true;
-  isLogged: boolean = true;
+  isLogged: boolean = false;
   isGestioneOpen: boolean = false;
 
   notifiche: Notifica[] = [];
@@ -95,17 +96,19 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
   }
 
   ngAfterViewInit(): void {
-    this.authService.getUserInfo().pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: (user: User) => {
-        this.user = user;
-        this.isLogged = true;
-        this.isLoginPage = this.checkLoginPage(this.router.url);
+    if(this.isLogged){
+      this.authService.getUserInfo().pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (user: User) => {
+          this.user = user;
+          this.isLogged = true;
+          this.isLoginPage = this.checkLoginPage(this.router.url);
 
-        this.cd.detectChanges();
-      },
-      error: error => console.error("Errore nella ricezione dei dat dell'utente: ", error)
-    });
+          this.cd.detectChanges();
+        },
+        error: error => console.error("Errore nella ricezione dei dat dell'utente: ", error)
+      });
+    }
 
     //sottoscrizione al login
     this.loginService.login$.pipe(takeUntil(this.destroy$)).subscribe({
@@ -121,7 +124,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
       },
       error: (error) => console.error("Error logging in: ", error),
     });
-    this.getToReadNotification();
+
+    if(this.isLogged) this.getToReadNotification();
     this.cd.detectChanges();
   }
 
@@ -132,12 +136,13 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
       this.isLoginPage = this.checkLoginPage(event.urlAfterRedirects);
       if(this.drawer.opened)
         this.drawer.close();
-      if(this.router.url == "/login"){
+      if(this.checkLoginPage(this.router.url)){
         //chiusura della sidebar in caso sia aperta mentre l'utente si trova nella pagina di login
         if(this.drawer.opened){
           this.drawer.close();
         }
         this.isLogged = false;
+        this.isLoginPage = true;
       }
     });
 
@@ -207,7 +212,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
    * @returns true se è l'url è /login, altrimenti false
    */
   checkLoginPage(url: string): boolean {
-    return url === '/login';
+    return url === '/login' || url == '/';
   }
 
   /**
