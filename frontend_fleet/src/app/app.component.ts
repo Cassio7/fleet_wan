@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { NavigationEnd, Router, RouterModule, RouterOutlet } from '@angular/router';
-import { filter, Subject, takeUntil } from 'rxjs';
+import { filter, identity, Subject, takeUntil } from 'rxjs';
 import { MatDrawer, MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
@@ -96,19 +96,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
   }
 
   ngAfterViewInit(): void {
-    if(this.cookieService.get("user")){
-      this.authService.getUserInfo().pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (user: User) => {
-          this.user = user;
-          this.isLogged = true;
-          this.isLoginPage = this.checkLoginPage(this.router.url);
 
-          this.cd.detectChanges();
-        },
-        error: error => console.error("Errore nella ricezione dei dat dell'utente: ", error)
-      });
-    }
+    if(this.cookieService.get("user"))
+      this.handleGetUserInfo();
 
     //sottoscrizione al login
     this.loginService.login$.pipe(takeUntil(this.destroy$)).subscribe({
@@ -119,13 +109,14 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
           this.isLogged = true;
           this.isLoginPage = false;
         });
-        this.getToReadNotification();
+        this.handleGetUserInfo();
+        this.handleGetToReadNotification();
         this.cd.detectChanges();
       },
       error: (error) => console.error("Error logging in: ", error),
     });
 
-    if(this.cookieService.get("user")) this.getToReadNotification();
+    if(this.cookieService.get("user")) this.handleGetToReadNotification();
     this.cd.detectChanges();
   }
 
@@ -163,7 +154,22 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
     });
   }
 
-  getToReadNotification(){
+  private handleGetUserInfo(){
+    this.authService.getUserInfo().pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (user: User) => {
+        console.log('ao: ', user);
+        this.user = user;
+        this.isLogged = true;
+        this.isLoginPage = this.checkLoginPage(this.router.url);
+
+        this.cd.detectChanges();
+      },
+      error: error => console.error("Errore nella ricezione dei dat dell'utente: ", error)
+    });
+  }
+
+  handleGetToReadNotification(){
     //ottenimento delle notifiche da leggere
     this.notificationService.getToReadNotifications()
     .pipe(takeUntil(this.destroy$))
