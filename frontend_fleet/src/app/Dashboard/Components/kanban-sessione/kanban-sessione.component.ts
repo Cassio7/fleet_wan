@@ -1,6 +1,6 @@
 
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -46,11 +46,12 @@ import { MatChipsModule } from '@angular/material/chips';
   templateUrl: './kanban-sessione.component.html',
   styleUrl: './kanban-sessione.component.css',
 })
-export class KanbanSessioneComponent implements AfterViewInit, OnDestroy {
+export class KanbanSessioneComponent implements AfterViewInit, OnChanges, OnDestroy {
   private readonly destroy$: Subject<void> = new Subject<void>();
 
   selectedAnomalies: string[] = [];
 
+  @Input() lastUpdate: string = "oggi";
   today: boolean = true;
   last: boolean = false;
 
@@ -86,6 +87,12 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if(changes['lastUpdate']){
+      this.verifyCheckDay();
+    }
   }
 
   ngAfterViewInit(): void {
@@ -415,12 +422,11 @@ export class KanbanSessioneComponent implements AfterViewInit, OnDestroy {
   }
 
   /**
-   * Controlla se il segnale del lastUpdate è oggi o recente
+   * Controlla l'ultimo aggiornamento ed imposta la visualizzazione del kanban di conseguenza
    */
   private verifyCheckDay(){
-    const lastUpdate = this.dashboardService.lastUpdate();
-    if(lastUpdate){
-      if (lastUpdate != "recente") {
+    if(this.lastUpdate){
+      if (this.lastUpdate != "recente") {
         this.today = true;
         this.last = false;
       } else {

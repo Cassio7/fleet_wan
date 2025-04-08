@@ -62,13 +62,13 @@
         </div>
       </div>
       <div class="kabangps-content" *ngIf="kanbanGps">
-        <app-kanban-gps></app-kanban-gps>
+        <app-kanban-gps [lastUpdate]="lastUpdate"></app-kanban-gps>
       </div>
       <div class="kabanAntenna-content" *ngIf="kabanAntenna">
-        <app-kanban-antenna></app-kanban-antenna>
+        <app-kanban-antenna [lastUpdate]="lastUpdate"></app-kanban-antenna>
       </div>
       <div class="kanbanSessione-content" *ngIf="kanbanSessione">
-        <app-kanban-sessione></app-kanban-sessione>
+        <app-kanban-sessione [lastUpdate]="lastUpdate"></app-kanban-sessione>
       </div>
     </div>
   </div>

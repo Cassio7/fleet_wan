@@ -2,7 +2,11 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
+  effect,
+  Input,
+  OnChanges,
   OnDestroy,
+  SimpleChanges,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatListModule } from '@angular/material/list';
@@ -48,9 +52,10 @@ import { DashboardService } from '../../Services/dashboard/dashboard.service';
   templateUrl: './kanban-gps.component.html',
   styleUrl: './kanban-gps.component.css',
 })
-export class KanbanGpsComponent implements AfterViewInit, OnDestroy {
+export class KanbanGpsComponent implements AfterViewInit, OnChanges, OnDestroy {
   private readonly destroy$: Subject<void> = new Subject<void>();
 
+  @Input() lastUpdate: string = "oggi";
   today: boolean = true;
   last: boolean = false;
 
@@ -67,6 +72,12 @@ export class KanbanGpsComponent implements AfterViewInit, OnDestroy {
     private cd: ChangeDetectorRef
   ) {}
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if(changes['lastUpdate']){
+      this.verifyCheckDay();
+    }
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -79,8 +90,6 @@ export class KanbanGpsComponent implements AfterViewInit, OnDestroy {
     let kanbanVehicles = allData;
 
     this.loadKanban(kanbanVehicles);
-
-    this.verifyCheckDay();
 
     this.checkErrorsService.updateAnomalies$
       .pipe(takeUntil(this.destroy$))
@@ -268,12 +277,11 @@ export class KanbanGpsComponent implements AfterViewInit, OnDestroy {
   }
 
   /**
-   * Controlla se il segnale del lastUpdate è oggi o recente
+   * Controlla l'ultimo aggiornamento ed imposta la visualizzazione del kanban di conseguenza
    */
   private verifyCheckDay(){
-    const lastUpdate = this.dashboardService.lastUpdate();
-    if(lastUpdate){
-      if (lastUpdate != "recente") {
+    if(this.lastUpdate){
+      if (this.lastUpdate != "recente") {
         this.today = true;
         this.last = false;
       } else {

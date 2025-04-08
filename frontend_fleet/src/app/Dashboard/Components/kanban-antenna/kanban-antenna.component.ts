@@ -3,7 +3,10 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
+  Input,
+  OnChanges,
   OnDestroy,
+  SimpleChanges,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -48,9 +51,10 @@ import { DashboardService } from '../../Services/dashboard/dashboard.service';
   templateUrl: './kanban-antenna.component.html',
   styleUrl: './kanban-antenna.component.css',
 })
-export class KanbanAntennaComponent implements AfterViewInit, OnDestroy {
+export class KanbanAntennaComponent implements AfterViewInit, OnChanges, OnDestroy {
   private readonly destroy$: Subject<void> = new Subject<void>();
 
+  @Input() lastUpdate: string = "oggi";
   today: boolean = true;
   last: boolean = false;
 
@@ -72,14 +76,19 @@ export class KanbanAntennaComponent implements AfterViewInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if(changes['lastUpdate']){
+      console.log('ao verify de kanban antenna: ', this.lastUpdate);
+      this.verifyCheckDay();
+    }
+  }
+
   ngAfterViewInit(): void {
     const allData: VehicleData[] = JSON.parse(
       this.sessionStorageService.getItem('allData')
     );
     let kanbanVehicles = allData;
     this.loadKanban(kanbanVehicles);
-
-    this.verifyCheckDay();
 
     this.checkErrorsService.updateAnomalies$
       .pipe(takeUntil(this.destroy$))
@@ -288,12 +297,11 @@ export class KanbanAntennaComponent implements AfterViewInit, OnDestroy {
   }
 
   /**
-   * Controlla se il segnale del lastUpdate è oggi o recente
+   * Controlla l'ultimo aggiornamento ed imposta la visualizzazione del kanban di conseguenza
    */
   private verifyCheckDay(){
-    const lastUpdate = this.dashboardService.lastUpdate();
-    if(lastUpdate){
-      if (lastUpdate != "recente") {
+    if(this.lastUpdate){
+      if (this.lastUpdate != "recente") {
         this.today = true;
         this.last = false;
       } else {
