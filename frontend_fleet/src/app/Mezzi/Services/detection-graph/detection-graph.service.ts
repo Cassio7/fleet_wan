@@ -1,10 +1,13 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { DetectionQuality } from '../../../Models/DetectionQuality';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { CommonService } from '../../../Common-services/common service/common.service';
 import { CookieService } from 'ngx-cookie-service';
 
+export interface DetectionQuality{
+  timestamp: string,
+  detection_quality: number
+}
 @Injectable({
   providedIn: 'root'
 })

@@ -1,9 +1,8 @@
 import { AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy } from '@angular/core';
 import { ApexAxisChartSeries, ApexChart, ApexXAxis, ApexDataLabels, ApexGrid, ApexStroke, ApexTitleSubtitle, ApexYAxis } from 'ng-apexcharts';
 import { NgApexchartsModule } from 'ng-apexcharts';
-import { DetectionGraphService } from '../../Services/detection-graph/detection-graph.service';
+import { DetectionGraphService, DetectionQuality } from '../../Services/detection-graph/detection-graph.service';
 import { Subject, takeUntil } from 'rxjs';
-import { DetectionQuality } from '../../../Models/DetectionQuality';
 import {MatChipsModule} from '@angular/material/chips';
 import { CommonModule } from '@angular/common';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
