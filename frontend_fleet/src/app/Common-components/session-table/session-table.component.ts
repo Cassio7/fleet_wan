@@ -250,9 +250,6 @@ export class SessionTableComponent implements OnChanges, AfterViewInit, OnDestro
             console.log('sessions fetched: ', sessions);
             if (sessions) {
               let count = 1;
-              sessions.forEach((session) => {
-                session.table_id = count++;
-              });
 
               this.allSessions = sessions;
 
@@ -296,7 +293,12 @@ export class SessionTableComponent implements OnChanges, AfterViewInit, OnDestro
     button._elementRef.nativeElement.style.display = 'none'; // Accessing native element correctly
   }
 
-  showPathBySession(session: Session) {
+  /**
+   * Mostra il percorso effettuato da un veicolo in una sessione nella mappa dell sezione di destra dello storico
+   * @param session sessione del veicolo di cui mostrare il percorso
+   * @param index indice della riga della sessione
+   */
+  showPathBySession(session: Session, index: number) {
     console.log(`setting this time range: ${session.period_from} - ${session.period_to}`)
     if(session) this.tagService.setTimeRange(session.period_from, session.period_to);
     const points = session.history.map((history) => {
@@ -304,7 +306,7 @@ export class SessionTableComponent implements OnChanges, AfterViewInit, OnDestro
     });
     const pathData: pathData = {
       plate: this.vehicle.plate,
-      position_number: session.table_id,
+      position_number: index,
       points: points,
       tagPoints: []
     };
@@ -329,6 +331,10 @@ export class SessionTableComponent implements OnChanges, AfterViewInit, OnDestro
     });
   }
 
+  /**
+   * Mostra il percorso effettuato da un veicolo in una sessione nella mappa dell sezione di destra dello storico
+   * @param anomalyDay dati della giornata selezionata
+   */
   showDayPath(anomalyDay: Anomaly) {
     console.log("so entrato");
     if(anomalyDay.date) this.tagService.setTimeRange(anomalyDay.date, anomalyDay.date);
