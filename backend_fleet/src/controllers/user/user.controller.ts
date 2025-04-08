@@ -295,11 +295,11 @@ export class UserController {
       this.loggerService.logCrudSuccess(
         context,
         'update',
-        `Utente con username ${userDTO.username} aggiornato!`,
+        `Utente con username ${user.username} aggiornato!`,
       );
       return res.status(200).json({
         user,
-        message: `Utente con username ${userDTO.username} aggiornato!`,
+        message: `Utente con username ${user.username} aggiornato!`,
       });
     } catch (error) {
       this.loggerService.logCrudError({
