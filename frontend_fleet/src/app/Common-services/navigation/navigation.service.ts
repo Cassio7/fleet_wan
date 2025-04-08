@@ -17,6 +17,11 @@ export class NavigationService {
     });
   }
 
+  /**
+   * Permette di ottenere il testo del link per tornare alla pagina precedente
+   * @param previous_url url della pagina precedente
+   * @returns stringa contenuto del testo di go back
+   */
   getGoBackTextByUrl(previous_url: string): string{
     switch (previous_url) {
       case '/dashboard':
@@ -41,7 +46,16 @@ export class NavigationService {
     return "";
   }
 
+  /**
+   * Permette di ottenere il precedente url
+   * @returns url precedente se questo non è uguale a '/profile' o '/notifications'
+   * @returns null se invece è uguale a uno dei due
+   */
   getPreviousUrl(): string | null {
-    return this.previousUrl;
+    if (this.previousUrl != '/profile' && this.previousUrl != '/notifications'){
+      return this.previousUrl;
+    }else{
+      return null;
+    }
   }
 }
