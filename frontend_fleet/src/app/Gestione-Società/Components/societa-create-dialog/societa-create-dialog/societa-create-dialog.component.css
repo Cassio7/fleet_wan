@@ -1,0 +1,21 @@
+.title{
+  padding-left: 20px;
+  padding-top: 20px;
+}
+.button:disabled{
+  cursor: pointer;
+}
+.create-company-form{
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.no-button{
+  background-color: white !important;
+  color: black !important;
+  border: 1px solid var(--navbarANDstats-background);
+}
+mat-dialog-actions{
+  display: flex;
+  gap: 20px;
+}

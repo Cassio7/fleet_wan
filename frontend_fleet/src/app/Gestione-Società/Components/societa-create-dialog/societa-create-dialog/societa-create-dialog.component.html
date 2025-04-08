@@ -1,0 +1,31 @@
+<h4 mat-dialog-title class="title">Crea nuova società</h4>
+<mat-dialog-content>
+  <p>Nuova società</p>
+  <form [formGroup]="createCompanyForm" (ngSubmit)="onConfirm()" class="create-company-form">
+    <!-- Campo Worksite Name -->
+    <mat-form-field appearance="outline">
+      <input matInput formControlName="name" #name placeholder="Company name" />
+      <mat-error *ngIf="createCompanyForm.get('name')?.hasError('required') && createCompanyForm.get('name')?.touched">
+        Il nome è obbligatorio.
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Campo Comune (Opzionale) -->
+    <mat-form-field appearance="outline">
+      <input matInput formControlName="suId" placeholder="suId" />
+      <mat-error *ngIf="createCompanyForm.get('suId')?.hasError('required') && createCompanyForm.get('suId')?.touched">
+        Il suId è obbligatorio
+      </mat-error>
+      <mat-error *ngIf="createCompanyForm.get('suId')?.hasError('pattern') && createCompanyForm.get('suId')?.touched">
+        Il suId deve essere un numero!
+      </mat-error>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button mat-button class="button no-button" [mat-dialog-close]="null">No Thanks</button>
+  <div class="okButton-container" [matTooltip]="!createCompanyForm.get('name')?.value ? 'Inserire un nome per il cantiere' : ''">
+    <button mat-button class="button ok-button" type="submit" (click)="onConfirm()" cdkFocusInitial>Ok</button>
+  </div>
+</mat-dialog-actions>
