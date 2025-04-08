@@ -123,7 +123,6 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
       const access_token = this.cookieService.get("user");
       if(access_token){
         this.user = this.authService.decodeToken(access_token);
-        console.log('user from token: ', this.user);
         merge(
           this.kanbanAntennaService.loadKanbanAntenna$.pipe(takeUntil(this.destroy$)),
           this.kanbanGpsService.loadKanbanGps$.pipe(takeUntil(this.destroy$)),

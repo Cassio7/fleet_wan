@@ -158,7 +158,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
     this.authService.getUserInfo().pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (user: User) => {
-        console.log('ao: ', user);
         this.user = user;
         this.isLogged = true;
         this.isLoginPage = this.checkLoginPage(this.router.url);
