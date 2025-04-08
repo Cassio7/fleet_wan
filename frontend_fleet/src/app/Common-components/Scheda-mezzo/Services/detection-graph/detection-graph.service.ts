@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { CommonService } from '../../../Common-services/common service/common.service';
+import { CommonService } from '../../../../Common-services/common service/common.service';
 import { CookieService } from 'ngx-cookie-service';
 
 export interface DetectionQuality{

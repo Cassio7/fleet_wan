@@ -5,7 +5,7 @@ import { DetectionGraphService, DetectionQuality } from '../../Services/detectio
 import { Subject, takeUntil } from 'rxjs';
 import {MatChipsModule} from '@angular/material/chips';
 import { CommonModule } from '@angular/common';
-import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
+import { SessionStorageService } from '../../../../Common-services/sessionStorage/session-storage.service';
 import { NavigationStart, Router } from '@angular/router';
 
 export type ChartOptions = {

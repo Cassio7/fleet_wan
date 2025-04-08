@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { LoginComponent } from './Common-components/login/login.component';
 import { DashboardComponent } from './Dashboard/Components/dashboard/dashboard.component';
 import { HomeMezziComponent } from './Mezzi/Components/home-mezzi/home-mezzi.component';
-import { DettaglioMezzoComponent } from './Common-components/Scheda-mezzo/dettaglio-mezzo/dettaglio-mezzo.component';
+import { DettaglioMezzoComponent } from './Common-components/Scheda-mezzo/Components/dettaglio-mezzo/dettaglio-mezzo.component';
 import { StoricoMezziComponent } from './Storico-mezzi/Components/storico-mezzi/storico-mezzi.component';
 import { HomeMapComponent } from './Mappa/Components/home-map/home-map.component';
 import { UserHomeComponent } from './Gestione-utenti/Components/user-home/user-home.component';

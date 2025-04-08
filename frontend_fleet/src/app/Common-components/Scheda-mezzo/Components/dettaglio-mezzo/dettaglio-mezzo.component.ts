@@ -1,4 +1,4 @@
-import { CheckErrorsService } from './../../../Common-services/check-errors/check-errors.service';
+import { CheckErrorsService } from '../../../../Common-services/check-errors/check-errors.service';
 import {
   AfterViewInit,
   ChangeDetectorRef,
@@ -12,24 +12,24 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { ActivatedRoute, Router } from '@angular/router';
-import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
-import { VehiclesApiService } from '../../../Common-services/vehicles api service/vehicles-api.service';
+import { SessionStorageService } from '../../../../Common-services/sessionStorage/session-storage.service';
+import { VehiclesApiService } from '../../../../Common-services/vehicles api service/vehicles-api.service';
 import { Subject, takeUntil } from 'rxjs';
-import { Vehicle } from '../../../Models/Vehicle';
+import { Vehicle } from '../../../../Models/Vehicle';
 import { CommonModule } from '@angular/common';
-import { NotesService } from '../../../Common-services/notes/notes.service';
-import { Note } from '../../../Models/Note';
-import { User } from '../../../Models/User';
-import { AuthService } from '../../../Common-services/auth/auth.service';
-import { DetectionGraphComponent } from '../../../Mezzi/Components/detection-graph/detection-graph.component';
-import { NoteSectionComponent } from '../../note-section/note-section.component';
+import { NotesService } from '../../../../Common-services/notes/notes.service';
+import { Note } from '../../../../Models/Note';
+import { User } from '../../../../Models/User';
+import { AuthService } from '../../../../Common-services/auth/auth.service';
+import { DetectionGraphComponent } from '../detection-graph/detection-graph.component';
+import { NoteSectionComponent } from '../../../note-section/note-section.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AnomaliesComponent } from '../anomalies/anomalies.component';
-import { SessionFiltersComponent } from '../../session-filters/session-filters.component';
-import { NavigationService } from '../../../Common-services/navigation/navigation.service';
-import { SessionTableComponent } from '../../session-table/session-table.component';
-import { SvgService } from '../../../Common-services/svg/svg.service';
-import { Stats } from '../../../Models/Stats';
+import { SessionFiltersComponent } from '../../../session-filters/session-filters.component';
+import { NavigationService } from '../../../../Common-services/navigation/navigation.service';
+import { SessionTableComponent } from '../../../session-table/session-table.component';
+import { SvgService } from '../../../../Common-services/svg/svg.service';
+import { Stats } from '../../../../Models/Stats';
 
 @Component({
   selector: 'app-dettaglio-mezzo',
