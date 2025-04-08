@@ -21,7 +21,8 @@
       </div>
     </section>
     <section class="right-section">
-      <app-worksite-associations-kanban *ngIf="associationResponse" [userId]="user.id" [associationResponse]="associationResponse"></app-worksite-associations-kanban>
+      <app-worksite-associations-kanban *ngIf="associationResponse?.worksiteFree" [userId]="user.id" [associationResponse]="associationResponse"></app-worksite-associations-kanban>
+      <app-company-associations-kanban *ngIf="associationResponse?.companyFree" [userId]="user.id" [associationResponse]="associationResponse"></app-company-associations-kanban>
     </section>
   </article>
 </div>

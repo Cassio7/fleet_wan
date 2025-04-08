@@ -13,6 +13,7 @@ import { AssociationsService, getAssociationsResponse } from '../../Services/ass
 import { Association } from '../../../Models/Association';
 import { WorkSite } from '../../../Models/Worksite';
 import { Company } from '../../../Models/Company';
+import { CompanyAssociationsKanbanComponent } from "../company-associations-kanban copy/company-associations-kanban.component";
 
 @Component({
   selector: 'app-user-home',
@@ -23,8 +24,9 @@ import { Company } from '../../../Models/Company';
     DatiUtenteComponent,
     MatIconModule,
     MatButtonModule,
-    WorksiteAssociationsKanbanComponent
-  ],
+    WorksiteAssociationsKanbanComponent,
+    CompanyAssociationsKanbanComponent
+],
   templateUrl: './user-home.component.html',
   styleUrls: ['./user-home.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
