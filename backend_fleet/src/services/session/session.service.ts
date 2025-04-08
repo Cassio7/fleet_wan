@@ -727,7 +727,8 @@ export class SessionService {
   }
 
   /**
-   * Ritorna alcuni dati dell'ultima sessione registrata in base ad una lista di veicoli
+   * Ritorna alcuni dati dell'ultima sessione valida registrata in base ad una lista di veicoli
+   * Prende soltanto le sessione dove esiste un inizio ed una fine, ed il session_id è buono
    * @param vehicleIds lista di veId identificativi veicolo
    * @returns ritorna una mappa con (veId, session);
    */
@@ -735,36 +736,39 @@ export class SessionService {
     vehicleIds: number[],
   ): Promise<Map<number, any>> {
     try {
-      const sessions = await this.sessionRepository
-        .createQueryBuilder('s')
-        .distinctOn(['v.veId'])
-        .select([
-          's.key AS key',
-          's.id AS id',
-          's.sequence_id AS sequence_id',
-          's.period_to AS period_to',
-          'v.veId AS veId',
-        ])
-        .innerJoin('history', 'h', 's.id = h.sessionId')
-        .innerJoin('vehicles', 'v', 'h.vehicleId = v.id')
-        .where('v.veId IN (:...vehicleIds)', { vehicleIds })
-        .orderBy('v.veId')
-        .addOrderBy('s.sequence_id', 'DESC')
-        .getRawMany();
-
-      const sessionMap = new Map<number, any>();
-      sessions.forEach((session) => {
-        const vehicleId = session.veid;
+      // recupero molto piu veloce recuperando un veicolo alla volta,
+      // più query invece che una singola massiva
+      const promises = vehicleIds.map((veId) => {
+        return this.sessionRepository
+          .createQueryBuilder('s')
+          .distinctOn(['v.veId'])
+          .select([
+            's.key AS key',
+            's.period_to AS period_to',
+            'v.veId AS veId',
+          ])
+          .innerJoin('history', 'h', 's.id = h.sessionId')
+          .innerJoin('vehicles', 'v', 'h.vehicleId = v.id')
+          .where('v.veId = :veId', { veId })
+          .orderBy('v.veId')
+          .addOrderBy('s.sequence_id', 'DESC')
+          .getRawMany();
+      });
+      const result = await Promise.all(promises);
+      const resultFlat = result.flat();
+      const sessionMapSingle = new Map<number, any>();
+      resultFlat.forEach((item) => {
+        const vehicleId = item.veid;
         if (vehicleId) {
-          sessionMap.set(vehicleId, session);
+          sessionMapSingle.set(vehicleId, item);
         }
       });
-      await this.setLastValidSessionRedis(sessionMap);
-      return sessionMap;
+      await this.setLastValidSessionRedis(sessionMapSingle);
+      return sessionMapSingle;
     } catch (error) {
       if (error instanceof HttpException) throw error;
       throw new HttpException(
-        `Errore durante delle sessioni attive`,
+        `Errore durante delle sessioni valide`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -817,32 +821,38 @@ export class SessionService {
    */
   async getLastHistoryByVeIds(vehicleIds: number[]): Promise<Map<number, any>> {
     try {
-      const history = await this.historyRepository
-        .createQueryBuilder('h')
-        .distinctOn(['v.veId'])
-        .select([
-          'h.id as id ',
-          'h.timestamp AS timestamp',
-          'h.latitude as latitude',
-          'h.longitude as longitude',
-          'h.direction as direction',
-          'h.speed as speed',
-          'v.veId AS veId',
-        ])
-        .innerJoin('vehicles', 'v', 'h.vehicleId = v.id')
-        .where('v.veId IN (:...vehicleIds)', { vehicleIds })
-        .orderBy('v.veId')
-        .addOrderBy('h.timestamp', 'DESC')
-        .getRawMany();
-      const historyMap = new Map<number, any>();
-      history.forEach((session) => {
-        const vehicleId = session.veid;
+      // recupero molto piu veloce recuperando un veicolo alla volta,
+      // più query invece che una singola massiva
+      const promises = vehicleIds.map((veId) => {
+        return this.historyRepository
+          .createQueryBuilder('h')
+          .distinctOn(['v.veId'])
+          .select([
+            'h.id AS id',
+            'h.timestamp AS timestamp',
+            'h.latitude AS latitude',
+            'h.longitude AS longitude',
+            'h.direction AS direction',
+            'h.speed AS speed',
+            'v.veId AS veId',
+          ])
+          .innerJoin('vehicles', 'v', 'h.vehicleId = v.id')
+          .where('v.veId = :veId', { veId })
+          .orderBy('v.veId')
+          .addOrderBy('h.timestamp', 'DESC')
+          .getRawMany();
+      });
+      const results = await Promise.all(promises);
+      const resultFlat = results.flat();
+      const historyMapSingle = new Map<number, any>();
+      resultFlat.forEach((item) => {
+        const vehicleId = item.veid;
         if (vehicleId) {
-          historyMap.set(vehicleId, session);
+          historyMapSingle.set(vehicleId, item);
         }
       });
-      await this.setLastHistoryRedis(historyMap);
-      return historyMap;
+      await this.setLastHistoryRedis(historyMapSingle);
+      return historyMapSingle;
     } catch (error) {
       if (error instanceof HttpException) throw error;
       throw new HttpException(
