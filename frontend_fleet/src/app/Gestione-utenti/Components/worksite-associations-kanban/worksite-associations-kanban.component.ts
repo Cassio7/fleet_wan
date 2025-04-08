@@ -79,9 +79,7 @@ export class WorksiteAssociationsKanbanComponent implements AfterViewInit, OnCha
 
     this.associationsService.createAssociation(this.userId, [draggedWorksite.id]).pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (response:any) => {
-          console.log('new association created: ', response.association[0]);
-          console.log('new association.worksite: ', response.association[0].worksite);
+        next: (response: {message: string, association: Association[]}) => {
           //rimuove il cantiere spostato dalla lista dei cantieri
           this.associationsFreeWorksites = this.associationsFreeWorksites.filter(worksite => worksite.id !== draggedWorksite.id);
           //aggiunta dell'associazione creata alla lista di associazioni
@@ -93,8 +91,6 @@ export class WorksiteAssociationsKanbanComponent implements AfterViewInit, OnCha
         error: error => {
           console.error("Errore nella creazione della nuova associazione: ", error);
           this.openSnackbar(`Errore nell'associazione del cantiere con l'utente.`);
-
-          // Revert the visual change if there's an error
         }
       });
   }

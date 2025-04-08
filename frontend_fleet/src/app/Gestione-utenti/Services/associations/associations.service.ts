@@ -47,7 +47,7 @@ export class AssociationsService {
    * @param companyIds id delle società da associare
    * @returns observable http post
    */
-  createAssociation(userId: number, worksiteIds?: number[], companyIds?: number[]): Observable<{message: string, association: Association}>{
+  createAssociation(userId: number, worksiteIds?: number[], companyIds?: number[]): Observable<{message: string, association: Association[]}>{
     if(!worksiteIds && !companyIds){
       return of();
     }else{
@@ -63,7 +63,7 @@ export class AssociationsService {
         companyIds: companyIds
       };
 
-      return this.http.post<{message: string, association: Association}>(`${this.commonService.url}/associations`, body, {headers});
+      return this.http.post<{message: string, association: Association[]}>(`${this.commonService.url}/associations`, body, {headers});
     }
   }
 
