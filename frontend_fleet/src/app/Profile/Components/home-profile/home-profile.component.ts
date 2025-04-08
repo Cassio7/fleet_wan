@@ -9,6 +9,7 @@ import { User } from '../../../Models/User';
 import { NavigationService } from '../../../Common-services/navigation/navigation.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 
 @Component({
   selector: 'app-home-profile',
@@ -33,12 +34,19 @@ export class HomeProfileComponent implements OnInit, AfterViewInit{
   constructor(
     private authService: AuthService,
     private navigationService: NavigationService,
+    private sessionStorageService: SessionStorageService,
     private route: ActivatedRoute,
     private router: Router
   ){}
 
   ngOnInit(): void {
     this.previous_url = this.navigationService.getPreviousUrl() || "";
+
+    if (this.previous_url) {
+      this.sessionStorageService.setItem('navbar_previous_url', this.previous_url);
+    } else if (this.sessionStorageService.getItem('navbar_previous_url')) {
+      this.previous_url = this.sessionStorageService.getItem('navbar_previous_url');
+    }
 
     this.goBack_text = this.navigationService.getGoBackTextByUrl(this.previous_url);
   }

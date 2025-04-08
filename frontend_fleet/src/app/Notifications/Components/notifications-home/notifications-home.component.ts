@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { NavigationService } from '../../../Common-services/navigation/navigation.service';
 import { MatButtonModule } from '@angular/material/button';
 import { Router } from '@angular/router';
+import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 
 @Component({
   selector: 'app-notifications-home',
@@ -36,12 +37,19 @@ export class NotificationsHomeComponent implements OnInit{
   constructor(
     private notificationService: NotificationService,
     private navigationService: NavigationService,
+    private sessionStorageService: SessionStorageService,
     private cd: ChangeDetectorRef,
     private router: Router
   ){}
 
   ngOnInit(): void {
     this.previous_url = this.navigationService.getPreviousUrl() || "";
+
+    if (this.previous_url) {
+      this.sessionStorageService.setItem('navbar_previous_url', this.previous_url);
+    } else if (this.sessionStorageService.getItem('navbar_previous_url')) {
+      this.previous_url = this.sessionStorageService.getItem('navbar_previous_url');
+    }
 
     this.goBack_text = this.navigationService.getGoBackTextByUrl(this.previous_url);
 
