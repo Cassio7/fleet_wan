@@ -80,8 +80,7 @@ export class DettaglioMezzoComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    if (this.navigationService.getPreviousUrl() != '/profile')
-      this.previous_url = this.navigationService.getPreviousUrl() || null;
+    this.previous_url = this.navigationService.getPreviousUrl();
 
     this.vehicle = JSON.parse(this.sessionStorageService.getItem('detail'));
     this.user = this.authService.getParsedAccessToken();
@@ -114,19 +113,8 @@ export class DettaglioMezzoComponent implements OnInit, OnDestroy {
       this.previous_url = this.sessionStorageService.getItem('previous_url');
     }
 
-    switch (this.previous_url) {
-      case '/dashboard':
-        this.goBack_text = 'Torna alla dashboard';
-        break;
-      case '/home-mezzi':
-        this.goBack_text = 'Torna al parco mezzi';
-        break;
-      case '/storico-mezzi':
-        this.goBack_text = 'Torna allo storico mezzi';
-        break;
-      case '/home-mappa':
-        this.goBack_text = 'Torna alla mappa dei mezzi';
-    }
+    if(this.previous_url)
+    this.goBack_text = this.navigationService.getGoBackTextByUrl(this.previous_url);
 
     this.cd.detectChanges();
   }
