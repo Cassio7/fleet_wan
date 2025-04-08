@@ -1,0 +1,42 @@
+<div cdkDropListGroup class="company-columns">
+  <div class="own column">
+    <div class="section-header">
+      <p class="title">Società associate</p>
+      <span>{{associationsList.length}}</span>
+    </div>
+
+    <div
+      cdkDropList
+      [cdkDropListData]="associationsList"
+      class="column-list"
+      cdkDropListSortingDisabled
+      (cdkDropListDropped)="onDrop($event)"
+      [id]="'associations-list'">
+      <div *ngFor="let association of associationsList; trackBy: trackByAssociaton" class="company" cdkDrag [cdkDragData]="association">
+        <div class="company-name-container">
+          <mat-icon>location_city</mat-icon><span class="company-name">{{association?.company?.name}}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="free column">
+    <div class="section-header">
+      <p class="title">Società associabili</p>
+      <span>{{associationsFreeCompanies.length}}</span>
+    </div>
+
+    <div
+      cdkDropList
+      [cdkDropListData]="associationsFreeCompanies"
+      class="column-list"
+      (cdkDropListDropped)="onDrop($event)"
+      [id]="'companies-list'">
+      <div *ngFor="let company of associationsFreeCompanies; trackBy: trackByCompany" class="company" cdkDrag [cdkDragData]="company">
+        <div class="company-name-container">
+          <mat-icon>location_city</mat-icon><span class="company-name">{{company?.name}}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
