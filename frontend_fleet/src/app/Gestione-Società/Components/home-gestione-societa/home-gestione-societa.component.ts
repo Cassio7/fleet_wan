@@ -17,6 +17,8 @@ import { Subject, takeUntil } from 'rxjs';
 import { Group } from '../../../Models/Group';
 import { GestioneSocietaService } from '../../Services/gestione-societa/gestione-societa.service';
 import { MatIconModule } from '@angular/material/icon';
+import { SocietaCreateDialogComponent } from '../societa-create-dialog/societa-create-dialog/societa-create-dialog.component';
+import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.component';
 
 @Component({
   selector: 'app-home-gestione-societa',
@@ -62,65 +64,41 @@ export class HomeGestioneSocietaComponent implements OnInit, OnDestroy {
         error: (error) =>
           console.error("Errore nell'ottenere tutti i societa: ", error),
       });
-
-    // this.gestioneSocietaService.getAllGroups().pipe(takeUntil(this.destroy$))
-    // .subscribe({
-    //   next: (groups: Group[]) => {
-    //     this.groups = groups;
-    //     console.log('groups fetched from home getsione: ', groups);
-    //     this.cd.detectChanges();
-    //   },
-    //   error: error => console.error("Errore nell'ottenere tutti i societa: ", error)
-    // });
   }
 
-  // createNewCantiere(): void {
-  //   const dialogRef = this.dialog.open(SocietaCreateDialogComponent, {
-  //     data: {
-  //       groups: this.groups,
-  //       societa: this.societa
-  //     }
-  //   });
+  createNewCompany(): void {
+    const dialogRef = this.dialog.open(SocietaCreateDialogComponent, {});
 
-  //   dialogRef.afterClosed().subscribe((result: {name: string, comune: string}) => {
-  //     if (result !== undefined) {
-  //       console.log('result: ', result);
-  //       if(result.comune){
-  //         this.gestioneSocietaService.getGroupIdByName(result.comune).pipe(takeUntil(this.destroy$))
-  //         .subscribe({
-  //           next: (gruopId: number | null) => {
-  //             if(gruopId){
-  //               this.createCantiere({name: result.name, groupId: gruopId})
-  //             }
-  //           },
-  //           error: error => console.error("Errore nella ricerca dell'id del comune tramite il nome: ", error)
-  //         });
-  //       }else{
-  //         this.createCantiere({name: result.name})
-  //       }
-  //     }
-  //   });
-  // }
+    dialogRef.afterClosed().subscribe((result: {suId: number, name: string}) => {
+      if (result) {
+        this.createCompany(result.suId, result.name);
+      }
+    });
+  }
 
-  // private createCantiere(newSocietaData: {name: string, groupId?: number}){
-  //   console.log('cantiere da creare in hmoe: ', newSocietaData);
-  //   this.gestioneSocietaService.createCantiere(newSocietaData).pipe(takeUntil(this.destroy$))
-  //   .subscribe({
-  //     next: (createdSocietaData: {message: string, societa: Societa}) => {
-  //       console.log('createdSocietaData: ', createdSocietaData);
-  //       console.log('createdSocietaData.cantiere ', createdSocietaData.societa);
-  //       this.openSnackbar(`Nuovo cantiere ${createdSocietaData.societa.name} creato`)
-  //       this.societa = [...this.societa, createdSocietaData.societa];
-  //       this.cd.detectChanges();
-  //     },
-  //     error: error => console.error("Errore nella creazione del nuovo cantiere: ", error)
-  //   })
-  // }
+  private createCompany(suId: number, name: string){
+    this.gestioneSocietaService.createCompany(suId, name).pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (response: {message: string, company: Company}) => {
+        this.societa = [...this.societa, response.company]
+        this.openSnackbar(`Società ${name} con suId ${suId} creata.`);
+        this.cd.detectChanges();
+      },
+      error: error => {
+        console.error("Errore nella creazione della società: ", error);
+        this.openSnackbar("Errore nella creazione della società");
+      }
+    });
+  }
 
-  // private openSnackbar(content: string): void {
-  //   this.snackBar.openFromComponent(SnackbarComponent, {
-  //     duration: 2 * 1000,
-  //     data: { content: content }
-  //   });
-  // }
+  /**
+   * Apre la snackbar con il contenuto passato
+   * @param content stringa contenuto della snackbar
+   */
+  private openSnackbar(content: string): void {
+    this.snackBar.openFromComponent(SnackbarComponent, {
+      duration: 2 * 1000,
+      data: { content: content },
+    });
+  }
 }

@@ -5,7 +5,7 @@
       <mat-icon>business</mat-icon> Gestione societa: {{this.societa.length}}
     </h4>
 
-    <button mat-button class="button">Crea società</button>
+    <button mat-button class="button" (click)="createNewCompany()">Crea società</button>
   </div>
   <div class="filters">
     <app-societa-filters [societa]="societa"></app-societa-filters>

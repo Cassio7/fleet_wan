@@ -127,11 +127,13 @@ export class SocietaTableComponent implements AfterViewInit, OnDestroy {
                 );
               }
             },
-            error: (error) =>
+            error: (error) => {
               console.error(
                 `Errore nell'eliminazione della societaà con id ${companyId}: `,
                 error
-              ),
+              );
+              this.openSnackbar("Errore nell'eliminazione della società")
+            }
           });
       });
   }
