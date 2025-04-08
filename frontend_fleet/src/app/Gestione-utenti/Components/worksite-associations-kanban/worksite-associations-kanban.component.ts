@@ -35,7 +35,6 @@ export class WorksiteAssociationsKanbanComponent implements AfterViewInit, OnCha
   snackbar: MatSnackBar = inject(MatSnackBar);
 
   associationsList: Association[] = [];
-  associationsWorksites: WorkSite[] = [];
   associationsFreeWorksites: WorkSite[] = [];
 
   constructor(private associationsService: AssociationsService,
@@ -56,15 +55,15 @@ export class WorksiteAssociationsKanbanComponent implements AfterViewInit, OnCha
 
   ngAfterViewInit(): void {
     this.associationsList = this.associationResponse.associations;
-    console.log('this.associationsList[0]: ', this.associationsList [0]);
-    this.associationsWorksites = this.associationsList.flatMap(association =>
-      association.worksite ? [association.worksite] : []
-    );
     if(this.associationResponse.worksiteFree) this.associationsFreeWorksites = this.associationResponse.worksiteFree;
   }
 
+  /**
+   * Gestisce il drop di un elemento su una delle due colonne, per poi riconoscere la sorgente e la destinazione dello spostamento
+   * per chiamare la funzione dedicata
+   * @param event evento drag and drop
+   */
   onDrop(event: CdkDragDrop<any[]>) {
-    // Riconoscere da dove a dove è stato spostato un item
     if (event.previousContainer.id === 'worksites-list' && event.container.id === 'associations-list') {
       this.handleWorksiteToAssociation(event);
     } else if (event.previousContainer.id === 'associations-list' && event.container.id === 'worksites-list') {
@@ -74,6 +73,10 @@ export class WorksiteAssociationsKanbanComponent implements AfterViewInit, OnCha
     }
   }
 
+  /**
+   * Permette di gestire lo spostamento di una società nella lista della associazioni, e creando un associazione nel database tramite un chiamata API
+   * @param event evento drag and drop
+   */
   handleWorksiteToAssociation(event: CdkDragDrop<any[]>) {
     const draggedWorksite = event.previousContainer.data[event.previousIndex] as WorkSite;
 
@@ -95,6 +98,10 @@ export class WorksiteAssociationsKanbanComponent implements AfterViewInit, OnCha
       });
   }
 
+  /**
+   * Permette di gestire lo spostamento di una associazione nella lista delle società, ed eliminando l'associazione dal database tramite una chiamata API
+   * @param event evento drag and drop
+   */
   handleAssociationToWorksite(event: CdkDragDrop<any[]>) {
     const draggedAssociation = event.previousContainer.data[event.previousIndex] as Association;
     const worksite = draggedAssociation.worksite;
@@ -106,7 +113,6 @@ export class WorksiteAssociationsKanbanComponent implements AfterViewInit, OnCha
 
     this.associationsList = this.associationsList.filter(a => a.id !== draggedAssociation.id);
     this.associationsFreeWorksites.push(worksite);
-    event.container.data[event.currentIndex] = worksite;
 
     this.associationsService.deleteAssociationById(draggedAssociation.id)
       .pipe(takeUntil(this.destroy$))
