@@ -1,9 +1,11 @@
+import { InjectRedis } from '@nestjs-modules/ioredis';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { UserEntity } from 'classes/entities/user.entity';
+import Redis from 'ioredis';
 import { Repository } from 'typeorm';
 import { JwtPayload } from './../../../node_modules/@types/jsonwebtoken/index.d';
 
@@ -14,6 +16,7 @@ export class AuthService {
     private readonly userRepository: Repository<UserEntity>,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    @InjectRedis() private readonly redis: Redis,
   ) {}
 
   /**
@@ -103,5 +106,38 @@ export class AuthService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  /**
+   *
+   * @param userId
+   * @returns
+   */
+  async getActive(userId: number): Promise<boolean> {
+    const key = `user:${userId}:active`;
+    let userActiveStr = await this.redis.get(key);
+    if (userActiveStr === null) {
+      const userDB = await this.userRepository.findOne({
+        select: {
+          active: true,
+        },
+        where: { id: userId },
+      });
+      userActiveStr = userDB.active ? '1' : '0';
+      // rimane su redis 30 minuti
+      await this.redis.set(key, userActiveStr, 'EX', 1800);
+    }
+    return userActiveStr === '1';
+  }
+
+  /**
+   *
+   * @param userId
+   * @param active
+   */
+  async setActive(userId: number, active: boolean) {
+    const key = `user:${userId}:active`;
+    const userActiveStr = active ? '1' : '0';
+    await this.redis.set(key, userActiveStr, 'EX', 1800);
   }
 }
