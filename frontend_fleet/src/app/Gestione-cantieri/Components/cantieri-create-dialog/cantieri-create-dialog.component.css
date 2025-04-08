@@ -5,6 +5,11 @@
 .button:disabled{
   cursor: pointer;
 }
+.create-worksite-form{
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
 .no-button{
   background-color: white !important;
   color: black !important;

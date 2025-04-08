@@ -2,13 +2,13 @@
 <mat-dialog-content>
   <mat-dialog-content>
     <p>Nuovo cantiere</p>
-    <form [formGroup]="createCantiereForm" (ngSubmit)="onConfirm()">
+    <form [formGroup]="createCantiereForm" (ngSubmit)="onConfirm()" class="create-worksite-form">
 
       <!-- Campo Worksite Name -->
       <mat-form-field appearance="outline">
         <input matInput formControlName="name" #name placeholder="Worksite Name" />
         <mat-error *ngIf="createCantiereForm.get('worksiteName')?.hasError('required') && createCantiereForm.get('worksiteName')?.touched">
-          Worksite Name è obbligatorio.
+          Il nome del cantiere è obbligatorio.
         </mat-error>
       </mat-form-field>
 
