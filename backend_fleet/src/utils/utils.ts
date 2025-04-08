@@ -3,6 +3,11 @@ import { parse } from 'csv-parse';
 import * as fs from 'fs';
 import { validate as isUUID } from 'uuid';
 
+export type ValidationResult = {
+  isValid: boolean;
+  message?: string;
+};
+
 /**
  * Funzione che converte un orario del timestamp in base al fuso orario
  * @param timestamp timestamp di partenza
@@ -61,11 +66,6 @@ export async function parseCsvFile(cvsPath: string): Promise<any[]> {
       .on('error', (error) => reject(error));
   });
 }
-
-export type ValidationResult = {
-  isValid: boolean;
-  message?: string;
-};
 
 /**
  * Funzione per validare un range di date.

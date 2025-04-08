@@ -26,7 +26,7 @@ export class NotificationsService {
    * @param userId user id di chi può visua
    * @param author autore
    * @param title titolo
-   * @param message contenuto 
+   * @param message contenuto
    * @returns NotificationDTO della notifica creata
    */
   async createNotification(
@@ -49,14 +49,14 @@ export class NotificationsService {
         return;
       }
       const notification = queryRunner.manager
-      .getRepository(NotificationEntity)
-      .create({
-        isRead: false,
-        author: author, 
-        title: title,
-        message: message,
-        user: user, 
-      });
+        .getRepository(NotificationEntity)
+        .create({
+          isRead: false,
+          author: author,
+          title: title,
+          message: message,
+          user: user,
+        });
       await queryRunner.manager
         .getRepository(NotificationEntity)
         .save(notification);

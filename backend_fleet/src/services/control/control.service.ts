@@ -324,6 +324,7 @@ export class ControlService {
       const brokenVehicles = vehicles.reduce((acc, vehicle) => {
         const lastSession = sessionsMap.get(vehicle.veId) || null;
         if (lastSession) {
+          // ultimo evento del veicolo che corrisponde a ultima posizione su una sessione valida
           const lastVehicleEventTime = new Date(vehicle.lastEvent).getTime();
           const sessionEndTime = new Date(lastSession.period_to).getTime();
 
