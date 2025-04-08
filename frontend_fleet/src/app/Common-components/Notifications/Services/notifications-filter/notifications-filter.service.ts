@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { Notifica } from '../../../Models/Notifica';
+import { Notifica } from '../../../../Models/Notifica';
 import { CookieService } from 'ngx-cookie-service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { CommonService } from '../../../Common-services/common service/common.service';
+import { CommonService } from '../../../../Common-services/common service/common.service';
 
 @Injectable({
   providedIn: 'root'

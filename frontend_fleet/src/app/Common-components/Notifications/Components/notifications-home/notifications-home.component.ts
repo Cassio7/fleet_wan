@@ -1,15 +1,15 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { NotificationsTableComponent } from "../notifications-table/notifications-table.component";
-import { NotificationService } from '../../../Common-services/notification/notification.service';
+import { NotificationService } from '../../../../Common-services/notification/notification.service';
 import { Subject, takeUntil } from 'rxjs';
-import { Notifica } from '../../../Models/Notifica';
+import { Notifica } from '../../../../Models/Notifica';
 import { CommonModule } from '@angular/common';
 import { NotificationsFiltersComponent } from "../notifications-filters/notifications-filters.component";
 import { MatIconModule } from '@angular/material/icon';
-import { NavigationService } from '../../../Common-services/navigation/navigation.service';
+import { NavigationService } from '../../../../Common-services/navigation/navigation.service';
 import { MatButtonModule } from '@angular/material/button';
 import { Router } from '@angular/router';
-import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
+import { SessionStorageService } from '../../../../Common-services/sessionStorage/session-storage.service';
 
 @Component({
   selector: 'app-notifications-home',
