@@ -3,8 +3,8 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, Observable} from 'rxjs';
 import { Session } from '../../Models/Session';
 import { CommonService } from '../common service/common.service';
-import { VehicleAnomalies } from '../../Models/VehicleAnomalies';
 import { CookieService } from 'ngx-cookie-service';
+import { VehicleAnomalies } from '../check-errors/check-errors.service';
 
 @Injectable({
   providedIn: 'root'

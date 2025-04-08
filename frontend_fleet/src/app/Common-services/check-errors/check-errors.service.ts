@@ -10,11 +10,15 @@ import {
 import { CommonService } from '../common service/common.service';
 import { VehicleData } from '../../Models/VehicleData';
 import { Anomaly } from '../../Models/Anomaly';
-import { VehicleAnomalies } from '../../Models/VehicleAnomalies';
 import { CookieService } from 'ngx-cookie-service';
 import { SessionErrorVehicles } from '../../Dashboard/Services/kanban-sessione/kanban-sessione.service';
 import { Stats } from '../../Models/Stats';
+import { Vehicle } from '../../Models/Vehicle';
 
+export interface VehicleAnomalies{
+  vehicle: Vehicle,
+  anomalies: Anomaly[]
+}
 @Injectable({
   providedIn: 'root',
 })

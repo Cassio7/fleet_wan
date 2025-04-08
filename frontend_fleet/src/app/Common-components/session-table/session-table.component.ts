@@ -27,14 +27,13 @@ import {
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { catchError, Observable, of, skip, Subject, takeUntil } from 'rxjs';
-import { CheckErrorsService } from '../../Common-services/check-errors/check-errors.service';
+import { CheckErrorsService, VehicleAnomalies } from '../../Common-services/check-errors/check-errors.service';
 import { MapService, pathData } from '../../Common-services/map/map.service';
 import { SessionApiService } from '../../Common-services/session/session-api.service';
 import { Anomaly } from '../../Models/Anomaly';
 import { Point } from '../../Models/Point';
 import { Session } from '../../Models/Session';
 import { Vehicle } from '../../Models/Vehicle';
-import { VehicleAnomalies } from '../../Models/VehicleAnomalies';
 import { SessionStorageService } from '../../Common-services/sessionStorage/session-storage.service';
 import { tagData, TagService } from '../../Common-services/tag/tag.service';
 
