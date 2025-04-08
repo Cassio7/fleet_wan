@@ -1,0 +1,52 @@
+<div cdkDropListGroup class="worksite-columns">
+  <div class="own column">
+    <div class="section-header">
+      <p class="title">Cantieri associati</p>
+      <span>{{associationsWorksites.length}}</span>
+    </div>
+
+    <div
+      cdkDropList
+      [cdkDropListData]="associationsList"
+      class="column-list"
+      cdkDropListSortingDisabled
+      (cdkDropListDropped)="onDrop($event)"
+      [id]="'associations-list'">
+      <div *ngFor="let association of associationsList; trackBy: trackByAssociaton" class="worksite" cdkDrag [cdkDragData]="association">
+        <div class="worksite-name-container">
+          <mat-icon>location_city</mat-icon><span class="worksite-name">{{association?.worksite?.name}}</span>
+        </div>
+        <div class="info">
+          <div class="comune">{{association?.worksite?.group?.name}}</div>
+          -
+          <div class="societa">{{association?.worksite?.group?.company?.name}}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="free column">
+    <div class="section-header">
+      <p class="title">Cantieri associabili</p>
+      <span>{{associationsFreeWorksites.length}}</span>
+    </div>
+
+    <div
+      cdkDropList
+      [cdkDropListData]="associationsFreeWorksites"
+      class="column-list"
+      (cdkDropListDropped)="onDrop($event)"
+      [id]="'worksites-list'">
+      <div *ngFor="let worksite of associationsFreeWorksites; trackBy: trackByWorksite" class="worksite" cdkDrag [cdkDragData]="worksite">
+        <div class="worksite-name-container">
+          <mat-icon>location_city</mat-icon><span class="worksite-name">{{worksite?.name}}</span>
+        </div>
+        <div class="info">
+          <div class="comune">{{worksite?.group?.name}}</div>
+          -
+          <div class="societa">{{worksite?.group?.company?.name}}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
