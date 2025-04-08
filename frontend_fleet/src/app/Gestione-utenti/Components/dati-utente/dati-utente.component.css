@@ -1,7 +1,9 @@
 .user-data-card {
-  min-width: 550px;
+  width: 100%; /* Modificato da min-width a width */
+  max-width: 100%;
   padding: 10px;
   padding-bottom: 30px;
+  box-sizing: border-box;
 }
 
 .container {
@@ -21,14 +23,16 @@
   width: 100%;
 }
 
-.actions-container{
+.actions-container {
   width: 100%;
   display: inline-flex;
   justify-content: space-between;
 }
 
-mat-card{
+mat-card {
   background-color: white;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 mat-card-header {
@@ -54,8 +58,6 @@ mat-card-actions {
   cursor: not-allowed;
   opacity: 0.6;
 }
-
-
 
 ::ng-deep .mat-mdc-form-field-subscript-wrapper {
   display: none !important;
