@@ -43,6 +43,22 @@ export class GestioneSocietaService {
   //   }
   // }
 
+
+  createCompany(suId: number, name: string): Observable<{message: string, company: Company}>{
+    const access_token = this.cookieService.get("user");
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${access_token}`,
+      'Content-Type': 'application/json'
+    });
+
+    const body = {
+      suId: suId,
+      name: name
+    }
+
+    return this.http.post<{message: string, company: Company}>(`${this.commonService.url}/companies`, body, {headers});
+  }
+
   updateCompany(companyId: number, newCompany: Company): Observable<Company>{
     const access_token = this.cookieService.get("user");
     const headers = new HttpHeaders({
