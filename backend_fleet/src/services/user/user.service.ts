@@ -14,6 +14,7 @@ import { UserEntity } from 'classes/entities/user.entity';
 import { DataSource, Repository } from 'typeorm';
 import { AssociationService } from '../association/association.service';
 import { RoleService } from '../role/role.service';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class UserService {
@@ -23,6 +24,7 @@ export class UserService {
     @InjectRepository(AssociationEntity, 'readOnlyConnection')
     private readonly associationRepository: Repository<AssociationEntity>,
     private readonly roleService: RoleService,
+    private readonly authService: AuthService,
     @Inject(forwardRef(() => AssociationService))
     private readonly associationService: AssociationService,
     @InjectDataSource('mainConnection')
@@ -306,6 +308,9 @@ export class UserService {
         await this.associationService.setVehiclesAssociateAllUsersRedisSet();
       }
       await queryRunner.commitTransaction();
+      if (userDTO.active != null && userDTO.active != user.active) {
+        await this.authService.setActive(user.id, userDTO.active);
+      }
     } catch (error) {
       await queryRunner.rollbackTransaction();
       if (error instanceof HttpException) throw error;
