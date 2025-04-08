@@ -91,7 +91,7 @@ export class HomeGestioneCantieriComponent implements OnInit, OnDestroy {
     dialogRef
       .afterClosed()
       .subscribe((result: { name: string; comune: string }) => {
-        if (result !== undefined) {
+        if (result) {
           console.log('result: ', result);
           if (result.comune) {
             this.gestioneCantieriService

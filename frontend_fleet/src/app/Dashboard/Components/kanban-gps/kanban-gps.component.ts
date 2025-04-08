@@ -220,7 +220,6 @@ export class KanbanGpsComponent implements AfterViewInit, OnChanges, OnDestroy {
           this.kanbanGpsService.setKanbanData(realtimeVehicles);
           this.gpsGraphService.loadChartData$.next(realtimeVehicles);
           console.log("realtime vehicles set: ", realtimeVehicles);
-          this.sessionStorageService.setItem('allData',JSON.stringify(realtimeVehicles));
           this.updateLastUpdate(lastUpdate);
           return realtimeVehicles;
         },
