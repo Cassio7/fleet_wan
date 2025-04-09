@@ -16,10 +16,13 @@ export class WebsocketService {
   /**
    * Connette il socket dell'utente al websocket
    */
-  connectToWebSocket(){
+  connectToWebSocket(access_token: string) {
     this.socket = io('ws://10.1.0.102:3001/events', {
       transports: ['websocket', 'polling'],
-      withCredentials: true
+      withCredentials: true,
+      query: {
+        token: access_token
+      }
     });
 
     //ascolto della connessione

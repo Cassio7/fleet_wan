@@ -109,7 +109,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy{
             this.attempts = 0;
             this.cd.detectChanges();
 
-            this.webSocketService.connectToWebSocket(); //connessione al websocket
+            this.webSocketService.connectToWebSocket(response.access_token); //connessione al websocket
 
             setTimeout(() => {
               this.loginService.login$.next();
