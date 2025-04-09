@@ -1,11 +1,20 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { LogContext, LogError } from '../logger.types';
-import { fileLogger } from '../file-logger';
+import { InjectRepository } from '@nestjs/typeorm';
+import { LogEntity } from 'classes/entities/log.entity';
 import { Request } from 'express';
 import { passwordLogMask } from 'src/utils/utils';
+import { Repository } from 'typeorm';
+import { fileLogger } from '../file-logger';
+import { LogContext, LogError } from '../logger.types';
 
 @Injectable()
 export class LoggerService extends Logger {
+  constructor(
+    @InjectRepository(LogEntity, 'mainConnection')
+    private readonly logRepository: Repository<LogEntity>,
+  ) {
+    super();
+  }
   private serverInfo = 'unknown';
 
   setServerInfo(info: string) {
@@ -70,11 +79,11 @@ export class LoggerService extends Logger {
     fileLogger.info(logData); // Salva nel file come JSON
   }
 
-  logCrudSuccess(
+  async logCrudSuccess(
     context: LogContext,
     operation: string,
     details?: string,
-  ): void {
+  ): Promise<void> {
     const logData = this.formatBaseMessage(context, operation);
     if (details) {
       logData['details'] = details;
@@ -82,16 +91,17 @@ export class LoggerService extends Logger {
 
     this.log(logData); // Console log
     fileLogger.info(logData); // Salva nel file come JSON
+    await this.createLogSucces(logData, 'info');
   }
 
-  logCrudError({ error, context, operation }: LogError): void {
+  async logCrudError({ error, context, operation }: LogError): Promise<void> {
     const baseMessage = this.formatBaseMessage(context, operation);
     const logData = {
       ...baseMessage,
       error: {
         message: error.message,
         stack: error.stack || 'N/A',
-        status: error?.status || 'N/A',
+        status: error?.status || -1,
       },
     };
 
@@ -100,5 +110,48 @@ export class LoggerService extends Logger {
 
     this[logMethod](logData); // Console log
     fileLogger[logMethod](logData); // Salva nel file come JSON
+    await this.createLogError(logData, logMethod);
+  }
+
+  private async createLogSucces(logData: Record<string, any>, level: string) {
+    // non utilizzo una transazione perchè è una singola operazione e si tratta di logs
+    try {
+      const newLog = await this.logRepository.create({
+        level: level,
+        timestamp: new Date(),
+        server: logData['server'],
+        resource: logData['resource'],
+        operation: logData['operation'],
+        resourceId: logData['resourceId'],
+        resourceKey: logData['resourceKey'],
+        userId: logData['userId'],
+        username: logData['username'],
+      });
+      await this.logRepository.save(newLog);
+    } catch (error) {
+      console.log('Errore salvataggio logs', error);
+    }
+  }
+
+  private async createLogError(logData: Record<string, any>, level: string) {
+    try {
+      const newLog = await this.logRepository.create({
+        level: level,
+        timestamp: new Date(),
+        server: logData['server'],
+        resource: logData['resource'],
+        operation: logData['operation'],
+        resourceId: logData['resourceId'],
+        resourceKey: logData['resourceKey'],
+        userId: logData['userId'],
+        username: logData['username'],
+        errorMessage: logData['error']?.message,
+        errorStack: logData['error']?.stack.replace(/\n/g, ' |'),
+        errorStatus: logData['error']?.status,
+      });
+      await this.logRepository.save(newLog);
+    } catch (error) {
+      console.log('Errore salvataggio logs', error);
+    }
   }
 }

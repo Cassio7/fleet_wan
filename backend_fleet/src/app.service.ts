@@ -254,6 +254,7 @@ export class AppService implements OnModuleInit {
     await Promise.all([
       this.sessionService.getLastValidSessionByVeIds(vehicleIds),
       this.sessionService.getLastHistoryByVeIds(vehicleIds),
+      //this.setAssociations(),
     ]);
     console.log('Fine recupero');
   }
@@ -399,7 +400,7 @@ export class AppService implements OnModuleInit {
     await this.anomalyService.setLastAnomalyRedis(lastAnomalies);
 
     // al momento statistiche non utilizzate
-    //await this.statsService.setAllStatsRedis();
+    await this.statsService.setAllStatsRedis();
   }
   /**
    * imposta le associazioni su redis

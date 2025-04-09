@@ -52,7 +52,7 @@ import { ServiceFactoryService } from './factory/service.factory';
 import { UserFactoryService } from './factory/user.factory';
 import { WorksiteFactoryService } from './factory/worksite.factory';
 import { WorkzoneFacotoryService } from './factory/workzone.factory';
-import { LoggerService } from './log/service/logger.service';
+import { LoggerModule } from './log/logger.module';
 import { NotificationsController } from './notifications/notifications.controller';
 import { NotificationsGateway } from './notifications/notifications.gateway';
 import { NotificationsService } from './notifications/notifications.service';
@@ -76,6 +76,7 @@ import { UserService } from './services/user/user.service';
 import { VehicleService } from './services/vehicle/vehicle.service';
 import { WorksiteHistoryService } from './services/worksite-history/worksite-history.service';
 import { WorksiteService } from './services/worksite/worksite.service';
+import { LogEntity } from 'classes/entities/log.entity';
 
 @Global()
 @Module({
@@ -117,6 +118,7 @@ import { WorksiteService } from './services/worksite/worksite.service';
           EquipmentEntity,
           NotificationEntity,
           WorksiteHistoryEntity,
+          LogEntity,
         ],
         synchronize: false,
         //dropSchema: true, // if true drop db
@@ -294,6 +296,7 @@ import { WorksiteService } from './services/worksite/worksite.service';
         },
       }),
     }),
+    LoggerModule,
   ],
 
   controllers: [
@@ -340,7 +343,6 @@ import { WorksiteService } from './services/worksite/worksite.service';
     RoleService,
     AssociationService,
     WorksiteService,
-    LoggerService,
     ControlService,
     NotificationsService,
     NotificationsGateway,
