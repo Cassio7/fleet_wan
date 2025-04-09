@@ -210,7 +210,7 @@ export class VehicleController {
   async getVehicleByVeId(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
-    @Param('veId') veId: number,
+    @Param('veId', ParseIntPipe) veId: number,
   ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
@@ -252,11 +252,19 @@ export class VehicleController {
       });
     }
   }
+
+  /**
+   * API per il recupero di un veicolo in base al veid da parte di un admin
+   * @param req user data
+   * @param veId identificativo veicolo
+   * @param res
+   * @returns
+   */
   @Roles(Role.Admin)
   @Get('admin/:veId')
   async getAllVehiclesAdminVeId(
     @Req() req: Request & { user: UserFromToken },
-    @Param('veId') veId: number,
+    @Param('veId', ParseIntPipe) veId: number,
     @Res() res: Response,
   ): Promise<Response> {
     const context: LogContext = {
@@ -265,7 +273,6 @@ export class VehicleController {
       resourceId: veId,
       resource: 'Vehicle Admin',
     };
-    console.log(veId);
     try {
       const vehicle = await this.vehicleService.getVehicleByVeIdAdmin(
         Number(veId),

@@ -673,6 +673,11 @@ export class VehicleService {
     }
   }
 
+  /**
+   * Recupera il veicolo il base al veid passato, senza restizioni di associazioni
+   * @param veId identificativo veicolo
+   * @returns veicolo DTO o null se non trova
+   */
   async getVehicleByVeIdAdmin(veId: number): Promise<VehicleDTO | null> {
     try {
       const vehicle = await this.vehicleRepository.findOne({
