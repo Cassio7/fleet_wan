@@ -12,6 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { SessionStorageService } from '../../Common-services/sessionStorage/session-storage.service';
 import { CookieService } from 'ngx-cookie-service';
+import { WebsocketService } from '../../Common-services/websocket/websocket.service';
 
 @Component({
   selector: 'app-login',
@@ -56,6 +57,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy{
     private cookieService: CookieService,
     private loginService: LoginService,
     private sessionStorageService: SessionStorageService,
+    private webSocketService: WebsocketService,
     private cd: ChangeDetectorRef
   ) {
     this.loginForm = new FormGroup({
@@ -106,6 +108,8 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy{
             this.loginSuccess = true;
             this.attempts = 0;
             this.cd.detectChanges();
+
+            this.webSocketService.connectToWebSocket(); //connessione al websocket
 
             setTimeout(() => {
               this.loginService.login$.next();
