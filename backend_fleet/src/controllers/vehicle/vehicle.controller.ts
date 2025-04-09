@@ -252,4 +252,51 @@ export class VehicleController {
       });
     }
   }
+  @Roles(Role.Admin)
+  @Get('admin/:veId')
+  async getAllVehiclesAdminVeId(
+    @Req() req: Request & { user: UserFromToken },
+    @Param('veId') veId: number,
+    @Res() res: Response,
+  ): Promise<Response> {
+    const context: LogContext = {
+      userId: req.user.id,
+      username: req.user.username,
+      resourceId: veId,
+      resource: 'Vehicle Admin',
+    };
+    console.log(veId);
+    try {
+      const vehicle = await this.vehicleService.getVehicleByVeIdAdmin(
+        Number(veId),
+      );
+      if (!vehicle) {
+        this.loggerService.logCrudSuccess(
+          context,
+          'read',
+          'Nessun veicolo trovato',
+        );
+        return res.status(404).json({
+          message: 'Nessun veicolo trovato',
+        });
+      }
+
+      this.loggerService.logCrudSuccess(
+        context,
+        'read',
+        `Recuperato Veicolo veId: ${vehicle.veId} - targa: ${vehicle.plate}`,
+      );
+      return res.status(200).json(vehicle);
+    } catch (error) {
+      this.loggerService.logCrudError({
+        error,
+        context,
+        operation: 'read',
+      });
+
+      return res.status(error.status || 500).json({
+        message: error.message || 'Errore recupero veicolo',
+      });
+    }
+  }
 }

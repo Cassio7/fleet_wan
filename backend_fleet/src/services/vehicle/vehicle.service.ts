@@ -673,6 +673,37 @@ export class VehicleService {
     }
   }
 
+  async getVehicleByVeIdAdmin(veId: number): Promise<VehicleDTO | null> {
+    try {
+      const vehicle = await this.vehicleRepository.findOne({
+        where: {
+          veId: veId,
+        },
+        relations: {
+          device: true,
+          worksite: {
+            group: {
+              company: true,
+            },
+          },
+          workzone: true,
+          service: true,
+          equipment: true,
+          rental: true,
+        },
+      });
+      if (!vehicle)
+        throw new HttpException('Veicolo non trovato', HttpStatus.NOT_FOUND);
+      return vehicle ? this.toDTO(vehicle) : null;
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new HttpException(
+        `Errore durante recupero del veicolo`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   /**
    * Recupera tutti i veicoli che sono RFID Reader, chiamato solo dentro server
    * @returns
