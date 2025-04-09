@@ -12,8 +12,12 @@
         <button routerLink="storico-mezzi" [ngClass]="{'selectedBtn': router.url == '/storico-mezzi'}"><mat-icon>inventory_2</mat-icon></button>
         <button routerLink="home-mappa" [ngClass]="{'selectedBtn': router.url == '/home-mappa'}"><mat-icon>map</mat-icon></button>
         <button routerLink="scarico-letture" [ngClass]="{'selectedBtn': router.url == '/scarico-letture'}"><mat-icon>download</mat-icon></button>
-        <button [matMenuTriggerFor]="gestioneMenu" *ngIf="user?.role == 'Admin'"><mat-icon>settings</mat-icon></button>
-        <mat-menu #gestioneMenu="matMenu" [xPosition]="'after'" >
+        <button [matMenuTriggerFor]="gestioneMenu" [ngClass]="{'selectedBtn': router.url == '/gestione-utenti'
+        || router.url == '/gestione-cantieri'
+        || router.url == '/gestione-societa'
+        || router.url == '/gestione-veicoli'}"
+        *ngIf="user?.role == 'Admin'"><mat-icon>settings</mat-icon></button>
+        <mat-menu #gestioneMenu="matMenu" [xPosition]="'after'">
           <button routerLink="gestione-utenti" mat-menu-item>Gestione utenti</button>
           <button routerLink="gestione-veicoli" mat-menu-item>Gestione veicoli</button>
           <button routerLink="gestione-cantieri" mat-menu-item>Gestione cantieri</button>
