@@ -34,12 +34,30 @@ export class NavigationService {
         return 'Torna alla mappa dei mezzi';
       case '/scarico-letture':
         return 'Torna allo scarico delle letture';
+      case '/gestione-utenti':
+        return 'Torna alla gestione degli utenti';
+      case '/gestione-cantieri':
+        return 'Torna alla gestione dei cantieri';
+      case '/gestione-veicoli':
+        return 'Torna alla gestione dei veicoli';
+      case '/gestione-societa':
+        return 'Torna alla gestione delle società';
       case '/notifications':
         return "Torna alla visualizzazione delle notifiche";
       default:
+        if(previous_url?.includes('/profile/')){
+          const match = previous_url.match(/profile\/(\d+)/);
+          const userId = match ? match[1] : "sconosciuto";
+          return `Torna alla gestione dell'utente ${userId}`;
+        }
+        if(previous_url?.includes('/cantiere')){
+          const match = previous_url.match(/cantiere\/(\d+)/);
+          const worksiteId = match ? match[1] : "sconosciuto";
+          return `Torna alla gestione del cantiere ${worksiteId}`;
+        }
         if (previous_url?.includes("dettaglio-mezzo")) {
           const match = previous_url.match(/dettaglio-mezzo\/(\d+)/);
-          const veId = match ? match[1] : "";
+          const veId = match ? match[1] : "sconosciuto";
           return `Torna al dettaglio del mezzo ${veId}`;
         }
     }
