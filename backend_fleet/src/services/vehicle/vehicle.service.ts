@@ -16,7 +16,7 @@ import { ServiceEntity } from 'classes/entities/service.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { createHash } from 'crypto';
 import { NotificationsService } from 'src/notifications/notifications.service';
-import { DataSource, In, IsNull, Repository } from 'typeorm';
+import { DataSource, In, IsNull, Not, Repository } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
 import { AssociationService } from '../association/association.service';
 import { WorksiteDTO } from './../../../classes/dtos/worksite.dto';
@@ -523,6 +523,7 @@ export class VehicleService {
     const vehicles = await this.vehicleRepository.find({
       where: {
         retired_event: IsNull(),
+        worksite: Not(IsNull()),
       },
       relations: {
         worksite: true,
