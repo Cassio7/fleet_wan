@@ -34,7 +34,11 @@
     }
   }
 
-  .button {
-    max-width: 10vw;
+  .save-container{
+    width: fit-content;
+
+    .button {
+      max-width: 10vw;
+    }
   }
 }

@@ -1,8 +1,10 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { CommonService } from './../../../Common-services/common service/common.service';
+import { MatIconModule } from '@angular/material/icon';
+import { ChangeDetectorRef, Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { InfoEditComponent } from "../info-edit/info-edit.component";
 import { ActivatedRoute, Params } from '@angular/router';
 import { firstValueFrom, Subject, takeUntil } from 'rxjs';
-import { VehiclesApiService } from '../../../Common-services/vehicles api service/vehicles-api.service';
+import { VehiclesApiService, vehicleUpdateData } from '../../../Common-services/vehicles api service/vehicles-api.service';
 import { Vehicle } from '../../../Models/Vehicle';
 import { GestioneCantieriService } from '../../../Common-services/gestione-cantieri/gestione-cantieri.service';
 import { Group } from '../../../Models/Group';
@@ -13,33 +15,42 @@ import { RentalService } from '../../../Common-services/rental/rental.service';
 import { Rental } from '../../../Models/Rental';
 import { Company } from '../../../Models/Company';
 import { GestioneSocietaService } from '../../../Common-services/Gestione-Società/Services/gestione-societa/gestione-societa.service';
+import { Service } from '../../../Models/Service';
+import { ServicesService } from '../../../Common-services/Services/services.service';
+import { openSnackbar } from '../../../Utils/snackbar';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { Equipment } from '../../../Models/Equipment';
+import { EquipmentService } from '../../../Common-services/equipment/equipment.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-home-veicolo-edit',
   standalone: true,
-  imports: [InfoEditComponent],
+  imports: [CommonModule, MatIconModule, InfoEditComponent, MatSnackBarModule],
   templateUrl: './home-veicolo-edit.component.html',
   styleUrl: './home-veicolo-edit.component.css'
 })
 export class HomeVeicoloEditComponent implements OnInit, OnDestroy{
   private readonly destroy$: Subject<void> = new Subject<void>();
+  snackBar: MatSnackBar = inject(MatSnackBar);
+
+  goBack_text: string = "";
 
   veId!: number;
   vehicle!: Vehicle;
-  services: string[] = ["Raccolta", "Spazzamento", "Pedana", "Lavaggio", "Movimentazione", "Trasferenza", "Ragno", "Sanitari"];
-  groups: Group[] = [];
-  worksites: WorkSite[] =[];
+  services: Service[] = [];
   workzones: Workzone[] = [];
   rentals: Rental[] = [];
-  companies: Company[] = [];
+  equipments: Equipment[] = [];
 
   constructor(
     private route: ActivatedRoute,
     private vehiclesApiService: VehiclesApiService,
-    private gestioneCantieriService: GestioneCantieriService,
     private workzoneService: WorkzoneService,
     private rentalService: RentalService,
-    private gestioneSocietaService: GestioneSocietaService,
+    private equipmentService: EquipmentService,
+    private servicesService: ServicesService,
+    private vehicleApiService: VehiclesApiService,
     private cd: ChangeDetectorRef
   ){}
 
@@ -53,11 +64,10 @@ export class HomeVeicoloEditComponent implements OnInit, OnDestroy{
       const params = await firstValueFrom(this.route.params.pipe(takeUntil(this.destroy$)));
       this.veId = params['id'];
 
-      this.groups = await this.getAllGroups();
-      this.worksites = await this.getAllWorksites();
       this.workzones = await this.getAllWorkzones();
       this.rentals = await this.getAllRentals();
-      this.companies = await this.getAllCompanies();
+      this.services = await this.getAllServices();
+      this.equipments = await this.getAllEquipments();
       const fetchedVehicle = await this.getVehicleByVeId(this.veId);
       if(fetchedVehicle) this.vehicle = fetchedVehicle;
       console.log('fetchedVehicle: ', fetchedVehicle);
@@ -67,18 +77,72 @@ export class HomeVeicoloEditComponent implements OnInit, OnDestroy{
     }
   }
 
-  /**
-   * Prende tutte l
-   * @returns promise di Rental[]
-   */
-  private async getAllCompanies(): Promise<Company[]>{
-    try{
-      return firstValueFrom(this.gestioneSocietaService.getAllSocieta().pipe(takeUntil(this.destroy$)));
-    }catch(error){
-      console.error("Errore nell'ottenimento delle società: ", error);
-      return [];
-    }
+  updateVehicle(vehicleUpdatedData: vehicleUpdateData){
+    console.log('passing this vehicleUpdatedData: ', vehicleUpdatedData);
+    this.vehicleApiService.updateVehicleByVeId(this.veId, vehicleUpdatedData).pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (newVehicle: Vehicle) => {
+        console.log('new updated vehicle: ', newVehicle);
+        this.vehicle = newVehicle;
+        openSnackbar(this.snackBar, `Veicolo ${this.veId} aggiornato`);
+        this.cd.detectChanges();
+      },
+      error: error => console.error("Errore nell'aggiornamento del veicolo: ",error)
+    });
   }
+
+
+  /**
+   * Prende tutti i servizi
+   * @returns promise di Equipment[]
+   */
+  private async getAllEquipments(): Promise<Equipment[]>{
+    try{
+      return firstValueFrom(this.equipmentService.getAllEquipments().pipe(takeUntil(this.destroy$)))
+    }catch(error){
+      console.error(`Errore nell'ottenimento di tutti i servizi: ${error}`);
+    }
+    return [];
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  /**
+   * Prende tutti i servizi
+   * @returns promise di Service[]
+   */
+  private async getAllServices(): Promise<Service[]>{
+    try{
+      return firstValueFrom(this.servicesService.getAllServices().pipe(takeUntil(this.destroy$)))
+    }catch(error){
+      console.error(`Errore nell'ottenimento di tutti i servizi: ${error}`);
+    }
+    return [];
+  }
+
+  /**
+   * Prende tutte le società
+   * @returns promise di Company[]
+   */
+  // private async getAllCompanies(): Promise<Company[]>{
+  //   try{
+  //     return firstValueFrom(this.gestioneSocietaService.getAllSocieta().pipe(takeUntil(this.destroy$)));
+  //   }catch(error){
+  //     console.error("Errore nell'ottenimento delle società: ", error);
+  //     return [];
+  //   }
+  // }
 
   /**
    * Prende tutte le rental
@@ -110,27 +174,27 @@ export class HomeVeicoloEditComponent implements OnInit, OnDestroy{
    * Prende tutti gli worksite
    * @returns promise di WorkSite[]
    */
-  private async getAllWorksites(): Promise<WorkSite[]>{
-    try{
-      return firstValueFrom(this.gestioneCantieriService.getAllWorksite().pipe(takeUntil(this.destroy$)));
-    }catch(error){
-      console.error("Errore nella ricezione di tutti i cantieri: ", error);
-      return [];
-    }
-  }
+  // private async getAllWorksites(): Promise<WorkSite[]>{
+  //   try{
+  //     return firstValueFrom(this.gestioneCantieriService.getAllWorksite().pipe(takeUntil(this.destroy$)));
+  //   }catch(error){
+  //     console.error("Errore nella ricezione di tutti i cantieri: ", error);
+  //     return [];
+  //   }
+  // }
 
   /**
    * Prende tutti i gruppi
    * @returns promise di Group[]
    */
-  private async getAllGroups(): Promise<Group[]> {
-    try {
-      return await firstValueFrom(this.gestioneCantieriService.getAllGroups().pipe(takeUntil(this.destroy$)));
-    } catch (error) {
-      console.error("Errore nella ricezione di tutti i gruppi: ", error);
-      return [];
-    }
-  }
+  // private async getAllGroups(): Promise<Group[]> {
+  //   try {
+  //     return await firstValueFrom(this.gestioneCantieriService.getAllGroups().pipe(takeUntil(this.destroy$)));
+  //   } catch (error) {
+  //     console.error("Errore nella ricezione di tutti i gruppi: ", error);
+  //     return [];
+  //   }
+  // }
 
   /**
    * Prende un veicolo tramite il veId
@@ -144,5 +208,4 @@ export class HomeVeicoloEditComponent implements OnInit, OnDestroy{
       return null;
     }
   }
-
 }
