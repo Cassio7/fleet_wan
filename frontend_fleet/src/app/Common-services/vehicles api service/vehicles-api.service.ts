@@ -5,6 +5,23 @@ import { Observable } from 'rxjs';
 import { Vehicle } from '../../Models/Vehicle';
 import { CookieService } from 'ngx-cookie-service';
 
+
+export interface vehicleUpdateData {
+  active_csv: boolean;
+  model_csv: string;
+  euro: string;
+  allestimento: boolean;
+  registration: string;
+  fleet_number: string;
+  fleet_install: string;
+  electrical: boolean;
+  antenna_setting: string;
+  fleet_antenna_number: string;
+  retired_event: string;
+  serviceId: number;
+  equipmentId: number | null;
+  rentalId: number | null;
+}
 @Injectable({
   providedIn: 'root'
 })
@@ -103,6 +120,21 @@ export class VehiclesApiService {
       `${this.commonService.url}/vehicles/admin/${veId}`,
       { headers }
     );
+  }
+
+  /**
+   * Permette di aggiornare un veicolo tramite il suo veId
+   * @param veId veId del veicolo da modificare
+   * @param vehicleUpdateData dati aggiornati del veicolo
+   * @returns observable http patch
+   */
+  public updateVehicleByVeId(veId: number, vehicleUpdateData: vehicleUpdateData): Observable<Vehicle>{
+    const access_token = this.cookieService.get("user");
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${access_token}`
+    });
+
+    return this.http.put<Vehicle>(`${this.commonService.url}/vehicles/${veId}`, vehicleUpdateData, {headers});
   }
 
   /**
