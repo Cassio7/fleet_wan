@@ -78,22 +78,22 @@ export class StatsService {
           },
         },
       });
+      if (!anomalies) {
+        return null;
+      }
       const numSessions = await this.sessionRepository.count({
         select: {
           id: true,
         },
         where: {
+          sequence_id: Not(0),
           history: {
             vehicle: {
               veId: veId,
             },
           },
-          sequence_id: Not(0),
         },
       });
-      if (!anomalies) {
-        return null;
-      }
       const keywords = {
         nulla: 'nulla',
         poor: 'poor',
