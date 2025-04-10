@@ -7,7 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { HomeGestioneCantieriComponent } from '../../../../Gestione-cantieri/Components/home-gestione-cantieri/home-gestione-cantieri.component';
+import { HomeGestioneCantieriComponent } from '../../../../../Gestione-cantieri/Components/home-gestione-cantieri/home-gestione-cantieri.component';
 
 @Component({
   selector: 'app-societa-create-dialog',

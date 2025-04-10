@@ -1,7 +1,7 @@
 import { Component, inject, Inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { DeleteCantiereDialogComponent } from '../../../Gestione-cantieri/Components/delete-cantiere-dialog/delete-cantiere-dialog.component';
+import { DeleteCantiereDialogComponent } from '../../../../Gestione-cantieri/Components/delete-cantiere-dialog/delete-cantiere-dialog.component';
 
 @Component({
   selector: 'app-delete-societa-dialog',
