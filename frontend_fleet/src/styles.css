@@ -57,6 +57,7 @@ h6,
 th,
 td,
 p,
+input,
 span,
 mat-card-title {
   font-family: "Inter" !important;
@@ -188,6 +189,19 @@ th {
   gap: 2px;
   background-color: white;
   color: var(--green);
+  font-weight: bold;
+  padding: 6px;
+
+  border-radius: 5px;
+}
+
+.invalid-container{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  background-color: lightgray;
+  color: var(--black);
   font-weight: bold;
   padding: 6px;
 
