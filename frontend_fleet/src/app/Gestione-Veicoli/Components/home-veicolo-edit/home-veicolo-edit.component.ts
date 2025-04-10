@@ -22,11 +22,12 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Equipment } from '../../../Models/Equipment';
 import { EquipmentService } from '../../../Common-services/equipment/equipment.service';
 import { CommonModule } from '@angular/common';
+import { StoricoCantieriComponent } from "../../../Common-components/storico-cantieri/storico-cantieri.component";
 
 @Component({
   selector: 'app-home-veicolo-edit',
   standalone: true,
-  imports: [CommonModule, MatIconModule, InfoEditComponent, MatSnackBarModule],
+  imports: [CommonModule, MatIconModule, InfoEditComponent, MatSnackBarModule, StoricoCantieriComponent],
   templateUrl: './home-veicolo-edit.component.html',
   styleUrl: './home-veicolo-edit.component.css'
 })

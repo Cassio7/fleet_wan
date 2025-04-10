@@ -5,4 +5,5 @@
   </div>
   <app-info-edit [vehicle]="vehicle" [services]="services" [workzones]="workzones"
   [rentals]="rentals" [services]="services" [equipments]="equipments" (updateVehicle)="updateVehicle($event)"></app-info-edit>
+  <app-storico-cantieri *ngIf="veId" [veId]="veId"></app-storico-cantieri>
 </div>
