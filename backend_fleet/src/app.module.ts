@@ -295,6 +295,7 @@ import { WorkzoneService } from './services/workzone/workzone.service';
           host: 'localhost',
           port: 6379,
           password: configService.get<string>('REDIS_PASSWORD'),
+          db: configService.get<number>('REDIS_DB'),
         },
       }),
     }),
