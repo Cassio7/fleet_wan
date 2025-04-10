@@ -25,6 +25,7 @@ import { WebsocketService } from './Common-services/websocket/websocket.service'
 import { NotificationService } from './Common-services/notification/notification.service';
 import { Notifica } from './Models/Notifica';
 import { User } from './Models/User';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-root',
@@ -36,6 +37,7 @@ import { User } from './Models/User';
     MatIconModule,
     MatButtonModule,
     NavbarComponent,
+    MatProgressSpinnerModule,
     MatSidenavModule,
     MatMenuModule,
     MatToolbarModule,
@@ -64,9 +66,11 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
   @ViewChild('fixedDrawer') fixedDrawer!: MatDrawer; //sidebar fissa
 
   selectedBtn: string = "dashboard";
-  isLoginPage: boolean = true;
-  isLogged: boolean = true;
+  isLoginPage: boolean = false;
+  isLogged: boolean = false;
   isGestioneOpen: boolean = false;
+
+  isAuthLoading: boolean = true;
 
   notifiche: Notifica[] = [];
 
@@ -96,14 +100,16 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
   }
 
   ngAfterViewInit(): void {
+    const current_token = this.cookieService.get("user");
 
-    if(this.cookieService.get("user"))
+    if(current_token){
       this.handleGetUserInfo();
+      this.webSocketService.connectToWebSocket(current_token);
+    }
 
     //sottoscrizione al login
     this.loginService.login$.pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
-        const current_token = this.cookieService.get("user");
         this.user = this.authService.decodeToken(current_token);
         this.ngZone.run(() => {
           this.isLogged = true;
@@ -121,6 +127,12 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
   }
 
   ngOnInit(): void {
+    if(this.cookieService.get("user")) {
+      this.handleGetUserInfo();
+    } else {
+      this.isAuthLoading = false;
+    }
+
     this.router.events.pipe(
       filter((event): event is NavigationEnd => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
@@ -154,17 +166,22 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
     });
   }
 
-  private handleGetUserInfo(){
+  private handleGetUserInfo() {
     this.authService.getUserInfo().pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (user: User) => {
         this.user = user;
         this.isLogged = true;
         this.isLoginPage = this.checkLoginPage(this.router.url);
-
+        this.isAuthLoading = false; // Autenticazione verificata
         this.cd.detectChanges();
       },
-      error: error => console.error("Errore nella ricezione dei dat dell'utente: ", error)
+      error: error => {
+        console.error("Errore nella ricezione dei dati dell'utente: ", error);
+        this.isAuthLoading = false; // Gestione dell'errore
+        this.isLogged = false;
+        this.cd.detectChanges();
+      }
     });
   }
 
