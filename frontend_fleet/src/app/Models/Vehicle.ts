@@ -13,6 +13,10 @@ export class Vehicle {
   constructor(
     public id: number,
     public plate: string,
+    public euro: string,
+    public electrical: boolean,
+    public antenna_setting: string,
+    public fleet_antenna_number: number,
     public model: string,
     public model_csv: string | null,
     public veId: number,

@@ -5,6 +5,6 @@ export class Group {
     public id: number,
     public vgId: number,
     public name: string,
-    public company: Company
+    public company?: Company
   ) {}
 }
