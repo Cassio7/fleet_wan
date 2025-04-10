@@ -6,8 +6,16 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { UserEntity } from 'classes/entities/user.entity';
 import Redis from 'ioredis';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { JwtPayload } from './../../../node_modules/@types/jsonwebtoken/index.d';
+
+interface LoggedUserDto {
+  id: number;
+  key: string;
+  username: string;
+  email: string;
+  token: string;
+}
 
 @Injectable()
 export class AuthService {
@@ -62,13 +70,18 @@ export class AuthService {
       const payload: JwtPayload = {
         username: user.username,
         id: user.id,
+        key: user.key,
         email: user.email,
         name: user.name,
         surname: user.surname,
         idR: user.role.id,
       };
+      const token = await this.jwtService.signAsync(payload);
+      const key = `users:${user.key}:token`;
+      // Imposta il token con una scadenza di 24 ore
+      await this.redis.set(key, token, 'EX', 86400);
       return {
-        access_token: await this.jwtService.signAsync(payload),
+        access_token: token,
       };
     } catch (error) {
       console.error(error);
@@ -109,19 +122,19 @@ export class AuthService {
   }
 
   /**
-   *
-   * @param userId
+   * recupera da redis lo stato di un utente, se non è presente lo imposta
+   * @param userKey id utente
    * @returns
    */
-  async getActive(userId: number): Promise<boolean> {
-    const key = `user:${userId}:active`;
+  async getActive(userKey: string): Promise<boolean> {
+    const key = `users:${userKey}:active`;
     let userActiveStr = await this.redis.get(key);
     if (userActiveStr === null) {
       const userDB = await this.userRepository.findOne({
         select: {
           active: true,
         },
-        where: { id: userId },
+        where: { key: userKey },
       });
       userActiveStr = userDB.active ? '1' : '0';
       // rimane su redis 30 minuti
@@ -131,13 +144,141 @@ export class AuthService {
   }
 
   /**
-   *
-   * @param userId
-   * @param active
+   * imposta su redis lo stato di un utente
+   * @param userKey key utente
+   * @param active stato utente
    */
-  async setActive(userId: number, active: boolean) {
-    const key = `user:${userId}:active`;
+  async setActive(userKey: string, active: boolean) {
+    const key = `users:${userKey}:active`;
     const userActiveStr = active ? '1' : '0';
+    // rimane su redis 30 minuti
     await this.redis.set(key, userActiveStr, 'EX', 1800);
+  }
+
+  /**
+   * Recupera gli utenti loggati, cioè quelli che hanno un token inserito su redis
+   * @returns
+   */
+  async getLoggedUsers(): Promise<LoggedUserDto[]> {
+    try {
+      const users = await this.userRepository.find({
+        where: {
+          active: true,
+          deletedAt: IsNull(),
+        },
+      });
+      const loggedUsers: LoggedUserDto[] = [];
+
+      for (const user of users) {
+        const token = await this.getLoggedUserRedis(user.key);
+        if (token) {
+          loggedUsers.push({
+            id: user.id,
+            key: user.key,
+            username: user.username,
+            email: user.email,
+            token,
+          });
+        }
+      }
+
+      return loggedUsers;
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new HttpException(
+        `Errore durante il recupero degli utenti loggati`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  /**
+   * Recupera da redis il token associato ad un utente dalla sua key
+   * @param userKey
+   * @returns
+   */
+  private async getLoggedUserRedis(userKey: string): Promise<string | null> {
+    const key = `users:${userKey}:token`;
+    const token = await this.redis.get(key);
+    return token;
+  }
+
+  /**
+   * Recupera tutti i token bannati da redis
+   * @returns array di string
+   */
+  async getAllBannedTokens(): Promise<string[]> {
+    const key = `banned`;
+    const tokens = await this.redis.smembers(key);
+    return tokens;
+  }
+
+  /**
+   * Controlla se il token fornito è presente su redis, quindi bannato
+   * @param token token
+   * @returns true o false
+   */
+  async getBannedToken(token: string): Promise<boolean> {
+    const key = `banned`;
+    const exists = await this.redis.sismember(key, token);
+    return exists === 1;
+  }
+
+  /**
+   * Permette di impostare su redis i token bannati redis
+   * @param token token da bannare
+   */
+  async setBannedToken(token: string): Promise<void> {
+    const key = `banned`;
+    await this.redis.sadd(key, token);
+  }
+
+  /**
+   * Rimuove un token dal set dei token bannati su Redis
+   * @param token token da rimuovere
+   * @returns true se il token è stato rimosso, false se non era presente
+   */
+  async deleteBannedToken(token: string): Promise<boolean> {
+    const key = `banned`;
+    const removed = await this.redis.srem(key, token);
+    return removed === 1;
+  }
+
+  /**
+   * Rimuove tutti i token dai bannati redis
+   */
+  async clearAllBannedTokens(): Promise<void> {
+    const key = `banned`;
+    await this.redis.del(key);
+  }
+
+  /**
+   * Recupera da redis il client id associato all utente
+   * @param userKey chiave utente
+   * @returns
+   */
+  async getClientRedis(userKey: string): Promise<string | null> {
+    const key = `users:${userKey}:client`;
+    const token = await this.redis.get(key);
+    return token;
+  }
+
+  /**
+   * Imposta su redis il client id associato all utente connesso
+   * @param userKey user key
+   * @param clientId id client
+   */
+  async setClientIdRedis(userKey: string, clientId: string): Promise<void> {
+    const key = `users:${userKey}:client`;
+    await this.redis.set(key, clientId, 'EX', 86400);
+  }
+
+  /**
+   * Elimina da Redis il client id associato all'utente
+   * @param userKey chiave utente
+   */
+  async deleteClientRedis(userKey: string): Promise<void> {
+    const key = `users:${userKey}:client`;
+    await this.redis.del(key);
   }
 }
