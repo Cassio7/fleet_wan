@@ -30,7 +30,11 @@ export class AuthGuard implements CanActivate {
     }
     try {
       const user = await this.authService.validateToken(token);
-      const userActive = await this.authService.getActive(user.id);
+      const banned = await this.authService.getBannedToken(token);
+      if (banned) {
+        throw new UnauthorizedException('Token utente bannato');
+      }
+      const userActive = await this.authService.getActive(user.key);
       if (!userActive) {
         throw new UnauthorizedException('Account disabilitato');
       }
