@@ -11,10 +11,11 @@ import { UserDTO } from 'classes/dtos/user.dto';
 import { AssociationEntity } from 'classes/entities/association.entity';
 import { RoleEntity } from 'classes/entities/role.entity';
 import { UserEntity } from 'classes/entities/user.entity';
+import { NotificationsService } from 'src/notifications/notifications.service';
 import { DataSource, Repository } from 'typeorm';
 import { AssociationService } from '../association/association.service';
-import { RoleService } from '../role/role.service';
 import { AuthService } from '../auth/auth.service';
+import { RoleService } from '../role/role.service';
 
 @Injectable()
 export class UserService {
@@ -29,6 +30,7 @@ export class UserService {
     private readonly associationService: AssociationService,
     @InjectDataSource('mainConnection')
     private readonly connection: DataSource,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   /**
@@ -309,7 +311,9 @@ export class UserService {
       }
       await queryRunner.commitTransaction();
       if (userDTO.active != null && userDTO.active != user.active) {
-        await this.authService.setActive(user.id, userDTO.active);
+        await this.authService.setActive(user.key, userDTO.active);
+        if (!userDTO.active)
+          this.notificationsService.sendNotificationToUser(user.key, 'banned');
       }
     } catch (error) {
       await queryRunner.rollbackTransaction();
