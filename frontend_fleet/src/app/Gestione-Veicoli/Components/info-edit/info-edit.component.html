@@ -58,7 +58,8 @@
       <span class="title">Stato</span>
       <mat-form-field appearance="outline" subscriptSizing="dynamic">
         <mat-select formControlName="active_csv">
-          <mat-option *ngFor="let option of states" [value]="option == 'Operativo'">{{option}}</mat-option>
+          <mat-option [value]="true">Operativo</mat-option>
+          <mat-option [value]="false">Sospeso</mat-option>
         </mat-select>
       </mat-form-field>
     </article>
@@ -67,7 +68,8 @@
       <span class="title">Allestimento</span>
       <mat-form-field appearance="outline" subscriptSizing="dynamic">
         <mat-select formControlName="allestimento">
-          <mat-option *ngFor="let option of allestimenti" [value]="option == 'Blackbox + Antenna'">{{option}}</mat-option>
+          <mat-option [value]="true">Blackbox + Antenna</mat-option>
+          <mat-option [value]="false">Blackbox</mat-option>
         </mat-select>
       </mat-form-field>
     </article>

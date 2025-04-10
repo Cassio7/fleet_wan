@@ -53,8 +53,6 @@ export class InfoEditComponent implements AfterViewInit, OnChanges{
 
 
   @Output() updateVehicle: EventEmitter<vehicleUpdateData> = new EventEmitter<vehicleUpdateData>();
-  states: string[] = ["Operativo", "Sospeso"];
-  allestimenti: string[] = ["Blackbox + Antenna", "Blackbox"];
 
   constructor(
     public svgService: SvgService
@@ -62,7 +60,8 @@ export class InfoEditComponent implements AfterViewInit, OnChanges{
   }
   ngOnChanges(changes: SimpleChanges): void {
     if(changes['vehicle']){
-      if(!this.vehicle.rental && this.infoForm) this.infoForm.get('rentalId')?.setValue('null')
+      if(!this.vehicle.rental && this.infoForm) this.infoForm.get('rentalId')?.setValue('null');
+
     }
   }
 
@@ -73,15 +72,15 @@ export class InfoEditComponent implements AfterViewInit, OnChanges{
         active_csv: new FormControl(this.vehicle.active),
         model_csv: new FormControl(this.vehicle.model),
         euro: new FormControl(this.vehicle.euro),
-        allestimento: new FormControl(this.vehicle.allestimento),
+        allestimento: new FormControl(this.vehicle.allestimento ?? false),
         registration: new FormControl(this.vehicle.registration),
         fleet_number: new FormControl(this.vehicle.fleet_number),
         fleet_install: new FormControl(this.vehicle.fleet_install),
-        electrical: new FormControl(this.vehicle.electrical),
+        electrical: new FormControl(this.vehicle.electrical ?? false),
         antenna_setting: new FormControl(this.vehicle.antenna_setting),
         fleet_antenna_number: new FormControl(this.vehicle.fleet_antenna_number),
         retired_event: new FormControl(this.vehicle.retired_event),
-        serviceId: new FormControl(this.vehicle.service?.id),
+        serviceId: new FormControl(this.vehicle.service?.id ?? false),
         equipmentId: new FormControl(this.vehicle.equipment?.id),
         rentalId: new FormControl(this.vehicle.rental?.id ?? "null"),
         workzone: new FormControl(this.vehicle.workzone?.id),
