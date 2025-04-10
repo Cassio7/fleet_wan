@@ -319,8 +319,12 @@ export class AppService implements OnModuleInit {
     }
   }
 
-  //@Cron('59 23 * * *') // prima di finire la giornata
   //@Cron('5 */5 * * *') // ogni 5 ore e 5 minuti
+  async dailyAnomalyCheckCron() {
+    await this.dailyAnomalyCheck();
+  }
+
+  //@Cron('59 23 * * *') // prima di finire la giornata
   async dailyAnomalyCheck(): Promise<void> {
     try {
       const datefrom = new Date();
