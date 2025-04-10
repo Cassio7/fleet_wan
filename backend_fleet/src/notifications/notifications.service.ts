@@ -21,6 +21,10 @@ export class NotificationsService {
     this.notificationsGateway.handleSendNotificationServer(notification);
   }
 
+  sendNotificationToUser(userKey: string, message: string) {
+    this.notificationsGateway.sendMessageToUser(userKey, message);
+  }
+
   /**
    * Creazione di una notifica ed associo all utente
    * @param userId user id di chi può visua
