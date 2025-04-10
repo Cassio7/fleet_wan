@@ -111,6 +111,14 @@ export class CheckErrorsService {
     return this.checkVehicleAnomaly(vehicleData)?.antenna || null;
   }
 
+  checkVehicleAntennaValid(vehicleData: VehicleData): boolean{
+    const vehicleAnomalies = this.checkVehicleAnomaly(vehicleData);
+    if(vehicleAnomalies){
+      return !vehicleAnomalies.antenna && !vehicleAnomalies.detection_quality;
+    }
+    return false;
+  }
+
   /**
    * Controlla la qualità di lettura di un mezzo
    * @param vehicle veicolo da controllare
