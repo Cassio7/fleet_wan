@@ -77,6 +77,8 @@ import { VehicleService } from './services/vehicle/vehicle.service';
 import { WorksiteHistoryService } from './services/worksite-history/worksite-history.service';
 import { WorksiteService } from './services/worksite/worksite.service';
 import { LogEntity } from 'classes/entities/log.entity';
+import { WorkzoneController } from './controllers/workzone/workzone.controller';
+import { WorkzoneService } from './services/workzone/workzone.service';
 
 @Global()
 @Module({
@@ -318,6 +320,7 @@ import { LogEntity } from 'classes/entities/log.entity';
     RentalController,
     ServiceController,
     WorksiteHistoryController,
+    WorkzoneController,
   ],
   providers: [
     AppService,
@@ -352,6 +355,7 @@ import { LogEntity } from 'classes/entities/log.entity';
     RentalService,
     WorksiteHistoryService,
     ExportService,
+    WorkzoneService,
   ],
 })
 export class AppModule {}
