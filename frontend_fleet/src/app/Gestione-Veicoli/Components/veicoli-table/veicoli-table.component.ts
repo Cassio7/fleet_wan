@@ -17,18 +17,15 @@ import {
   MatTableModule,
 } from '@angular/material/table';
 import { Router } from '@angular/router';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject } from 'rxjs';
 import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.component';
 import { SortService } from '../../../Common-services/sort/sort.service';
-import { DeleteSocietaDialogComponent } from '../../../Gestione-Società/Components/delete-societa-dialog/delete-societa-dialog.component';
-import { GestioneSocietaService } from '../../../Gestione-Società/Services/gestione-societa/gestione-societa.service';
 import { Vehicle } from '../../../Models/Vehicle';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { CommonModule } from '@angular/common';
 import {
-  gestioneVeicoliFilters,
   GestioneVeicoliService,
 } from '../../Services/gestione-veicoli.service';
 import {
@@ -99,7 +96,7 @@ export class VeicoliTableComponent {
         this.filters.societa.setValue(societa);
 
         this.veicoliTableData.data =
-          filtersCommonService.applyAllFiltersOnVehicles(
+          this.filtersCommonService.applyAllFiltersOnVehicles(
             this.veicoli,
             this.filters
           ) as Vehicle[];
@@ -130,7 +127,9 @@ export class VeicoliTableComponent {
     ) as Vehicle[];
   }
 
-  editVeicolo(vehicle: Vehicle) {}
+  editVeicolo(vehicle: Vehicle) {
+    this.router.navigate(['/gestione-veicolo', vehicle.veId]);
+  }
 
   /**
    * Apre la snackbar con il contenuto passato

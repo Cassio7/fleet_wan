@@ -93,40 +93,31 @@ export class VehiclesApiService {
     );
   }
 
-  /**
-   * Controlla il GPS di un veicolo
-   * @param veId identificativo del veicolo
-   * @returns observable http
-   */
-  public checkGPSessionByVeid(veId: number): Observable<any>{
-    //da modificare con le variabili
-    const body = {
-      dateFrom: "2024-10-31",
-      dateTo: "2024-11-01"
-    };
+  public getVehicleByVeIdAdmin(veId: number): Observable<Vehicle> {
+    const access_token = this.cookieService.get("user");
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${access_token}`
+    });
 
-    return this.http.post(`${this.commonService.url}/session/checkgps/${veId}`, body);
+    return this.http.get<Vehicle>(
+      `${this.commonService.url}/vehicles/admin/${veId}`,
+      { headers }
+    );
   }
 
   /**
-   * Controlla i GPS di tutti i veicoli in un determinato arco di tempo
-   * @param dateFrom data di inizio ricerca
-   * @param dateTo data di fine ricerca
-   * @returns observable http
+   * Permette di ottenere lo storico dei cantieri di un veicolo
+   * @param veId veId del veicolo
    */
-  public checkGPSAllRanged(dateFrom: Date, dateTo: Date){
-    const body = {
-      dateFrom: dateFrom,
-      dateTo: dateTo
-    }
-    return this.http.post<Vehicle[]>(`${this.commonService.url}/session/checkgps/all`, body);
-  }
+  public getVehicleWorksiteHistoryByVeId(veId: number){
+    const access_token = this.cookieService.get("user");
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${access_token}`
+    });
 
-  /**
-   * Controlla tutti i GPS nella giornata di oggi
-   * @returns observable http
-   */
-  public checkGPSAllToday(){
-    return this.checkGPSAllRanged(new Date(), new Date()); //da cambiare in data di ieri e attuale
+    return this.http.get<Vehicle>(
+      `${this.commonService.url}/worksitehistory/${veId}`,
+      { headers }
+    );
   }
 }

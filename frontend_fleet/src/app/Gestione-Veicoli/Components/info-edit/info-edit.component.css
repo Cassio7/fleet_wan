@@ -1,0 +1,40 @@
+.main-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2vh;
+  padding: 10px;
+  background-color: white;
+  border-radius: 5px;
+
+  .inline-container {
+    .title {
+      font-weight: 600;
+    }
+  }
+
+  .info-container {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0 16px;
+
+    .container {
+      display: flex;
+      flex-direction: column;
+
+      .title{
+        color: var(--green);
+      }
+    }
+
+    .full-width-divider{
+      grid-column: span 6;
+      margin: 10px;
+      border-top-width: .3vh;
+      border-top-color: var(--navbarANDstats-background);
+    }
+  }
+
+  .button {
+    max-width: 10vw;
+  }
+}

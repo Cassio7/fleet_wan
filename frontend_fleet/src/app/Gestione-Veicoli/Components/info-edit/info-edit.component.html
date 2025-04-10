@@ -1,0 +1,137 @@
+<main class="main-container" *ngIf="vehicle">
+  <section class="section-header">
+    <article class="inline-container">
+      <img
+        [src]="svgService.getServiceIcon(vehicle.service?.id || 0)"
+        alt="Service Icon"
+        width="28"
+        height="28"
+        style="cursor: pointer"
+        class="mezzo-icon"
+      />
+      {{ vehicle.service?.name || "Nessun servizio associato" }}
+    </article>
+    <div class="subtitle">last update</div>
+  </section>
+
+  <section class="info-container">
+    <mat-divider class="full-width-divider"></mat-divider>
+    <!-- Prima riga -->
+    <article class="container">
+      <span class="title">Targa</span>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <input matInput placeholder="Targa" [value]="vehicle.plate" disabled />
+      </mat-form-field>
+    </article>
+    <article class="container">
+      <span class="title">Servizio</span>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-select [value]="vehicle.service?.name">
+          <mat-option *ngFor="let service of services" [value]="service">
+            {{ service }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </article>
+    <article class="container">
+      <span class="title">Modello</span>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <input matInput placeholder="Modello" [value]="vehicle.model_csv || vehicle.model" />
+      </mat-form-field>
+    </article>
+    <article class="container">
+      <span class="title">Comune</span>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-select [value]="vehicle.group?.name">
+          <mat-option *ngFor="let group of groups" [value]="group.name">
+            {{ group.name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </article>
+    <article class="container">
+      <span class="title">Cantiere</span>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-select [value]="vehicle.worksite?.name">
+          <mat-option *ngFor="let worksite of worksites" [value]="worksite.name">
+            {{ worksite.name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </article>
+    <article class="container">
+      <span class="title">Stato</span>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-select [value]="vehicle.active ? 'operativo' : 'sospeso'">
+          <mat-option value="operativo">Operativo</mat-option>
+          <mat-option value="sospeso">Sospeso</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </article>
+
+    <mat-divider class="full-width-divider"></mat-divider>
+
+    <!-- Seconda riga -->
+    <article class="container">
+      <span class="title">Zona di lavoro</span>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-select [value]="vehicle.workzone?.name">
+          <mat-option *ngFor="let workzone of workzones" [value]="workzone.name">
+            {{ workzone.name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </article>
+    <article class="container">
+      <span class="title">Noleggio</span>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-select [value]="vehicle.rental?.name || 'non noleggiato'">
+          <mat-option *ngIf="!vehicle.rental" value="non noleggiato">Non noleggiato</mat-option>
+
+          <mat-option *ngFor="let rental of rentals" [value]="rental.name">
+            {{ rental.name }}
+          </mat-option>
+        </mat-select>
+
+      </mat-form-field>
+    </article>
+    <article class="container">
+      <span class="title">Allestimento</span>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-select [value]="vehicle.allestimento ? 'Blackbox + Antenna' : 'Blackbox'">
+          <mat-option value="Blackbox + Antenna">Blackbox + Antenna</mat-option>
+          <mat-option value="Blackbox">Blackbox</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </article>
+    <article class="container">
+      <span class="title">Società</span>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-select [value]="vehicle.company?.name">
+          <mat-option *ngFor="let company of companies" [value]="company.name">
+            {{ company.name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </article>
+    <article class="container">
+      <span class="title">Data di ritiro</span>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <input matInput [matDatepicker]="retiredPicker" placeholder="Data di ritiro"/>
+        <mat-datepicker-toggle matSuffix [for]="retiredPicker"></mat-datepicker-toggle>
+        <mat-datepicker #retiredPicker></mat-datepicker>
+      </mat-form-field>
+    </article>
+    <article class="container">
+      <span class="title">Data installazione fleet</span>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <input matInput [matDatepicker]="fleetInstallPicker" placeholder="Data installazione fleet"/>
+        <mat-datepicker-toggle matSuffix [for]="fleetInstallPicker"></mat-datepicker-toggle>
+        <mat-datepicker #fleetInstallPicker></mat-datepicker>
+      </mat-form-field>
+    </article>
+    <mat-divider class="full-width-divider"></mat-divider>
+  </section>
+
+  <button mat-button class="button" (click)="save()">Salva modifiche</button>
+</main>
