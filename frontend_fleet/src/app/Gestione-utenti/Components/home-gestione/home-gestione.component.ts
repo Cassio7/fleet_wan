@@ -10,6 +10,7 @@ import { UtentiCreateDialogComponent } from '../utenti-create-dialog/utenti-crea
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.component';
+import { MatIconModule } from '@angular/material/icon';
 
 export interface DialogData {
   animal: string;
@@ -18,7 +19,7 @@ export interface DialogData {
 @Component({
   selector: 'app-home-gestione',
   standalone: true,
-  imports: [CommonModule, MatSnackBarModule, MatButtonModule, UtentiTableComponent, GestioneFiltersComponent],
+  imports: [CommonModule, MatIconModule, MatSnackBarModule, MatButtonModule, UtentiTableComponent, GestioneFiltersComponent],
   templateUrl: './home-gestione.component.html',
   styleUrl: './home-gestione.component.css'
 })
