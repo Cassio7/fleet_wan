@@ -632,16 +632,18 @@ export class VehicleService {
   }
 
   /**
-   * Recupera un veicolo e controlla se utente ha i permessi per accederci
+   * Recupera un veicolo e controlla se utente ha i permessi per accederci, se admin è true salta controlli
    * @param userId user id
-   * @param veId veid veicolo
+   * @param veId identificativo veicolo
+   * @param admin true o false per controllo permessi
    * @returns ritorna un oggetto DTO oppure null
    */
   async getVehicleByVeId(
     userId: number,
     veId: number,
+    admin: boolean,
   ): Promise<VehicleDTO | null> {
-    await this.associationService.getVehiclesRedisAllSet(userId);
+    if (!admin) await this.associationService.getVehiclesRedisAllSet(userId);
     try {
       const vehicle = await this.vehicleRepository.findOne({
         where: {
@@ -662,44 +664,12 @@ export class VehicleService {
       });
       if (!vehicle)
         throw new HttpException('Veicolo non trovato', HttpStatus.NOT_FOUND);
-      await this.associationService.checkVehicleAssociateUserSet(userId, veId);
-      return vehicle ? this.toDTO(vehicle) : null;
-    } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new HttpException(
-        `Errore durante recupero del veicolo`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  /**
-   * Recupera il veicolo il base al veid passato, senza restizioni di associazioni
-   * @param veId identificativo veicolo
-   * @returns veicolo DTO o null se non trova
-   */
-  async getVehicleByVeIdAdmin(veId: number): Promise<VehicleDTO | null> {
-    try {
-      const vehicle = await this.vehicleRepository.findOne({
-        where: {
-          veId: veId,
-        },
-        relations: {
-          device: true,
-          worksite: {
-            group: {
-              company: true,
-            },
-          },
-          workzone: true,
-          service: true,
-          equipment: true,
-          rental: true,
-        },
-      });
-      if (!vehicle)
-        throw new HttpException('Veicolo non trovato', HttpStatus.NOT_FOUND);
-      return vehicle ? this.toDTO(vehicle, true) : null;
+      if (!admin)
+        await this.associationService.checkVehicleAssociateUserSet(
+          userId,
+          veId,
+        );
+      return vehicle ? this.toDTO(vehicle, admin) : null;
     } catch (error) {
       if (error instanceof HttpException) throw error;
       throw new HttpException(
