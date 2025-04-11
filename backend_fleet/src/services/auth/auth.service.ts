@@ -15,6 +15,7 @@ interface LoggedUserDto {
   username: string;
   email: string;
   token: string;
+  clientId: string;
 }
 
 @Injectable()
@@ -164,13 +165,13 @@ export class AuthService {
       const users = await this.userRepository.find({
         where: {
           active: true,
-          deletedAt: IsNull(),
         },
       });
       const loggedUsers: LoggedUserDto[] = [];
 
       for (const user of users) {
         const token = await this.getLoggedUserRedis(user.key);
+        const clientId = await this.getClientRedis(user.key);
         if (token) {
           loggedUsers.push({
             id: user.id,
@@ -178,6 +179,7 @@ export class AuthService {
             username: user.username,
             email: user.email,
             token,
+            clientId,
           });
         }
       }
@@ -192,9 +194,40 @@ export class AuthService {
     }
   }
 
+  async getLoggedUsersMap(): Promise<
+    Map<string, { token: string; clientId: string }>
+  > {
+    try {
+      const users = await this.userRepository.find({
+        select: {
+          key: true,
+        },
+        where: {
+          active: true,
+        },
+      });
+      const loggedMap: Map<string, { token: string; clientId: string }> =
+        new Map();
+      for (const user of users) {
+        const token = await this.getLoggedUserRedis(user.key);
+        const clientId = await this.getClientRedis(user.key);
+        if (token) {
+          loggedMap.set(user.key, { token, clientId });
+        }
+      }
+      return loggedMap;
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new HttpException(
+        `Errore durante il recupero degli utenti loggati`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   /**
    * Recupera da redis il token associato ad un utente dalla sua key
-   * @param userKey
+   * @param userKey chiave utente
    * @returns
    */
   private async getLoggedUserRedis(userKey: string): Promise<string | null> {
