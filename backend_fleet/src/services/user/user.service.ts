@@ -86,19 +86,37 @@ export class UserService {
 
   /**
    * Ritorna tutti gli utenti
-   * @returns Utenti
+   * @param logged boolean per ricercare utenti loggati
+   * @returns
    */
-  async getAllUsers(): Promise<UserDTO[]> {
+  async getAllUsers(logged: boolean): Promise<UserDTO[]> {
     try {
-      const users = await this.userRepository.find({
-        relations: {
-          role: true,
-        },
-        order: {
-          id: 'ASC',
-        },
-      });
-      return await this.formatUserDTO(users, true);
+      if (logged) {
+        const users = await this.userRepository.find({
+          relations: {
+            role: true,
+          },
+          order: {
+            id: 'ASC',
+          },
+          withDeleted: true,
+        });
+        return await this.formatUserDTO(
+          users,
+          true,
+          await this.authService.getLoggedUsersMap(),
+        );
+      } else {
+        const users = await this.userRepository.find({
+          relations: {
+            role: true,
+          },
+          order: {
+            id: 'ASC',
+          },
+        });
+        return await this.formatUserDTO(users, true);
+      }
     } catch (error) {
       if (error instanceof HttpException) throw error;
       throw new HttpException(
@@ -345,6 +363,9 @@ export class UserService {
       await queryRunner.startTransaction();
       await queryRunner.manager
         .getRepository(UserEntity)
+        .update({ key: user.key }, { active: false });
+      await queryRunner.manager
+        .getRepository(UserEntity)
         .softDelete({ key: user.key });
       await queryRunner.commitTransaction();
     } catch (error) {
@@ -368,14 +389,17 @@ export class UserService {
   private async formatUserDTO(
     user: UserEntity | UserEntity[],
     admin: boolean,
+    loggedMap?: Map<string, { token: string; clientId: string }>,
   ): Promise<any> {
     const usersArray = Array.isArray(user) ? user : [user];
     const usersDTO = usersArray.map((user) => {
       const userDTO = new UserDTO();
       if (admin) {
         userDTO.id = user.id;
+        userDTO.key = user.key;
         userDTO.createdAt = user.createdAt;
         userDTO.updatedAt = user.updatedAt;
+        userDTO.deletedAt = user.deletedAt;
         userDTO.version = user.version;
         userDTO.email = user.email;
         userDTO.name = user.name;
@@ -383,6 +407,10 @@ export class UserService {
         userDTO.username = user.username;
         userDTO.active = user.active;
         userDTO.role = user.role.name;
+        if (loggedMap?.has(user.key)) {
+          userDTO.token = loggedMap.get(user.key).token;
+          userDTO.clientId = loggedMap.get(user.key).clientId;
+        }
         return userDTO;
       } else {
         userDTO.email = user.email;
