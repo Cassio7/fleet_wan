@@ -699,7 +699,7 @@ export class VehicleService {
       });
       if (!vehicle)
         throw new HttpException('Veicolo non trovato', HttpStatus.NOT_FOUND);
-      return vehicle ? this.toDTO(vehicle) : null;
+      return vehicle ? this.toDTO(vehicle, true) : null;
     } catch (error) {
       if (error instanceof HttpException) throw error;
       throw new HttpException(
