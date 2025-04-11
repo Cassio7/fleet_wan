@@ -1,9 +1,18 @@
 <div class="content" *ngIf="vehicle">
+  <h2 class="go-back title">
+    <button mat-button (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon></button
+    >Torna alla gestione dei veicoli
+  </h2>
   <div class="section-header">
     <div class="title">Modifica veicolo {{veId}}</div>
     <div class="subtitle">Modifica i dati del veicolo</div>
   </div>
-  <app-info-edit [vehicle]="vehicle" [services]="services" [workzones]="workzones"
-  [rentals]="rentals" [services]="services" [equipments]="equipments" (updateVehicle)="updateVehicle($event)"></app-info-edit>
-  <app-storico-cantieri *ngIf="veId" [veId]="veId"></app-storico-cantieri>
+  <main class="main-content">
+    <app-info-edit [vehicle]="vehicle" [services]="services" [workzones]="workzones"
+    [rentals]="rentals" [services]="services" [equipments]="equipments" (updateVehicle)="updateVehicle($event)"></app-info-edit>
+    <div class="storico-container">
+      <app-storico-cantieri *ngIf="veId" [veId]="veId"></app-storico-cantieri>
+    </div>
+  </main>
 </div>

@@ -2,7 +2,7 @@ import { CommonService } from './../../../Common-services/common service/common.
 import { MatIconModule } from '@angular/material/icon';
 import { ChangeDetectorRef, Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { InfoEditComponent } from "../info-edit/info-edit.component";
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { firstValueFrom, Subject, takeUntil } from 'rxjs';
 import { VehiclesApiService, vehicleUpdateData } from '../../../Common-services/vehicles api service/vehicles-api.service';
 import { Vehicle } from '../../../Models/Vehicle';
@@ -23,11 +23,18 @@ import { Equipment } from '../../../Models/Equipment';
 import { EquipmentService } from '../../../Common-services/equipment/equipment.service';
 import { CommonModule } from '@angular/common';
 import { StoricoCantieriComponent } from "../../../Common-components/storico-cantieri/storico-cantieri.component";
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-home-veicolo-edit',
   standalone: true,
-  imports: [CommonModule, MatIconModule, InfoEditComponent, MatSnackBarModule, StoricoCantieriComponent],
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatIconModule,
+    MatSnackBarModule,
+    InfoEditComponent,
+    StoricoCantieriComponent],
   templateUrl: './home-veicolo-edit.component.html',
   styleUrl: './home-veicolo-edit.component.css'
 })
@@ -52,7 +59,8 @@ export class HomeVeicoloEditComponent implements OnInit, OnDestroy{
     private equipmentService: EquipmentService,
     private servicesService: ServicesService,
     private vehicleApiService: VehiclesApiService,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
+    private router: Router
   ){}
 
   ngOnDestroy(): void {
@@ -106,19 +114,6 @@ export class HomeVeicoloEditComponent implements OnInit, OnDestroy{
     return [];
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
   /**
    * Prende tutti i servizi
    * @returns promise di Service[]
@@ -131,19 +126,6 @@ export class HomeVeicoloEditComponent implements OnInit, OnDestroy{
     }
     return [];
   }
-
-  /**
-   * Prende tutte le società
-   * @returns promise di Company[]
-   */
-  // private async getAllCompanies(): Promise<Company[]>{
-  //   try{
-  //     return firstValueFrom(this.gestioneSocietaService.getAllSocieta().pipe(takeUntil(this.destroy$)));
-  //   }catch(error){
-  //     console.error("Errore nell'ottenimento delle società: ", error);
-  //     return [];
-  //   }
-  // }
 
   /**
    * Prende tutte le rental
@@ -172,32 +154,6 @@ export class HomeVeicoloEditComponent implements OnInit, OnDestroy{
   }
 
   /**
-   * Prende tutti gli worksite
-   * @returns promise di WorkSite[]
-   */
-  // private async getAllWorksites(): Promise<WorkSite[]>{
-  //   try{
-  //     return firstValueFrom(this.gestioneCantieriService.getAllWorksite().pipe(takeUntil(this.destroy$)));
-  //   }catch(error){
-  //     console.error("Errore nella ricezione di tutti i cantieri: ", error);
-  //     return [];
-  //   }
-  // }
-
-  /**
-   * Prende tutti i gruppi
-   * @returns promise di Group[]
-   */
-  // private async getAllGroups(): Promise<Group[]> {
-  //   try {
-  //     return await firstValueFrom(this.gestioneCantieriService.getAllGroups().pipe(takeUntil(this.destroy$)));
-  //   } catch (error) {
-  //     console.error("Errore nella ricezione di tutti i gruppi: ", error);
-  //     return [];
-  //   }
-  // }
-
-  /**
    * Prende un veicolo tramite il veId
    * @returns promise di Vehicle | null
    */
@@ -208,5 +164,9 @@ export class HomeVeicoloEditComponent implements OnInit, OnDestroy{
       console.error("Errore nella ricezione del veicolo con veId: ", error);
       return null;
     }
+  }
+
+  goBack(){
+    this.router.navigate(['/gestione-veicoli']);
   }
 }
