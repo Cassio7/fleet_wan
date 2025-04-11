@@ -9,7 +9,6 @@ import {
   Req,
   Res,
   UseGuards,
-  UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { VehicleDTO } from 'classes/dtos/vehicle.dto';
@@ -206,7 +205,6 @@ export class VehicleController {
    */
   @Roles(Role.Admin, Role.Responsabile, Role.Capo)
   @Get(':veId')
-  @UsePipes(ParseIntPipe)
   async getVehicleByVeId(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
@@ -221,7 +219,8 @@ export class VehicleController {
     try {
       const vehicle = await this.vehicleService.getVehicleByVeId(
         req.user.id,
-        veId,
+        Number(veId),
+        false,
       );
       if (!vehicle) {
         this.loggerService.logCrudSuccess(
@@ -274,8 +273,10 @@ export class VehicleController {
       resource: 'Vehicle Admin',
     };
     try {
-      const vehicle = await this.vehicleService.getVehicleByVeIdAdmin(
+      const vehicle = await this.vehicleService.getVehicleByVeId(
+        req.user.id,
         Number(veId),
+        true,
       );
       if (!vehicle) {
         this.loggerService.logCrudSuccess(
