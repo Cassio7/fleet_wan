@@ -61,7 +61,7 @@
     <ng-container matColumnDef="Stato">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Stato</th>
       <td mat-cell *matCellDef="let veicolo">
-        <ng-container *ngIf="!veicolo.retired_event; else notActive">
+        <ng-container *ngIf="veicolo.active_csv; else notActive">
           <div class="inline-container">
             <div class="state-circle active-circle"></div>
             Operativo

@@ -89,7 +89,7 @@ export class VeicoliTableComponent {
   ) {
     effect(() => {
       const currentFilters = gestioneVeicoliService.gestioneVeicoliFilters();
-      if (currentFilters) {
+      if (currentFilters && this.veicoli) {
         const { targa, cantieri, societa } = currentFilters;
         this.filters.plate = targa;
         this.filters.cantieri.setValue(cantieri);

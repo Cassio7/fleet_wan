@@ -31,6 +31,7 @@ export class Vehicle {
     public fleet_number: number | null,
     public fleet_install: Date | null,
     public active: boolean,
+    public active_csv: boolean,
     public registration?: string,
     public rental?: Rental,
     public worksite?: WorkSite,
