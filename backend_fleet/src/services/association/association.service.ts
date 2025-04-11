@@ -488,7 +488,7 @@ export class AssociationService {
         await this.redis.del(keys);
       }
 
-      const users = await this.userService.getAllUsers();
+      const users = await this.userService.getAllUsers(false);
 
       const promises = users.map(async (user) => {
         const key = `vehicleAssociateUser:${user.id}`;
@@ -518,7 +518,7 @@ export class AssociationService {
         await this.redis.del(keys);
       }
 
-      const users = await this.userService.getAllUsers();
+      const users = await this.userService.getAllUsers(false);
 
       const promises = users.map(async (user) => {
         const key = `vehicleAssociateUserSet:${user.id}`;

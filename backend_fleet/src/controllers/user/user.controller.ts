@@ -50,7 +50,7 @@ export class UserController {
     };
 
     try {
-      const users = await this.userService.getAllUsers();
+      const users = await this.userService.getAllUsers(true);
 
       if (!users?.length) {
         this.loggerService.logCrudSuccess(
