@@ -1,6 +1,6 @@
 import { CommonService } from './../../../Common-services/common service/common.service';
 import { MatIconModule } from '@angular/material/icon';
-import { ChangeDetectorRef, Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, effect, inject, OnChanges, OnDestroy, OnInit, signal, SimpleChanges } from '@angular/core';
 import { InfoEditComponent } from "../info-edit/info-edit.component";
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { firstValueFrom, Subject, takeUntil } from 'rxjs';
@@ -24,6 +24,8 @@ import { EquipmentService } from '../../../Common-services/equipment/equipment.s
 import { CommonModule } from '@angular/common';
 import { StoricoCantieriComponent } from "../../../Common-components/storico-cantieri/storico-cantieri.component";
 import { MatButtonModule } from '@angular/material/button';
+import { ChangeWorksiteComponent } from "../change-worksite/change-worksite.component";
+import { formatDate } from '../../../Utils/date-formatter';
 
 @Component({
   selector: 'app-home-veicolo-edit',
@@ -34,7 +36,9 @@ import { MatButtonModule } from '@angular/material/button';
     MatIconModule,
     MatSnackBarModule,
     InfoEditComponent,
-    StoricoCantieriComponent],
+    StoricoCantieriComponent,
+    ChangeWorksiteComponent
+],
   templateUrl: './home-veicolo-edit.component.html',
   styleUrl: './home-veicolo-edit.component.css'
 })
@@ -48,6 +52,7 @@ export class HomeVeicoloEditComponent implements OnInit, OnDestroy{
   vehicle!: Vehicle;
   services: Service[] = [];
   workzones: Workzone[] = [];
+  worksites: WorkSite[] = [];
   rentals: Rental[] = [];
   equipments: Equipment[] = [];
 
@@ -57,11 +62,13 @@ export class HomeVeicoloEditComponent implements OnInit, OnDestroy{
     private workzoneService: WorkzoneService,
     private rentalService: RentalService,
     private equipmentService: EquipmentService,
+    private gestioneCantieriService: GestioneCantieriService,
     private servicesService: ServicesService,
     private vehicleApiService: VehiclesApiService,
     private cd: ChangeDetectorRef,
     private router: Router
   ){}
+
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -71,12 +78,13 @@ export class HomeVeicoloEditComponent implements OnInit, OnDestroy{
   async ngOnInit(): Promise<void> {
     try {
       const params = await firstValueFrom(this.route.params.pipe(takeUntil(this.destroy$)));
-      this.veId = params['id'];
+      this.veId = parseInt(params['id']);
 
       this.workzones = await this.getAllWorkzones();
       this.rentals = await this.getAllRentals();
       this.services = await this.getAllServices();
       this.equipments = await this.getAllEquipments();
+      this.worksites = await this.getAllWorksites();
       const fetchedVehicle = await this.getVehicleByVeId(this.veId);
       if(fetchedVehicle) this.vehicle = fetchedVehicle;
       console.log('fetchedVehicle: ', fetchedVehicle);
@@ -100,6 +108,34 @@ export class HomeVeicoloEditComponent implements OnInit, OnDestroy{
     });
   }
 
+  /**
+   * Salva il cambiamento del cantiere del veicolo
+   * @param creationData dati di creazione
+   */
+  saveWorksiteHistory(creationData: {worksite: WorkSite, dateFrom: Date, comment: string}){
+    const { worksite, dateFrom, comment } = creationData;
+    this.gestioneCantieriService.moveVehicleInWorksite(this.veId, worksite.id, dateFrom.toString(), comment).pipe(takeUntil(this.destroy$)).pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (response: {message: string}) => {
+        openSnackbar(this.snackBar, `Veicolo spostato con successo nel cantiere ${this.vehicle.worksite?.name}`);
+      },
+      error: error => console.error("Errore nello spostamento del veicolo: ", error)
+    });
+  }
+
+
+  /**
+   * Prende tutti i servizi
+   * @returns promise di Equipment[]
+   */
+  private async getAllWorksites(): Promise<WorkSite[]>{
+    try{
+      return firstValueFrom(this.gestioneCantieriService.getAllWorksite().pipe(takeUntil(this.destroy$)))
+    }catch(error){
+      console.error(`Errore nell'ottenimento di tutti i cantieri: ${error}`);
+    }
+    return [];
+  }
 
   /**
    * Prende tutti i servizi

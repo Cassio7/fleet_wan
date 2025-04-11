@@ -1,0 +1,14 @@
+.filters-container{
+  width: 100%;
+  padding: 15px;
+
+  .inline-container{
+    gap: 1.5vw;
+
+    .title{
+      font-weight: bold;
+      font-size: 18px;
+    }
+  }
+
+}

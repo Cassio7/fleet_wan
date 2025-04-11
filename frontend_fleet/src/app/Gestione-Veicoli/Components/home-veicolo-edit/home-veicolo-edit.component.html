@@ -9,8 +9,19 @@
     <div class="subtitle">Modifica i dati del veicolo</div>
   </div>
   <main class="main-content">
-    <app-info-edit [vehicle]="vehicle" [services]="services" [workzones]="workzones"
-    [rentals]="rentals" [services]="services" [equipments]="equipments" (updateVehicle)="updateVehicle($event)"></app-info-edit>
+    <app-info-edit
+      *ngIf="vehicle as v"
+      [vehicle]="v"
+      [services]="services"
+      [workzones]="workzones"
+      [rentals]="rentals"
+      [equipments]="equipments"
+      (updateVehicle)="updateVehicle($event)">
+    </app-info-edit>
+
+
+    <app-change-worksite *ngIf="vehicle" [vehicle]="vehicle" [worksites]="worksites" (worksiteChange)="saveWorksiteHistory($event)"></app-change-worksite>
+
     <div class="storico-container">
       <app-storico-cantieri *ngIf="veId" [veId]="veId"></app-storico-cantieri>
     </div>
