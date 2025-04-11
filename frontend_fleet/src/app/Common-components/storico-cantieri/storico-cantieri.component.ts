@@ -21,7 +21,7 @@ export class StoricoCantieriComponent implements AfterViewInit, OnDestroy {
   private readonly destroy$: Subject<void> = new Subject<void>();
   @ViewChild('storicoCantieriTable') storicoCantieriTable!: MatTable<WorksiteHistory>;
   storicoCantieriTaleData = new MatTableDataSource<WorksiteHistory>();
-  displayedColumns: string[] = ['Cantiere', 'Ingresso', 'Uscita'];
+  displayedColumns: string[] = ['Cantiere', 'Ingresso', 'Uscita', 'Commento'];
 
   @Input() veId!: number;
 
