@@ -19,6 +19,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { Service } from '../../../Models/Service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Equipment } from '../../../Models/Equipment';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-info-edit',
@@ -32,6 +33,8 @@ import { Equipment } from '../../../Models/Equipment';
     MatDividerModule,
     MatInputModule,
     MatSelectModule,
+    MatIconModule,
+    MatButtonModule,
     MatDatepickerModule,
     MatTooltipModule,
     MatOptionModule
@@ -61,7 +64,6 @@ export class InfoEditComponent implements AfterViewInit, OnChanges{
   ngOnChanges(changes: SimpleChanges): void {
     if(changes['vehicle']){
       if(!this.vehicle.rental && this.infoForm) this.infoForm.get('rentalId')?.setValue('null');
-
     }
   }
 
@@ -97,4 +99,6 @@ export class InfoEditComponent implements AfterViewInit, OnChanges{
 
     this.updateVehicle.emit(this.infoForm.value);
   }
+
+
 }

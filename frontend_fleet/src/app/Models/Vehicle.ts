@@ -12,6 +12,7 @@ import { Workzone } from './Workzone';
 export class Vehicle {
   constructor(
     public id: number,
+    public updatedAt: Date,
     public plate: string,
     public euro: string,
     public electrical: boolean,

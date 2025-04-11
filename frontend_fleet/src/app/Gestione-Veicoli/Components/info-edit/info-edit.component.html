@@ -11,7 +11,7 @@
       />
       {{ vehicle.service?.name || "Nessun servizio associato" }}
     </article>
-    <div class="subtitle">last update</div>
+    <div class="subtitle">Ultimo aggiornamento: {{vehicle.updatedAt | date: 'dd/MM/yyyy hh:mm'}}</div>
   </section>
 
   <section class="info-container">
@@ -95,6 +95,9 @@
         <input matInput [matDatepicker]="retiredPicker" placeholder="Data di ritiro" formControlName="retired_event" />
         <mat-datepicker-toggle matSuffix [for]="retiredPicker"></mat-datepicker-toggle>
         <mat-datepicker #retiredPicker></mat-datepicker>
+        <button mat-icon-button matSuffix *ngIf="vehicle.retired_event">
+          <mat-icon>close</mat-icon>
+        </button>
       </mat-form-field>
     </article>
 
