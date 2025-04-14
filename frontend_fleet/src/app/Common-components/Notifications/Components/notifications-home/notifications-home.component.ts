@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { NotificationsTableComponent } from "../notifications-table/notifications-table.component";
 import { NotificationService } from '../../../../Common-services/notification/notification.service';
-import { Subject, takeUntil } from 'rxjs';
+import { skip, Subject, takeUntil } from 'rxjs';
 import { Notifica } from '../../../../Models/Notifica';
 import { CommonModule } from '@angular/common';
 import { NotificationsFiltersComponent } from "../notifications-filters/notifications-filters.component";
@@ -63,7 +63,43 @@ export class NotificationsHomeComponent implements OnInit{
       },
       error: error => console.error("Errore nell'ottenimento di tutte le notifiche: ", error)
     });
+
+    this.handleUpdatedNotification();
+    this.handleNotificationDelete();
   }
+
+  /**
+   * Gestisce la reazione alla cancellazione di una notifica
+   */
+  private handleNotificationDelete(){
+      this.notificationService.deletedNotification$.pipe(takeUntil(this.destroy$), skip(1))
+      .subscribe({
+        next: (response: { key: string }) => {
+          this.notifiche = this.notifiche.filter(notifica => notifica.key != response.key);
+          this.cd.detectChanges();
+        },
+        error: (error: any) => console.error("Errore nella ricezione della notifica letta dalla navbar: ", error)
+      });
+    }
+
+  /**
+   * Gestisce la reazione all'aggiornamento "letta/non letta" di una notifica
+   */
+    private handleUpdatedNotification(){
+      this.notificationService.updatedNotification$.pipe(takeUntil(this.destroy$), skip(1))
+      .subscribe({
+        next: (notification: Notifica | null) => {
+          if(notification)
+            this.notifiche = this.notifiche.map(notifica => {
+              if (notifica.key === notification.key) {
+                return { ...notifica, isRead: notification.isRead };
+              }
+              return notifica;
+            });
+        },
+        error: error => console.error("Errore nella ricezione della notifica letta dalla navbar: ", error)
+      });
+    }
 
   goBack(){
     this.router.navigate([this.previous_url]);

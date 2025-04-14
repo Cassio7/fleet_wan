@@ -13,7 +13,7 @@ import {
   RouterModule,
   RouterOutlet,
 } from '@angular/router';
-import { filter, identity, Subject, takeUntil } from 'rxjs';
+import { filter, identity, skip, Subject, takeUntil } from 'rxjs';
 import { MatDrawer, MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
@@ -149,6 +149,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       error: (error) => console.error('Error logging in: ', error),
     });
 
+    this.handleUpdatedNotification();
+    this.handleNotificationDelete();
     this.user = this.authService.decodeToken(current_token);
     if (this.cookieService.get('user') && this.user?.idR == 1) this.handleGetToReadNotification();
     this.cd.detectChanges();
@@ -228,6 +230,39 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
+  /**
+   * Gestisce la reazione alla cancellazione di una notifica
+   */
+  private handleNotificationDelete(){
+    this.notificationService.deletedNotification$.pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next: (response: { key: string }) => {
+        this.notifiche = this.notifiche.filter(notifica => notifica.key != response.key);
+        this.cd.detectChanges();
+      },
+      error: (error: any) => console.error("Errore nella ricezione della notifica letta dalla navbar: ", error)
+    });
+  }
+
+  /**
+   * Gestisce la reazione all'aggiornamento "letta/non letta" di una notifica
+   */
+  private handleUpdatedNotification(){
+    this.notificationService.updatedNotification$.pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next: (notification: Notifica | null) => {
+        if(notification)
+          this.notifiche = this.notifiche.map(notifica => {
+            if (notifica.key === notification.key) {
+              return { ...notifica, isRead: notification.isRead };
+            }
+            return notifica;
+          });
+      },
+      error: error => console.error("Errore nella ricezione della notifica letta dalla navbar: ", error)
+    });
+  }
+
   handleGetToReadNotification() {
     //ottenimento delle notifiche da leggere
     this.notificationService
@@ -243,6 +278,10 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
             error
           ),
       });
+  }
+
+  getToReadNotifications(): Notifica[]{
+    return this.notifiche.filter(notifica => !notifica.isRead);
   }
 
   /**

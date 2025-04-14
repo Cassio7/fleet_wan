@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { CommonService } from '../common service/common.service';
 import { Notifica } from '../../Models/Notifica';
 
@@ -9,6 +9,8 @@ import { Notifica } from '../../Models/Notifica';
   providedIn: 'root'
 })
 export class NotificationService {
+  private readonly _updatedNotification$: BehaviorSubject<Notifica | null> = new BehaviorSubject<Notifica | null>(null);
+  private readonly _deletedNotification$: BehaviorSubject<{ key: string }> = new BehaviorSubject<{ key: string }>({ key: "" });
 
   constructor(
     private commonService: CommonService,
@@ -51,13 +53,20 @@ export class NotificationService {
    * @param key chiave della notifica da eliminare
    * @returns observable http delete
    */
-  deleteNotification(key: string): Observable<{message: string}>{
+  deleteNotification(key: string): Observable<{message: string, notification: Notifica}>{
     const access_token = this.cookieService.get('user');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${access_token}`,
       'Content-Type': 'application/json',
     });
 
-    return this.http.delete<{message: string}>(`${this.commonService.url}/notifications/${key}`, { headers });
+    return this.http.delete<{message: string, notification: Notifica}>(`${this.commonService.url}/notifications/${key}`, { headers });
+  }
+
+  public get updatedNotification$(): BehaviorSubject<Notifica | null> {
+    return this._updatedNotification$;
+  }
+  public get deletedNotification$(): BehaviorSubject<{ key: string }> {
+    return this._deletedNotification$;
   }
 }

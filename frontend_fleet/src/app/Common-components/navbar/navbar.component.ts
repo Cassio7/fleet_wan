@@ -4,7 +4,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { ActivatedRoute, NavigationEnd, Router, RouterModule } from '@angular/router';
-import { Subject, filter, merge, takeUntil } from 'rxjs';
+import { Subject, filter, merge, skip, takeUntil } from 'rxjs';
 import { LoginService } from '../../Common-services/login service/login.service';
 import { AuthService } from '../../Common-services/auth/auth.service';
 import { KanbanAntennaService } from '../../Dashboard/Services/kanban-antenna/kanban-antenna.service';
@@ -20,6 +20,7 @@ import { WebsocketService } from '../../Common-services/websocket/websocket.serv
 import { MatBadgeModule } from '@angular/material/badge';
 import { Notifica } from '../../Models/Notifica';
 import { CookieService } from 'ngx-cookie-service';
+import { NotificationService } from '../../Common-services/notification/notification.service';
 
 @Component({
   selector: 'app-navbar',
@@ -60,6 +61,7 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
     private kanbanSessioneService: KanbanSessioneService,
     private kanabanTableService: KanbanTableService,
     private profileService: ProfileService,
+    private notificationService: NotificationService,
     private cookieService: CookieService,
     private router: Router,
     private cd: ChangeDetectorRef
@@ -147,7 +149,6 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
       }
     });
     this.handleProfileInfoUpdate();
-
   }
 
   handleProfileInfoUpdate(){

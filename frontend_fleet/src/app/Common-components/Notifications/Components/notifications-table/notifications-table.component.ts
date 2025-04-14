@@ -52,17 +52,26 @@ export class NotificationsTableComponent implements OnChanges, OnDestroy {
   }
 
   updateNotificationStatus(notification: Notifica) {
+    // Disabilita il bottone specifico
+    notification.isButtonDisabled = true;
+
+    // Timer per riabilitare il bottone dopo 2 secondi
+    setTimeout(() => {
+      notification.isButtonDisabled = false;
+    }, 2000);
+
     this.notificationsFilterService.updateNotificationReadStatus(notification.key)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: { notification: Notifica, message: string }) => {
-          const { notification } = response;
-
-          const index = this.notificheTableData.data.findIndex((notif) => notif.key === notification.key);
-
+          const { notification: updatedNotification } = response;
+          const index = this.notificheTableData.data.findIndex(
+            notif => notif.key === updatedNotification.key
+          );
           if (index !== -1) {
-            this.notificheTableData.data[index].isRead = notification.isRead;
+            this.notificheTableData.data[index].isRead = updatedNotification.isRead;
           }
+          this.notificationService.updatedNotification$.next(updatedNotification);
         },
         error: error => {
           console.error("Errore nell'aggiornamento della notifica: ", error);
@@ -70,10 +79,13 @@ export class NotificationsTableComponent implements OnChanges, OnDestroy {
       });
   }
 
+
   deleteNotification(notification: Notifica){
     this.notificationService.deleteNotification(notification.key).pipe(takeUntil(this.destroy$))
     .subscribe({
-      next: (response: {message: string}) => {
+      next: (response: {message: string, notification: Notifica}) => {
+        this.notificheTableData.data = this.notificheTableData.data.filter(notifica => notifica.key != notification.key);
+        this.notificationService.deletedNotification$.next({key: notification.key});
         openSnackbar(this.snackbar, "Notifica eliminata");
       },
       error: error => console.error("Errore nell'eliminazione della notifica: ", error)
