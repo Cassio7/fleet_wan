@@ -51,7 +51,7 @@ export class AuthService {
       );
     }
     if (!user.active) {
-      throw new HttpException('Account disabilitato', HttpStatus.UNAUTHORIZED);
+      throw new HttpException('Account disabilitato', HttpStatus.FORBIDDEN);
     }
     // Verifica password
     if (!password) {
