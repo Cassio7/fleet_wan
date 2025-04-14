@@ -290,7 +290,7 @@ export class WorksiteService {
         { worksite: { id: worksite.id } },
         { worksite: null },
       );
-      await queryRunner.manager.getRepository(WorksiteEntity).remove(worksite);
+      await queryRunner.manager.getRepository(WorksiteEntity).softDelete({key: worksite.key});
       await queryRunner.commitTransaction();
       //update associations
       this.associationService.setVehiclesAssociateAllUsersRedis();
