@@ -451,13 +451,15 @@ export class AnomalyService {
    * Imposta anomalie di oggi su Redis per recupero veloce
    * @param anomalies
    */
-  async setTodayAnomalyRedis(anomalies: any) {
+  async setTodayAnomalyRedis(anomalies: any): Promise<boolean> {
+    const pipeline = this.redis.pipeline();
     for (const anomaly of anomalies) {
       const key = `todayAnomaly:${anomaly.vehicle.veId}`;
-      await this.redis.set(key, JSON.stringify(anomaly));
+      pipeline.set(key, JSON.stringify(anomaly));
     }
-    const key = `todayAnomaly:lastUpdate`;
-    await this.redis.set(key, new Date().toISOString());
+    const lastUpdateKey = `todayAnomaly:lastUpdate`;
+    pipeline.set(lastUpdateKey, new Date().toISOString());
+    await pipeline.exec();
     return true;
   }
 
@@ -502,11 +504,13 @@ export class AnomalyService {
    * @param anomalies
    * @returns
    */
-  async setLastAnomalyRedis(anomalies: any) {
+  async setLastAnomalyRedis(anomalies: any): Promise<boolean> {
+    const pipeline = this.redis.pipeline();
     for (const anomaly of anomalies) {
       const key = `lastAnomaly:${anomaly.vehicle.veId}`;
-      await this.redis.set(key, JSON.stringify(anomaly));
+      pipeline.set(key, JSON.stringify(anomaly));
     }
+    await pipeline.exec();
     return true;
   }
 

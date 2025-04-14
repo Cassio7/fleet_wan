@@ -780,10 +780,12 @@ export class SessionService {
    * @param sessionMap
    */
   async setLastValidSessionRedis(sessionMap: Map<number, any>): Promise<void> {
+    const pipeline = this.redis.pipeline();
     for (const [veId, session] of sessionMap) {
       const key = `lastValidSession:${veId}`;
-      await this.redis.set(key, JSON.stringify(session));
+      pipeline.set(key, JSON.stringify(session));
     }
+    await pipeline.exec();
   }
 
   /**
@@ -868,10 +870,12 @@ export class SessionService {
    * @param historyMap
    */
   async setLastHistoryRedis(historyMap: Map<number, any>): Promise<void> {
+    const pipeline = this.redis.pipeline();
     for (const [veId, history] of historyMap) {
       const key = `lastHistory:${veId}`;
-      await this.redis.set(key, JSON.stringify(history));
+      pipeline.set(key, JSON.stringify(history));
     }
+    await pipeline.exec();
   }
 
   /**

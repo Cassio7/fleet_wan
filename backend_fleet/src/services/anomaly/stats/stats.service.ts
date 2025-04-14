@@ -199,10 +199,12 @@ export class StatsService {
    * @param stats oggetto statistica
    */
   async setRedisStats(stats: Stats[]): Promise<void> {
+    const pipeline = this.redis.pipeline();
     for (const stat of stats) {
       const key = `stats:${stat.veId}`;
-      await this.redis.set(key, JSON.stringify(stat));
+      pipeline.set(key, JSON.stringify(stat));
     }
+    await pipeline.exec();
   }
 
   /**

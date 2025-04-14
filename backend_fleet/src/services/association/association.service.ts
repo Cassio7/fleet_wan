@@ -489,20 +489,22 @@ export class AssociationService {
       }
 
       const users = await this.userService.getAllUsers(false);
+      const pipeline = this.redis.pipeline();
 
-      const promises = users.map(async (user) => {
-        const key = `vehicleAssociateUser:${user.id}`;
-        const vehicles = await this.getVehiclesByUserRole(user.id);
+      for (const user of users) {
         try {
-          await this.redis.set(key, JSON.stringify(vehicles));
+          const vehicles = await this.getVehiclesByUserRole(user.id);
+          if (vehicles.length === 0) continue;
+          const key = `vehicleAssociateUser:${user.id}`;
+          pipeline.set(key, JSON.stringify(vehicles));
         } catch (error) {
           console.log(
-            `Errore set Redis associazione veicoli con l'utente ${user.id}:`,
+            `Errore nel recupero veicoli per l'utente ${user.id}:`,
             error,
           );
         }
-      });
-      await Promise.all(promises);
+      }
+      await pipeline.exec();
     } catch (error) {
       console.log('Errore generale:', error);
     }
@@ -519,21 +521,26 @@ export class AssociationService {
       }
 
       const users = await this.userService.getAllUsers(false);
+      const pipeline = this.redis.pipeline();
 
-      const promises = users.map(async (user) => {
-        const key = `vehicleAssociateUserSet:${user.id}`;
-        const vehicles = await this.getVehiclesByUserRole(user.id);
+      for (const user of users) {
         try {
+          const vehicles = await this.getVehiclesByUserRole(user.id);
           const veIds = vehicles.map((vehicle) => vehicle.veId);
-          if (veIds?.length > 0) await this.redis.sadd(key, ...veIds);
+
+          if (veIds.length === 0) continue;
+
+          const key = `vehicleAssociateUserSet:${user.id}`;
+          pipeline.sadd(key, ...veIds);
         } catch (error) {
           console.log(
             `Errore set Redis associazione veicoli con l'utente ${user.id}:`,
             error,
           );
         }
-      });
-      await Promise.all(promises);
+      }
+
+      await pipeline.exec();
     } catch (error) {
       console.log('Errore generale:', error);
     }
