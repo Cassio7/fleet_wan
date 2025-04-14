@@ -10,6 +10,7 @@ import { Group } from '../../../Models/Group';
 import { Vehicle } from '../../../Models/Vehicle';
 import { VehiclesApiService } from '../../../Common-services/vehicles api service/vehicles-api.service';
 import { CantiereEditFiltersComponent } from "../cantiere-edit-filters/cantiere-edit-filters.component";
+import { SortService } from '../../../Common-services/sort/sort.service';
 
 @Component({
   selector: 'app-home-cantiere-edit',
@@ -29,6 +30,7 @@ export class HomeCantiereEditComponent implements OnInit, OnDestroy{
   constructor(
     private gestioneCantieriService: GestioneCantieriService,
     private vehiclesApiService: VehiclesApiService,
+    private sortService: SortService,
     private route: ActivatedRoute,
     private cd: ChangeDetectorRef
   ){}
@@ -48,6 +50,7 @@ export class HomeCantiereEditComponent implements OnInit, OnDestroy{
         this.gestioneCantieriService.getWorksiteById(worksiteId).pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (worksite: WorkSite) => {
+            worksite.vehicle = this.sortService.sortVehiclesByPlateAsc(worksite.vehicle) as Vehicle[];
             this.cantiere = worksite;
             this.cd.detectChanges();
             console.log('fetched worksite: ', this.cantiere);
@@ -75,7 +78,7 @@ export class HomeCantiereEditComponent implements OnInit, OnDestroy{
     this.vehiclesApiService.getAllFreeVehiclesAdmin().pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (vehicles: Vehicle[]) => {
-        this.freeVehicles = vehicles;
+        this.freeVehicles = this.sortService.sortVehiclesByPlateAsc(vehicles) as Vehicle[];
         console.log('freeVehicles fetched: ', this.freeVehicles);
         this.cd.detectChanges();
       },
