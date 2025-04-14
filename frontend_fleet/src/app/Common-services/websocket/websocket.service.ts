@@ -8,7 +8,7 @@ import { io, Socket } from 'socket.io-client';
 export class WebsocketService {
   private socket!: Socket;
   private notifySubject: Subject<any> = new Subject<any>();
-
+  private banSubject: Subject<any> = new Subject<any>();
   constructor() {}
 
   /**
@@ -33,7 +33,7 @@ export class WebsocketService {
 
     //ascolto degli eventi delle notifiche
     this.socket.on('ban', (data: any) => {
-      console.log(data);
+      this.banSubject.next(data);
     });
   }
 
@@ -53,6 +53,9 @@ export class WebsocketService {
     return this.notifySubject.asObservable();
   }
 
+  getBanMessage() {
+    return this.banSubject.asObservable();
+  }
   /**
    * Disconnette il socket dal websocket
    */
