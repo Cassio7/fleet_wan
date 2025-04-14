@@ -1,5 +1,18 @@
-import { AfterViewInit, ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { NavigationEnd, Router, RouterModule, RouterOutlet } from '@angular/router';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  NgZone,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
+import {
+  NavigationEnd,
+  Router,
+  RouterModule,
+  RouterOutlet,
+} from '@angular/router';
 import { filter, identity, Subject, takeUntil } from 'rxjs';
 import { MatDrawer, MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -14,13 +27,23 @@ import { SessionStorageService } from './Common-services/sessionStorage/session-
 import { AuthService } from './Common-services/auth/auth.service';
 import { CookieService } from 'ngx-cookie-service';
 
-import { MAT_DATE_FORMATS, MAT_DATE_LOCALE, DateAdapter } from '@angular/material/core';
+import {
+  MAT_DATE_FORMATS,
+  MAT_DATE_LOCALE,
+  DateAdapter,
+} from '@angular/material/core';
 import { MomentDateAdapter } from '@angular/material-moment-adapter';
 import * as moment from 'moment';
 import 'moment/locale/it';
 import { MY_DATE_FORMATS } from './Utils/date-format';
-import { trigger, state, style, transition, animate } from '@angular/animations';
-import { LoginComponent } from "./Common-components/login/login.component";
+import {
+  trigger,
+  state,
+  style,
+  transition,
+  animate,
+} from '@angular/animations';
+import { LoginComponent } from './Common-components/login/login.component';
 import { WebsocketService } from './Common-services/websocket/websocket.service';
 import { NotificationService } from './Common-services/notification/notification.service';
 import { Notifica } from './Models/Notifica';
@@ -41,14 +64,18 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatSidenavModule,
     MatMenuModule,
     MatToolbarModule,
-    LoginComponent
-],
+    LoginComponent,
+  ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
   providers: [
-    { provide: DateAdapter, useClass: MomentDateAdapter, deps: [MAT_DATE_LOCALE] },
+    {
+      provide: DateAdapter,
+      useClass: MomentDateAdapter,
+      deps: [MAT_DATE_LOCALE],
+    },
     { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
-    { provide: MAT_DATE_LOCALE, useValue: 'it-IT' }
+    { provide: MAT_DATE_LOCALE, useValue: 'it-IT' },
   ],
   animations: [
     //animazione per pulsante di log out su fixed sidebar
@@ -60,12 +87,12 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     ]),
   ],
 })
-export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
+export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly destroy$: Subject<void> = new Subject<void>();
   @ViewChild('drawer') drawer!: MatDrawer; //sidebar mobile
   @ViewChild('fixedDrawer') fixedDrawer!: MatDrawer; //sidebar fissa
 
-  selectedBtn: string = "dashboard";
+  selectedBtn: string = 'dashboard';
   isLoginPage: boolean = false;
   isLogged: boolean = false;
   isGestioneOpen: boolean = false;
@@ -89,20 +116,20 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
     private webSocketService: WebsocketService,
     private navigationService: NavigationService, //servizio importato per farlo caricare ad inizio applicazione
     private cd: ChangeDetectorRef
-  ){
+  ) {
     moment.locale('it');
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-    this.cookieService.delete("user");
+    this.cookieService.delete('user');
   }
 
   ngAfterViewInit(): void {
-    const current_token = this.cookieService.get("user");
+    const current_token = this.cookieService.get('user');
 
-    if(current_token){
+    if (current_token) {
       this.handleGetUserInfo();
       this.webSocketService.connectToWebSocket(current_token);
     }
@@ -119,88 +146,100 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
         this.handleGetToReadNotification();
         this.cd.detectChanges();
       },
-      error: (error) => console.error("Error logging in: ", error),
+      error: (error) => console.error('Error logging in: ', error),
     });
 
-    if(this.cookieService.get("user")) this.handleGetToReadNotification();
+    if (this.cookieService.get('user')) this.handleGetToReadNotification();
     this.cd.detectChanges();
   }
 
   ngOnInit(): void {
-    if(this.cookieService.get("user")) {
+    if (this.cookieService.get('user')) {
       this.handleGetUserInfo();
     } else {
       this.isAuthLoading = false;
     }
 
-    this.router.events.pipe(
-      filter((event): event is NavigationEnd => event instanceof NavigationEnd)
-    ).subscribe((event: NavigationEnd) => {
-      this.isLoginPage = this.checkLoginPage(event.urlAfterRedirects);
-      if(this.drawer.opened)
-        this.drawer.close();
-      if(this.checkLoginPage(this.router.url)){
-        //chiusura della sidebar in caso sia aperta mentre l'utente si trova nella pagina di login
-        if(this.drawer.opened){
-          this.drawer.close();
+    this.router.events
+      .pipe(
+        filter(
+          (event): event is NavigationEnd => event instanceof NavigationEnd
+        )
+      )
+      .subscribe((event: NavigationEnd) => {
+        this.isLoginPage = this.checkLoginPage(event.urlAfterRedirects);
+        if (this.drawer.opened) this.drawer.close();
+        if (this.checkLoginPage(this.router.url)) {
+          //chiusura della sidebar in caso sia aperta mentre l'utente si trova nella pagina di login
+          if (this.drawer.opened) {
+            this.drawer.close();
+          }
+          this.isLogged = false;
+          this.isLoginPage = true;
         }
-        this.isLogged = false;
-        this.isLoginPage = true;
-      }
-    });
+      });
 
     //connessione al canale per l'avviso in tempo reale delle notifiche
-    this.webSocketService.getNotifyMessages().pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: (notification: Notifica) => {
-        if (notification) {
-          if (!Array.isArray(this.notifiche))
-            this.notifiche = [];
+    this.webSocketService
+      .getNotifyMessages()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (notification: Notifica) => {
+          if (notification) {
+            if (!Array.isArray(this.notifiche)) this.notifiche = [];
 
-          this.notifiche.unshift(notification);
-        } else {
-          console.error('Notifica ricevuta è null o undefined');
-        }
-      },
-      error: error => console.error("Errore nella ricezione della notifica: ", error)
-    });
+            this.notifiche.unshift(notification);
+          } else {
+            console.error('Notifica ricevuta è null o undefined');
+          }
+        },
+        error: (error) =>
+          console.error('Errore nella ricezione della notifica: ', error),
+      });
   }
 
   private handleGetUserInfo() {
-    this.authService.getUserInfo().pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: (user: User) => {
-        this.user = user;
-        this.isLogged = true;
-        this.isLoginPage = this.checkLoginPage(this.router.url);
-        this.isAuthLoading = false; // Autenticazione verificata
-        this.cd.detectChanges();
-      },
-      error: error => {
-        console.error("Errore nella ricezione dei dati dell'utente: ", error);
-        this.isAuthLoading = false; // Gestione dell'errore
-        this.isLogged = false;
-        this.cd.detectChanges();
-      }
-    });
+    this.authService
+      .getUserInfo()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (user: User) => {
+          this.user = user;
+          this.isLogged = true;
+          this.isLoginPage = this.checkLoginPage(this.router.url);
+          this.isAuthLoading = false; // Autenticazione verificata
+          this.cd.detectChanges();
+        },
+        error: (error) => {
+          console.error("Errore nella ricezione dei dati dell'utente: ", error);
+          this.isAuthLoading = false; // Gestione dell'errore
+          this.isLogged = false;
+          this.cd.detectChanges();
+        },
+      });
   }
 
-  handleGetToReadNotification(){
+  handleGetToReadNotification() {
     //ottenimento delle notifiche da leggere
-    this.notificationService.getToReadNotifications()
-    .pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: (notifiche: Notifica[]) => {
-        this.notifiche = notifiche;
-      },
-      error: (error) => console.error("Errore nell'ottenimento delle notifiche da leggere: ", error),
-    });
+    this.notificationService
+      .getToReadNotifications()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (notifiche: Notifica[]) => {
+          this.notifiche = notifiche;
+        },
+        error: (error) =>
+          console.error(
+            "Errore nell'ottenimento delle notifiche da leggere: ",
+            error
+          ),
+      });
   }
 
   /**
    * richiama la funzion nel servizio per effettuare il logout e naviga alla pagina di login
    */
-  logout(){
+  logout() {
     this.loginService.logout();
     this.user = null;
     this.router.navigate(['/login']);
@@ -236,7 +275,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
   checkLoginPage(url: string): boolean {
     return url === '/login' || url == '/';
   }
-
 
   /**
    * Permette di modificare lo stato dell'animazione del bottone di logout
