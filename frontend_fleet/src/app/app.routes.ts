@@ -17,7 +17,7 @@ import { HomeCantiereEditComponent } from './Gestione-cantieri/Components/home-c
 import { NotificationsHomeComponent } from './Common-components/Notifications/Components/notifications-home/notifications-home.component';
 import { HomeVeicoloEditComponent } from './Gestione-Veicoli/Components/home-veicolo-edit/home-veicolo-edit.component';
 import { AdminGuardService } from './Common-services/admin-guard/admin-guard.service';
-import { PageNotFoundComponent } from './Common-components/page-not-found/page-not-found.component';
+import { PageNotFoundComponent } from './Common-components/Page-not-found/page-not-found.component';
 
 export const routes: Routes = [
   {
