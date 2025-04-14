@@ -1,6 +1,6 @@
 export class User {
   public id!: number;
-  public active!: boolean
+  public active!: boolean;
 
   constructor(
     public name: string,
@@ -9,7 +9,10 @@ export class User {
     public email: string,
     public role: string,
     private _password: string,
-    public idR?: number,
+    public deletedAt?: Date,
+    public token?: string,
+    public clientId?: string,
+    public idR?: number
   ) {}
 
   public get password(): string {

@@ -10,8 +10,10 @@
     "
   >
     <ng-container matColumnDef="Id">
-      <th mat-header-cell *matHeaderCellDef>Id</th>
-      <td mat-cell *matCellDef="let user; let i = index">{{ i + 1 }}</td>
+      <th mat-header-cell *matHeaderCellDef style="width: 60px">Id</th>
+      <td mat-cell *matCellDef="let user; let i = index">
+        {{ i + 1 }}
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="Utente">
@@ -19,9 +21,7 @@
       <td mat-cell *matCellDef="let user">
         <div class="user-container">
           @if(user.name == "admin"){
-          <span class="inline-container"
-            ><mat-icon>person</mat-icon> Admin</span
-          >
+          <span class="inline-container"><mat-icon>person</mat-icon>Admin</span>
           }@else {
           <span class="inline-container"
             ><mat-icon>person</mat-icon> {{ user.name }}
@@ -40,36 +40,64 @@
     </ng-container>
 
     <ng-container matColumnDef="E-mail">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header>E-mail</th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header style="width: 230px;">E-mail</th>
       <td mat-cell *matCellDef="let user">{{ user.email }}</td>
     </ng-container>
 
     <ng-container matColumnDef="Ruolo">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Ruolo</th>
-      <td mat-cell *matCellDef="let user">{{ user.role }}</td>
+      <td mat-cell *matCellDef="let user">
+        <span *ngIf="user.role === 'Admin'">👑 Admin</span>
+        <span *ngIf="user.role === 'Capo Cantiere'">🛠️ Capo Cantiere</span>
+        <span *ngIf="user.role === 'Responsabile'">📋 Responsabile</span>
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="Stato">
-      <th mat-header-cell *matHeaderCellDef>Stato</th>
+      <th mat-header-cell *matHeaderCellDef>Stato Abilitato</th>
       <td mat-cell *matCellDef="let user">
         <ng-container *ngIf="user.active; else notActive">
+          <div class="inline-container">✅Attivo</div>
+        </ng-container>
+
+        <ng-template #notActive>
+          <div class="inline-container">❌Sospeso</div>
+        </ng-template>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="Eliminato">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Eliminato</th>
+      <td mat-cell *matCellDef="let user">
+        <ng-container *ngIf="user.deletedAt; else noDeleted">
+          <span>🗑️ {{ user.deletedAt | date : "dd/MM/yyyy HH:mm" }}</span>
+        </ng-container>
+        <ng-template #noDeleted></ng-template>
+        <!-- Non mostra nulla se non esiste deletedAt -->
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="Online">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Online</th>
+      <td mat-cell *matCellDef="let user">
+        <ng-container *ngIf="user.clientId; else notActive">
           <div class="inline-container">
-            Attivo
             <div class="state-circle active-circle"></div>
+            Online
           </div>
         </ng-container>
 
         <ng-template #notActive>
           <div class="inline-container">
-            Sospeso
             <div class="state-circle inactive-circle"></div>
+            Offline
           </div>
         </ng-template>
       </td>
     </ng-container>
 
     <ng-container matColumnDef="Azioni">
-      <th mat-header-cell *matHeaderCellDef class="right-text">Azioni</th>
+      <th mat-header-cell *matHeaderCellDef class="right-text" style="width: 60px;">Azioni</th>
       <td mat-cell *matCellDef="let user" class="right-text">
         <button
           mat-icon-button

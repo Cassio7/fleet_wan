@@ -56,9 +56,11 @@ export class UtentiTableComponent implements AfterViewInit {
     'Id',
     'Utente',
     'Username',
+    'Online',
     'E-mail',
     'Ruolo',
     'Stato',
+    'Eliminato',
     'Azioni',
   ];
   utentiTableData = new MatTableDataSource<User>();
