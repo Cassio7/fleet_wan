@@ -1,3 +1,4 @@
+import { WebsocketService } from './../websocket/websocket.service';
 import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
@@ -16,7 +17,8 @@ export class LoginService {
     private http: HttpClient,
     private commonService: CommonService,
     private cookiesService: CookieService,
-    private sessionStorageService: SessionStorageService
+    private sessionStorageService: SessionStorageService,
+    private websocketService: WebsocketService
   ) { }
 
   login(form: any): Observable<any>{
@@ -30,6 +32,7 @@ export class LoginService {
   logout(){
     this.cookiesService.deleteAll();
     this.sessionStorageService.clear();
+    this.websocketService.disconnect()
   }
 
   public get logout$(): Subject<void> {
