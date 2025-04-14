@@ -19,6 +19,7 @@ export class CommonEntity implements CommonInterface {
   id: number;
 
   @Column()
+  @Index()
   key: string;
 
   @BeforeInsert()
