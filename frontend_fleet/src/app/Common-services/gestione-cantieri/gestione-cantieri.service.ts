@@ -1,3 +1,4 @@
+import { WorksiteHistory } from './../../Models/Worksite-history';
 import { Injectable, signal, WritableSignal } from '@angular/core';
 import { catchError, map, Observable, of } from 'rxjs';
 import { WorkSite } from '../../Models/Worksite';
@@ -101,7 +102,7 @@ export class GestioneCantieriService {
    * @param comment commento opzionale sullo spostamento
    * @returns observable http post
    */
-  moveVehicleInWorksite(veId: number, worksiteId: number, dateFrom: string, comment?: string): Observable<{message: string}>{
+  moveVehicleInWorksite(veId: number, worksiteId: number, dateFrom: string, comment?: string): Observable<{worksiteHistory: WorksiteHistory, message: string}>{
     const access_token = this.cookieService.get("user");
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${access_token}`,
@@ -115,7 +116,7 @@ export class GestioneCantieriService {
       comment: comment
     }
 
-    return this.http.post<{message: string}>(`${this.commonService.url}/worksitehistory`, body, {headers});
+    return this.http.post<{worksiteHistory: WorksiteHistory, message: string}>(`${this.commonService.url}/worksitehistory`, body, {headers});
   }
 
   freeVehicle(veId: number, dateFrom: string, comment?: string){
