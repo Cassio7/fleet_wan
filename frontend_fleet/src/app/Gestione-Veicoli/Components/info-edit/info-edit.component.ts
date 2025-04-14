@@ -71,7 +71,7 @@ export class InfoEditComponent implements AfterViewInit, OnChanges{
     if(this.vehicle){
       this.infoForm = new FormGroup({
         plate: new FormControl({ value: this.vehicle.plate, disabled: true }),
-        active_csv: new FormControl(this.vehicle.active_csv),
+        active_csv: new FormControl(this.vehicle.retired_event ? true : false),
         model_csv: new FormControl(this.vehicle.model),
         euro: new FormControl(this.vehicle.euro),
         allestimento: new FormControl(this.vehicle.allestimento ?? false),
@@ -82,17 +82,16 @@ export class InfoEditComponent implements AfterViewInit, OnChanges{
         antenna_setting: new FormControl(this.vehicle.antenna_setting),
         fleet_antenna_number: new FormControl(this.vehicle.fleet_antenna_number),
         retired_event: new FormControl(this.vehicle.retired_event),
-        serviceId: new FormControl(this.vehicle.service?.id ?? false),
+        serviceId: new FormControl(this.vehicle.service?.id ?? null),
         equipmentId: new FormControl(this.vehicle.equipment?.id),
         rentalId: new FormControl(this.vehicle.rental?.id ?? "null"),
         workzone: new FormControl(this.vehicle.workzone?.id),
       });
-
-      console.log(this.infoForm.get('rentalId')?.value);
     }
   }
 
   save(){
+    console.log('this.infoForm.value: ', this.infoForm.value);
     if(this.infoForm.get('rentalId')?.value == "null") {
       this.infoForm.get('rentalId')?.setValue(null);
     }
