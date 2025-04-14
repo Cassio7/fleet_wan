@@ -331,7 +331,10 @@ export class UserService {
       if (userDTO.active != null && userDTO.active != user.active) {
         await this.authService.setActive(user.key, userDTO.active);
         if (!userDTO.active)
-          this.notificationsService.sendNotificationToUser(user.key, 'banned');
+          this.notificationsService.sendNotificationToUser(
+            user.key,
+            'suspended',
+          );
       }
     } catch (error) {
       await queryRunner.rollbackTransaction();
