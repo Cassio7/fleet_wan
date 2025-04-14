@@ -102,7 +102,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   notifiche: Notifica[] = [];
 
   title = 'frontend_fleet';
-  user!: any;
+  user!: User | null;
 
   logoutButtonAnimationState = 'default';
 
@@ -143,13 +143,14 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
           this.isLoginPage = false;
         });
         this.handleGetUserInfo();
-        this.handleGetToReadNotification();
+        if(this.user?.idR == 1) this.handleGetToReadNotification();
         this.cd.detectChanges();
       },
       error: (error) => console.error('Error logging in: ', error),
     });
 
-    if (this.cookieService.get('user')) this.handleGetToReadNotification();
+    this.user = this.authService.decodeToken(current_token);
+    if (this.cookieService.get('user') && this.user?.idR == 1) this.handleGetToReadNotification();
     this.cd.detectChanges();
   }
 
