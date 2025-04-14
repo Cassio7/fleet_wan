@@ -22,8 +22,8 @@
 
     <app-change-worksite *ngIf="vehicle" [vehicle]="vehicle" [worksites]="worksites" (worksiteChange)="saveWorksiteHistory($event)"></app-change-worksite>
 
-    <div class="storico-container">
-      <app-storico-cantieri *ngIf="veId" [veId]="veId"></app-storico-cantieri>
-    </div>
+    <section class="storico-container">
+      <app-storico-cantieri *ngIf="veId" [veId]="veId" [newWorksiteHistory]="newWorksiteHistory"></app-storico-cantieri>
+    </section>
   </main>
 </div>

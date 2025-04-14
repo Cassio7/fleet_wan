@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, Input, OnDestroy, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnChanges, OnDestroy, SimpleChanges, ViewChild } from '@angular/core';
 import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { WorksiteHistory } from '../../Models/Worksite-history';
 import { MatIconModule } from '@angular/material/icon';
@@ -17,17 +17,30 @@ import { CommonModule } from '@angular/common';
   templateUrl: './storico-cantieri.component.html',
   styleUrl: './storico-cantieri.component.css'
 })
-export class StoricoCantieriComponent implements AfterViewInit, OnDestroy {
+export class StoricoCantieriComponent implements AfterViewInit, OnChanges, OnDestroy {
   private readonly destroy$: Subject<void> = new Subject<void>();
   @ViewChild('storicoCantieriTable') storicoCantieriTable!: MatTable<WorksiteHistory>;
   storicoCantieriTaleData = new MatTableDataSource<WorksiteHistory>();
   displayedColumns: string[] = ['Cantiere', 'Ingresso', 'Uscita', 'Commento'];
 
   @Input() veId!: number;
+  @Input() newWorksiteHistory!: WorksiteHistory;
 
   constructor(
     private worksiteHistoryService: WorksiteHistoryService
   ){}
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if(changes['newWorksiteHistory'] && this.newWorksiteHistory){
+      //assegnazione di fine permanenza nell'ultimo cantiere
+      const lastElement = this.storicoCantieriTaleData.data.at(-1);
+      if (lastElement)
+        lastElement.dateTo = new Date();
+
+      //aggiunta
+      this.storicoCantieriTaleData.data = [...this.storicoCantieriTaleData.data, this.newWorksiteHistory];
+    }
+  }
 
   async ngAfterViewInit(): Promise<void> {
     const worksiteHistories = await this.getWorksiteHistoryByVeId();
