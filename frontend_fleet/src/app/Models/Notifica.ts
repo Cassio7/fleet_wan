@@ -4,6 +4,7 @@ export class Notifica{
     public author: string,
     public title: string,
     public message: string,
-    public isRead: boolean
+    public isRead: boolean,
+    public isButtonDisabled?: boolean //attributo per il timeout del bottone corrispondente alla notifica
   ){}
 }

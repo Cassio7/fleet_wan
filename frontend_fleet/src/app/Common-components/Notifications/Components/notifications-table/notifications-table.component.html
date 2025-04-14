@@ -30,20 +30,28 @@
       <td mat-cell *matCellDef="let notification">
         <div class="statoLettura-container">
           <ng-container *ngIf="notification.isRead; else toRead">
-            <a class="read-button" (click)="updateNotificationStatus(notification)" mat-icon-button>
+            <button class="read-button"
+                    [disabled]="notification.isButtonDisabled"
+                    (click)="updateNotificationStatus(notification)"
+                    mat-icon-button>
               <mat-icon>visibility</mat-icon>
-            </a>
+            </button>
             Letta
           </ng-container>
           <ng-template #toRead>
-            <a class="read-button" (click)="updateNotificationStatus(notification)" mat-icon-button>
+            <button class="read-button"
+                    [disabled]="notification.isButtonDisabled"
+                    (click)="updateNotificationStatus(notification)"
+                    mat-icon-button>
               <mat-icon>visibility_off</mat-icon>
-            </a>
+            </button>
             Da leggere
           </ng-template>
         </div>
       </td>
     </ng-container>
+
+
 
     <ng-container matColumnDef="Azioni">
       <th mat-header-cell *matHeaderCellDef class="right-text"> Azioni </th>
