@@ -123,6 +123,9 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
       case "/profile":
         this.icon = "account_circle";
         break;
+      case "/notifications":
+        this.icon = "notifications";
+        break;
       case "/404-notFound":
         this.icon = "search_off";
         break;
