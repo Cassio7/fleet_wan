@@ -12,7 +12,7 @@ import { Workzone } from '../../../Models/Workzone';
 import { RentalService } from '../../../Common-services/rental/rental.service';
 import { Rental } from '../../../Models/Rental';
 import { Service } from '../../../Models/Service';
-import { ServicesService } from '../../../Common-services/Services/services.service';
+import { ServicesService } from '../../../Common-services/services/services.service';
 import { openSnackbar } from '../../../Utils/snackbar';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Equipment } from '../../../Models/Equipment';
