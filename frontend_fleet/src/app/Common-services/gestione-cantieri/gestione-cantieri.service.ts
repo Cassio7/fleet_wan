@@ -33,7 +33,7 @@ export class GestioneCantieriService {
   }
 
   /**
-   * Permette di ottenere tutti i cantieri
+   * Permette di ottenere tutti i cantieri per admin
    * @returns observable http get
    */
   getAllWorksite(): Observable<WorkSite[]>{
@@ -43,6 +43,19 @@ export class GestioneCantieriService {
       'Content-Type': 'application/json'
     });
     return this.http.get<WorkSite[]>(`${this.commonService.url}/worksites`, {headers});
+  }
+
+  /**
+   * Recupera tutti i cantieri associati all'utente che fa la richiesta
+   * @returns
+   */
+  getAllWorksiteMe(): Observable<WorkSite[]>{
+    const access_token = this.cookieService.get("user");
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${access_token}`,
+      'Content-Type': 'application/json'
+    });
+    return this.http.get<WorkSite[]>(`${this.commonService.url}/worksites/me`, {headers});
   }
 
   /**

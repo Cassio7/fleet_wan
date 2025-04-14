@@ -50,7 +50,7 @@ export class HomeLettureComponent implements OnInit, OnDestroy{
     this.destroy$.complete();
   }
   ngOnInit(): void {
-    this.gestioneCantieriService.getAllWorksite().pipe(takeUntil(this.destroy$))
+    this.gestioneCantieriService.getAllWorksiteMe().pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (worksites: WorkSite[]) => {
         this.cantieri = worksites;
