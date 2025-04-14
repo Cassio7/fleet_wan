@@ -1,9 +1,9 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable, signal, WritableSignal } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
-import { CommonService } from '../../../common service/common.service';
+import { CommonService } from '../../../Common-services/common service/common.service';
 import { Observable } from 'rxjs';
-import { Company } from '../../../../Models/Company';
+import { Company } from '../../../Models/Company';
 
 @Injectable({
   providedIn: 'root'

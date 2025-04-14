@@ -1,20 +1,16 @@
-import { CommonService } from './../../../Common-services/common service/common.service';
 import { MatIconModule } from '@angular/material/icon';
-import { ChangeDetectorRef, Component, effect, inject, OnChanges, OnDestroy, OnInit, signal, SimpleChanges } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { InfoEditComponent } from "../info-edit/info-edit.component";
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { firstValueFrom, Subject, takeUntil } from 'rxjs';
 import { VehiclesApiService, vehicleUpdateData } from '../../../Common-services/vehicles api service/vehicles-api.service';
 import { Vehicle } from '../../../Models/Vehicle';
 import { GestioneCantieriService } from '../../../Common-services/gestione-cantieri/gestione-cantieri.service';
-import { Group } from '../../../Models/Group';
 import { WorkSite } from '../../../Models/Worksite';
 import { WorkzoneService } from '../../../Common-services/workzone/workzone.service';
 import { Workzone } from '../../../Models/Workzone';
 import { RentalService } from '../../../Common-services/rental/rental.service';
 import { Rental } from '../../../Models/Rental';
-import { Company } from '../../../Models/Company';
-import { GestioneSocietaService } from '../../../Common-services/Gestione-Società/Services/gestione-societa/gestione-societa.service';
 import { Service } from '../../../Models/Service';
 import { ServicesService } from '../../../Common-services/Services/services.service';
 import { openSnackbar } from '../../../Utils/snackbar';
@@ -25,7 +21,6 @@ import { CommonModule } from '@angular/common';
 import { StoricoCantieriComponent } from "../../../Common-components/storico-cantieri/storico-cantieri.component";
 import { MatButtonModule } from '@angular/material/button';
 import { ChangeWorksiteComponent } from "../change-worksite/change-worksite.component";
-import { formatDate } from '../../../Utils/date-formatter';
 import { WorksiteHistory } from '../../../Models/Worksite-history';
 
 @Component({

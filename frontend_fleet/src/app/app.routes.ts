@@ -10,7 +10,7 @@ import { HomeGestioneComponent } from './Gestione-utenti/Components/home-gestion
 import { HomeProfileComponent } from './Profile/Components/home-profile/home-profile.component';
 import { HomeGestioneCantieriComponent } from './Gestione-cantieri/Components/home-gestione-cantieri/home-gestione-cantieri.component';
 import { HomeLettureComponent } from './Scarico-letture/home-letture/home-letture.component';
-import { HomeGestioneSocietaComponent } from './Common-services/Gestione-Società/Components/home-gestione-societa/home-gestione-societa.component';
+import { HomeGestioneSocietaComponent } from './Gestione-Società/Components/home-gestione-societa/home-gestione-societa.component';
 import { HomeGestioneVeicoliComponent } from './Gestione-Veicoli/Components/home-gestione-veicoli/home-gestione-veicoli.component';
 import { AuthGuardService } from './Common-services/authGuard/auth-guard.service';
 import { HomeCantiereEditComponent } from './Gestione-cantieri/Components/home-cantiere-edit/home-cantiere-edit.component';
