@@ -128,6 +128,15 @@ export class AuthService {
   }
 
 
+  isAuthenticated(): boolean{
+    return this.cookieService.get('user') ? true : false;
+  }
+
+  isAdmin(): boolean{
+    const access_token: User = jwtDecode(this.cookieService.get('user'));
+    return access_token.idR == 1;
+  }
+
   /**
    * Decodifica il token d'accesso con le informazioni dell'utente
    * @returns l'oggetto contenente le informazioni dell'utente

@@ -1,13 +1,12 @@
 import { Injectable } from '@angular/core';
-import { Router, Routes } from '@angular/router';
-import { DashboardComponent } from '../../Dashboard/Components/dashboard/dashboard.component';
-import { AuthService } from '../auth/auth.service';
+import { Router } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class AuthGuardService {
+export class AdminGuardService {
   constructor(
     private cookieService: CookieService,
     private authService: AuthService,
@@ -19,7 +18,10 @@ export class AuthGuardService {
    * @returns true
    */
   canActivate(): boolean {
-    return this.authService.isAuthenticated();
+    if (this.authService.isAuthenticated() && this.authService.isAdmin()) {
+      return true;
+    }
+    this.router.navigate(['/404-NotFound']);
+    return false;
   }
-
 }

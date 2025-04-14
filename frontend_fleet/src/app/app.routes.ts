@@ -16,6 +16,8 @@ import { AuthGuardService } from './Common-services/authGuard/auth-guard.service
 import { HomeCantiereEditComponent } from './Gestione-cantieri/Components/home-cantiere-edit/home-cantiere-edit.component';
 import { NotificationsHomeComponent } from './Common-components/Notifications/Components/notifications-home/notifications-home.component';
 import { HomeVeicoloEditComponent } from './Gestione-Veicoli/Components/home-veicolo-edit/home-veicolo-edit.component';
+import { AdminGuardService } from './Common-services/admin-guard/admin-guard.service';
+import { PageNotFoundComponent } from './Common-components/page-not-found/page-not-found.component';
 
 export const routes: Routes = [
   {
@@ -60,12 +62,12 @@ export const routes: Routes = [
   {
     path: 'gestione-utenti',
     component: HomeGestioneComponent,
-    canActivate: [AuthGuardService]
+    canActivate: [AdminGuardService]
   },
   {
     path: 'gestione-cantieri',
     component: HomeGestioneCantieriComponent,
-    canActivate: [AuthGuardService]
+    canActivate: [AdminGuardService]
   },
   {
     path: 'cantiere/:id',
@@ -75,17 +77,17 @@ export const routes: Routes = [
   {
     path: 'gestione-societa',
     component: HomeGestioneSocietaComponent,
-    canActivate: [AuthGuardService]
+    canActivate: [AdminGuardService]
   },
   {
     path: 'gestione-veicoli',
     component: HomeGestioneVeicoliComponent,
-    canActivate: [AuthGuardService]
+    canActivate: [AdminGuardService]
   },
   {
     path: 'gestione-veicolo/:id',
     component: HomeVeicoloEditComponent,
-    canActivate: [AuthGuardService]
+    canActivate: [AdminGuardService]
   },
   {
     path: 'scarico-letture',
@@ -95,7 +97,11 @@ export const routes: Routes = [
   {
     path: 'notifications',
     component: NotificationsHomeComponent,
-    canActivate: [AuthGuardService]
+    canActivate: [AdminGuardService]
+  },
+  {
+    path: '404-NotFound',
+    component: PageNotFoundComponent
   },
   {
     path: '',
