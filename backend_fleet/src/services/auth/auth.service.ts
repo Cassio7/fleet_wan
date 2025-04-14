@@ -194,6 +194,10 @@ export class AuthService {
     }
   }
 
+  /**
+   * Recupera utenti loggati da redis, come sopra ma costruisce una mappa
+   * @returns Map
+   */
   async getLoggedUsersMap(): Promise<
     Map<string, { token: string; clientId: string }>
   > {
@@ -219,7 +223,7 @@ export class AuthService {
     } catch (error) {
       if (error instanceof HttpException) throw error;
       throw new HttpException(
-        `Errore durante il recupero degli utenti loggati`,
+        `Errore durante il recupero degli utenti loggati mappa`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
