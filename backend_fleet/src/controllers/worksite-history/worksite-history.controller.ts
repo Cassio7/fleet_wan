@@ -29,7 +29,7 @@ export class WorksiteHistoryController {
 
   @Roles(Role.Admin)
   @Post()
-  async getWorksiteHistory(
+  async createtWorksiteHistory(
     @Req() req: Request & { user: UserFromToken },
     @Body()
     body: {
@@ -83,6 +83,14 @@ export class WorksiteHistoryController {
       );
 
       return res.status(201).json({
+        worksiteHistory: {
+          worksite: {
+            id: worksiteHistory.worksite.id,
+            name: worksiteHistory.worksite.name
+          },
+          dateFrom: worksiteHistory.dateFrom,
+          comment: worksiteHistory.comment
+        },
         message: `Veicolo con veId: ${worksiteHistory.vehicle.veId} spostato con successo al cantiere ${worksiteHistory.worksite?.name ?? 'LIBERO'}`,
       });
     } catch (error) {
