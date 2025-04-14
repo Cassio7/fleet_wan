@@ -114,9 +114,19 @@ export class CheckErrorsService {
   checkVehicleAntennaValid(vehicleData: VehicleData): boolean{
     const vehicleAnomalies = this.checkVehicleAnomaly(vehicleData);
     if(vehicleAnomalies){
-      return !vehicleAnomalies.antenna && !vehicleAnomalies.detection_quality;
+      return this.checkAntennaValid(vehicleAnomalies);
     }
     return false;
+  }
+
+  /**
+   * Controlla se il controllo sull'antenna è valido o incerto
+   * @param anomaly oggetto anomalie
+   * @returns true se il controllo è valido
+   * @returns false se il controllo è incerto
+   */
+  checkAntennaValid(anomaly: Anomaly){
+    return !anomaly.antenna && anomaly.detection_quality ? true : false;
   }
 
   /**
