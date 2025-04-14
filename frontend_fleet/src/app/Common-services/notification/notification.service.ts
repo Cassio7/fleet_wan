@@ -51,13 +51,13 @@ export class NotificationService {
    * @param key chiave della notifica da eliminare
    * @returns observable http delete
    */
-  deleteNotification(key: string){
+  deleteNotification(key: string): Observable<{message: string}>{
     const access_token = this.cookieService.get('user');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${access_token}`,
       'Content-Type': 'application/json',
     });
 
-    return this.http.delete<Notifica[]>(`${this.commonService.url}/notifications/${key}`, { headers });
+    return this.http.delete<{message: string}>(`${this.commonService.url}/notifications/${key}`, { headers });
   }
 }
