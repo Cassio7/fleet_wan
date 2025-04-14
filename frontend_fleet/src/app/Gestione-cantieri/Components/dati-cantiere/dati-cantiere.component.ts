@@ -16,6 +16,7 @@ import { User } from '../../../Models/User';
 import { WorkSite } from '../../../Models/Worksite';
 import { GestioneCantieriService } from '../../../Common-services/gestione-cantieri/gestione-cantieri.service';
 import { Group } from '../../../Models/Group';
+import { openSnackbar } from '../../../Utils/snackbar';
 
 @Component({
   selector: 'app-dati-cantiere',
@@ -90,7 +91,7 @@ export class DatiCantiereComponent implements OnDestroy, AfterViewInit{
         next: (updatedWorksite: WorkSite) => {
           this.worksite = updatedWorksite;
           this.checkSaveable();
-          this.openSnackbar(`Cantiere aggiornato con successo`);
+          openSnackbar(this.snackBar, `Cantiere aggiornato con successo`);
         },
         error: error => console.error(`Errore nella modifica del cantiere: ${error}`)
       });
@@ -103,16 +104,4 @@ export class DatiCantiereComponent implements OnDestroy, AfterViewInit{
       this.worksite.group.id !== this.cantiereForm.get("comune")?.value
   }
 
-
-
-
-  /**
-   * Apre la snackbar per la conferma di salvataggio dei cambiamenti
-   */
-  openSnackbar(content: string): void {
-    this.snackBar.openFromComponent(SnackbarComponent, {
-      duration: 2 * 1000,
-      data: { content: content }
-    });
-  }
 }

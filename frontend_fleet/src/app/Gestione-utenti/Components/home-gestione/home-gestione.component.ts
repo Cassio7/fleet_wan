@@ -11,6 +11,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.component';
 import { MatIconModule } from '@angular/material/icon';
+import { openSnackbar } from '../../../Utils/snackbar';
 
 export interface DialogData {
   animal: string;
@@ -49,7 +50,7 @@ export class HomeGestioneComponent implements OnInit, OnDestroy{
     this.authService.createUser(user).pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (response: {message: string, user: User}) => {
-        this.openSnackbar("Utente creato con successo!");
+        openSnackbar(this.snackBar, "Utente creato con successo!");
         this.users = [...this.users, response.user];
         this.cd.detectChanges();
       },
@@ -75,10 +76,4 @@ export class HomeGestioneComponent implements OnInit, OnDestroy{
     });
   }
 
-  private openSnackbar(content: string): void {
-    this.snackBar.openFromComponent(SnackbarComponent, {
-      duration: 2 * 1000,
-      data: { content: content }
-    });
-  }
 }

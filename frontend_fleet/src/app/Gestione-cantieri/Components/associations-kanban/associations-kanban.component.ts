@@ -18,6 +18,7 @@ import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.
 import { GestioneCantieriService } from '../../../Common-services/gestione-cantieri/gestione-cantieri.service';
 import { PlateFilterService } from '../../../Common-services/plate-filter/plate-filter.service';
 import { CommonModule } from '@angular/common';
+import { openSnackbar } from '../../../Utils/snackbar';
 
 @Component({
   selector: 'app-associations-kanban',
@@ -109,11 +110,11 @@ export class AssociationsKanbanComponent implements AfterViewInit, OnDestroy, On
                     event.previousIndex,
                     event.currentIndex,
                   );
-                  this.openSnackbar("Veicolo liberato!")
+                  openSnackbar(this.snackbar, "Veicolo liberato!")
                 },
                 error: error => {
                   console.error("Errore nello spostamento del veicolo: ", error)
-                  this.openSnackbar("Errore nello spostamento del veicolo, spostamento annullato.");
+                  openSnackbar(this.snackbar, "Errore nello spostamento del veicolo, spostamento annullato.");
                 }
               });
             } else if (sourceListId === 'cdk-drop-list-1' && destinationListId === 'cdk-drop-list-0') {
@@ -126,16 +127,16 @@ export class AssociationsKanbanComponent implements AfterViewInit, OnDestroy, On
                     event.previousIndex,
                     event.currentIndex,
                   );
-                  this.openSnackbar("Veicolo spostato nel cantiere!")
+                  openSnackbar(this.snackbar, "Veicolo spostato nel cantiere!")
                 },
                 error: error => {
                   console.error("Errore nello spostamento del veicolo: ", error)
-                  this.openSnackbar("Errore nello spostamento del veicolo, spostamento annullato.");
+                  openSnackbar(this.snackbar, "Errore nello spostamento del veicolo, spostamento annullato.");
                 }
               });
             }
           }else{
-            this.openSnackbar("Spostamento del veicolo annullato.");
+            openSnackbar(this.snackbar, "Spostamento del veicolo annullato.");
           }
           console.log('worksite.vehicle: ', this.worksite.vehicle);
           console.log('this.freeVehicles: ', this.freeVehicles);
@@ -147,16 +148,5 @@ export class AssociationsKanbanComponent implements AfterViewInit, OnDestroy, On
 
   trackByVehicle(index: number, vehicle: any): any {
     return vehicle.veId; // Assuming veId is a unique identifier for each vehicle
-  }
-
-  /**
-   * Apre la snackbar con il contenuto passato
-   * @param content stringa contenuto della snackbar
-   */
-  openSnackbar(content: string): void {
-    this.snackbar.openFromComponent(SnackbarComponent, {
-      duration: 2 * 1000,
-      data: { content: content }
-    });
   }
 }

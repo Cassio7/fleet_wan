@@ -15,6 +15,7 @@ import { AuthService } from '../../../Common-services/auth/auth.service';
 import { User } from '../../../Models/User';
 import { ProfileService } from '../../Services/profile/profile.service';
 import { MatIconModule } from '@angular/material/icon';
+import { openSnackbar } from '../../../Utils/snackbar';
 
 @Component({
   selector: 'app-profile-psw-reset',
@@ -78,7 +79,7 @@ private readonly destroy$: Subject<void> = new Subject<void>();
       .subscribe({
         next: (user: User) => {
           this.isSaveable = false;
-          this.openSnackbar("Password salvata con successo!");
+          openSnackbar(this.snackBar, "Password salvata con successo!");
           this.passwordForm.reset();
         },
         error: error => {
@@ -113,13 +114,5 @@ private readonly destroy$: Subject<void> = new Subject<void>();
       this.isSaveable = true;
     }
   }
-  /**
-   * Apre la snackbar per la conferma di salvataggio dei cambiamenti
-   */
-  openSnackbar(content: string): void {
-    this.snackBar.openFromComponent(SnackbarComponent, {
-      duration: 2 * 1000,
-      data: { content: content }
-    });
-  }
+
 }

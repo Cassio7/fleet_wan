@@ -31,6 +31,7 @@ import {
   GestioneService,
 } from '../../Services/gestione/gestione.service';
 import { DeleteUtenteDialogComponent } from '../delete-utente-dialog/delete-utente-dialog.component';
+import { openSnackbar } from '../../../Utils/snackbar';
 
 @Component({
   selector: 'app-utenti-table',
@@ -145,7 +146,7 @@ export class UtentiTableComponent implements AfterViewInit {
 
           this.utentiTableData.data = this.users;
 
-          this.openSnackbar(`Utente ${user.username} disabilitato`);
+          openSnackbar(this.snackBar, `Utente ${user.username} disabilitato`);
         },
         error: (error) =>
           console.error(
@@ -176,7 +177,7 @@ export class UtentiTableComponent implements AfterViewInit {
 
           this.utentiTableData.data = this.users;
 
-          this.openSnackbar(`Utente ${user.username} abilitato`);
+          openSnackbar(this.snackBar, `Utente ${user.username} abilitato`);
         },
         error: (error) =>
           console.error(
@@ -209,7 +210,7 @@ export class UtentiTableComponent implements AfterViewInit {
                 this.users = this.users.filter((user) => user.id != userId);
                 this.utentiTableData.data = this.users;
                 this.usersChange.emit(this.users);
-                this.openSnackbar(`Utente ${user.username} eliminato`);
+                openSnackbar(this.snackBar, `Utente ${user.username} eliminato`);
               },
               error: (error) =>
                 console.error(
@@ -217,7 +218,7 @@ export class UtentiTableComponent implements AfterViewInit {
                 ),
             });
         } else {
-          this.openSnackbar('Eliminazione utente annullata');
+          openSnackbar(this.snackBar, 'Eliminazione utente annullata');
         }
       });
   }
@@ -234,14 +235,4 @@ export class UtentiTableComponent implements AfterViewInit {
     }
   }
 
-  /**
-   * Apre la snackbar con il contenuto passato
-   * @param content stringa contenuto della snackbar
-   */
-  openSnackbar(content: string): void {
-    this.snackBar.openFromComponent(SnackbarComponent, {
-      duration: 2 * 1000,
-      data: { content: content },
-    });
-  }
 }

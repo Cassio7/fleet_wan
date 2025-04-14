@@ -14,6 +14,7 @@ import { AuthService } from '../../../Common-services/auth/auth.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { openSnackbar } from '../../../Utils/snackbar';
 
 @Component({
   selector: 'app-dati-utente',
@@ -104,7 +105,7 @@ export class DatiUtenteComponent implements OnDestroy, AfterViewInit{
         console.log("Changes saved successfully!");
         this.isSaveable = false;
         this.user = response.user;
-        this.openSnackbar("Cambiamenti salvati con successo!");
+        openSnackbar(this.snackBar, "Cambiamenti salvati con successo!");
         // this.profileService.updateUserData$.next()
       },
       error: error => {
@@ -124,18 +125,5 @@ export class DatiUtenteComponent implements OnDestroy, AfterViewInit{
       this.user.email !== this.userForm.get("email")?.value ||
       this.user.active !== stateValue ||  // Ora confronta due booleani
       this.user.role !== this.userForm.get("role")?.value;
-  }
-
-
-
-
-  /**
-   * Apre la snackbar per la conferma di salvataggio dei cambiamenti
-   */
-  openSnackbar(content: string): void {
-    this.snackBar.openFromComponent(SnackbarComponent, {
-      duration: 2 * 1000,
-      data: { content: content }
-    });
   }
 }

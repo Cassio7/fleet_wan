@@ -14,6 +14,7 @@ import { User } from '../../../Models/User';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.component';
 import { MatIconModule } from '@angular/material/icon';
+import { openSnackbar } from '../../../Utils/snackbar';
 
 @Component({
   selector: 'app-password-reset',
@@ -70,7 +71,7 @@ export class PasswordResetComponent {
       .subscribe({
         next: (response: {user: User, message: string}) => {
           this.isSaveable = false;
-          this.openSnackbar("Password salvata con successo!");
+          openSnackbar(this.snackBar,"Password salvata con successo!");
           this.passwordForm.reset();
         },
         error: error => {
@@ -101,13 +102,5 @@ export class PasswordResetComponent {
       this.isSaveable = true;
     }
   }
-  /**
-   * Apre la snackbar per la conferma di salvataggio dei cambiamenti
-   */
-  openSnackbar(content: string): void {
-    this.snackBar.openFromComponent(SnackbarComponent, {
-      duration: 2 * 1000,
-      data: { content: content }
-    });
-  }
+
 }

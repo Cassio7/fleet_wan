@@ -9,6 +9,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.component';
 import { Association } from '../../../Models/Association';
 import { WorkSite } from '../../../Models/Worksite';
+import { openSnackbar } from '../../../Utils/snackbar';
 
 @Component({
   selector: 'app-worksite-associations-kanban',
@@ -89,11 +90,11 @@ export class WorksiteAssociationsKanbanComponent implements AfterViewInit, OnCha
           this.associationsList.push(response.association[0]);
           this.cd.detectChanges();
 
-          this.openSnackbar(`Cantiere associato con l'utente!`);
+          openSnackbar(this.snackbar, `Cantiere associato con l'utente!`);
         },
         error: error => {
           console.error("Errore nella creazione della nuova associazione: ", error);
-          this.openSnackbar(`Errore nell'associazione del cantiere con l'utente.`);
+          openSnackbar(this.snackbar, `Errore nell'associazione del cantiere con l'utente.`);
         }
       });
   }
@@ -118,11 +119,11 @@ export class WorksiteAssociationsKanbanComponent implements AfterViewInit, OnCha
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          this.openSnackbar("Associazione con l'utente eliminata!");
+          openSnackbar(this.snackbar, "Associazione con l'utente eliminata!");
         },
         error: error => {
           console.error("Errore nella eliminazione dell'associazione: ", error);
-          this.openSnackbar(`Errore nell'eliminazione dell'associazione`);
+          openSnackbar(this.snackbar, `Errore nell'eliminazione dell'associazione`);
 
           // 🔁 Revert the optimistic update
           this.associationsFreeWorksites = this.associationsFreeWorksites.filter(w => w.id !== worksite.id);
@@ -141,14 +142,4 @@ export class WorksiteAssociationsKanbanComponent implements AfterViewInit, OnCha
     return worksite.id;
   }
 
-  /**
-   * Apre la snackbar con il contenuto passato
-   * @param content stringa contenuto della snackbar
-   */
-  openSnackbar(content: string): void {
-    this.snackbar.openFromComponent(SnackbarComponent, {
-      duration: 2 * 1000,
-      data: { content: content }
-    });
-  }
 }

@@ -30,6 +30,7 @@ import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.
 import { MapService } from '../../../Common-services/map/map.service';
 import { DashboardService } from '../../Services/dashboard/dashboard.service';
 import { RealtimeData } from '../../../Common-services/realtime-api/realtime-api.service';
+import { openSnackbar } from '../../../Utils/snackbar';
 
 
 @Component({
@@ -316,24 +317,13 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy{
   }
 
   /**
-   * Apre la snackbar
-   * @param content stringa contenuto della snackbar
-   */
-  private openSnackbar(content: string): void {
-    this.snackbar.openFromComponent(SnackbarComponent, {
-      duration: this.snackbarDuration * 1000,
-      data: { content: content }
-    });
-  }
-
-  /**
    * Ascolta il completamento del caricamento della tabella
    */
   private handleTableLoaded(){
     this.kanbanTableService.tableLoaded$.pipe(takeUntil(this.destroy$))
     .subscribe({
       next: () => {
-        this.openSnackbar("Dati aggiornati con successo! ✔");
+        openSnackbar(this.snackbar, "Dati aggiornati con successo! ✔");
       },
       error: error => console.error("Errore nella notifica di caricamento della tabella: ", error)
     });

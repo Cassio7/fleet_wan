@@ -19,6 +19,7 @@ import { GestioneSocietaService } from '../../Services/gestione-societa/gestione
 import { MatIconModule } from '@angular/material/icon';
 import { SocietaCreateDialogComponent } from '../societa-create-dialog/societa-create-dialog/societa-create-dialog.component';
 import { SnackbarComponent } from '../../../../Common-components/snackbar/snackbar.component';
+import { openSnackbar } from '../../../../Utils/snackbar';
 
 @Component({
   selector: 'app-home-gestione-societa',
@@ -81,24 +82,13 @@ export class HomeGestioneSocietaComponent implements OnInit, OnDestroy {
     .subscribe({
       next: (response: {message: string, company: Company}) => {
         this.societa = [...this.societa, response.company]
-        this.openSnackbar(`Società ${name} con suId ${suId} creata.`);
+        openSnackbar(this.snackBar, `Società ${name} con suId ${suId} creata.`);
         this.cd.detectChanges();
       },
       error: error => {
         console.error("Errore nella creazione della società: ", error);
-        this.openSnackbar("Errore nella creazione della società");
+        openSnackbar(this.snackBar, "Errore nella creazione della società");
       }
-    });
-  }
-
-  /**
-   * Apre la snackbar con il contenuto passato
-   * @param content stringa contenuto della snackbar
-   */
-  private openSnackbar(content: string): void {
-    this.snackBar.openFromComponent(SnackbarComponent, {
-      duration: 2 * 1000,
-      data: { content: content },
     });
   }
 }

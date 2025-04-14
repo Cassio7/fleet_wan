@@ -19,6 +19,7 @@ import { Group } from '../../../Models/Group';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.component';
 import { MatIconModule } from '@angular/material/icon';
+import { openSnackbar } from '../../../Utils/snackbar';
 
 @Component({
   selector: 'app-home-gestione-cantieri',
@@ -134,7 +135,8 @@ export class HomeGestioneCantieriComponent implements OnInit, OnDestroy {
             'createdWorksiteData.cantiere ',
             createdWorksiteData.worksite
           );
-          this.openSnackbar(
+          openSnackbar(
+            this.snackBar,
             `Nuovo cantiere ${createdWorksiteData.worksite.name} creato`
           );
           this.cantieri = [...this.cantieri, createdWorksiteData.worksite];
@@ -143,12 +145,5 @@ export class HomeGestioneCantieriComponent implements OnInit, OnDestroy {
         error: (error) =>
           console.error('Errore nella creazione del nuovo cantiere: ', error),
       });
-  }
-
-  private openSnackbar(content: string): void {
-    this.snackBar.openFromComponent(SnackbarComponent, {
-      duration: 2 * 1000,
-      data: { content: content },
-    });
   }
 }

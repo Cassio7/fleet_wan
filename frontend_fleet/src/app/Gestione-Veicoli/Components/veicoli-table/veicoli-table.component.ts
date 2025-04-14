@@ -130,15 +130,4 @@ export class VeicoliTableComponent {
   editVeicolo(vehicle: Vehicle) {
     this.router.navigate(['/gestione-veicolo', vehicle.veId]);
   }
-
-  /**
-   * Apre la snackbar con il contenuto passato
-   * @param content stringa contenuto della snackbar
-   */
-  openSnackbar(content: string): void {
-    this.snackBar.openFromComponent(SnackbarComponent, {
-      duration: 2 * 1000,
-      data: { content: content },
-    });
-  }
 }

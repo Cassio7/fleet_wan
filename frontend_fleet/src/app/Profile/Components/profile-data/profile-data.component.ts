@@ -14,6 +14,7 @@ import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.
 import { AuthService } from '../../../Common-services/auth/auth.service';
 import { User } from '../../../Models/User';
 import { ProfileService } from '../../Services/profile/profile.service';
+import { openSnackbar } from '../../../Utils/snackbar';
 
 @Component({
   selector: 'app-profile-data',
@@ -110,7 +111,7 @@ private readonly destroy$: Subject<void> = new Subject<void>();
         console.log("Changes saved successfully!");
         this.isSaveable = false;
         this.user = user;
-        this.openSnackbar("Cambiamenti salvati con successo!");
+        openSnackbar(this.snackBar, "Cambiamenti salvati con successo!");
         // this.profileService.updateUserData$.next()
       },
       error: error => {
@@ -130,16 +131,5 @@ private readonly destroy$: Subject<void> = new Subject<void>();
       this.user.email !== this.userForm.get("email")?.value ||
       this.user.active !== stateValue ||
       this.user.role !== this.userForm.get("role")?.value;
-  }
-
-
-  /**
-   * Apre la snackbar per la conferma di salvataggio dei cambiamenti
-   */
-  openSnackbar(content: string): void {
-    this.snackBar.openFromComponent(SnackbarComponent, {
-      duration: 2 * 1000,
-      data: { content: content }
-    });
   }
 }

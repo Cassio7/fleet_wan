@@ -28,6 +28,7 @@ import { SortService } from '../../../sort/sort.service';
 import { Company } from '../../../../Models/Company';
 import { GestioneSocietaService } from '../../Services/gestione-societa/gestione-societa.service';
 import { DeleteSocietaDialogComponent } from '../delete-societa-dialog/delete-societa-dialog.component';
+import { openSnackbar } from '../../../../Utils/snackbar';
 
 @Component({
   selector: 'app-societa-table',
@@ -120,9 +121,9 @@ export class SocietaTableComponent implements AfterViewInit, OnDestroy {
                 );
                 this.societaTableData.data = this.societa;
                 this.societaChange.emit(this.societa);
-                this.openSnackbar(`Società ${company.name} eliminata`);
+                openSnackbar(this.snackBar, `Società ${company.name} eliminata`);
               } else {
-                this.openSnackbar(
+                openSnackbar(this.snackBar,
                   `Eliminazione società ${company.name} annullata`
                 );
               }
@@ -132,20 +133,9 @@ export class SocietaTableComponent implements AfterViewInit, OnDestroy {
                 `Errore nell'eliminazione della societaà con id ${companyId}: `,
                 error
               );
-              this.openSnackbar("Errore nell'eliminazione della società")
+              openSnackbar(this.snackBar, "Errore nell'eliminazione della società")
             }
           });
       });
-  }
-
-  /**
-   * Apre la snackbar con il contenuto passato
-   * @param content stringa contenuto della snackbar
-   */
-  openSnackbar(content: string): void {
-    this.snackBar.openFromComponent(SnackbarComponent, {
-      duration: 2 * 1000,
-      data: { content: content },
-    });
   }
 }

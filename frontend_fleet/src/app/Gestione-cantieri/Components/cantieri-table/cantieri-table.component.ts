@@ -15,6 +15,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.component';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { DeleteCantiereDialogComponent } from '../delete-cantiere-dialog/delete-cantiere-dialog.component';
+import { openSnackbar } from '../../../Utils/snackbar';
 
 @Component({
   selector: 'app-cantieri-table',
@@ -97,24 +98,13 @@ export class CantieriTableComponent implements AfterViewInit, OnDestroy, OnChang
             this.cantieri = this.cantieri.filter(cantiere => cantiere.id != worksiteId);
             this.cantieriTableData.data = this.cantieri;
             this.cantieriChange.emit(this.cantieri);
-            this.openSnackbar(`cantiere ${cantiere.name} eliminato`)
+            openSnackbar(this.snackBar, `cantiere ${cantiere.name} eliminato`)
           },
           error: error => console.error("Errore nella cancellazione del cantiere: ", error)
         });
       }else{
-        this.openSnackbar("Annullata eliminazione del cantiere");
+        openSnackbar(this.snackBar, "Annullata eliminazione del cantiere");
       }
-    });
-  }
-
-  /**
-   * Apre la snackbar con il contenuto passato
-   * @param content stringa contenuto della snackbar
-   */
-  openSnackbar(content: string): void {
-    this.snackBar.openFromComponent(SnackbarComponent, {
-      duration: 2 * 1000,
-      data: { content: content }
     });
   }
 }
