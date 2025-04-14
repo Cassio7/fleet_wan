@@ -2,8 +2,8 @@
   <div class="inline-container" [formGroup]="changeWorksiteForm">
     <span class="title">Cambia cantiere</span>
     <mat-form-field class="filter" appearance="outline" subscriptSizing="dynamic">
-      <mat-select [value]="vehicle.worksite?.name" formControlName="worksite">
-        <mat-option *ngFor="let worksite of worksites" [value]="worksite.name">
+      <mat-select formControlName="worksite">
+        <mat-option *ngFor="let worksite of worksites" [value]="worksite.id">
           {{ worksite.name }}
         </mat-option>
       </mat-select>
@@ -14,10 +14,10 @@
       <mat-datepicker #picker></mat-datepicker>
     </mat-form-field>
     <mat-form-field subscriptSizing="dynamic" appearance="outline">
-      <input matInput placeholder="Commento">
+      <input matInput placeholder="Commento" formControlName="comment">
     </mat-form-field>
-    <span [matTooltip]="!changeWorksiteForm.valid ? 'Inserire i dati' : ''">
-      <button mat-button class="button" (click)="save()" [disabled]="!changeWorksiteForm.valid" >Salva</button>
+    <span [matTooltip]="!changeWorksiteForm.valid ? 'Inserire i dati' : checkSameWorksite() ? 'Selezionare un cantiere diverso da quello attuale' : ''">
+      <button mat-button class="button" (click)="save()" [disabled]="!changeWorksiteForm.valid || checkSameWorksite()" >Salva</button>
     </span>
   </div>
 </div>

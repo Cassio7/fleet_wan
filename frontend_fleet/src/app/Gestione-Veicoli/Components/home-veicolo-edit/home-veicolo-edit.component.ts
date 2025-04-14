@@ -26,6 +26,7 @@ import { StoricoCantieriComponent } from "../../../Common-components/storico-can
 import { MatButtonModule } from '@angular/material/button';
 import { ChangeWorksiteComponent } from "../change-worksite/change-worksite.component";
 import { formatDate } from '../../../Utils/date-formatter';
+import { WorksiteHistory } from '../../../Models/Worksite-history';
 
 @Component({
   selector: 'app-home-veicolo-edit',
@@ -55,6 +56,7 @@ export class HomeVeicoloEditComponent implements OnInit, OnDestroy{
   worksites: WorkSite[] = [];
   rentals: Rental[] = [];
   equipments: Equipment[] = [];
+  newWorksiteHistory!: WorksiteHistory;
 
   constructor(
     private route: ActivatedRoute,
@@ -87,7 +89,6 @@ export class HomeVeicoloEditComponent implements OnInit, OnDestroy{
       this.worksites = await this.getAllWorksites();
       const fetchedVehicle = await this.getVehicleByVeId(this.veId);
       if(fetchedVehicle) this.vehicle = fetchedVehicle;
-      console.log('fetchedVehicle: ', fetchedVehicle);
       this.cd.detectChanges();
     } catch (error) {
       console.error("Errore nella ricezione del veId dall'url: ", error);
@@ -95,11 +96,9 @@ export class HomeVeicoloEditComponent implements OnInit, OnDestroy{
   }
 
   updateVehicle(vehicleUpdatedData: vehicleUpdateData){
-    console.log('passing this vehicleUpdatedData: ', vehicleUpdatedData);
     this.vehicleApiService.updateVehicleByVeId(this.veId, vehicleUpdatedData).pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (newVehicle: Vehicle) => {
-        console.log('new updated vehicle: ', newVehicle);
         this.vehicle = newVehicle;
         openSnackbar(this.snackBar, `Veicolo ${this.veId} aggiornato`);
         this.cd.detectChanges();
@@ -116,8 +115,13 @@ export class HomeVeicoloEditComponent implements OnInit, OnDestroy{
     const { worksite, dateFrom, comment } = creationData;
     this.gestioneCantieriService.moveVehicleInWorksite(this.veId, worksite.id, dateFrom.toString(), comment).pipe(takeUntil(this.destroy$)).pipe(takeUntil(this.destroy$))
     .subscribe({
-      next: (response: {message: string}) => {
-        openSnackbar(this.snackBar, `Veicolo spostato con successo nel cantiere ${this.vehicle.worksite?.name}`);
+      next: (response: {worksiteHistory: WorksiteHistory, message: string}) => {
+        const { worksiteHistory } = response;
+        this.newWorksiteHistory = response.worksiteHistory;
+        const foundWorksite = this.worksites.find(worksite => worksite.id == worksiteHistory.worksite.id);
+        if(foundWorksite) this.vehicle = { ...this.vehicle, worksite: foundWorksite };
+        this.cd.detectChanges();
+        openSnackbar(this.snackBar, `Veicolo spostato con successo nel cantiere ${creationData.worksite.name}`);
       },
       error: error => console.error("Errore nello spostamento del veicolo: ", error)
     });
