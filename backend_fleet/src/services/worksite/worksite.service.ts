@@ -35,6 +35,7 @@ export class WorksiteService {
       where: {
         name: name.trim(),
       },
+      withDeleted: true,
     });
     if (exists)
       throw new HttpException(
@@ -290,7 +291,9 @@ export class WorksiteService {
         { worksite: { id: worksite.id } },
         { worksite: null },
       );
-      await queryRunner.manager.getRepository(WorksiteEntity).softDelete({key: worksite.key});
+      await queryRunner.manager
+        .getRepository(WorksiteEntity)
+        .softDelete({ key: worksite.key });
       await queryRunner.commitTransaction();
       //update associations
       this.associationService.setVehiclesAssociateAllUsersRedis();
