@@ -104,6 +104,10 @@ export const routes: Routes = [
     component: PageNotFoundComponent
   },
   {
+    path: '**',
+    component: PageNotFoundComponent
+  },
+  {
     path: '',
     component: LoginComponent
   }
