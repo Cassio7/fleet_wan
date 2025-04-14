@@ -281,7 +281,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getToReadNotifications(): Notifica[]{
-    return this.notifiche.filter(notifica => !notifica.isRead);
+    return this.notifiche?.filter(notifica => !notifica.isRead);
   }
 
   /**
