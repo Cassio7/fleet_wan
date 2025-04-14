@@ -205,8 +205,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe({
         next: (user: User) => {
           this.user = user;
-          this.isLogged = true;
           this.isLoginPage = this.checkLoginPage(this.router.url);
+          this.isLogged = !this.isLoginPage;
           this.isAuthLoading = false; // Autenticazione verificata
           this.cd.detectChanges();
         },
