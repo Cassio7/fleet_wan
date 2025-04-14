@@ -86,10 +86,10 @@ export class WorksiteHistoryController {
         worksiteHistory: {
           worksite: {
             id: worksiteHistory.worksite.id,
-            name: worksiteHistory.worksite.name
+            name: worksiteHistory.worksite.name,
           },
           dateFrom: worksiteHistory.dateFrom,
-          comment: worksiteHistory.comment
+          comment: worksiteHistory.comment,
         },
         message: `Veicolo con veId: ${worksiteHistory.vehicle.veId} spostato con successo al cantiere ${worksiteHistory.worksite?.name ?? 'LIBERO'}`,
       });
