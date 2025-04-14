@@ -756,15 +756,15 @@ export class AnomalyService {
           let worksiteDTO: WorksiteDTO | null = null;
           if (anomaly.vehicle.worksite) {
             worksiteDTO = new WorksiteDTO();
-            worksiteDTO.id = anomaly.vehicle.worksite.id;
-            worksiteDTO.name = anomaly.vehicle.worksite.name;
+            worksiteDTO.id = anomaly.vehicle.worksite?.id;
+            worksiteDTO.name = anomaly.vehicle.worksite?.name;
           }
           // DTO del service se esiste
           let serviceDTO: ServiceDTO | null = null;
           if (anomaly.vehicle.worksite) {
             serviceDTO = new ServiceDTO();
-            serviceDTO.id = anomaly.vehicle.service.id;
-            serviceDTO.name = anomaly.vehicle.service.name;
+            serviceDTO.id = anomaly.vehicle.service?.id;
+            serviceDTO.name = anomaly.vehicle.service?.name;
           }
 
           vehicleGroup = {
