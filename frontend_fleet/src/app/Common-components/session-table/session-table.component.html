@@ -32,7 +32,7 @@
     <td mat-cell *matCellDef="let anomaly">
       <!-- OK Container -->
       <div
-        class="OK-container"
+      [ngClass]="checkErrorsService.checkAntennaValid(anomaly) ? 'OK-container' : 'invalid-container'"
         *ngIf="!anomaly.antenna && vehicle.allestimento"
         matTooltip="Antenna funzionante"
       >
