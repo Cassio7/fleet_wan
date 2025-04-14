@@ -763,13 +763,13 @@ export class VehicleService {
     let rentalDTO: RentalDTO | null = null;
 
     if (vehicle.worksite) {
-      if (vehicle.worksite.group) {
+      if (vehicle.worksite?.group) {
         groupDTO = new GroupDTO();
         groupDTO.vgId = vehicle.worksite.group.vgId;
         groupDTO.name = vehicle.worksite.group.name;
       }
 
-      if (vehicle.worksite.group.company) {
+      if (vehicle.worksite?.group?.company) {
         companyDTO = new CompanyDTO();
         companyDTO.suId = vehicle.worksite.group.company.suId;
         companyDTO.name = vehicle.worksite.group.company.name;
