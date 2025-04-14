@@ -108,6 +108,18 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
       case "/gestione-utenti":
         this.icon = "manage_accounts";
         break;
+      case "/gestione-veicoli":
+        this.icon = "local_shipping";
+        break;
+      case "/gestione-cantieri":
+        this.icon = "location_city";
+        break;
+      case "/gestione-societa":
+        this.icon = "business";
+        break;
+      case "/scarico-letture":
+        this.icon = "download";
+          break;
       case "/profile":
         this.icon = "account_circle";
         break;
@@ -115,7 +127,11 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
         this.icon = "search_off";
         break;
       default:
-        this.icon = "search_off";
+        if(this.currentPage.includes("/dettaglio")){
+          this.icon = "local_shipping";
+        }else{
+          this.icon = "search_off";
+        }
     }
 
     this.cd.detectChanges();
