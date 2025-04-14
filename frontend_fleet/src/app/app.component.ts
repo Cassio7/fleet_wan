@@ -196,6 +196,14 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
         error: (error) =>
           console.error('Errore nella ricezione della notifica: ', error),
       });
+    this.webSocketService
+      .getBanMessage()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (ban: string) => {
+          this.logout();
+        },
+      });
   }
 
   private handleGetUserInfo() {
