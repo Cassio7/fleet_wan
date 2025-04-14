@@ -10,6 +10,8 @@ import { Rental } from '../../Models/Rental';
 })
 export class RentalService {
 
+  private url: string = "rentals";
+
   constructor(
     private commonService: CommonService,
     private http: HttpClient,
@@ -26,6 +28,6 @@ export class RentalService {
       'Authorization': `Bearer ${access_token}`
     });
 
-    return this.http.get<Rental[]>(`${this.commonService.url}/rentals`, {headers});
+    return this.http.get<Rental[]>(`${this.commonService.url}/${this.url}`, {headers});
   }
 }

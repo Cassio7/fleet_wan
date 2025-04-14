@@ -10,6 +10,8 @@ import { CommonService } from '../common service/common.service';
 })
 export class WorkzoneService {
 
+  private url: string = "workzone";
+
   constructor(
     private commonService: CommonService,
     private http: HttpClient,
@@ -26,6 +28,6 @@ export class WorkzoneService {
       'Authorization': `Bearer ${access_token}`
     });
 
-    return this.http.get<Workzone[]>(`${this.commonService.url}/workzone`, {headers});
+    return this.http.get<Workzone[]>(`${this.commonService.url}/${this.url}`, {headers});
   }
 }

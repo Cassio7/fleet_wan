@@ -12,6 +12,8 @@ import { VehicleAnomalies } from '../check-errors/check-errors.service';
 export class SessionApiService {
   private readonly _loadAnomalySessionDays$ = new BehaviorSubject<Date[]>([]);
 
+  private url: string = "sessions";
+
   constructor(
     private http: HttpClient,
     private cookieService: CookieService,
@@ -28,7 +30,7 @@ export class SessionApiService {
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'
     });
-    return this.http.get<Session[]>(`${this.commonService.url}/sessions`, {headers});
+    return this.http.get<Session[]>(`${this.commonService.url}/${this.url}`, {headers});
   }
 
   /**
@@ -50,7 +52,7 @@ export class SessionApiService {
       dateFrom: dateFromFormat.toString(),
       dateTo: dateTo.toString()
     }
-    return this.http.post<Session[]>(`${this.commonService.url}/sessions/veId/ranged?filter=true`, body, {headers});
+    return this.http.post<Session[]>(`${this.commonService.url}/${this.url}/veId/ranged?filter=true`, body, {headers});
   }
 
   /**

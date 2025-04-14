@@ -10,6 +10,8 @@ import { CommonService } from '../common service/common.service';
 })
 export class WorksiteHistoryService {
 
+  private url: string = "worksitehistory";
+
   constructor(
     private commonService: CommonService,
     private http: HttpClient,
@@ -27,6 +29,6 @@ export class WorksiteHistoryService {
       'Authorization': `Bearer ${access_token}`
     });
 
-    return this.http.get<WorksiteHistory[]>(`${this.commonService.url}/worksitehistory/admin/${veId}`, {headers});
+    return this.http.get<WorksiteHistory[]>(`${this.commonService.url}/${this.url}/admin/${veId}`, {headers});
   }
 }

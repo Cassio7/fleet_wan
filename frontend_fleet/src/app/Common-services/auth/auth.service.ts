@@ -11,6 +11,8 @@ import { CookieService } from 'ngx-cookie-service';
 })
 export class AuthService {
 
+  private url: string = "users";
+
   constructor(
     private commonService: CommonService,
     private cookieService: CookieService,
@@ -43,7 +45,7 @@ export class AuthService {
     });
 
 
-    return this.http.get<User>(`${this.commonService.url}/users/me`, {headers});
+    return this.http.get<User>(`${this.commonService.url}/${this.url}/me`, {headers});
   }
 
   /**
@@ -59,7 +61,7 @@ export class AuthService {
     });
 
 
-    return this.http.get<User>(`${this.commonService.url}/users/${id}`, {headers});
+    return this.http.get<User>(`${this.commonService.url}/${this.url}/${id}`, {headers});
   }
 
   /**
@@ -88,7 +90,7 @@ export class AuthService {
     console.log('requesting for body: ', body);
 
 
-    return this.http.put<{message: string, user: User}>(`${this.commonService.url}/users/${id}`, body, {headers});
+    return this.http.put<{message: string, user: User}>(`${this.commonService.url}/${this.url}/${id}`, body, {headers});
   }
 
   /**

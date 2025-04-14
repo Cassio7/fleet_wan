@@ -13,6 +13,8 @@ import { Group } from '../../Models/Group';
 export class GestioneCantieriService {
   cantieriFilter: WritableSignal<String[]> = signal([]);
 
+  private url: string = "worksites";
+
   constructor(
     private http: HttpClient,
     private commonService: CommonService,
@@ -42,7 +44,7 @@ export class GestioneCantieriService {
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'
     });
-    return this.http.get<WorkSite[]>(`${this.commonService.url}/worksites`, {headers});
+    return this.http.get<WorkSite[]>(`${this.commonService.url}/${this.url}`, {headers});
   }
 
   /**
@@ -55,7 +57,7 @@ export class GestioneCantieriService {
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'
     });
-    return this.http.get<WorkSite[]>(`${this.commonService.url}/worksites/me`, {headers});
+    return this.http.get<WorkSite[]>(`${this.commonService.url}/${this.url}/me`, {headers});
   }
 
   /**
@@ -71,7 +73,7 @@ export class GestioneCantieriService {
     });
 
     console.log('cantiere da create: ', newWorksiteData);
-    return this.http.post<{message: string, worksite: WorkSite}>(`${this.commonService.url}/worksites`, newWorksiteData, {headers});
+    return this.http.post<{message: string, worksite: WorkSite}>(`${this.commonService.url}/${this.url}`, newWorksiteData, {headers});
   }
 
   /**
@@ -104,7 +106,7 @@ export class GestioneCantieriService {
       'Content-Type': 'application/json'
     });
 
-    return this.http.get<WorkSite>(`${this.commonService.url}/worksites/${id}`, {headers});
+    return this.http.get<WorkSite>(`${this.commonService.url}/${this.url}/${id}`, {headers});
   }
 
   /**
@@ -168,7 +170,7 @@ export class GestioneCantieriService {
       groupId: worksiteGroupId
     }
 
-    return this.http.put<WorkSite>(`${this.commonService.url}/worksites/${id}`, body, {headers});
+    return this.http.put<WorkSite>(`${this.commonService.url}/${this.url}/${id}`, body, {headers});
   }
 
   /**
@@ -183,6 +185,6 @@ export class GestioneCantieriService {
       'Content-Type': 'application/json'
     });
 
-    return this.http.delete<WorkSite>(`${this.commonService.url}/worksites/${id}`, {headers});
+    return this.http.delete<WorkSite>(`${this.commonService.url}/${this.url}/${id}`, {headers});
   }
 }

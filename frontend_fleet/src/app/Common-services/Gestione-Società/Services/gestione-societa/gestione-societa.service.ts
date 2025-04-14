@@ -11,6 +11,8 @@ import { Company } from '../../../../Models/Company';
 export class GestioneSocietaService {
   societaFilter: WritableSignal<String[]> = signal([]);
 
+  private url: string = "companies";
+
   constructor(
     private http: HttpClient,
     private commonService: CommonService,
@@ -23,7 +25,7 @@ export class GestioneSocietaService {
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'
     });
-    return this.http.get<Company[]>(`${this.commonService.url}/companies`, {headers});
+    return this.http.get<Company[]>(`${this.commonService.url}/${this.url}`, {headers});
   }
 
   // editSocieta(id: number, suId: number, newCompany: Company): Observable<Company[]>{
@@ -56,7 +58,7 @@ export class GestioneSocietaService {
       name: name
     }
 
-    return this.http.post<{message: string, company: Company}>(`${this.commonService.url}/companies`, body, {headers});
+    return this.http.post<{message: string, company: Company}>(`${this.commonService.url}/${this.url}`, body, {headers});
   }
 
   updateCompany(companyId: number, newCompany: Company): Observable<Company>{
@@ -71,7 +73,7 @@ export class GestioneSocietaService {
       name: newCompany.name
     }
 
-    return this.http.put<Company>(`${this.commonService.url}/companies/${companyId}`, body, {headers})
+    return this.http.put<Company>(`${this.commonService.url}/${this.url}/${companyId}`, body, {headers})
   }
 
   /**
@@ -86,6 +88,6 @@ export class GestioneSocietaService {
       'Content-Type': 'application/json'
     });
 
-    return this.http.delete<Company>(`${this.commonService.url}/companies/${companyId}`, {headers});
+    return this.http.delete<Company>(`${this.commonService.url}/${this.url}/${companyId}`, {headers});
   }
 }

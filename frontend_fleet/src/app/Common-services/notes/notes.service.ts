@@ -12,6 +12,8 @@ import { CookieService } from 'ngx-cookie-service';
 export class NotesService {
   private readonly _loadNote$: Subject<void> = new Subject<void>();
 
+  private url: string = "notes";
+
   constructor(
     private cookieService: CookieService,
     private commonService: CommonService,
@@ -29,7 +31,7 @@ export class NotesService {
       vehicleId: note.vehicle.veId,
       content: note.content
     }
-    return this.http.post<any>(`${this.commonService.url}/notes/update`, body);
+    return this.http.post<any>(`${this.commonService.url}/${this.url}/update`, body);
   }
 
   /**
@@ -48,7 +50,7 @@ export class NotesService {
       content: content,
       veId: vehicle.veId
     }
-    return this.http.post<Note>(`${this.commonService.url}/notes`, body, {headers});
+    return this.http.post<Note>(`${this.commonService.url}/${this.url}`, body, {headers});
   }
 
   /**
@@ -71,7 +73,7 @@ export class NotesService {
 
     const body = { content };
 
-    return this.http.put(`${this.commonService.url}/notes/${noteId}`, body, { headers });
+    return this.http.put(`${this.commonService.url}/${this.url}/${noteId}`, body, { headers });
   }
 
   /**
@@ -91,7 +93,7 @@ export class NotesService {
       'Content-Type': 'application/json'
     });
 
-    return this.http.delete(`${this.commonService.url}/notes/${noteId}`, { headers });
+    return this.http.delete(`${this.commonService.url}/${this.url}/${noteId}`, { headers });
   }
 
   /**
@@ -105,7 +107,7 @@ export class NotesService {
       'Content-Type': 'application/json'
     });
 
-    return this.http.get<Note[]>(`${this.commonService.url}/notes`, { headers });
+    return this.http.get<Note[]>(`${this.commonService.url}/${this.url}`, { headers });
   }
 
   getNoteByVeId(veId: number): Observable<Note>{
@@ -117,7 +119,7 @@ export class NotesService {
     const body = {
       veId: veId
     }
-    return this.http.post<Note>(`${this.commonService.url}/notes/veId`, body, {headers});
+    return this.http.post<Note>(`${this.commonService.url}/${this.url}/veId`, body, {headers});
   }
 
   /**

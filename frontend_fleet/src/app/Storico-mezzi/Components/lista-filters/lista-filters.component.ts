@@ -55,7 +55,8 @@ export class ListaFiltersComponent implements AfterViewInit{
 
   ngAfterViewInit(): void {
     const allVehicles = JSON.parse(this.sessionStorageService.getItem("allVehicles"));
-    const allCantieri = this.cantieriFilterService.vehiclesCantieriOnce(allVehicles);
+    let allCantieri: string[] = [];
+    if(allVehicles) allCantieri = this.cantieriFilterService.vehiclesCantieriOnce(allVehicles);
     this.listaCantieri = allCantieri;
     this.cantieri.setValue(["Seleziona tutto", ...allCantieri]);
     this.allSelected = !this.allSelected;

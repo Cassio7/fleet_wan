@@ -33,6 +33,8 @@ export class CheckErrorsService {
     new BehaviorSubject<string>('');
   private readonly _updateAnomalies$: Subject<void> = new Subject<void>();
 
+  private url: string = "anomaly";
+
   constructor(
     private http: HttpClient,
     private cookieService: CookieService,
@@ -425,7 +427,7 @@ export class CheckErrorsService {
     };
 
     return this.http.post<VehicleAnomalies>(
-      `${this.commonService.url}/anomaly/veId`,
+      `${this.commonService.url}/${this.url}/veId`,
       body,
       { headers }
     );
@@ -440,7 +442,7 @@ export class CheckErrorsService {
 
     const params = new HttpParams().set('veId', veId);
 
-    return this.http.get<Stats>(`${this.commonService.url}/anomaly/stats`, {
+    return this.http.get<Stats>(`${this.commonService.url}/${this.url}/stats`, {
       headers,
       params,
     });
@@ -457,7 +459,7 @@ export class CheckErrorsService {
       'Content-Type': 'application/json',
     });
 
-    return this.http.get(`${this.commonService.url}/anomaly/updatetoday`, {
+    return this.http.get(`${this.commonService.url}/${this.url}/updatetoday`, {
       headers,
     });
   }

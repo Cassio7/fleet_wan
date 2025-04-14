@@ -27,6 +27,8 @@ export interface vehicleUpdateData {
 })
 export class VehiclesApiService {
 
+  private url: string = "vehicles";
+
   constructor(
     private http: HttpClient,
     private commonService: CommonService,
@@ -43,7 +45,7 @@ export class VehiclesApiService {
       'Authorization': `Bearer ${access_token}`
     });
 
-    return this.http.get<Vehicle[]>(`${this.commonService.url}/vehicles`, { headers });
+    return this.http.get<Vehicle[]>(`${this.commonService.url}/${this.url}`, { headers });
   }
 
   /**
@@ -56,7 +58,7 @@ export class VehiclesApiService {
       'Authorization': `Bearer ${access_token}`
     });
 
-    return this.http.get<Vehicle[]>(`${this.commonService.url}/vehicles/admin`, { headers });
+    return this.http.get<Vehicle[]>(`${this.commonService.url}/${this.url}/admin`, { headers });
   }
 
   /**
@@ -72,7 +74,7 @@ export class VehiclesApiService {
     // Correct way to set parameters
     const params = new HttpParams().set('free', 'true');
 
-    return this.http.get<Vehicle[]>(`${this.commonService.url}/vehicles/admin`, { headers, params });
+    return this.http.get<Vehicle[]>(`${this.commonService.url}/${this.url}/admin`, { headers, params });
   }
 
 
@@ -88,7 +90,7 @@ export class VehiclesApiService {
     });
 
     return this.http.get<Vehicle>(
-      `${this.commonService.url}/vehicles/fetchplate/${plate}`,
+      `${this.commonService.url}/${this.url}/fetchplate/${plate}`,
       { headers }
     );
   }
@@ -105,7 +107,7 @@ export class VehiclesApiService {
     });
 
     return this.http.get<Vehicle>(
-      `${this.commonService.url}/vehicles/${veId}`,
+      `${this.commonService.url}/${this.url}/${veId}`,
       { headers }
     );
   }
@@ -117,7 +119,7 @@ export class VehiclesApiService {
     });
 
     return this.http.get<Vehicle>(
-      `${this.commonService.url}/vehicles/admin/${veId}`,
+      `${this.commonService.url}/${this.url}/admin/${veId}`,
       { headers }
     );
   }
@@ -134,7 +136,7 @@ export class VehiclesApiService {
       'Authorization': `Bearer ${access_token}`
     });
 
-    return this.http.put<Vehicle>(`${this.commonService.url}/vehicles/${veId}`, vehicleUpdateData, {headers});
+    return this.http.put<Vehicle>(`${this.commonService.url}/${this.url}/${veId}`, vehicleUpdateData, {headers});
   }
 
   /**

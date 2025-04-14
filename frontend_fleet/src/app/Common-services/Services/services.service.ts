@@ -10,6 +10,8 @@ import { CommonService } from '../common service/common.service';
 })
 export class ServicesService {
 
+  private url: string = "services";
+
   constructor(
     private commonService: CommonService,
     private http: HttpClient,
@@ -26,6 +28,6 @@ export class ServicesService {
       'Authorization': `Bearer ${access_token}`
     });
 
-    return this.http.get<Service[]>(`${this.commonService.url}/services`, {headers});
+    return this.http.get<Service[]>(`${this.commonService.url}/${this.url}`, {headers});
   }
 }

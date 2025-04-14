@@ -12,6 +12,8 @@ export class NotificationService {
   private readonly _updatedNotification$: BehaviorSubject<Notifica | null> = new BehaviorSubject<Notifica | null>(null);
   private readonly _deletedNotification$: BehaviorSubject<{ key: string }> = new BehaviorSubject<{ key: string }>({ key: "" });
 
+  private url: string = "notifications";
+
   constructor(
     private commonService: CommonService,
     private cookieService: CookieService,
@@ -29,7 +31,7 @@ export class NotificationService {
       'Content-Type': 'application/json',
     });
 
-    return this.http.get<Notifica[]>(`${this.commonService.url}/notifications`, {headers});
+    return this.http.get<Notifica[]>(`${this.commonService.url}/${this.url}`, {headers});
   }
 
   /**
@@ -45,7 +47,7 @@ export class NotificationService {
 
     const params = new HttpParams().set('read', 'false');
 
-    return this.http.get<Notifica[]>(`${this.commonService.url}/notifications`, { headers, params });
+    return this.http.get<Notifica[]>(`${this.commonService.url}/${this.url}`, { headers, params });
   }
 
   /**
@@ -60,7 +62,7 @@ export class NotificationService {
       'Content-Type': 'application/json',
     });
 
-    return this.http.delete<{message: string, notification: Notifica}>(`${this.commonService.url}/notifications/${key}`, { headers });
+    return this.http.delete<{message: string, notification: Notifica}>(`${this.commonService.url}/${this.url}/${key}`, { headers });
   }
 
   public get updatedNotification$(): BehaviorSubject<Notifica | null> {

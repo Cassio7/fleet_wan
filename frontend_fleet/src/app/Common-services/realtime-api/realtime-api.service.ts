@@ -28,6 +28,7 @@ export interface RealtimeData {
 })
 export class RealtimeApiService {
 
+  private url: string = "realtimes";
   constructor(
     private http: HttpClient,
     private commonService: CommonService,
@@ -44,7 +45,7 @@ export class RealtimeApiService {
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'
     });
-    return this.http.get<RealtimeData[]>(`${this.commonService.url}/realtimes/last`, {headers});
+    return this.http.get<RealtimeData[]>(`${this.commonService.url}/${this.url}/last`, {headers});
   }
 
   /**
