@@ -37,7 +37,7 @@
     overflow-x: hidden;
 
     .storico-container {
-      max-height: 30vh;
+      min-height: 30vh;
       overflow-y: auto;
     }
   }
