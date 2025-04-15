@@ -143,7 +143,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
           this.isLoginPage = false;
         });
         this.handleGetUserInfo();
-        if(this.user?.idR == 1) this.handleGetToReadNotification();
+        if(this.user?.idR == 1) this.handleGetAllNotification();
         this.cd.detectChanges();
       },
       error: (error) => console.error('Error logging in: ', error),
@@ -152,7 +152,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     this.handleUpdatedNotification();
     this.handleNotificationDelete();
     this.user = this.authService.decodeToken(current_token);
-    if (this.cookieService.get('user') && this.user?.idR == 1) this.handleGetToReadNotification();
+    if (this.cookieService.get('user') && this.user?.idR == 1) this.handleGetAllNotification();
     this.cd.detectChanges();
   }
 
@@ -251,6 +251,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     this.notificationService.updatedNotification$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (notification: Notifica | null) => {
+        console.log('notifica updateata: ', notification);
         if(notification)
           this.notifiche = this.notifiche.map(notifica => {
             if (notifica.key === notification.key) {
@@ -263,10 +264,10 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  handleGetToReadNotification() {
+  private handleGetAllNotification() {
     //ottenimento delle notifiche da leggere
     this.notificationService
-      .getToReadNotifications()
+      .getAllNotifications()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (notifiche: Notifica[]) => {
