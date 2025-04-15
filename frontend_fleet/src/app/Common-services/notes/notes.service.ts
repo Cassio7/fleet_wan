@@ -1,10 +1,10 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Note } from '../../Models/Note';
-import { CommonService } from '../common service/common.service';
 import { Observable, Subject, throwError } from 'rxjs';
 import { Vehicle } from '../../Models/Vehicle';
 import { CookieService } from 'ngx-cookie-service';
+import { serverUrl } from '../../environment';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +16,6 @@ export class NotesService {
 
   constructor(
     private cookieService: CookieService,
-    private commonService: CommonService,
     private http: HttpClient
   ) { }
 
@@ -31,7 +30,7 @@ export class NotesService {
       vehicleId: note.vehicle.veId,
       content: note.content
     }
-    return this.http.post<any>(`${this.commonService.url}/${this.url}/update`, body);
+    return this.http.post<any>(`${serverUrl}/${this.url}/update`, body);
   }
 
   /**
@@ -50,7 +49,7 @@ export class NotesService {
       content: content,
       veId: vehicle.veId
     }
-    return this.http.post<Note>(`${this.commonService.url}/${this.url}`, body, {headers});
+    return this.http.post<Note>(`${serverUrl}/${this.url}`, body, {headers});
   }
 
   /**
@@ -73,7 +72,7 @@ export class NotesService {
 
     const body = { content };
 
-    return this.http.put(`${this.commonService.url}/${this.url}/${noteId}`, body, { headers });
+    return this.http.put(`${serverUrl}/${this.url}/${noteId}`, body, { headers });
   }
 
   /**
@@ -93,7 +92,7 @@ export class NotesService {
       'Content-Type': 'application/json'
     });
 
-    return this.http.delete(`${this.commonService.url}/${this.url}/${noteId}`, { headers });
+    return this.http.delete(`${serverUrl}/${this.url}/${noteId}`, { headers });
   }
 
   /**
@@ -107,7 +106,7 @@ export class NotesService {
       'Content-Type': 'application/json'
     });
 
-    return this.http.get<Note[]>(`${this.commonService.url}/${this.url}`, { headers });
+    return this.http.get<Note[]>(`${serverUrl}/${this.url}`, { headers });
   }
 
   getNoteByVeId(veId: number): Observable<Note>{
@@ -119,7 +118,7 @@ export class NotesService {
     const body = {
       veId: veId
     }
-    return this.http.post<Note>(`${this.commonService.url}/${this.url}/veId`, body, {headers});
+    return this.http.post<Note>(`${serverUrl}/${this.url}/veId`, body, {headers});
   }
 
   /**

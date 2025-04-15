@@ -7,13 +7,13 @@ import {
   Subject,
   throwError,
 } from 'rxjs';
-import { CommonService } from '../common service/common.service';
 import { VehicleData } from '../../Models/VehicleData';
 import { Anomaly } from '../../Models/Anomaly';
 import { CookieService } from 'ngx-cookie-service';
 import { SessionErrorVehicles } from '../../Dashboard/Services/kanban-sessione/kanban-sessione.service';
 import { Stats } from '../../Models/Stats';
 import { Vehicle } from '../../Models/Vehicle';
+import { serverUrl } from '../../environment';
 
 export interface VehicleAnomalies{
   vehicle: Vehicle,
@@ -38,7 +38,6 @@ export class CheckErrorsService {
   constructor(
     private http: HttpClient,
     private cookieService: CookieService,
-    private commonService: CommonService
   ) {}
 
   /**
@@ -427,7 +426,7 @@ export class CheckErrorsService {
     };
 
     return this.http.post<VehicleAnomalies>(
-      `${this.commonService.url}/${this.url}/veId`,
+      `${serverUrl}/${this.url}/veId`,
       body,
       { headers }
     );
@@ -442,7 +441,7 @@ export class CheckErrorsService {
 
     const params = new HttpParams().set('veId', veId);
 
-    return this.http.get<Stats>(`${this.commonService.url}/${this.url}/stats`, {
+    return this.http.get<Stats>(`${serverUrl}/${this.url}/stats`, {
       headers,
       params,
     });
@@ -459,7 +458,7 @@ export class CheckErrorsService {
       'Content-Type': 'application/json',
     });
 
-    return this.http.get(`${this.commonService.url}/${this.url}/updatetoday`, {
+    return this.http.get(`${serverUrl}/${this.url}/updatetoday`, {
       headers,
     });
   }
@@ -483,7 +482,7 @@ export class CheckErrorsService {
     };
 
     return this.http
-      .post(`${this.commonService.url}/anomaly`, body, { headers })
+      .post(`${serverUrl}/anomaly`, body, { headers })
       .pipe(
         catchError((error) => {
           console.error('An error occurred:', error);

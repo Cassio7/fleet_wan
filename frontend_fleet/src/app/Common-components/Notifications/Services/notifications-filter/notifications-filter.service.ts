@@ -3,7 +3,7 @@ import { Notifica } from '../../../../Models/Notifica';
 import { CookieService } from 'ngx-cookie-service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { CommonService } from '../../../../Common-services/common service/common.service';
+import { serverUrl } from '../../../../environment';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +12,6 @@ export class NotificationsFilterService {
 
   constructor(
     private http: HttpClient,
-    private commonService: CommonService,
     private cookieService: CookieService
   ) { }
 
@@ -39,6 +38,6 @@ export class NotificationsFilterService {
       'Content-Type': 'application/json',
     });
 
-    return this.http.patch<{notification: Notifica, message: string}>(`${this.commonService.url}/notifications/${key}`, {}, {headers});
+    return this.http.patch<{notification: Notifica, message: string}>(`${serverUrl}/notifications/${key}`, {}, {headers});
   }
 }

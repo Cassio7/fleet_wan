@@ -3,7 +3,7 @@ import { Equipment } from '../../Models/Equipment';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
 import { Observable } from 'rxjs';
-import { CommonService } from '../common service/common.service';
+import { serverUrl } from '../../environment';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +13,6 @@ export class EquipmentService {
   private url: string = "equipments";
 
   constructor(
-    private commonService: CommonService,
     private http: HttpClient,
     private cookieService: CookieService
   ) { }
@@ -28,6 +27,6 @@ export class EquipmentService {
       'Authorization': `Bearer ${access_token}`
     });
 
-    return this.http.get<Equipment[]>(`${this.commonService.url}/${this.url}`, {headers});
+    return this.http.get<Equipment[]>(`${serverUrl}/${this.url}`, {headers});
   }
 }

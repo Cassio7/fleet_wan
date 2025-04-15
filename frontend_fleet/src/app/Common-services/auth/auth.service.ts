@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import { jwtDecode } from 'jwt-decode';
 import { User } from '../../Models/User';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { CommonService } from '../common service/common.service';
 import { Observable } from 'rxjs';
 import { CookieService } from 'ngx-cookie-service';
+import { serverUrl } from '../../environment';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +14,6 @@ export class AuthService {
   private url: string = "users";
 
   constructor(
-    private commonService: CommonService,
     private cookieService: CookieService,
     private http: HttpClient
   ) { }
@@ -45,7 +44,7 @@ export class AuthService {
     });
 
 
-    return this.http.get<User>(`${this.commonService.url}/${this.url}/me`, {headers});
+    return this.http.get<User>(`${serverUrl}/${this.url}/me`, {headers});
   }
 
   /**
@@ -61,7 +60,7 @@ export class AuthService {
     });
 
 
-    return this.http.get<User>(`${this.commonService.url}/${this.url}/${id}`, {headers});
+    return this.http.get<User>(`${serverUrl}/${this.url}/${id}`, {headers});
   }
 
   /**
@@ -90,7 +89,7 @@ export class AuthService {
     console.log('requesting for body: ', body);
 
 
-    return this.http.put<{message: string, user: User}>(`${this.commonService.url}/${this.url}/${id}`, body, {headers});
+    return this.http.put<{message: string, user: User}>(`${serverUrl}/${this.url}/${id}`, body, {headers});
   }
 
   /**
@@ -104,7 +103,7 @@ export class AuthService {
       'Content-Type': 'application/json'
     });
 
-    return this.http.get<User[]>(`${this.commonService.url}/users`, {headers});
+    return this.http.get<User[]>(`${serverUrl}/users`, {headers});
   }
 
 
@@ -126,7 +125,7 @@ export class AuthService {
       role
     };
 
-    return this.http.post<{message: string, user: User}>(`${this.commonService.url}/users`, body, {headers});
+    return this.http.post<{message: string, user: User}>(`${serverUrl}/users`, body, {headers});
   }
 
 

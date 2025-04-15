@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { CommonService } from '../../../../Common-services/common service/common.service';
 import { CookieService } from 'ngx-cookie-service';
+import { serverUrl } from '../../../../environment';
 
 export interface DetectionQuality{
   timestamp: string,
@@ -15,7 +15,6 @@ export class DetectionGraphService {
   private _colors: string[] = ["#5C9074"];
 
   constructor(
-    private commonService: CommonService,
     private http: HttpClient,
     private cookiesService: CookieService
   ) { }
@@ -38,7 +37,7 @@ export class DetectionGraphService {
       'Content-Type': 'application/json'
     });
 
-    return this.http.post<DetectionQuality[]>(`${this.commonService.url}/tags/detection`, body, {headers});
+    return this.http.post<DetectionQuality[]>(`${serverUrl}/tags/detection`, body, {headers});
   }
 
   public get colors(): string[] {

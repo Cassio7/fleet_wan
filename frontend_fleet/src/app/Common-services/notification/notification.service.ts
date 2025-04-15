@@ -2,8 +2,8 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { CommonService } from '../common service/common.service';
 import { Notifica } from '../../Models/Notifica';
+import { serverUrl } from '../../environment';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +15,6 @@ export class NotificationService {
   private url: string = "notifications";
 
   constructor(
-    private commonService: CommonService,
     private cookieService: CookieService,
     private http: HttpClient
   ) { }
@@ -31,7 +30,7 @@ export class NotificationService {
       'Content-Type': 'application/json',
     });
 
-    return this.http.get<Notifica[]>(`${this.commonService.url}/${this.url}`, {headers});
+    return this.http.get<Notifica[]>(`${serverUrl}/${this.url}`, {headers});
   }
 
   /**
@@ -47,7 +46,7 @@ export class NotificationService {
 
     const params = new HttpParams().set('read', 'false');
 
-    return this.http.get<Notifica[]>(`${this.commonService.url}/${this.url}`, { headers, params });
+    return this.http.get<Notifica[]>(`${serverUrl}/${this.url}`, { headers, params });
   }
 
   /**
@@ -62,7 +61,7 @@ export class NotificationService {
       'Content-Type': 'application/json',
     });
 
-    return this.http.delete<{message: string, notification: Notifica}>(`${this.commonService.url}/${this.url}/${key}`, { headers });
+    return this.http.delete<{message: string, notification: Notifica}>(`${serverUrl}/${this.url}/${key}`, { headers });
   }
 
   public get updatedNotification$(): BehaviorSubject<Notifica | null> {

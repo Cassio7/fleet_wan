@@ -1,9 +1,9 @@
-import { CommonService } from '../common service/common.service';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Vehicle } from '../../Models/Vehicle';
 import { CookieService } from 'ngx-cookie-service';
+import { serverUrl } from '../../environment';
 
 
 export interface vehicleUpdateData {
@@ -31,7 +31,6 @@ export class VehiclesApiService {
 
   constructor(
     private http: HttpClient,
-    private commonService: CommonService,
     private cookieService: CookieService
   ) { }
 
@@ -45,7 +44,7 @@ export class VehiclesApiService {
       'Authorization': `Bearer ${access_token}`
     });
 
-    return this.http.get<Vehicle[]>(`${this.commonService.url}/${this.url}`, { headers });
+    return this.http.get<Vehicle[]>(`${serverUrl}/${this.url}`, { headers });
   }
 
   /**
@@ -58,7 +57,7 @@ export class VehiclesApiService {
       'Authorization': `Bearer ${access_token}`
     });
 
-    return this.http.get<Vehicle[]>(`${this.commonService.url}/${this.url}/admin`, { headers });
+    return this.http.get<Vehicle[]>(`${serverUrl}/${this.url}/admin`, { headers });
   }
 
   /**
@@ -74,7 +73,7 @@ export class VehiclesApiService {
     // Correct way to set parameters
     const params = new HttpParams().set('free', 'true');
 
-    return this.http.get<Vehicle[]>(`${this.commonService.url}/${this.url}/admin`, { headers, params });
+    return this.http.get<Vehicle[]>(`${serverUrl}/${this.url}/admin`, { headers, params });
   }
 
 
@@ -90,7 +89,7 @@ export class VehiclesApiService {
     });
 
     return this.http.get<Vehicle>(
-      `${this.commonService.url}/${this.url}/fetchplate/${plate}`,
+      `${serverUrl}/${this.url}/fetchplate/${plate}`,
       { headers }
     );
   }
@@ -107,7 +106,7 @@ export class VehiclesApiService {
     });
 
     return this.http.get<Vehicle>(
-      `${this.commonService.url}/${this.url}/${veId}`,
+      `${serverUrl}/${this.url}/${veId}`,
       { headers }
     );
   }
@@ -119,7 +118,7 @@ export class VehiclesApiService {
     });
 
     return this.http.get<Vehicle>(
-      `${this.commonService.url}/${this.url}/admin/${veId}`,
+      `${serverUrl}/${this.url}/admin/${veId}`,
       { headers }
     );
   }
@@ -136,7 +135,7 @@ export class VehiclesApiService {
       'Authorization': `Bearer ${access_token}`
     });
 
-    return this.http.put<Vehicle>(`${this.commonService.url}/${this.url}/${veId}`, vehicleUpdateData, {headers});
+    return this.http.put<Vehicle>(`${serverUrl}/${this.url}/${veId}`, vehicleUpdateData, {headers});
   }
 
   /**
@@ -150,7 +149,7 @@ export class VehiclesApiService {
     });
 
     return this.http.get<Vehicle>(
-      `${this.commonService.url}/worksitehistory/${veId}`,
+      `${serverUrl}/worksitehistory/${veId}`,
       { headers }
     );
   }

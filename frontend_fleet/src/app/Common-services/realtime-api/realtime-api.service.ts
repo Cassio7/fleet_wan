@@ -1,7 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { SessionStorageService } from '../sessionStorage/session-storage.service';
-import { CommonService } from '../common service/common.service';
 import { Observable } from 'rxjs';
 import { VehicleData } from '../../Models/VehicleData';
 import { Vehicle } from '../../Models/Vehicle';
@@ -10,6 +9,7 @@ import { Anomaly } from '../../Models/Anomaly';
 import { Realtime } from '../../Models/Realtime';
 import { Service } from '../../Models/Service';
 import { WorkSite } from '../../Models/Worksite';
+import { serverUrl } from '../../environment';
 
 
 export interface RealtimeData {
@@ -31,7 +31,6 @@ export class RealtimeApiService {
   private url: string = "realtimes";
   constructor(
     private http: HttpClient,
-    private commonService: CommonService,
     private cookieService: CookieService
   ) { }
 
@@ -45,7 +44,7 @@ export class RealtimeApiService {
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'
     });
-    return this.http.get<RealtimeData[]>(`${this.commonService.url}/${this.url}/last`, {headers});
+    return this.http.get<RealtimeData[]>(`${serverUrl}/${this.url}/last`, {headers});
   }
 
   /**

@@ -5,7 +5,7 @@ import { CookieService } from 'ngx-cookie-service';
 import { Observable, of } from 'rxjs';
 import { WorkSite } from '../../../Models/Worksite';
 import { Company } from '../../../Models/Company';
-import { CommonService } from '../../../Common-services/common service/common.service';
+import { serverUrl } from '../../../environment';
 
 export interface getAssociationsResponse{
   associations: Association[],
@@ -19,7 +19,6 @@ export class AssociationsService {
 
   constructor(
     private http: HttpClient,
-    private commonService: CommonService,
     private cookieService: CookieService
   ) { }
 
@@ -36,7 +35,7 @@ export class AssociationsService {
       'Content-Type': 'application/json',
     });
 
-    return this.http.get<getAssociationsResponse>(`${this.commonService.url}/associations/${id}`, {headers});
+    return this.http.get<getAssociationsResponse>(`${serverUrl}/associations/${id}`, {headers});
   }
 
 
@@ -63,7 +62,7 @@ export class AssociationsService {
         companyIds: companyIds
       };
 
-      return this.http.post<{message: string, association: Association[]}>(`${this.commonService.url}/associations`, body, {headers});
+      return this.http.post<{message: string, association: Association[]}>(`${serverUrl}/associations`, body, {headers});
     }
   }
 
@@ -79,6 +78,6 @@ export class AssociationsService {
       'Content-Type': 'application/json',
     });
 
-    return this.http.delete<{message: string}>(`${this.commonService.url}/associations/${id}`, {headers});
+    return this.http.delete<{message: string}>(`${serverUrl}/associations/${id}`, {headers});
   }
 }

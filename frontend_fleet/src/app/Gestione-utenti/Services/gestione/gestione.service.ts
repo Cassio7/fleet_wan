@@ -3,7 +3,7 @@ import { User } from '../../../Models/User';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { CookieService } from 'ngx-cookie-service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { CommonService } from '../../../Common-services/common service/common.service';
+import { serverUrl } from '../../../environment';
 
 export interface GestioneFilters {
   usernameResearch: string,
@@ -17,7 +17,6 @@ export class GestioneService {
 
   constructor(
     private http: HttpClient,
-    private commonService: CommonService,
     private cookieService: CookieService
   ) { }
 
@@ -29,7 +28,7 @@ export class GestioneService {
       'Content-Type': 'application/json'
     });
 
-    return this.http.delete<{message: string}>(`${this.commonService.url}/users/${userId}`, {headers});
+    return this.http.delete<{message: string}>(`${serverUrl}/users/${userId}`, {headers});
   }
 
   abilitateUser(userId: number): Observable<{message: string}>{
@@ -43,7 +42,7 @@ export class GestioneService {
       active: true
     };
 
-    return this.http.put<{message: string}>(`${this.commonService.url}/users/${userId}`, body, {headers});
+    return this.http.put<{message: string}>(`${serverUrl}/users/${userId}`, body, {headers});
   }
 
   disabilitateUser(userId: number): Observable<{message: string}>{
@@ -57,7 +56,7 @@ export class GestioneService {
       active: false
     };
 
-    return this.http.put<{message: string}>(`${this.commonService.url}/users/${userId}`, body, {headers});
+    return this.http.put<{message: string}>(`${serverUrl}/users/${userId}`, body, {headers});
   }
 
   /**

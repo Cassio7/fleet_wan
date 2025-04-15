@@ -10,7 +10,6 @@ import { Company } from '../../../Models/Company';
 import { SocietaTableComponent } from '../societa-table/societa-table.component';
 import { SocietaFiltersComponent } from '../societa-filters/societa-filters.component';
 import { MatButtonModule } from '@angular/material/button';
-import { CommonService } from '../../../Common-services/common service/common.service';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject, takeUntil } from 'rxjs';
@@ -43,7 +42,6 @@ export class HomeGestioneSocietaComponent implements OnInit, OnDestroy {
 
   constructor(
     private gestioneSocietaService: GestioneSocietaService,
-    private commonService: CommonService,
     private cd: ChangeDetectorRef
   ) {}
 

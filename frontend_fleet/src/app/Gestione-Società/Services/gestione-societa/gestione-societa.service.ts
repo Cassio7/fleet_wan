@@ -1,9 +1,9 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable, signal, WritableSignal } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
-import { CommonService } from '../../../Common-services/common service/common.service';
 import { Observable } from 'rxjs';
 import { Company } from '../../../Models/Company';
+import { serverUrl } from '../../../environment';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +15,6 @@ export class GestioneSocietaService {
 
   constructor(
     private http: HttpClient,
-    private commonService: CommonService,
     private cookieService: CookieService
   ) { }
 
@@ -25,7 +24,7 @@ export class GestioneSocietaService {
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'
     });
-    return this.http.get<Company[]>(`${this.commonService.url}/${this.url}`, {headers});
+    return this.http.get<Company[]>(`${serverUrl}/${this.url}`, {headers});
   }
 
   // editSocieta(id: number, suId: number, newCompany: Company): Observable<Company[]>{
@@ -58,7 +57,7 @@ export class GestioneSocietaService {
       name: name
     }
 
-    return this.http.post<{message: string, company: Company}>(`${this.commonService.url}/${this.url}`, body, {headers});
+    return this.http.post<{message: string, company: Company}>(`${serverUrl}/${this.url}`, body, {headers});
   }
 
   updateCompany(companyId: number, newCompany: Company): Observable<Company>{
@@ -73,7 +72,7 @@ export class GestioneSocietaService {
       name: newCompany.name
     }
 
-    return this.http.put<Company>(`${this.commonService.url}/${this.url}/${companyId}`, body, {headers})
+    return this.http.put<Company>(`${serverUrl}/${this.url}/${companyId}`, body, {headers})
   }
 
   /**
@@ -88,6 +87,6 @@ export class GestioneSocietaService {
       'Content-Type': 'application/json'
     });
 
-    return this.http.delete<Company>(`${this.commonService.url}/${this.url}/${companyId}`, {headers});
+    return this.http.delete<Company>(`${serverUrl}/${this.url}/${companyId}`, {headers});
   }
 }

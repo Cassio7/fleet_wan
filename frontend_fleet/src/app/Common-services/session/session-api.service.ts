@@ -2,9 +2,9 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, Observable} from 'rxjs';
 import { Session } from '../../Models/Session';
-import { CommonService } from '../common service/common.service';
 import { CookieService } from 'ngx-cookie-service';
 import { VehicleAnomalies } from '../check-errors/check-errors.service';
+import { serverUrl } from '../../environment';
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +17,6 @@ export class SessionApiService {
   constructor(
     private http: HttpClient,
     private cookieService: CookieService,
-    private commonService: CommonService
   ) { }
 
   /**
@@ -30,7 +29,7 @@ export class SessionApiService {
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'
     });
-    return this.http.get<Session[]>(`${this.commonService.url}/${this.url}`, {headers});
+    return this.http.get<Session[]>(`${serverUrl}/${this.url}`, {headers});
   }
 
   /**
@@ -52,7 +51,7 @@ export class SessionApiService {
       dateFrom: dateFromFormat.toString(),
       dateTo: dateTo.toString()
     }
-    return this.http.post<Session[]>(`${this.commonService.url}/${this.url}/veId/ranged?filter=true`, body, {headers});
+    return this.http.post<Session[]>(`${serverUrl}/${this.url}/veId/ranged?filter=true`, body, {headers});
   }
 
   /**
@@ -66,7 +65,7 @@ export class SessionApiService {
       'Content-Type': 'application/json'
     });
 
-    return this.http.get(`${this.commonService.url}/anomaly/last`, {headers});
+    return this.http.get(`${serverUrl}/anomaly/last`, {headers});
   }
 
   /**
@@ -91,7 +90,7 @@ export class SessionApiService {
 
     console.log("request body: ", body);
 
-    return this.http.post<VehicleAnomalies>(`${this.commonService.url}/anomaly/veId/ranged`, body, {headers});
+    return this.http.post<VehicleAnomalies>(`${serverUrl}/anomaly/veId/ranged`, body, {headers});
   }
 
   /**
@@ -111,7 +110,7 @@ export class SessionApiService {
     };
 
     // Send the POST request
-    return this.http.post<Session[]>(`${this.commonService.url}/session/ranged/all`, body)
+    return this.http.post<Session[]>(`${serverUrl}/session/ranged/all`, body)
       .pipe(
         catchError(error => {
           console.error('Errore durante la richiesta:', error);
@@ -133,7 +132,7 @@ export class SessionApiService {
    * @returns observable get http
    */
   public getAllVehiclesLastSessions(): Observable<Session[]>{
-    return this.http.get<Session[]>(`${this.commonService.url}/session/lastsessions/all`);
+    return this.http.get<Session[]>(`${serverUrl}/session/lastsessions/all`);
   }
 
   // /**
@@ -150,7 +149,7 @@ export class SessionApiService {
    * @returns observable get http
    */
   public getAllVehiclesLastValidSession(): Observable<any[]>{
-    return this.http.get<any[]>(`${this.commonService.url}/session/lastvalidnohistory/all`);
+    return this.http.get<any[]>(`${serverUrl}/session/lastvalidnohistory/all`);
   }
 
   public get loadAnomalySessionDays$(): BehaviorSubject<Date[]> {

@@ -3,7 +3,7 @@ import { WorksiteHistory } from '../../Models/Worksite-history';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
 import { Observable } from 'rxjs';
-import { CommonService } from '../common service/common.service';
+import { serverUrl } from '../../environment';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +13,6 @@ export class WorksiteHistoryService {
   private url: string = "worksitehistory";
 
   constructor(
-    private commonService: CommonService,
     private http: HttpClient,
     private cookieService: CookieService
   ) { }
@@ -29,6 +28,6 @@ export class WorksiteHistoryService {
       'Authorization': `Bearer ${access_token}`
     });
 
-    return this.http.get<WorksiteHistory[]>(`${this.commonService.url}/${this.url}/admin/${veId}`, {headers});
+    return this.http.get<WorksiteHistory[]>(`${serverUrl}/${this.url}/admin/${veId}`, {headers});
   }
 }

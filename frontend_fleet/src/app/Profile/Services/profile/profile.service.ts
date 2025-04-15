@@ -1,9 +1,9 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { CommonService } from '../../../Common-services/common service/common.service';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { User } from '../../../Models/User';
 import { CookieService } from 'ngx-cookie-service';
+import { serverUrl } from '../../../environment';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +12,6 @@ export class ProfileService{
   private readonly _updateUserData$: BehaviorSubject<User | null> = new BehaviorSubject<User | null>(null);
 
   constructor(
-    private commonService: CommonService,
     private cookieService: CookieService,
     private http: HttpClient
   ) { }
@@ -41,7 +40,7 @@ export class ProfileService{
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'
     });
-    return this.http.put<User>(`${this.commonService.url}/users/me`, updatedProfileInfo, {headers});
+    return this.http.put<User>(`${serverUrl}/users/me`, updatedProfileInfo, {headers});
   }
 
   public get updateUserData$(): BehaviorSubject<User | null> {

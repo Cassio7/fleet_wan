@@ -1,10 +1,9 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
-import { CommonService } from '../common service/common.service';
 import { Observable, of } from 'rxjs';
 import { CookieService } from 'ngx-cookie-service';
-import { Tag } from '../../Models/Tag';
 import { tagDownloadResponse } from '../../Scarico-letture/home-letture/home-letture.component';
+import { serverUrl } from '../../environment';
 
 export interface tagData{
   epc: string,
@@ -30,7 +29,6 @@ export class TagService {
 
 
   constructor(
-    private commonService: CommonService,
     private cookieService: CookieService,
     private http: HttpClient
   ) { }
@@ -49,9 +47,9 @@ export class TagService {
       'Content-Type': 'application/json'
     });
 
-    console.log(`${this.commonService.url}/tags?veId=${veId}&dateFrom=${this.dateFrom()}&dateTo=${this.dateTo()}`)
+    console.log(`${serverUrl}/tags?veId=${veId}&dateFrom=${this.dateFrom()}&dateTo=${this.dateTo()}`)
 
-    return this.http.get<tagData[]>(`${this.commonService.url}/tags?veId=${veId}&dateFrom=${this.dateFrom()}&dateTo=${this.dateTo()}&less=true`,{ headers });
+    return this.http.get<tagData[]>(`${serverUrl}/tags?veId=${veId}&dateFrom=${this.dateFrom()}&dateTo=${this.dateTo()}&less=true`,{ headers });
 
   }
 
@@ -94,7 +92,7 @@ if (dateFrom) {
     // Stampa dei parametri per debug (opzionale)
     console.log('Parametri inviati:', params.toString());
 
-    return this.http.get<tagDownloadResponse>(`${this.commonService.url}/tags/download`, {
+    return this.http.get<tagDownloadResponse>(`${serverUrl}/tags/download`, {
       headers,
       params
     });
@@ -123,7 +121,7 @@ if(dateTo) {
     }
 
     // Add preview parameter to the query string
-    return this.http.get(`${this.commonService.url}/tags/download`, {
+    return this.http.get(`${serverUrl}/tags/download`, {
       headers,
       params,
       responseType: 'blob'  // Crucial change: specify blob response type

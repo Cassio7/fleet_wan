@@ -3,9 +3,9 @@ import { Injectable, signal, WritableSignal } from '@angular/core';
 import { catchError, map, Observable, of } from 'rxjs';
 import { WorkSite } from '../../Models/Worksite';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { CommonService } from '../common service/common.service';
 import { CookieService } from 'ngx-cookie-service';
 import { Group } from '../../Models/Group';
+import { serverUrl } from '../../environment';
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +17,6 @@ export class GestioneCantieriService {
 
   constructor(
     private http: HttpClient,
-    private commonService: CommonService,
     private cookieService: CookieService
   ) { }
 
@@ -31,7 +30,7 @@ export class GestioneCantieriService {
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'
     });
-    return this.http.get<Group[]>(`${this.commonService.url}/groups`, {headers});
+    return this.http.get<Group[]>(`${serverUrl}/groups`, {headers});
   }
 
   /**
@@ -44,7 +43,7 @@ export class GestioneCantieriService {
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'
     });
-    return this.http.get<WorkSite[]>(`${this.commonService.url}/${this.url}`, {headers});
+    return this.http.get<WorkSite[]>(`${serverUrl}/${this.url}`, {headers});
   }
 
   /**
@@ -57,7 +56,7 @@ export class GestioneCantieriService {
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'
     });
-    return this.http.get<WorkSite[]>(`${this.commonService.url}/${this.url}/me`, {headers});
+    return this.http.get<WorkSite[]>(`${serverUrl}/${this.url}/me`, {headers});
   }
 
   /**
@@ -73,7 +72,7 @@ export class GestioneCantieriService {
     });
 
     console.log('cantiere da create: ', newWorksiteData);
-    return this.http.post<{message: string, worksite: WorkSite}>(`${this.commonService.url}/${this.url}`, newWorksiteData, {headers});
+    return this.http.post<{message: string, worksite: WorkSite}>(`${serverUrl}/${this.url}`, newWorksiteData, {headers});
   }
 
   /**
@@ -106,7 +105,7 @@ export class GestioneCantieriService {
       'Content-Type': 'application/json'
     });
 
-    return this.http.get<WorkSite>(`${this.commonService.url}/${this.url}/${id}`, {headers});
+    return this.http.get<WorkSite>(`${serverUrl}/${this.url}/${id}`, {headers});
   }
 
   /**
@@ -131,7 +130,7 @@ export class GestioneCantieriService {
       comment: comment
     }
 
-    return this.http.post<{worksiteHistory: WorksiteHistory, message: string}>(`${this.commonService.url}/worksitehistory`, body, {headers});
+    return this.http.post<{worksiteHistory: WorksiteHistory, message: string}>(`${serverUrl}/worksitehistory`, body, {headers});
   }
 
   freeVehicle(veId: number, dateFrom: string, comment?: string){
@@ -148,7 +147,7 @@ export class GestioneCantieriService {
       comment: comment
     }
 
-    return this.http.post<{message: string}>(`${this.commonService.url}/worksitehistory`, body, {headers});
+    return this.http.post<{message: string}>(`${serverUrl}/worksitehistory`, body, {headers});
   }
 
   /**
@@ -170,7 +169,7 @@ export class GestioneCantieriService {
       groupId: worksiteGroupId
     }
 
-    return this.http.put<WorkSite>(`${this.commonService.url}/${this.url}/${id}`, body, {headers});
+    return this.http.put<WorkSite>(`${serverUrl}/${this.url}/${id}`, body, {headers});
   }
 
   /**
@@ -185,6 +184,6 @@ export class GestioneCantieriService {
       'Content-Type': 'application/json'
     });
 
-    return this.http.delete<WorkSite>(`${this.commonService.url}/${this.url}/${id}`, {headers});
+    return this.http.delete<WorkSite>(`${serverUrl}/${this.url}/${id}`, {headers});
   }
 }

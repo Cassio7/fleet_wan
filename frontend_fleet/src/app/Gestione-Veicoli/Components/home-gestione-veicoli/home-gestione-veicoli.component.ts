@@ -4,7 +4,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject, takeUntil } from 'rxjs';
-import { CommonService } from '../../../Common-services/common service/common.service';
 import { VehiclesApiService } from '../../../Common-services/vehicles api service/vehicles-api.service';
 import { Vehicle } from '../../../Models/Vehicle';
 import { VeicoliTableComponent } from "../veicoli-table/veicoli-table.component";
@@ -30,7 +29,6 @@ export class HomeGestioneVeicoliComponent implements OnInit, OnDestroy{
 
   constructor(
     private vehiclesApiService: VehiclesApiService,
-    private commonService: CommonService,
     private cd: ChangeDetectorRef){}
 
   ngOnDestroy(): void {

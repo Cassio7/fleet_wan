@@ -1,9 +1,9 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
-import { CommonService } from '../common service/common.service';
 import { Observable } from 'rxjs';
 import { Rental } from '../../Models/Rental';
+import { serverUrl } from '../../environment';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +13,6 @@ export class RentalService {
   private url: string = "rentals";
 
   constructor(
-    private commonService: CommonService,
     private http: HttpClient,
     private cookieService: CookieService
   ) { }
@@ -28,6 +27,6 @@ export class RentalService {
       'Authorization': `Bearer ${access_token}`
     });
 
-    return this.http.get<Rental[]>(`${this.commonService.url}/${this.url}`, {headers});
+    return this.http.get<Rental[]>(`${serverUrl}/${this.url}`, {headers});
   }
 }

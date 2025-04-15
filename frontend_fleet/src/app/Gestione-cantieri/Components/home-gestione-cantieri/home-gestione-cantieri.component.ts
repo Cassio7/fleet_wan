@@ -14,7 +14,6 @@ import { GestioneCantieriService } from '../../../Common-services/gestione-canti
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { CantieriCreateDialogComponent } from '../cantieri-create-dialog/cantieri-create-dialog.component';
-import { CommonService } from '../../../Common-services/common service/common.service';
 import { Group } from '../../../Models/Group';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.component';
@@ -44,7 +43,6 @@ export class HomeGestioneCantieriComponent implements OnInit, OnDestroy {
 
   constructor(
     private gestioneCantieriService: GestioneCantieriService,
-    private commonService: CommonService,
     private cd: ChangeDetectorRef
   ) {}
 
