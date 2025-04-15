@@ -5,11 +5,13 @@ import { AnomalyEntity } from 'classes/entities/anomaly.entity';
 import { SessionEntity } from 'classes/entities/session.entity';
 import Redis from 'ioredis';
 import { AssociationService } from 'src/services/association/association.service';
+import { SessionVehicleService } from 'src/services/session-vehicle/session-vehicle.service';
 import { VehicleService } from 'src/services/vehicle/vehicle.service';
 import { Not, Repository } from 'typeorm';
 
 interface Stats {
   veId: number;
+  max_sessions: number;
   num_sessions: number;
   num_anomaly: number;
   gps: {
@@ -46,6 +48,7 @@ export class StatsService {
     @InjectRepository(AnomalyEntity, 'readOnlyConnection')
     private readonly anomalyRepository: Repository<AnomalyEntity>,
     private readonly vehicleService: VehicleService,
+    private readonly sessionVehicleService: SessionVehicleService,
   ) {}
 
   /**
@@ -81,19 +84,10 @@ export class StatsService {
       if (!anomalies) {
         return null;
       }
-      const numSessions = await this.sessionRepository.count({
-        select: {
-          id: true,
-        },
-        where: {
-          sequence_id: Not(0),
-          history: {
-            vehicle: {
-              veId: veId,
-            },
-          },
-        },
-      });
+      // recupero il numero di sessioni salvate nel db e quelle effettive fatte dal mezzo, tutto nella vista
+      const { num_sessions: numSessions, max_sessions: maxSessions } =
+        await this.sessionVehicleService.getSessionDetails(veId);
+
       const keywords = {
         nulla: 'nulla',
         poor: 'poor',
@@ -135,6 +129,7 @@ export class StatsService {
         (result?.gps_superiore ?? 0);
       const stats: Stats = {
         veId: veId,
+        max_sessions: maxSessions,
         num_sessions: numSessions,
         num_anomaly: anomalies[1],
         gps: {
