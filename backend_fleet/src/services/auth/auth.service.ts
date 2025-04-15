@@ -6,7 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { UserEntity } from 'classes/entities/user.entity';
 import Redis from 'ioredis';
-import { IsNull, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { JwtPayload } from './../../../node_modules/@types/jsonwebtoken/index.d';
 
 interface LoggedUserDto {
@@ -81,6 +81,9 @@ export class AuthService {
       const key = `users:${user.key}:token`;
       // Imposta il token con una scadenza di 24 ore
       await this.redis.set(key, token, 'EX', 86400);
+      const keyInfo = `users:${user.key}:info`;
+      await this.redis.hset(keyInfo, payload);
+      await this.redis.expire(keyInfo, 86400);
       return {
         access_token: token,
       };
