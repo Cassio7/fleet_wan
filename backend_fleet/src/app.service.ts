@@ -49,11 +49,11 @@ export class AppService implements OnModuleInit {
 
   // popolo database all'avvio
   async onModuleInit(): Promise<void> {
-    const startDate = '2025-04-04T00:00:00.000Z';
-    //const endDate = '2025-01-01T00:00:00.000Z';
-    const endDate = new Date(
-      new Date().getTime() + 2 * 60 * 60 * 1000,
-    ).toISOString();
+    // const startDate = '2025-04-04T00:00:00.000Z';
+    // //const endDate = '2025-01-01T00:00:00.000Z';
+    // const endDate = new Date(
+    //   new Date().getTime() + 2 * 60 * 60 * 1000,
+    // ).toISOString();
     //await this.putDefaultData();
     //await this.putDbDataMix(startDate, endDate); // da usare nuovo
     //await this.setAssociations();
@@ -61,6 +61,7 @@ export class AppService implements OnModuleInit {
     //await this.anomalyCheck(startDate, endDate);
     //await this.dailyAnomalyCheck();
     //await this.setAnomaly();
+    //await this.setStats();
   }
 
   async putDefaultData(): Promise<void> {
@@ -254,7 +255,6 @@ export class AppService implements OnModuleInit {
     await Promise.all([
       this.sessionService.getLastValidSessionByVeIds(vehicleIds),
       this.sessionService.getLastHistoryByVeIds(vehicleIds),
-      //this.setAssociations(),
     ]);
     console.log('Fine recupero');
   }
@@ -387,7 +387,7 @@ export class AppService implements OnModuleInit {
   }
 
   /**
-   * Imposta le anomalies su redis del giorno precedente, di oggi ed anche il last e le statistiche
+   * Imposta le anomalies su redis del giorno precedente, di oggi ed anche il last
    */
   //@Cron('8 */5 * * *')
   async setAnomaly(): Promise<void> {
@@ -402,12 +402,18 @@ export class AppService implements OnModuleInit {
 
     await this.anomalyService.setTodayAnomalyRedis(todayAnomalies);
     await this.anomalyService.setLastAnomalyRedis(lastAnomalies);
+  }
 
-    // al momento statistiche non utilizzate
+  /**
+   * Imposta le statische di ogni veicolo, aggiorna anche la vista materializzata
+   */
+  //@Cron('9 2 * * *')
+  async setStats() {
     await this.statsService.setAllStatsRedis();
   }
+
   /**
-   * imposta le associazioni su redis
+   * Imposta le associazioni su redis
    */
   async setAssociations() {
     await this.associationService.setVehiclesAssociateAllUsersRedis();
