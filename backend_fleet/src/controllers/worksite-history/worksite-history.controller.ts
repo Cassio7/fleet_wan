@@ -85,8 +85,8 @@ export class WorksiteHistoryController {
       return res.status(201).json({
         worksiteHistory: {
           worksite: {
-            id: worksiteHistory.worksite.id,
-            name: worksiteHistory.worksite.name,
+            id: worksiteHistory?.worksite?.id || null,
+            name: worksiteHistory?.worksite?.name || 'Libero',
           },
           dateFrom: worksiteHistory.dateFrom,
           comment: worksiteHistory.comment,
