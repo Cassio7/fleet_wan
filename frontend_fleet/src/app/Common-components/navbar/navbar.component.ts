@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -39,7 +39,7 @@ import { NotificationService } from '../../Common-services/notification/notifica
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css'
 })
-export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
+export class NavbarComponent implements OnInit, AfterViewInit, OnChanges, OnDestroy{
   private readonly destroy$: Subject<void> = new Subject<void>();
   currentPage: string = '';
   icon: string = '';
@@ -66,6 +66,11 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
     private router: Router,
     private cd: ChangeDetectorRef
   ){}
+  ngOnChanges(changes: SimpleChanges): void {
+    if(changes['notifiche']){
+      console.log('cambiate notifiche in navbar: ', this.notifiche);
+    }
+  }
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -186,6 +191,10 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
       },
       error: error => console.error("Errore nell'aggiornamento dei nuovi dati dell'utente nella navbar: ", error)
     });
+  }
+
+  isNotificationPage(): boolean{
+    return this.router.url == "/notifications";
   }
 
 

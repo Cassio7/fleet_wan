@@ -68,6 +68,10 @@
   }
 }
 
+  .button{
+    width: 100%;
+  }
+
 ::ng-deep .notifications-menu .mat-mdc-menu-content {
   padding: 16px;
 }

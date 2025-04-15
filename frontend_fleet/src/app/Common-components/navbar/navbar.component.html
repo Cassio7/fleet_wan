@@ -19,22 +19,31 @@
       </mat-icon>
     </a>
 
-
-
     <mat-menu #notificationsMenu="matMenu" yPosition="below" xPosition="before" class="notifications-menu">
-      <ng-container *ngFor="let notifica of notifiche?.slice(0,3); let i = index">
-        <div class="notification-container">
-          <div class="title-container">
-            <div class="title"><b>{{notifica.title}}</b> <div class="isRead" *ngIf="!notifica.isRead"></div></div>
-            <div class="author">~<b>{{notifica.author}}</b></div>
-          </div>
-          <div class="content">{{notifica.message}}</div>
-        </div>
-        <mat-divider></mat-divider>
+      <ng-container *ngIf="notifiche as notificheList">
+        <ng-container *ngIf="notificheList.length > 0; else noNotifiche">
+          <ng-container *ngFor="let notifica of notificheList.slice(0, 3)">
+            <div class="notification-container">
+              <div class="title-container">
+                <div class="title">
+                  <b>{{ notifica.title }}</b>
+                  <div class="isRead" *ngIf="!notifica.isRead"></div>
+                </div>
+                <div class="author">~<b>{{ notifica.author }}</b></div>
+              </div>
+              <div class="content">{{ notifica.message }}</div>
+            </div>
+            <mat-divider *ngIf="notifiche.indexOf(notifica) != notifiche.length - 1 && isNotificationPage()"></mat-divider>
+          </ng-container>
+        </ng-container>
       </ng-container>
-      <button mat-button class="button" routerLink="notifications">Mostra di più</button>
-    </mat-menu>
 
+      <ng-template #noNotifiche>
+        Nessuna notifica da leggere
+        <mat-divider *ngIf="!isNotificationPage()"></mat-divider>
+      </ng-template>
+      <button *ngIf="!isNotificationPage()" mat-button class="button" routerLink="notifications">Mostra tutte</button>
+    </mat-menu>
 
     <div class="user-info">
       <div class="profile-info" >

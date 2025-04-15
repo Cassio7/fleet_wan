@@ -52,10 +52,8 @@ export class NotificationsTableComponent implements OnChanges, OnDestroy {
   }
 
   updateNotificationStatus(notification: Notifica) {
-    // Disabilita il bottone specifico
+    //timeout del bottone
     notification.isButtonDisabled = true;
-
-    // Timer per riabilitare il bottone dopo 2 secondi
     setTimeout(() => {
       notification.isButtonDisabled = false;
     }, 2000);
