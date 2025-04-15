@@ -146,78 +146,72 @@ export class AnomalyService {
   }
 
   /**
-   * Recupera le anomalia piu recente per ogni veicolo passato come parametro, escludendo
+   * Recupera l'anomalia piu recente per ogni veicolo passato come parametro, escludendo
    * la data odierna
    * @param userId user id
    * @returns
    */
-  async getLastAnomaly(userId: number): Promise<
-    Array<{
-      vehicle: VehicleDTO & {
-        worksite: WorksiteDTO | null;
-        service: ServiceDTO | null;
-      };
-      anomalies: AnomalyDTO[];
-    }>
-  > {
-    const today = new Date();
-    today.setUTCHours(0, 0, 0, 0);
+  async getLastAnomaly(userId: number) {
     try {
       const veIdArray =
         await this.associationService.getVehiclesRedisAllSet(userId);
-      // Recupero le ultime 2 anomalie per ogni veicolo
-      const anomalies = await this.anomalyRepository
-        .createQueryBuilder('anomalies')
-        .innerJoinAndSelect('anomalies.vehicle', 'vehicle')
-        .leftJoinAndSelect('vehicle.worksite', 'worksite')
-        .leftJoinAndSelect('vehicle.service', 'service')
-        .where('vehicle.veId IN (:...veIdArray)', { veIdArray })
-        .andWhere((qb) => {
-          const subQuery = qb
-            .subQuery()
-            .select('a2.date')
-            .from('anomalies', 'a2')
-            .where('a2.vehicleId = anomalies.vehicleId')
-            .orderBy('a2.date', 'DESC')
-            .limit(2)
-            .getQuery();
-          return `anomalies.date IN (${subQuery})`;
-        })
-        .orderBy('vehicle.plate', 'ASC')
-        .addOrderBy('anomalies.date', 'DESC')
-        .getMany();
-
-      // Raggruppo le anomalie per veicolo
-      const groupedAnomalies = anomalies.reduce(
-        (acc, anomaly) => {
-          const vehicleId = anomaly.vehicle.id;
-          if (!acc[vehicleId]) {
-            acc[vehicleId] = [];
-          }
-          acc[vehicleId].push(anomaly);
-          return acc;
-        },
-        {} as Record<number, AnomalyEntity[]>,
-      );
-
-      // Recupero l'anomalia piu recente, senza recuperare l'ordierna
-      const filteredAnomalies = Object.values(groupedAnomalies)
-        .map((vehicleAnomalies) => {
-          if (vehicleAnomalies.length === 0) return null;
-
-          const [latest, previous] = vehicleAnomalies;
-
-          // Se la piu recente è di oggi, prendo la precedente
+      // recupera le ultime 2 sessioni per ogni veicolo
+      const promises = veIdArray.map((veId) => {
+        return this.anomalyRepository.find({
+          select: {
+            id: true,
+            date: true,
+            gps: true,
+            antenna: true,
+            detection_quality: true,
+            session: true,
+            vehicle: {
+              id: true,
+              veId: true,
+              allestimento: true,
+              plate: true,
+              service: { id: true, name: true },
+              worksite: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+          where: {
+            vehicle: {
+              veId: veId,
+            },
+          },
+          relations: {
+            vehicle: {
+              worksite: true,
+              service: true,
+            },
+          },
+          order: {
+            date: 'DESC',
+          },
+          take: 2,
+        });
+      });
+      const result = await Promise.all(promises);
+      const today = new Date();
+      today.setUTCHours(0, 0, 0, 0);
+      // prende la giornata più recente saltanto l'ordierna
+      const filtred = result
+        .map((item) => {
+          if (item.length === 0) return null;
+          const [latest, previous] = item;
           if (latest.date.getTime() === today.getTime() && previous) {
             return previous;
           }
-
           return latest;
         })
         .filter(Boolean);
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
       yesterday.setHours(0, 0, 0, 0);
+      // funzione che gli errori
       const countSessionErrors = await this.countSessionErrors(
         userId,
         yesterday,
@@ -234,11 +228,11 @@ export class AnomalyService {
           session: item.consecutive.session,
         });
       });
-      return this.toDTO(filteredAnomalies, countMap);
+      return this.toDTO(filtred, countMap);
     } catch (error) {
       if (error instanceof HttpException) throw error;
       throw new HttpException(
-        `Errore durante recupero delle anomalie`,
+        `Errore durante recupero dell'anomalia più recente anomalia`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
