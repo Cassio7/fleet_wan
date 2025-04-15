@@ -32,7 +32,7 @@ export class RolesGuard implements CanActivate {
       context.getClass(),
     ]);
     if (!requiredRoles) {
-      return true;
+      return false;
     }
     // recupero richiesta e utente, impostati durante la verifica del token jwt
     const request = context.switchToHttp().getRequest();
