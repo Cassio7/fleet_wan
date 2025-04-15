@@ -33,7 +33,7 @@
               </div>
               <div class="content">{{ notifica.message }}</div>
             </div>
-            <mat-divider *ngIf="notifiche.indexOf(notifica) != notifiche.length - 1 && isNotificationPage()"></mat-divider>
+            <mat-divider *ngIf="notifiche.indexOf(notifica) != notifiche.length - 1 && !isNotificationPage()"></mat-divider>
           </ng-container>
         </ng-container>
       </ng-container>
