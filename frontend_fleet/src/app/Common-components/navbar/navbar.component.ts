@@ -39,7 +39,7 @@ import { NotificationService } from '../../Common-services/notification/notifica
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css'
 })
-export class NavbarComponent implements OnInit, AfterViewInit, OnChanges, OnDestroy{
+export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
   private readonly destroy$: Subject<void> = new Subject<void>();
   currentPage: string = '';
   icon: string = '';
@@ -66,11 +66,6 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnChanges, OnDest
     private router: Router,
     private cd: ChangeDetectorRef
   ){}
-  ngOnChanges(changes: SimpleChanges): void {
-    if(changes['notifiche']){
-      console.log('cambiate notifiche in navbar: ', this.notifiche);
-    }
-  }
 
   ngOnDestroy(): void {
     this.destroy$.next();
