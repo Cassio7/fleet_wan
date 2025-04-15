@@ -12,6 +12,7 @@ import { DeviceEntity } from 'classes/entities/device.entity';
 import { EquipmentEntity } from 'classes/entities/equipment.entity';
 import { GroupEntity } from 'classes/entities/group.entity';
 import { HistoryEntity } from 'classes/entities/history.entity';
+import { LogEntity } from 'classes/entities/log.entity';
 import { NoteEntity } from 'classes/entities/note.entity';
 import { NotificationEntity } from 'classes/entities/notification.entity';
 import { RentalEntity } from 'classes/entities/rental.entity';
@@ -43,6 +44,7 @@ import { UserController } from './controllers/user/user.controller';
 import { VehicleController } from './controllers/vehicle/vehicle.controller';
 import { WorksiteHistoryController } from './controllers/worksite-history/worksite-history.controller';
 import { WorksiteController } from './controllers/worksite/worksite.controller';
+import { WorkzoneController } from './controllers/workzone/workzone.controller';
 import { AssociationFactoryService } from './factory/association.factory';
 import { CompanyFactoryService } from './factory/company.factory';
 import { EquipmentFacotoryService } from './factory/equipment.factory';
@@ -53,6 +55,7 @@ import { UserFactoryService } from './factory/user.factory';
 import { WorksiteFactoryService } from './factory/worksite.factory';
 import { WorkzoneFacotoryService } from './factory/workzone.factory';
 import { LoggerModule } from './log/logger.module';
+import { SessionVehicleModule } from './modules/session-vehicle.module';
 import { NotificationsController } from './notifications/notifications.controller';
 import { NotificationsGateway } from './notifications/notifications.gateway';
 import { NotificationsService } from './notifications/notifications.service';
@@ -76,8 +79,6 @@ import { UserService } from './services/user/user.service';
 import { VehicleService } from './services/vehicle/vehicle.service';
 import { WorksiteHistoryService } from './services/worksite-history/worksite-history.service';
 import { WorksiteService } from './services/worksite/worksite.service';
-import { LogEntity } from 'classes/entities/log.entity';
-import { WorkzoneController } from './controllers/workzone/workzone.controller';
 import { WorkzoneService } from './services/workzone/workzone.service';
 
 @Global()
@@ -300,6 +301,7 @@ import { WorkzoneService } from './services/workzone/workzone.service';
       }),
     }),
     LoggerModule,
+    SessionVehicleModule,
   ],
 
   controllers: [
