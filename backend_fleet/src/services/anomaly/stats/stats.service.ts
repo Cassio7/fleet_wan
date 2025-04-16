@@ -89,17 +89,18 @@ export class StatsService {
         await this.sessionVehicleService.getSessionDetails(veId);
 
       const keywords = {
-        nulla: 'nulla',
-        poor: 'poor',
-        excellent: 'excellent',
-        good: 'good',
-        tachimetro: 'tachimetro',
-        superiore: 'superiore',
-        venti: '20',
-        totale: 'totale',
-        letto: 'letto',
-        letti: 'letti',
-        aperta: 'aperta',
+        nulla: 'nulla', // anomalia sessione nulla, anche per gps e antenna
+        poor: 'poor', // andamento lettura tags
+        excellent: 'excellent', // andamento lettura tags
+        good: 'good', // andamento lettura tags
+        uguali: 'uguali', // anomalia coordinate ugulau gps warn
+        tachimetro: 'tachimetro', // anomalia tachimetro gps warn
+        superiore: 'superiore', // anomalia distanza km warn
+        venti: '20', // anomalia percentuale 20% warn
+        totale: 'totale', // anomalia gps error
+        letto: 'letto', // tag letto ma no sessione trovata, anomalia antenna error
+        letti: 'letti', // sessioni trovate ma no tag letti, anomalia antenna error
+        aperta: 'aperta', // sessione aperta, anomalia session error
       };
       const result = anomalies[0].reduce(
         (acc, item) => {
@@ -126,33 +127,34 @@ export class StatsService {
       const warningValue =
         (result?.gps_tachimetro ?? 0) +
         (result?.gps_venti ?? 0) +
-        (result?.gps_superiore ?? 0);
+        (result?.gps_superiore ?? 0) +
+        (result?.gps_uguali ?? 0);
       const stats: Stats = {
         veId: veId,
-        max_sessions: maxSessions,
-        num_sessions: numSessions,
-        num_anomaly: anomalies[1],
+        max_sessions: maxSessions ?? 0,
+        num_sessions: numSessions ?? 0,
+        num_anomaly: anomalies[1] ?? 0,
         gps: {
-          ok: result.gps_ok,
-          warning: warningValue,
-          error: result.gps_totale,
-          null: result.gps_nulla,
+          ok: result.gps_ok ?? 0,
+          warning: warningValue ?? 0,
+          error: result.gps_totale ?? 0,
+          null: result.gps_nulla ?? 0,
         },
         antenna: {
-          ok: result.antenna_ok,
-          nosession: result.antenna_letto,
-          notag: result.antenna_letti,
-          null: result.antenna_nulla,
+          ok: result.antenna_ok ?? 0,
+          nosession: result.antenna_letto ?? 0,
+          notag: result.antenna_letti ?? 0,
+          null: result.antenna_nulla ?? 0,
         },
         detection_quality: {
-          excellent: result.detection_quality_excellent,
-          good: result.detection_quality_good,
-          poor: result.detection_quality_poor,
+          excellent: result.detection_quality_excellent ?? 0,
+          good: result.detection_quality_good ?? 0,
+          poor: result.detection_quality_poor ?? 0,
         },
         session: {
-          ok: result.session_ok,
-          open: result.session_aperta,
-          null: result.session_nulla,
+          ok: result.session_ok ?? 0,
+          open: result.session_aperta ?? 0,
+          null: result.session_nulla ?? 0,
         },
       };
       return stats;
