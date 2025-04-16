@@ -30,6 +30,7 @@ import { NavigationService } from '../../../../Common-services/navigation/naviga
 import { SessionTableComponent } from '../../../session-table/session-table.component';
 import { SvgService } from '../../../../Common-services/svg/svg.service';
 import { Stats } from '../../../../Models/Stats';
+import { calulatePercentage } from '../../../../Utils/Percentage';
 
 @Component({
   selector: 'app-dettaglio-mezzo',
@@ -163,5 +164,9 @@ export class DettaglioMezzoComponent implements OnInit, OnDestroy {
   goBack(): void {
     this.router.navigate([this.previous_url || '/dashboard']);
     this.sessionStorageService.removeItem('detail');
+  }
+
+  calculatePercentage(part: number){
+    return calulatePercentage(this.stats.num_anomaly, part);
   }
 }

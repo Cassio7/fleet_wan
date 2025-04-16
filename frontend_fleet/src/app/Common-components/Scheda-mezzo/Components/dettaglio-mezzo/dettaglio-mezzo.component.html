@@ -14,7 +14,8 @@
       <div class="content-inside">
         <app-anomalies [vehicle]="vehicle"></app-anomalies>
         <div class="cards">
-          <mat-card class="generalInfo-card">
+          <!-- Card principale del veicolo -->
+          <mat-card class="generalInfo-card card">
             <mat-card-header>
               <mat-card-title>
                 <img
@@ -23,8 +24,7 @@
                   width="28"
                   height="28"
                 />
-                {{ vehicle.plate }}</mat-card-title
-              >
+                {{ vehicle.plate }}</mat-card-title>
               <mat-card-subtitle
                 >ID: {{ vehicle.veId }} — Dismesso:
                 {{
@@ -33,7 +33,7 @@
               >
             </mat-card-header>
             <mat-divider></mat-divider>
-            <mat-card-content class="general-lists">
+            <mat-card-content class="general-lists lists">
               <mat-list>
                 <mat-list-item
                   ><span class="list-label">Modello</span>
@@ -83,8 +83,75 @@
               </mat-list>
             </mat-card-content>
           </mat-card>
-          <mat-card class="fleetSetup-card">
-            <mat-card-content class="fleet-lists">
+          <!-- Card statistiche -->
+          <mat-card class="stats-card card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>query_stats</mat-icon>
+                Statistiche
+              </mat-card-title>
+            </mat-card-header>
+            <mat-divider></mat-divider>
+            <mat-card-content class="stats-lists lists">
+              <div class="sessionStats-container">
+                <mat-list>
+                  <mat-list-item>
+                    <span class="list-label">Sessioni totali</span>
+                    <p>{{stats.max_sessions}}</p>
+                  </mat-list-item>
+                  <mat-divider></mat-divider>
+                </mat-list>
+                <mat-list>
+                  <mat-list-item>
+                    <span class="list-label">Sessioni registrate</span>
+                    <p>{{ stats.num_sessions }}</p>
+                  </mat-list-item>
+                  <mat-divider></mat-divider>
+                </mat-list>
+                <mat-list>
+                  <mat-list-item>
+                    <span class="list-label">Giornate controllate</span>
+                    <p>{{ stats.num_anomaly }}</p>
+                  </mat-list-item>
+                  <mat-divider></mat-divider>
+                </mat-list>
+              </div>
+              <h6 class="title">Statistiche sulle giornate</h6>
+              <mat-list>
+                <mat-list-item>
+                  <span class="list-label">GPS</span>
+                  <p><span class="OK-container container">ok</span>: {{(calculatePercentage(stats.gps.ok)) || 0}}% ({{stats.gps.ok}})</p>
+                  <p><span class="warning-container container">warning</span>: {{(calculatePercentage(stats.gps.warning)) || 0}}% ({{stats.gps.warning}})</p>
+                  <p><span class="error-container container">error</span>: {{(calculatePercentage(stats.gps.error)) || 0}}% ({{stats.gps.error || 0}})</p>
+                  <p><span class="error-container container">Nessun dato</span>: {{(calculatePercentage(stats.gps.null)) || 0}}% ({{stats.gps.null || 0}})</p>
+                </mat-list-item>
+                <mat-divider></mat-divider>
+                <mat-list-item>
+                  <span class="list-label">Antenna</span>
+                  <p><span class="OK-container container">ok</span>: {{(calculatePercentage(stats.antenna.ok))}}% ({{stats.antenna.ok}})</p>
+                  <p><span class="error-container container">Nessun tag letto</span>: {{(calculatePercentage(stats.antenna.notag)) || 0}}% ({{stats.antenna.notag || 0}})</p>
+                  <p><span class="error-container container">No tag no session</span>: {{(calculatePercentage(stats.antenna.nosession)) || 0}}% ({{stats.antenna.nosession || 0}})</p>
+                  <p><span class="error-container container">Nessun dato</span>: {{(calculatePercentage(stats.antenna.null)) || 0}}% ({{stats.antenna.null || 0}})</p>
+                </mat-list-item>
+                <mat-divider></mat-divider>
+                <mat-list-item>
+                  <span class="list-label">Detection Quality</span>
+                  <p><span class="OK-container container">excellent</span>: {{(calculatePercentage(stats.detection_quality.excellent)) || 0}}% ({{stats.detection_quality.excellent}})</p>
+                  <p><span class="warning-container container">good</span>: {{(calculatePercentage(stats.detection_quality.good)) || 0}}% ({{stats.detection_quality.good || 0}})</p>
+                  <p><span class="error-container container">poor</span>: {{(calculatePercentage(stats.detection_quality.poor)) || 0}}% ({{stats.detection_quality.poor || 0}})</p>
+                </mat-list-item>
+                <mat-list-item>
+                  <span class="list-label">Sessione</span>
+                  <p><span class="OK-container container">ok</span>: {{(calculatePercentage(stats.session.ok)) || 0}}% ({{stats.session.ok}})</p>
+                  <p><span class="error-container container">sessione aperta</span>: {{(calculatePercentage(stats.session.open)) || 0}}% ({{stats.session.open || 0}})</p>
+                  <p><span class="error-container container">sessione nulla</span>: {{(calculatePercentage(stats.session.null)) || 0}}% ({{stats.session.null || 0}})</p>
+                </mat-list-item>
+              </mat-list>
+            </mat-card-content>
+          </mat-card>
+          <!-- Card fleet info -->
+          <mat-card class="fleetSetup-card card">
+            <mat-card-content class="fleet-lists lists">
               <mat-list>
                 <mat-list-item
                   ><span class="list-label">Allestimento</span>
@@ -117,7 +184,8 @@
               </mat-list>
             </mat-card-content>
           </mat-card>
-          <mat-card class="deviceInfo-card">
+          <!-- Card informazioni sul dispositivo -->
+          <mat-card class="deviceInfo-card card">
             <mat-card-header>
               <mat-card-title
                 ><mat-icon>display_settings</mat-icon
@@ -125,7 +193,7 @@
               >
             </mat-card-header>
             <mat-divider></mat-divider>
-            <mat-card-content class="device-lists">
+            <mat-card-content class="device-lists lists">
               <mat-list>
                 <mat-list-item
                   ><span class="list-label">Numero di serie</span>
@@ -188,7 +256,8 @@
               </mat-list>
             </mat-card-content>
           </mat-card>
-          <mat-card class="notes-card">
+          <!-- Card note -->
+          <mat-card class="notes-card card">
             <mat-card-content>
               <div class="noteSection-container">
                 <app-note-section [vehicle]="vehicle"></app-note-section>

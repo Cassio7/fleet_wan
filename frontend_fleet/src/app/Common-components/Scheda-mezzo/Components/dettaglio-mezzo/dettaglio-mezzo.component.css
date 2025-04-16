@@ -11,14 +11,24 @@
   height: 100%;
 }
 
-.section-header{
+/* Header Sections */
+.section-header {
   margin-top: 35px;
 }
-.left-header{
+
+.left-header {
   margin-left: 50px;
   margin-bottom: 20px;
 }
 
+.right-header {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+/* Left Section */
 .left-section {
   display: flex;
   flex: 6;
@@ -31,29 +41,81 @@
 .content-inside {
   display: flex;
   flex: 1;
-  overflow: hidden;
   height: calc(100% - 70px);
+  overflow: hidden;
 }
 
+/* Right Section */
+.right-section {
+  flex: 4;
+  padding: 20px;
+  background-color: var(--background-color);
+  height: 100%;
+  overflow-y: hidden;
+}
+
+.right-section .subtitle {
+  margin-top: 10px;
+}
+
+/* Cards */
 .cards {
   display: flex;
+  flex: 3;
   flex-direction: column;
   gap: 2vh;
-  margin-right: 1vw;
-  margin-left: 1vw;
-  flex: 3;
-  overflow-y: auto;
-  overflow-x: hidden;
+  margin: 0 1vw;
   padding-right: 10px;
   padding-bottom: 50px;
+  overflow-y: auto;
+  overflow-x: hidden;
   max-width: 100%;
 }
 
-.go-back {
+.card {
+  width: 100%;
+  height: auto;
+  background-color: white !important;
+  margin-bottom: 2vh;
+  box-sizing: border-box;
+}
+
+.cards > *:last-child {
+  margin-bottom: 20px;
+}
+
+.graph-card,
+.notes-card {
+  margin-bottom: 20px;
+}
+
+app-detection-graph,
+app-note-section {
+  display: block;
+  margin-bottom: 30px;
+}
+
+/* Titles & Subtitles */
+.title {
+  font-weight: bold;
   font-size: 24px;
+  line-height: 1;
+  margin-bottom: 0;
+}
+
+.subtitle {
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1;
+  margin: 0 0 10px 0;
+}
+
+/* Go Back */
+.go-back {
   display: flex;
   align-items: center;
   gap: 0.5vw;
+  font-size: 24px;
   font-weight: 600;
   margin-bottom: 10px;
 }
@@ -76,113 +138,61 @@
   justify-content: center;
 }
 
-.title {
-  font-weight: bold;
-  font-size: 24px;
-  line-height: 1;
-  margin-bottom: 0;
-}
-
-.subtitle {
-  font-weight: 300;
-  line-height: 1;
-  margin-top: 0;
-  font-size: 14px;
-  margin-bottom: 10px;
-}
-
-.right-header{
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  margin-bottom: 20px;
-}
-
-.right-section {
-  padding: 20px;
-  background-color: var(--background-color);
-  flex: 4;
-  height: 100%;
-  overflow-y: hidden;
-}
-
-.right-section .subtitle{
-  margin-top: 10px;
-}
-
-.working {
-  width: 100px;
-  height: 100px;
-  background-color: var(--green);
-}
-
-.warning {
-  width: 100px;
-  height: 100px;
-  background-color: var(--yellow);
-}
-
+/* Status Indicators */
+.working,
+.warning,
 .error {
   width: 100px;
   height: 100px;
-  background-color: var(--red);
-}
-
-.working, .warning, .error {
   display: flex;
   align-items: flex-end;
   text-wrap: nowrap;
   font-size: 15px;
 }
 
-.generalInfo-card, .deviceInfo-card, .fleetSetup-card, .graph-card, .notes-card {
-  background-color: white !important;
-  margin-bottom: 2vh;
-  box-sizing: border-box;
+.working {
+  background-color: var(--green);
 }
 
+.warning {
+  background-color: var(--yellow);
+}
+
+.error {
+  background-color: var(--red);
+}
+
+/* Notes */
 .notes-header {
   display: flex;
-  gap: 0.5vw;
   flex-direction: column;
   align-items: center;
+  gap: 0.5vw;
 }
 
 .notes-header mat-icon {
   color: var(--green);
 }
 
+.note-author,
+.note-date {
+  line-height: 1;
+  margin: 0;
+}
+
 .note-author {
   display: flex;
   align-items: center;
   gap: 0.5vw;
-  line-height: 1;
-  margin: 0;
 }
 
 .note-date {
   font-size: 13px;
   color: gray;
   font-style: italic;
-  line-height: 1;
-  margin: 0;
 }
 
-.generalInfo-card {
-  width: 100%;
-  height: auto;
-}
-
-.fleetSetup-card {
-  width: 100%;
-  height: auto;
-}
-
-.deviceInfo-card {
-  width: 100%;
-  height: auto;
-}
-
+/* Material Card */
 mat-card-header {
   display: flex;
   align-items: center;
@@ -206,21 +216,60 @@ mat-card-subtitle {
   font-family: 'Inter';
 }
 
-.general-lists {
+/* Lists */
+.lists {
   width: 100%;
   display: flex;
 }
 
-.device-lists {
-  width: 100%;
+.stats-lists{
   display: flex;
-  align-items: center;
+  flex-direction: column;
+
+  .title{
+    padding-left: 16px;
+    font-weight: normal;
+  }
+  .sessionStats-container{
+    width: 100%;
+    display: flex;
+  }
+  .OK-container{
+    background-color: var(--green);
+    color: white;
+  }
+  .stats-card,
+  .card,
+  .stats-lists,
+  .lists,
+  .sessionStats-container,
+  .OK-container,
+  .warning-container,
+  .error-container {
+    padding: 3px;
+  }
+
+  mat-list-item {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center;
+    padding: 5px;
+    gap: 10px;
+  }
+
+  mat-list-item span,
+  mat-list-item p {
+    margin: 0;
+    padding: 0;
+    display: inline-block;
+  }
+
+  mat-list-item p {
+    margin-left: 12px !important;
+  }
+
 }
 
-.fleet-lists {
-  display: flex;
-  align-items: center;
-}
 
 mat-list {
   width: 100%;
@@ -234,6 +283,22 @@ mat-list-item {
   text-align: left;
 }
 
+mat-list-item p {
+  flex: 1;
+  font-size: 16px;
+  font-weight: 500;
+  font-family: 'Inter';
+  margin: 0;
+  padding: 0;
+  text-align: left;
+  display: block;
+}
+
+mat-list-item span {
+  font-size: 14px;
+  font-family: 'Inter';
+}
+
 .list-label {
   font-size: 12px;
   font-family: 'Inter';
@@ -242,31 +307,15 @@ mat-list-item {
 
 mat-divider {
   margin-top: 10px;
-  border-top-width: 2px;
-  border-top-color: var(--background-color);
+  border-top: 2px solid var(--background-color);
 }
 
-mat-list-item p {
-  font-size: 16px;
-  font-weight: 500;
-  font-family: 'Inter';
-  margin: 0;
-  padding: 0;
-  text-align: left;
-  width: 100%;
-  display: block;
-  flex: 1;
-}
-
-mat-list-item span {
-  font-size: 14px;
-  font-family: 'Inter';
-}
-
+/* Note Section */
 .noteSection-container {
   width: 100%;
 }
 
+/* Disabled Graph */
 .disabled-graph {
   display: flex;
   justify-content: center;
@@ -280,19 +329,4 @@ mat-list-item span {
   text-align: center;
   color: #666;
   padding: 0 20px;
-}
-
-.cards > *:last-child {
-  margin-bottom: 20px;
-}
-
-.graph-card,
-.notes-card {
-  margin-bottom: 20px;
-}
-
-app-detection-graph,
-app-note-section {
-  display: block;
-  margin-bottom: 30px;
 }
