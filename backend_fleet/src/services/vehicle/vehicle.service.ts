@@ -146,7 +146,7 @@ export class VehicleService {
         model: vehicle.model,
         firstEvent: vehicle.firstEvent,
         lastEvent: vehicle.lastEvent,
-        lastSessionEvent: vehicle.lastSessionEvent,
+        //lastSessionEvent: vehicle.lastSessionEvent,
         isCan: vehicle.isCan,
         isRFIDReader: vehicle.isRFIDReader,
         profileId: vehicle.profileId,
