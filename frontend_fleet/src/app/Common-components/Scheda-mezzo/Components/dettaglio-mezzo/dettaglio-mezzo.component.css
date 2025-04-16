@@ -225,6 +225,7 @@ mat-card-subtitle {
 .stats-lists{
   display: flex;
   flex-direction: column;
+  padding: 20px;
 
   .title{
     padding-left: 16px;
@@ -342,6 +343,9 @@ mat-divider {
 }
 
 .stats-section {
+  display: flex;
+  flex-direction: column;
+  gap: .5vh;
   margin-top: 1rem;
   padding: 0 25px;
 }
@@ -362,15 +366,15 @@ mat-divider {
 }
 
 .stat-box.green {
-  background-color: #4caf50;
+  background-color: var(--green);
 }
 
 .stat-box.orange {
-  background-color: #ff9800;
+  background-color: var(--yellow);
 }
 
 .stat-box.red {
-  background-color: #f44336;
+  background-color: var(--red);
 }
 
 .stat-box.gray {
