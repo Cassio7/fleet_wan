@@ -31,10 +31,38 @@ DB_DATABASE=database
 SECRET_TOKEN = insane_password_fleet_baited
 
 REDIS_URL = redis://:psw@localhost:1234
+REDIS_PASSWORD = password
+REDIS_DB = 0
 
 # User factory data
 USER_PASSWORD = psw
 ADMIN_EMAIL = admin@nomail.com
+
+# Utente Prova principale
+USER1_NAME= Carlo
+USER1_SURNMAE= Verdi
+USER1_USERNAME= c.verdi
+USER1_EMAIL = c.verdi@mail.it
+USER1_PASSWORD= PasswordSegreta1
+
+# ogni quanto recupero le posizioni in una sessione, tempo espresso in millisecondi
+# OGNI POSIZIONE RAPPRESENTA 30 SECONDI
+# con 30000 = 30 secondi
+SPAN_POSIZIONI = 30000
+
+# CONTROLLO GPS
+# Posizioni minime da controllare (controllo GPS) per una giornata, minimo 15 minuti di viaggio
+# MIN_POSITIONS_GPS * SPAN_POSIZIONI in minuti = 15 min
+MIN_POSITIONS_GPS = 30
+# massima distanza che può fare una sessione
+MAX_DISTANCE = 250
+
+# CONTROLLO ANTENNNA
+# posizioni minime da controllare per far si che il mezzo venga considerato come sessione valida
+# MIN_POSITIONS_ANTENNA SPAN_POSIZIONI in minuti = 3 min
+MIN_POSITIONS_ANTENNA = 6
+
+
 
 ```
 
