@@ -73,10 +73,13 @@ export class HomeLettureComponent implements OnInit, OnDestroy{
     this.downloading = true;
     if(this.lettureFilters){
       const { dateFrom, dateTo, cantieriNames } = this.lettureFilters;
-      const worksitesIds: number[] = this.cantieri
+      let worksitesIds: number[] = this.cantieri
       .filter(cantiere => cantieriNames.includes(cantiere.name))
       .map(cantiere => cantiere.id);
-
+      // se recupero tutti i cantieri passo oggetto vuoto
+      if (worksitesIds.length === this.cantieri.length) {
+        worksitesIds = [];
+      };
       this.tagService.downloadTagsRanged(worksitesIds, dateFrom.toString(), dateTo.toString())
       .pipe(
         takeUntil(this.destroy$)
