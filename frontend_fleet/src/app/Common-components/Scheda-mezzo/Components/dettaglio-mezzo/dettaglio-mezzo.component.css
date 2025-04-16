@@ -330,3 +330,49 @@ mat-divider {
   color: #666;
   padding: 0 20px;
 }
+.stats-summary {
+  margin-bottom: 1rem;
+  padding: 0 16px;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px;
+}
+
+.stats-section {
+  margin-top: 1rem;
+  padding: 0 25px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 8px;
+}
+
+.stat-box {
+  padding: 8px;
+  border-radius: 5px;
+  color: white;
+  font-weight: 500;
+  font-size: 14px;
+  font-family: 'Inter';
+}
+
+.stat-box.green {
+  background-color: #4caf50;
+}
+
+.stat-box.orange {
+  background-color: #ff9800;
+}
+
+.stat-box.red {
+  background-color: #f44336;
+}
+
+.stat-box.gray {
+  background-color: #9e9e9e;
+}
