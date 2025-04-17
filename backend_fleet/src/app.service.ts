@@ -105,7 +105,7 @@ export class AppService implements OnModuleInit {
     // da commentare dopo primo run
     //await this.worksiteFactoryService.createDefaultVehicleWorksite();
 
-    const vehicles = await this.vehicleService.getAllVehicles();
+    const vehicles = await this.vehicleService.getActiveVehicles();
 
     // Creazione della mappa delle compagnie (ottimizzata)
     const companyMap = new Map();
@@ -188,7 +188,7 @@ export class AppService implements OnModuleInit {
     await this.vehicleService.getVehicleList(324, 688, false); //Fiumicino principale
     await this.vehicleService.getVehicleList(336, 688, true); //GSA principale
 
-    const vehicles = await this.vehicleService.getAllVehicles();
+    const vehicles = await this.vehicleService.getActiveVehicles();
 
     // Creazione della mappa delle compagnie
     const companyMap = new Map();
@@ -405,7 +405,7 @@ export class AppService implements OnModuleInit {
   }
 
   /**
-   * Imposta le statische di ogni veicolo, aggiorna anche la vista materializzata
+   * Imposta le statische di ogni veicolo
    */
   //@Cron('9 2 * * *')
   async setStats() {
