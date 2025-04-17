@@ -1,6 +1,6 @@
-import { sameDay } from 'src/utils/utils';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import axios from 'axios';
 import { HistoryDTO } from 'classes/dtos/history.dto';
@@ -10,6 +10,7 @@ import { SessionEntity } from 'classes/entities/session.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
 import { createHash } from 'crypto';
 import Redis from 'ioredis';
+import { sameDay } from 'src/utils/utils';
 import {
   DataSource,
   In,
@@ -19,7 +20,6 @@ import {
 } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
 import { AssociationService } from '../association/association.service';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class SessionService {
@@ -118,91 +118,77 @@ export class SessionService {
         );
       }
     }
+    let jsonResult;
+    try {
+      jsonResult = await parseStringPromise(response.data, {
+        explicitArray: false,
+      });
+    } catch (parseError) {
+      console.error('Errore nel parsing XML → JSON:', parseError);
+      return false;
+    }
+    if (!jsonResult) return false;
+    const lists =
+      jsonResult['soapenv:Envelope']['soapenv:Body']['sessionHistoryResponse'][
+        'list'
+      ];
+    if (!lists) return false;
 
+    // evita di inserire un solo oggetto e non un array nel caso session.lists abbia soltanto 1 elemento, evita problemi del .map sotto
+    const sessionLists = Array.isArray(lists) ? lists : [lists];
+
+    const hashSession = (session: any): string => {
+      const toHash = {
+        periodFrom: session.periodFrom,
+        periodTo: session.periodTo,
+        sequenceId: session.sequenceId,
+        closed: session.closed,
+        distance: session.distance,
+        engineDriveSec: session.engineDriveSec,
+        engineNoDriveSec: session.engineNoDriveSec,
+        veId: veId,
+      };
+      return createHash('sha256').update(JSON.stringify(toHash)).digest('hex');
+    };
+
+    const hashSession0 = (session: any): string => {
+      const toHash = {
+        periodFrom: session.periodFrom,
+        sequenceId: session.sequenceId,
+        closed: session.closed,
+        distance: session.distance,
+        engineDriveSec: session.engineDriveSec,
+        engineNoDriveSec: session.engineNoDriveSec,
+        veId: veId,
+      };
+      return createHash('sha256').update(JSON.stringify(toHash)).digest('hex');
+    };
+    const filteredDataSession = sessionLists
+      .filter((item: any) => item?.list)
+      .map((item: any) => {
+        const hash =
+          Number(item.sequenceId) === 0
+            ? hashSession0(item)
+            : hashSession(item);
+        return {
+          period_from: item.periodFrom,
+          period_to: item.periodTo,
+          sequence_id: item.sequenceId,
+          closed: item.closed,
+          distance: item.distance,
+          engine_drive: item.engineDriveSec,
+          engine_stop: item.engineNoDriveSec,
+          lists: item.list,
+          hash,
+        };
+      });
+    const sessionSequenceId = filteredDataSession.map(
+      (session) => session.sequence_id,
+    );
     const queryRunner = this.connection.createQueryRunner();
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
-      const jsonResult = await parseStringPromise(response.data, {
-        explicitArray: false,
-      });
-      if (!jsonResult) {
-        console.log('vuoto jsonResult');
-      }
-      const lists =
-        jsonResult['soapenv:Envelope']['soapenv:Body'][
-          'sessionHistoryResponse'
-        ]['list'];
-      // per controllo sessione nulla
-      // const success =
-      //   jsonResult['soapenv:Envelope']['soapenv:Body'][
-      //     'sessionHistoryResponse'
-      //   ]['success']._;
-      // console.log(success);
-      //  console.log(jsonResult['soapenv:Envelope']['soapenv:Body'][
-      //   'sessionHistoryResponse'
-      // ]);
-      if (!lists) {
-        await queryRunner.rollbackTransaction();
-        await queryRunner.release();
-        return false;
-      }
-      // evita di inserire un solo oggetto e non un array nel caso session.lists abbia soltanto 1 elemento, evita problemi del .map sotto
-      const sessionLists = Array.isArray(lists) ? lists : [lists];
-
-      const hashSession = (session: any): string => {
-        const toHash = {
-          periodFrom: session.periodFrom,
-          periodTo: session.periodTo,
-          sequenceId: session.sequenceId,
-          closed: session.closed,
-          distance: session.distance,
-          engineDriveSec: session.engineDriveSec,
-          engineNoDriveSec: session.engineNoDriveSec,
-          veId: veId,
-        };
-        return createHash('sha256')
-          .update(JSON.stringify(toHash))
-          .digest('hex');
-      };
-
-      const hashSession0 = (session: any): string => {
-        const toHash = {
-          periodFrom: session.periodFrom,
-          sequenceId: session.sequenceId,
-          closed: session.closed,
-          distance: session.distance,
-          engineDriveSec: session.engineDriveSec,
-          engineNoDriveSec: session.engineNoDriveSec,
-          veId: veId,
-        };
-        return createHash('sha256')
-          .update(JSON.stringify(toHash))
-          .digest('hex');
-      };
-
-      const filteredDataSession = sessionLists
-        .filter((item: any) => item?.list)
-        .map((item: any) => {
-          const hash =
-            Number(item.sequenceId) === 0
-              ? hashSession0(item)
-              : hashSession(item);
-          return {
-            period_from: item.periodFrom,
-            period_to: item.periodTo,
-            sequence_id: item.sequenceId,
-            closed: item.closed,
-            distance: item.distance,
-            engine_drive: item.engineDriveSec,
-            engine_stop: item.engineNoDriveSec,
-            lists: item.list,
-            hash,
-          };
-        });
-      const sessionSequenceId = filteredDataSession.map(
-        (session) => session.sequence_id,
-      );
 
       // Esegui una query per ottenere tutte le sessioni con hash corrispondenti
       const sessionQueries = await queryRunner.manager

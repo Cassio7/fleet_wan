@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { CompanyDTO } from 'classes/dtos/company.dto';
 import { DeviceDTO } from 'classes/dtos/device.dto';
 import { EquipmentDTO } from 'classes/dtos/equipment.dto';
@@ -41,7 +41,11 @@ export class VehicleService {
   ) {}
 
   // Prepara la richiesta SOAP
-  private buildSoapRequest(methodName, suId, vgId): string {
+  private buildSoapRequest(
+    methodName: string,
+    suId: number,
+    vgId: number,
+  ): string {
     return `<?xml version="1.0" encoding="UTF-8"?>
   <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:fwan="http://www.fleetcontrol/FWAN/">
       <soapenv:Header/>
@@ -73,7 +77,7 @@ export class VehicleService {
       'Content-Type': 'text/xml; charset=utf-8',
       SOAPAction: `"${methodName}"`,
     };
-    let response;
+    let response: AxiosResponse<any, any>;
     let retries = 3;
     while (retries > 0) {
       try {
@@ -101,11 +105,7 @@ export class VehicleService {
       }
     }
     if (!response) return false;
-    const queryRunner = this.connection.createQueryRunner();
     try {
-      await queryRunner.connect();
-      await queryRunner.startTransaction();
-
       const jsonResult = await parseStringPromise(response.data, {
         explicitArray: false,
       });
@@ -115,18 +115,10 @@ export class VehicleService {
           'vehiclesListExtendedResponse'
         ]['list'];
 
-      if (!lists) {
-        await queryRunner.rollbackTransaction();
-        await queryRunner.release();
-        return false; // se item.list non esiste, salto elemento
-      }
-      await this.putAllVehicle(lists, first);
+      if (!lists) return false; // se item.list non esiste, salto elemento
 
-      await queryRunner.commitTransaction();
-      await queryRunner.release();
+      await this.putAllVehicle(lists, first);
     } catch (error) {
-      await queryRunner.rollbackTransaction();
-      await queryRunner.release();
       console.error('Errore nella richiesta SOAP:', error);
       throw new Error('Errore durante la richiesta al servizio SOAP');
     }
@@ -137,7 +129,6 @@ export class VehicleService {
    * @returns
    */
   private async putAllVehicle(lists: any[], first: boolean): Promise<void> {
-    const queryRunner = this.connection.createQueryRunner();
     const hashVehicle = (vehicle: any): string => {
       const toHash = {
         id: vehicle.id,
@@ -154,36 +145,36 @@ export class VehicleService {
       };
       return createHash('sha256').update(JSON.stringify(toHash)).digest('hex');
     };
+    // Filtro i dati dei veicoli
+    const filteredDataVehicles = lists.map((item: any) => {
+      // hash creation
+      const hash = hashVehicle(item);
+      return {
+        id: item['id'],
+        active: item['active'] === 'true',
+        plate: item['plate'].trim(),
+        model: item['model'],
+        firstEvent:
+          typeof item['firstEvent'] === 'object' ? null : item['firstEvent'],
+        lastEvent:
+          typeof item['lastEvent'] === 'object' ? null : item['lastEvent'],
+        lastSessionEvent:
+          typeof item['lastSessionEvent'] === 'object'
+            ? null
+            : item['lastSessionEvent'],
+        isCan: item['isCan'] === 'true',
+        isRFIDReader: item['isRFIDReader'] === 'true',
+        profileId: item['profileId'],
+        profileName: item['profileName'],
+        deviceId: item['deviceId'],
+        hash: hash,
+      };
+    });
 
+    const queryRunner = this.connection.createQueryRunner();
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
-
-      // Filtro i dati dei veicoli
-      const filteredDataVehicles = lists.map((item: any) => {
-        // hash creation
-        const hash = hashVehicle(item);
-        return {
-          id: item['id'],
-          active: item['active'] === 'true',
-          plate: item['plate'].trim(),
-          model: item['model'],
-          firstEvent:
-            typeof item['firstEvent'] === 'object' ? null : item['firstEvent'],
-          lastEvent:
-            typeof item['lastEvent'] === 'object' ? null : item['lastEvent'],
-          lastSessionEvent:
-            typeof item['lastSessionEvent'] === 'object'
-              ? null
-              : item['lastSessionEvent'],
-          isCan: item['isCan'] === 'true',
-          isRFIDReader: item['isRFIDReader'] === 'true',
-          profileId: item['profileId'],
-          profileName: item['profileName'],
-          deviceId: item['deviceId'],
-          hash: hash,
-        };
-      });
 
       // Inserisci o aggiorna i dispositivi associati
       await this.putAllDevice(lists);
@@ -193,7 +184,9 @@ export class VehicleService {
         .find();
 
       // Troviamo tutti i veicoli esistenti in un'unica query
-      const vehicleIds = filteredDataVehicles.map((vehicle) => vehicle.id);
+      const vehicleIds: number[] = filteredDataVehicles.map(
+        (vehicle) => vehicle.id,
+      );
       const existingVehicles = await queryRunner.manager
         .getRepository(VehicleEntity)
         .findBy({ veId: In(vehicleIds) });
@@ -345,7 +338,9 @@ export class VehicleService {
         };
       });
 
-      const deviceIds = filteredDataDevices.map((device) => device.device_id);
+      const deviceIds: number[] = filteredDataDevices.map(
+        (device) => device.device_id,
+      );
 
       const existingDevices = await queryRunner.manager
         .getRepository(DeviceEntity)
@@ -409,7 +404,6 @@ export class VehicleService {
       // Aggiorniamo i dispositivi esistenti
       if (updatedDevices.length > 0) {
         for (const device of updatedDevices) {
-          console.log(`update Device ID ${device.device_id}`);
           await queryRunner.manager
             .getRepository(DeviceEntity)
             .update({ key: device.key }, device);
@@ -519,7 +513,7 @@ export class VehicleService {
    * Recupera tutti i veicoli dal database in ordine, viene usata dentro il server
    * @returns
    */
-  async getAllVehicles(): Promise<VehicleEntity[]> {
+  async getActiveVehicles(): Promise<VehicleEntity[]> {
     const vehicles = await this.vehicleRepository.find({
       where: {
         retired_event: IsNull(),

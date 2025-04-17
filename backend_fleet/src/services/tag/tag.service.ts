@@ -6,11 +6,11 @@ import { DetectionTagEntity } from 'classes/entities/detection_tag.entity';
 import { TagEntity } from 'classes/entities/tag.entity';
 import { TagHistoryEntity } from 'classes/entities/tag_history.entity';
 import { VehicleEntity } from 'classes/entities/vehicle.entity';
+import { WorksiteEntity } from 'classes/entities/worksite.entity';
 import { createHash } from 'crypto';
 import { Between, DataSource, In, Repository } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
 import { AssociationService } from '../association/association.service';
-import { WorksiteEntity } from 'classes/entities/worksite.entity';
 
 @Injectable()
 export class TagService {
@@ -91,7 +91,6 @@ export class TagService {
         );
       }
     }
-    const queryRunner = this.connection.createQueryRunner();
     const hashTagHistoryCrypt = (tag_history: any): string => {
       const toHash = {
         timestamp: tag_history.timestamp,
@@ -104,46 +103,46 @@ export class TagService {
       return createHash('sha256').update(JSON.stringify(toHash)).digest('hex');
     };
 
+    let jsonResult;
+    try {
+      jsonResult = await parseStringPromise(response.data, {
+        explicitArray: false,
+      });
+    } catch (parseError) {
+      console.error('Errore nel parsing XML → JSON:', parseError);
+      return false;
+    }
+    if (!jsonResult) return false;
+    const lists =
+      jsonResult['soapenv:Envelope']['soapenv:Body']['tagHistoryResponse'][
+        'list'
+      ];
+    if (!lists) return false;
+
+    const tagHistoryLists = Array.isArray(lists) ? lists : [lists];
+    const filteredDataTagHistory = tagHistoryLists.map((item: any) => {
+      const hash = hashTagHistoryCrypt(item);
+      return {
+        timestamp: item['timestamp'],
+        latitude: item['latitude'],
+        longitude: item['longitude'],
+        nav_mode: item['navMode'],
+        geozone: item['geozone'],
+        vehicle: veId,
+        list: item['list'],
+        hash: hash,
+      };
+    });
+
+    const hashTagHistory = filteredDataTagHistory.map(
+      (tag_history) => tag_history.hash,
+    );
+
+    const queryRunner = this.connection.createQueryRunner();
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
-      const jsonResult = await parseStringPromise(response.data, {
-        explicitArray: false,
-      });
-      if (!jsonResult) {
-        await queryRunner.commitTransaction();
-        await queryRunner.release();
-        return false;
-      }
-      const lists =
-        jsonResult['soapenv:Envelope']['soapenv:Body']['tagHistoryResponse'][
-          'list'
-        ];
-      if (!lists) {
-        await queryRunner.commitTransaction();
-        await queryRunner.release();
-        return false;
-      }
 
-      const tagHistoryLists = Array.isArray(lists) ? lists : [lists];
-
-      const filteredDataTagHistory = tagHistoryLists.map((item: any) => {
-        const hash = hashTagHistoryCrypt(item);
-        return {
-          timestamp: item['timestamp'],
-          latitude: item['latitude'],
-          longitude: item['longitude'],
-          nav_mode: item['navMode'],
-          geozone: item['geozone'],
-          vehicle: veId,
-          list: item['list'],
-          hash: hash,
-        };
-      });
-
-      const hashTagHistory = filteredDataTagHistory.map(
-        (tag_history) => tag_history.hash,
-      );
       const tagHistoryQueries = await queryRunner.manager
         .getRepository(TagHistoryEntity)
         .find({
@@ -202,27 +201,25 @@ export class TagService {
       }
 
       await queryRunner.commitTransaction();
-      await queryRunner.release();
       await this.setTag(tagHistoryArray);
       return lists;
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      await queryRunner.release();
       console.error('Errore nella richiesta SOAP:', error);
+    } finally {
+      await queryRunner.release();
     }
   }
 
-  private async setTag(tagHistoryArray): Promise<boolean> {
+  private async setTag(tagHistoryArray: any): Promise<void> {
+    if (!tagHistoryArray) return;
+
     const queryRunner = this.connection.createQueryRunner();
 
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
-      if (!tagHistoryArray) {
-        await queryRunner.rollbackTransaction();
-        await queryRunner.release();
-        return false;
-      }
+
       for (const tagList of tagHistoryArray) {
         const filteredTag = tagList.tagHistoryData
           .filter((item: any) => item)
@@ -271,11 +268,11 @@ export class TagService {
       }
 
       await queryRunner.commitTransaction();
-      await queryRunner.release();
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      await queryRunner.release();
       console.error('Errore nella richiesta SOAP:', error);
+    } finally {
+      await queryRunner.release();
     }
   }
 

@@ -560,7 +560,7 @@ export class ControlService {
     const mergedData = [];
 
     // recupero tutti i veicoli
-    const allVehicles = await this.vehicleService.getAllVehicles();
+    const allVehicles = await this.vehicleService.getActiveVehicles();
 
     // Controlla errore di GPS
     try {
