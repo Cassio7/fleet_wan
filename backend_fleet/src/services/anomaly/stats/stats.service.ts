@@ -7,7 +7,7 @@ import Redis from 'ioredis';
 import { AssociationService } from 'src/services/association/association.service';
 import { SessionVehicleService } from 'src/services/session-vehicle/session-vehicle.service';
 import { VehicleService } from 'src/services/vehicle/vehicle.service';
-import { Not, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 
 interface Stats {
   veId: number;
@@ -86,7 +86,7 @@ export class StatsService {
       }
       // recupero il numero di sessioni salvate nel db e quelle effettive fatte dal mezzo, tutto nella vista
       const { num_sessions: numSessions, max_sessions: maxSessions } =
-        await this.sessionVehicleService.getSessionDetails(veId);
+        await this.sessionVehicleService.getTotalSessionDetails(veId);
 
       const keywords = {
         nulla: 'nulla', // anomalia sessione nulla, anche per gps e antenna
@@ -172,7 +172,7 @@ export class StatsService {
    */
   async setAllStatsRedis(): Promise<void> {
     try {
-      const allVehicles = await this.vehicleService.getAllVehicles();
+      const allVehicles = await this.vehicleService.getActiveVehicles();
       const stats = await Promise.all(
         allVehicles
           .filter((vehicle) => vehicle.worksite)
@@ -189,6 +189,31 @@ export class StatsService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  /**
+   * Recupera tutte le statistiche, da redis, di tutti i veicoli associate all'utente
+   * @param userId id utente
+   * @returns
+   */
+  async getAllStatsRedis(userId: number): Promise<Stats[]> {
+    const vehiclesId =
+      await this.associationService.getVehiclesRedisAllSet(userId);
+    const statsArray = await Promise.all(
+      vehiclesId.map(async (veId) => {
+        const key = `stats:${veId}`;
+        try {
+          const data = await this.redis.get(key);
+          return data ? JSON.parse(data) : null;
+        } catch (error) {
+          return null;
+        }
+      }),
+    );
+    const statsTotal = statsArray.filter(
+      (stats): stats is Stats => stats !== null,
+    );
+    return statsTotal;
   }
 
   /**

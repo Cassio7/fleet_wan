@@ -463,27 +463,48 @@ export class AnomalyController {
   async getStatsByVeId(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
-    @Query('veId') veId: number,
+    @Query('veId') veId?: number,
   ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
       resource: 'Anomaly stats',
-      resourceId: veId,
+      resourceId: veId ?? 0,
     };
-    const veIdNumber = Number(veId); // Garantisce che veId sia un numero
 
-    if (isNaN(veIdNumber)) {
-      this.loggerService.logCrudError({
-        error: new Error('Il veId deve essere un numero valido'),
-        context,
-        operation: 'read',
-      });
-      return res.status(400).json({
-        message: 'Il veId deve essere un numero valido',
-      });
-    }
     try {
+      // se il veicolo non è stato inserito prendo tutto
+      if (!veId) {
+        const allStats = await this.statsService.getAllStatsRedis(req.user.id);
+
+        if (!allStats || allStats.length === 0) {
+          this.loggerService.logCrudSuccess(
+            context,
+            'read',
+            'Nessuna statistica disponibile per i veicoli associati',
+          );
+          return res.status(204).json(); // No Content
+        }
+
+        this.loggerService.logCrudSuccess(
+          context,
+          'read',
+          `Recuperate statistiche per tutti i veicoli`,
+        );
+        return res.status(200).json(allStats);
+      }
+      const veIdNumber = Number(veId); // Garantisce che veId sia un numero
+
+      if (isNaN(veIdNumber)) {
+        this.loggerService.logCrudError({
+          error: new Error('Il veId deve essere un numero valido'),
+          context,
+          operation: 'read',
+        });
+        return res.status(400).json({
+          message: 'Il veId deve essere un numero valido',
+        });
+      }
       let stats = await this.statsService.getRedisStats(
         req.user.id,
         veIdNumber,
