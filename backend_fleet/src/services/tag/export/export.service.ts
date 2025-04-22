@@ -38,13 +38,21 @@ export class ExportService {
     ]);
     tags.forEach((tag) => {
       const date = new Date(tag.timestamp);
+      const italianDate = date.toLocaleString('it-IT', {
+        timeZone: 'Europe/Rome',
+      });
 
-      const day = String(date.getDate()).padStart(2, '0'); // Ottieni il giorno (con 2 cifre)
-      const month = String(date.getMonth() + 1).padStart(2, '0'); // Ottieni il mese (con 2 cifre, +1 perché i mesi partono da 0)
-      const year = date.getFullYear(); // Ottieni l'anno
-      const hours = String(date.getHours()).padStart(2, '0'); // Ottieni le ore (con 2 cifre)
-      const minutes = String(date.getMinutes()).padStart(2, '0'); // Ottieni i minuti (con 2 cifre)
-      const seconds = String(date.getSeconds()).padStart(2, '0'); // Ottieni i secondi (con 2 cifre)
+      // Se vuoi mantenere lo stesso formato (yyyy-mm-dd hh:mm:ss)
+      const zonedDate = new Date(
+        date.toLocaleString('en-US', { timeZone: 'Europe/Rome' }),
+      );
+
+      const day = String(zonedDate.getDate()).padStart(2, '0'); // Ottieni il giorno (con 2 cifre)
+      const month = String(zonedDate.getMonth() + 1).padStart(2, '0'); // Ottieni il mese (con 2 cifre, +1 perché i mesi partono da 0)
+      const year = zonedDate.getFullYear(); // Ottieni l'anno
+      const hours = String(zonedDate.getHours()).padStart(2, '0'); // Ottieni le ore (con 2 cifre)
+      const minutes = String(zonedDate.getMinutes()).padStart(2, '0'); // Ottieni i minuti (con 2 cifre)
+      const seconds = String(zonedDate.getSeconds()).padStart(2, '0'); // Ottieni i secondi (con 2 cifre)
 
       // Crea la variabile date nel formato desiderato
       const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
