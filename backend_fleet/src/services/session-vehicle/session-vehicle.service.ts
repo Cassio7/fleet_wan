@@ -21,7 +21,7 @@ export class SessionVehicleService {
     const currentYear = today.getFullYear();
     const yesterdayYear = yesterday.getFullYear();
     const yearNext = currentYear + 1;
-    const viewName = `session_vehicle_${currentYear}_${yearNext}`;
+    const viewName = `session_vehicle_${currentYear}`;
 
     const queryRunner = this.connection.createQueryRunner();
     try {
@@ -29,7 +29,7 @@ export class SessionVehicleService {
       await queryRunner.startTransaction();
       // se è cambiato l'anno creo una nuova vista e aggiorno quella vecchia
       if (yesterdayYear < currentYear) {
-        const viewOld = `session_vehicle_${yesterdayYear}_${currentYear}`;
+        const viewOld = `session_vehicle_${yesterdayYear}`;
 
         await queryRunner.query(`CREATE MATERIALIZED VIEW ${viewName} as  
         SELECT DISTINCT ON (s.id) s.id AS session_id,
@@ -99,8 +99,7 @@ export class SessionVehicleService {
 
     // Creiamo le viste per l'anno corrente e l'anno successivo
     for (let year = 2024; year < currentYear + 1; year++) {
-      const nextYear = year + 1;
-      viewNames.push(`session_vehicle_${year}_${nextYear}`);
+      viewNames.push(`session_vehicle_${year}`);
     }
 
     return viewNames;
