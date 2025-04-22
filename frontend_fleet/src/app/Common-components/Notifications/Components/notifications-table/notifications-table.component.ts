@@ -34,10 +34,8 @@ export class NotificationsTableComponent implements OnChanges, OnDestroy {
   @Input() notifiche: Notifica[] = [];
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['notifiche'] && changes['notifiche'].currentValue) {
-      console.log('notifiche changed:', changes['notifiche'].currentValue);
+    if (changes['notifiche']) {
       this.notificheTableData.data = this.notifiche;
-      console.log('this.notificheTableData.data: ', this.notificheTableData.data);
     }
   }
 
@@ -58,17 +56,11 @@ export class NotificationsTableComponent implements OnChanges, OnDestroy {
       notification.isButtonDisabled = false;
     }, 2000);
 
-    this.notificationsFilterService.updateNotificationReadStatus(notification.key)
+    this.notificationService.updateNotificationReadStatus(notification.key)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: { notification: Notifica, message: string }) => {
           const { notification: updatedNotification } = response;
-          const index = this.notificheTableData.data.findIndex(
-            notif => notif.key === updatedNotification.key
-          );
-          if (index !== -1) {
-            this.notificheTableData.data[index].isRead = updatedNotification.isRead;
-          }
           this.notificationService.updatedNotification$.next(updatedNotification);
         },
         error: error => {

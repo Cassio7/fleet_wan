@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, model, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -48,7 +48,6 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
   role: string = "";
 
   @Input() notifiche: Notifica[] = [];
-  @Output() getNotifications: EventEmitter<Notifica[]> = new EventEmitter<Notifica[]>();
 
   user!: User;
   isKanban: boolean = false;
@@ -81,6 +80,37 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
       this.updateNavbarIcon(event.url);
       this.isKanban = false;
     });
+  }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      const access_token = this.cookieService.get("user");
+      if(access_token){
+        this.user = this.authService.decodeToken(access_token);
+        merge(
+          this.kanbanAntennaService.loadKanbanAntenna$.pipe(takeUntil(this.destroy$)),
+          this.kanbanGpsService.loadKanbanGps$.pipe(takeUntil(this.destroy$)),
+          this.kanbanSessioneService.loadKanbanSessione$.pipe(takeUntil(this.destroy$))
+        ).subscribe({
+          next: () => {
+            this.isKanban = true;
+            this.cd.detectChanges();
+          },
+          error: error => console.error("Errore nel cambio del path: ", error)
+        });
+        this.kanabanTableService.loadKabanTable$.pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            this.currentPage = "dashboard";
+            this.isKanban = false;
+            this.cd.detectChanges();
+          },
+          error: error => console.error("Errore nel cambio del path: ", error)
+        });
+        this.cd.detectChanges();
+      }
+    });
+    this.handleProfileInfoUpdate();
   }
 
   private updateNavbarIcon(url: string): void {
@@ -140,39 +170,6 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
     this.cd.detectChanges();
   }
 
-
-
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      const access_token = this.cookieService.get("user");
-      if(access_token){
-        this.user = this.authService.decodeToken(access_token);
-        merge(
-          this.kanbanAntennaService.loadKanbanAntenna$.pipe(takeUntil(this.destroy$)),
-          this.kanbanGpsService.loadKanbanGps$.pipe(takeUntil(this.destroy$)),
-          this.kanbanSessioneService.loadKanbanSessione$.pipe(takeUntil(this.destroy$))
-        ).subscribe({
-          next: () => {
-            this.isKanban = true;
-            this.cd.detectChanges();
-          },
-          error: error => console.error("Errore nel cambio del path: ", error)
-        });
-        this.kanabanTableService.loadKabanTable$.pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: () => {
-            this.currentPage = "dashboard";
-            this.isKanban = false;
-            this.cd.detectChanges();
-          },
-          error: error => console.error("Errore nel cambio del path: ", error)
-        });
-        this.cd.detectChanges();
-      }
-    });
-    this.handleProfileInfoUpdate();
-  }
-
   handleProfileInfoUpdate(){
     this.profileService.updateUserData$.pipe(takeUntil(this.destroy$))
     .subscribe({
@@ -185,6 +182,27 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
         }
       },
       error: error => console.error("Errore nell'aggiornamento dei nuovi dati dell'utente nella navbar: ", error)
+    });
+  }
+
+  updateNotification(notification: Notifica, event: Event){
+    event.stopPropagation();
+    this.notificationService.updateNotificationReadStatus(notification.key)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (response: { notification: Notifica, message: string }) => {
+        const { notification: updatedNotification } = response;
+        const index = this.notifiche.findIndex(
+          notif => notif.key === updatedNotification.key
+        );
+        if (index !== -1) {
+          this.notifiche[index].isRead = updatedNotification.isRead;
+        }
+        this.notificationService.updatedNotification$.next(updatedNotification);
+      },
+      error: error => {
+        console.error("Errore nell'aggiornamento della notifica: ", error);
+      }
     });
   }
 

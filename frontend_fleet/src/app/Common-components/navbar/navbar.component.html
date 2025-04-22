@@ -11,7 +11,6 @@
       >
       <mat-icon
         class="notification-icon"
-        (click)="getNotifications.emit()"
         [matBadge]="notifiche && notifiche.length || 0"
         matBadgeColor="warn"
         aria-hidden="false">
@@ -22,12 +21,15 @@
     <mat-menu #notificationsMenu="matMenu" yPosition="below" xPosition="before" class="notifications-menu">
       <ng-container *ngIf="notifiche as notificheList">
         <ng-container *ngIf="notificheList.length > 0; else noNotifiche">
+          Ultime notifiche non lette:
           <ng-container *ngFor="let notifica of notificheList.slice(0, 3)">
             <div class="notification-container">
               <div class="title-container">
                 <div class="title">
                   <b>{{ notifica.title }}</b>
-                  <div class="isRead" *ngIf="!notifica.isRead"></div>
+                  <button mat-icon-button class="toggleRead-button" (click)="updateNotification(notifica, $event)">
+                      <mat-icon>{{notifica.isRead ? "visibility_on" : "visibility_off"}}</mat-icon>
+                  </button>
                 </div>
                 <div class="author">~<b>{{ notifica.author }}</b></div>
               </div>

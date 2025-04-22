@@ -89,7 +89,7 @@
 
             <ng-template #authenticatedContent>
               <div class="content">
-                <app-navbar [notifiche]="getToReadNotifications()"></app-navbar>
+                <app-navbar [notifiche]="getToReadNotifications()" (notificheChange)="notifiche"></app-navbar>
                 <router-outlet></router-outlet>
               </div>
             </ng-template>

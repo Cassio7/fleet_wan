@@ -251,7 +251,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     this.notificationService.updatedNotification$.pipe(takeUntil(this.destroy$), skip(1))
     .subscribe({
       next: (notification: Notifica | null) => {
-        console.log('notifica updateata: ', notification);
         if(notification)
           this.notifiche = this.notifiche.map(notifica => {
             if (notifica.key === notification.key) {

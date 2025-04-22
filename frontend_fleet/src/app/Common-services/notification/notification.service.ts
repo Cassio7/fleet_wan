@@ -49,6 +49,16 @@ export class NotificationService {
     return this.http.get<Notifica[]>(`${serverUrl}/${this.url}`, { headers, params });
   }
 
+  updateNotificationReadStatus(key: string): Observable<{notification: Notifica, message: string}>{
+    const access_token = this.cookieService.get('user');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${access_token}`,
+      'Content-Type': 'application/json',
+    });
+
+    return this.http.patch<{notification: Notifica, message: string}>(`${serverUrl}/notifications/${key}`, {}, {headers});
+  }
+
   /**
    * Elimina una notifica tramite la chiave
    * @param key chiave della notifica da eliminare

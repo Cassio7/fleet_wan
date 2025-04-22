@@ -156,18 +156,15 @@
     width: 100%;
     display: flex;
     justify-content: space-between;
-  }
 
-  .title {
-    display: inline-flex;
-    align-items: center;
-    gap: 1vw;
+    .title {
+      display: inline-flex;
+      align-items: center;
+      gap: 1vw;
 
-    .isRead {
-      background-color: blue;
-      height: 10px;
-      width: 10px;
-      border-radius: 50%;
+      .toggleRead-button{
+        color: var(--green);
+      }
     }
   }
 

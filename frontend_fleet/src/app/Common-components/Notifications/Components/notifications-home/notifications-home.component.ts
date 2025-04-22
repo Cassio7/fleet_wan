@@ -56,7 +56,6 @@ export class NotificationsHomeComponent implements OnInit{
     this.notificationService.getAllNotifications().pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (notifiche: Notifica[]) => {
-        console.log('notifications fetched from notifiche home: ', notifiche);
         this.notifiche = notifiche;
         this.displayedNotifiche = notifiche;
         this.cd.detectChanges();
@@ -89,13 +88,18 @@ export class NotificationsHomeComponent implements OnInit{
       this.notificationService.updatedNotification$.pipe(takeUntil(this.destroy$), skip(1))
       .subscribe({
         next: (notification: Notifica | null) => {
-          if(notification)
+          if (notification) {
             this.notifiche = this.notifiche.map(notifica => {
               if (notifica.key === notification.key) {
                 return { ...notifica, isRead: notification.isRead };
               }
-              return notifica;
+              return { ...notifica };
             });
+
+            this.displayedNotifiche = [...this.notifiche];
+
+            this.cd.detectChanges();
+          }
         },
         error: error => console.error("Errore nella ricezione della notifica letta dalla navbar: ", error)
       });
