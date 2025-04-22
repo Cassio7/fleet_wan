@@ -1,4 +1,7 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  OnModuleInit
+} from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { CompanyFactoryService } from './factory/company.factory';
 import { GroupFactoryService } from './factory/group.factory';
@@ -173,7 +176,7 @@ export class AppService implements OnModuleInit {
   /**
    * Inserisce tutti i veicoli in parallelo in batch, ma i tag sequenzialmente
    */
-  //@Cron('*/10 * * * *')
+  @Cron('*/10 * * * *', { name: 'putDbDataCronOne' })
   async putDbDataCronOne(): Promise<void> {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
@@ -319,12 +322,12 @@ export class AppService implements OnModuleInit {
     }
   }
 
-  //@Cron('5 */5 * * *') // ogni 5 ore e 5 minuti
+  @Cron('5 */5 * * *', { name: 'dailyAnomalyCheckCron' }) // ogni 5 ore e 5 minuti
   async dailyAnomalyCheckCron() {
     await this.dailyAnomalyCheck();
   }
 
-  //@Cron('59 23 * * *') // prima di finire la giornata
+  @Cron('59 23 * * *', { name: 'dailyAnomalyCheck' }) // prima di finire la giornata
   async dailyAnomalyCheck(): Promise<void> {
     try {
       const datefrom = new Date();
@@ -389,7 +392,7 @@ export class AppService implements OnModuleInit {
   /**
    * Imposta le anomalies su redis del giorno precedente, di oggi ed anche il last
    */
-  //@Cron('8 */5 * * *')
+  @Cron('8 */5 * * *', { name: 'setAnomaly' })
   async setAnomaly(): Promise<void> {
     const keys = await this.redis.keys('*Anomaly:*');
     if (keys.length > 0) {
@@ -407,7 +410,7 @@ export class AppService implements OnModuleInit {
   /**
    * Imposta le statische di ogni veicolo
    */
-  //@Cron('9 2 * * *')
+  @Cron('9 2 * * *', { name: 'setStats' })
   async setStats() {
     await this.statsService.setAllStatsRedis();
   }
