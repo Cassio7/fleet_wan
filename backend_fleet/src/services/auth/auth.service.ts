@@ -38,6 +38,9 @@ export class AuthService {
     username: string,
     password: string,
   ): Promise<{ access_token: string }> {
+    // Verifica dati
+    if (!username || !password)
+      throw new HttpException('Campi non inseriti', HttpStatus.BAD_REQUEST);
     const user = await this.userRepository.findOne({
       where: { username: username },
       relations: {
@@ -46,24 +49,17 @@ export class AuthService {
     });
     if (!user) {
       throw new HttpException(
-        'Credenziali non valide: utente non trovato',
+        'Credenziali non valide',
         HttpStatus.UNAUTHORIZED,
       );
     }
     if (!user.active) {
       throw new HttpException('Account disabilitato', HttpStatus.FORBIDDEN);
     }
-    // Verifica password
-    if (!password) {
-      throw new HttpException(
-        'Password invalida per la comparazione',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       throw new HttpException(
-        'Credenziali non valide: password errata',
+        'Credenziali non valide',
         HttpStatus.UNAUTHORIZED,
       );
     }
