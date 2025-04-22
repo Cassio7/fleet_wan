@@ -140,15 +140,22 @@
     <ng-container matColumnDef="Antenna">
       <th mat-header-cell *matHeaderCellDef>Stato Antenna</th>
       <td mat-cell *matCellDef="let vehicleData">
-          <div
-          [ngClass]="checkErrorsService.checkVehicleAntennaValid(vehicleData) ? 'OK-container' : 'invalid-container'"
+        <div
+          [ngClass]="
+            checkErrorsService.checkVehicleAntennaValid(vehicleData)
+              ? 'OK-container'
+              : 'invalid-container'
+          "
           *ngIf="
             !checkErrorsService.checkVehicleAntennaError(vehicleData) &&
             vehicleData.vehicle.isRFIDReader
           "
-          [matTooltip]="checkErrorsService.checkVehicleAntennaValid(vehicleData) ? 'Controllo incerto' : 'Antenna funzionante'"
+          [matTooltip]="
+            checkErrorsService.checkVehicleAntennaValid(vehicleData)
+              ? 'Controllo incerto'
+              : 'Antenna funzionante'
+          "
         >
-
           OK
         </div>
         <div
@@ -258,9 +265,9 @@
     <!-- Sessione Column -->
     <ng-container matColumnDef="Sessione">
       @if(today){
-        <th mat-header-cell *matHeaderCellDef>Stato Sessione</th>
+      <th mat-header-cell *matHeaderCellDef>Stato Sessione</th>
       }@else{
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Stato Sessione</th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Stato Sessione</th>
       }
       <td mat-cell *matCellDef="let vehicleData">
         <!-- se non c'è errore, data nera -->
@@ -282,7 +289,7 @@
           >
             OK
           </div>
-          <span class="session-date">
+          <span class="session-date" *ngIf="!today">
             {{
               checkErrorsService.getVehicleSessionAnomalyDate(vehicleData)
                 ? (checkErrorsService.getVehicleSessionAnomalyDate(vehicleData)
@@ -313,7 +320,7 @@
               gg
             </div>
             <div class="error-container">Error</div>
-            <span class="session-error-date">
+            <span class="session-error-date" *ngIf="!today">
               {{
                 checkErrorsService.getVehicleSessionAnomalyDate(vehicleData)
                   ? (checkErrorsService.getVehicleSessionAnomalyDate(
