@@ -5,6 +5,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import { LogContext } from 'src/log/logger.types';
 import { LoggerService } from 'src/log/service/logger.service';
 import { AuthService } from 'src/services/auth/auth.service';
 import { extractTokenFromHeader } from 'src/utils/utils';
@@ -21,11 +22,21 @@ export class AuthGuard implements CanActivate {
    * @param context
    * @returns
    */
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
+  async canActivate(executionContext: ExecutionContext): Promise<boolean> {
+    const request = executionContext.switchToHttp().getRequest();
     const token = extractTokenFromHeader(request);
     //this.loggerService.logClientData(request);
     if (!token) {
+      const context: LogContext = {
+        userId: -1,
+        username: '',
+        resource: 'Token JWT validator',
+      };
+      this.loggerService.logCrudError({
+        context,
+        operation: 'read',
+        error: new Error('Token non fornito.'),
+      });
       throw new UnauthorizedException('Token non fornito.');
     }
     try {
