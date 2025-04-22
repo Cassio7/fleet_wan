@@ -2,7 +2,6 @@ import { InjectRedis } from '@nestjs-modules/ioredis';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AnomalyEntity } from 'classes/entities/anomaly.entity';
-import { SessionEntity } from 'classes/entities/session.entity';
 import Redis from 'ioredis';
 import { AssociationService } from 'src/services/association/association.service';
 import { SessionVehicleService } from 'src/services/session-vehicle/session-vehicle.service';
@@ -41,8 +40,6 @@ interface Stats {
 @Injectable()
 export class StatsService {
   constructor(
-    @InjectRepository(SessionEntity, 'readOnlyConnection')
-    private readonly sessionRepository: Repository<SessionEntity>,
     @InjectRedis() private readonly redis: Redis,
     private readonly associationService: AssociationService,
     @InjectRepository(AnomalyEntity, 'readOnlyConnection')
