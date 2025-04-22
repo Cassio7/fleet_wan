@@ -227,12 +227,6 @@ export class VehicleService {
           if (!first) {
             const title = `Nuovo Veicolo inserito ${newVehicle.plate}`;
             const message = `Censire il veicolo con veId ${newVehicle.veId} per iniziare il controllo`;
-            await this.notificationsService.createNotification(
-              1,
-              'sistema',
-              title,
-              message,
-            );
             const notification =
               await this.notificationsService.createNotification(
                 1,
