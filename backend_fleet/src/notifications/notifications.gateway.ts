@@ -16,8 +16,6 @@ export class NotificationsGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {
   constructor(private readonly authService: AuthService) {}
-  //private clients: Map<string, ClientData> = new Map();
-
   @WebSocketServer()
   server: Server;
 
@@ -26,7 +24,6 @@ export class NotificationsGateway
     const token = client.handshake.query.token as string;
     if (!token) {
       client.disconnect();
-      console.log('client disconnesso');
       return;
     }
     const user = await this.authService.validateToken(token);
@@ -38,8 +35,6 @@ export class NotificationsGateway
   async handleDisconnect(client: Socket): Promise<void> {
     const token = client.handshake.query.token as string;
     if (!token) {
-      client.disconnect();
-      console.log('client disconnesso');
       return;
     }
     const user = await this.authService.validateToken(token);
