@@ -295,8 +295,8 @@ export class AuthService {
    */
   async getClientRedis(userKey: string): Promise<string | null> {
     const key = `users:${userKey}:client`;
-    const token = await this.redis.get(key);
-    return token;
+    const cliendId = await this.redis.get(key);
+    return cliendId;
   }
 
   /**
