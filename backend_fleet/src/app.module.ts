@@ -284,7 +284,7 @@ import { WorkzoneService } from './services/workzone/workzone.service';
       useFactory: async (configService: ConfigService) => ({
         type: 'single',
         config: {
-          host: 'localhost',
+          host: configService.get<string>('REDIS_HOST'),
           port: 6379,
           password: configService.get<string>('REDIS_PASSWORD'),
           db: configService.get<number>('REDIS_DB'),
