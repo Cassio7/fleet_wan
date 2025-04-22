@@ -42,6 +42,10 @@ export class NotificationsGateway
     await this.authService.deleteClientRedis(user.key);
   }
 
+  /**
+   * invia una notifica a tutti quelli che sono connessi al canale
+   * @param notification
+   */
   handleSendNotificationServer(
     @MessageBody() notification: NotificationDto,
   ): void {
@@ -52,6 +56,11 @@ export class NotificationsGateway
     }
   }
 
+  /**
+   * invia una notifica mirata ad uno specifico client
+   * @param userKey
+   * @param message
+   */
   async sendMessageToUser(userKey: string, message: string): Promise<void> {
     const clientId = await this.authService.getClientRedis(userKey);
     const client = this.server.sockets.sockets.get(clientId);
