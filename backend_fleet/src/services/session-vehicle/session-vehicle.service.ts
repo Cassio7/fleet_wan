@@ -12,7 +12,7 @@ export class SessionVehicleService {
   /**
    * Fa il refresh della vista per sessioni associate ad un veicolo
    */
-  @Cron('5 2 * * *')
+  @Cron('5 2 * * *', { name: 'refreshMaterializedView' })
   async refreshMaterializedView(): Promise<void> {
     const today = new Date();
     const yesterday = new Date();
