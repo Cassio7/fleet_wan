@@ -1,7 +1,6 @@
 import { RedisModule } from '@nestjs-modules/ioredis';
 import { Global, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { JwtModule } from '@nestjs/jwt';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AnomalyEntity } from 'classes/entities/anomaly.entity';
@@ -55,6 +54,7 @@ import { UserFactoryService } from './factory/user.factory';
 import { WorksiteFactoryService } from './factory/worksite.factory';
 import { WorkzoneFacotoryService } from './factory/workzone.factory';
 import { LoggerModule } from './log/logger.module';
+import { AuthModule } from './modules/auth.module';
 import { SessionVehicleModule } from './modules/session-vehicle.module';
 import { NotificationsController } from './notifications/notifications.controller';
 import { NotificationsGateway } from './notifications/notifications.gateway';
@@ -62,7 +62,6 @@ import { NotificationsService } from './notifications/notifications.service';
 import { AnomalyService } from './services/anomaly/anomaly.service';
 import { StatsService } from './services/anomaly/stats/stats.service';
 import { AssociationService } from './services/association/association.service';
-import { AuthService } from './services/auth/auth.service';
 import { CompanyService } from './services/company/company.service';
 import { ControlService } from './services/control/control.service';
 import { EquipmentService } from './services/equipment/equipment.service';
@@ -279,14 +278,6 @@ import { WorkzoneService } from './services/workzone/workzone.service';
       ],
       'tagReadOnly',
     ),
-    JwtModule.registerAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>('SECRET_TOKEN'),
-        signOptions: { expiresIn: '24h' },
-      }),
-    }),
     RedisModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -302,6 +293,7 @@ import { WorkzoneService } from './services/workzone/workzone.service';
     }),
     LoggerModule,
     SessionVehicleModule,
+    AuthModule,
   ],
 
   controllers: [
@@ -332,7 +324,6 @@ import { WorkzoneService } from './services/workzone/workzone.service';
     RealtimeService,
     SessionService,
     TagService,
-    AuthService,
     UserService,
     CompanyService,
     CompanyFactoryService,
