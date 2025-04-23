@@ -400,7 +400,7 @@ export class AssociationService {
       },
       relations: {
         worksite: {
-          vehicle: true, // Carica i veicoli associati al worksite
+          vehicle: { worksite: true }, // Carica i veicoli associati al worksite
         },
         company: {
           group: {
