@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  OnModuleInit
-} from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { CompanyFactoryService } from './factory/company.factory';
 import { GroupFactoryService } from './factory/group.factory';
