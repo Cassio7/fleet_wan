@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { InjectRedis } from '@nestjs-modules/ioredis';
+import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import {
   MessageBody,
   OnGatewayConnection,
@@ -7,17 +8,62 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { NotificationDto } from 'classes/dtos/notification.dto';
+import Redis from 'ioredis';
 import { Server, Socket } from 'socket.io';
 import { AuthService } from 'src/services/auth/auth.service';
 
 @WebSocketGateway()
 @Injectable()
 export class NotificationsGateway
-  implements OnGatewayConnection, OnGatewayDisconnect
+  implements
+    OnGatewayConnection,
+    OnGatewayDisconnect,
+    OnModuleInit,
+    OnModuleDestroy
 {
-  constructor(private readonly authService: AuthService) {}
   @WebSocketServer()
   server: Server;
+
+  private readonly subscriberRedis: Redis;
+
+  constructor(
+    private readonly authService: AuthService,
+    @InjectRedis() private readonly redis: Redis,
+  ) {
+    const redisOptions = {
+      host: process.env.REDIS_HOST,
+      port: 6379,
+      password: process.env.REDIS_PASSWORD,
+      db: parseInt(process.env.REDIS_DB),
+    };
+    this.subscriberRedis = new Redis(redisOptions);
+  }
+
+  /**
+   * alla creazione fa una subscribe al canale per invio dei messaggi
+   */
+  async onModuleInit() {
+    await this.subscriberRedis.subscribe('user_ban:request');
+    this.subscriberRedis.on('message', async (channel, message) => {
+      if (channel === 'user_ban:request') {
+        const { userKey } = JSON.parse(message);
+        const clientId = await this.authService.getClientRedis(userKey);
+        const client = this.server.sockets.sockets.get(clientId);
+        // controllo se questa instance ha il client connesso
+        if (client) {
+          client.emit('ban', 'suspended');
+        }
+      }
+    });
+  }
+
+  /**
+   * disconnetto il redis quando viene chiuso
+   */
+  async onModuleDestroy() {
+    await this.subscriberRedis.unsubscribe('user_ban:request');
+    this.subscriberRedis.disconnect();
+  }
 
   // Metodo chiamato quando un client si connette
   async handleConnection(client: Socket): Promise<void> {
@@ -67,6 +113,11 @@ export class NotificationsGateway
     if (client) {
       client.emit('ban', message);
     } else {
+      // nel caso di fail mando una pub per mandare richiesta al ws connesso
+      this.redis.publish(
+        'user_ban:request',
+        JSON.stringify({ userKey: userKey }),
+      );
       console.log(`Client con user.key ${userKey} non trovato`);
     }
   }
