@@ -1,4 +1,4 @@
-# Fleet App - Guida Utente
+# Waste Trucker - Guida Utente
 ## Indice
 1. [Introduzione](#introduzione)
 2. [Accesso al Sistema](#accesso-al-sistema)
@@ -9,7 +9,7 @@
 ---
 
 ## Introduzione
-Fleet App è uno strumento per visualizzare in modo rapido i veicoli aziendali e monitorare e controllare il funzionamento di lettori RFID e antenne.
+Waste Trucker è uno strumento per visualizzare in modo rapido i veicoli aziendali e monitorare e controllare il funzionamento di lettori RFID e antenne.
 
 ---
 ## Accesso al Sistema
