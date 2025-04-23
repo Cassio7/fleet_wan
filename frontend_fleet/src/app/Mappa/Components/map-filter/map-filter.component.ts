@@ -137,7 +137,7 @@ export class MapFilterComponent implements OnInit, AfterViewInit, OnDestroy{
    * @returns stringa normalizzata in minuscolo e senza spazi bianchi
    */
   private _normalizeValue(value: string): string {
-    return value.toLowerCase().replace(/\s/g, '');
+    return value?.toLowerCase().replace(/\s/g, '') || '-';
   }
 
   /**
