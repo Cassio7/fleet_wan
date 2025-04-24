@@ -10,9 +10,11 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
+  effect,
   Input,
   OnChanges,
   OnDestroy,
+  Signal,
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
@@ -36,6 +38,7 @@ import { Session } from '../../Models/Session';
 import { Vehicle } from '../../Models/Vehicle';
 import { SessionStorageService } from '../../Common-services/sessionStorage/session-storage.service';
 import { tagData, TagService } from '../../Common-services/tag/tag.service';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-session-table',
@@ -47,6 +50,7 @@ import { tagData, TagService } from '../../Common-services/tag/tag.service';
     MatIconModule,
     MatTooltipModule,
     MatFormFieldModule,
+    MatProgressSpinnerModule
   ],
   templateUrl: './session-table.component.html',
   styleUrl: './session-table.component.css',
@@ -70,6 +74,8 @@ export class SessionTableComponent implements OnChanges, AfterViewInit, OnDestro
   @ViewChild('sessionsTable') sessionsTable!: MatTable<Session>;
 
   @Input() vehicle!: Vehicle;
+  @Input() dataUpdate!: Signal<number>;
+
   sessionsTableData = new MatTableDataSource<Session>();
   anomaliesTableData = new MatTableDataSource<Anomaly>();
 
@@ -100,9 +106,10 @@ export class SessionTableComponent implements OnChanges, AfterViewInit, OnDestro
   expandedDay: any;
 
   isDettaglio: boolean = false;
-
   dateSelected: boolean = false;
   dataFound: boolean = true; //indica se sono state trovate sessioni un determinato periodo di tempo del veicolo selezionato
+  updating: boolean = false; //indica se i dati stanno venendo aggiornati
+
   lastDateFrom!: Date;
   lastDateTo!: Date;
 
@@ -114,7 +121,28 @@ export class SessionTableComponent implements OnChanges, AfterViewInit, OnDestro
     private tagService: TagService,
     private router: Router,
     private cd: ChangeDetectorRef
-  ) {}
+  ) {
+    effect(() => {
+        const updateNumber = this.dataUpdate(); //to trigger the change detection
+        this.updateData();
+    });
+  }
+
+  private updateData(){
+    this.anomaliesTableData.data = [];
+    this.updating = true;
+    this.cd.detectChanges();
+
+    this.sessionApiService.updateSessionAnomalies(this.vehicle.veId, this.lastDateFrom, this.lastDateTo).pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (response: { message: string }) => {
+        this.updating = false;
+        this.fillTable(this.lastDateFrom, this.lastDateTo);
+      },
+      error: error => console.error("Errore nell'aggiornamento delle anomalie: ", error)
+    });
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
