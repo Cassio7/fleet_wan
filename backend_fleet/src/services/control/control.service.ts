@@ -208,7 +208,11 @@ export class ControlService {
    * @param dateTo data di fine periodo
    * @returns
    */
-  private async checkAntenna(dateFrom: Date, dateTo: Date) {
+  private async checkAntenna(
+    dateFrom: Date,
+    dateTo: Date,
+    vehicles: VehicleEntity[],
+  ) {
     const validation = validateDateRangeNoZ(
       dateFrom.toISOString(),
       dateTo.toISOString(),
@@ -221,8 +225,7 @@ export class ControlService {
     const dateTo_new = new Date(dateTo);
 
     const daysInRange = getDaysInRange(dateFrom_new, dateTo_new);
-    const allVehicles = await this.vehicleService.getVehiclesByReader();
-    const vehicleIds = allVehicles.map((v) => v.veId);
+    const vehicleIds = vehicles.map((v) => v.veId);
 
     const anomaliesForDays = await Promise.all(
       daysInRange.slice(0, -1).map(async (day) => {
@@ -241,7 +244,7 @@ export class ControlService {
             startOfDay,
             endOfDay,
           );
-        return allVehicles.map((vehicle) => {
+        return vehicles.map((vehicle) => {
           const lastTag = tagMap.get(vehicle.veId) || null;
 
           const sessionsDay = sessionMap.get(vehicle.veId) || [];
@@ -449,7 +452,11 @@ export class ControlService {
     return Array.from(vehicleMap.values());
   }
 
-  private async checkQuality(dateFrom: Date, dateTo: Date) {
+  private async checkQuality(
+    dateFrom: Date,
+    dateTo: Date,
+    vehicles: VehicleEntity[],
+  ) {
     const validation = validateDateRangeNoZ(
       dateFrom.toISOString(),
       dateTo.toISOString(),
@@ -462,8 +469,7 @@ export class ControlService {
     const dateTo_new = new Date(dateTo);
 
     const daysInRange = getDaysInRange(dateFrom_new, dateTo_new);
-    const allVehicles = await this.vehicleService.getVehiclesByReader();
-    const vehicleIds = allVehicles.map((v) => v.veId);
+    const vehicleIds = vehicles.map((v) => v.veId);
     const qualityForDays = await Promise.all(
       daysInRange.slice(0, -1).map(async (day) => {
         const startOfDay = new Date(day);
@@ -475,7 +481,7 @@ export class ControlService {
           startOfDay,
           endOfDay,
         );
-        return allVehicles.map((vehicle) => {
+        return vehicles.map((vehicle) => {
           const detections = tags.get(vehicle.veId) || [];
           if (detections.length === 0) {
             return null;
@@ -548,7 +554,11 @@ export class ControlService {
    * @param dateToParam data do fome
    * @returns ritorna false oppure un oggetto con tutte le anomalie divise per veicolo, data e tipologia
    */
-  async checkErrors(dateFromParam: string, dateToParam: string) {
+  async checkErrors(
+    dateFromParam: string,
+    dateToParam: string,
+    veId?: number[],
+  ) {
     const dateFrom = new Date(dateFromParam);
     const dateTo = new Date(dateToParam);
 
@@ -560,7 +570,15 @@ export class ControlService {
     const mergedData = [];
 
     // recupero tutti i veicoli
-    const allVehicles = await this.vehicleService.getActiveVehicles();
+    let allVehicles: VehicleEntity[];
+    let allVehiclesReader: VehicleEntity[];
+    if (veId.length > 0) {
+      allVehicles = await this.vehicleService.getVehiclesByVeId(veId);
+      allVehiclesReader = await this.vehicleService.getVehiclesByReader(veId);
+    } else {
+      allVehicles = await this.vehicleService.getActiveVehicles();
+      allVehiclesReader = await this.vehicleService.getVehiclesByReader(veId);
+    }
 
     // Controlla errore di GPS
     try {
@@ -572,7 +590,11 @@ export class ControlService {
 
     // Controlla errore Antenna
     try {
-      fetchedTagComparisons = await this.checkAntenna(dateFrom, dateTo);
+      fetchedTagComparisons = await this.checkAntenna(
+        dateFrom,
+        dateTo,
+        allVehiclesReader,
+      );
       fetchedTagComparisons = Array.isArray(fetchedTagComparisons)
         ? fetchedTagComparisons
         : [];
@@ -584,7 +606,7 @@ export class ControlService {
     }
 
     try {
-      quality = await this.checkQuality(dateFrom, dateTo);
+      quality = await this.checkQuality(dateFrom, dateTo, allVehiclesReader);
       quality = Array.isArray(quality) ? quality : [];
     } catch (error) {
       console.error(
