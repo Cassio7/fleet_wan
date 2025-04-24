@@ -288,9 +288,12 @@
           <p class="title">Dati storici</p>
           <p class="subtitle">Visualizza i dati storici del mezzo</p>
         </div>
-        <app-session-filters></app-session-filters>
+        <div class="inline-container">
+          <app-session-filters></app-session-filters>
+          <button mat-button class="button" (click)="updateData()"><mat-icon>refresh</mat-icon>Ricalcola dati</button>
+        </div>
       </div>
-      <app-session-table [vehicle]="vehicle"></app-session-table>
+      <app-session-table [vehicle]="vehicle" [dataUpdate]="dataUpdate"></app-session-table>
     </div>
   </div>
 </div>

@@ -26,6 +26,10 @@
   flex-direction: column;
   gap: 20px;
   margin-bottom: 20px;
+
+  .inline-container{
+    justify-content: space-between;
+  }
 }
 
 /* Left Section */

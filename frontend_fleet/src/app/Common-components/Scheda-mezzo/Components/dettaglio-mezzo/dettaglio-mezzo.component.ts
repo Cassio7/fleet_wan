@@ -5,6 +5,8 @@ import {
   Component,
   OnDestroy,
   OnInit,
+  signal,
+  Signal,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -14,7 +16,7 @@ import { MatListModule } from '@angular/material/list';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SessionStorageService } from '../../../../Common-services/sessionStorage/session-storage.service';
 import { VehiclesApiService } from '../../../../Common-services/vehicles api service/vehicles-api.service';
-import { Subject, takeUntil } from 'rxjs';
+import { skip, Subject, takeUntil } from 'rxjs';
 import { Vehicle } from '../../../../Models/Vehicle';
 import { CommonModule } from '@angular/common';
 import { NotesService } from '../../../../Common-services/notes/notes.service';
@@ -61,6 +63,7 @@ export class DettaglioMezzoComponent implements OnInit, OnDestroy {
   stats!: Stats;
   previous_url: string | null = '/dashboard';
   goBack_text: string = 'Torna alla dashboard';
+  dataUpdate = signal(0);
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -168,5 +171,9 @@ export class DettaglioMezzoComponent implements OnInit, OnDestroy {
 
   calculatePercentage(part: number){
     return calulatePercentage(this.stats.num_anomaly, part);
+  }
+
+  updateData(){
+    this.dataUpdate.update(v => v + 1);
   }
 }
