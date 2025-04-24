@@ -13,6 +13,7 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { SessionStorageService } from '../../Common-services/sessionStorage/session-storage.service';
 import { CookieService } from 'ngx-cookie-service';
 import { WebsocketService } from '../../Common-services/websocket/websocket.service';
+import { MapService } from '../../Common-services/map/map.service';
 
 @Component({
   selector: 'app-login',
@@ -58,6 +59,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy{
     private loginService: LoginService,
     private sessionStorageService: SessionStorageService,
     private webSocketService: WebsocketService,
+    private mapService: MapService,
     private cd: ChangeDetectorRef
   ) {
     this.loginForm = new FormGroup({
@@ -115,7 +117,8 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy{
               this.loginService.login$.next();
               this.router.navigate(['/dashboard']).then(() => {
                 setTimeout(() => {
-                  window.dispatchEvent(new Event('resize'));
+                  window.dispatchEvent(new Event('resize')); //resizing dell'interfaccia per evitare il sovrapponimento della sidebar
+                  this.mapService.initMap$.next({point: this.mapService.defaultPoint, zoom: this.mapService.defaultZoom}); //inizializzazione della mappa dopo il resizing
                   this.cd.detectChanges();
                 }, 100);
               });
