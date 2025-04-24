@@ -36,7 +36,7 @@ export class AssociationFactoryService {
 
     // Add new association for user with id 1 to the first company
     const user = await this.userRepository.findOne({
-      where: { username: 'm.rossi' },
+      where: { id: 2 },
     });
 
     if (!user) throw new Error('User "Mario Rossi" not found');
