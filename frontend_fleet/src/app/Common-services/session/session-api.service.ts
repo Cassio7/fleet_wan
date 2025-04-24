@@ -88,8 +88,6 @@ export class SessionApiService {
       dateTo: dateTo.toString()
     }
 
-    console.log("request body: ", body);
-
     return this.http.post<VehicleAnomalies>(`${serverUrl}/anomaly/veId/ranged`, body, {headers});
   }
 
@@ -100,6 +98,11 @@ export class SessionApiService {
    * @returns observable post http
    */
   public getAllSessionsRanged(start_date: Date, end_date: Date) {
+    const access_token = this.cookieService.get("user");
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${access_token}`,
+      'Content-Type': 'application/json'
+    });
     const dateFrom = start_date.toString();
     const dateTo = end_date.toString();
 
@@ -110,13 +113,32 @@ export class SessionApiService {
     };
 
     // Send the POST request
-    return this.http.post<Session[]>(`${serverUrl}/session/ranged/all`, body)
+    return this.http.post<Session[]>(`${serverUrl}/session/ranged/all`, body, {headers})
       .pipe(
         catchError(error => {
           console.error('Errore durante la richiesta:', error);
           throw error;
         })
       );
+  }
+
+  updateSessionAnomalies(veId: number, start_date: Date, end_date: Date): Observable<{message: string}>{
+    const access_token = this.cookieService.get("user");
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${access_token}`,
+      'Content-Type': 'application/json'
+    });
+
+    const dateFrom = start_date.toString();
+    const dateTo = end_date.toString();
+
+    const body = {
+      veId: veId,
+      dateFrom: dateFrom,
+      dateTo: dateTo
+    }
+
+    return this.http.post<{message: string}>(`${serverUrl}/refresher`, body, {headers});
   }
 
   /**
