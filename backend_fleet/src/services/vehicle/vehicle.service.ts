@@ -524,6 +524,53 @@ export class VehicleService {
   }
 
   /**
+   * Recupera tutti i veicoli che sono RFID Reader, chiamato solo dentro server
+   * @returns
+   */
+  async getVehiclesByReader(veId: number[]): Promise<VehicleEntity[]> {
+    try {
+      let vehicles: VehicleEntity[];
+      if (veId.length > 0) {
+        vehicles = await this.vehicleRepository.find({
+          where: {
+            veId: In(veId),
+            allestimento: true,
+            retired_event: IsNull(),
+            worksite: Not(IsNull()),
+          },
+          relations: {
+            worksite: true,
+          },
+          order: {
+            id: 'ASC',
+          },
+        });
+      } else {
+        vehicles = await this.vehicleRepository.find({
+          where: {
+            allestimento: true,
+            retired_event: IsNull(),
+            worksite: Not(IsNull()),
+          },
+          relations: {
+            worksite: true,
+          },
+          order: {
+            id: 'ASC',
+          },
+        });
+      }
+      return vehicles;
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new HttpException(
+        `Errore durante recupero dei veicoli con allestimento`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  /**
    * Recupera i veicoli per utente admin, prima quelli senza cantiere
    * @returns
    */
@@ -668,17 +715,33 @@ export class VehicleService {
   }
 
   /**
-   * Recupera tutti i veicoli che sono RFID Reader, chiamato solo dentro server
+   * Recupera i veicoli in base all array di veid passati, solo dentro server
+   * @param veId array veid
    * @returns
    */
-  async getVehiclesByReader(): Promise<VehicleEntity[]> {
-    const vehicles = await this.vehicleRepository.find({
-      where: { allestimento: true, retired_event: IsNull() },
-      order: {
-        id: 'ASC',
-      },
-    });
-    return vehicles;
+  async getVehiclesByVeId(veId: number[]): Promise<VehicleEntity[]> {
+    try {
+      const vehicles = await this.vehicleRepository.find({
+        where: {
+          veId: In(veId),
+          retired_event: IsNull(),
+          worksite: Not(IsNull()),
+        },
+        relations: {
+          worksite: true,
+        },
+        order: {
+          id: 'ASC',
+        },
+      });
+      return vehicles;
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new HttpException(
+        `Errore durante recupero di più veicoli by veid`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   /**
