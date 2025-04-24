@@ -577,10 +577,10 @@ export class AnomalyService {
           .create({
             vehicle: vehicle,
             date: day,
-            session: normalizedSession,
             gps: normalizedGps,
             antenna: normalizedAntenna,
             detection_quality: detection_quality,
+            session: normalizedSession,
             hash: hash,
           });
         await queryRunner.manager.getRepository(AnomalyEntity).save(anomaly);
@@ -589,10 +589,10 @@ export class AnomalyService {
         const anomaly = {
           vehicle: vehicle,
           date: day,
-          session: normalizedSession,
           gps: normalizedGps,
           antenna: normalizedAntenna,
           detection_quality: detection_quality,
+          session: normalizedSession,
           hash: hash,
         };
         await queryRunner.manager
