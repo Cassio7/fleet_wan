@@ -79,6 +79,8 @@ import { VehicleService } from './services/vehicle/vehicle.service';
 import { WorksiteHistoryService } from './services/worksite-history/worksite-history.service';
 import { WorksiteService } from './services/worksite/worksite.service';
 import { WorkzoneService } from './services/workzone/workzone.service';
+import { RefresherService } from './services/refresher/refresher.service';
+import { RefresherController } from './controllers/refresher/refresher.controller';
 
 @Global()
 @Module({
@@ -316,6 +318,7 @@ import { WorkzoneService } from './services/workzone/workzone.service';
     ServiceController,
     WorksiteHistoryController,
     WorkzoneController,
+    RefresherController,
   ],
   providers: [
     AppService,
@@ -350,6 +353,7 @@ import { WorkzoneService } from './services/workzone/workzone.service';
     WorksiteHistoryService,
     ExportService,
     WorkzoneService,
+    RefresherService,
   ],
 })
 export class AppModule {}
