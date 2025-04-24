@@ -572,12 +572,12 @@ export class ControlService {
     // recupero tutti i veicoli
     let allVehicles: VehicleEntity[];
     let allVehiclesReader: VehicleEntity[];
-    if (veId.length > 0) {
+    if (veId && veId.length > 0) {
       allVehicles = await this.vehicleService.getVehiclesByVeId(veId);
       allVehiclesReader = await this.vehicleService.getVehiclesByReader(veId);
     } else {
       allVehicles = await this.vehicleService.getActiveVehicles();
-      allVehiclesReader = await this.vehicleService.getVehiclesByReader(veId);
+      allVehiclesReader = await this.vehicleService.getVehiclesByReader([]);
     }
 
     // Controlla errore di GPS
