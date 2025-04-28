@@ -14,7 +14,7 @@
       </div>
       {{
           getVehiclesPercentage(workingVehicles)
-          .toFixed(0) + "%"
+          .toFixed(1) + "%"
       }}
       <mat-progress-bar
         mode="determinate"
@@ -103,7 +103,7 @@
       </div>
       {{
           getVehiclesPercentage(getAllErrorVehicles())
-          .toFixed(0) + "%"
+          .toFixed(1) + "%"
       }}
       <mat-progress-bar
         mode="determinate"

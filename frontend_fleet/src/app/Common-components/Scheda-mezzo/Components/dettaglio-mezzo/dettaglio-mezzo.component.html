@@ -109,10 +109,10 @@
               <div class="stats-section">
                 <h6 class="title">GPS</h6>
                 <div class="stats-grid">
-                  <div class="stat-box green">OK: {{ calculatePercentage(stats.gps.ok).toFixed() || 0 }}% ({{ stats.gps.ok }})</div>
-                  <div class="stat-box orange">Warning: {{ calculatePercentage(stats.gps.warning).toFixed() || 0 }}% ({{ stats.gps.warning }})</div>
-                  <div class="stat-box red">Error: {{ calculatePercentage(stats.gps.error).toFixed() || 0 }}% ({{ stats.gps.error || 0 }})</div>
-                  <div class="stat-box gray">Nessun dato: {{ calculatePercentage(stats.gps.null).toFixed() || 0 }}% ({{ stats.gps.null || 0 }})</div>
+                  <div class="stat-box green">OK: {{ calculatePercentage(stats.gps.ok).toFixed(1) || 0 }}% ({{ stats.gps.ok }})</div>
+                  <div class="stat-box orange">Warning: {{ calculatePercentage(stats.gps.warning).toFixed(1) || 0 }}% ({{ stats.gps.warning }})</div>
+                  <div class="stat-box red">Error: {{ calculatePercentage(stats.gps.error).toFixed(1) || 0 }}% ({{ stats.gps.error || 0 }})</div>
+                  <div class="stat-box gray">Nessun dato: {{ calculatePercentage(stats.gps.null).toFixed(1) || 0 }}% ({{ stats.gps.null || 0 }})</div>
                 </div>
               </div>
 
@@ -120,10 +120,10 @@
               <div class="stats-section">
                 <h6 class="title">Antenna</h6>
                 <div class="stats-grid">
-                  <div class="stat-box green">OK: {{ calculatePercentage(stats.antenna.ok).toFixed() || 0 }}% ({{ stats.antenna.ok }})</div>
-                  <div class="stat-box red">No tag letto: {{ calculatePercentage(stats.antenna.notag).toFixed() || 0 }}% ({{ stats.antenna.notag || 0 }})</div>
-                  <div class="stat-box red">No session: {{ calculatePercentage(stats.antenna.nosession).toFixed() || 0 }}% ({{ stats.antenna.nosession || 0 }})</div>
-                  <div class="stat-box gray">Nessun dato: {{ calculatePercentage(stats.antenna.null).toFixed() || 0 }}% ({{ stats.antenna.null || 0 }})</div>
+                  <div class="stat-box green">OK: {{ calculatePercentage(stats.antenna.ok).toFixed(1) || 0 }}% ({{ stats.antenna.ok }})</div>
+                  <div class="stat-box red">No tag letto: {{ calculatePercentage(stats.antenna.notag).toFixed(1) || 0 }}% ({{ stats.antenna.notag || 0 }})</div>
+                  <div class="stat-box red">No session: {{ calculatePercentage(stats.antenna.nosession).toFixed(1) || 0 }}% ({{ stats.antenna.nosession || 0 }})</div>
+                  <div class="stat-box gray">Nessun dato: {{ calculatePercentage(stats.antenna.null).toFixed(1) || 0 }}% ({{ stats.antenna.null || 0 }})</div>
                 </div>
               </div>
 
@@ -131,9 +131,9 @@
               <div class="stats-section">
                 <h6 class="title">Qualità rilevamento</h6>
                 <div class="stats-grid">
-                  <div class="stat-box green">Excellent: {{ calculatePercentage(stats.detection_quality.excellent).toFixed() || 0 }}% ({{ stats.detection_quality.excellent }})</div>
-                  <div class="stat-box orange">Good: {{ calculatePercentage(stats.detection_quality.good).toFixed() || 0 }}% ({{ stats.detection_quality.good || 0 }})</div>
-                  <div class="stat-box red">Poor: {{ calculatePercentage(stats.detection_quality.poor).toFixed() || 0 }}% ({{ stats.detection_quality.poor || 0 }})</div>
+                  <div class="stat-box green">Excellent: {{ calculatePercentage(stats.detection_quality.excellent).toFixed(1) || 0 }}% ({{ stats.detection_quality.excellent }})</div>
+                  <div class="stat-box orange">Good: {{ calculatePercentage(stats.detection_quality.good).toFixed(1) || 0 }}% ({{ stats.detection_quality.good || 0 }})</div>
+                  <div class="stat-box red">Poor: {{ calculatePercentage(stats.detection_quality.poor).toFixed(1) || 0 }}% ({{ stats.detection_quality.poor || 0 }})</div>
                 </div>
               </div>
 
@@ -141,9 +141,9 @@
               <div class="stats-section">
                 <h6 class="title">Sessione</h6>
                 <div class="stats-grid">
-                  <div class="stat-box green">OK: {{ calculatePercentage(stats.session.ok).toFixed() || 0 }}% ({{ stats.session.ok }})</div>
-                  <div class="stat-box red">Aperta: {{ calculatePercentage(stats.session.open).toFixed() || 0 }}% ({{ stats.session.open || 0 }})</div>
-                  <div class="stat-box gray">Nulla: {{ calculatePercentage(stats.session.null).toFixed() || 0 }}% ({{ stats.session.null || 0 }})</div>
+                  <div class="stat-box green">OK: {{ calculatePercentage(stats.session.ok).toFixed(1) || 0 }}% ({{ stats.session.ok }})</div>
+                  <div class="stat-box red">Aperta: {{ calculatePercentage(stats.session.open).toFixed(1) || 0 }}% ({{ stats.session.open || 0 }})</div>
+                  <div class="stat-box gray">Nulla: {{ calculatePercentage(stats.session.null).toFixed(1) || 0 }}% ({{ stats.session.null || 0 }})</div>
                 </div>
               </div>
 

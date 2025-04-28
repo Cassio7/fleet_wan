@@ -15,14 +15,14 @@
       <span>{{
         kanbanAntennaService
           .getVehiclesPercentage(kanbanAntennaService.workingVehicles)
-          .toFixed(0) + "%"
+          .toFixed(1) + "%"
       }}</span>
       <mat-progress-bar
         mode="determinate"
         [matTooltip]="
           kanbanAntennaService
             .getVehiclesPercentage(kanbanAntennaService.workingVehicles)
-            .toFixed(0) + '%'
+            .toFixed(1) + '%'
         "
         [value]="
           kanbanAntennaService.getVehiclesPercentage(
@@ -78,14 +78,14 @@
       <span>{{
         kanbanAntennaService
           .getVehiclesPercentage(kanbanAntennaService.errorVehicles)
-          .toFixed(0) + "%"
+          .toFixed(1) + "%"
       }}</span>
       <mat-progress-bar
         mode="determinate"
         [matTooltip]="
           kanbanAntennaService
             .getVehiclesPercentage(kanbanAntennaService.errorVehicles)
-            .toFixed(0) + '%'
+            .toFixed(1) + '%'
         "
         [value]="
           kanbanAntennaService.getVehiclesPercentage(
@@ -146,14 +146,14 @@
       <span>{{
         kanbanAntennaService
           .getVehiclesPercentage(kanbanAntennaService.blackboxVehicles)
-          .toFixed(0) + "%"
+          .toFixed(1) + "%"
       }}</span>
       <mat-progress-bar
         mode="determinate"
         [matTooltip]="
           kanbanAntennaService
             .getVehiclesPercentage(kanbanAntennaService.blackboxVehicles)
-            .toFixed(0) + '%'
+            .toFixed(1) + '%'
         "
         [value]="
           (kanbanAntennaService.blackboxVehicles.length /

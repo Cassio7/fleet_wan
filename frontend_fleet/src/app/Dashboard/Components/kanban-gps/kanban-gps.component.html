@@ -15,14 +15,14 @@
       {{
         kanbanGpsService
           .getVehiclesPercentage(kanbanGpsService.workingVehicles)
-          .toFixed(0) + "%"
+          .toFixed(1) + "%"
       }}
       <mat-progress-bar
         mode="determinate"
         [value]="
-          kanbanGpsService.getVehiclesPercentage(
-            kanbanGpsService.workingVehicles
-          )
+          kanbanGpsService
+            .getVehiclesPercentage(kanbanGpsService.workingVehicles)
+            .toFixed(1)
         "
         class="progress-bar working-bar"
         color="accent"
@@ -49,7 +49,9 @@
                   >map</mat-icon
                 >
               </div>
-              <span class="plate-container">{{ vehicleData.vehicle.plate }}</span>
+              <span class="plate-container">{{
+                vehicleData.vehicle.plate
+              }}</span>
             </div>
           </mat-list-item>
         </mat-list>
@@ -70,14 +72,14 @@
       {{
         kanbanGpsService
           .getVehiclesPercentage(kanbanGpsService.warningVehicles)
-          .toFixed(0) + "%"
+          .toFixed(1) + "%"
       }}
       <mat-progress-bar
         mode="determinate"
         [value]="
-          kanbanGpsService.getVehiclesPercentage(
-            kanbanGpsService.warningVehicles
-          )
+          kanbanGpsService
+            .getVehiclesPercentage(kanbanGpsService.warningVehicles)
+            .toFixed(1)
         "
         class="progress-bar warning-bar"
         color="accent"
@@ -109,7 +111,9 @@
                   >map</mat-icon
                 >
               </div>
-              <span class="plate-container">{{ vehicleData.vehicle.plate }}</span>
+              <span class="plate-container">{{
+                vehicleData.vehicle.plate
+              }}</span>
             </div>
           </mat-list-item>
         </mat-list>
@@ -128,13 +132,15 @@
       {{
         kanbanGpsService
           .getVehiclesPercentage(kanbanGpsService.errorVehicles)
-          .toFixed(0) + "%"
+          .toFixed(1) + "%"
       }}
       <mat-progress-bar
         mode="determinate"
         color="accent"
         [value]="
-          kanbanGpsService.getVehiclesPercentage(kanbanGpsService.errorVehicles)
+          kanbanGpsService
+            .getVehiclesPercentage(kanbanGpsService.errorVehicles)
+            .toFixed(1)
         "
         class="progress-bar error-bar"
       ></mat-progress-bar>
@@ -165,7 +171,9 @@
                   >map</mat-icon
                 >
               </div>
-              <span class="plate-container">{{ vehicleData.vehicle.plate }}</span>
+              <span class="plate-container">{{
+                vehicleData.vehicle.plate
+              }}</span>
             </div>
           </mat-list-item>
         </mat-list>
