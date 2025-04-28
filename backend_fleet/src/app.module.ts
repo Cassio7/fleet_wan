@@ -1,5 +1,5 @@
 import { RedisModule } from '@nestjs-modules/ioredis';
-import { Global, Module } from '@nestjs/common';
+import { Global, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -35,6 +35,7 @@ import { EquipmentController } from './controllers/equipment/equipment.controlle
 import { GroupController } from './controllers/group/group.controller';
 import { NotesController } from './controllers/notes/notes.controller';
 import { RealtimeController } from './controllers/realtime/realtime.controller';
+import { RefresherController } from './controllers/refresher/refresher.controller';
 import { RentalController } from './controllers/rental/rental.controller';
 import { ServiceController } from './controllers/service/service.controller';
 import { SessionController } from './controllers/session/session.controller';
@@ -59,6 +60,7 @@ import { SessionVehicleModule } from './modules/session-vehicle.module';
 import { NotificationsController } from './notifications/notifications.controller';
 import { NotificationsGateway } from './notifications/notifications.gateway';
 import { NotificationsService } from './notifications/notifications.service';
+import { PrometheusModule } from './prometheus/prometheus.module';
 import { AnomalyService } from './services/anomaly/anomaly.service';
 import { StatsService } from './services/anomaly/stats/stats.service';
 import { AssociationService } from './services/association/association.service';
@@ -68,6 +70,7 @@ import { EquipmentService } from './services/equipment/equipment.service';
 import { GroupService } from './services/group/group.service';
 import { NotesService } from './services/notes/notes.service';
 import { RealtimeService } from './services/realtime/realtime.service';
+import { RefresherService } from './services/refresher/refresher.service';
 import { RentalService } from './services/rental/rental.service';
 import { RoleService } from './services/role/role.service';
 import { ServiceService } from './services/service/service.service';
@@ -79,8 +82,7 @@ import { VehicleService } from './services/vehicle/vehicle.service';
 import { WorksiteHistoryService } from './services/worksite-history/worksite-history.service';
 import { WorksiteService } from './services/worksite/worksite.service';
 import { WorkzoneService } from './services/workzone/workzone.service';
-import { RefresherService } from './services/refresher/refresher.service';
-import { RefresherController } from './controllers/refresher/refresher.controller';
+import { PrometheusMiddleware } from './prometheus/prometheus.middleware';
 
 @Global()
 @Module({
@@ -296,6 +298,7 @@ import { RefresherController } from './controllers/refresher/refresher.controlle
     LoggerModule,
     SessionVehicleModule,
     AuthModule,
+    PrometheusModule,
   ],
 
   controllers: [
@@ -356,4 +359,8 @@ import { RefresherController } from './controllers/refresher/refresher.controlle
     RefresherService,
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(PrometheusMiddleware).forRoutes('*'); // Applica il middleware per tutte le rotte  }
+  }
+}
