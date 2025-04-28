@@ -1,14 +1,14 @@
-import { AfterViewInit, Component, OnDestroy } from '@angular/core';
-import { MapComponent } from "../../../Common-components/map/map.component";
-import { MapService } from '../../../Common-services/map/map.service';
-import { Point } from '../../../Models/Point';
-import { RealtimeApiService, RealtimeData } from '../../../Common-services/realtime-api/realtime-api.service';
-import { Subject, takeUntil } from 'rxjs';
-import { MapFilterComponent } from "../map-filter/map-filter.component";
-import { MappaInfoComponent } from "../mappa-info/mappa-info.component";
 import { CommonModule } from '@angular/common';
+import { AfterViewInit, Component, OnDestroy } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { Subject, takeUntil } from 'rxjs';
+import { MapComponent } from "../../../Common-components/map/map.component";
+import { MapService } from '../../../Common-services/map/map.service';
+import { RealtimeApiService, RealtimeData } from '../../../Common-services/realtime-api/realtime-api.service';
+import { Point } from '../../../Models/Point';
+import { MapFilterComponent } from "../map-filter/map-filter.component";
+import { MappaInfoComponent } from "../mappa-info/mappa-info.component";
 
 @Component({
   selector: 'app-home-map',

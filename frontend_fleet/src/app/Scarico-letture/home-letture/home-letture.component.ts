@@ -1,16 +1,16 @@
-import { TagDownloadData, TagService } from './../../Common-services/tag/tag.service';
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { LettureTableComponent } from "../letture-table/letture-table.component";
-import { GestioneCantieriService } from '../../Common-services/gestione-cantieri/gestione-cantieri.service';
+import { CommonModule } from '@angular/common';
+import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { skip, Subject, takeUntil } from 'rxjs';
+import { GestioneCantieriService } from '../../Common-services/gestione-cantieri/gestione-cantieri.service';
 import { WorkSite } from '../../Models/Worksite';
 import { LettureFiltersComponent } from "../letture-filters/letture-filters.component";
-import { MatButtonModule } from '@angular/material/button';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatIconModule } from '@angular/material/icon';
+import { LettureTableComponent } from "../letture-table/letture-table.component";
 import { LettureFilters, LettureFilterService } from '../Services/letture-filter/letture-filter.service';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { CommonModule } from '@angular/common';
+import { TagDownloadData, TagService } from './../../Common-services/tag/tag.service';
 
 export interface tagDownloadResponse{
   count: number,

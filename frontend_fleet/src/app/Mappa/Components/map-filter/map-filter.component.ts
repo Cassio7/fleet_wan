@@ -1,27 +1,27 @@
-import { WorkSite } from './../../../Models/Worksite';
+import { CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatButtonModule } from '@angular/material/button';
 import { MatOptionModule } from '@angular/material/core';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { CantieriFilterService } from '../../../Common-services/cantieri-filter/cantieri-filter.service';
-import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { CommonModule } from '@angular/common';
-import { MapService } from '../../../Common-services/map/map.service';
-import { Observable, of, Subject, takeUntil, tap, map, startWith } from 'rxjs';
-import { VehiclesApiService } from '../../../Common-services/vehicles api service/vehicles-api.service';
-import { PlateFilterService } from '../../../Common-services/plate-filter/plate-filter.service';
-import { Vehicle } from '../../../Models/Vehicle';
-import { MapFilterService } from '../../Services/map-filter/map-filter.service';
-import { VehicleData } from '../../../Models/VehicleData';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import {MatAutocompleteModule} from '@angular/material/autocomplete';
+import { map, Observable, of, startWith, Subject, takeUntil, tap } from 'rxjs';
+import { CantieriFilterService } from '../../../Common-services/cantieri-filter/cantieri-filter.service';
+import { MapService } from '../../../Common-services/map/map.service';
+import { PlateFilterService } from '../../../Common-services/plate-filter/plate-filter.service';
 import { RealtimeData } from '../../../Common-services/realtime-api/realtime-api.service';
+import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
+import { VehiclesApiService } from '../../../Common-services/vehicles api service/vehicles-api.service';
+import { Vehicle } from '../../../Models/Vehicle';
+import { VehicleData } from '../../../Models/VehicleData';
+import { MapFilterService } from '../../Services/map-filter/map-filter.service';
+import { WorkSite } from './../../../Models/Worksite';
 
 @Component({
   selector: 'app-map-filter',

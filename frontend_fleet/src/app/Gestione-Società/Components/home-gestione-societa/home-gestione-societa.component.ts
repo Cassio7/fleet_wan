@@ -6,19 +6,18 @@ import {
   OnDestroy,
   OnInit,
 } from '@angular/core';
-import { Company } from '../../../Models/Company';
-import { SocietaTableComponent } from '../societa-table/societa-table.component';
-import { SocietaFiltersComponent } from '../societa-filters/societa-filters.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject, takeUntil } from 'rxjs';
+import { Company } from '../../../Models/Company';
 import { Group } from '../../../Models/Group';
-import { GestioneSocietaService } from '../../Services/gestione-societa/gestione-societa.service';
-import { MatIconModule } from '@angular/material/icon';
-import { SocietaCreateDialogComponent } from '../societa-create-dialog/societa-create-dialog/societa-create-dialog.component';
-import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.component';
 import { openSnackbar } from '../../../Utils/snackbar';
+import { GestioneSocietaService } from '../../Services/gestione-societa/gestione-societa.service';
+import { SocietaCreateDialogComponent } from '../societa-create-dialog/societa-create-dialog/societa-create-dialog.component';
+import { SocietaFiltersComponent } from '../societa-filters/societa-filters.component';
+import { SocietaTableComponent } from '../societa-table/societa-table.component';
 
 @Component({
   selector: 'app-home-gestione-societa',

@@ -1,25 +1,22 @@
-import { vehicleUpdateData } from './../../../Common-services/vehicles api service/vehicles-api.service';
-import { AfterViewInit, Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
-import { Vehicle } from '../../../Models/Vehicle';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatInputModule } from '@angular/material/input';
-import { SvgService } from '../../../Common-services/svg/svg.service';
 import { CommonModule } from '@angular/common';
+import { AfterViewInit, Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDivider, MatDividerModule } from '@angular/material/divider';
-import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
-import { Group } from '../../../Models/Group';
-import { WorkSite } from '../../../Models/Worksite';
-import { Workzone } from '../../../Models/Workzone';
-import { Rental } from '../../../Models/Rental';
-import { Company } from '../../../Models/Company';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { Service } from '../../../Models/Service';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { Equipment } from '../../../Models/Equipment';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { SvgService } from '../../../Common-services/svg/svg.service';
+import { Equipment } from '../../../Models/Equipment';
+import { Rental } from '../../../Models/Rental';
+import { Service } from '../../../Models/Service';
+import { Vehicle } from '../../../Models/Vehicle';
+import { Workzone } from '../../../Models/Workzone';
+import { vehicleUpdateData } from './../../../Common-services/vehicles api service/vehicles-api.service';
 
 @Component({
   selector: 'app-info-edit',

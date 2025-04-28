@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
   Component,
   effect,
@@ -8,7 +9,11 @@ import {
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
+import { FormControl } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import {
@@ -18,22 +23,16 @@ import {
 } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
-import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.component';
-import { SortService } from '../../../Common-services/sort/sort.service';
-import { Vehicle } from '../../../Models/Vehicle';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatMenuModule } from '@angular/material/menu';
-import { CommonModule } from '@angular/common';
-import {
-  GestioneVeicoliService,
-} from '../../Services/gestione-veicoli.service';
 import {
   Filters,
   FiltersCommonService,
 } from '../../../Common-services/filters-common/filters-common.service';
-import { FormControl } from '@angular/forms';
+import { SortService } from '../../../Common-services/sort/sort.service';
 import { SvgService } from '../../../Common-services/svg/svg.service';
+import { Vehicle } from '../../../Models/Vehicle';
+import {
+  GestioneVeicoliService,
+} from '../../Services/gestione-veicoli.service';
 
 @Component({
   selector: 'app-veicoli-table',

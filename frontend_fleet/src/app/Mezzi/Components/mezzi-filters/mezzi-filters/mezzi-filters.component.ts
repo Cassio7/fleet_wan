@@ -1,23 +1,23 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, ViewEncapsulation } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatOptionModule } from '@angular/material/core';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { CantieriFilterService } from '../../../../Common-services/cantieri-filter/cantieri-filter.service';
 import { MatSelectModule } from '@angular/material/select';
-import { SessionStorageService } from '../../../../Common-services/sessionStorage/session-storage.service';
-import { VehicleData } from '../../../../Models/VehicleData';
-import { PlateFilterService } from '../../../../Common-services/plate-filter/plate-filter.service';
-import { NotesService } from '../../../../Common-services/notes/notes.service';
-import { Note } from '../../../../Models/Note';
 import { Subject, takeUntil } from 'rxjs';
-import { Vehicle } from '../../../../Models/Vehicle';
-import { MezziFiltersService } from '../../../Services/mezzi-filters/mezzi-filters.service';
+import { CantieriFilterService } from '../../../../Common-services/cantieri-filter/cantieri-filter.service';
 import { Filters, FiltersCommonService } from '../../../../Common-services/filters-common/filters-common.service';
-import { MatDividerModule } from '@angular/material/divider';
+import { NotesService } from '../../../../Common-services/notes/notes.service';
+import { PlateFilterService } from '../../../../Common-services/plate-filter/plate-filter.service';
+import { SessionStorageService } from '../../../../Common-services/sessionStorage/session-storage.service';
+import { Note } from '../../../../Models/Note';
+import { Vehicle } from '../../../../Models/Vehicle';
+import { VehicleData } from '../../../../Models/VehicleData';
+import { MezziFiltersService } from '../../../Services/mezzi-filters/mezzi-filters.service';
 
 @Component({
   selector: 'app-mezzi-filters',

@@ -1,4 +1,3 @@
-import { AfterViewInit, ChangeDetectorRef, Component, inject, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
 import {
   CdkDrag,
   CdkDragDrop,
@@ -7,18 +6,18 @@ import {
   moveItemInArray,
   transferArrayItem,
 } from '@angular/cdk/drag-drop';
-import { Vehicle } from '../../../Models/Vehicle';
-import { WorkSite } from '../../../Models/Worksite';
-import { MatIconModule } from '@angular/material/icon';
+import { CommonModule } from '@angular/common';
+import { AfterViewInit, ChangeDetectorRef, Component, inject, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { MoveCantiereDialogComponent } from '../move-cantiere-dialog/move-cantiere-dialog.component';
-import { Subject, takeUntil } from 'rxjs';
+import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.component';
+import { Subject, takeUntil } from 'rxjs';
 import { GestioneCantieriService } from '../../../Common-services/gestione-cantieri/gestione-cantieri.service';
 import { PlateFilterService } from '../../../Common-services/plate-filter/plate-filter.service';
-import { CommonModule } from '@angular/common';
+import { Vehicle } from '../../../Models/Vehicle';
+import { WorkSite } from '../../../Models/Worksite';
 import { openSnackbar } from '../../../Utils/snackbar';
+import { MoveCantiereDialogComponent } from '../move-cantiere-dialog/move-cantiere-dialog.component';
 
 @Component({
   selector: 'app-associations-kanban',

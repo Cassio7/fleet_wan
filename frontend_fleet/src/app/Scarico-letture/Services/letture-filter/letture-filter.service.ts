@@ -1,7 +1,5 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { Tag } from '../../../Models/Tag';
-import { TagHistory } from '../../../Models/TagHistory';
 
 export interface LettureFilters{
   cantieriNames: string[],

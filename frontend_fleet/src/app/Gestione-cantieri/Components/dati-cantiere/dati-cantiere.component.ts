@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, inject, Input, OnDestroy } from '@angular/core';
-import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
@@ -10,12 +10,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Subject, takeUntil } from 'rxjs';
-import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.component';
-import { AuthService } from '../../../Common-services/auth/auth.service';
-import { User } from '../../../Models/User';
-import { WorkSite } from '../../../Models/Worksite';
 import { GestioneCantieriService } from '../../../Common-services/gestione-cantieri/gestione-cantieri.service';
 import { Group } from '../../../Models/Group';
+import { WorkSite } from '../../../Models/Worksite';
 import { openSnackbar } from '../../../Utils/snackbar';
 
 @Component({

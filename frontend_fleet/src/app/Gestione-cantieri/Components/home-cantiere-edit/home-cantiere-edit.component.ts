@@ -1,16 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
-import { AssociationsKanbanComponent } from "../associations-kanban/associations-kanban.component";
-import { DatiCantiereComponent } from "../dati-cantiere/dati-cantiere.component";
-import { Router, ActivatedRoute } from '@angular/router';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
-import { WorkSite } from '../../../Models/Worksite';
 import { GestioneCantieriService } from '../../../Common-services/gestione-cantieri/gestione-cantieri.service';
+import { SortService } from '../../../Common-services/sort/sort.service';
+import { VehiclesApiService } from '../../../Common-services/vehicles api service/vehicles-api.service';
 import { Group } from '../../../Models/Group';
 import { Vehicle } from '../../../Models/Vehicle';
-import { VehiclesApiService } from '../../../Common-services/vehicles api service/vehicles-api.service';
+import { WorkSite } from '../../../Models/Worksite';
+import { AssociationsKanbanComponent } from "../associations-kanban/associations-kanban.component";
 import { CantiereEditFiltersComponent } from "../cantiere-edit-filters/cantiere-edit-filters.component";
-import { SortService } from '../../../Common-services/sort/sort.service';
+import { DatiCantiereComponent } from "../dati-cantiere/dati-cantiere.component";
 
 @Component({
   selector: 'app-home-cantiere-edit',

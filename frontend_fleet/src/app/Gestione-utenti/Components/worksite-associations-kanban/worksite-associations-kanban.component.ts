@@ -1,15 +1,14 @@
-import { CdkDropListGroup, CdkDropList, CdkDrag, CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { CdkDrag, CdkDragDrop, CdkDropList, CdkDropListGroup, moveItemInArray } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectorRef, Component, inject, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatDividerModule } from '@angular/material/divider';
-import { AssociationsService, getAssociationsResponse } from '../../Services/associations/associations.service';
 import { Subject, takeUntil } from 'rxjs';
-import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.component';
 import { Association } from '../../../Models/Association';
 import { WorkSite } from '../../../Models/Worksite';
 import { openSnackbar } from '../../../Utils/snackbar';
+import { AssociationsService, getAssociationsResponse } from '../../Services/associations/associations.service';
 
 @Component({
   selector: 'app-worksite-associations-kanban',

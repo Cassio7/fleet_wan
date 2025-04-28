@@ -1,21 +1,18 @@
-import { AfterViewInit, Component, effect, EventEmitter, inject, Input, input, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild } from '@angular/core';
-import { WorkSite } from '../../../Models/Worksite';
+import { AfterViewInit, Component, effect, EventEmitter, inject, Input, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
-import { SortService } from '../../../Common-services/sort/sort.service';
-import { GestioneService, GestioneFilters } from '../../../Gestione-utenti/Services/gestione/gestione.service';
-import { User } from '../../../Models/User';
 import { GestioneCantieriService } from '../../../Common-services/gestione-cantieri/gestione-cantieri.service';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.component';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { DeleteCantiereDialogComponent } from '../delete-cantiere-dialog/delete-cantiere-dialog.component';
+import { SortService } from '../../../Common-services/sort/sort.service';
+import { WorkSite } from '../../../Models/Worksite';
 import { openSnackbar } from '../../../Utils/snackbar';
+import { DeleteCantiereDialogComponent } from '../delete-cantiere-dialog/delete-cantiere-dialog.component';
 
 @Component({
   selector: 'app-cantieri-table',

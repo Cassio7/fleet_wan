@@ -1,14 +1,13 @@
-import { TagDownloadData, TagService } from './../../Common-services/tag/tag.service';
-import { AfterViewInit, Component, effect, EventEmitter, inject, Input, OnDestroy, Output, ViewChild } from '@angular/core';
-import { WorkSite } from '../../Models/Worksite';
+import { CommonModule } from '@angular/common';
+import { AfterViewInit, Component, EventEmitter, inject, Input, OnDestroy, Output, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { Tag } from '../../Models/Tag';
-import { firstValueFrom, skip, Subject, takeUntil } from 'rxjs';
-import { LettureFilters, LettureFilterService } from '../Services/letture-filter/letture-filter.service';
-import { CommonModule } from '@angular/common';
+import { skip, Subject, takeUntil } from 'rxjs';
+import { WorkSite } from '../../Models/Worksite';
 import { tagDownloadResponse } from '../home-letture/home-letture.component';
+import { LettureFilters, LettureFilterService } from '../Services/letture-filter/letture-filter.service';
+import { TagDownloadData, TagService } from './../../Common-services/tag/tag.service';
 
 @Component({
   selector: 'app-letture-table',

@@ -1,23 +1,23 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { MapComponent } from "../../../Common-components/map/map.component";
-import { SessionTableComponent } from "../../../Common-components/session-table/session-table.component";
-import { ListaMezziComponent } from "../lista-mezzi/lista-mezzi.component";
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { SessionFiltersComponent } from "../../../Common-components/session-filters/session-filters.component";
-import { ListaFiltersComponent } from "../lista-filters/lista-filters.component";
-import { Vehicle } from '../../../Models/Vehicle';
-import { MatListModule } from '@angular/material/list';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MapService, pathData } from '../../../Common-services/map/map.service';
-import { skip, Subject, takeUntil, map, filter } from 'rxjs';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { skip, Subject, takeUntil } from 'rxjs';
+import { MapComponent } from "../../../Common-components/map/map.component";
+import { SessionFiltersComponent } from "../../../Common-components/session-filters/session-filters.component";
+import { SessionTableComponent } from "../../../Common-components/session-table/session-table.component";
+import { MapService, pathData } from '../../../Common-services/map/map.service';
+import { RealtimeData } from '../../../Common-services/realtime-api/realtime-api.service';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { Point } from '../../../Models/Point';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { RealtimeData } from '../../../Common-services/realtime-api/realtime-api.service';
+import { Vehicle } from '../../../Models/Vehicle';
+import { ListaFiltersComponent } from "../lista-filters/lista-filters.component";
+import { ListaMezziComponent } from "../lista-mezzi/lista-mezzi.component";
 
 @Component({
   selector: 'app-storico-mezzi',

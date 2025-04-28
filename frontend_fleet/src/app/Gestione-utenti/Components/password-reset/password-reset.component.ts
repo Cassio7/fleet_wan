@@ -1,19 +1,18 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input, ViewEncapsulation } from '@angular/core';
-import { FormGroup, FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Component, inject, Input } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Subject, takeUntil } from 'rxjs';
 import { AuthService } from '../../../Common-services/auth/auth.service';
 import { User } from '../../../Models/User';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.component';
-import { MatIconModule } from '@angular/material/icon';
 import { openSnackbar } from '../../../Utils/snackbar';
 
 @Component({

@@ -1,11 +1,10 @@
-import { Component, EventEmitter, Input, Output, WritableSignal } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { WorkSite } from '../../../Models/Worksite';
 import { PlateFilterService } from '../../../Common-services/plate-filter/plate-filter.service';
-import { FormsModule } from '@angular/forms';
-import { Vehicle } from '../../../Models/Vehicle';
+import { WorkSite } from '../../../Models/Worksite';
 
 @Component({
   selector: 'app-cantiere-edit-filters',

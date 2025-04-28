@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
-import { FormsModule, ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
+import { AfterViewInit, Component, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatOptionModule } from '@angular/material/core';
 import { MatDividerModule } from '@angular/material/divider';
@@ -8,10 +8,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { of, Subject, takeUntil } from 'rxjs';
-import { Vehicle } from '../../../Models/Vehicle';
+import { Subject, takeUntil } from 'rxjs';
 import { CantieriFilterService } from '../../../Common-services/cantieri-filter/cantieri-filter.service';
-import { gestioneVeicoliFilters, GestioneVeicoliService } from '../../Services/gestione-veicoli.service';
+import { Vehicle } from '../../../Models/Vehicle';
+import { GestioneVeicoliService } from '../../Services/gestione-veicoli.service';
 
 @Component({
   selector: 'app-veicoli-filters',

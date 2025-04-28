@@ -1,17 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectorRef, Component, inject, model, OnDestroy, OnInit, signal } from '@angular/core';
-import { UtentiTableComponent } from "../utenti-table/utenti-table.component";
-import { GestioneFiltersComponent } from "../gestione-filters/gestione-filters.component";
+import { ChangeDetectorRef, Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { Subject, takeUntil } from 'rxjs';
 import { AuthService } from '../../../Common-services/auth/auth.service';
 import { User } from '../../../Models/User';
-import { Subject, takeUntil } from 'rxjs';
-import { MatButtonModule } from '@angular/material/button';
-import { UtentiCreateDialogComponent } from '../utenti-create-dialog/utenti-create-dialog.component';
-import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.component';
-import { MatIconModule } from '@angular/material/icon';
 import { openSnackbar } from '../../../Utils/snackbar';
+import { GestioneFiltersComponent } from "../gestione-filters/gestione-filters.component";
+import { UtentiCreateDialogComponent } from '../utenti-create-dialog/utenti-create-dialog.component';
+import { UtentiTableComponent } from "../utenti-table/utenti-table.component";
 
 export interface DialogData {
   animal: string;

@@ -6,8 +6,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject, takeUntil } from 'rxjs';
 import { VehiclesApiService } from '../../../Common-services/vehicles api service/vehicles-api.service';
 import { Vehicle } from '../../../Models/Vehicle';
-import { VeicoliTableComponent } from "../veicoli-table/veicoli-table.component";
 import { VeicoliFiltersComponent } from "../veicoli-filters/veicoli-filters.component";
+import { VeicoliTableComponent } from "../veicoli-table/veicoli-table.component";
 
 @Component({
   selector: 'app-home-gestione-veicoli',

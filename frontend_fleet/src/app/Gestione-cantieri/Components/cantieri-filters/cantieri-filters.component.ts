@@ -1,8 +1,6 @@
-import { GestioneCantieriService } from '../../../Common-services/gestione-cantieri/gestione-cantieri.service';
-import { AfterViewInit, Component, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
-import { WorkSite } from '../../../Models/Worksite';
-import { FormGroup, FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { AfterViewInit, Component, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatOptionModule } from '@angular/material/core';
 import { MatDividerModule } from '@angular/material/divider';
@@ -11,6 +9,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { Subject, takeUntil } from 'rxjs';
+import { GestioneCantieriService } from '../../../Common-services/gestione-cantieri/gestione-cantieri.service';
+import { WorkSite } from '../../../Models/Worksite';
 
 @Component({
   selector: 'app-cantieri-filters',

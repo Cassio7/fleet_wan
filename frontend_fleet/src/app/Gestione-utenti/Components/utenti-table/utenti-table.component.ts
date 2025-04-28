@@ -23,15 +23,14 @@ import {
 } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
-import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.component';
 import { SortService } from '../../../Common-services/sort/sort.service';
 import { User } from '../../../Models/User';
+import { openSnackbar } from '../../../Utils/snackbar';
 import {
   GestioneFilters,
   GestioneService,
 } from '../../Services/gestione/gestione.service';
 import { DeleteUtenteDialogComponent } from '../delete-utente-dialog/delete-utente-dialog.component';
-import { openSnackbar } from '../../../Utils/snackbar';
 
 @Component({
   selector: 'app-utenti-table',

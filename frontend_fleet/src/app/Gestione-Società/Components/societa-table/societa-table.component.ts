@@ -23,12 +23,11 @@ import {
 } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
-import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.component';
 import { SortService } from '../../../Common-services/sort/sort.service';
 import { Company } from '../../../Models/Company';
+import { openSnackbar } from '../../../Utils/snackbar';
 import { GestioneSocietaService } from '../../Services/gestione-societa/gestione-societa.service';
 import { DeleteSocietaDialogComponent } from '../delete-societa-dialog/delete-societa-dialog.component';
-import { openSnackbar } from '../../../Utils/snackbar';
 
 @Component({
   selector: 'app-societa-table',

@@ -1,15 +1,15 @@
+import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, EventEmitter, OnDestroy, Output } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
-import { MapService, positionData } from '../../../Common-services/map/map.service';
-import { takeUntil, skip, Subject } from 'rxjs';
-import { CheckErrorsService, VehicleAnomalies } from '../../../Common-services/check-errors/check-errors.service';
-import { CommonModule } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatButtonModule } from '@angular/material/button';
 import { Router } from '@angular/router';
-import { Vehicle } from '../../../Models/Vehicle';
+import { skip, Subject, takeUntil } from 'rxjs';
+import { CheckErrorsService, VehicleAnomalies } from '../../../Common-services/check-errors/check-errors.service';
+import { MapService, positionData } from '../../../Common-services/map/map.service';
 import { SvgService } from '../../../Common-services/svg/svg.service';
+import { Vehicle } from '../../../Models/Vehicle';
 
 @Component({
   selector: 'app-mappa-info',

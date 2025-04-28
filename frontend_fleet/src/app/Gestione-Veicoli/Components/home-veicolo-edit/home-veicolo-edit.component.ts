@@ -1,27 +1,27 @@
-import { MatIconModule } from '@angular/material/icon';
+import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, inject, OnDestroy, OnInit } from '@angular/core';
-import { InfoEditComponent } from "../info-edit/info-edit.component";
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { firstValueFrom, Subject, takeUntil } from 'rxjs';
-import { VehiclesApiService, vehicleUpdateData } from '../../../Common-services/vehicles api service/vehicles-api.service';
-import { Vehicle } from '../../../Models/Vehicle';
+import { StoricoCantieriComponent } from "../../../Common-components/storico-cantieri/storico-cantieri.component";
+import { EquipmentService } from '../../../Common-services/equipment/equipment.service';
 import { GestioneCantieriService } from '../../../Common-services/gestione-cantieri/gestione-cantieri.service';
-import { WorkSite } from '../../../Models/Worksite';
-import { WorkzoneService } from '../../../Common-services/workzone/workzone.service';
-import { Workzone } from '../../../Models/Workzone';
 import { RentalService } from '../../../Common-services/rental/rental.service';
+import { ServicesService } from '../../../Common-services/services/services.service';
+import { VehiclesApiService, vehicleUpdateData } from '../../../Common-services/vehicles api service/vehicles-api.service';
+import { WorkzoneService } from '../../../Common-services/workzone/workzone.service';
+import { Equipment } from '../../../Models/Equipment';
 import { Rental } from '../../../Models/Rental';
 import { Service } from '../../../Models/Service';
-import { ServicesService } from '../../../Common-services/services/services.service';
-import { openSnackbar } from '../../../Utils/snackbar';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { Equipment } from '../../../Models/Equipment';
-import { EquipmentService } from '../../../Common-services/equipment/equipment.service';
-import { CommonModule } from '@angular/common';
-import { StoricoCantieriComponent } from "../../../Common-components/storico-cantieri/storico-cantieri.component";
-import { MatButtonModule } from '@angular/material/button';
-import { ChangeWorksiteComponent } from "../change-worksite/change-worksite.component";
+import { Vehicle } from '../../../Models/Vehicle';
+import { WorkSite } from '../../../Models/Worksite';
 import { WorksiteHistory } from '../../../Models/Worksite-history';
+import { Workzone } from '../../../Models/Workzone';
+import { openSnackbar } from '../../../Utils/snackbar';
+import { ChangeWorksiteComponent } from "../change-worksite/change-worksite.component";
+import { InfoEditComponent } from "../info-edit/info-edit.component";
 
 @Component({
   selector: 'app-home-veicolo-edit',

@@ -1,19 +1,17 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
-import { User } from '../../../Models/User';
 import { CommonModule } from '@angular/common';
-import { PasswordResetComponent } from "../password-reset/password-reset.component";
-import { DatiUtenteComponent } from "../dati-utente/dati-utente.component";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { AuthService } from '../../../Common-services/auth/auth.service';
-import { ActivatedRoute, Router } from '@angular/router';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { WorksiteAssociationsKanbanComponent } from "../worksite-associations-kanban/worksite-associations-kanban.component";
-import { AssociationsService, getAssociationsResponse } from '../../Services/associations/associations.service';
-import { Association } from '../../../Models/Association';
+import { User } from '../../../Models/User';
 import { WorkSite } from '../../../Models/Worksite';
-import { Company } from '../../../Models/Company';
+import { AssociationsService, getAssociationsResponse } from '../../Services/associations/associations.service';
 import { CompanyAssociationsKanbanComponent } from "../company-associations-kanban copy/company-associations-kanban.component";
+import { DatiUtenteComponent } from "../dati-utente/dati-utente.component";
+import { PasswordResetComponent } from "../password-reset/password-reset.component";
+import { WorksiteAssociationsKanbanComponent } from "../worksite-associations-kanban/worksite-associations-kanban.component";
 
 @Component({
   selector: 'app-user-home',

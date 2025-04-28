@@ -1,19 +1,17 @@
-import { state } from '@angular/animations';
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, inject, Inject, Input, OnDestroy } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AfterViewInit, Component, inject, Input, OnDestroy } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { Subject, takeUntil } from 'rxjs';
-import { User } from '../../../Models/User';
-import { AuthService } from '../../../Common-services/auth/auth.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { SnackbarComponent } from '../../../Common-components/snackbar/snackbar.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { Subject, takeUntil } from 'rxjs';
+import { AuthService } from '../../../Common-services/auth/auth.service';
+import { User } from '../../../Models/User';
 import { openSnackbar } from '../../../Utils/snackbar';
 
 @Component({
