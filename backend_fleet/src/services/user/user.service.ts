@@ -101,11 +101,8 @@ export class UserService {
           },
           withDeleted: true,
         });
-        return await this.formatUserDTO(
-          users,
-          true,
-          await this.authService.getLoggedUsersMap(),
-        );
+        const loggedMap = await this.authService.getLoggedUsersMap();
+        return await this.formatUserDTO(users, true, loggedMap);
       } else {
         const users = await this.userRepository.find({
           relations: {
@@ -392,7 +389,7 @@ export class UserService {
   private async formatUserDTO(
     user: UserEntity | UserEntity[],
     admin: boolean,
-    loggedMap?: Map<string, { token: string; clientId: string }>,
+    loggedMap?: Map<string, { token: string; clientId: string[] }>,
   ): Promise<any> {
     const usersArray = Array.isArray(user) ? user : [user];
     const usersDTO = usersArray.map((user) => {
@@ -412,7 +409,7 @@ export class UserService {
         userDTO.role = user.role.name;
         if (loggedMap?.has(user.key)) {
           userDTO.token = loggedMap.get(user.key).token;
-          userDTO.clientId = loggedMap.get(user.key).clientId;
+          userDTO.clientId = loggedMap.get(user.key)?.clientId?.[0] || null;
         }
         return userDTO;
       } else {

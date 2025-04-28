@@ -47,11 +47,15 @@ export class NotificationsGateway
     this.subscriberRedis.on('message', async (channel, message) => {
       if (channel === 'user_ban:request') {
         const { userKey } = JSON.parse(message);
-        const clientId = await this.authService.getClientRedis(userKey);
-        const client = this.server.sockets.sockets.get(clientId);
-        // controllo se questa instance ha il client connesso
-        if (client) {
-          client.emit('ban', 'suspended');
+        const clientIds = await this.authService.getClientRedis(userKey);
+
+        if (clientIds && clientIds.length > 0) {
+          clientIds.forEach((clientId) => {
+            const client = this.server.sockets.sockets.get(clientId);
+            if (client) {
+              client.emit('ban', 'suspended');
+            }
+          });
         }
       }
     });
@@ -85,7 +89,7 @@ export class NotificationsGateway
     }
     const user = await this.authService.validateToken(token);
     console.log(`❌ Client disconnesso: ${client.id}`);
-    await this.authService.deleteClientRedis(user.key);
+    await this.authService.deleteClientRedis(user.key, client.id);
   }
 
   /**
@@ -108,12 +112,16 @@ export class NotificationsGateway
    * @param message
    */
   async sendMessageToUser(userKey: string, message: string): Promise<void> {
-    const clientId = await this.authService.getClientRedis(userKey);
-    const client = this.server.sockets.sockets.get(clientId);
-    if (client) {
-      client.emit('ban', message);
+    const clientIds = await this.authService.getClientRedis(userKey);
+
+    if (clientIds && clientIds.length > 0) {
+      clientIds.forEach((clientId) => {
+        const client = this.server.sockets.sockets.get(clientId);
+        if (client) {
+          client.emit('ban', message);
+        }
+      });
     } else {
-      // nel caso di fail mando una pub per mandare richiesta al ws connesso
       this.redis.publish(
         'user_ban:request',
         JSON.stringify({ userKey: userKey }),

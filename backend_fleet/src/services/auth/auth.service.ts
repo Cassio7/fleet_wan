@@ -15,7 +15,7 @@ interface LoggedUserDto {
   username: string;
   email: string;
   token: string;
-  clientId: string;
+  clientId: string[];
 }
 
 @Injectable()
@@ -84,7 +84,6 @@ export class AuthService {
         access_token: token,
       };
     } catch (error) {
-      console.error(error);
       throw new HttpException(
         `Errore durante il login utente`,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -198,7 +197,7 @@ export class AuthService {
    * @returns Map
    */
   async getLoggedUsersMap(): Promise<
-    Map<string, { token: string; clientId: string }>
+    Map<string, { token: string; clientId: string[] }>
   > {
     try {
       const users = await this.userRepository.find({
@@ -209,7 +208,7 @@ export class AuthService {
           active: true,
         },
       });
-      const loggedMap: Map<string, { token: string; clientId: string }> =
+      const loggedMap: Map<string, { token: string; clientId: string[] }> =
         new Map();
       for (const user of users) {
         const token = await this.getLoggedUserRedis(user.key);
@@ -222,7 +221,7 @@ export class AuthService {
     } catch (error) {
       if (error instanceof HttpException) throw error;
       throw new HttpException(
-        `Errore durante il recupero degli utenti loggati mappa`,
+        `Errore durante il recupero degli utenti loggati`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -293,10 +292,14 @@ export class AuthService {
    * @param userKey chiave utente
    * @returns
    */
-  async getClientRedis(userKey: string): Promise<string | null> {
+  async getClientRedis(userKey: string): Promise<string[] | null> {
     const key = `users:${userKey}:client`;
-    const cliendId = await this.redis.get(key);
-    return cliendId;
+    const clientIds = await this.redis.smembers(key);
+    if (clientIds.length === 0) {
+      return null;
+    }
+
+    return clientIds;
   }
 
   /**
@@ -306,15 +309,15 @@ export class AuthService {
    */
   async setClientIdRedis(userKey: string, clientId: string): Promise<void> {
     const key = `users:${userKey}:client`;
-    await this.redis.set(key, clientId, 'EX', 86400);
+    await this.redis.sadd(key, clientId);
   }
 
   /**
    * Elimina da Redis il client id associato all'utente
    * @param userKey chiave utente
    */
-  async deleteClientRedis(userKey: string): Promise<void> {
+  async deleteClientRedis(userKey: string, clientId: string): Promise<void> {
     const key = `users:${userKey}:client`;
-    await this.redis.del(key);
+    await this.redis.srem(key, clientId);
   }
 }
