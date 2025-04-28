@@ -1,21 +1,21 @@
-import { KanbanGpsService } from './../../Services/kanban-gps/kanban-gps.service';
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatOptionModule } from '@angular/material/core';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { merge, skip, Subject, takeUntil } from 'rxjs';
 import { CantieriFilterService } from '../../../Common-services/cantieri-filter/cantieri-filter.service';
+import { Filters, FiltersCommonService } from '../../../Common-services/filters-common/filters-common.service';
 import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
 import { KanbanAntennaService } from '../../Services/kanban-antenna/kanban-antenna.service';
-import { Filters, FiltersCommonService } from '../../../Common-services/filters-common/filters-common.service';
-import { takeUntil, skip, Subject, merge, map } from 'rxjs';
-import { MatOptionModule } from '@angular/material/core';
 import { KanbanSessioneService } from '../../Services/kanban-sessione/kanban-sessione.service';
+import { KanbanGpsService } from './../../Services/kanban-gps/kanban-gps.service';
 
 @Component({
   selector: 'app-kanban-filters',

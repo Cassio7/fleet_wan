@@ -1,4 +1,3 @@
-import { GpsGraphService } from './../../../Services/gps-graph/gps-graph.service';
 import {
   AfterViewInit,
   ChangeDetectorRef,
@@ -15,11 +14,12 @@ import {
   NgApexchartsModule,
 } from 'ng-apexcharts';
 import { Subject, skip, takeUntil } from 'rxjs';
-import { SessionStorageService } from '../../../../Common-services/sessionStorage/session-storage.service';
-import { PlateFilterService } from '../../../../Common-services/plate-filter/plate-filter.service';
 import { CheckErrorsService } from '../../../../Common-services/check-errors/check-errors.service';
-import { VehicleData } from '../../../../Models/VehicleData';
 import { FiltersCommonService } from '../../../../Common-services/filters-common/filters-common.service';
+import { PlateFilterService } from '../../../../Common-services/plate-filter/plate-filter.service';
+import { SessionStorageService } from '../../../../Common-services/sessionStorage/session-storage.service';
+import { VehicleData } from '../../../../Models/VehicleData';
+import { GpsGraphService } from './../../../Services/gps-graph/gps-graph.service';
 
 export type ChartOptions = {
   series: ApexNonAxisChartSeries;

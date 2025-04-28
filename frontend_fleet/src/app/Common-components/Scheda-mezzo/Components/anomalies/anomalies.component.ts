@@ -2,11 +2,11 @@ import { CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { ErrorGraphsService } from '../../../../Dashboard/Services/error-graphs/error-graphs.service';
-import { Vehicle } from '../../../../Models/Vehicle';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Subject, takeUntil } from 'rxjs';
 import { CheckErrorsService, VehicleAnomalies } from '../../../../Common-services/check-errors/check-errors.service';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { ErrorGraphsService } from '../../../../Dashboard/Services/error-graphs/error-graphs.service';
+import { Vehicle } from '../../../../Models/Vehicle';
 
 @Component({
   selector: 'app-anomalies',

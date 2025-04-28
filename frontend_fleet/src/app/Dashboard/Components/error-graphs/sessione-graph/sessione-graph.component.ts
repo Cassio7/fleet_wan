@@ -1,5 +1,4 @@
 import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
-import { skip, Subject, takeUntil } from 'rxjs';
 import {
   ApexChart,
   ApexDataLabels,
@@ -8,9 +7,10 @@ import {
   ApexTooltip,
   NgApexchartsModule,
 } from 'ng-apexcharts';
-import { SessioneGraphService } from '../../../Services/sessione-graph/sessione-graph.service';
+import { skip, Subject, takeUntil } from 'rxjs';
 import { CheckErrorsService } from '../../../../Common-services/check-errors/check-errors.service';
 import { VehicleData } from '../../../../Models/VehicleData';
+import { SessioneGraphService } from '../../../Services/sessione-graph/sessione-graph.service';
 
 export type ChartOptions = {
   series: ApexNonAxisChartSeries;

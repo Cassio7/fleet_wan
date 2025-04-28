@@ -21,6 +21,7 @@ import {
 import { MatButton, MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
   MatTable,
   MatTableDataSource,
@@ -32,13 +33,12 @@ import { catchError, Observable, of, skip, Subject, takeUntil } from 'rxjs';
 import { CheckErrorsService, VehicleAnomalies } from '../../Common-services/check-errors/check-errors.service';
 import { MapService, pathData } from '../../Common-services/map/map.service';
 import { SessionApiService } from '../../Common-services/session/session-api.service';
+import { SessionStorageService } from '../../Common-services/sessionStorage/session-storage.service';
+import { tagData, TagService } from '../../Common-services/tag/tag.service';
 import { Anomaly } from '../../Models/Anomaly';
 import { Point } from '../../Models/Point';
 import { Session } from '../../Models/Session';
 import { Vehicle } from '../../Models/Vehicle';
-import { SessionStorageService } from '../../Common-services/sessionStorage/session-storage.service';
-import { tagData, TagService } from '../../Common-services/tag/tag.service';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-session-table',

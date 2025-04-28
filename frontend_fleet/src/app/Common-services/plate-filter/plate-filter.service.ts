@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { VehicleData } from '../../Models/VehicleData';
 import { Vehicle } from '../../Models/Vehicle';
-import { SessionStorageService } from '../sessionStorage/session-storage.service';
+import { VehicleData } from '../../Models/VehicleData';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +11,6 @@ export class PlateFilterService {
   private readonly _filterByPlateResearch$: BehaviorSubject<string> = new BehaviorSubject<string>("");
 
   constructor(
-    private sessionStorageService: SessionStorageService
   ) { }
 
   /**

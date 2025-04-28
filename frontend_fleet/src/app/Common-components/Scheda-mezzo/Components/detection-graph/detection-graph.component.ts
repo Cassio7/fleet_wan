@@ -1,12 +1,11 @@
-import { AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy } from '@angular/core';
-import { ApexAxisChartSeries, ApexChart, ApexXAxis, ApexDataLabels, ApexGrid, ApexStroke, ApexTitleSubtitle, ApexYAxis } from 'ng-apexcharts';
-import { NgApexchartsModule } from 'ng-apexcharts';
-import { DetectionGraphService, DetectionQuality } from '../../Services/detection-graph/detection-graph.service';
-import { Subject, takeUntil } from 'rxjs';
-import {MatChipsModule} from '@angular/material/chips';
 import { CommonModule } from '@angular/common';
-import { SessionStorageService } from '../../../../Common-services/sessionStorage/session-storage.service';
+import { AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy } from '@angular/core';
+import { MatChipsModule } from '@angular/material/chips';
 import { NavigationStart, Router } from '@angular/router';
+import { ApexAxisChartSeries, ApexChart, ApexDataLabels, ApexGrid, ApexStroke, ApexTitleSubtitle, ApexXAxis, ApexYAxis, NgApexchartsModule } from 'ng-apexcharts';
+import { Subject, takeUntil } from 'rxjs';
+import { SessionStorageService } from '../../../../Common-services/sessionStorage/session-storage.service';
+import { DetectionGraphService, DetectionQuality } from '../../Services/detection-graph/detection-graph.service';
 
 export type ChartOptions = {
   series: ApexAxisChartSeries;

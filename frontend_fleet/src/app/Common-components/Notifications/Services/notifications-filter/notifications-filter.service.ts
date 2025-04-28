@@ -1,19 +1,11 @@
 import { Injectable } from '@angular/core';
 import { Notifica } from '../../../../Models/Notifica';
-import { CookieService } from 'ngx-cookie-service';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { serverUrl } from '../../../../environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class NotificationsFilterService {
-
-  constructor(
-    private http: HttpClient,
-    private cookieService: CookieService
-  ) { }
+  constructor() {}
 
   /**
    * Filtra delle notifiche in base ad una ricerca sull'username dell'autore di quest'ultime
@@ -21,12 +13,15 @@ export class NotificationsFilterService {
    * @param usernameResearch ricerca per username
    * @returns array di notifiche filtrato
    */
-  filterNotificationsByUsername(notifiche: Notifica[], usernameResearch: string): Notifica[]{
-    if(usernameResearch){
-      return notifiche.filter(notifica => {
+  filterNotificationsByUsername(
+    notifiche: Notifica[],
+    usernameResearch: string
+  ): Notifica[] {
+    if (usernameResearch) {
+      return notifiche.filter((notifica) => {
         return notifica.author.includes(usernameResearch);
-      })
-    }else{
+      });
+    } else {
       return notifiche;
     }
   }

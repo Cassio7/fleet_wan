@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
-import { Observable, of } from 'rxjs';
 import { CookieService } from 'ngx-cookie-service';
+import { Observable } from 'rxjs';
 import { tagDownloadResponse } from '../../Scarico-letture/home-letture/home-letture.component';
 import { serverUrl } from '../../environment';
 

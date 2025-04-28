@@ -1,10 +1,10 @@
-import { AfterViewInit, Component, ElementRef, Input, OnChanges, OnDestroy, SimpleChanges, ViewChild } from '@angular/core';
-import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { WorksiteHistory } from '../../Models/Worksite-history';
-import { MatIconModule } from '@angular/material/icon';
-import { WorksiteHistoryService } from '../../Common-services/worksite-history/worksite-history.service';
-import { firstValueFrom, Subject, takeUntil } from 'rxjs';
 import { CommonModule } from '@angular/common';
+import { AfterViewInit, Component, Input, OnChanges, OnDestroy, SimpleChanges, ViewChild } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { firstValueFrom, Subject, takeUntil } from 'rxjs';
+import { WorksiteHistoryService } from '../../Common-services/worksite-history/worksite-history.service';
+import { WorksiteHistory } from '../../Models/Worksite-history';
 
 @Component({
   selector: 'app-storico-cantieri',

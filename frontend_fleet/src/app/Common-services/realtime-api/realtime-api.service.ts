@@ -1,13 +1,12 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { SessionStorageService } from '../sessionStorage/session-storage.service';
-import { Observable } from 'rxjs';
-import { VehicleData } from '../../Models/VehicleData';
-import { Vehicle } from '../../Models/Vehicle';
 import { CookieService } from 'ngx-cookie-service';
+import { Observable } from 'rxjs';
 import { Anomaly } from '../../Models/Anomaly';
 import { Realtime } from '../../Models/Realtime';
 import { Service } from '../../Models/Service';
+import { Vehicle } from '../../Models/Vehicle';
+import { VehicleData } from '../../Models/VehicleData';
 import { WorkSite } from '../../Models/Worksite';
 import { serverUrl } from '../../environment';
 

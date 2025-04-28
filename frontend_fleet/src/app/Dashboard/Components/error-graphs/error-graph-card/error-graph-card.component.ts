@@ -1,12 +1,12 @@
+import { CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
-import { CommonModule } from '@angular/common';
-import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
-import { ErrorPieGraphComponent } from '../error-pie-graph/error-pie-graph.component';
+import { MatSelectModule } from '@angular/material/select';
 import { Subject } from 'rxjs';
-import { GpsGraphComponent } from "../gps-graph/gps-graph.component";
 import { AntennaGraphComponent } from "../antenna-graph/antenna-graph.component";
+import { ErrorPieGraphComponent } from '../error-pie-graph/error-pie-graph.component';
+import { GpsGraphComponent } from "../gps-graph/gps-graph.component";
 import { SessioneGraphComponent } from "../sessione-graph/sessione-graph.component";
 
 @Component({

@@ -1,7 +1,7 @@
-import { AfterViewInit, Injectable } from '@angular/core';
-import { BehaviorSubject, Subject } from 'rxjs';
-import { VehicleData } from '../../../Models/VehicleData';
+import { Injectable } from '@angular/core';
+import { Subject } from 'rxjs';
 import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
+import { VehicleData } from '../../../Models/VehicleData';
 
 @Injectable({
   providedIn: 'root'

@@ -1,10 +1,10 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { Notifica } from '../../../../Models/Notifica';
 import { FormsModule } from '@angular/forms';
-import { NotificationsFilterService } from '../../Services/notifications-filter/notifications-filter.service';
-import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { Notifica } from '../../../../Models/Notifica';
+import { NotificationsFilterService } from '../../Services/notifications-filter/notifications-filter.service';
 
 @Component({
   selector: 'app-notifications-filters',

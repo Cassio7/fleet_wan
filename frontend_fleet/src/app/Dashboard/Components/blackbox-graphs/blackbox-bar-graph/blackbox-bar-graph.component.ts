@@ -1,6 +1,6 @@
-import { BlackboxGraphsService } from '../../../Services/blackbox-graphs/blackbox-graphs.service';
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ViewChild } from '@angular/core';
 import { ApexAxisChartSeries, ApexChart, ApexDataLabels, ApexGrid, ApexLegend, ApexPlotOptions, ApexYAxis, ChartComponent, NgApexchartsModule } from 'ng-apexcharts';
+import { BlackboxGraphsService } from '../../../Services/blackbox-graphs/blackbox-graphs.service';
 
 type ApexXAxis = {
   type?: "category" | "datetime" | "numeric";

@@ -1,9 +1,8 @@
+import { CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectorRef, Component, ViewChild } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
-import { MatSelect, MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { CommonModule } from '@angular/common';
-import { BlackboxBarGraphComponent } from "../blackbox-bar-graph/blackbox-bar-graph.component";
+import { MatSelect, MatSelectModule } from '@angular/material/select';
 import { BlackboxPieGraphComponent } from "../blackbox-pie-graph/blackbox-pie-graph.component";
 
 @Component({

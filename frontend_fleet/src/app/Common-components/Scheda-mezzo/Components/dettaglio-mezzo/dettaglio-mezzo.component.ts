@@ -1,38 +1,36 @@
-import { CheckErrorsService } from '../../../../Common-services/check-errors/check-errors.service';
+import { CommonModule } from '@angular/common';
 import {
-  AfterViewInit,
   ChangeDetectorRef,
   Component,
   OnDestroy,
   OnInit,
-  signal,
-  Signal,
+  signal
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
-import { ActivatedRoute, Router } from '@angular/router';
-import { SessionStorageService } from '../../../../Common-services/sessionStorage/session-storage.service';
-import { VehiclesApiService } from '../../../../Common-services/vehicles api service/vehicles-api.service';
-import { skip, Subject, takeUntil } from 'rxjs';
-import { Vehicle } from '../../../../Models/Vehicle';
-import { CommonModule } from '@angular/common';
-import { NotesService } from '../../../../Common-services/notes/notes.service';
-import { Note } from '../../../../Models/Note';
-import { User } from '../../../../Models/User';
-import { AuthService } from '../../../../Common-services/auth/auth.service';
-import { DetectionGraphComponent } from '../detection-graph/detection-graph.component';
-import { NoteSectionComponent } from '../../../note-section/note-section.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { AnomaliesComponent } from '../anomalies/anomalies.component';
-import { SessionFiltersComponent } from '../../../session-filters/session-filters.component';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
+import { AuthService } from '../../../../Common-services/auth/auth.service';
+import { CheckErrorsService } from '../../../../Common-services/check-errors/check-errors.service';
 import { NavigationService } from '../../../../Common-services/navigation/navigation.service';
-import { SessionTableComponent } from '../../../session-table/session-table.component';
+import { NotesService } from '../../../../Common-services/notes/notes.service';
+import { SessionStorageService } from '../../../../Common-services/sessionStorage/session-storage.service';
 import { SvgService } from '../../../../Common-services/svg/svg.service';
+import { VehiclesApiService } from '../../../../Common-services/vehicles api service/vehicles-api.service';
+import { Note } from '../../../../Models/Note';
 import { Stats } from '../../../../Models/Stats';
+import { User } from '../../../../Models/User';
+import { Vehicle } from '../../../../Models/Vehicle';
 import { calulatePercentage } from '../../../../Utils/Percentage';
+import { NoteSectionComponent } from '../../../note-section/note-section.component';
+import { SessionFiltersComponent } from '../../../session-filters/session-filters.component';
+import { SessionTableComponent } from '../../../session-table/session-table.component';
+import { AnomaliesComponent } from '../anomalies/anomalies.component';
+import { DetectionGraphComponent } from '../detection-graph/detection-graph.component';
 
 @Component({
   selector: 'app-dettaglio-mezzo',

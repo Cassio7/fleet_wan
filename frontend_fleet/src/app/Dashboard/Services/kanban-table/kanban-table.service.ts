@@ -1,4 +1,4 @@
-import { Injectable, Signal, signal, WritableSignal } from '@angular/core';
+import { Injectable, signal, WritableSignal } from '@angular/core';
 import { Subject } from 'rxjs';
 import { Filters } from '../../../Common-services/filters-common/filters-common.service';
 

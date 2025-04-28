@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
   ChangeDetectorRef,
@@ -7,48 +8,46 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatDrawer, MatSidenavModule } from '@angular/material/sidenav';
+import { MatToolbarModule } from '@angular/material/toolbar';
 import {
   NavigationEnd,
   Router,
   RouterModule,
   RouterOutlet,
 } from '@angular/router';
-import { filter, identity, skip, Subject, takeUntil } from 'rxjs';
-import { MatDrawer, MatSidenavModule } from '@angular/material/sidenav';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatIconModule } from '@angular/material/icon';
-import { NavbarComponent } from './Common-components/navbar/navbar.component';
-import { MatButtonModule } from '@angular/material/button';
-import { LoginService } from './Common-services/login service/login.service';
-import { CommonModule } from '@angular/common';
-import { MatMenuModule } from '@angular/material/menu';
-import { NavigationService } from './Common-services/navigation/navigation.service';
-import { SessionStorageService } from './Common-services/sessionStorage/session-storage.service';
-import { AuthService } from './Common-services/auth/auth.service';
 import { CookieService } from 'ngx-cookie-service';
+import { filter, skip, Subject, takeUntil } from 'rxjs';
+import { NavbarComponent } from './Common-components/navbar/navbar.component';
+import { AuthService } from './Common-services/auth/auth.service';
+import { LoginService } from './Common-services/login service/login.service';
+import { NavigationService } from './Common-services/navigation/navigation.service';
 
 import {
-  MAT_DATE_FORMATS,
-  MAT_DATE_LOCALE,
-  DateAdapter,
-} from '@angular/material/core';
-import { MomentDateAdapter } from '@angular/material-moment-adapter';
-import * as moment from 'moment';
-import 'moment/locale/it';
-import { MY_DATE_FORMATS } from './Utils/date-format';
-import {
-  trigger,
+  animate,
   state,
   style,
   transition,
-  animate,
+  trigger,
 } from '@angular/animations';
+import { MomentDateAdapter } from '@angular/material-moment-adapter';
+import {
+  DateAdapter,
+  MAT_DATE_FORMATS,
+  MAT_DATE_LOCALE,
+} from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import * as moment from 'moment';
+import 'moment/locale/it';
 import { LoginComponent } from './Common-components/login/login.component';
-import { WebsocketService } from './Common-services/websocket/websocket.service';
 import { NotificationService } from './Common-services/notification/notification.service';
+import { WebsocketService } from './Common-services/websocket/websocket.service';
 import { Notifica } from './Models/Notifica';
 import { User } from './Models/User';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MY_DATE_FORMATS } from './Utils/date-format';
 
 @Component({
   selector: 'app-root',

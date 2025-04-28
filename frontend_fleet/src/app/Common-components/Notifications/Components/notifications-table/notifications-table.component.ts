@@ -1,15 +1,15 @@
-import { AfterViewInit, Component, inject, Input, OnChanges, OnDestroy, SimpleChanges, ViewChild } from '@angular/core';
-import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { CommonModule } from '@angular/common';
-import { Notifica } from '../../../../Models/Notifica';
-import { MatIconModule } from '@angular/material/icon';
+import { Component, inject, Input, OnChanges, OnDestroy, SimpleChanges, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { NotificationsFilterService } from '../../Services/notifications-filter/notifications-filter.service';
-import { Subject, takeUntil } from 'rxjs';
+import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { NotificationService } from '../../../../Common-services/notification/notification.service';
-import { openSnackbar } from '../../../../Utils/snackbar';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { Subject, takeUntil } from 'rxjs';
+import { NotificationService } from '../../../../Common-services/notification/notification.service';
+import { Notifica } from '../../../../Models/Notifica';
+import { openSnackbar } from '../../../../Utils/snackbar';
+import { NotificationsFilterService } from '../../Services/notifications-filter/notifications-filter.service';
 
 @Component({
   selector: 'app-notifications-table',

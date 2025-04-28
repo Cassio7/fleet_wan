@@ -15,23 +15,23 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { KanbanAntennaService } from '../../Services/kanban-antenna/kanban-antenna.service';
-import { takeUntil, skip, Subject } from 'rxjs';
-import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
-import { VehicleData } from '../../../Models/VehicleData';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { skip, Subject, takeUntil } from 'rxjs';
+import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
 import {
   Filters,
   FiltersCommonService,
 } from '../../../Common-services/filters-common/filters-common.service';
-import { AntennaGraphService } from '../../Services/antenna-graph/antenna-graph.service';
-import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
-import { KanbanFiltersComponent } from '../kanban-filters/kanban-filters.component';
 import { MapService } from '../../../Common-services/map/map.service';
 import { RealtimeApiService, RealtimeData } from '../../../Common-services/realtime-api/realtime-api.service';
-import { Point } from '../../../Models/Point';
 import { SessionApiService } from '../../../Common-services/session/session-api.service';
+import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
+import { Point } from '../../../Models/Point';
+import { VehicleData } from '../../../Models/VehicleData';
+import { AntennaGraphService } from '../../Services/antenna-graph/antenna-graph.service';
 import { DashboardService } from '../../Services/dashboard/dashboard.service';
+import { KanbanAntennaService } from '../../Services/kanban-antenna/kanban-antenna.service';
+import { KanbanFiltersComponent } from '../kanban-filters/kanban-filters.component';
 
 @Component({
   selector: 'app-kanban-antenna',

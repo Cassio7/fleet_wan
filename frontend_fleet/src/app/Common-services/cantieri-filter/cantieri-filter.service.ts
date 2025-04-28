@@ -1,10 +1,8 @@
 import { Injectable } from '@angular/core';
-import { BlackboxGraphsService } from '../../Dashboard/Services/blackbox-graphs/blackbox-graphs.service';
-import { ErrorGraphsService } from '../../Dashboard/Services/error-graphs/error-graphs.service';
-import { SessionStorageService } from '../sessionStorage/session-storage.service';
-import { VehicleData } from '../../Models/VehicleData';
 import { BehaviorSubject } from 'rxjs';
 import { Vehicle } from '../../Models/Vehicle';
+import { VehicleData } from '../../Models/VehicleData';
+import { SessionStorageService } from '../sessionStorage/session-storage.service';
 
 @Injectable({
   providedIn: 'root'
@@ -28,8 +26,6 @@ export class CantieriFilterService{
 
   constructor(
     private sessionStorageService: SessionStorageService,
-    private errorGraphsService: ErrorGraphsService,
-    private blackboxGraphsService: BlackboxGraphsService
   ) { }
 
   /**

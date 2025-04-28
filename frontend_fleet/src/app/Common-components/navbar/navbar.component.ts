@@ -1,26 +1,24 @@
-import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, model, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { ActivatedRoute, NavigationEnd, Router, RouterModule } from '@angular/router';
-import { Subject, filter, merge, skip, takeUntil } from 'rxjs';
-import { LoginService } from '../../Common-services/login service/login.service';
+import { NavigationEnd, Router, RouterModule } from '@angular/router';
+import { CookieService } from 'ngx-cookie-service';
+import { filter, merge, Subject, takeUntil } from 'rxjs';
 import { AuthService } from '../../Common-services/auth/auth.service';
+import { LoginService } from '../../Common-services/login service/login.service';
+import { NotificationService } from '../../Common-services/notification/notification.service';
 import { KanbanAntennaService } from '../../Dashboard/Services/kanban-antenna/kanban-antenna.service';
 import { KanbanGpsService } from '../../Dashboard/Services/kanban-gps/kanban-gps.service';
-import { KanbanTableService } from '../../Dashboard/Services/kanban-table/kanban-table.service';
-import { CommonModule } from '@angular/common';
-import { User } from '../../Models/User';
-import { SessionStorageService } from '../../Common-services/sessionStorage/session-storage.service';
-import { ProfileService } from '../../Profile/Services/profile/profile.service';
 import { KanbanSessioneService } from '../../Dashboard/Services/kanban-sessione/kanban-sessione.service';
-import { MatDividerModule } from '@angular/material/divider';
-import { WebsocketService } from '../../Common-services/websocket/websocket.service';
-import { MatBadgeModule } from '@angular/material/badge';
+import { KanbanTableService } from '../../Dashboard/Services/kanban-table/kanban-table.service';
 import { Notifica } from '../../Models/Notifica';
-import { CookieService } from 'ngx-cookie-service';
-import { NotificationService } from '../../Common-services/notification/notification.service';
+import { User } from '../../Models/User';
+import { ProfileService } from '../../Profile/Services/profile/profile.service';
 
 @Component({
   selector: 'app-navbar',

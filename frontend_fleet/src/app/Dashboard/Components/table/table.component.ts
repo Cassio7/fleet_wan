@@ -1,4 +1,3 @@
-import { SessionApiService } from '../../../Common-services/session/session-api.service';
 import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
@@ -8,13 +7,18 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatSort, MatSortModule } from '@angular/material/sort';
 import {
   MatTable,
   MatTableDataSource,
   MatTableModule,
 } from '@angular/material/table';
-import { Session } from '../../../Models/Session';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { Router } from '@angular/router';
 import {
   catchError,
   map,
@@ -25,32 +29,26 @@ import {
   tap,
   throwError,
 } from 'rxjs';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { ErrorGraphsService } from '../../Services/error-graphs/error-graphs.service';
-import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
-import { MatButtonModule } from '@angular/material/button';
-import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
-import { SortService } from '../../../Common-services/sort/sort.service';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { CantieriFilterService } from '../../../Common-services/cantieri-filter/cantieri-filter.service';
 import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
-import { VehicleData } from '../../../Models/VehicleData';
-import { AntennaGraphService } from '../../Services/antenna-graph/antenna-graph.service';
 import {
   Filters,
   FiltersCommonService,
 } from '../../../Common-services/filters-common/filters-common.service';
-import { GpsGraphService } from '../../Services/gps-graph/gps-graph.service';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { RealtimeApiService, RealtimeData } from '../../../Common-services/realtime-api/realtime-api.service';
 import { MapService } from '../../../Common-services/map/map.service';
-import { Router } from '@angular/router';
-import { SessioneGraphService } from '../../Services/sessione-graph/sessione-graph.service';
-import { Point } from '../../../Models/Point';
-import { KanbanTableService } from '../../Services/kanban-table/kanban-table.service';
-import { LoginService } from '../../../Common-services/login service/login.service';
-import { DashboardService } from '../../Services/dashboard/dashboard.service';
+import { RealtimeApiService, RealtimeData } from '../../../Common-services/realtime-api/realtime-api.service';
+import { SessionApiService } from '../../../Common-services/session/session-api.service';
+import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
+import { SortService } from '../../../Common-services/sort/sort.service';
 import { SvgService } from '../../../Common-services/svg/svg.service';
+import { Point } from '../../../Models/Point';
+import { Session } from '../../../Models/Session';
+import { VehicleData } from '../../../Models/VehicleData';
+import { AntennaGraphService } from '../../Services/antenna-graph/antenna-graph.service';
+import { DashboardService } from '../../Services/dashboard/dashboard.service';
+import { GpsGraphService } from '../../Services/gps-graph/gps-graph.service';
+import { KanbanTableService } from '../../Services/kanban-table/kanban-table.service';
+import { SessioneGraphService } from '../../Services/sessione-graph/sessione-graph.service';
 
 @Component({
   selector: 'app-table',

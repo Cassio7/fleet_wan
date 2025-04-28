@@ -1,15 +1,15 @@
 import { CommonModule } from "@angular/common";
-import { Component, AfterViewInit, OnDestroy, ViewChild, ElementRef, Input, inject, ChangeDetectorRef } from "@angular/core";
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, OnDestroy, ViewChild, inject } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
-import { MatSnackBarModule, MatSnackBar } from "@angular/material/snack-bar";
+import { MatSnackBar, MatSnackBarModule } from "@angular/material/snack-bar";
+import { CookieService } from "ngx-cookie-service";
 import { Subject, takeUntil } from "rxjs";
+import { AuthService } from "../../Common-services/auth/auth.service";
 import { NotesService } from "../../Common-services/notes/notes.service";
 import { Note } from "../../Models/Note";
 import { Vehicle } from "../../Models/Vehicle";
-import { AuthService } from "../../Common-services/auth/auth.service";
 import { SnackbarComponent } from "../snackbar/snackbar.component";
-import { CookieService } from "ngx-cookie-service";
 
 @Component({
   selector: 'app-note-section',

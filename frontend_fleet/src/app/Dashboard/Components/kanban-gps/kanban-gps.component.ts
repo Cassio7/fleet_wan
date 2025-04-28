@@ -1,38 +1,37 @@
+import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
-  effect,
   Input,
   OnChanges,
   OnDestroy,
-  SimpleChanges,
+  SimpleChanges
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { MatListModule } from '@angular/material/list';
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
-import { KanbanGpsService } from '../../Services/kanban-gps/kanban-gps.service';
-import { MatButtonModule } from '@angular/material/button';
+import { MatListModule } from '@angular/material/list';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
-import { KanbanFiltersComponent } from '../kanban-filters/kanban-filters.component';
-import { skip, Subject, take, takeUntil } from 'rxjs';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { skip, Subject, takeUntil } from 'rxjs';
+import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
 import {
   Filters,
   FiltersCommonService,
 } from '../../../Common-services/filters-common/filters-common.service';
-import { VehicleData } from '../../../Models/VehicleData';
-import { GpsGraphService } from '../../Services/gps-graph/gps-graph.service';
-import { CheckErrorsService } from '../../../Common-services/check-errors/check-errors.service';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { MapService } from '../../../Common-services/map/map.service';
 import { RealtimeApiService, RealtimeData } from '../../../Common-services/realtime-api/realtime-api.service';
-import { Point } from '../../../Models/Point';
 import { SessionApiService } from '../../../Common-services/session/session-api.service';
+import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
+import { Point } from '../../../Models/Point';
+import { VehicleData } from '../../../Models/VehicleData';
 import { DashboardService } from '../../Services/dashboard/dashboard.service';
+import { GpsGraphService } from '../../Services/gps-graph/gps-graph.service';
+import { KanbanGpsService } from '../../Services/kanban-gps/kanban-gps.service';
+import { KanbanFiltersComponent } from '../kanban-filters/kanban-filters.component';
 
 @Component({
   selector: 'app-kanban-gps',

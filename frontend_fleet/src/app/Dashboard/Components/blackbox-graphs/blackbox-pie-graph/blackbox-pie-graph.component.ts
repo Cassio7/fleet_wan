@@ -1,9 +1,8 @@
-import { AfterViewInit, Component, ViewChild, OnInit, ChangeDetectorRef } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ViewChild } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
-import { ApexNonAxisChartSeries, ApexChart, ApexResponsive, ApexTheme, ApexTitleSubtitle, NgApexchartsModule, ChartComponent } from 'ng-apexcharts';
-import { BlackboxGraphsService } from '../../../Services/blackbox-graphs/blackbox-graphs.service';
+import { ApexChart, ApexNonAxisChartSeries, ApexResponsive, ApexTheme, ApexTitleSubtitle, ChartComponent, NgApexchartsModule } from 'ng-apexcharts';
 import { skip, Subject, takeUntil } from 'rxjs';
-import { ErrorGraphsService } from '../../../Services/error-graphs/error-graphs.service';
+import { BlackboxGraphsService } from '../../../Services/blackbox-graphs/blackbox-graphs.service';
 
 export type ChartOptions = {
   series: ApexNonAxisChartSeries;

@@ -1,9 +1,9 @@
-import { ErrorGraphsService, ErrorsData } from '../../../Services/error-graphs/error-graphs.service';
-import { MatCardModule } from '@angular/material/card';
 import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, ViewEncapsulation } from '@angular/core';
+import { MatCardModule } from '@angular/material/card';
 import { ApexChart, ApexDataLabels, ApexNonAxisChartSeries, ApexResponsive, NgApexchartsModule } from "ng-apexcharts";
 import { Subject, takeUntil } from 'rxjs';
 import { VehicleData } from '../../../../Models/VehicleData';
+import { ErrorGraphsService, ErrorsData } from '../../../Services/error-graphs/error-graphs.service';
 
 
 export type ChartOptions = {

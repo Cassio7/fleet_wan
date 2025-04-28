@@ -1,15 +1,15 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { NotificationsTableComponent } from "../notifications-table/notifications-table.component";
-import { NotificationService } from '../../../../Common-services/notification/notification.service';
-import { skip, Subject, takeUntil } from 'rxjs';
-import { Notifica } from '../../../../Models/Notifica';
 import { CommonModule } from '@angular/common';
-import { NotificationsFiltersComponent } from "../notifications-filters/notifications-filters.component";
-import { MatIconModule } from '@angular/material/icon';
-import { NavigationService } from '../../../../Common-services/navigation/navigation.service';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
+import { skip, Subject, takeUntil } from 'rxjs';
+import { NavigationService } from '../../../../Common-services/navigation/navigation.service';
+import { NotificationService } from '../../../../Common-services/notification/notification.service';
 import { SessionStorageService } from '../../../../Common-services/sessionStorage/session-storage.service';
+import { Notifica } from '../../../../Models/Notifica';
+import { NotificationsFiltersComponent } from "../notifications-filters/notifications-filters.component";
+import { NotificationsTableComponent } from "../notifications-table/notifications-table.component";
 
 @Component({
   selector: 'app-notifications-home',
