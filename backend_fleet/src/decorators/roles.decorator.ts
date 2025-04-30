@@ -1,5 +1,5 @@
 import { SetMetadata } from '@nestjs/common';
-import { Role } from 'classes/enum/role.enum';
+import { Role } from 'src/classes/enum/role.enum';
 
 /**
  * serve a definire il decoratore per la logica di accesso in base al ruolo

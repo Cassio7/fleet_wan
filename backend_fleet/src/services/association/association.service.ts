@@ -7,15 +7,15 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { CompanyDTO } from 'classes/dtos/company.dto';
-import { GroupDTO } from 'classes/dtos/group.dto';
-import { UserDTO } from 'classes/dtos/user.dto';
-import { WorksiteDTO } from 'classes/dtos/worksite.dto';
-import { AssociationEntity } from 'classes/entities/association.entity';
-import { CompanyEntity } from 'classes/entities/company.entity';
-import { UserEntity } from 'classes/entities/user.entity';
-import { VehicleEntity } from 'classes/entities/vehicle.entity';
-import { WorksiteEntity } from 'classes/entities/worksite.entity';
+import { CompanyDTO } from 'src/classes/dtos/company.dto';
+import { GroupDTO } from 'src/classes/dtos/group.dto';
+import { UserDTO } from 'src/classes/dtos/user.dto';
+import { WorksiteDTO } from 'src/classes/dtos/worksite.dto';
+import { AssociationEntity } from 'src/classes/entities/association.entity';
+import { CompanyEntity } from 'src/classes/entities/company.entity';
+import { UserEntity } from 'src/classes/entities/user.entity';
+import { VehicleEntity } from 'src/classes/entities/vehicle.entity';
+import { WorksiteEntity } from 'src/classes/entities/worksite.entity';
 import Redis from 'ioredis';
 import { DataSource, Repository } from 'typeorm';
 import { UserService } from '../user/user.service';

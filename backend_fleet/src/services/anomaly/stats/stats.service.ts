@@ -1,7 +1,7 @@
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { AnomalyEntity } from 'classes/entities/anomaly.entity';
+import { AnomalyEntity } from 'src/classes/entities/anomaly.entity';
 import Redis from 'ioredis';
 import { AssociationService } from 'src/services/association/association.service';
 import { SessionVehicleService } from 'src/services/session-vehicle/session-vehicle.service';
@@ -203,6 +203,7 @@ export class StatsService {
           const data = await this.redis.get(key);
           return data ? JSON.parse(data) : null;
         } catch (error) {
+          console.log(error);
           return null;
         }
       }),

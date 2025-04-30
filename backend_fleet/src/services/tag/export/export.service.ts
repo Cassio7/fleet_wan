@@ -1,6 +1,6 @@
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import { Injectable } from '@nestjs/common';
-import { TagDTO } from 'classes/dtos/tag.dto';
+import { TagDTO } from 'src/classes/dtos/tag.dto';
 import { createHash } from 'crypto';
 import { Workbook } from 'exceljs';
 import { Response } from 'express';
@@ -38,11 +38,7 @@ export class ExportService {
     ]);
     tags.forEach((tag) => {
       const date = new Date(tag.timestamp);
-      const italianDate = date.toLocaleString('it-IT', {
-        timeZone: 'Europe/Rome',
-      });
 
-      // Se vuoi mantenere lo stesso formato (yyyy-mm-dd hh:mm:ss)
       const zonedDate = new Date(
         date.toLocaleString('en-US', { timeZone: 'Europe/Rome' }),
       );

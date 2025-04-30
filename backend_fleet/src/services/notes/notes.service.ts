@@ -1,10 +1,10 @@
 import { NotificationsService } from 'src/notifications/notifications.service';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { NoteDto } from 'classes/dtos/note.dto';
-import { UserDTO } from 'classes/dtos/user.dto';
-import { VehicleDTO } from 'classes/dtos/vehicle.dto';
-import { NoteEntity } from 'classes/entities/note.entity';
+import { NoteDto } from 'src/classes/dtos/note.dto';
+import { UserDTO } from 'src/classes/dtos/user.dto';
+import { VehicleDTO } from 'src/classes/dtos/vehicle.dto';
+import { NoteEntity } from 'src/classes/entities/note.entity';
 import { DataSource, In, Repository } from 'typeorm';
 import { AssociationService } from '../association/association.service';
 import { UserService } from '../user/user.service';

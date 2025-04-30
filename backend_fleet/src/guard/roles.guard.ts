@@ -6,8 +6,8 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserEntity } from 'classes/entities/user.entity';
-import { Role } from 'classes/enum/role.enum';
+import { UserEntity } from 'src/classes/entities/user.entity';
+import { Role } from 'src/classes/enum/role.enum';
 import { ROLES_KEY } from 'src/decorators/roles.decorator';
 import { Repository } from 'typeorm';
 

@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LogEntity } from 'classes/entities/log.entity';
+import { LogEntity } from 'src/classes/entities/log.entity';
 import { Request } from 'express';
 import { passwordLogMask } from 'src/utils/utils';
 import { Repository } from 'typeorm';

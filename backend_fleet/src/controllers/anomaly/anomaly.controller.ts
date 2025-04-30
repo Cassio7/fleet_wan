@@ -9,8 +9,8 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { Role } from 'classes/enum/role.enum';
-import { UserFromToken } from 'classes/interfaces/userToken.interface';
+import { Role } from 'src/classes/enum/role.enum';
+import { UserFromToken } from 'src/classes/interfaces/userToken.interface';
 import { Request, Response } from 'express';
 import Redis from 'ioredis';
 import { Roles } from 'src/decorators/roles.decorator';

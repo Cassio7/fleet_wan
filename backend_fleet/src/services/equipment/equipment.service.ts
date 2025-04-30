@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EquipmentDTO } from 'classes/dtos/equipment.dto';
-import { EquipmentEntity } from 'classes/entities/equipment.entity';
+import { EquipmentDTO } from 'src/classes/dtos/equipment.dto';
+import { EquipmentEntity } from 'src/classes/entities/equipment.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()

@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { AssociationEntity } from 'classes/entities/association.entity';
-import { CompanyEntity } from 'classes/entities/company.entity';
-import { UserEntity } from 'classes/entities/user.entity';
-import { WorksiteEntity } from 'classes/entities/worksite.entity';
+import { AssociationEntity } from 'src/classes/entities/association.entity';
+import { CompanyEntity } from 'src/classes/entities/company.entity';
+import { UserEntity } from 'src/classes/entities/user.entity';
+import { WorksiteEntity } from 'src/classes/entities/worksite.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()

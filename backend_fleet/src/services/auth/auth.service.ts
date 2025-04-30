@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
-import { UserEntity } from 'classes/entities/user.entity';
+import { UserEntity } from 'src/classes/entities/user.entity';
 import Redis from 'ioredis';
 import { Repository } from 'typeorm';
 import { JwtPayload } from './../../../node_modules/@types/jsonwebtoken/index.d';
@@ -84,6 +84,7 @@ export class AuthService {
         access_token: token,
       };
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new HttpException(
         `Errore durante il login utente`,
         HttpStatus.INTERNAL_SERVER_ERROR,

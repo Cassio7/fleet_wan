@@ -1,25 +1,25 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import axios, { AxiosResponse } from 'axios';
-import { CompanyDTO } from 'classes/dtos/company.dto';
-import { DeviceDTO } from 'classes/dtos/device.dto';
-import { EquipmentDTO } from 'classes/dtos/equipment.dto';
-import { GroupDTO } from 'classes/dtos/group.dto';
-import { RentalDTO } from 'classes/dtos/rental.dto';
-import { ServiceDTO } from 'classes/dtos/service.dto';
-import { VehicleDTO } from 'classes/dtos/vehicle.dto';
-import { WorkzoneDTO } from 'classes/dtos/workzone.dto';
-import { DeviceEntity } from 'classes/entities/device.entity';
-import { EquipmentEntity } from 'classes/entities/equipment.entity';
-import { RentalEntity } from 'classes/entities/rental.entity';
-import { ServiceEntity } from 'classes/entities/service.entity';
-import { VehicleEntity } from 'classes/entities/vehicle.entity';
+import { CompanyDTO } from 'src/classes/dtos/company.dto';
+import { DeviceDTO } from 'src/classes/dtos/device.dto';
+import { EquipmentDTO } from 'src/classes/dtos/equipment.dto';
+import { GroupDTO } from 'src/classes/dtos/group.dto';
+import { RentalDTO } from 'src/classes/dtos/rental.dto';
+import { ServiceDTO } from 'src/classes/dtos/service.dto';
+import { VehicleDTO } from 'src/classes/dtos/vehicle.dto';
+import { WorkzoneDTO } from 'src/classes/dtos/workzone.dto';
+import { DeviceEntity } from 'src/classes/entities/device.entity';
+import { EquipmentEntity } from 'src/classes/entities/equipment.entity';
+import { RentalEntity } from 'src/classes/entities/rental.entity';
+import { ServiceEntity } from 'src/classes/entities/service.entity';
+import { VehicleEntity } from 'src/classes/entities/vehicle.entity';
 import { createHash } from 'crypto';
 import { NotificationsService } from 'src/notifications/notifications.service';
 import { DataSource, In, IsNull, Not, Repository } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
 import { AssociationService } from '../association/association.service';
-import { WorksiteDTO } from './../../../classes/dtos/worksite.dto';
+import { WorksiteDTO } from '../../classes/dtos/worksite.dto';
 
 @Injectable()
 export class VehicleService {

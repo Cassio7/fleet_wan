@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { GroupDTO } from 'classes/dtos/group.dto';
-import { GroupEntity } from 'classes/entities/group.entity';
+import { GroupDTO } from 'src/classes/dtos/group.dto';
+import { GroupEntity } from 'src/classes/entities/group.entity';
 import { DataSource, Repository } from 'typeorm';
 
 @Injectable()

@@ -12,9 +12,9 @@ import {
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
-import { UserDTO } from 'classes/dtos/user.dto';
-import { Role } from 'classes/enum/role.enum';
-import { UserFromToken } from 'classes/interfaces/userToken.interface';
+import { UserDTO } from 'src/classes/dtos/user.dto';
+import { Role } from 'src/classes/enum/role.enum';
+import { UserFromToken } from 'src/classes/interfaces/userToken.interface';
 import { Response } from 'express';
 import { Roles } from 'src/decorators/roles.decorator';
 import { AuthGuard } from 'src/guard/auth.guard';

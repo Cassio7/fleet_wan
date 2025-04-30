@@ -1,12 +1,12 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { CompanyDTO } from 'classes/dtos/company.dto';
-import { GroupDTO } from 'classes/dtos/group.dto';
-import { VehicleDTO } from 'classes/dtos/vehicle.dto';
-import { WorksiteDTO } from 'classes/dtos/worksite.dto';
-import { GroupEntity } from 'classes/entities/group.entity';
-import { VehicleEntity } from 'classes/entities/vehicle.entity';
-import { WorksiteEntity } from 'classes/entities/worksite.entity';
+import { CompanyDTO } from 'src/classes/dtos/company.dto';
+import { GroupDTO } from 'src/classes/dtos/group.dto';
+import { VehicleDTO } from 'src/classes/dtos/vehicle.dto';
+import { WorksiteDTO } from 'src/classes/dtos/worksite.dto';
+import { GroupEntity } from 'src/classes/entities/group.entity';
+import { VehicleEntity } from 'src/classes/entities/vehicle.entity';
+import { WorksiteEntity } from 'src/classes/entities/worksite.entity';
 import { DataSource, In, Repository } from 'typeorm';
 import { AssociationService } from '../association/association.service';
 

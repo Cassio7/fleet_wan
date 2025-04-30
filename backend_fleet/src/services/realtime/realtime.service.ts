@@ -1,9 +1,9 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { RealtimeDTO } from 'classes/dtos/realtime.dto';
-import { VehicleDTO } from 'classes/dtos/vehicle.dto';
-import { VehicleEntity } from 'classes/entities/vehicle.entity';
+import { RealtimeDTO } from 'src/classes/dtos/realtime.dto';
+import { VehicleDTO } from 'src/classes/dtos/vehicle.dto';
+import { VehicleEntity } from 'src/classes/entities/vehicle.entity';
 
-import { WorksiteDTO } from 'classes/dtos/worksite.dto';
+import { WorksiteDTO } from 'src/classes/dtos/worksite.dto';
 import { AssociationService } from '../association/association.service';
 import { SessionService } from '../session/session.service';
 

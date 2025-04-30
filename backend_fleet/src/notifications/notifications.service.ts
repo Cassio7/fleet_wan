@@ -1,8 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { NotificationDto } from 'classes/dtos/notification.dto';
-import { NotificationEntity } from 'classes/entities/notification.entity';
-import { UserEntity } from 'classes/entities/user.entity';
+import { NotificationDto } from 'src/classes/dtos/notification.dto';
+import { NotificationEntity } from 'src/classes/entities/notification.entity';
+import { UserEntity } from 'src/classes/entities/user.entity';
 import { DataSource, Repository } from 'typeorm';
 import { NotificationsGateway } from './notifications.gateway';
 

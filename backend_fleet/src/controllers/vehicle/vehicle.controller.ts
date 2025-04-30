@@ -11,9 +11,9 @@ import {
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
-import { VehicleDTO } from 'classes/dtos/vehicle.dto';
-import { Role } from 'classes/enum/role.enum';
-import { UserFromToken } from 'classes/interfaces/userToken.interface';
+import { VehicleDTO } from 'src/classes/dtos/vehicle.dto';
+import { Role } from 'src/classes/enum/role.enum';
+import { UserFromToken } from 'src/classes/interfaces/userToken.interface';
 import { Response } from 'express';
 import { Roles } from 'src/decorators/roles.decorator';
 import { AuthGuard } from 'src/guard/auth.guard';

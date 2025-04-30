@@ -7,10 +7,10 @@ import {
 } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
-import { UserDTO } from 'classes/dtos/user.dto';
-import { AssociationEntity } from 'classes/entities/association.entity';
-import { RoleEntity } from 'classes/entities/role.entity';
-import { UserEntity } from 'classes/entities/user.entity';
+import { UserDTO } from 'src/classes/dtos/user.dto';
+import { AssociationEntity } from 'src/classes/entities/association.entity';
+import { RoleEntity } from 'src/classes/entities/role.entity';
+import { UserEntity } from 'src/classes/entities/user.entity';
 import { NotificationsService } from 'src/notifications/notifications.service';
 import { DataSource, Repository } from 'typeorm';
 import { AssociationService } from '../association/association.service';

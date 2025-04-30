@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CompanyEntity } from 'classes/entities/company.entity';
-import { GroupEntity } from 'classes/entities/group.entity';
+import { CompanyEntity } from 'src/classes/entities/company.entity';
+import { GroupEntity } from 'src/classes/entities/group.entity';
 import * as path from 'path';
 import { parseCsvFile } from 'src/utils/utils';
 import { Repository } from 'typeorm';

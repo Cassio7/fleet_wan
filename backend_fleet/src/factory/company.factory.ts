@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CompanyEntity } from 'classes/entities/company.entity';
+import { CompanyEntity } from 'src/classes/entities/company.entity';
 import * as path from 'path';
 import { parseCsvFile } from 'src/utils/utils';
 import { Repository } from 'typeorm';

@@ -3,28 +3,28 @@ import { Global, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AnomalyEntity } from 'classes/entities/anomaly.entity';
-import { AssociationEntity } from 'classes/entities/association.entity';
-import { CompanyEntity } from 'classes/entities/company.entity';
-import { DetectionTagEntity } from 'classes/entities/detection_tag.entity';
-import { DeviceEntity } from 'classes/entities/device.entity';
-import { EquipmentEntity } from 'classes/entities/equipment.entity';
-import { GroupEntity } from 'classes/entities/group.entity';
-import { HistoryEntity } from 'classes/entities/history.entity';
-import { LogEntity } from 'classes/entities/log.entity';
-import { NoteEntity } from 'classes/entities/note.entity';
-import { NotificationEntity } from 'classes/entities/notification.entity';
-import { RentalEntity } from 'classes/entities/rental.entity';
-import { RoleEntity } from 'classes/entities/role.entity';
-import { ServiceEntity } from 'classes/entities/service.entity';
-import { SessionEntity } from 'classes/entities/session.entity';
-import { TagEntity } from 'classes/entities/tag.entity';
-import { TagHistoryEntity } from 'classes/entities/tag_history.entity';
-import { UserEntity } from 'classes/entities/user.entity';
-import { VehicleEntity } from 'classes/entities/vehicle.entity';
-import { WorksiteHistoryEntity } from 'classes/entities/worksite-history.entity';
-import { WorksiteEntity } from 'classes/entities/worksite.entity';
-import { WorkzoneEntity } from 'classes/entities/workzone.entity';
+import * as path from 'path';
+import { AnomalyEntity } from 'src/classes/entities/anomaly.entity';
+import { AssociationEntity } from 'src/classes/entities/association.entity';
+import { CompanyEntity } from 'src/classes/entities/company.entity';
+import { DetectionTagEntity } from 'src/classes/entities/detection_tag.entity';
+import { DeviceEntity } from 'src/classes/entities/device.entity';
+import { EquipmentEntity } from 'src/classes/entities/equipment.entity';
+import { GroupEntity } from 'src/classes/entities/group.entity';
+import { HistoryEntity } from 'src/classes/entities/history.entity';
+import { NoteEntity } from 'src/classes/entities/note.entity';
+import { NotificationEntity } from 'src/classes/entities/notification.entity';
+import { RentalEntity } from 'src/classes/entities/rental.entity';
+import { RoleEntity } from 'src/classes/entities/role.entity';
+import { ServiceEntity } from 'src/classes/entities/service.entity';
+import { SessionEntity } from 'src/classes/entities/session.entity';
+import { TagEntity } from 'src/classes/entities/tag.entity';
+import { TagHistoryEntity } from 'src/classes/entities/tag_history.entity';
+import { UserEntity } from 'src/classes/entities/user.entity';
+import { VehicleEntity } from 'src/classes/entities/vehicle.entity';
+import { WorksiteHistoryEntity } from 'src/classes/entities/worksite-history.entity';
+import { WorksiteEntity } from 'src/classes/entities/worksite.entity';
+import { WorkzoneEntity } from 'src/classes/entities/workzone.entity';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AnomalyController } from './controllers/anomaly/anomaly.controller';
@@ -60,6 +60,7 @@ import { SessionVehicleModule } from './modules/session-vehicle.module';
 import { NotificationsController } from './notifications/notifications.controller';
 import { NotificationsGateway } from './notifications/notifications.gateway';
 import { NotificationsService } from './notifications/notifications.service';
+import { PrometheusMiddleware } from './prometheus/prometheus.middleware';
 import { PrometheusModule } from './prometheus/prometheus.module';
 import { AnomalyService } from './services/anomaly/anomaly.service';
 import { StatsService } from './services/anomaly/stats/stats.service';
@@ -82,7 +83,6 @@ import { VehicleService } from './services/vehicle/vehicle.service';
 import { WorksiteHistoryService } from './services/worksite-history/worksite-history.service';
 import { WorksiteService } from './services/worksite/worksite.service';
 import { WorkzoneService } from './services/workzone/workzone.service';
-import { PrometheusMiddleware } from './prometheus/prometheus.middleware';
 
 @Global()
 @Module({
@@ -103,28 +103,7 @@ import { PrometheusMiddleware } from './prometheus/prometheus.middleware';
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_DATABASE'),
         entities: [
-          VehicleEntity,
-          DeviceEntity,
-          GroupEntity,
-          HistoryEntity,
-          TagEntity,
-          TagHistoryEntity,
-          DetectionTagEntity,
-          SessionEntity,
-          UserEntity,
-          RoleEntity,
-          AssociationEntity,
-          CompanyEntity,
-          WorksiteEntity,
-          NoteEntity,
-          ServiceEntity,
-          AnomalyEntity,
-          WorkzoneEntity,
-          RentalEntity,
-          EquipmentEntity,
-          NotificationEntity,
-          WorksiteHistoryEntity,
-          LogEntity,
+          path.join(__dirname, 'classes/entities/**/*.entity{.ts,.js}'),
         ],
         synchronize: false,
         //dropSchema: true, // if true drop db
@@ -168,27 +147,7 @@ import { PrometheusMiddleware } from './prometheus/prometheus.middleware';
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_DATABASE'),
         entities: [
-          VehicleEntity,
-          DeviceEntity,
-          GroupEntity,
-          HistoryEntity,
-          TagEntity,
-          TagHistoryEntity,
-          DetectionTagEntity,
-          SessionEntity,
-          UserEntity,
-          RoleEntity,
-          AssociationEntity,
-          CompanyEntity,
-          WorksiteEntity,
-          NoteEntity,
-          ServiceEntity,
-          AnomalyEntity,
-          WorkzoneEntity,
-          RentalEntity,
-          EquipmentEntity,
-          NotificationEntity,
-          WorksiteHistoryEntity,
+          path.join(__dirname, 'classes/entities/**/*.entity{.ts,.js}'),
         ],
         synchronize: false,
       }),
@@ -231,27 +190,7 @@ import { PrometheusMiddleware } from './prometheus/prometheus.middleware';
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_DATABASE'),
         entities: [
-          VehicleEntity,
-          DeviceEntity,
-          GroupEntity,
-          HistoryEntity,
-          TagEntity,
-          TagHistoryEntity,
-          DetectionTagEntity,
-          SessionEntity,
-          UserEntity,
-          RoleEntity,
-          AssociationEntity,
-          CompanyEntity,
-          WorksiteEntity,
-          NoteEntity,
-          ServiceEntity,
-          AnomalyEntity,
-          WorkzoneEntity,
-          RentalEntity,
-          EquipmentEntity,
-          NotificationEntity,
-          WorksiteHistoryEntity,
+          path.join(__dirname, 'classes/entities/**/*.entity{.ts,.js}'),
         ],
         synchronize: false,
       }),

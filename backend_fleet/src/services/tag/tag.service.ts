@@ -1,12 +1,12 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import axios from 'axios';
-import { TagDTO } from 'classes/dtos/tag.dto';
-import { DetectionTagEntity } from 'classes/entities/detection_tag.entity';
-import { TagEntity } from 'classes/entities/tag.entity';
-import { TagHistoryEntity } from 'classes/entities/tag_history.entity';
-import { VehicleEntity } from 'classes/entities/vehicle.entity';
-import { WorksiteEntity } from 'classes/entities/worksite.entity';
+import { TagDTO } from 'src/classes/dtos/tag.dto';
+import { DetectionTagEntity } from 'src/classes/entities/detection_tag.entity';
+import { TagEntity } from 'src/classes/entities/tag.entity';
+import { TagHistoryEntity } from 'src/classes/entities/tag_history.entity';
+import { VehicleEntity } from 'src/classes/entities/vehicle.entity';
+import { WorksiteEntity } from 'src/classes/entities/worksite.entity';
 import { createHash } from 'crypto';
 import { Between, DataSource, In, Repository } from 'typeorm';
 import { parseStringPromise } from 'xml2js';

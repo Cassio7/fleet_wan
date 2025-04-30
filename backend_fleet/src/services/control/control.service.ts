@@ -4,7 +4,7 @@ import { SessionService } from '../session/session.service';
 import { TagService } from '../tag/tag.service';
 import { VehicleService } from '../vehicle/vehicle.service';
 import { ConfigService } from '@nestjs/config';
-import { VehicleEntity } from 'classes/entities/vehicle.entity';
+import { VehicleEntity } from 'src/classes/entities/vehicle.entity';
 
 @Injectable()
 export class ControlService {

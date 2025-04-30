@@ -7,7 +7,7 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { NotificationDto } from 'classes/dtos/notification.dto';
+import { NotificationDto } from 'src/classes/dtos/notification.dto';
 import Redis from 'ioredis';
 import { Server, Socket } from 'socket.io';
 import { AuthService } from 'src/services/auth/auth.service';

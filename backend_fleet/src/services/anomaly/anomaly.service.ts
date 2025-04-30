@@ -1,12 +1,12 @@
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { AnomalyDTO } from 'classes/dtos/anomaly.dto';
-import { ServiceDTO } from 'classes/dtos/service.dto';
-import { VehicleDTO } from 'classes/dtos/vehicle.dto';
-import { WorksiteDTO } from 'classes/dtos/worksite.dto';
-import { AnomalyEntity } from 'classes/entities/anomaly.entity';
-import { VehicleEntity } from 'classes/entities/vehicle.entity';
+import { AnomalyDTO } from 'src/classes/dtos/anomaly.dto';
+import { ServiceDTO } from 'src/classes/dtos/service.dto';
+import { VehicleDTO } from 'src/classes/dtos/vehicle.dto';
+import { WorksiteDTO } from 'src/classes/dtos/worksite.dto';
+import { AnomalyEntity } from 'src/classes/entities/anomaly.entity';
+import { VehicleEntity } from 'src/classes/entities/vehicle.entity';
 import { createHash } from 'crypto';
 import Redis from 'ioredis';
 import { sortRedisData } from 'src/utils/utils';

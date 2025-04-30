@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { WorkzoneEntity } from 'classes/entities/workzone.entity';
+import { WorkzoneEntity } from 'src/classes/entities/workzone.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()

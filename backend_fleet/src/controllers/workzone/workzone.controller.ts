@@ -1,7 +1,7 @@
 import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
-import { WorkzoneEntity } from 'classes/entities/workzone.entity';
-import { Role } from 'classes/enum/role.enum';
-import { UserFromToken } from 'classes/interfaces/userToken.interface';
+import { WorkzoneEntity } from 'src/classes/entities/workzone.entity';
+import { Role } from 'src/classes/enum/role.enum';
+import { UserFromToken } from 'src/classes/interfaces/userToken.interface';
 import { Response } from 'express';
 import { Roles } from 'src/decorators/roles.decorator';
 import { AuthGuard } from 'src/guard/auth.guard';

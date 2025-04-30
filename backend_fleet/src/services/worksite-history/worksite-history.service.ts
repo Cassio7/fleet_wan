@@ -1,12 +1,12 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { VehicleEntity } from 'classes/entities/vehicle.entity';
-import { WorksiteEntity } from 'classes/entities/worksite.entity';
-import { WorksiteHistoryEntity } from 'classes/entities/worksite-history.entity';
+import { VehicleEntity } from 'src/classes/entities/vehicle.entity';
+import { WorksiteEntity } from 'src/classes/entities/worksite.entity';
+import { WorksiteHistoryEntity } from 'src/classes/entities/worksite-history.entity';
 import { DataSource, Repository } from 'typeorm';
 import { AssociationService } from '../association/association.service';
-import { WorksiteHistoryDTO } from 'classes/dtos/worksite-history.dto';
-import { WorksiteDTO } from 'classes/dtos/worksite.dto';
+import { WorksiteHistoryDTO } from 'src/classes/dtos/worksite-history.dto';
+import { WorksiteDTO } from 'src/classes/dtos/worksite.dto';
 
 @Injectable()
 export class WorksiteHistoryService {
