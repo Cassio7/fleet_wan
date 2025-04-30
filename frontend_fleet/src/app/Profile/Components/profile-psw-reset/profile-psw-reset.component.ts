@@ -82,7 +82,7 @@ private readonly destroy$: Subject<void> = new Subject<void>();
         },
         error: error => {
           console.error("Errore nell'aggiornamento delle informazioni dell'utente: ", error);
-          this.errorText = error.message;
+          this.errorText = error.error.message;
         }
       });
     }else{
