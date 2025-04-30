@@ -60,3 +60,6 @@ files/
 
 #file
 nohup.out
+
+#version
+.build-version
