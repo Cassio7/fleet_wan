@@ -15,7 +15,7 @@ import { AnomalyService } from './services/anomaly/anomaly.service';
 import { getDaysInRange } from './utils/utils';
 
 import { InjectRedis } from '@nestjs-modules/ioredis';
-import { VehicleEntity } from 'classes/entities/vehicle.entity';
+import { VehicleEntity } from 'src/classes/entities/vehicle.entity';
 import Redis from 'ioredis';
 import { EquipmentFacotoryService } from './factory/equipment.factory';
 import { RentalFactoryService } from './factory/rental.factory';
@@ -49,6 +49,7 @@ export class AppService implements OnModuleInit {
 
   // popolo database all'avvio
   async onModuleInit(): Promise<void> {
+    this.redis.set('cron:weeklyCheck', 0);
     // const startDate = '2025-04-04T00:00:00.000Z';
     // //const endDate = '2025-01-01T00:00:00.000Z';
     // const endDate = new Date(
@@ -171,10 +172,41 @@ export class AppService implements OnModuleInit {
   }
 
   /**
+   * Lunedi notte alle 1 e 22 recupera tutta la settimana passata e riscontrolla anomalie
+   */
+  @Cron('22 1 * * 1', { name: 'cronDataWeekly' })
+  async cronDataWeekly(): Promise<void> {
+    this.redis.set('cron:weeklyCheck', 1, 'EX', 900);
+    try {
+      // Oggi (lunedi) alle 00:00
+      const dateTo = new Date();
+      dateTo.setHours(0, 0, 0, 0);
+
+      // Lunedì scorso alle 00:00
+      const dateFrom = new Date(dateTo);
+      dateFrom.setDate(dateTo.getDate() - 7);
+
+      const startDate = dateFrom.toISOString();
+      const endDate = dateTo.toISOString();
+      await this.putDbDataMix(startDate, endDate);
+      await this.anomalyCheck(startDate, endDate);
+      await this.setAnomaly();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      this.redis.set('cron:weeklyCheck', 0);
+    }
+  }
+
+  /**
    * Inserisce tutti i veicoli in parallelo in batch, ma i tag sequenzialmente
    */
   @Cron('*/10 * * * *', { name: 'putDbDataCronOne' })
   async putDbDataCronOne(): Promise<void> {
+    if ((await this.redis.get('cron:weeklyCheck')) === '1') {
+      console.log('skip cron for weekly check');
+      return;
+    }
     const now = new Date();
     now.setHours(0, 0, 0, 0);
     const startDate = now.toISOString();
