@@ -18,4 +18,4 @@ RUN npm run build
 
 
 # Command to run the application
-CMD ["node", "dist/src/main.js"]
+CMD ["node", "dist/main.js"]
