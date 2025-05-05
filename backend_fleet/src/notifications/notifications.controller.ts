@@ -2,6 +2,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpStatus,
   Param,
   Patch,
   Query,
@@ -77,6 +78,85 @@ export class NotificationsController {
       });
     }
   }
+
+  /**
+   * Imposta tutte le notifiche a 'non letta'
+   * @param res 
+   * @param req 
+   * @returns messaggio di successo o errore
+   */
+  @Roles(Role.Admin)
+  @Patch('all/unread')
+  async setAllNotificationsToUnread(
+    @Res() res: Response,
+    @Req() req: Request & { user: UserFromToken }
+  ) {
+    const context: LogContext = {
+      userId: req.user.id,
+      username: req.user.username,
+      resource: 'Notification All Admin',
+    };
+  
+    try {
+      await this.notificationsService.setAllNotificationsToUnRead(); 
+  
+      return res
+        .status(HttpStatus.OK)
+        .send({
+          message: "Tutte le notifiche impostate a 'non letta' con successo"
+        });
+    } catch (error) {
+      this.loggerService.logCrudError({
+        error,
+        context,
+        operation: 'update',
+      });
+  
+      return res
+        .status(error.status || 500)
+        .send(error.message || "Errore nell'impostazione di tutte le notifiche come 'non letta'");
+    }
+  }
+
+  /**
+   * Imposta tutte le notifiche a 'letta'
+   * @param res 
+   * @param req 
+   * @returns messaggio di successo o errore
+   */
+  @Roles(Role.Admin)
+  @Patch('all/read')
+  async setAllNotificationsToRead(
+    @Res() res: Response,
+    @Req() req: Request & { user: UserFromToken }
+  ) {
+    const context: LogContext = {
+      userId: req.user.id,
+      username: req.user.username,
+      resource: 'Notification All Admin',
+    };
+  
+    try {
+      await this.notificationsService.setAllNotificationsToRead(); 
+  
+      return res
+        .status(HttpStatus.OK)
+        .send({
+          message: "Tutte le notifiche impostate a 'letta' con successo"
+        });
+    } catch (error) {
+      this.loggerService.logCrudError({
+        error,
+        context,
+        operation: 'update',
+      });
+  
+      return res
+        .status(error.status || 500)
+        .send(error.message || "Errore nell'impostazione di tutte le notifiche come 'letta'");
+    }
+  }
+
 
   /**
    * API per eliminare una notifica

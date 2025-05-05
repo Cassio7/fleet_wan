@@ -126,6 +126,29 @@ export class NotificationsService {
     }
   }
 
+  async setAllNotificationsToUnRead(): Promise<void> {
+    try {
+      await this.notificationRepository.update(
+        {}, 
+        { isRead: false } 
+      );
+    } catch (error) {
+      console.error('Failed to mark notifications as unread:', error);
+    }
+  }
+  
+
+  async setAllNotificationsToRead(): Promise<void>{
+    try {
+      await this.notificationRepository.update(
+        {}, 
+        { isRead: true } 
+      );
+    } catch (error) {
+      console.error('Failed to mark notifications as unread:', error);
+    }
+  }
+
   /**
    * Ritorna tutte le notifiche in base all utente che le richiede
    * @param userId
