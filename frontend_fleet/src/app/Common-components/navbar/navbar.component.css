@@ -154,13 +154,15 @@
 
   .title-container {
     width: 100%;
+    align-items: center;
     display: flex;
     justify-content: space-between;
 
     .title {
       display: inline-flex;
       align-items: center;
-      gap: 1vw;
+      white-space: nowrap;
+      gap: .2vw;
 
       .toggleRead-button{
         color: var(--green);
