@@ -93,10 +93,10 @@
             </mat-card-header>
             <mat-divider></mat-divider>
 
-            <mat-card-content class="stats-lists lists">
+            <mat-card-content class="stats-lists lists" *ngIf="stats">
 
               <!-- Riepilogo -->
-              <div class="stats-summary">
+              <div class="stats-summary" >
                 <h6 class="title">Riepilogo</h6>
                 <div class="summary-grid">
                   <div><strong>Sessioni totali:</strong> {{ stats.max_sessions }}</div>

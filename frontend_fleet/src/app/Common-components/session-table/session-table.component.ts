@@ -133,14 +133,16 @@ export class SessionTableComponent implements OnChanges, AfterViewInit, OnDestro
     this.updating = true;
     this.cd.detectChanges();
 
-    this.sessionApiService.updateSessionAnomalies(this.vehicle.veId, this.lastDateFrom, this.lastDateTo).pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: (response: { message: string }) => {
-        this.updating = false;
-        this.fillTable(this.lastDateFrom, this.lastDateTo);
-      },
-      error: error => console.error("Errore nell'aggiornamento delle anomalie: ", error)
-    });
+    if(this.lastDateFrom  && this.lastDateTo){
+      this.sessionApiService.updateSessionAnomalies(this.vehicle.veId, this.lastDateFrom, this.lastDateTo).pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response: { message: string }) => {
+          this.updating = false;
+          this.fillTable(this.lastDateFrom, this.lastDateTo);
+        },
+        error: error => console.error("Errore nell'aggiornamento delle anomalie: ", error)
+      });
+    }
   }
 
   ngOnDestroy(): void {
