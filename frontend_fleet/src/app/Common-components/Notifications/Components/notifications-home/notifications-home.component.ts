@@ -94,6 +94,9 @@ export class NotificationsHomeComponent implements OnInit{
     });
   }
 
+  /**
+   * Imposta tutte le notifiche come "lette"
+   */
   readAll(){
     this.notificationService.toggleAllNotificationToRead(true).pipe(takeUntil(this.destroy$))
     .subscribe({
@@ -104,12 +107,15 @@ export class NotificationsHomeComponent implements OnInit{
           this.isAllRead = true;
           this.isAllUnread = false;
         });
-        openSnackbar(this.snackbar, response.message);
+        openSnackbar(this.snackbar, "Tutte le notifiche sono segnate come 'lette'");
       },
       error: error => console.error("Errore nell'impostare tutte le notifiche a 'letta'", error)
     });
   }
 
+  /**
+   * Imposta tutte le notifiche come "non lette"
+   */
   unreadAll(){
     this.notificationService.toggleAllNotificationToRead(false).pipe(takeUntil(this.destroy$))
     .subscribe({
@@ -120,17 +126,27 @@ export class NotificationsHomeComponent implements OnInit{
           this.isAllUnread = true;
           this.isAllRead = false;
         });
-        openSnackbar(this.snackbar, response.message);
+        openSnackbar(this.snackbar, "Tutte le notifiche sono segnate come 'non lette'");
       },
       error: error => console.error("Errore nell'impostare tutte le notifiche a 'letta'", error)
     });
   }
 
+  /**
+   * Controlla se tutte le notifiche sono state lette
+   * @returns true se sono state tutte lette
+   * @returns false se non sono tutte lette
+   */
   checkIsAllRead(): boolean{
     return this.notifiche.every(notifica => notifica.isRead);
   }
 
-  checkIsAllUnread(){
+  /**
+   * Controlla se tutte le notifiche sono da leggere
+   * @returns true se sono tutte da leggere
+   * @returns false se non sono tutte da leggere
+   */
+  checkIsAllUnread(): boolean{
     return this.notifiche.every(notifica => !notifica.isRead);
   }
 
@@ -151,8 +167,11 @@ export class NotificationsHomeComponent implements OnInit{
     }
   }
 
+  /**
+   * Aggiorna lo stato di lettura di una notifica
+   * @param notification notifica da modificare
+   */
   updateNotificationStatus(notification: Notifica) {
-    console.log('chiamato updateNotificationStatus');
     this.notificationService.toggleNotificationReadStatus(notification.key)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -253,6 +272,9 @@ export class NotificationsHomeComponent implements OnInit{
       });
     }
 
+  /**
+   * Torna alla pagina precedente
+   */
   goBack(){
     this.router.navigate([this.previous_url]);
   }
