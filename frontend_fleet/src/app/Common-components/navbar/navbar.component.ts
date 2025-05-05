@@ -19,6 +19,7 @@ import { KanbanTableService } from '../../Dashboard/Services/kanban-table/kanban
 import { Notifica } from '../../Models/Notifica';
 import { User } from '../../Models/User';
 import { ProfileService } from '../../Profile/Services/profile/profile.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-navbar',
@@ -26,6 +27,7 @@ import { ProfileService } from '../../Profile/Services/profile/profile.service';
   imports: [
     CommonModule,
     MatToolbarModule,
+    MatTooltipModule,
     MatButtonModule,
     MatIconModule,
     MatMenuModule,
