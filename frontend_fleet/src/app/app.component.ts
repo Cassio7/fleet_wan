@@ -181,31 +181,36 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       });
 
+      this.handleRealtimeNotification();
+  }
+
+  private handleRealtimeNotification(){
     //connessione al canale per l'avviso in tempo reale delle notifiche
     this.webSocketService
-      .getNotifyMessages()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (notification: Notifica) => {
-          if (notification) {
-            if (!Array.isArray(this.notifiche)) this.notifiche = [];
+    .getNotifyMessages()
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (notification: Notifica) => {
+        if (notification) {
+          if (!Array.isArray(this.notifiche)) this.notifiche = [];
 
-            this.notifiche.unshift(notification);
-          } else {
-            console.error('Notifica ricevuta è null o undefined');
-          }
-        },
-        error: (error) =>
-          console.error('Errore nella ricezione della notifica: ', error),
-      });
-    this.webSocketService
-      .getBanMessage()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (ban: string) => {
-          this.logout();
-        },
-      });
+          this.notifiche.unshift(notification);
+          this.notificationService.newNotification$.next(notification);
+        } else {
+          console.error('Notifica ricevuta è null o undefined');
+        }
+      },
+      error: (error) =>
+        console.error('Errore nella ricezione della notifica: ', error),
+    });
+  this.webSocketService
+    .getBanMessage()
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (ban: string) => {
+        this.logout();
+      },
+    });
   }
 
   private handleGetUserInfo() {

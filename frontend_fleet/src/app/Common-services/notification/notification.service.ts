@@ -9,6 +9,7 @@ import { serverUrl } from '../../environment';
   providedIn: 'root'
 })
 export class NotificationService {
+  private readonly _newNotification$: BehaviorSubject<Notifica | null> = new BehaviorSubject<Notifica | null>(null);
   private readonly _updatedNotification$: BehaviorSubject<Notifica | null> = new BehaviorSubject<Notifica | null>(null);
   private readonly _deletedNotification$: BehaviorSubject<{ key: string }> = new BehaviorSubject<{ key: string }>({ key: "" });
 
@@ -59,6 +60,26 @@ export class NotificationService {
     return this.http.patch<{notification: Notifica, message: string}>(`${serverUrl}/notifications/${key}`, {}, {headers});
   }
 
+  setAllNotificationsToRead(): Observable<{message: string}>{
+    const access_token = this.cookieService.get('user');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${access_token}`,
+      'Content-Type': 'application/json',
+    });
+
+    return this.http.patch<{message: string}>(`${serverUrl}/notifications/all/read`, {}, {headers});
+  }
+
+  setAllNotificationsToUnread(){
+    const access_token = this.cookieService.get('user');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${access_token}`,
+      'Content-Type': 'application/json',
+    });
+
+    return this.http.patch<{message: string}>(`${serverUrl}/notifications/all/unread`, {}, {headers});
+  }
+
   /**
    * Elimina una notifica tramite la chiave
    * @param key chiave della notifica da eliminare
@@ -74,6 +95,9 @@ export class NotificationService {
     return this.http.delete<{message: string, notification: Notifica}>(`${serverUrl}/${this.url}/${key}`, { headers });
   }
 
+  public get newNotification$(): BehaviorSubject<Notifica | null> {
+    return this._newNotification$;
+  }
   public get updatedNotification$(): BehaviorSubject<Notifica | null> {
     return this._updatedNotification$;
   }
