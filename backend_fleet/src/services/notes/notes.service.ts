@@ -273,6 +273,16 @@ export class NotesService {
         .getRepository(NoteEntity)
         .update({ key: note.key }, { content: updatedContent });
       await queryRunner.commitTransaction();
+
+      const title = `Nota aggiornata`;
+      const message = `Nota '${note.content}' aggiornata a '${updatedContent}'`;
+      const notification = await this.notificationsService.createNotification(
+        1,
+        user.username,
+        title,
+        message,
+      );
+      this.notificationsService.sendNotification(notification);
     } catch (error) {
       await queryRunner.rollbackTransaction();
       if (error instanceof HttpException) throw error;
