@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input, OnChanges, OnDestroy, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -32,6 +32,7 @@ export class NotificationsTableComponent implements OnChanges, OnDestroy {
   notificheTableData = new MatTableDataSource<Notifica>();
   snackbar: MatSnackBar = inject(MatSnackBar);
   @Input() notifiche: Notifica[] = [];
+  @Output() updateNotification: EventEmitter<Notifica> = new EventEmitter<Notifica>();
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['notifiche']) {
@@ -56,17 +57,7 @@ export class NotificationsTableComponent implements OnChanges, OnDestroy {
       notification.isButtonDisabled = false;
     }, 2000);
 
-    this.notificationService.updateNotificationReadStatus(notification.key)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response: { notification: Notifica, message: string }) => {
-          const { notification: updatedNotification } = response;
-          this.notificationService.updatedNotification$.next(updatedNotification);
-        },
-        error: error => {
-          console.error("Errore nell'aggiornamento della notifica: ", error);
-        }
-      });
+    this.updateNotification.emit(notification);
   }
 
 

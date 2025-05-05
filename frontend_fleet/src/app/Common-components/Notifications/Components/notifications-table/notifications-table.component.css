@@ -10,6 +10,7 @@
 
 .statoLettura-container {
   display: inline-flex;
+  min-width: 10vw;
   align-items: center;
   gap: 0.5vw;
 

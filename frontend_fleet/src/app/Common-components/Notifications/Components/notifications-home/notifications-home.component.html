@@ -8,8 +8,22 @@
     <h4 class="title">Notifiche: {{ this.notifiche.length }}</h4>
   </div>
   <div class="filters-container">
-    <app-notifications-filters [notifiche]="notifiche" (notificheChange)="displayedNotifiche = $event"></app-notifications-filters>
+    <div>
+      <app-notifications-filters [notifiche]="notifiche" (notificheChange)="displayedNotifiche = $event"></app-notifications-filters>
+      <span [matTooltip]="isAllRead ? 'Tutte le notifiche sono lette' : ''">
+        <button mat-button class="button" (click)="readAll()" [disabled]="isAllRead" >Segna tutte come lette</button>
+      </span>
+      <span [matTooltip]="isAllUnread ? 'Tutte le notifiche sono da leggere' : ''">
+        <button mat-button class="button" (click)="unreadAll()" [disabled]="isAllUnread">Segna tutte come da leggere</button>
+      </span>
+    </div>
+    <div class="notifications-update">
+      <span *ngIf="newNotifications.length > 0">Nuove notifiche: {{newNotifications.length}}</span>
+      <span [matTooltip]="newNotifications.length <= 0 ? 'Nessuna nuova notfica' : ''">
+        <button mat-button class="button" (click)="updateNotifications()" [disabled]="newNotifications.length <= 0">Aggiorna notifiche</button>
+      </span>
+    </div>
   </div>
-  <app-notifications-table [notifiche]="displayedNotifiche" *ngIf="notifiche?.length"></app-notifications-table>
+  <app-notifications-table [notifiche]="displayedNotifiche" (updateNotification)="updateNotificationStatus($event)" *ngIf="notifiche?.length"></app-notifications-table>
 </div>
 

@@ -38,3 +38,14 @@
   }
 }
 
+.filters-container{
+  width: 100%;
+  justify-content: space-between;
+  box-sizing: border-box;
+
+  .notifications-update{
+    display: inline-flex;
+    align-items: center;
+    gap: 1vw;
+  }
+}
