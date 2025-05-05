@@ -588,32 +588,35 @@ export class ControlService {
       console.error('Errore nel controllo errori del GPS:', error);
     }
 
-    // Controlla errore Antenna
-    try {
-      fetchedTagComparisons = await this.checkAntenna(
-        dateFrom,
-        dateTo,
-        allVehiclesReader,
-      );
-      fetchedTagComparisons = Array.isArray(fetchedTagComparisons)
-        ? fetchedTagComparisons
-        : [];
-    } catch (error) {
-      console.error(
-        'Errore nella comparazione dei tag per controllare gli errori delle antenne:',
-        error,
-      );
+    if (allVehiclesReader && allVehiclesReader.length > 0) {
+      // Controlla errore Antenna
+      try {
+        fetchedTagComparisons = await this.checkAntenna(
+          dateFrom,
+          dateTo,
+          allVehiclesReader,
+        );
+        fetchedTagComparisons = Array.isArray(fetchedTagComparisons)
+          ? fetchedTagComparisons
+          : [];
+      } catch (error) {
+        console.error(
+          'Errore nella comparazione dei tag per controllare gli errori delle antenne:',
+          error,
+        );
+      }
+
+      try {
+        quality = await this.checkQuality(dateFrom, dateTo, allVehiclesReader);
+        quality = Array.isArray(quality) ? quality : [];
+      } catch (error) {
+        console.error(
+          'Errore nella media dei detection quality giornalieri:',
+          error,
+        );
+      }
     }
 
-    try {
-      quality = await this.checkQuality(dateFrom, dateTo, allVehiclesReader);
-      quality = Array.isArray(quality) ? quality : [];
-    } catch (error) {
-      console.error(
-        'Errore nella media dei detection quality giornalieri:',
-        error,
-      );
-    }
     // Controlla errore inizio e fine sessione (last event)
     try {
       comparison = await this.checkSession(allVehicles);
