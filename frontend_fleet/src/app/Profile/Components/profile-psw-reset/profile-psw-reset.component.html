@@ -9,7 +9,7 @@
       <div class="container">
         <p>Password attuale:</p>
       <mat-form-field appearance="outline" class="full-width">
-        <input matInput formControlName="currentPassword" (keyup)="checkSaveable()">
+        <input matInput [type]="showCurrentPassword ? 'text' : 'password'" formControlName="currentPassword" (keyup)="checkSaveable()">
         <button mat-icon-button matSuffix type="button" (click)="showCurrentPassword = !showCurrentPassword" tabindex="-1">
           <mat-icon class="visibility-icon">{{ showCurrentPassword ? 'visibility' : 'visibility_off' }}</mat-icon>
         </button>
@@ -19,7 +19,7 @@
       <div class="container">
         <p>Nuova password:</p>
       <mat-form-field appearance="outline" class="full-width">
-        <input matInput formControlName="newPassword" (keyup)="checkSaveable()">
+        <input matInput [type]="showNewPassword ? 'text' : 'password'" formControlName="newPassword" (keyup)="checkSaveable()">
         <button mat-icon-button matSuffix type="button" (click)="showNewPassword = !showNewPassword" tabindex="-1">
           <mat-icon class="visibility-icon">{{ showNewPassword ? 'visibility' : 'visibility_off' }}</mat-icon>
         </button>
@@ -29,7 +29,7 @@
       <div class="container">
         <p>Conferma password:</p>
       <mat-form-field appearance="outline" class="full-width">
-        <input matInput formControlName="passwordConfirmation" (keyup)="checkSaveable()">
+        <input matInput [type]="showPasswordConfirmation ? 'text' : 'password'" formControlName="passwordConfirmation" (keyup)="checkSaveable()">
         <button mat-icon-button matSuffix type="button" (click)="showPasswordConfirmation = !showPasswordConfirmation" tabindex="-1">
           <mat-icon class="visibility-icon">{{ showPasswordConfirmation ? 'visibility' : 'visibility_off' }}</mat-icon>
         </button>
@@ -45,7 +45,7 @@
         <button mat-raised-button color="primary" class="button"
                 (click)="updatePassword()"
                 [disabled]="!isSaveable">
-          Aggiorna dati utente
+          Aggiorna password
         </button>
       </span>
     </div>
