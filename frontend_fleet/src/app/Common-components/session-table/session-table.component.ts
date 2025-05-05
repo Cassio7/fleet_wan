@@ -14,6 +14,7 @@ import {
   Input,
   OnChanges,
   OnDestroy,
+  OnInit,
   Signal,
   SimpleChanges,
   ViewChild,
@@ -68,7 +69,7 @@ import { Vehicle } from '../../Models/Vehicle';
     ]),
   ],
 })
-export class SessionTableComponent implements OnChanges, AfterViewInit, OnDestroy {
+export class SessionTableComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   private readonly destroy$: Subject<void> = new Subject<void>();
   @ViewChild('anomaliesTable') anomaliesTable!: MatTable<Anomaly>;
   @ViewChild('sessionsTable') sessionsTable!: MatTable<Session>;
@@ -123,8 +124,8 @@ export class SessionTableComponent implements OnChanges, AfterViewInit, OnDestro
     private cd: ChangeDetectorRef
   ) {
     effect(() => {
-        const updateNumber = this.dataUpdate(); //to trigger the change detection
-        this.updateData();
+      const updateNumber = this.dataUpdate();
+      this.updateData();
     });
   }
 
