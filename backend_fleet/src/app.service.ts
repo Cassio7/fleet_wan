@@ -188,8 +188,13 @@ export class AppService implements OnModuleInit {
 
       const startDate = dateFrom.toISOString();
       const endDate = dateTo.toISOString();
+
+      const endDatePlusOne = new Date(dateTo);
+      endDatePlusOne.setDate(endDatePlusOne.getDate() + 1);
+      const endDatePlusOneISO = endDatePlusOne.toISOString();
+
       await this.putDbDataMix(startDate, endDate);
-      await this.anomalyCheck(startDate, endDate);
+      await this.anomalyCheck(startDate, endDatePlusOneISO);
       await this.setAnomaly();
     } catch (error) {
       console.error(error);
