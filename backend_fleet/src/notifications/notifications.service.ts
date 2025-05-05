@@ -126,26 +126,39 @@ export class NotificationsService {
     }
   }
 
-  async setAllNotificationsToUnRead(): Promise<void> {
+  /**
+   * Imposta lo stato di lettura di tutte le notifiche in base al parametro passato
+   * @param read boolean value
+   */
+  async setAllNotificationsTo(
+    read: boolean,
+  ): Promise<NotificationDto[] | null> {
+    const queryRunner = this.connection.createQueryRunner();
     try {
-      await this.notificationRepository.update(
-        {}, 
-        { isRead: false } 
-      );
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+      const notificationsNumber = await this.notificationRepository.count();
+      if (!notificationsNumber) {
+        await queryRunner.rollbackTransaction();
+        return null;
+      }
+      await queryRunner.manager
+        .getRepository(NotificationEntity)
+        .update({}, { isRead: read });
+      await queryRunner.commitTransaction();
+      const notifications = await this.notificationRepository.find();
+      return notifications
+        ? notifications.map((notification) => this.toDTO(notification))
+        : null;
     } catch (error) {
-      console.error('Failed to mark notifications as unread:', error);
-    }
-  }
-  
-
-  async setAllNotificationsToRead(): Promise<void>{
-    try {
-      await this.notificationRepository.update(
-        {}, 
-        { isRead: true } 
+      await queryRunner.rollbackTransaction();
+      if (error instanceof HttpException) throw error;
+      throw new HttpException(
+        `Errore durante update lettura per tutte le notifiche`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
-    } catch (error) {
-      console.error('Failed to mark notifications as unread:', error);
+    } finally {
+      await queryRunner.release();
     }
   }
 

@@ -2,17 +2,17 @@ import {
   Controller,
   Delete,
   Get,
-  HttpStatus,
   Param,
+  ParseBoolPipe,
   Patch,
   Query,
   Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { Role } from 'src/classes/enum/role.enum';
 import { UserFromToken } from 'src/classes/interfaces/userToken.interface';
-import { Response } from 'express';
 import { Roles } from 'src/decorators/roles.decorator';
 import { AuthGuard } from 'src/guard/auth.guard';
 import { RolesGuard } from 'src/guard/roles.guard';
@@ -80,83 +80,61 @@ export class NotificationsController {
   }
 
   /**
-   * Imposta tutte le notifiche a 'non letta'
-   * @param res 
-   * @param req 
-   * @returns messaggio di successo o errore
+   * Chiamata per Cambiare lo stato di lettura di tutte le notifiche
+   * @param res
+   * @param read booleano -> true: tutte le notifiche "lette"; false: tutte le notifiche "da leggere"
+   * @param req
+   * @returns
    */
   @Roles(Role.Admin)
-  @Patch('all/unread')
+  @Patch()
   async setAllNotificationsToUnread(
     @Res() res: Response,
-    @Req() req: Request & { user: UserFromToken }
+    @Query('read', ParseBoolPipe) read: boolean,
+    @Req() req: Request & { user: UserFromToken },
   ) {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
       resource: 'Notification All Admin',
     };
-  
+
     try {
-      await this.notificationsService.setAllNotificationsToUnRead(); 
-  
-      return res
-        .status(HttpStatus.OK)
-        .send({
-          message: "Tutte le notifiche impostate a 'non letta' con successo"
+      const notifications =
+        await this.notificationsService.setAllNotificationsTo(read);
+      if (!notifications) {
+        this.loggerService.logCrudSuccess(
+          context,
+          'update',
+          'Nessuna notifica trovata, aggiornamento non riuscito',
+        );
+        return res.status(404).json({
+          message: 'Nessuna notifica trovata, aggiornamento non riuscito',
         });
+      }
+      this.loggerService.logCrudSuccess(
+        context,
+        'update',
+        `Lo stato lettura di tutte le notifiche è stato aggiornato a: ${read}`,
+      );
+      return res.status(200).send({
+        message: `Lo stato lettura di tutte le notifiche è stato aggiornato a: ${read}`,
+      });
     } catch (error) {
       this.loggerService.logCrudError({
         error,
         context,
         operation: 'update',
       });
-  
+
       return res
         .status(error.status || 500)
-        .send(error.message || "Errore nell'impostazione di tutte le notifiche come 'non letta'");
+        .send(
+          error.message ||
+            'Errore del cambio stato lettura di tutte le notifiche',
+        );
     }
   }
-
-  /**
-   * Imposta tutte le notifiche a 'letta'
-   * @param res 
-   * @param req 
-   * @returns messaggio di successo o errore
-   */
-  @Roles(Role.Admin)
-  @Patch('all/read')
-  async setAllNotificationsToRead(
-    @Res() res: Response,
-    @Req() req: Request & { user: UserFromToken }
-  ) {
-    const context: LogContext = {
-      userId: req.user.id,
-      username: req.user.username,
-      resource: 'Notification All Admin',
-    };
-  
-    try {
-      await this.notificationsService.setAllNotificationsToRead(); 
-  
-      return res
-        .status(HttpStatus.OK)
-        .send({
-          message: "Tutte le notifiche impostate a 'letta' con successo"
-        });
-    } catch (error) {
-      this.loggerService.logCrudError({
-        error,
-        context,
-        operation: 'update',
-      });
-  
-      return res
-        .status(error.status || 500)
-        .send(error.message || "Errore nell'impostazione di tutte le notifiche come 'letta'");
-    }
-  }
-
 
   /**
    * API per eliminare una notifica
