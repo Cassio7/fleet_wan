@@ -50,7 +50,12 @@ export class NotificationService {
     return this.http.get<Notifica[]>(`${serverUrl}/${this.url}`, { headers, params });
   }
 
-  updateNotificationReadStatus(key: string): Observable<{notification: Notifica, message: string}>{
+  /**
+   * Imposta lo stato di visualizzazione di una notifica alternando tra 'letta' o 'da leggere'
+   * @param key key della notifica da modificare
+   * @returns observable http patch
+   */
+  toggleNotificationReadStatus(key: string): Observable<{notification: Notifica, message: string}>{
     const access_token = this.cookieService.get('user');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${access_token}`,
@@ -60,24 +65,21 @@ export class NotificationService {
     return this.http.patch<{notification: Notifica, message: string}>(`${serverUrl}/notifications/${key}`, {}, {headers});
   }
 
-  setAllNotificationsToRead(): Observable<{message: string}>{
+  /**
+   * Imposta tutte le notifiche "da leggere" o "letta" in base al parametro passato
+   * @param toggle valore che determina se le notifiche verranno impostate a 'letta' (true) o a 'da leggere' (false)
+   * @returns observable http patch
+   */
+  toggleAllNotificationToRead(toggle: boolean){
     const access_token = this.cookieService.get('user');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${access_token}`,
       'Content-Type': 'application/json',
     });
 
-    return this.http.patch<{message: string}>(`${serverUrl}/notifications/all/read`, {}, {headers});
-  }
+    const params = new HttpParams().set("read", toggle.toString());
 
-  setAllNotificationsToUnread(){
-    const access_token = this.cookieService.get('user');
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${access_token}`,
-      'Content-Type': 'application/json',
-    });
-
-    return this.http.patch<{message: string}>(`${serverUrl}/notifications/all/unread`, {}, {headers});
+    return this.http.patch<{message: string}>(`${serverUrl}/notifications`, {}, {headers, params});
   }
 
   /**

@@ -13,6 +13,7 @@ import { NotificationsTableComponent } from "../notifications-table/notification
 import { openSnackbar } from '../../../../Utils/snackbar';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatMenuModule } from '@angular/material/menu';
 
 @Component({
   selector: 'app-notifications-home',
@@ -22,6 +23,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatIconModule,
     MatTooltipModule,
     MatButtonModule,
+    MatMenuModule,
     NotificationsTableComponent,
     NotificationsFiltersComponent
 ],
@@ -93,7 +95,7 @@ export class NotificationsHomeComponent implements OnInit{
   }
 
   readAll(){
-    this.notificationService.setAllNotificationsToRead().pipe(takeUntil(this.destroy$))
+    this.notificationService.toggleAllNotificationToRead(true).pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (response: {message: string}) => {
         this.notifiche.forEach(notifica => {
@@ -109,7 +111,7 @@ export class NotificationsHomeComponent implements OnInit{
   }
 
   unreadAll(){
-    this.notificationService.setAllNotificationsToUnread().pipe(takeUntil(this.destroy$))
+    this.notificationService.toggleAllNotificationToRead(false).pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (response: {message: string}) => {
         this.notifiche.forEach(notifica => {
@@ -151,7 +153,7 @@ export class NotificationsHomeComponent implements OnInit{
 
   updateNotificationStatus(notification: Notifica) {
     console.log('chiamato updateNotificationStatus');
-    this.notificationService.updateNotificationReadStatus(notification.key)
+    this.notificationService.toggleNotificationReadStatus(notification.key)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: { notification: Notifica, message: string }) => {

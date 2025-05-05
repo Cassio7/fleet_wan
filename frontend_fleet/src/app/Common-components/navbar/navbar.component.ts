@@ -187,7 +187,7 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
 
   updateNotification(notification: Notifica, event: Event){
     event.stopPropagation();
-    this.notificationService.updateNotificationReadStatus(notification.key)
+    this.notificationService.toggleNotificationReadStatus(notification.key)
     .pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (response: { notification: Notifica, message: string }) => {
