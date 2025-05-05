@@ -43,6 +43,10 @@
   justify-content: space-between;
   box-sizing: border-box;
 
+  .actions-container{
+    display: inline-flex;
+    align-items: center;
+  }
   .notifications-update{
     display: inline-flex;
     align-items: center;

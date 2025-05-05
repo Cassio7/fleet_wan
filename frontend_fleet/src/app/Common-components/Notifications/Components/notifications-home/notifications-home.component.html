@@ -8,17 +8,28 @@
     <h4 class="title">Notifiche: {{ this.notifiche.length }}</h4>
   </div>
   <div class="filters-container">
-    <div>
+    <div class="actions-container">
       <app-notifications-filters [notifiche]="notifiche" (notificheChange)="displayedNotifiche = $event"></app-notifications-filters>
-      <span [matTooltip]="isAllRead ? 'Tutte le notifiche sono lette' : ''">
-        <button mat-button class="button" (click)="readAll()" [disabled]="isAllRead" >Segna tutte come lette</button>
-      </span>
-      <span [matTooltip]="isAllUnread ? 'Tutte le notifiche sono da leggere' : ''">
-        <button mat-button class="button" (click)="unreadAll()" [disabled]="isAllUnread">Segna tutte come da leggere</button>
-      </span>
+      <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <mat-menu #menu="matMenu">
+        <span [matTooltip]="isAllRead ? 'Tutte le notifiche sono lette' : ''">
+          <button mat-menu-item (click)="readAll()" [disabled]="isAllRead">
+            <mat-icon>bookmark_added</mat-icon>
+            <span>Imposta tutte come lette</span>
+          </button>
+        </span>
+        <span [matTooltip]="isAllUnread ? 'Tutte le notifiche sono da leggere' : ''">
+          <button mat-menu-item (click)="unreadAll()" [disabled]="isAllUnread">
+            <mat-icon>bookmark</mat-icon>
+            <span>Imposta tutte come non lette</span>
+          </button>
+        </span>
+      </mat-menu>
     </div>
     <div class="notifications-update">
-      <span *ngIf="newNotifications.length > 0">Nuove notifiche: {{newNotifications.length}}</span>
+      <span *ngIf="newNotifications.length > 0">Sono arrivate nuove notifiche: {{newNotifications.length}}</span>
       <span [matTooltip]="newNotifications.length <= 0 ? 'Nessuna nuova notfica' : ''">
         <button mat-button class="button" (click)="updateNotifications()" [disabled]="newNotifications.length <= 0">Aggiorna notifiche</button>
       </span>
