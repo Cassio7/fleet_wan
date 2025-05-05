@@ -1,6 +1,6 @@
-import { CommonInterface } from "src/classes/interfaces/common.interface";
+import { CommonInterface } from 'src/classes/interfaces/common.interface';
 
-export interface SessionInterface extends CommonInterface{
+export interface SessionInterface extends CommonInterface {
   period_from?: Date | null;
   period_to?: Date | null;
   sequence_id: number;

@@ -6,7 +6,7 @@ import {
   Index,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-  VersionColumn
+  VersionColumn,
 } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { CommonInterface } from '../interfaces/common.interface';
