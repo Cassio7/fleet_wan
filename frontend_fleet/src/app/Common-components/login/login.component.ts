@@ -114,11 +114,11 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy{
             this.webSocketService.connectToWebSocket(response.access_token); //connessione al websocket
 
             setTimeout(() => {
-              this.loginService.login$.next();
               this.router.navigate(['/dashboard']).then(() => {
                 setTimeout(() => {
                   window.dispatchEvent(new Event('resize')); //resizing dell'interfaccia per evitare il sovrapponimento della sidebar
                   this.mapService.initMap$.next({point: this.mapService.defaultPoint, zoom: this.mapService.defaultZoom}); //inizializzazione della mappa dopo il resizing
+                  this.loginService.login$.next(response.access_token);
                   this.cd.detectChanges();
                 }, 100);
               });

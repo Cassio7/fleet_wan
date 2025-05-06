@@ -1,6 +1,6 @@
 import { WebsocketService } from './../websocket/websocket.service';
 import { Injectable } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { SessionStorageService } from '../sessionStorage/session-storage.service';
 import { CookieService } from 'ngx-cookie-service';
@@ -11,7 +11,7 @@ import { serverUrl } from '../../environment';
 })
 export class LoginService {
   private readonly _logout$: Subject<void> = new Subject<void>();
-  private readonly _login$: Subject<void> = new Subject<void>();
+  private readonly _login$: BehaviorSubject<string> = new BehaviorSubject<string>("");
 
   constructor(
     private http: HttpClient,
@@ -37,7 +37,7 @@ export class LoginService {
   public get logout$(): Subject<void> {
     return this._logout$;
   }
-  public get login$(): Subject<void> {
+  public get login$(): BehaviorSubject<string> {
     return this._login$;
   }
 }

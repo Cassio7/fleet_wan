@@ -135,8 +135,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
     //sottoscrizione al login
     this.loginService.login$.pipe(takeUntil(this.destroy$)).subscribe({
-      next: () => {
-        this.user = this.authService.decodeToken(current_token);
+      next: (token: string) => {
+        console.log('chiamato login subj');
+        this.user = this.authService.decodeToken(token);
         this.ngZone.run(() => {
           this.isLogged = true;
           this.isLoginPage = false;
@@ -268,6 +269,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private handleGetAllNotification() {
+    console.log('chiamato get all notification');
     //ottenimento delle notifiche da leggere
     this.notificationService
       .getAllNotifications()
