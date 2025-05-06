@@ -106,7 +106,6 @@ export class KanbanFiltersComponent implements AfterViewInit, OnDestroy{
         const allCantieri = this.cantieriFilterService.vehiclesCantieriOnce(allData);
 
         this.kanbanCantieri = allCantieri;
-        console.log("setting value of cantieri");
         this.cantieri.setValue(["Seleziona tutto", ...this.kanbanCantieri]);
       },
       error: error => console.error("Errore nel caricamento del kanban: ", error)

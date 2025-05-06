@@ -253,7 +253,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       .pipe(takeUntil(this.destroy$), skip(1))
       .subscribe({
         next: (pathData: pathData) => {
-          console.log('Pathdata arrivati: ', pathData);
           // Filter out invalid points
           pathData.points = pathData.points.filter(
             (point) => point.lat !== 0 && point.long !== 0
@@ -310,7 +309,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
               }),
             }).addTo(this.map);
 
-            console.log('pathData.tagPoints: ', pathData.tagPoints);
             if (pathData.tagPoints)
               this.mapService
                 .createMarkerGroup(
@@ -375,11 +373,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       .pipe(takeUntil(this.destroy$), skip(1))
       .subscribe({
         next: (pathData: pathData) => {
-          console.log(
-            'load day path arrivato! Questi so i path data: ',
-            pathData
-          );
-          console.log('pathMode: ', this.mapService.pathMode());
           pathData.points = pathData.points.filter(
             (point) => point.lat !== 0 && point.long !== 0
           );
@@ -422,7 +415,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
                   pathData.firstPoints
                 )
                 .addTo(this.map);
-            console.log('pathData.tagPoints: ', pathData.tagPoints);
             if (pathData.tagPoints)
               this.mapService
                 .createMarkerGroup(

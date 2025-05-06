@@ -240,7 +240,6 @@ export class SessionTableComponent implements OnInit, OnChanges, AfterViewInit, 
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (vehicleAnomalies: VehicleAnomalies) => {
-          console.log('Anomalie per il range di date: ', vehicleAnomalies);
 
           if (vehicleAnomalies && vehicleAnomalies?.anomalies?.length > 0) {
             this.dataFound = true;
@@ -277,7 +276,6 @@ export class SessionTableComponent implements OnInit, OnChanges, AfterViewInit, 
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (sessions: Session[]) => {
-            console.log('sessions fetched: ', sessions);
             if (sessions) {
               let count = 1;
 
@@ -329,7 +327,6 @@ export class SessionTableComponent implements OnInit, OnChanges, AfterViewInit, 
    * @param index indice della riga della sessione
    */
   showPathBySession(session: Session, index: number) {
-    console.log(`setting this time range: ${session.period_from} - ${session.period_to}`)
     if(session) this.tagService.setTimeRange(session.period_from, session.period_to);
     const points = session.history.map((history) => {
       return new Point(history.latitude, history.longitude);
@@ -341,12 +338,10 @@ export class SessionTableComponent implements OnInit, OnChanges, AfterViewInit, 
       tagPoints: []
     };
 
-    console.log(`calling with time range: ${this.tagService.getTimeRange().dateFrom} - ${this.tagService.getTimeRange().dateTo}`);
     this.tagService.getTagsByVeIdRanged(this.vehicle.veId)
     .pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (tagData: tagData[]) => {
-        console.log("tagData fetched: ", tagData);
         if(tagData){
           pathData.tagPoints = tagData.map(tag => new Point(tag.latitude, tag.longitude));
         }
@@ -366,7 +361,6 @@ export class SessionTableComponent implements OnInit, OnChanges, AfterViewInit, 
    * @param anomalyDay dati della giornata selezionata
    */
   showDayPath(anomalyDay: Anomaly) {
-    console.log("so entrato");
     if(anomalyDay.date) this.tagService.setTimeRange(anomalyDay.date, anomalyDay.date);
     this.handleGetSessionsByVeIdRanged(anomalyDay.date).subscribe(
       (sessions) => {
@@ -392,12 +386,10 @@ export class SessionTableComponent implements OnInit, OnChanges, AfterViewInit, 
           tagPoints: []
         };
 
-        console.log(`calling with time range: ${this.tagService.getTimeRange().dateFrom} - ${this.tagService.getTimeRange().dateTo}`);
         this.tagService.getTagsByVeIdRanged(this.vehicle.veId)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (tagData: tagData[]) => {
-            console.log("tagData fetched: ", tagData);
             if(tagData){
               pathData.tagPoints = tagData.map(tag => new Point(tag.latitude, tag.longitude));
             }

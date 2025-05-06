@@ -108,7 +108,6 @@ export class DetectionGraphComponent implements AfterViewInit, OnDestroy{
     this.detectionGraphService.getDetectionQualityByVeId(body).pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (detectionQualities: DetectionQuality[]) => {
-          console.log("detectionQualities fetched: ", detectionQualities);
         if(detectionQualities){
           const data: any = [];
           let minY = Infinity;

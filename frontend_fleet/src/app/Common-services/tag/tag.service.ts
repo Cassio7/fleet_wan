@@ -47,7 +47,6 @@ export class TagService {
       'Content-Type': 'application/json'
     });
 
-    console.log(`${serverUrl}/tags?veId=${veId}&dateFrom=${this.dateFrom()}&dateTo=${this.dateTo()}`)
 
     return this.http.get<tagData[]>(`${serverUrl}/tags?veId=${veId}&dateFrom=${this.dateFrom()}&dateTo=${this.dateTo()}&less=true`,{ headers });
 
@@ -89,8 +88,6 @@ if (dateFrom) {
     // Aggiungi il parametro preview
     params = params.set('preview', 'true');
 
-    // Stampa dei parametri per debug (opzionale)
-    console.log('Parametri inviati:', params.toString());
 
     return this.http.get<tagDownloadResponse>(`${serverUrl}/tags/download`, {
       headers,

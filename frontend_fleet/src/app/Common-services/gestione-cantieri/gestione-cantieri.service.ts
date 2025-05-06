@@ -71,7 +71,6 @@ export class GestioneCantieriService {
       'Content-Type': 'application/json'
     });
 
-    console.log('cantiere da create: ', newWorksiteData);
     return this.http.post<{message: string, worksite: WorkSite}>(`${serverUrl}/${this.url}`, newWorksiteData, {headers});
   }
 

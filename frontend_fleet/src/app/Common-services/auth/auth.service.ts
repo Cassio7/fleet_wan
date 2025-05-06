@@ -86,8 +86,6 @@ export class AuthService {
       role: updatedInfo.role
     }
 
-    console.log('requesting for body: ', body);
-
 
     return this.http.put<{message: string, user: User}>(`${serverUrl}/${this.url}/${id}`, body, {headers});
   }

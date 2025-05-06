@@ -78,7 +78,6 @@ export class KanbanAntennaComponent implements AfterViewInit, OnChanges, OnDestr
 
   ngOnChanges(changes: SimpleChanges): void {
     if(changes['lastUpdate']){
-      console.log('ao verify de kanban antenna: ', this.lastUpdate);
       this.verifyCheckDay();
     }
   }
@@ -101,7 +100,6 @@ export class KanbanAntennaComponent implements AfterViewInit, OnChanges, OnDestr
               next: (responseObj: any) => {
                 this.kanbanAntennaService.setKanbanData([]);
                 const vehiclesData = responseObj.vehicles;
-                console.log('Kanban vehicles fetched: ', vehiclesData);
                 const lastUpdate = responseObj.lastUpdate;
                 this.loadRealtimeVehicles(vehiclesData, lastUpdate);
               },
@@ -186,7 +184,6 @@ export class KanbanAntennaComponent implements AfterViewInit, OnChanges, OnDestr
       .subscribe({
         next: (responseObj: any) => {
           const vehiclesData: VehicleData[] = responseObj.vehicles;
-          console.log("Last session vehiclesData fetched: ", vehiclesData);
           try {
             if (vehiclesData && vehiclesData.length > 0) {
               const lastUpdate = responseObj.lastUpdate;

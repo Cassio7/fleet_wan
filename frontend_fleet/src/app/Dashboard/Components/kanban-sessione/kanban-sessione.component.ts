@@ -150,7 +150,6 @@ export class KanbanSessioneComponent implements AfterViewInit, OnChanges, OnDest
         this.setKanbanData(kanbanVehicles);
         this.kanbanSessioneService.setKanbanData(kanbanVehicles);
         this.errorLists = this.errorVehicles;
-        console.log('errorvehicles dopo filtro: ', this.errorVehicles);
         this.setSelectedAnomalies();
         this.sessioneGraphService.loadChartData$.next(kanbanVehicles);
       });
