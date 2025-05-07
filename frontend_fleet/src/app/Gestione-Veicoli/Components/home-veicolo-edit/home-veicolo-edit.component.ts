@@ -44,7 +44,6 @@ export class HomeVeicoloEditComponent implements OnInit, OnDestroy{
 
   goBack_text: string = "";
 
-  veId!: number;
   vehicle!: Vehicle;
   services: Service[] = [];
   workzones: Workzone[] = [];
@@ -75,14 +74,14 @@ export class HomeVeicoloEditComponent implements OnInit, OnDestroy{
   async ngOnInit(): Promise<void> {
     try {
       const params = await firstValueFrom(this.route.params.pipe(takeUntil(this.destroy$)));
-      this.veId = parseInt(params['id']);
+      const veId = parseInt(params['id']);
 
       this.workzones = await this.getAllWorkzones();
       this.rentals = await this.getAllRentals();
       this.services = await this.getAllServices();
       this.equipments = await this.getAllEquipments();
       this.worksites = await this.getAllWorksites();
-      const fetchedVehicle = await this.getVehicleByVeId(this.veId);
+      const fetchedVehicle = await this.getVehicleByVeId(veId);
       if(fetchedVehicle) this.vehicle = fetchedVehicle;
       this.cd.detectChanges();
     } catch (error) {
@@ -91,11 +90,11 @@ export class HomeVeicoloEditComponent implements OnInit, OnDestroy{
   }
 
   updateVehicle(vehicleUpdatedData: vehicleUpdateData){
-    this.vehicleApiService.updateVehicleByVeId(this.veId, vehicleUpdatedData).pipe(takeUntil(this.destroy$))
+    this.vehicleApiService.updateVehicleByVeId(this.vehicle.veId, vehicleUpdatedData).pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (newVehicle: Vehicle) => {
         this.vehicle = newVehicle;
-        openSnackbar(this.snackBar, `Veicolo ${this.veId} aggiornato`);
+        openSnackbar(this.snackBar, `Veicolo ${this.vehicle.veId} aggiornato`);
         this.cd.detectChanges();
       },
       error: error => console.error("Errore nell'aggiornamento del veicolo: ",error)
@@ -108,7 +107,7 @@ export class HomeVeicoloEditComponent implements OnInit, OnDestroy{
    */
   saveWorksiteHistory(creationData: {worksite: WorkSite, dateFrom: Date, comment: string}){
     const { worksite, dateFrom, comment } = creationData;
-    this.gestioneCantieriService.moveVehicleInWorksite(this.veId, worksite.id, dateFrom.toString(), comment).pipe(takeUntil(this.destroy$)).pipe(takeUntil(this.destroy$))
+    this.gestioneCantieriService.moveVehicleInWorksite(this.vehicle.veId, worksite.id, dateFrom.toString(), comment).pipe(takeUntil(this.destroy$)).pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (response: {worksiteHistory: WorksiteHistory, message: string}) => {
         const { worksiteHistory } = response;

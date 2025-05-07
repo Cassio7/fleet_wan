@@ -5,7 +5,7 @@
     >Torna alla gestione dei veicoli
   </h2>
   <div class="section-header">
-    <div class="title">Modifica veicolo {{veId}}</div>
+    <div class="title">Modifica veicolo {{vehicle.plate}} - {{vehicle.veId}}</div>
     <div class="subtitle">Modifica i dati del veicolo</div>
   </div>
   <main class="main-content">
@@ -23,7 +23,7 @@
     <app-change-worksite *ngIf="vehicle" [vehicle]="vehicle" [worksites]="worksites" (worksiteChange)="saveWorksiteHistory($event)"></app-change-worksite>
 
     <section class="storico-container">
-      <app-storico-cantieri *ngIf="veId" [veId]="veId" [newWorksiteHistory]="newWorksiteHistory"></app-storico-cantieri>
+      <app-storico-cantieri *ngIf="vehicle.veId" [veId]="vehicle.veId" [newWorksiteHistory]="newWorksiteHistory"></app-storico-cantieri>
     </section>
   </main>
 </div>
