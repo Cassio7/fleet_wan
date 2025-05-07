@@ -16,7 +16,7 @@
     <mat-form-field subscriptSizing="dynamic" appearance="outline">
       <input matInput placeholder="Commento" formControlName="comment">
     </mat-form-field>
-    <span [matTooltip]="!changeWorksiteForm.valid ? 'Inserire i dati' : checkSameWorksite() ? 'Selezionare un cantiere diverso da quello attuale' : ''">
+    <span [matTooltip]="!changeWorksiteForm.valid ? 'Inserire i dati' : sameWorksite ? 'Selezionare un cantiere diverso da quello attuale' : ''">
       <button mat-button class="button" (click)="save()" [disabled]="!changeWorksiteForm.valid || checkSameWorksite()" >Salva</button>
     </span>
   </div>

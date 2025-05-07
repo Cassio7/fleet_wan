@@ -9,6 +9,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Vehicle } from '../../../Models/Vehicle';
 import { WorkSite } from '../../../Models/Worksite';
+import { Group } from '../../../Models/Group';
 
 @Component({
   selector: 'app-change-worksite',
@@ -28,13 +29,15 @@ import { WorkSite } from '../../../Models/Worksite';
   styleUrl: './change-worksite.component.css'
 })
 export class ChangeWorksiteComponent implements OnChanges{
-  @Input() worksites!: WorkSite[];
+  @Input() worksites: WorkSite[] = [];
   @Output() worksiteChange: EventEmitter<{worksite: WorkSite, dateFrom: Date, comment: string}> = new EventEmitter<{worksite: WorkSite, dateFrom: Date, comment: string}>();
   @Input() vehicle!: Vehicle;
 
   changeWorksiteForm!: FormGroup;
 
   selectedWorksite!: WorkSite;
+
+  sameWorksite: boolean = false;
 
   constructor(){
     this.changeWorksiteForm = new FormGroup({
@@ -47,10 +50,14 @@ export class ChangeWorksiteComponent implements OnChanges{
     .subscribe((selectedWorksiteId) => {
       const foundWorksite = this.worksites.find(w => w.id == selectedWorksiteId);
       if(foundWorksite) this.selectedWorksite =  foundWorksite;
+      this.sameWorksite = this.checkSameWorksite();
     });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    if(changes['worksites']){
+      this.worksites.push(new WorkSite(-1, "Libero", 0, []));
+    }
     if(changes['vehicle']){
       this.changeWorksiteForm.get("worksite")?.setValue(this.vehicle.worksite?.id);
     }
@@ -75,6 +82,8 @@ export class ChangeWorksiteComponent implements OnChanges{
    * @returns false se sono diversi
    */
   checkSameWorksite(){
+    console.log('worksiteId: ', this.vehicle.worksite?.id);
+    console.log('selectedId: ', this.selectedWorksite.id);
     return this.vehicle.worksite?.id == this.selectedWorksite?.id;
   }
 }
