@@ -71,7 +71,7 @@ export class DatiCantiereComponent implements OnDestroy, AfterViewInit{
       this.cantiereForm.get('name')?.setValue(this.worksite.name);
 
     if(this.groups){
-      const selectedGroup = this.groups.find(group => group.id == this.worksite.group.id);
+      const selectedGroup = this.groups.find(group => group.id == this.worksite?.group?.id);
       console.log('selectedGroup: ', selectedGroup);
       this.cantiereForm.get('comune')?.setValue(selectedGroup?.id);
     }
@@ -98,7 +98,7 @@ export class DatiCantiereComponent implements OnDestroy, AfterViewInit{
   checkSaveable() {
     this.isSaveable =
       this.worksite.name !== this.cantiereForm.get("name")?.value ||
-      this.worksite.group.id !== this.cantiereForm.get("comune")?.value
+      this.worksite?.group?.id !== this.cantiereForm.get("comune")?.value
   }
 
 }

@@ -7,6 +7,6 @@ export class WorkSite{
     public name: string,
     public vehicleCount: number,
     public vehicle: Vehicle[],
-    public group: Group
+    public group?: Group
   ){}
 }

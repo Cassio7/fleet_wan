@@ -273,8 +273,12 @@ export class SortService {
           return this.compare(a.name , b.name, direction == "asc");
         });
       case "Comune":
-        return worksites.sort((a,b)=>{
-          return this.compare(a.group.name , b.group.name, direction == "asc");
+        return worksites.sort((a, b) => {
+          return this.compare(
+            a.group?.name ?? '',
+            b.group?.name ?? '',
+            direction === "asc"
+          );
         });
       case "Societa":
         return worksites.sort((a, b) => {
