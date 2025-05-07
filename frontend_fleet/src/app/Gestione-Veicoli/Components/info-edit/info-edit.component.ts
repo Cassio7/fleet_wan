@@ -34,6 +34,7 @@ import { vehicleUpdateData } from './../../../Common-services/vehicles api servi
     MatButtonModule,
     MatDatepickerModule,
     MatTooltipModule,
+    MatInputModule,
     MatOptionModule
   ],
   templateUrl: './info-edit.component.html',
@@ -67,8 +68,6 @@ export class InfoEditComponent implements AfterViewInit, OnChanges{
   ngAfterViewInit(): void {
     if(this.vehicle){
       this.infoForm = new FormGroup({
-        plate: new FormControl({ value: this.vehicle.plate, disabled: true }),
-        active_csv: new FormControl(this.vehicle.retired_event ? true : false),
         model_csv: new FormControl(this.vehicle.model),
         euro: new FormControl(this.vehicle.euro),
         allestimento: new FormControl(this.vehicle.allestimento ?? false),

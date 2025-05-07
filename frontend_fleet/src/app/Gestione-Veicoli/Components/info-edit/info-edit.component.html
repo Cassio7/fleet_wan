@@ -17,14 +17,6 @@
   <section class="info-container">
     <mat-divider class="full-width-divider"></mat-divider>
 
-    <!-- Prima riga -->
-    <article class="container">
-      <span class="title">Targa</span>
-      <mat-form-field appearance="outline" subscriptSizing="dynamic">
-        <input matInput placeholder="Targa" formControlName="plate"/>
-      </mat-form-field>
-    </article>
-
     <article class="container">
       <span class="title">Servizio</span>
       <mat-form-field appearance="outline" subscriptSizing="dynamic">
@@ -55,22 +47,28 @@
     </article>
 
     <article class="container">
-      <span class="title">Stato</span>
-      <mat-form-field appearance="outline" subscriptSizing="dynamic">
-        <mat-select formControlName="active_csv">
-          <mat-option [value]="true">Operativo</mat-option>
-          <mat-option [value]="false">Dismesso</mat-option>
-        </mat-select>
-      </mat-form-field>
-    </article>
-
-    <article class="container">
       <span class="title">Allestimento</span>
       <mat-form-field appearance="outline" subscriptSizing="dynamic">
         <mat-select formControlName="allestimento">
           <mat-option [value]="true">Blackbox + Antenna</mat-option>
           <mat-option [value]="false">Blackbox</mat-option>
         </mat-select>
+      </mat-form-field>
+    </article>
+
+    <article class="container">
+      <span class="title">Stato</span>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <input matInput [value]="vehicle.retired_event ? 'Dismesso' : 'Operativo'" readonly>
+      </mat-form-field>
+    </article>
+
+    <article class="container">
+      <span class="title">Data di ritiro</span>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <input matInput [matDatepicker]="retiredPicker" placeholder="Data di ritiro" formControlName="retired_event" />
+        <mat-datepicker-toggle matSuffix [for]="retiredPicker"></mat-datepicker-toggle>
+        <mat-datepicker #retiredPicker></mat-datepicker>
       </mat-form-field>
     </article>
 
@@ -86,15 +84,6 @@
             {{ rental.name }}
           </mat-option>
         </mat-select>
-      </mat-form-field>
-    </article>
-
-    <article class="container">
-      <span class="title">Data di ritiro</span>
-      <mat-form-field appearance="outline" subscriptSizing="dynamic">
-        <input matInput [matDatepicker]="retiredPicker" placeholder="Data di ritiro" formControlName="retired_event" />
-        <mat-datepicker-toggle matSuffix [for]="retiredPicker"></mat-datepicker-toggle>
-        <mat-datepicker #retiredPicker></mat-datepicker>
       </mat-form-field>
     </article>
 
@@ -130,9 +119,6 @@
       </mat-form-field>
     </article>
 
-    <mat-divider class="full-width-divider"></mat-divider>
-
-    <!-- Terza riga -->
     <article class="container">
       <span class="title">Elettrico</span>
       <mat-form-field appearance="outline" subscriptSizing="dynamic">
@@ -143,6 +129,9 @@
       </mat-form-field>
     </article>
 
+    <mat-divider class="full-width-divider"></mat-divider>
+
+    <!-- Terza riga -->
     <article class="container">
       <span class="title">Impostazione Antenna</span>
       <mat-form-field appearance="outline" subscriptSizing="dynamic">
