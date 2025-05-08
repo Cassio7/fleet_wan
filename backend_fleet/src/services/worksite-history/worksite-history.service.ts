@@ -96,7 +96,7 @@ export class WorksiteHistoryService {
         );
       }
       // aggiorno il veicolo
-      queryRunner.manager.getRepository(VehicleEntity).update(
+      await queryRunner.manager.getRepository(VehicleEntity).update(
         {
           key: vehicle.key,
         },
