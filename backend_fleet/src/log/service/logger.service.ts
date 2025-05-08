@@ -99,8 +99,8 @@ export class LoggerService extends Logger {
     const logData = {
       ...baseMessage,
       error: {
-        message: error.message,
-        stack: error.stack || 'N/A',
+        message: error.message || error.toString(),
+        stack: error.stack || error.toString() || 'N/A',
         status: error?.status || -1,
       },
     };
