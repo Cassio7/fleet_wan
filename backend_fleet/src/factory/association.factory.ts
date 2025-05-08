@@ -1,67 +1,76 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectDataSource } from '@nestjs/typeorm';
 import { AssociationEntity } from 'src/classes/entities/association.entity';
 import { CompanyEntity } from 'src/classes/entities/company.entity';
 import { UserEntity } from 'src/classes/entities/user.entity';
-import { WorksiteEntity } from 'src/classes/entities/worksite.entity';
-import { Repository } from 'typeorm';
+import { DataSource } from 'typeorm';
 
 @Injectable()
 export class AssociationFactoryService {
   constructor(
-    @InjectRepository(UserEntity, 'readOnlyConnection')
-    private userRepository: Repository<UserEntity>,
-    @InjectRepository(CompanyEntity, 'readOnlyConnection')
-    private companyRepository: Repository<CompanyEntity>,
-    @InjectRepository(WorksiteEntity, 'readOnlyConnection')
-    private worksiteRepository: Repository<WorksiteEntity>,
-    @InjectRepository(AssociationEntity, 'mainConnection')
-    private associationRepository: Repository<AssociationEntity>,
+    @InjectDataSource('mainConnection')
+    private readonly connection: DataSource,
   ) {}
 
   async createDefaultAssociation(): Promise<AssociationEntity[]> {
-    const admin = await this.userRepository.findOne({
-      where: { username: 'admin' },
-    });
+    const queryRunner = this.connection.createQueryRunner();
 
-    if (!admin) throw new Error('User "Admin" not found');
+    try {
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
 
-    const companies = await this.companyRepository.find();
-    const associations = companies.map((company) => {
-      const associationAdmin = new AssociationEntity();
-      associationAdmin.user = admin;
-      associationAdmin.company = company;
-      return associationAdmin;
-    });
+      const admin = await queryRunner.manager
+        .getRepository(UserEntity)
+        .findOne({
+          where: { username: 'admin' },
+        });
 
-    // Add new association for user with id 1 to the first company
-    const user = await this.userRepository.findOne({
-      where: { id: 2 },
-    });
+      if (!admin) throw new Error('User "Admin" not found');
+      const companies = await queryRunner.manager
+        .getRepository(CompanyEntity)
+        .find();
 
-    if (!user) throw new Error('User "Mario Rossi" not found');
+      const associations: AssociationEntity[] = [];
 
-    const associationForFirstCompany = new AssociationEntity();
-    associationForFirstCompany.user = user;
-    associationForFirstCompany.company = companies[0];
-    associations.push(associationForFirstCompany);
+      for (const company of companies) {
+        const association = queryRunner.manager
+          .getRepository(AssociationEntity)
+          .create({
+            user: admin,
+            company: company,
+          });
+        associations.push(association);
+      }
 
-    // Existing code for Luca Neri
-    const userNeri = await this.userRepository.findOne({
-      where: { username: 'l.neri' },
-    });
-    if (!userNeri) throw new Error('User "Luca Neri" not found');
-    // Pallotta
-    const worksite = await this.worksiteRepository.findOne({
-      where: {
-        id: 9,
-      },
-    });
-    const associationUser = new AssociationEntity();
-    associationUser.worksite = worksite;
-    associationUser.user = userNeri;
-    associations.push(associationUser);
+      // Add new association for user with id 1 to the first company
+      const user = await queryRunner.manager.getRepository(UserEntity).findOne({
+        where: { id: 2 },
+      });
 
-    return this.associationRepository.save(associations);
+      if (!user) throw new Error('User "Mario Rossi" not found');
+
+      const associationForFirstCompany = queryRunner.manager
+        .getRepository(AssociationEntity)
+        .create({
+          user,
+          company: companies[0],
+        });
+      associations.push(associationForFirstCompany);
+
+      const saved = await queryRunner.manager
+        .getRepository(AssociationEntity)
+        .save(associations);
+      await queryRunner.commitTransaction();
+      return saved;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      console.error(
+        'Errore durante la creazione delle associazioni per gli utenti default inseriti:',
+        error,
+      );
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
   }
 }

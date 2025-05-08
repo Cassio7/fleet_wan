@@ -1,29 +1,44 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { RentalEntity } from 'src/classes/entities/rental.entity';
+import { InjectDataSource } from '@nestjs/typeorm';
 import * as path from 'path';
+import { RentalEntity } from 'src/classes/entities/rental.entity';
 import { parseCsvFile } from 'src/utils/utils';
-import { Repository } from 'typeorm';
+import { DataSource } from 'typeorm';
 
 @Injectable()
 export class RentalFactoryService {
   private readonly cvsPath = path.resolve(process.cwd(), 'files/NOLEGGIO.csv');
 
   constructor(
-    @InjectRepository(RentalEntity, 'readOnlyConnection')
-    private rentalRepository: Repository<RentalEntity>,
+    @InjectDataSource('mainConnection')
+    private readonly connection: DataSource,
   ) {}
+
   async createDefaultRental(): Promise<RentalEntity[]> {
-    const rentalData = await parseCsvFile(this.cvsPath);
-    const rentalEntities = await Promise.all(
-      rentalData.map(async (data) => {
-        const rental = new RentalEntity();
-        rental.name = data.name;
+    const queryRunner = this.connection.createQueryRunner();
 
-        return rental;
-      }),
-    );
+    try {
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+      const rentalData = await parseCsvFile(this.cvsPath);
 
-    return this.rentalRepository.save(rentalEntities);
+      const rentalEntities = rentalData.map((data) =>
+        queryRunner.manager.getRepository(RentalEntity).create({
+          name: data.name,
+        }),
+      );
+
+      const savedRentals = await queryRunner.manager
+        .getRepository(RentalEntity)
+        .save(rentalEntities);
+      await queryRunner.commitTransaction();
+      return savedRentals;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      console.error('Errore durante la creazione dei noleggi:', error);
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
   }
 }

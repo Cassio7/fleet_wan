@@ -1,39 +1,62 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectDataSource } from '@nestjs/typeorm';
+import * as path from 'path';
 import { CompanyEntity } from 'src/classes/entities/company.entity';
 import { GroupEntity } from 'src/classes/entities/group.entity';
-import * as path from 'path';
 import { parseCsvFile } from 'src/utils/utils';
-import { Repository } from 'typeorm';
+import { DataSource } from 'typeorm';
 
 @Injectable()
 export class GroupFactoryService {
   private readonly cvsPath = path.resolve(process.cwd(), 'files/COMUNI.csv');
 
   constructor(
-    @InjectRepository(GroupEntity, 'mainConnection')
-    private groupRepository: Repository<GroupEntity>,
-    @InjectRepository(CompanyEntity, 'mainConnection')
-    private companyRepository: Repository<CompanyEntity>,
+    @InjectDataSource('mainConnection')
+    private readonly connection: DataSource,
   ) {}
 
   async createDefaultGroup(): Promise<GroupEntity[]> {
-    const groupData = await parseCsvFile(this.cvsPath);
+    const queryRunner = this.connection.createQueryRunner();
 
-    const groupEntities = await Promise.all(
-      groupData.map(async (data) => {
-        const group = new GroupEntity();
-        group.vgId = data.vgId;
-        group.name = data.name;
-        group.company = await this.companyRepository.findOne({
-          where: {
-            id: data.companyId,
-          },
+    try {
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+
+      const groupData = await parseCsvFile(this.cvsPath);
+
+      const groupEntities: GroupEntity[] = [];
+
+      for (const data of groupData) {
+        const company = await queryRunner.manager
+          .getRepository(CompanyEntity)
+          .findOne({
+            where: { id: data.companyId },
+          });
+
+        if (!company) {
+          throw new Error(`Società non trovata: ${data.companyId}`);
+        }
+
+        const group = queryRunner.manager.getRepository(GroupEntity).create({
+          vgId: data.vgId,
+          name: data.name,
+          company,
         });
-        return group;
-      }),
-    );
 
-    return this.groupRepository.save(groupEntities);
+        groupEntities.push(group);
+      }
+
+      const saved = await queryRunner.manager
+        .getRepository(GroupEntity)
+        .save(groupEntities);
+      await queryRunner.commitTransaction();
+      return saved;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      console.error('Errore durante la creazione dei gruppi:', error);
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
   }
 }

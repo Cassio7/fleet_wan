@@ -1,36 +1,23 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { InjectDataSource } from '@nestjs/typeorm';
+import * as path from 'path';
 import { EquipmentEntity } from 'src/classes/entities/equipment.entity';
 import { GroupEntity } from 'src/classes/entities/group.entity';
 import { RentalEntity } from 'src/classes/entities/rental.entity';
 import { ServiceEntity } from 'src/classes/entities/service.entity';
 import { VehicleEntity } from 'src/classes/entities/vehicle.entity';
-import { WorksiteEntity } from 'src/classes/entities/worksite.entity';
 import { WorksiteHistoryEntity } from 'src/classes/entities/worksite-history.entity';
+import { WorksiteEntity } from 'src/classes/entities/worksite.entity';
 import { WorkzoneEntity } from 'src/classes/entities/workzone.entity';
-import * as path from 'path';
 import { parseCsvFile } from 'src/utils/utils';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource } from 'typeorm';
 
 @Injectable()
 export class WorksiteFactoryService {
   private readonly cvsPath = path.resolve(process.cwd(), 'files/CANTIERI.csv');
   private readonly cvsPathV = path.resolve(process.cwd(), 'files/VEICOLI.csv');
+  
   constructor(
-    @InjectRepository(WorksiteEntity, 'readOnlyConnection')
-    private worksiteRepository: Repository<WorksiteEntity>,
-    @InjectRepository(WorkzoneEntity, 'readOnlyConnection')
-    private workzoneRepository: Repository<WorkzoneEntity>,
-    @InjectRepository(ServiceEntity, 'readOnlyConnection')
-    private serviceRepository: Repository<ServiceEntity>,
-    @InjectRepository(EquipmentEntity, 'readOnlyConnection')
-    private equipmentRepository: Repository<EquipmentEntity>,
-    @InjectRepository(RentalEntity, 'readOnlyConnection')
-    private rentalRepository: Repository<RentalEntity>,
-    @InjectRepository(VehicleEntity, 'readOnlyConnection')
-    private vehicleRepository: Repository<VehicleEntity>,
-    @InjectRepository(GroupEntity, 'readOnlyConnection')
-    private groupRepository: Repository<GroupEntity>,
     @InjectDataSource('mainConnection')
     private readonly connection: DataSource,
   ) {}
@@ -38,21 +25,30 @@ export class WorksiteFactoryService {
   async createDefaultWorksite(): Promise<void> {
     const worksiteData = await parseCsvFile(this.cvsPath);
     const queryRunner = this.connection.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
 
     try {
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+
       for (const data of worksiteData) {
+        const group = await queryRunner.manager
+          .getRepository(GroupEntity)
+          .findOne({
+            where: { id: data.groupId },
+          });
+
+        if (!group) {
+          throw new Error(`Comune non trovato: ${data.groupId}`);
+        }
+
         const worksite = queryRunner.manager
           .getRepository(WorksiteEntity)
           .create({
             name: data.name,
-            group: await this.groupRepository.findOne({
-              where: { id: data.groupId },
-            }),
+            group: group,
           });
 
-        await queryRunner.manager.save(worksite);
+        await queryRunner.manager.getRepository(WorksiteEntity).save(worksite);
       }
 
       await queryRunner.commitTransaction();
@@ -73,49 +69,61 @@ export class WorksiteFactoryService {
 
     try {
       for (const data of vehicleWorksiteData) {
-        const vehicle = await this.vehicleRepository.findOne({
-          where: {
-            veId: data.veId,
-          },
-        });
+        const vehicle = await queryRunner.manager
+          .getRepository(VehicleEntity)
+          .findOne({
+            where: {
+              veId: data.veId,
+            },
+          });
 
         if (!vehicle) {
           console.log(`Veicolo con veId: ${data.veId} non trovato`);
           continue;
         }
 
-        vehicle.worksite = await this.worksiteRepository.findOne({
-          where: {
-            id: data.worksiteId,
-          },
-        });
-
-        vehicle.workzone = await this.workzoneRepository.findOne({
-          where: {
-            id: data.workzoneId,
-          },
-        });
-
-        vehicle.service = await this.serviceRepository.findOne({
-          where: {
-            id: data.serviceId,
-          },
-        });
-
-        if (data.equipmentId) {
-          vehicle.equipment = await this.equipmentRepository.findOne({
+        vehicle.worksite = await queryRunner.manager
+          .getRepository(WorksiteEntity)
+          .findOne({
             where: {
-              id: data.equipmentId,
+              id: data.worksiteId,
             },
           });
+
+        vehicle.workzone = await queryRunner.manager
+          .getRepository(WorkzoneEntity)
+          .findOne({
+            where: {
+              id: data.workzoneId,
+            },
+          });
+
+        vehicle.service = await queryRunner.manager
+          .getRepository(ServiceEntity)
+          .findOne({
+            where: {
+              id: data.serviceId,
+            },
+          });
+
+        if (data.equipmentId) {
+          vehicle.equipment = await queryRunner.manager
+            .getRepository(EquipmentEntity)
+            .findOne({
+              where: {
+                id: data.equipmentId,
+              },
+            });
         }
 
         if (data.rentalId) {
-          vehicle.rental = await this.rentalRepository.findOne({
-            where: {
-              id: data.rentalId,
-            },
-          });
+          vehicle.rental = await queryRunner.manager
+            .getRepository(RentalEntity)
+            .findOne({
+              where: {
+                id: data.rentalId,
+              },
+            });
         }
 
         vehicle.allestimento = data.Allestimento;
