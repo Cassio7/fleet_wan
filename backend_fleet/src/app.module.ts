@@ -45,18 +45,11 @@ import { VehicleController } from './controllers/vehicle/vehicle.controller';
 import { WorksiteHistoryController } from './controllers/worksite-history/worksite-history.controller';
 import { WorksiteController } from './controllers/worksite/worksite.controller';
 import { WorkzoneController } from './controllers/workzone/workzone.controller';
-import { AssociationFactoryService } from './factory/association.factory';
-import { CompanyFactoryService } from './factory/company.factory';
-import { EquipmentFacotoryService } from './factory/equipment.factory';
-import { GroupFactoryService } from './factory/group.factory';
-import { RentalFactoryService } from './factory/rental.factory';
-import { ServiceFactoryService } from './factory/service.factory';
-import { UserFactoryService } from './factory/user.factory';
-import { WorksiteFactoryService } from './factory/worksite.factory';
-import { WorkzoneFacotoryService } from './factory/workzone.factory';
 import { LoggerModule } from './log/logger.module';
 import { AuthModule } from './modules/auth.module';
+import { FactoryModule } from './modules/factory.module';
 import { SessionVehicleModule } from './modules/session-vehicle.module';
+import { SpeedModule } from './modules/speed.module';
 import { NotificationsController } from './notifications/notifications.controller';
 import { NotificationsGateway } from './notifications/notifications.gateway';
 import { NotificationsService } from './notifications/notifications.service';
@@ -106,35 +99,12 @@ import { WorkzoneService } from './services/workzone/workzone.service';
           path.join(__dirname, 'classes/entities/**/*.entity{.ts,.js}'),
         ],
         synchronize: false,
-        //dropSchema: true, // if true drop db
+        //dropSchema: false, // if true drop db
+        extra: {
+          application_name: `backend-${configService.get<number>('PORT')}-mainConnection`,
+        },
       }),
     }),
-    TypeOrmModule.forFeature(
-      [
-        VehicleEntity,
-        DeviceEntity,
-        GroupEntity,
-        HistoryEntity,
-        TagEntity,
-        TagHistoryEntity,
-        DetectionTagEntity,
-        SessionEntity,
-        UserEntity,
-        RoleEntity,
-        AssociationEntity,
-        CompanyEntity,
-        WorksiteEntity,
-        NoteEntity,
-        ServiceEntity,
-        AnomalyEntity,
-        WorkzoneEntity,
-        RentalEntity,
-        EquipmentEntity,
-        NotificationEntity,
-        WorksiteHistoryEntity,
-      ],
-      'mainConnection',
-    ),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -150,6 +120,9 @@ import { WorkzoneService } from './services/workzone/workzone.service';
           path.join(__dirname, 'classes/entities/**/*.entity{.ts,.js}'),
         ],
         synchronize: false,
+        extra: {
+          application_name: `backend-${configService.get<number>('PORT')}-readOnlyConnection`,
+        },
       }),
     }),
     TypeOrmModule.forFeature(
@@ -193,6 +166,9 @@ import { WorkzoneService } from './services/workzone/workzone.service';
           path.join(__dirname, 'classes/entities/**/*.entity{.ts,.js}'),
         ],
         synchronize: false,
+        extra: {
+          application_name: `backend-${configService.get<number>('PORT')}-tagReadOnly`,
+        },
       }),
     }),
     TypeOrmModule.forFeature(
@@ -238,6 +214,8 @@ import { WorkzoneService } from './services/workzone/workzone.service';
     SessionVehicleModule,
     AuthModule,
     PrometheusModule,
+    SpeedModule,
+    FactoryModule,
   ],
 
   controllers: [
@@ -271,16 +249,7 @@ import { WorkzoneService } from './services/workzone/workzone.service';
     TagService,
     UserService,
     CompanyService,
-    CompanyFactoryService,
-    UserFactoryService,
-    WorksiteFactoryService,
-    GroupFactoryService,
-    RentalFactoryService,
     NotesService,
-    AssociationFactoryService,
-    EquipmentFacotoryService,
-    ServiceFactoryService,
-    WorkzoneFacotoryService,
     AnomalyService,
     RoleService,
     AssociationService,
