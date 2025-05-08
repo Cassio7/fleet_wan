@@ -18,6 +18,9 @@ import { SessionVehicleService } from 'src/services/session-vehicle/session-vehi
         database: configService.get<string>('DB_DATABASE'),
         entities: [],
         synchronize: false,
+        extra: {
+          application_name: `backend-${configService.get<number>('PORT')}-viewConnection`,
+        },
       }),
     }),
   ],
