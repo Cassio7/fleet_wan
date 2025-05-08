@@ -7,7 +7,7 @@ import { LoggerService } from './log/service/logger.service';
 import { SchedulerRegistry } from '@nestjs/schedule';
 
 async function bootstrap(): Promise<void> {
-  const port = 3001;
+  const port = process.env.PORT;
 
   const logger = new Logger();
   // crea il file per i log dentro la cartella logs
