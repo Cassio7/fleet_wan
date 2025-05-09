@@ -1,6 +1,6 @@
 import { CommonEntity } from 'src/classes/entities/common.entity';
 import { GroupInterface } from 'src/classes/interfaces/group.interface';
-import { Column, Entity, Index, ManyToOne, OneToMany } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { CompanyEntity } from './company.entity';
 import { WorksiteEntity } from './worksite.entity';
 
