@@ -15,11 +15,12 @@ import { AnomalyService } from './services/anomaly/anomaly.service';
 import { getDaysInRange } from './utils/utils';
 
 import { InjectRedis } from '@nestjs-modules/ioredis';
-import { VehicleEntity } from 'src/classes/entities/vehicle.entity';
 import Redis from 'ioredis';
+import { VehicleEntity } from 'src/classes/entities/vehicle.entity';
+import { BannedVehicleFactoryService } from './factory/bannedVehicle.factory';
 import { EquipmentFacotoryService } from './factory/equipment.factory';
 import { RentalFactoryService } from './factory/rental.factory';
-import { WorkzoneFacotoryService } from './factory/workzone.factory';
+import { WorkzoneFactoryService } from './factory/workzone.factory';
 import { StatsService } from './services/anomaly/stats/stats.service';
 import { AssociationService } from './services/association/association.service';
 import { ControlService } from './services/control/control.service';
@@ -39,19 +40,21 @@ export class AppService implements OnModuleInit {
     private readonly serviceFactoryService: ServiceFactoryService,
     private readonly rentalFactoryService: RentalFactoryService,
     private readonly equipmentFacotoryService: EquipmentFacotoryService,
-    private readonly workzoneFacotoryService: WorkzoneFacotoryService,
+    private readonly workzoneFactoryService: WorkzoneFactoryService,
     private readonly anomalyService: AnomalyService,
     private readonly controlService: ControlService,
     private readonly statsService: StatsService,
     private readonly associationService: AssociationService,
     @InjectRedis() private readonly redis: Redis,
+    private readonly bannedFactoryService: BannedVehicleFactoryService,
   ) {}
 
   // popolo database all'avvio
   async onModuleInit(): Promise<void> {
-    this.redis.set('cron:weeklyCheck', 0);
-    // const startDate = '2025-04-04T00:00:00.000Z';
-    // //const endDate = '2025-01-01T00:00:00.000Z';
+    await this.redis.set('cron:weeklyCheck', 0);
+    await this.redis.set('banned:setAssociation', 0);
+    //const startDate = '2025-05-01T00:00:00.000Z';
+    //const endDate = '2025-05-02T00:00:00.000Z';
     // const endDate = new Date(
     //   new Date().getTime() + 2 * 60 * 60 * 1000,
     // ).toISOString();
@@ -76,7 +79,8 @@ export class AppService implements OnModuleInit {
     await this.serviceFactoryService.createDefaultService();
     await this.rentalFactoryService.createDefaultRental();
     await this.equipmentFacotoryService.createDefaultEquipment();
-    await this.workzoneFacotoryService.createDefaultWorkzone();
+    await this.workzoneFactoryService.createDefaultWorkzone();
+    await this.bannedFactoryService.createDefaultBanned();
   }
 
   /**
@@ -293,6 +297,10 @@ export class AppService implements OnModuleInit {
       this.sessionService.getLastValidSessionByVeIds(vehicleIds),
       this.sessionService.getLastHistoryByVeIds(vehicleIds),
     ]);
+    if ((await this.redis.get('banned:setAssociation')) === '1') {
+      await this.setAssociations();
+      await this.redis.set('banned:setAssociation', 0);
+    }
     console.log('Fine recupero');
   }
 
