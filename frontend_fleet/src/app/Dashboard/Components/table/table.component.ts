@@ -3,6 +3,7 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
+  inject,
   OnDestroy,
   OnInit,
   ViewChild,
@@ -21,6 +22,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import {
   catchError,
+  firstValueFrom,
   map,
   Observable,
   skip,
@@ -49,6 +51,8 @@ import { DashboardService } from '../../Services/dashboard/dashboard.service';
 import { GpsGraphService } from '../../Services/gps-graph/gps-graph.service';
 import { KanbanTableService } from '../../Services/kanban-table/kanban-table.service';
 import { SessioneGraphService } from '../../Services/sessione-graph/sessione-graph.service';
+import { openSnackbar } from '../../../Utils/snackbar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-table',
@@ -71,6 +75,8 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
   @ViewChild('vehicleTable') vehicleTable!: MatTable<Session[]>;
 
   private readonly destroy$: Subject<void> = new Subject<void>();
+
+  private snackbar = inject(MatSnackBar);
 
   tableLoaded: boolean = false;
   vehicleTableData = new MatTableDataSource<VehicleData>();
@@ -133,12 +139,11 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
     this.checkErrorsService.updateAnomalies$
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: () => {
+        next: async () => {
           this.loadingProgress = 0;
           this.vehicleTableData.data = [];
-          setTimeout(() => {
-            this.fillTable();
-          }, 2000);
+          await this.fillTable();
+          openSnackbar(this.snackbar, "Dati aggiornati con successo! ✔");
         },
         error: (error) =>
           console.error(
@@ -246,62 +251,54 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
   /**
    * Riempe la tabella con i dati recuperati dalla chiamata API
    */
-  private fillTable() {
-    console.log('CHIAMATO FILL TABLE!');
-    this.resetGraphs();
 
-    // this.errorGraphService.resetGraphs();
+  private async fillTable(): Promise<void> {
+    this.resetGraphs();
     this.vehicleTableData.data = [];
-    this.checkErrorsService
-      .checkErrorsAllToday()
-      .pipe(
-        takeUntil(this.destroy$),
-        tap(() => {
-          this.loadingProgress += 50;
-          this.loadingText = 'Caricamento dei veicoli...';
-        })
-      )
-      .subscribe({
-        next: (responseObj: any) => {
-          const vehiclesData = responseObj.vehicles;
-          this.updateLastUpdate(responseObj.lastUpdate);
-          this.addLastRealtime(vehiclesData)
-            .pipe(takeUntil(this.destroy$))
-            .subscribe({
-              next: (mergedVehicles: VehicleData[]) => {
-                this.sessionStorageService.setItem(
-                  'allData',
-                  JSON.stringify(mergedVehicles)
-                );
-                const activeFilters = this.kanbanTableService.filtersValue();
-                if (activeFilters) {
-                  const filteredMergedVehicles: VehicleData[] =
-                    this.filtersCommonService.applyAllFiltersOnVehicles(
-                      mergedVehicles,
-                      activeFilters
-                    ) as VehicleData[];
-                  this.vehicleTableData.data = filteredMergedVehicles;
-                  this.loadGraphs(filteredMergedVehicles);
-                } else {
-                  this.vehicleTableData.data = mergedVehicles;
-                  this.loadGraphs(mergedVehicles);
-                }
-                this.kanbanTableService.tableLoaded$.next();
-                this.mapService.resizeMap$.next();
-              },
-              error: (error) =>
-                console.error(
-                  "Errore nell'aggiunta dei realtime ai veicoli: ",
-                  error
-                ),
-            });
-          this.sort = this.sortService.resetMatSort(this.sort);
-        },
-        error: (err) => {
-          console.error('Errore nel caricamento iniziale dei dati: ', err);
-        },
-      });
+
+    try {
+      const responseObj: any = await firstValueFrom(
+        this.checkErrorsService.checkErrorsAllToday().pipe(
+          takeUntil(this.destroy$),
+          tap(() => {
+            this.loadingProgress += 50;
+            this.loadingText = 'Caricamento dei veicoli...';
+          })
+        )
+      );
+
+      const vehiclesData = responseObj.vehicles;
+      this.updateLastUpdate(responseObj.lastUpdate);
+
+      const mergedVehicles = await firstValueFrom(
+        this.addLastRealtime(vehiclesData).pipe(takeUntil(this.destroy$))
+      );
+
+      this.sessionStorageService.setItem(
+        'allData',
+        JSON.stringify(mergedVehicles)
+      );
+
+      const activeFilters = this.kanbanTableService.filtersValue();
+      const filteredVehicles = activeFilters
+        ? (this.filtersCommonService.applyAllFiltersOnVehicles(
+            mergedVehicles,
+            activeFilters
+          ) as VehicleData[])
+        : mergedVehicles;
+
+      this.vehicleTableData.data = filteredVehicles;
+      this.loadGraphs(filteredVehicles);
+
+      this.kanbanTableService.tableLoaded$.next();
+      this.mapService.resizeMap$.next();
+      this.sort = this.sortService.resetMatSort(this.sort);
+
+    } catch (error) {
+      console.error('Errore durante il caricamento dei dati: ', error);
+    }
   }
+
 
   /**
    * Imposta il valore del testo dell'ultimo aggiornamento visualizzato sulla dashboard

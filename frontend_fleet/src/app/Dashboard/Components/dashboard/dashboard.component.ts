@@ -79,9 +79,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy{
 
   mapVehiclePlate: string = "";
 
-  private snackbar = inject(MatSnackBar);
-  private snackbarDuration = 2;
-
   private _table: boolean = true;
   private _kanbanGps: boolean = false;
   private _kanbanAntenna: boolean = false;
@@ -142,8 +139,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy{
     this.handleLogin();
 
     this.handleLoadPosition();
-
-    this.handleTableLoaded();
 
     this.mapService.initMap$.next({point: this.mapService.defaultPoint, zoom: this.mapService.defaultZoom});
 
@@ -313,19 +308,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy{
   checkDate(stringa: string): boolean {
     const data = new Date(stringa);
     return !isNaN(data.getTime());
-  }
-
-  /**
-   * Ascolta il completamento del caricamento della tabella
-   */
-  private handleTableLoaded(){
-    this.kanbanTableService.tableLoaded$.pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: () => {
-        openSnackbar(this.snackbar, "Dati aggiornati con successo! ✔");
-      },
-      error: error => console.error("Errore nella notifica di caricamento della tabella: ", error)
-    });
   }
 
   /**
