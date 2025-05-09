@@ -20,6 +20,8 @@ import { DataSource, In, IsNull, Not, Repository } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
 import { AssociationService } from '../association/association.service';
 import { WorksiteDTO } from '../../classes/dtos/worksite.dto';
+import Redis from 'ioredis';
+import { InjectRedis } from '@nestjs-modules/ioredis';
 
 @Injectable()
 export class VehicleService {
@@ -38,6 +40,7 @@ export class VehicleService {
     private readonly connection: DataSource,
     private readonly associationService: AssociationService,
     private readonly notificationsService: NotificationsService,
+    @InjectRedis() private readonly redis: Redis,
   ) {}
 
   // Prepara la richiesta SOAP
@@ -145,8 +148,16 @@ export class VehicleService {
       };
       return createHash('sha256').update(JSON.stringify(toHash)).digest('hex');
     };
+
+    const bannedIdSet = new Set(
+      (await this.redis.smembers('banned:vehicles'))?.map(Number),
+    );
+    const cleanedList = lists
+      .map((item) => (bannedIdSet.has(Number(item['id'])) ? null : item))
+      .filter((item) => item !== null);
+
     // Filtro i dati dei veicoli
-    const filteredDataVehicles = lists.map((item: any) => {
+    const filteredDataVehicles = cleanedList.map((item: any) => {
       // hash creation
       const hash = hashVehicle(item);
       return {
@@ -177,7 +188,7 @@ export class VehicleService {
       await queryRunner.startTransaction();
 
       // Inserisci o aggiorna i dispositivi associati
-      await this.putAllDevice(lists);
+      await this.putAllDevice(cleanedList);
 
       const devices = await queryRunner.manager
         .getRepository(DeviceEntity)
@@ -205,10 +216,18 @@ export class VehicleService {
 
         if (!existingVehicle) {
           // Nuovo veicolo
-          const device = deviceMap.get(Number(vehicle.deviceId));
-          const newVehicle = queryRunner.manager
+          const duplicate = await queryRunner.manager
             .getRepository(VehicleEntity)
-            .create({
+            .findOne({
+              select: { key: true, plate: true, veId: true },
+              where: {
+                plate: vehicle.plate,
+              },
+            });
+          const device = deviceMap.get(Number(vehicle.deviceId));
+          if (duplicate) {
+            updatedVehicles.push({
+              key: duplicate.key,
               veId: vehicle.id,
               active: vehicle.active,
               plate: vehicle.plate,
@@ -223,10 +242,10 @@ export class VehicleService {
               device: device,
               hash: vehicle.hash,
             });
-          newVehicles.push(newVehicle);
-          if (!first) {
-            const title = `Nuovo Veicolo inserito ${newVehicle.plate}`;
-            const message = `Censire il veicolo con veId ${newVehicle.veId} per iniziare il controllo`;
+            await this.redis.sadd('banned:vehicles', duplicate.veId);
+            await this.redis.set('banned:setAssociation', 1);
+            const title = `Cambio identificativo per ${duplicate.plate}`;
+            const message = `Al veicolo è stato cambiato l'identificativo 'veId', ${duplicate.veId} -> ${vehicle.id}, controllare forse nuovo cantiere`;
             const notification =
               await this.notificationsService.createNotification(
                 1,
@@ -235,6 +254,37 @@ export class VehicleService {
                 message,
               );
             this.notificationsService.sendNotification(notification);
+          } else {
+            const newVehicle = queryRunner.manager
+              .getRepository(VehicleEntity)
+              .create({
+                veId: vehicle.id,
+                active: vehicle.active,
+                plate: vehicle.plate,
+                model: vehicle.model,
+                firstEvent: vehicle.firstEvent,
+                lastEvent: vehicle.lastEvent,
+                lastSessionEvent: vehicle.lastSessionEvent,
+                isCan: vehicle.isCan,
+                isRFIDReader: vehicle.isRFIDReader,
+                profileId: vehicle.profileId,
+                profileName: vehicle.profileName,
+                device: device,
+                hash: vehicle.hash,
+              });
+            newVehicles.push(newVehicle);
+            if (!first) {
+              const title = `Nuovo Veicolo inserito ${newVehicle.plate}`;
+              const message = `Censire il veicolo con veId ${newVehicle.veId} per iniziare il controllo`;
+              const notification =
+                await this.notificationsService.createNotification(
+                  1,
+                  'sistema',
+                  title,
+                  message,
+                );
+              this.notificationsService.sendNotification(notification);
+            }
           }
         } else if (existingVehicle.hash !== vehicle.hash) {
           // Aggiorniamo il veicolo solo se l'hash è cambiato
