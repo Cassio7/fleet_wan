@@ -5,7 +5,7 @@
   </div>
 
   <div class="table-content">
-    <mat-chip-listbox class="mat-chip-listbox-inline" aria-label="Cutest dog breeds">
+    <mat-chip-listbox class="mat-chip-listbox-inline" aria-label="Cutest dog breeds" [hideSingleSelectionIndicator]="true">
       <mat-chip-option
         [ngClass]="{ 'selected-chip': selectedRange === 'Yesterday' }"
         (click)="setSpeedTime('Yesterday')">
