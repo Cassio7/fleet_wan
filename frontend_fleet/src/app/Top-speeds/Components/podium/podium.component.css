@@ -1,0 +1,49 @@
+.podium {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+.podium-card {
+  width: 200px;
+  padding: 2rem 1rem;
+  text-align: center;
+  border-radius: 0 !important;
+  color: #fff;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.podium-card h2 {
+  margin: 0.5rem 0;
+  font-size: 1.5rem;
+}
+
+.podium-card p {
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+.rank-icon {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+}
+
+.first {
+  background-color: gold;
+  height: 250px;
+}
+
+.second {
+  background-color: silver;
+  height: 200px;
+}
+
+.third {
+  background-color: #cd7f32; /*bronze*/
+  height: 170px;
+}
+

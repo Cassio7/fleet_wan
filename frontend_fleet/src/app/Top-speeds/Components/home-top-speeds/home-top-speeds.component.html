@@ -34,4 +34,11 @@
     </mat-chip-listbox>
     <app-top-speeds-table [speeds]="displayedSpeeds"></app-top-speeds-table>
   </div>
+  <app-podium
+    [first]="displayedSpeeds[0]?.plate || ''"
+    [second]="displayedSpeeds[1]?.plate || ''"
+    [third]="displayedSpeeds[2]?.plate || ''">
+  </app-podium>
+
+
 </div>

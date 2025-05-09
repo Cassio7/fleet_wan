@@ -4,6 +4,7 @@ import { SpeedData, SpeedsService, TopSpeedsData } from '../../Services/speeds.s
 import { Subject, takeUntil } from 'rxjs';
 import { MatChipsModule } from '@angular/material/chips';
 import { CommonModule } from '@angular/common';
+import { PodiumComponent } from "../podium/podium.component";
 
 @Component({
   selector: 'app-home-top-speeds',
@@ -11,7 +12,9 @@ import { CommonModule } from '@angular/common';
   imports: [
     CommonModule,
     MatChipsModule,
-    TopSpeedsTableComponent],
+    TopSpeedsTableComponent,
+    PodiumComponent
+],
   templateUrl: './home-top-speeds.component.html',
   styleUrl: './home-top-speeds.component.css'
 })
@@ -69,6 +72,6 @@ export class HomeTopSpeedsComponent implements OnInit, OnDestroy{
         this.selectedRange = "All Time";
         this.displayedSpeeds = this.topSpeeds.allTime;
     }
-    console.log('selectederean: ', this.selectedRange);
+    console.log('esws: ', this.displayedSpeeds);
   }
 }
