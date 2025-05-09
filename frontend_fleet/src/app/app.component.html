@@ -23,7 +23,7 @@
           <button routerLink="gestione-cantieri" mat-menu-item>Gestione cantieri</button>
           <button routerLink="gestione-societa" mat-menu-item>Gestione società</button>
         </mat-menu>
-        <button routerLink="top-speeds" [ngClass]="{'selectedBtn': router.url == '/top-speeds'}"><mat-icon>speed</mat-icon></button>
+        <button routerLink="top-speeds" *ngIf="user?.role == 'Admin'" [ngClass]="{'selectedBtn': router.url == '/top-speeds'}"><mat-icon>speed</mat-icon></button>
       </div>
       <div class="log-out" (mouseover)="triggerLogoutButtonAnimation('rotated')" (mouseleave)="triggerLogoutButtonAnimation('default')">
         <button [matMenuTriggerFor]="logoutMenu" class="logout-btn">
@@ -63,6 +63,9 @@
                   <button class="button" routerLink="gestione-societa" [ngClass]="{'selectedBtn': router.url == '/gestione-societa'}" ><mat-icon>business</mat-icon><span class="drawerIcon-text" (click)="drawer.toggle(); fixedDrawer.toggle()">Gestione società</span></button>
                 </div>
               </div>
+              <button class="speed-btn button" routerLink="top-speeds" [ngClass]="{'selectedBtn': router.url == '/top-speeds'}" *ngIf="user?.role == 'Admin'" (click)="drawer.toggle(); fixedDrawer.toggle()">
+                <mat-icon>speed</mat-icon><span class="drawerIcon-text">Classifica velocità</span>
+              </button>
 
               <button class="button" [matMenuTriggerFor]="menu">
                 <mat-icon>power_settings_new</mat-icon><span class="drawerIcon-text">Esci</span>
