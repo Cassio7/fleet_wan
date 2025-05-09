@@ -844,7 +844,7 @@ export class SessionService {
     } catch (error) {
       if (error instanceof HttpException) throw error;
       throw new HttpException(
-        `Errore durante delle sessioni attive`,
+        `Errore durante recupero dell'ultima posizione di ogni veicolo`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
