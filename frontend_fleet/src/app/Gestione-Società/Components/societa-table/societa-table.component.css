@@ -1,3 +1,9 @@
+.n-societa{
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}
+
 .table-container {
   height: 70vh;
   overflow-y: auto;

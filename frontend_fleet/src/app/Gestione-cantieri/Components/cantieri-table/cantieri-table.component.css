@@ -18,3 +18,8 @@
 .right-text {
   text-align: right;
 }
+.n-cantieri{
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}
