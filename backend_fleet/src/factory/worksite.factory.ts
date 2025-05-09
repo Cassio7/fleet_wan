@@ -16,7 +16,7 @@ import { DataSource } from 'typeorm';
 export class WorksiteFactoryService {
   private readonly cvsPath = path.resolve(process.cwd(), 'files/CANTIERI.csv');
   private readonly cvsPathV = path.resolve(process.cwd(), 'files/VEICOLI.csv');
-  
+
   constructor(
     @InjectDataSource('mainConnection')
     private readonly connection: DataSource,
