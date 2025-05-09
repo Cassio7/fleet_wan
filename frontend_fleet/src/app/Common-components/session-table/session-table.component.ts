@@ -364,44 +364,42 @@ export class SessionTableComponent implements OnInit, OnChanges, AfterViewInit, 
     if(anomalyDay.date) this.tagService.setTimeRange(anomalyDay.date, anomalyDay.date);
     this.handleGetSessionsByVeIdRanged(anomalyDay.date).subscribe(
       (sessions) => {
-        if (sessions.length === 0) {
-          return;
-        }
+        if(sessions){
+          const points: Point[] = sessions?.flatMap((session) =>
+            session.history.map(
+              (posizione) => new Point(posizione.latitude, posizione.longitude)
+            )
+          );
 
-        const points: Point[] = sessions.flatMap((session) =>
-          session.history.map(
-            (posizione) => new Point(posizione.latitude, posizione.longitude)
-          )
-        );
+          const firstPoints: Point[] = sessions?.map((session) => {
+            const firstHistory = session.history[0];
+            return new Point(firstHistory.latitude, firstHistory.longitude);
+          });
 
-        const firstPoints: Point[] = sessions.map((session) => {
-          const firstHistory = session.history[0];
-          return new Point(firstHistory.latitude, firstHistory.longitude);
-        });
+          const pathData: pathData = {
+            plate: this.vehicle.plate,
+            points: points,
+            firstPoints: firstPoints,
+            tagPoints: []
+          };
 
-        const pathData: pathData = {
-          plate: this.vehicle.plate,
-          points: points,
-          firstPoints: firstPoints,
-          tagPoints: []
-        };
-
-        this.tagService.getTagsByVeIdRanged(this.vehicle.veId)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (tagData: tagData[]) => {
-            if(tagData){
-              pathData.tagPoints = tagData.map(tag => new Point(tag.latitude, tag.longitude));
+          this.tagService.getTagsByVeIdRanged(this.vehicle.veId)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
+            next: (tagData: tagData[]) => {
+              if(tagData){
+                pathData.tagPoints = tagData.map(tag => new Point(tag.latitude, tag.longitude));
+              }
+              this.sessionStorageService.setItem("pathData", JSON.stringify(pathData));
+              this.mapService.loadDayPath$.next(pathData);
+            },
+            error: error => {
+              this.sessionStorageService.setItem("pathData", JSON.stringify(pathData));
+              this.mapService.loadDayPath$.next(pathData);
+              console.error(`Errore nel recupero delle letture dei tag: ${error}`);
             }
-            this.sessionStorageService.setItem("pathData", JSON.stringify(pathData));
-            this.mapService.loadDayPath$.next(pathData);
-          },
-          error: error => {
-            this.sessionStorageService.setItem("pathData", JSON.stringify(pathData));
-            this.mapService.loadDayPath$.next(pathData);
-            console.error(`Errore nel recupero delle letture dei tag: ${error}`);
-          }
-        });
+          });
+        }
       }
     );
   }
