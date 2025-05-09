@@ -1,0 +1,45 @@
+<table mat-table #speedsTable [dataSource]="speedsTableData" class="mat-elevation-z8">
+
+  <!-- Placement Column -->
+  <ng-container matColumnDef="placement">
+    <th mat-header-cell *matHeaderCellDef> Posizionamento </th>
+    <td mat-cell *matCellDef="let i = index">
+      <div class="inline-container">
+        <ng-container [ngSwitch]="i + 1">
+          <span class="first" *ngSwitchCase="1">🥇</span>
+          <span class="second" *ngSwitchCase="2">🥈</span>
+          <span class="third" *ngSwitchCase="3">🥉</span>
+          <span class="not-podium" *ngSwitchDefault>🎖</span>
+        </ng-container>
+        <span>{{ i + 1 }}</span>
+      </div>
+    </td>
+  </ng-container>
+
+  <!-- Position Column -->
+  <ng-container matColumnDef="plate">
+    <th mat-header-cell *matHeaderCellDef> Targa </th>
+    <td mat-cell *matCellDef="let vehicle">
+      <span class="plate-container">
+        <mat-icon>local_shipping</mat-icon>
+        {{vehicle.plate}}
+      </span>
+    </td>
+  </ng-container>
+
+  <!-- Name Column -->
+  <ng-container matColumnDef="veId">
+    <th mat-header-cell *matHeaderCellDef> veId </th>
+    <td mat-cell *matCellDef="let vehicle"> {{vehicle.veId}} </td>
+  </ng-container>
+
+  <!-- Weight Column -->
+  <ng-container matColumnDef="speed">
+    <th mat-header-cell *matHeaderCellDef> Velocità </th>
+    <td mat-cell *matCellDef="let vehicle"> {{vehicle.speed}} </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+</table>
+

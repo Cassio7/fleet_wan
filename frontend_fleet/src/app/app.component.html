@@ -23,6 +23,7 @@
           <button routerLink="gestione-cantieri" mat-menu-item>Gestione cantieri</button>
           <button routerLink="gestione-societa" mat-menu-item>Gestione società</button>
         </mat-menu>
+        <button routerLink="top-speeds" [ngClass]="{'selectedBtn': router.url == '/top-speeds'}"><mat-icon>speed</mat-icon></button>
       </div>
       <div class="log-out" (mouseover)="triggerLogoutButtonAnimation('rotated')" (mouseleave)="triggerLogoutButtonAnimation('default')">
         <button [matMenuTriggerFor]="logoutMenu" class="logout-btn">

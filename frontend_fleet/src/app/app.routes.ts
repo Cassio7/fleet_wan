@@ -18,6 +18,7 @@ import { NotificationsHomeComponent } from './Common-components/Notifications/Co
 import { HomeVeicoloEditComponent } from './Gestione-Veicoli/Components/home-veicolo-edit/home-veicolo-edit.component';
 import { AdminGuardService } from './Common-services/admin-guard/admin-guard.service';
 import { PageNotFoundComponent } from './Common-components/Page-not-found/page-not-found.component';
+import { HomeTopSpeedsComponent } from './Top-speeds/Components/home-top-speeds/home-top-speeds.component';
 
 export const routes: Routes = [
   {
@@ -97,6 +98,11 @@ export const routes: Routes = [
   {
     path: 'notifications',
     component: NotificationsHomeComponent,
+    canActivate: [AdminGuardService]
+  },
+  {
+    path: 'top-speeds',
+    component: HomeTopSpeedsComponent,
     canActivate: [AdminGuardService]
   },
   {

@@ -156,6 +156,9 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy{
       case "/notifications":
         this.icon = "notifications";
         break;
+      case '/top-speeds':
+        this.icon = "speed";
+        break;
       case "/404-notFound":
         this.icon = "search_off";
         break;
