@@ -45,8 +45,8 @@ export class AppService implements OnModuleInit {
     private readonly controlService: ControlService,
     private readonly statsService: StatsService,
     private readonly associationService: AssociationService,
-    @InjectRedis() private readonly redis: Redis,
     private readonly bannedFactoryService: BannedVehicleFactoryService,
+    @InjectRedis() private readonly redis: Redis,
   ) {}
 
   // popolo database all'avvio
@@ -54,7 +54,7 @@ export class AppService implements OnModuleInit {
     await this.redis.set('cron:weeklyCheck', 0);
     await this.redis.set('banned:setAssociation', 0);
     //const startDate = '2025-05-01T00:00:00.000Z';
-    //const endDate = '2025-05-02T00:00:00.000Z';
+    //const endDate = '2025-05-01T00:00:00.000Z';
     // const endDate = new Date(
     //   new Date().getTime() + 2 * 60 * 60 * 1000,
     // ).toISOString();
@@ -142,6 +142,7 @@ export class AppService implements OnModuleInit {
               vehicle.veId,
               datefrom.toISOString(),
               dateto.toISOString(),
+              false,
             );
           });
 
@@ -260,6 +261,7 @@ export class AppService implements OnModuleInit {
               vehicle.veId,
               startDate,
               endDate,
+              true,
             );
           }
         });
@@ -292,11 +294,11 @@ export class AppService implements OnModuleInit {
     }
 
     // inserire il calcolo dell ultima sessione valida
-    const vehicleIds = vehicles.map((v) => v.veId);
-    await Promise.all([
-      this.sessionService.getLastValidSessionByVeIds(vehicleIds),
-      this.sessionService.getLastHistoryByVeIds(vehicleIds),
-    ]);
+    // const vehicleIds = vehicles.map((v) => v.veId);
+    // await Promise.all([
+    //   this.sessionService.getLastValidSessionByVeIds(vehicleIds),
+    //   this.sessionService.getLastHistoryByVeIds(vehicleIds),
+    // ]);
     if ((await this.redis.get('banned:setAssociation')) === '1') {
       await this.setAssociations();
       await this.redis.set('banned:setAssociation', 0);
