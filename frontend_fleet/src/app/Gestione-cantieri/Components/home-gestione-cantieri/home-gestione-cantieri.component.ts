@@ -57,7 +57,6 @@ export class HomeGestioneCantieriComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (worksites: WorkSite[]) => {
           this.cantieri = worksites;
-          console.log('cantieri fetched from home getsione: ', worksites);
           this.cd.detectChanges();
         },
         error: (error) =>
@@ -70,7 +69,6 @@ export class HomeGestioneCantieriComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (groups: Group[]) => {
           this.groups = groups;
-          console.log('groups fetched from home getsione: ', groups);
           this.cd.detectChanges();
         },
         error: (error) =>
@@ -90,7 +88,6 @@ export class HomeGestioneCantieriComponent implements OnInit, OnDestroy {
       .afterClosed()
       .subscribe((result: { name: string; comune: string }) => {
         if (result) {
-          console.log('result: ', result);
           if (result.comune) {
             this.gestioneCantieriService
               .getGroupIdByName(result.comune)
