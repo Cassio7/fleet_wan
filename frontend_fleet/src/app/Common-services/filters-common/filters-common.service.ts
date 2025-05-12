@@ -83,24 +83,25 @@ export class FiltersCommonService {
       arrayTarghe = this.getVeIds(this.plateFilterService.filterVehiclesByPlateResearch(filters.plate, vehicles) as VehicleData[]);
     }
 
-    if ('veId' in vehicles[0]) {
-      if (filters.cantieri?.value) {
-        arrayCantieri = (this.cantieriFilterService.filterVehiclesByCantieri(vehicles, filters.cantieri.value) as Vehicle[]).map(vehicle => vehicle.veId);
-      }
-      if(filters.societa?.value){
-        arraySocieta = this.filterVehiclesByCompanies((vehicles as Vehicle[]), filters.societa.value).map((vehicle: Vehicle) => vehicle.veId);
-      }
-    }
-
-    if ('vehicle' in vehicles[0]) {
-      if (filters.cantieri?.value) {
-          arrayCantieri = (this.cantieriFilterService.filterVehiclesByCantieri(vehicles, filters.cantieri.value) as VehicleData[]).map(vehicle => vehicle.vehicle.veId);
+    if(vehicles[0]){
+      if ('veId' in vehicles[0]) {
+        if (filters.cantieri?.value) {
+          arrayCantieri = (this.cantieriFilterService.filterVehiclesByCantieri(vehicles, filters.cantieri.value) as Vehicle[]).map(vehicle => vehicle.veId);
+        }
+        if(filters.societa?.value){
+          arraySocieta = this.filterVehiclesByCompanies((vehicles as Vehicle[]), filters.societa.value).map((vehicle: Vehicle) => vehicle.veId);
+        }
       }
 
-      if (filters.gps?.value) {
-          const gpsCheck = this.filterByStatus(this.checkErrorsService.checkVehiclesGpsErrors(vehicles as VehicleData[]), filters.gps.value, "GPS");
-          arrayGps = this.getVeIds(gpsCheck);
-      }
+      if ('vehicle' in vehicles[0]) {
+        if (filters.cantieri?.value) {
+            arrayCantieri = (this.cantieriFilterService.filterVehiclesByCantieri(vehicles, filters.cantieri.value) as VehicleData[]).map(vehicle => vehicle.vehicle.veId);
+        }
+
+        if (filters.gps?.value) {
+            const gpsCheck = this.filterByStatus(this.checkErrorsService.checkVehiclesGpsErrors(vehicles as VehicleData[]), filters.gps.value, "GPS");
+            arrayGps = this.getVeIds(gpsCheck);
+        }
 
       if (filters.antenna?.value) {
           let antennaCheck = this.filterByStatus(this.checkErrorsService.checkVehiclesAntennaErrors(vehicles as VehicleData[]), filters.antenna.value, "antenna");
@@ -114,6 +115,7 @@ export class FiltersCommonService {
 
           arrayAntenne = this.getVeIds(antennaCheck);
       }
+    }
 
       if (filters.sessione?.value) {
           const sessionCheck = this.filterByStatus(this.checkErrorsService.checkVehiclesSessionErrors(vehicles as VehicleData[]), filters.sessione.value, "sessione");
