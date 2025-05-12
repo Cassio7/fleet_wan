@@ -49,7 +49,6 @@ export class HomeTopSpeedsComponent implements OnInit, OnDestroy{
   }
 
   setSpeedTime(time: string){
-    console.log(time);
     switch(time){
       case "Yesterday":
         this.displayedSpeeds = this.topSpeeds.yesterday;
@@ -72,6 +71,5 @@ export class HomeTopSpeedsComponent implements OnInit, OnDestroy{
         this.selectedRange = "All Time";
         this.displayedSpeeds = this.topSpeeds.allTime;
     }
-    console.log('esws: ', this.displayedSpeeds);
   }
 }

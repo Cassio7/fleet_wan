@@ -208,7 +208,6 @@ export class TableComponent
     );
 
     vehicles$.subscribe((vehicles) => {
-      console.log('fetched vehicles: ', vehicles);
       this.sessionStorageService.setItem(
         'allVehicles',
         JSON.stringify(vehicles)
@@ -343,10 +342,7 @@ export class TableComponent
   sortVehiclesByMatSort(vehicles: Vehicle[]): Vehicle[] {
     const column = this.sort.active;
     const sortDirection = this.sort.direction;
-    console.log('column: ', column);
-    console.log('sort direction: ', sortDirection);
     const isAsc = sortDirection === 'asc';
-    console.log('isAsc: ', isAsc);
 
     const sortedVehicles = vehicles.sort((a: Vehicle, b: Vehicle) => {
       switch (column) {
@@ -387,7 +383,6 @@ export class TableComponent
       }
     });
 
-    console.log('sortedVehicles: ', sortedVehicles);
     return sortedVehicles;
   }
 

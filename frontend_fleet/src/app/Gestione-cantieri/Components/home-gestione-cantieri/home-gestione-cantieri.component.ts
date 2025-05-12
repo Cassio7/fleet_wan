@@ -118,7 +118,6 @@ export class HomeGestioneCantieriComponent implements OnInit, OnDestroy {
   }
 
   private createCantiere(newWorksiteData: { name: string; groupId?: number }) {
-    console.log('cantiere da creare in hmoe: ', newWorksiteData);
     this.gestioneCantieriService
       .createCantiere(newWorksiteData)
       .pipe(takeUntil(this.destroy$))
@@ -127,11 +126,6 @@ export class HomeGestioneCantieriComponent implements OnInit, OnDestroy {
           message: string;
           worksite: WorkSite;
         }) => {
-          console.log('createdWorksiteData: ', createdWorksiteData);
-          console.log(
-            'createdWorksiteData.cantiere ',
-            createdWorksiteData.worksite
-          );
           openSnackbar(
             this.snackBar,
             `Nuovo cantiere ${createdWorksiteData.worksite.name} creato`

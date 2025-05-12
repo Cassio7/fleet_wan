@@ -87,7 +87,6 @@ export class InfoEditComponent implements AfterViewInit, OnChanges{
   }
 
   save(){
-    console.log('this.infoForm.value: ', this.infoForm.value);
     if(this.infoForm.get('rentalId')?.value == "null") {
       this.infoForm.get('rentalId')?.setValue(null);
     }

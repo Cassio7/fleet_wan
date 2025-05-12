@@ -68,7 +68,6 @@ export class HomeGestioneComponent implements OnInit, OnDestroy{
     .subscribe({
       next: (users: User[]) => {
         this.users = users;
-        console.log('users fetched from home getsione: ', users);
         this.cd.detectChanges();
       },
       error: error => console.error("Errore nel recupero di tutti gli utenti: ",error)

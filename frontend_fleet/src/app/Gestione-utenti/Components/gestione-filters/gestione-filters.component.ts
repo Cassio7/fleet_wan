@@ -65,7 +65,6 @@ export class GestioneFiltersComponent implements AfterViewInit{
     this.allSelected = true;
 
     this.userFiltersForm.valueChanges.subscribe(changes => {
-      console.log('changed!');
       this.filters = {
         usernameResearch: this.userFiltersForm.get('username')?.value,
         selectedRoles: this.userFiltersForm.get('roles')?.value

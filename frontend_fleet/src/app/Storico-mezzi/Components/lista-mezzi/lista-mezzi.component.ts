@@ -135,7 +135,6 @@ export class ListaMezziComponent implements AfterViewInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (realtimeDataObj: RealtimeData[]) => {
-          console.log('realtime data fetched from storico: ', realtimeDataObj);
           const tableVehicles: Vehicle[] =
             this.realtimeApiService.mergeVehiclesWithRealtime(
               this.vehiclesListData.data,

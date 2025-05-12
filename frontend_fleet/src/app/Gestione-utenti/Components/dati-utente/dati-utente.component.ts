@@ -82,10 +82,8 @@ export class DatiUtenteComponent implements OnDestroy, AfterViewInit{
   }
 
   updateData(){
-    console.log('CHIAMTA UPDATE DATA!');
     const formValues = this.userForm.value;
 
-    console.log('formValues: ', formValues);
 
     const updatedProfileInfo: any = {
       username: formValues.username,
@@ -100,7 +98,6 @@ export class DatiUtenteComponent implements OnDestroy, AfterViewInit{
     this.authService.updateUserInfoById(this.user.id, updatedProfileInfo).pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (response: {user: User, message: string}) => {
-        console.log("Changes saved successfully!");
         this.isSaveable = false;
         this.user = response.user;
         openSnackbar(this.snackBar, "Cambiamenti salvati con successo!");

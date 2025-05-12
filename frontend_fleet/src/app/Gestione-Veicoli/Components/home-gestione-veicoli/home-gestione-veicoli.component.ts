@@ -41,7 +41,6 @@ export class HomeGestioneVeicoliComponent implements OnInit, OnDestroy{
     .subscribe({
       next: (vehicles: Vehicle[]) => {
         this.veicoli = vehicles;
-        console.log('vehicles fetched from home getsione: ', vehicles);
         this.cd.detectChanges();
       },
       error: error => console.error("Errore nell'ottenere tutti i societa: ", error)

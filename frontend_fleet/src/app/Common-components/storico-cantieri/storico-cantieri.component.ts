@@ -44,7 +44,6 @@ export class StoricoCantieriComponent implements AfterViewInit, OnChanges, OnDes
 
   async ngAfterViewInit(): Promise<void> {
     const worksiteHistories = await this.getWorksiteHistoryByVeId();
-    console.log('worksiteHistories fetched: ', worksiteHistories);
     this.storicoCantieriTaleData.data = worksiteHistories;
   }
 

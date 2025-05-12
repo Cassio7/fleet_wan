@@ -137,8 +137,6 @@ export class AssociationsKanbanComponent implements AfterViewInit, OnDestroy, On
           }else{
             openSnackbar(this.snackbar, "Spostamento del veicolo annullato.");
           }
-          console.log('worksite.vehicle: ', this.worksite.vehicle);
-          console.log('this.freeVehicles: ', this.freeVehicles);
         },
         error: error => console.error("Errore nella chiusura del dialog per lo spostamento del veicolo: ", error)
       });

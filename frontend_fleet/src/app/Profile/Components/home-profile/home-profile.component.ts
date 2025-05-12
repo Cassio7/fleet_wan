@@ -69,7 +69,6 @@ export class HomeProfileComponent implements OnInit, AfterViewInit {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (user: User) => {
-          console.log('user fetched: ', user);
           this.user = user;
 
           this.header.title = `Profilo`;

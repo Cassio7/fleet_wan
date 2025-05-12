@@ -79,7 +79,6 @@ export class UserHomeComponent implements OnInit, OnDestroy {
   private getAssociationsById(id: number) {
     this.associationsService.getAssociationsByUserId(id).pipe(takeUntil(this.destroy$)).subscribe({
       next: (response: getAssociationsResponse) => {
-        console.log('response: ', response);
         if (response) {
           this.associationResponse = response;
           this.cd.detectChanges();  // Trigger change detection manually

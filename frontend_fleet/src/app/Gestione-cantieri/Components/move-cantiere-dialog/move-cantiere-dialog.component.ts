@@ -57,7 +57,6 @@ export class MoveCantiereDialogComponent {
       comment: this.moveCantiereForm.get('comment')?.value,
     };
 
-    console.log('body: ', body);
     this.dialogRef.close(body);
   }
 }

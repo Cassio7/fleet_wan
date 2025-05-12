@@ -247,8 +247,6 @@ export class MapFilterComponent implements OnInit, AfterViewInit, OnDestroy{
     .subscribe({
       next: (vehicles: Vehicle[]) => {
         const cantieriToggle = this.cantieriFilterService.toggleSelectAllCantieri(this.mapVehicles, this.allSelected).map(cantiere => cantiere.toLocaleLowerCase());
-        console.log("listaCantieri: ", this.listaCantieri);
-        console.log("cantieriToggle: ", cantieriToggle);
         this.cantieriControl.setValue(cantieriToggle.length > 0 ? ["Seleziona tutto", ...cantieriToggle] : cantieriToggle);
 
         this.allSelected = !this.allSelected;

@@ -131,9 +131,6 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
       this.handleAllFilters(); //subscribe all'applicazione di tutti i filtri
     });
 
-    // this.vehicleTableData.connect().subscribe((data) => {
-    //   console.log('data added: ', data);
-    // });
     this.handleCheckDaySwitch();
 
     this.checkErrorsService.updateAnomalies$
@@ -182,7 +179,6 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
       this.today = true;
     }
     this.cd.detectChanges();
-    console.log('today value: ', this.today);
   }
 
   /**
@@ -207,7 +203,6 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
           } else {
             console.error('Cambio controllo a periodo sconosciuto');
           }
-          console.log('today value: ',this.today);
         },
         error: (error) =>
           console.error('Errore nel cambio del giorno di controllo: ', error),
@@ -326,7 +321,6 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
         this.loadingText = 'Caricamento dati del tempo reale...';
       }),
       map((realtimeDataObj: RealtimeData[]) => {
-        console.log('realtime data fetched from dashboard: ', realtimeDataObj);
 
         const mergedVehicles: VehicleData[] =
           this.realtimeApiService.mergeVehiclesWithRealtime(
@@ -416,7 +410,7 @@ export class TableComponent implements OnDestroy, OnInit, AfterViewInit {
       });
       this.mapService.loadPosition$.next(realtimeData);
     } else {
-      console.log('Nessun dato realtime!');
+      console.error('No realtime data!');
     }
   }
 

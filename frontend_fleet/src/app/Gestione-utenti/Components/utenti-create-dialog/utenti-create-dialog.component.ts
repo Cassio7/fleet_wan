@@ -66,7 +66,6 @@ export class UtentiCreateDialogComponent {
   }
 
   onConfirm(): void {
-    console.log('this.createUserForm.valid: ', this.createUserForm.valid);
     if (this.createUserForm.valid) {
       this.dialogRef.close(this.createUserForm.value);
       this.formError = '';

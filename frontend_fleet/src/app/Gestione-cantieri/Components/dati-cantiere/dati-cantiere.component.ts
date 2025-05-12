@@ -60,8 +60,6 @@ export class DatiCantiereComponent implements OnDestroy, AfterViewInit{
   }
 
   ngAfterViewInit(): void {
-    console.log('groups: ', this.groups);
-    console.log('worksite: ', this.worksite);
     this.initForm();
   }
 
@@ -72,7 +70,6 @@ export class DatiCantiereComponent implements OnDestroy, AfterViewInit{
 
     if(this.groups){
       const selectedGroup = this.groups.find(group => group.id == this.worksite?.group?.id);
-      console.log('selectedGroup: ', selectedGroup);
       this.cantiereForm.get('comune')?.setValue(selectedGroup?.id);
     }
 

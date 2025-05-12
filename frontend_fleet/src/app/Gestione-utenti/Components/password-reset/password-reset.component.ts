@@ -64,7 +64,6 @@ export class PasswordResetComponent {
     const newPassword = this.passwordForm.get("newPassword")?.value;
     const passwordConfirmation = this.passwordForm.get("passwordConfirmation")?.value;
 
-    console.log('parameters to the fnct: ', this.userId, {password: newPassword});
     if(newPassword == passwordConfirmation){
       this.authService.updateUserInfoById(this.userId, {password: newPassword}).pipe(takeUntil(this.destroy$))
       .subscribe({

@@ -55,7 +55,6 @@ export class HomeLettureComponent implements OnInit, OnDestroy{
       next: (worksites: WorkSite[]) => {
         this.cantieri = worksites;
         this.cd.detectChanges();
-        console.log('home letture cantieri: ', worksites);
       },
       error: error => console.error("Errore nell'ottenere tutti i cantieri: ", error)
     });

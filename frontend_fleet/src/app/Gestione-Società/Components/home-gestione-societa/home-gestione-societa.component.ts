@@ -56,7 +56,6 @@ export class HomeGestioneSocietaComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (companies: Company[]) => {
           this.societa = companies;
-          console.log('societa fetched from home getsione: ', companies);
           this.cd.detectChanges();
         },
         error: (error) =>

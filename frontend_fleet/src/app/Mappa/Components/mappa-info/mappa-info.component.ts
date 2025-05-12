@@ -57,11 +57,9 @@ export class MappaInfoComponent implements AfterViewInit, OnDestroy{
     .subscribe({
       next: (positionData: positionData) => {
         //chiamata http x anomalie
-        console.log(`Request for anomalies for plate: ${positionData.veId} who has this plate: ${positionData.plate}`);
         this.checkErrorsService.checkAnomaliesByVeId(positionData.veId, 1).pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (vehicleAnomalies: VehicleAnomalies) => {
-            console.log('selected vehicle.service.id: ', this.selectedVehicle?.service?.id);
             this.plate = positionData.plate;
             this.cantiere = positionData.cantiere || "";
             this.setData(vehicleAnomalies);
@@ -80,7 +78,6 @@ export class MappaInfoComponent implements AfterViewInit, OnDestroy{
    * @param vehicleAnomalies oggetto da cui prendere i dati
    */
   private setData(vehicleAnomalies: VehicleAnomalies){
-    console.log("setting this vehiclesanomalies data: ", vehicleAnomalies);
     if(vehicleAnomalies){
       const vehicle = vehicleAnomalies.vehicle;
       const currentAnomaly = vehicleAnomalies.anomalies[0];

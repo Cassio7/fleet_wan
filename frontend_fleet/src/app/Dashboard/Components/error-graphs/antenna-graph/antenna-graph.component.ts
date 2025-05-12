@@ -150,19 +150,16 @@ export class AntennaGraphComponent implements OnDestroy{
    * Click sulla fetta "funzionante" del grafico
    */
   workingClick() {
-    console.log('working gps');
   }
   /**
    * Click sulla fetta "warning" del grafico
    */
   warningClick() {
-    console.log('warning gps');
   }
   /**
    * Click sulla fetta "error" del grafico
    */
   errorClick() {
-    console.log('error gps');
   }
 
   initializeGraph(vehicles: VehicleData[]) {

@@ -82,8 +82,6 @@ export class ChangeWorksiteComponent implements OnChanges{
    * @returns false se sono diversi
    */
   checkSameWorksite(){
-    console.log('worksiteId: ', this.vehicle.worksite?.id);
-    console.log('selectedId: ', this.selectedWorksite.id);
     return this.vehicle.worksite?.id == this.selectedWorksite?.id;
   }
 }

@@ -109,7 +109,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy{
       }else{
         this.lastUpdate = sessionStorageService.getItem("lastUpdate");
       }
-      console.log('lastupdate: ', this.lastUpdate);
       this.verifyCheckDay(this.lastUpdate);
       this.cd.detectChanges();
     });

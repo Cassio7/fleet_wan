@@ -79,12 +79,10 @@ export class CompanyAssociationsKanbanComponent implements AfterViewInit, OnChan
    */
   handleCompanyToAssociation(event: CdkDragDrop<any[]>) {
     const draggedCompany = event.previousContainer.data[event.previousIndex] as Company;
-    console.log('company: ', draggedCompany);
 
     this.associationsService.createAssociation(this.userId, undefined, [draggedCompany.id]).pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: {message: string, association: Association[]}) => {
-          console.log('created association: ', response.association[0]);
           //rimuove il cantiere spostato dalla lista dei cantieri
           this.associationsFreeCompanies = this.associationsFreeCompanies.filter(company => company.id !== draggedCompany.id);
           //aggiunta dell'associazione creata alla lista di associazioni

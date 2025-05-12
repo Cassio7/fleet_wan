@@ -139,7 +139,7 @@ export class RowFilterComponent implements OnInit, AfterViewInit, OnDestroy{
         this.kanbanTableService.filtersValue.set(this.filters);
         this.filtersCommonService.applyFilters$.next(this.filters);
       },
-      error: error => console.log("Errore nell'ascolto del form dei filtri: ", error)
+      error: error => console.error("Errore nell'ascolto del form dei filtri: ", error)
     });
   }
 
@@ -248,7 +248,6 @@ export class RowFilterComponent implements OnInit, AfterViewInit, OnDestroy{
     const allOptions = this.cantiereFilterService.vehiclesCantieriOnce(allData);
     const areAllSelected = allOptions.every(option => selectedCantieri.includes(option));
 
-    console.log("allOptions: ", allOptions);
     if (areAllSelected && !selectedCantieri.includes("Seleziona tutto")) {
       this.filterForm.get('cantieri')?.setValue(["Seleziona tutto", ...selectedCantieri]);
       this.allSelected = true

@@ -137,19 +137,16 @@ export class SessioneGraphComponent implements OnDestroy {
    * Click sulla fetta "funzionante" del grafico
    */
   workingClick() {
-    console.log('working gps');
   }
   /**
    * Click sulla fetta "warning" del grafico
    */
   warningClick() {
-    console.log('warning gps');
   }
   /**
    * Click sulla fetta "error" del grafico
    */
   errorClick() {
-    console.log('error gps');
   }
 
   initializeGraph(vehicles: VehicleData[]) {
@@ -179,8 +176,7 @@ export class SessioneGraphComponent implements OnDestroy {
           this.initializeGraph(vehicles);
           this.cd.detectChanges();
         },
-        error: (error) =>
-          console.error('Errore nel caricamento del grafico GPS: ', error),
+        error: (error) => console.error("Errore nel caricamento del grafico delle sessioni: ", error)
       });
     this.cd.detectChanges();
   }

@@ -86,10 +86,8 @@ private readonly destroy$: Subject<void> = new Subject<void>();
   }
 
   updateData(){
-    console.log('CHIAMTA UPDATE DATA!');
     const formValues = this.userForm.value;
 
-    console.log('formValues: ', formValues);
 
     const updatedProfileInfo: any = {
       username: formValues.username,
@@ -101,12 +99,10 @@ private readonly destroy$: Subject<void> = new Subject<void>();
       role: formValues.role
     };
 
-    console.log('updatedProfileInfo: ', updatedProfileInfo);
 
     this.profileService.saveChanges(updatedProfileInfo).pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (user: User) => {
-        console.log("Changes saved successfully!");
         this.isSaveable = false;
         this.user = user;
         openSnackbar(this.snackBar, "Cambiamenti salvati con successo!");

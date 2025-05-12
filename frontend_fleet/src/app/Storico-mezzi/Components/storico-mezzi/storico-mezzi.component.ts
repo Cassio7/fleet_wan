@@ -88,10 +88,6 @@ export class StoricoMezziComponent implements OnInit, AfterViewInit, OnDestroy{
         if(realtimeData) {
           this.positionPlate = realtimeData?.vehicle.plate;
           this.pathPlate = "";
-
-          console.log("load position arivatia");
-          console.log('positonPlate: ', this.positionPlate);
-          console.log('pathPlate: ', this.pathPlate);
         }
         this.cd.detectChanges();
       }

@@ -53,8 +53,6 @@ export class HomeCantiereEditComponent implements OnInit, OnDestroy{
             worksite.vehicle = this.sortService.sortVehiclesByPlateAsc(worksite.vehicle) as Vehicle[];
             this.cantiere = worksite;
             this.cd.detectChanges();
-            console.log('fetched worksite: ', this.cantiere);
-            console.log('worksite vehicles: ', this.cantiere.vehicle);
           },
           error: error => console.error(`Errore nell'ottenere il cantiere tramite l'id: ${error}`)
         });
@@ -68,7 +66,6 @@ export class HomeCantiereEditComponent implements OnInit, OnDestroy{
       .subscribe({
         next: (groups: Group[]) => {
           this.groups = groups;
-          console.log('groups fetched from home getsione: ', groups);
           this.cd.detectChanges();
         },
         error: (error) =>
@@ -79,7 +76,6 @@ export class HomeCantiereEditComponent implements OnInit, OnDestroy{
     .subscribe({
       next: (vehicles: Vehicle[]) => {
         this.freeVehicles = this.sortService.sortVehiclesByPlateAsc(vehicles) as Vehicle[];
-        console.log('freeVehicles fetched: ', this.freeVehicles);
         this.cd.detectChanges();
       },
       error: error => console.error("Errore nell'ottenere tutti i veicoli liberi: ", error)

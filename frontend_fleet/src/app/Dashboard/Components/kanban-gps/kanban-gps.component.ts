@@ -161,7 +161,6 @@ export class KanbanGpsComponent implements AfterViewInit, OnChanges, OnDestroy {
       .subscribe({
         next: (responseObj: any) => {
           const vehiclesData: VehicleData[] = responseObj.vehicles;
-          console.log("Last session vehiclesData fetched: ", vehiclesData);
           const lastUpdate = responseObj.lastUpdate;
           this.updateLastUpdate(lastUpdate);
           this.loadRealtimeVehicles(vehiclesData, lastUpdate);
@@ -218,7 +217,6 @@ export class KanbanGpsComponent implements AfterViewInit, OnChanges, OnDestroy {
           const realtimeVehicles: VehicleData[] = this.mergeRealtimeData(vehicles,realtimeDataObj);
           this.kanbanGpsService.setKanbanData(realtimeVehicles);
           this.gpsGraphService.loadChartData$.next(realtimeVehicles);
-          console.log("realtime vehicles set: ", realtimeVehicles);
           this.updateLastUpdate(lastUpdate);
           return realtimeVehicles;
         },

@@ -47,7 +47,6 @@ export class KanbanSessioneService {
   }
 
   filterVehiclesBySelectedAnomalyTypes(vehicles: VehicleData[], selectedAnomalies: string[]): VehicleData[] {
-    console.log('selectedAnomalies ins ervice: ', selectedAnomalies);
     const vehicleAnomalies = this.checkErrorsService.getVehiclesSessionAnomalyTypes(vehicles);
     let kanbanVehicles: VehicleData[] = [];
 
@@ -67,7 +66,6 @@ export class KanbanSessioneService {
   setKanbanData(vehicles: VehicleData[]){
     this.clearVehicles();
     const series = this.checkErrorsService.checkVehiclesSessionErrors(vehicles);//recupero dati dei veicoli controllati
-    console.log('series in set: ',series);
     this.workingVehicles = series[0];
     series[1].map(vehicle => this.addVehicle('error', vehicle));
   }
@@ -103,7 +101,6 @@ export class KanbanSessioneService {
   private addErrorVehicle(vehicle: VehicleData){
     const anomalyType = this.checkErrorsService.getVehicleSessionAnomalyType(vehicle);
 
-    console.log('anomalyType: ', anomalyType);
     if (anomalyType === "Nulla") {
       this.errorVehicles.nullVehicles.push(vehicle);
     } else if (anomalyType === "Bloccata") {
