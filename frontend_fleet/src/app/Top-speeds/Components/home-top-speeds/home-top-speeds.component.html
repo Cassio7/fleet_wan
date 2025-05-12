@@ -1,7 +1,7 @@
 <div class="content">
   <div class="section-header">
     <span class="title">Classifica dei 5 veicoli più veloci</span>
-    <span class="subtitle">Qui viene riportata una classifica delle velocità più alte nell'arco di tempo specificato</span>
+    <span class="subtitle">Qui viene riportata una classifica delle velocità più alte registrate nell'arco di tempo specificato</span>
   </div>
 
   <div class="table-content">
@@ -34,11 +34,11 @@
     </mat-chip-listbox>
     <app-top-speeds-table [speeds]="displayedSpeeds"></app-top-speeds-table>
   </div>
-  <app-podium
-    [first]="displayedSpeeds[0]?.plate || ''"
-    [second]="displayedSpeeds[1]?.plate || ''"
-    [third]="displayedSpeeds[2]?.plate || ''">
-  </app-podium>
+<app-podium
+  [first]="displayedSpeeds[0] ? displayedSpeeds[0].plate || '' : ''"
+  [second]="displayedSpeeds[1] ? displayedSpeeds[1].plate || '' : ''"
+  [third]="displayedSpeeds[2] ? displayedSpeeds[2].plate || '' : ''">
+</app-podium>
 
 
 </div>
