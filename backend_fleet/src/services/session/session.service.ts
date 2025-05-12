@@ -3,13 +3,13 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import axios from 'axios';
+import { createHash } from 'crypto';
+import Redis from 'ioredis';
 import { HistoryDTO } from 'src/classes/dtos/history.dto';
 import { SessionDTO } from 'src/classes/dtos/session.dto';
 import { HistoryEntity } from 'src/classes/entities/history.entity';
 import { SessionEntity } from 'src/classes/entities/session.entity';
 import { VehicleEntity } from 'src/classes/entities/vehicle.entity';
-import { createHash } from 'crypto';
-import Redis from 'ioredis';
 import { sameDay } from 'src/utils/utils';
 import {
   DataSource,
@@ -24,7 +24,9 @@ import { AssociationService } from '../association/association.service';
 @Injectable()
 export class SessionService {
   private serviceUrl = 'https://ws.fleetcontrol.it/FWANWs3/services/FWANSOAP';
+
   // imposta il tempo di recupero dei history, ogni quanti secondi = 3 min
+  private SPAN_POSIZIONI = this.configService.get<number>('SPAN_POSIZIONI');
 
   constructor(
     private configService: ConfigService,
@@ -37,8 +39,6 @@ export class SessionService {
     @InjectRedis() private readonly redis: Redis,
     private readonly associationService: AssociationService,
   ) {}
-
-  private SPAN_POSIZIONI = this.configService.get<number>('SPAN_POSIZIONI');
 
   // Costruisce la richiesta SOAP
   private buildSoapRequest(
@@ -72,6 +72,7 @@ export class SessionService {
    * @param veId - VeId identificativo Veicolo
    * @param dateFrom - Data inizio ricerca sessione
    * @param dateTo - Data fine ricerca sessione
+   * @param setRedis - se ho fatto la chiamata da cron, metto a true per impostare last session e last history
    * @returns
    */
   async getSessionist(
@@ -79,6 +80,7 @@ export class SessionService {
     veId: number,
     dateFrom: string,
     dateTo: string,
+    setRedis: boolean,
   ): Promise<any> {
     const methodName = 'Session';
     const requestXml = this.buildSoapRequest(
@@ -185,6 +187,8 @@ export class SessionService {
     const sessionSequenceId = filteredDataSession.map(
       (session) => session.sequence_id,
     );
+    const newSession: SessionEntity[] = [];
+    const updatedSession: Partial<SessionEntity>[] = [];
     const queryRunner = this.connection.createQueryRunner();
     try {
       await queryRunner.connect();
@@ -216,8 +220,6 @@ export class SessionService {
         sessionQueryMap.get(seqId).push(query);
       }
 
-      const newSession = [];
-      const updatedSession = [];
       for (const session of filteredDataSession) {
         const seqId = Number(session.sequence_id);
         // Ottieni tutte le sessioni con questo sequence_id (o array vuoto se non esistono)
@@ -304,63 +306,118 @@ export class SessionService {
           }
         }
       }
+      // salvo nuove sessioni
       if (newSession.length > 0) {
         await queryRunner.manager.getRepository(SessionEntity).save(newSession);
       }
+      // faccio update di sessioni
       if (updatedSession.length > 0) {
         for (const session of updatedSession) {
-          console.log(`update Session sequence ID ${session.sequence_id}`);
+          console.log(`update Sessione con sequence_id ${session.sequence_id}`);
           await queryRunner.manager
             .getRepository(SessionEntity)
             .update({ key: session.key }, session);
         }
       }
       await queryRunner.commitTransaction();
-      await queryRunner.release();
-
-      // creo array contenente l'oggetto SessionEnity necessario per relazione database e la lista di history relativa ad esso
-      const sessionArray = [];
-      for (const session of filteredDataSession) {
-        const sessionquery = await this.getSessionByHash(session.hash);
-        if (sessionquery) {
-          // evita di inserire un solo oggetto e non un array nel caso session.lists abbia soltanto 1 elemento, evita problemi del .map sotto
-          const sessionHistory = Array.isArray(session.lists)
-            ? session.lists
-            : [session.lists];
-          sessionArray.push({
-            sessionquery: sessionquery,
-            sessionLists: sessionHistory,
-          });
-        }
-      }
-
-      await this.setHistory(veId, sessionArray);
-      return sessionArray;
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      await queryRunner.release();
       console.error('Errore nella richiesta SOAP:', error);
+    } finally {
+      await queryRunner.release();
     }
+
+    // creo array contenente l'oggetto SessionEnity necessario per relazione database e la lista di history relativa ad esso
+    const sessionArray: { sessionquery: SessionEntity; sessionLists: any }[] =
+      [];
+    // Recupero e passo al setHistory soltanto le sessioni nuove oppure quelle con update eseguito
+    const sessionHashMap = new Map<string, any>();
+
+    filteredDataSession.forEach((session) => {
+      sessionHashMap.set(session.hash, session);
+    });
+
+    // salvo nuove sessioni e rispettive posizioni
+    for (const session of newSession) {
+      const exist = sessionHashMap.get(session.hash);
+      if (!exist) continue;
+      const sessionHistory = Array.isArray(exist.lists)
+        ? exist.lists
+        : [exist.lists];
+      sessionArray.push({
+        sessionquery: session,
+        sessionLists: sessionHistory,
+      });
+    }
+    // ricerco sessioni update tramite hash e aggrego rispettiva lista posizioni
+    for (const session of updatedSession) {
+      const sessionquery = await this.getSessionByHash(session.hash);
+      if (!sessionquery) continue;
+      const exist = sessionHashMap.get(session.hash);
+      if (!exist) continue;
+
+      // evita di inserire un solo oggetto e non un array nel caso session.lists abbia soltanto 1 elemento, evita problemi del .map sotto
+      const sessionHistory = Array.isArray(exist.lists)
+        ? exist.lists
+        : [exist.lists];
+      sessionArray.push({
+        sessionquery: sessionquery,
+        sessionLists: sessionHistory,
+      });
+    }
+
+    // se sta a true allora voglio impostare su redis l'ultima sessione valida
+    if (setRedis) {
+      // la sessione con sequence_id maggiore viene inserita su redis, filtrando quelle a 0
+      const lastSession = sessionArray
+        .filter((item) => Number(item.sessionquery.sequence_id) !== 0)
+        .reduce(
+          (max, item) => {
+            return !max ||
+              Number(item.sessionquery.sequence_id) >
+                Number(max.sessionquery.sequence_id)
+              ? item
+              : max;
+          },
+          null as (typeof sessionArray)[number] | null,
+        );
+      if (lastSession) {
+        const key = `lastValidSession:${veId}`;
+        const data = {
+          key: lastSession.sessionquery.key,
+          period_to: lastSession.sessionquery.period_to,
+          veid: veId,
+        };
+        await this.redis.set(key, JSON.stringify(data));
+      }
+    }
+
+    await this.setHistory(veId, sessionArray, setRedis);
+    return sessionArray;
   }
 
   /**
    * Inserisce tutti gli history presenti associati ad una determinata sessione
    * @param veId VeId identificativo Veicolo
    * @param sessionArray
+   * @param setRedis - se ho fatto la chiamata da cron, metto a true per impostare last session e last history
    * @returns
    */
-  private async setHistory(veId, sessionArray): Promise<boolean> {
+  private async setHistory(
+    veId: number,
+    sessionArray: { sessionquery: SessionEntity; sessionLists: any }[],
+    setRedis: boolean,
+  ): Promise<boolean> {
+    if (!sessionArray || sessionArray.length === 0) return false; // se item.list non esiste, salto elemento
+
+    // nuovi posizioni salvate nel db
+    let newHistoriesdb: HistoryEntity[] = [];
     const queryRunner = this.connection.createQueryRunner();
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
-      // Estrarre i dati necessari dall'oggetto JSON risultante
 
-      if (!sessionArray) {
-        await queryRunner.rollbackTransaction();
-        await queryRunner.release();
-        return false; // se item.list non esiste, salto elemento
-      }
+      // Estrarre i dati necessari dall'oggetto JSON risultante
       const hashHistory = (history: any): string => {
         const toHash = {
           timestamp: history.timestamp,
@@ -380,6 +437,8 @@ export class SessionService {
           .update(JSON.stringify(toHash))
           .digest('hex');
       };
+      const newHistories: Partial<HistoryEntity>[] = [];
+
       for (const historysession of sessionArray) {
         // controllo nel caso ci sia soltanto 1 history per una sessione
         let lastSavedTimestamp: number | null = null;
@@ -440,32 +499,34 @@ export class SessionService {
 
         const historyHashes = cleanedDataHistory.map((history) => history.hash);
 
-        // Esegui una query per ottenere tutte le sessioni con hash corrispondenti
+        // Esegui una query per ottenere tutte le posizioni con hash corrispondenti
         const existingHistories = await queryRunner.manager
           .getRepository(HistoryEntity)
           .find({
             where: { hash: In(historyHashes) },
           });
-        // Crea una mappa per abbinare gli hash alle sessioni restituite dalla query
+        // Crea una mappa per abbinare gli hash alle posizioni restituite dalla query
         const existingHistoryMap = new Map(
           existingHistories.map((history) => [history.hash, history]),
         );
 
         // salvo soltanto le history di cui non trovo hash e dove la lunghezza no 0
-        const newHistories = cleanedDataHistory
-          .filter(
-            (history) =>
-              history.length !== 0 && !existingHistoryMap.has(history.hash),
-          )
-          .map((history) =>
-            queryRunner.manager.getRepository(HistoryEntity).create({
+        const filteredHistories = cleanedDataHistory.filter(
+          (history) =>
+            history.length !== 0 && !existingHistoryMap.has(history.hash),
+        );
+
+        for (const history of filteredHistories) {
+          const newHistory = queryRunner.manager
+            .getRepository(HistoryEntity)
+            .create({
               timestamp: history.timestamp,
               status: history.status,
-              latitude: history.latitude,
-              longitude: history.longitude,
+              latitude: parseFloat(history.latitude),
+              longitude: parseFloat(history.longitude),
               nav_mode: history.nav_mode,
-              speed: history.speed,
-              direction: history.direction,
+              speed: parseFloat(history.speed),
+              direction: parseFloat(history.direction),
               tot_distance: history.tot_distance,
               tot_consumption: history.tot_consumption,
               fuel: history.fuel,
@@ -473,23 +534,57 @@ export class SessionService {
               vehicle: vehicleQuery,
               session: historysession.sessionquery,
               hash: history.hash,
-            }),
-          );
-
-        if (newHistories.length > 0) {
-          await queryRunner.manager
-            .getRepository(HistoryEntity)
-            .save(newHistories);
+            });
+          // le inserisco in un array per creazione massiva
+          newHistories.push(newHistory);
         }
       }
+      // salvo tutte le nuove posizioni
+      if (newHistories.length > 0) {
+        newHistoriesdb = await queryRunner.manager
+          .getRepository(HistoryEntity)
+          .save(newHistories);
+      }
       await queryRunner.commitTransaction();
-      await queryRunner.release();
-      return true;
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      await queryRunner.release();
       console.error('Errore nella richiesta SOAP:', error);
+    } finally {
+      await queryRunner.release();
     }
+
+    // se non ho salvato nulla skip
+    if (!newHistoriesdb || newHistoriesdb.length === 0) return false;
+    try {
+      if (setRedis) {
+        // prendo la posizione con il timestamp maggiore, posizione più recente
+        const lastHistory = newHistoriesdb.reduce((latest, current) => {
+          return new Date(current.timestamp) > new Date(latest.timestamp)
+            ? current
+            : latest;
+        });
+
+        const data = {
+          id: lastHistory.id,
+          timestamp: lastHistory.timestamp,
+          latitude: lastHistory.latitude,
+          longitude: lastHistory.longitude,
+          direction: lastHistory.direction,
+          speed: lastHistory.speed,
+          veid: veId,
+        };
+        // la salvo su redis
+        const key = `lastHistory:${veId}`;
+        await this.redis.set(key, JSON.stringify(data));
+      }
+    } catch (error) {
+      console.error(
+        `Errore durante il salvataggio su Redis per veId ${veId}:`,
+        error,
+      );
+    }
+
+    return true;
   }
 
   /**
