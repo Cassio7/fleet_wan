@@ -75,7 +75,7 @@ export class SessionTableComponent implements OnInit, OnChanges, AfterViewInit, 
   @ViewChild('sessionsTable') sessionsTable!: MatTable<Session>;
 
   @Input() vehicle!: Vehicle;
-  @Input() dataUpdate!: Signal<number>;
+  @Input() dataUpdate!: Signal<number>; //per ascoltare evento di aggiornare i dati proveniente dal parent component
 
   sessionsTableData = new MatTableDataSource<Session>();
   anomaliesTableData = new MatTableDataSource<Anomaly>();
@@ -124,8 +124,10 @@ export class SessionTableComponent implements OnInit, OnChanges, AfterViewInit, 
     private cd: ChangeDetectorRef
   ) {
     effect(() => {
-      const updateNumber = this.dataUpdate();
-      this.updateData();
+      if(this.dataUpdate){
+        const updateNumber = this.dataUpdate(); //per triggerare l'effect
+        this.updateData();
+      }
     });
   }
 

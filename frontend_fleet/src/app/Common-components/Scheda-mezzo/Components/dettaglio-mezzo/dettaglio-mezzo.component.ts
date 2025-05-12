@@ -61,7 +61,7 @@ export class DettaglioMezzoComponent implements OnInit, OnDestroy {
   stats!: Stats;
   previous_url: string | null = '/dashboard';
   goBack_text: string = 'Torna alla dashboard';
-  dataUpdate = signal(0);
+  dataUpdate = signal(0); //per notificare la session table di aggiornare i propri dati
 
   ngOnDestroy(): void {
     this.destroy$.next();
