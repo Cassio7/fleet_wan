@@ -1,13 +1,15 @@
+import { InjectRedis } from '@nestjs-modules/ioredis';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import axios from 'axios';
+import { createHash } from 'crypto';
+import Redis from 'ioredis';
 import { TagDTO } from 'src/classes/dtos/tag.dto';
 import { DetectionTagEntity } from 'src/classes/entities/detection_tag.entity';
 import { TagEntity } from 'src/classes/entities/tag.entity';
 import { TagHistoryEntity } from 'src/classes/entities/tag_history.entity';
 import { VehicleEntity } from 'src/classes/entities/vehicle.entity';
 import { WorksiteEntity } from 'src/classes/entities/worksite.entity';
-import { createHash } from 'crypto';
 import { Between, DataSource, In, Repository } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
 import { AssociationService } from '../association/association.service';
@@ -23,8 +25,18 @@ export class TagService {
     @InjectDataSource('mainConnection')
     private readonly connection: DataSource,
     private readonly associationService: AssociationService,
+    @InjectRedis() private readonly redis: Redis,
   ) {}
-  // Costruisce la richiesta SOAP
+
+  /**
+   * Costruisce la richiesta SOAP
+   * @param methodName nome del metodo
+   * @param suId Identificativo società
+   * @param veId Identificativo veicolo
+   * @param dateFrom data inizio ricerca
+   * @param dateTo data fine ricerca
+   * @returns
+   */
   private buildSoapRequest(
     methodName: string,
     suId: number,
@@ -47,12 +59,23 @@ export class TagService {
         </soapenv:Body>
       </soapenv:Envelope>`;
   }
+
+  /**
+   * Funzione che fa chiamata al WSDL per il recupero dei tag, in base hai parametri passati
+   * @param suId Identificativo società
+   * @param veId Identificativo veicolo
+   * @param dateFrom data inizio ricerca
+   * @param dateTo data fine ricerca
+   * @param setRedis booleano per impostare ultimo tag su redis e controllo
+   * @returns
+   */
   async putTagHistory(
     suId: number,
     veId: number,
     dateFrom: string,
     dateTo: string,
-  ): Promise<any> {
+    setRedis: boolean,
+  ): Promise<boolean> {
     const methodName = 'TagHistory';
     const requestXml = this.buildSoapRequest(
       methodName,
@@ -91,6 +114,7 @@ export class TagService {
         );
       }
     }
+    // hash dell'oggetto
     const hashTagHistoryCrypt = (tag_history: any): string => {
       const toHash = {
         timestamp: tag_history.timestamp,
@@ -120,6 +144,7 @@ export class TagService {
     if (!lists) return false;
 
     const tagHistoryLists = Array.isArray(lists) ? lists : [lists];
+    // ciclo tutti gli elementi e richiamo hash
     const filteredDataTagHistory = tagHistoryLists.map((item: any) => {
       const hash = hashTagHistoryCrypt(item);
       return {
@@ -133,16 +158,29 @@ export class TagService {
         hash: hash,
       };
     });
+    // true faccio il controllo ultimo tag letto, vale soltanto se la chiamata arriva dal Cron
+    if (setRedis) {
+      const key = `lastTagHistory:${veId}`;
+      const lastTagHistoryRedis = await this.redis.get(key);
+      // se ultimo tag in arrivo ha stesso hash di quello salvato salto inserimento
+      if (lastTagHistoryRedis === filteredDataTagHistory[0].hash) return;
+    }
 
+    // creo un array di hash
     const hashTagHistory = filteredDataTagHistory.map(
       (tag_history) => tag_history.hash,
     );
+    const tagHistoryArray: {
+      tagHistory: TagHistoryEntity;
+      tagHistoryData: any;
+    }[] = [];
 
     const queryRunner = this.connection.createQueryRunner();
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
 
+      // recupero dal db tutti le righe con stesso hash, se sono presenti non devo inserire nuovamente
       const tagHistoryQueries = await queryRunner.manager
         .getRepository(TagHistoryEntity)
         .find({
@@ -152,48 +190,58 @@ export class TagService {
           },
           where: { hash: In(hashTagHistory) },
         });
+
+      // se il numero di tag in arrivo è uguale al numero nel db allora non inserisco nulla
+      if (filteredDataTagHistory.length === tagHistoryQueries.length) {
+        await queryRunner.commitTransaction();
+        return;
+      }
       const tagHistoryQueryMap = new Map(
         tagHistoryQueries.map((query) => [query.hash, query]),
       );
+      // recupero veicolo
       const vehicle = await queryRunner.manager
         .getRepository(VehicleEntity)
         .findOne({
           where: { veId: veId },
         });
-      const newTagHistoryMap = new Map<string, TagHistoryEntity>();
-      const newTagHistory = [];
+      const newTagHistory: TagHistoryEntity[] = [];
+      // ciclo tutti gli elementi in arrivo
       for (const tagHistory of filteredDataTagHistory) {
         const exists = tagHistoryQueryMap.get(tagHistory.hash);
+        // se non esiste l'hash lo inserisco
         if (!exists) {
-          const newTagHistoryOne = await queryRunner.manager
+          const newTagHistoryOne = queryRunner.manager
             .getRepository(TagHistoryEntity)
             .create({
               timestamp: tagHistory.timestamp,
-              latitude: tagHistory.latitude,
-              longitude: tagHistory.longitude,
+              latitude: parseFloat(tagHistory.latitude),
+              longitude: parseFloat(tagHistory.longitude),
               geozone: tagHistory.geozone,
               nav_mode: tagHistory.nav_mode,
               vehicle: vehicle,
               hash: tagHistory.hash,
             });
           newTagHistory.push(newTagHistoryOne);
-          newTagHistoryMap.set(tagHistory.hash, newTagHistoryOne);
         }
       }
-      const tagHistoryArray = [];
+      // se ho trovato nuovi inserimenti li salvo massivamente
       if (newTagHistory.length > 0) {
-        await queryRunner.manager
+        const newTagHistoryDB = await queryRunner.manager
           .getRepository(TagHistoryEntity)
           .save(newTagHistory);
-
-        for (const tagHistory of filteredDataTagHistory) {
-          const tagHistoryEntity = newTagHistoryMap.get(tagHistory.hash);
+        const filteredDataMap = new Map(
+          filteredDataTagHistory.map((t) => [t.hash, t]),
+        );
+        // creo un oggetto che comprende l'oggetto del db tagHistory e il rispettivo list in arrivo
+        for (const tagHistory of newTagHistoryDB) {
+          const tagHistoryEntity = filteredDataMap.get(tagHistory.hash);
           if (tagHistoryEntity) {
-            const tagHistoryData = Array.isArray(tagHistory.list)
-              ? tagHistory.list
-              : [tagHistory.list];
+            const tagHistoryData = Array.isArray(tagHistoryEntity.list)
+              ? tagHistoryEntity.list
+              : [tagHistoryEntity.list];
             tagHistoryArray.push({
-              tagHistory: tagHistoryEntity,
+              tagHistory: tagHistory,
               tagHistoryData: tagHistoryData,
             });
           }
@@ -201,18 +249,43 @@ export class TagService {
       }
 
       await queryRunner.commitTransaction();
-      await this.setTag(tagHistoryArray);
-      return lists;
     } catch (error) {
       await queryRunner.rollbackTransaction();
       console.error('Errore nella richiesta SOAP:', error);
     } finally {
       await queryRunner.release();
     }
+    // se array vuoto per qualche motivo skip
+    if (!tagHistoryArray || tagHistoryArray.length === 0) return;
+    // se true imposta hash dell'ultimo tag su redis
+    if (setRedis) {
+      try {
+        const key = `lastTagHistory:${veId}`;
+        const lastTagRedis = tagHistoryArray[0]?.tagHistory;
+        await this.redis.set(key, lastTagRedis.hash);
+      } catch (error) {
+        console.log(
+          `Errore inserimento lastTagHistory su redis del veid: ${veId}`,
+          error,
+        );
+      }
+    }
+
+    await this.setTag(tagHistoryArray);
   }
 
-  private async setTag(tagHistoryArray: any): Promise<void> {
-    if (!tagHistoryArray) return;
+  /**
+   * Inserimento nel db dei tag e relativi detection entity
+   * @param tagHistoryArray
+   * @returns
+   */
+  private async setTag(
+    tagHistoryArray: {
+      tagHistory: TagHistoryEntity;
+      tagHistoryData: any;
+    }[],
+  ): Promise<void> {
+    if (!tagHistoryArray || tagHistoryArray.length === 0) return;
 
     const queryRunner = this.connection.createQueryRunner();
 
@@ -220,7 +293,9 @@ export class TagService {
       await queryRunner.connect();
       await queryRunner.startTransaction();
 
+      // ciclo tutti elementi
       for (const tagList of tagHistoryArray) {
+        // recupero la lista di epc letti con detection quality
         const filteredTag = tagList.tagHistoryData
           .filter((item: any) => item)
           .map((item: any) => ({
@@ -228,30 +303,33 @@ export class TagService {
             tid: item['tid'],
             detection_quality: item['detectionQuality'],
           }));
-        const epc = filteredTag.map((tag) => tag.epc);
+        // array di epc per ricerca db
+        const epc: string[] = filteredTag.map((tag) => tag.epc);
         const tagQuery = await queryRunner.manager
           .getRepository(TagEntity)
           .find({
             where: { epc: In(epc) },
           });
+        // creo mappa di epc e oggetto TagEntity
         const tagQueryMap = new Map(
           tagQuery.map((query) => [query.epc, query]),
         );
-        const newTags = [];
+        const newTags: TagEntity[] = [];
+        // controllo se i tag esistono nel db, in caso contrario li creo
         for (const tag of filteredTag) {
           if (!tagQueryMap.has(tag.epc)) {
-            const newTag = await queryRunner.manager
-              .getRepository(TagEntity)
-              .create({
-                epc: tag.epc,
-              });
+            const newTag = queryRunner.manager.getRepository(TagEntity).create({
+              epc: tag.epc,
+            });
             newTags.push(newTag);
             tagQueryMap.set(tag.epc, newTag);
           }
         }
+        // salvo
         if (newTags.length > 0) {
           await queryRunner.manager.getRepository(TagEntity).save(newTags);
         }
+        // creo oggetto DetectionTagEntity per definire la relazione tra Tag e TagHistory
         const newDetections = filteredTag.map((tag) => {
           return queryRunner.manager.getRepository(DetectionTagEntity).create({
             tid: tag.tid,
@@ -260,6 +338,7 @@ export class TagService {
             tagHistory: tagList.tagHistory,
           });
         });
+        // salvo
         if (newDetections.length > 0) {
           await queryRunner.manager
             .getRepository(DetectionTagEntity)
