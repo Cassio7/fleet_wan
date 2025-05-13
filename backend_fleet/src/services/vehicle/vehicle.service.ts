@@ -1,6 +1,9 @@
+import { InjectRedis } from '@nestjs-modules/ioredis';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import axios, { AxiosResponse } from 'axios';
+import { createHash } from 'crypto';
+import Redis from 'ioredis';
 import { CompanyDTO } from 'src/classes/dtos/company.dto';
 import { DeviceDTO } from 'src/classes/dtos/device.dto';
 import { EquipmentDTO } from 'src/classes/dtos/equipment.dto';
@@ -14,14 +17,11 @@ import { EquipmentEntity } from 'src/classes/entities/equipment.entity';
 import { RentalEntity } from 'src/classes/entities/rental.entity';
 import { ServiceEntity } from 'src/classes/entities/service.entity';
 import { VehicleEntity } from 'src/classes/entities/vehicle.entity';
-import { createHash } from 'crypto';
 import { NotificationsService } from 'src/notifications/notifications.service';
 import { DataSource, In, IsNull, Not, Repository } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
-import { AssociationService } from '../association/association.service';
 import { WorksiteDTO } from '../../classes/dtos/worksite.dto';
-import Redis from 'ioredis';
-import { InjectRedis } from '@nestjs-modules/ioredis';
+import { AssociationService } from '../association/association.service';
 
 @Injectable()
 export class VehicleService {
@@ -43,7 +43,13 @@ export class VehicleService {
     @InjectRedis() private readonly redis: Redis,
   ) {}
 
-  // Prepara la richiesta SOAP
+  /**
+   * Prepara la richiesta SOAP
+   * @param methodName nome del metodo
+   * @param suId identificativo società
+   * @param vgId identificativo gruppo/comune per noi
+   * @returns
+   */
   private buildSoapRequest(
     methodName: string,
     suId: number,
@@ -67,6 +73,7 @@ export class VehicleService {
    * Crea richiesta SOAP e inserisce nel database i veicoli e dispositivi con le funzioni sotto
    * @param suId Identificativo società
    * @param vgId Identificativo gruppo
+   * @param first Specifica se è il primo ciclo di inserimento dati
    * @returns
    */
   async getVehicleList(
@@ -126,6 +133,7 @@ export class VehicleService {
       throw new Error('Errore durante la richiesta al servizio SOAP');
     }
   }
+
   /**
    * Inserisce tutti i veicoli nuovi nel database ed aggiorna quelli esistenti
    * @param lists lista dei veicoli
