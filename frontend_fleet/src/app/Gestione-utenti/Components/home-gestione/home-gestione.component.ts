@@ -11,6 +11,8 @@ import { openSnackbar } from '../../../Utils/snackbar';
 import { GestioneFiltersComponent } from "../gestione-filters/gestione-filters.component";
 import { UtentiCreateDialogComponent } from '../utenti-create-dialog/utenti-create-dialog.component';
 import { UtentiTableComponent } from "../utenti-table/utenti-table.component";
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { FormsModule } from '@angular/forms';
 
 export interface DialogData {
   animal: string;
@@ -19,7 +21,15 @@ export interface DialogData {
 @Component({
   selector: 'app-home-gestione',
   standalone: true,
-  imports: [CommonModule, MatIconModule, MatSnackBarModule, MatButtonModule, UtentiTableComponent, GestioneFiltersComponent],
+  imports: [
+    CommonModule,
+    MatIconModule,
+    MatSnackBarModule,
+    MatButtonModule,
+    MatSlideToggleModule,
+    FormsModule,
+    UtentiTableComponent,
+    GestioneFiltersComponent],
   templateUrl: './home-gestione.component.html',
   styleUrl: './home-gestione.component.css'
 })
@@ -27,6 +37,7 @@ export class HomeGestioneComponent implements OnInit, OnDestroy{
   private readonly destroy$: Subject<void> = new Subject<void>();
   users: User[] = [];
   snackBar = inject(MatSnackBar);
+  eliminatedVisibile: boolean = false;
 
   constructor(private authService: AuthService, private cd: ChangeDetectorRef){}
 

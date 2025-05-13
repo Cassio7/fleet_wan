@@ -6,6 +6,7 @@ import {
   EventEmitter,
   inject,
   Input,
+  model,
   Output,
   SimpleChanges,
   ViewChild,
@@ -65,8 +66,9 @@ export class UtentiTableComponent implements AfterViewInit {
   ];
   utentiTableData = new MatTableDataSource<User>();
   private snackBar = inject(MatSnackBar);
-  @Input() users!: User[];
-  @Output() usersChange = new EventEmitter<User[]>();
+  users = model<User[]>([]);
+
+  @Input() eliminatedVisible: boolean = false;
 
   constructor(
     private gestioneService: GestioneService,
@@ -74,15 +76,22 @@ export class UtentiTableComponent implements AfterViewInit {
     private cd: ChangeDetectorRef,
     private router: Router
   ) {}
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['users']) {
-      this.utentiTableData.data = this.users;
+      this.utentiTableData.data = this.eliminatedVisible ? this.users() : this.users().filter(user => !user.deletedAt);
+    }
+    if(changes['eliminatedVisible']){
+      if(this.eliminatedVisible)
+        this.showEliminatedUsers();
+      else
+        this.hideEliminatedUsers();
     }
   }
 
   ngAfterViewInit(): void {
     setTimeout(() => {
-      this.utentiTableData.data = this.users;
+      this.utentiTableData.data = this.users().filter(user => !user.deletedAt);
 
       this.utentiTableData.sort = this.sort;
 
@@ -95,7 +104,7 @@ export class UtentiTableComponent implements AfterViewInit {
         if (gestoneFilters) {
           this.utentiTableData.data =
             this.gestioneService.filterUsersByUsernameResearchAndRoles(
-              this.users,
+              this.users(),
               gestoneFilters
             );
         }
@@ -136,14 +145,14 @@ export class UtentiTableComponent implements AfterViewInit {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          this.users = this.users.map((user) => {
+          this.users.set(this.users().map((user) => {
             if (user.id === userId) {
               return { ...user, active: false } as User;
             }
             return user;
-          });
+          }));
 
-          this.utentiTableData.data = this.users;
+          this.utentiTableData.data = this.users();
 
           openSnackbar(this.snackBar, `Utente ${user.username} disabilitato`);
         },
@@ -152,6 +161,20 @@ export class UtentiTableComponent implements AfterViewInit {
             `Errore nella cancellazione dell'utente con id ${userId}: ${error}`
           ),
       });
+  }
+
+  /**
+   * Mostra anche gli utenti eliminati
+   */
+  showEliminatedUsers(){
+    this.utentiTableData.data = this.users();
+  }
+
+  /**
+   * Nasconde gli utenti eliminati
+   */
+  hideEliminatedUsers(){
+    this.utentiTableData.data = this.users().filter(user => !user.deletedAt);
   }
 
   /**
@@ -165,16 +188,14 @@ export class UtentiTableComponent implements AfterViewInit {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          this.users = this.users.map((user) => {
+          this.users.set(this.users().map((user) => {
             if (user.id === userId) {
               return { ...user, active: true } as User;
             }
             return user;
-          });
+          }));
 
-          this.usersChange.emit(this.users);
-
-          this.utentiTableData.data = this.users;
+          this.utentiTableData.data = this.users();
 
           openSnackbar(this.snackBar, `Utente ${user.username} abilitato`);
         },
@@ -206,9 +227,8 @@ export class UtentiTableComponent implements AfterViewInit {
             .pipe(takeUntil(this.destroy$))
             .subscribe({
               next: () => {
-                this.users = this.users.filter((user) => user.id != userId);
-                this.utentiTableData.data = this.users;
-                this.usersChange.emit(this.users);
+                this.users.set(this.users().filter((user) => user.id != userId));
+                this.utentiTableData.data = this.users();
                 openSnackbar(this.snackBar, `Utente ${user.username} eliminato`);
               },
               error: (error) =>

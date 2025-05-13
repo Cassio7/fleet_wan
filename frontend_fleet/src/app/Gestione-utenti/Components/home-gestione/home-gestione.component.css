@@ -17,7 +17,14 @@
 
 .filters{
   width: 100%;
-  display: flex;
+  display: inline-flex;
   justify-content: flex-start;
 }
 
+::ng-deep .mat-mdc-slide-toggle.mat-mdc-slide-toggle-checked:not(.mat-disabled) .mdc-switch__shadow {
+  background-color: white !important;
+}
+
+::ng-deep .mat-mdc-slide-toggle.mat-mdc-slide-toggle-checked:not(.mat-disabled) .mdc-switch__track::after {
+  background-color: var(--green) !important;
+}
