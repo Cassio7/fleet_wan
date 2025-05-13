@@ -37,7 +37,7 @@ export class MappaInfoComponent implements AfterViewInit, OnDestroy{
   antennaAnomaly!: string;
   sessioneAnomaly!: string;
   anomalyDate!: Date | null;
-  selectedVehicle!: Vehicle;
+  selectedVehicle!: Vehicle | undefined;
 
   constructor(
     public svgService: SvgService,
@@ -78,17 +78,15 @@ export class MappaInfoComponent implements AfterViewInit, OnDestroy{
    * @param vehicleAnomalies oggetto da cui prendere i dati
    */
   private setData(vehicleAnomalies: VehicleAnomalies){
-    if(vehicleAnomalies){
-      const vehicle = vehicleAnomalies.vehicle;
-      const currentAnomaly = vehicleAnomalies.anomalies[0];
-      this.selectedVehicle = vehicleAnomalies.vehicle;
-      this.veId = vehicle.veId;
+      const vehicle = vehicleAnomalies?.vehicle;
+      const currentAnomaly = vehicleAnomalies?.anomalies[0];
+      this.selectedVehicle = vehicleAnomalies?.vehicle;
+      this.veId = vehicle?.veId;
       this.servizio = vehicle?.service?.name || "";
-      this.gpsAnomaly = currentAnomaly.gps || "";
-      this.antennaAnomaly = currentAnomaly.antenna || "";
-      this.sessioneAnomaly = currentAnomaly.session || "";
-      this.anomalyDate = currentAnomaly.date;
-    }
+      this.gpsAnomaly = currentAnomaly?.gps || "";
+      this.antennaAnomaly = currentAnomaly?.antenna || "";
+      this.sessioneAnomaly = currentAnomaly?.session || "";
+      this.anomalyDate = currentAnomaly?.date;
   }
 
   /**

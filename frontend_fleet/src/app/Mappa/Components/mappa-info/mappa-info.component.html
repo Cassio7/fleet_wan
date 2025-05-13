@@ -1,7 +1,7 @@
 <div class="content">
   <div class="title-container">
     <p class="title"><img
-      [src]="selectedVehicle && selectedVehicle.service && selectedVehicle.service.id ? svgService.getServiceIcon(selectedVehicle.service.id) : ''"
+      [src]="svgService.getServiceIcon(selectedVehicle?.service?.id || 0)"
       alt="Service Icon"
       width="28"
       height="28"
