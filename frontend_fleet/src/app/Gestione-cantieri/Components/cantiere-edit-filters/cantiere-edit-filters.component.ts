@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, model, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -21,14 +21,12 @@ import { WorkSite } from '../../../Models/Worksite';
 export class CantiereEditFiltersComponent {
   plate: string = "";
 
-  @Input() cantiere!: WorkSite;
-  @Output() cantiereChange: EventEmitter<WorkSite> = new EventEmitter<WorkSite>();
+  cantiere = model<WorkSite>();
   @Output() plateResearch: EventEmitter<string> = new EventEmitter<string>();
 
   constructor(private plateFilterService: PlateFilterService){}
 
   searchPlate() {
-    this.cantiereChange.emit(this.cantiere);
     this.plateResearch.emit(this.plate);
   }
 }

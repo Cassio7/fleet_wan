@@ -5,6 +5,7 @@ import {
   EventEmitter,
   inject,
   Input,
+  model,
   OnDestroy,
   Output,
   SimpleChanges,
@@ -57,10 +58,7 @@ export class SocietaTableComponent implements AfterViewInit, OnDestroy {
     'Azioni',
   ];
   societaTableData = new MatTableDataSource<Company>();
-  @Input() societa: Company[] = [];
-  @Output() societaChange: EventEmitter<Company[]> = new EventEmitter<
-    Company[]
-  >();
+  societa = model<Company[]>([]);
 
   constructor(
     private gestioneSocietaService: GestioneSocietaService,
@@ -70,7 +68,7 @@ export class SocietaTableComponent implements AfterViewInit, OnDestroy {
     effect(() => {
       const selectedSocieta =
         this.gestioneSocietaService.societaFilter() as string[];
-      this.societaTableData.data = this.societa.filter((soci: Company) =>
+      this.societaTableData.data = this.societa().filter((soci: Company) =>
         selectedSocieta.includes(soci.name)
       );
     });
@@ -83,12 +81,12 @@ export class SocietaTableComponent implements AfterViewInit, OnDestroy {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['societa']) {
-      this.societaTableData.data = this.societa;
+      this.societaTableData.data = this.societa();
     }
   }
 
   ngAfterViewInit(): void {
-    this.societaTableData.data = this.societa;
+    this.societaTableData.data = this.societa();
     this.societaTable.renderRows();
   }
 
@@ -115,11 +113,10 @@ export class SocietaTableComponent implements AfterViewInit, OnDestroy {
           .subscribe({
             next: () => {
               if (result) {
-                this.societa = this.societa.filter(
+                this.societa.set(this.societa().filter(
                   (societa) => societa.id != companyId
-                );
-                this.societaTableData.data = this.societa;
-                this.societaChange.emit(this.societa);
+                ));
+                this.societaTableData.data = this.societa();
                 openSnackbar(this.snackBar, `Società ${company.name} eliminata`);
               } else {
                 openSnackbar(this.snackBar,

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, effect, EventEmitter, inject, Input, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, effect, EventEmitter, inject, Input, model, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -36,8 +36,7 @@ export class CantieriTableComponent implements AfterViewInit, OnDestroy, OnChang
   snackBar= inject(MatSnackBar);
   displayedColumns: string[] = ['Cantiere', 'Comune', 'Societa', 'Veicoli associati', 'Azioni'];
   cantieriTableData = new MatTableDataSource<WorkSite>();
-  @Input() cantieri: WorkSite[] = [];
-  @Output() cantieriChange: EventEmitter<WorkSite[]> = new EventEmitter<WorkSite[]>();
+  cantieri = model<WorkSite[]>([]);
 
   constructor(
     private gestioneCantieriService: GestioneCantieriService,
@@ -46,7 +45,7 @@ export class CantieriTableComponent implements AfterViewInit, OnDestroy, OnChang
   ){
     effect(() => {
       const selectedCantieri = this.gestioneCantieriService.cantieriFilter() as string[];
-      this.cantieriTableData.data = this.cantieri.filter((cantiere: WorkSite) => selectedCantieri.includes(cantiere.name));
+      this.cantieriTableData.data = this.cantieri().filter((cantiere: WorkSite) => selectedCantieri.includes(cantiere.name));
     });
   }
 
@@ -57,13 +56,13 @@ export class CantieriTableComponent implements AfterViewInit, OnDestroy, OnChang
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['cantieri']) {
-      this.cantieriTableData.data = this.cantieri;
+      this.cantieriTableData.data = this.cantieri();
     }
   }
 
 
   ngAfterViewInit(): void {
-    this.cantieriTableData.data = this.cantieri;
+    this.cantieriTableData.data = this.cantieri();
     this.cantieriTable.renderRows();
   }
 
@@ -92,9 +91,8 @@ export class CantieriTableComponent implements AfterViewInit, OnDestroy, OnChang
         this.gestioneCantieriService.deleteWorksiteById(worksiteId).pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
-            this.cantieri = this.cantieri.filter(cantiere => cantiere.id != worksiteId);
-            this.cantieriTableData.data = this.cantieri;
-            this.cantieriChange.emit(this.cantieri);
+            this.cantieri.set(this.cantieri().filter(cantiere => cantiere.id != worksiteId));
+            this.cantieriTableData.data = this.cantieri();
             openSnackbar(this.snackBar, `cantiere ${cantiere.name} eliminato`)
           },
           error: error => console.error("Errore nella cancellazione del cantiere: ", error)

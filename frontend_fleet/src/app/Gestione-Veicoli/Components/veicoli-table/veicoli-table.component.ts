@@ -5,6 +5,7 @@ import {
   EventEmitter,
   inject,
   Input,
+  model,
   Output,
   SimpleChanges,
   ViewChild,
@@ -65,10 +66,7 @@ export class VeicoliTableComponent {
     'Azioni',
   ];
   veicoliTableData = new MatTableDataSource<Vehicle>();
-  @Input() veicoli: Vehicle[] = [];
-  @Output() veicoliChange: EventEmitter<Vehicle[]> = new EventEmitter<
-    Vehicle[]
-  >();
+  veicoli = model<Vehicle[]>([]);
 
   private filters: Filters = {
     plate: '',
@@ -96,7 +94,7 @@ export class VeicoliTableComponent {
 
         this.veicoliTableData.data =
           this.filtersCommonService.applyAllFiltersOnVehicles(
-            this.veicoli,
+            this.veicoli(),
             this.filters
           ) as Vehicle[];
       }
@@ -110,12 +108,12 @@ export class VeicoliTableComponent {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['veicoli']) {
-      this.veicoliTableData.data = this.veicoli;
+      this.veicoliTableData.data = this.veicoli();
     }
   }
 
   ngAfterViewInit(): void {
-    this.veicoliTableData.data = this.veicoli;
+    this.veicoliTableData.data = this.veicoli();
     this.veicoliTable.renderRows();
   }
 
