@@ -15,7 +15,6 @@
     width: 95%;
     display: flex;
     gap: 2px;
-    background-color: var(--green);
     border-radius: 5px;
     color: white;
   }
