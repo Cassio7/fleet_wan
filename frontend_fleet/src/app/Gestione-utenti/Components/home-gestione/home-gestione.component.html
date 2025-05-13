@@ -12,5 +12,5 @@
     <app-gestione-filters [users]="users"></app-gestione-filters>
     <mat-slide-toggle [(ngModel)]="eliminatedVisibile">Visualizza utenti eliminati</mat-slide-toggle>
   </div>
-  <app-utenti-table [users]="users" [eliminatedVisible]="eliminatedVisibile"></app-utenti-table>
+  <app-utenti-table [(users)]="users" [eliminatedVisible]="eliminatedVisibile"></app-utenti-table>
 </div>
