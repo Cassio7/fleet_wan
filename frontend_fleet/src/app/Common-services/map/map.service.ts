@@ -3,7 +3,7 @@ import L from 'leaflet';
 import 'leaflet-routing-machine';
 import 'leaflet.markercluster';
 import 'leaflet-rotatedmarker';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { BehaviorSubject, Subject, map } from 'rxjs';
 import { Anomaly } from '../../Models/Anomaly';
 import { Point } from '../../Models/Point';
 import { RealtimeData } from '../realtime-api/realtime-api.service';
@@ -371,106 +371,118 @@ export class MapService {
    * @returns L.marker creato
    */
   createVehicleMarker(
-    point: Point,
-    plate: string,
-    worksite: string | null,
-    veId: number,
-    anomaly: Anomaly | undefined,
-    direction: number,
-    timestamp: string,
-    active: boolean
-  ): L.Marker<any> {
-    let positionData: positionData = {
-      plate: plate,
-      cantiere: worksite || null,
-      veId: veId,
-      position: point,
-      direction: direction,
-      timestamp: timestamp,
-      active: active,
-    };
+  point: Point,
+  plate: string,
+  worksite: string | null,
+  veId: number,
+  anomaly: Anomaly | undefined,
+  direction: number,
+  timestamp: string,
+  active: boolean
+): L.Marker<any> {
+  let positionData: positionData = {
+    plate: plate,
+    cantiere: worksite || null,
+    veId: veId,
+    position: point,
+    direction: direction,
+    timestamp: timestamp,
+    active: active,
+  };
 
-    let customIcon = L.divIcon({
-      className: 'ok-icon',
-      html: false,
-      popupAnchor: [11, 12],
-    });
+  let customIcon = L.divIcon({
+    className: 'ok-icon',
+    html: false,
+    popupAnchor: [11, 12],
+  });
 
-    const now = new Date();
-    const inputDate = new Date(timestamp);
+  const now = new Date();
+  const inputDate = new Date(timestamp);
 
-    // Calcola la differenza in millisecondi (in UTC)
-    const diffInMs = now.getTime() - inputDate.getTime();
+  // Calcola la differenza in millisecondi (in UTC)
+  const diffInMs = now.getTime() - inputDate.getTime();
 
-    // Convertiamo la differenza in minuti e ore
-    const diffInMinutes = diffInMs / (1000 * 60); // Differenza in minuti
-    const diffInHours = diffInMs / (1000 * 60 * 60); // Differenza in ore
+  // Convertiamo la differenza in minuti e ore
+  const diffInMinutes = diffInMs / (1000 * 60); // Differenza in minuti
+  const diffInHours = diffInMs / (1000 * 60 * 60); // Differenza in ore
 
-    // Verifica la condizione della differenza temporale
-    if (diffInMinutes <= 30) {
-      if (active) {
-        customIcon = L.divIcon({
-          className: 'ok-icon',
-          html: this.movingMarkerGreen,
-          popupAnchor: [11, 12],
-        });
-      } else {
-        customIcon = L.divIcon({
-          className: 'ok-icon',
-          html: this.OkMarker,
-          popupAnchor: [11, 12],
-        });
-        direction = 0
-      }
-    } else if (diffInHours <= 12) {
+  // Verifica la condizione della differenza temporale
+  if (diffInMinutes <= 30) {
+    if (active) {
       customIcon = L.divIcon({
         className: 'ok-icon',
-        html: this.warningMarker,
+        html: this.movingMarkerGreen,
         popupAnchor: [11, 12],
       });
-      direction = 0
     } else {
       customIcon = L.divIcon({
         className: 'ok-icon',
-        html: this.errorMarker,
+        html: this.OkMarker,
         popupAnchor: [11, 12],
       });
       direction = 0
     }
-
-    const marker = L.marker([point.lat, point.long], {
-      icon: customIcon,
-      rotationAngle: direction,
-    }) as L.Marker;
-
-    marker.bindPopup(this.getCustomPopup(plate), {
-      closeOnClick: false,
-      autoClose: false,
-      autoPan: false,
+  } else if (diffInHours <= 12) {
+    customIcon = L.divIcon({
+      className: 'ok-icon',
+      html: this.warningMarker,
+      popupAnchor: [11, 12],
     });
-
-    marker.on('mouseover', (event) => {
-      marker.openPopup();
-      marker.on('mouseout', (event) => {
-        marker.closePopup();
-      });
+    direction = 0
+  } else {
+    customIcon = L.divIcon({
+      className: 'ok-icon',
+      html: this.errorMarker,
+      popupAnchor: [11, 12],
     });
-
-    marker.on('click', (event) => {
-      this.selectMarker$.next(positionData);
-      if(marker.getPopup()?.isOpen()){
-        marker.openPopup();
-      }else{
-        marker.closePopup();
-      }
-      marker.off('mouseout');
-    });
-
-    if (!this.positionDatas.some((data) => data.plate === positionData.plate))
-      this.positionDatas.push(positionData);
-
-    return marker;
+    direction = 0
   }
+
+  const marker = L.marker([point.lat, point.long], {
+    icon: customIcon,
+    rotationAngle: direction,
+  }) as L.Marker & { feature?: { properties?: { dc_name?: string } } };
+
+  // Aggiungiamo la struttura feature con la targa
+  marker.feature = {
+    type: "Feature",
+    geometry: {
+      type: "Point",
+      coordinates: [point.long, point.lat],
+    },
+    properties: {
+      dc_name: plate,
+    },
+  };
+
+  marker.bindPopup(this.getCustomPopup(plate), {
+    closeOnClick: false,
+    autoClose: false,
+    autoPan: false,
+  });
+
+  marker.on('mouseover', (event) => {
+    marker.openPopup();
+    marker.on('mouseout', (event) => {
+      marker.closePopup();
+    });
+  });
+
+  marker.on('click', (event) => {
+    this.selectMarker$.next(positionData);
+    if(marker.getPopup()?.isOpen()){
+      marker.openPopup();
+    }else{
+      marker.closePopup();
+    }
+    marker.off('mouseout');
+  });
+
+  if (!this.positionDatas.some((data) => data.plate === positionData.plate))
+    this.positionDatas.push(positionData);
+
+  return marker;
+}
 
   /**
    * Crea un marker
@@ -502,47 +514,37 @@ export class MapService {
     realtimeDatas: RealtimeData[],
     map: L.Map
   ): L.MarkerClusterGroup {
-    const maxZoom = map.getMaxZoom();
-    let clusterGroup = L.markerClusterGroup({
-      disableClusteringAtZoom: maxZoom,
-      spiderfyOnMaxZoom:false,
-      showCoverageOnHover: false,
-    });
+  const maxZoom = map.getMaxZoom();
+  let clusterGroup = L.markerClusterGroup({
+    disableClusteringAtZoom: maxZoom,
+    spiderfyOnMaxZoom: false,
+    showCoverageOnHover: false,
+  });
 
-    realtimeDatas.forEach((realtimeData) => {
-      const vehicle = realtimeData.vehicle;
-      const realtime = realtimeData.realtime;
-      const punto = new Point(realtime.latitude, realtime.longitude);
+  realtimeDatas.forEach((realtimeData) => {
+    const vehicle = realtimeData.vehicle;
+    const realtime = realtimeData.realtime;
+    const punto = new Point(realtime.latitude, realtime.longitude);
 
-      const marker = this.createVehicleMarker(
-        punto,
-        vehicle.plate,
-        vehicle.worksite ? vehicle.worksite.name : null,
-        vehicle.veId,
-        undefined,
-        realtime.direction,
-        realtime.timestamp,
-        realtime.active
-      ) as L.Marker & { feature?: { properties?: { dc_name?: string } } };
+    // creazione del marker per il veicolo
+    const marker = this.createVehicleMarker(
+      punto,
+      vehicle.plate,
+      vehicle.worksite ? vehicle.worksite.name : null,
+      vehicle.veId,
+      undefined,
+      realtime.direction,
+      realtime.timestamp,
+      realtime.active
+    );
 
-      marker.feature = {
-        type: "Feature",
-        geometry: {
-          type: "Point",
-          coordinates: [punto.long, punto.lat],
-        },
-        properties: {
-          dc_name: vehicle.plate,
-        },
-      };
+    clusterGroup.addLayer(marker);
+  });
 
-      clusterGroup.addLayer(marker);
-    });
+  clusterGroup = this.bindClusterGroupMouseOverEvent(clusterGroup); //bind del popup per il cluster che include tutte le targhe
 
-    clusterGroup = this.bindClusterGroupMouseOverEvent(clusterGroup);
-
-    return clusterGroup;
-  }
+  return clusterGroup;
+}
 
   /**
    * Lega l'evento mouse event al L.MarkeClusterGroup passato per parametro,
@@ -552,7 +554,7 @@ export class MapService {
    */
   private bindClusterGroupMouseOverEvent(clusterGroup: L.MarkerClusterGroup): L.MarkerClusterGroup {
     clusterGroup.on('clustermouseover', (event: any) => {
-      const clusterMarkers = event.propagatedFrom.getAllChildMarkers();
+      const clusterMarkers: L.Marker[] = event.propagatedFrom.getAllChildMarkers();
 
       // Estrazione e ordinamento marker
       const sortedMarkers = clusterMarkers
@@ -617,11 +619,9 @@ export class MapService {
     const maxZoom = map.getMaxZoom();
     let clusterGroup = L.markerClusterGroup({
       disableClusteringAtZoom: maxZoom,
-      spiderfyOnMaxZoom:false,
+      spiderfyOnMaxZoom: false,
       showCoverageOnHover: false,
     });
-
-    clusterGroup = this.bindClusterGroupMouseOverEvent(clusterGroup);
 
     markers.forEach((marker) => {
       if (plateToggle) {
@@ -631,6 +631,8 @@ export class MapService {
       }
       marker.addTo(clusterGroup);
     });
+
+    clusterGroup = this.bindClusterGroupMouseOverEvent(clusterGroup); //bind del popup per il cluster che include tutte le targhe
 
     return clusterGroup;
   }
