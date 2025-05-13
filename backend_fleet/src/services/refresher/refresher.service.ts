@@ -1,11 +1,11 @@
-import { TagService } from './../tag/tag.service';
-import { CompanyService } from './../company/company.service';
-import { AnomalyService } from './../anomaly/anomaly.service';
-import { ControlService } from 'src/services/control/control.service';
 import { Injectable } from '@nestjs/common';
-import { VehicleService } from '../vehicle/vehicle.service';
-import { SessionService } from '../session/session.service';
+import { ControlService } from 'src/services/control/control.service';
 import { getDaysInRange } from 'src/utils/utils';
+import { SessionService } from '../session/session.service';
+import { VehicleService } from '../vehicle/vehicle.service';
+import { AnomalyService } from './../anomaly/anomaly.service';
+import { CompanyService } from './../company/company.service';
+import { TagService } from './../tag/tag.service';
 
 @Injectable()
 export class RefresherService {
@@ -72,7 +72,6 @@ export class RefresherService {
           }
           if (!vehicle.allestimento) continue;
           // 2. GESTIONE TAG SEQUENZIALE
-          console.log('tags');
           for (const day of daysInRange) {
             const datefrom = day;
             const dateto = new Date(datefrom);
@@ -84,6 +83,7 @@ export class RefresherService {
               vehicle.veId,
               datefrom.toISOString(),
               dateto.toISOString(),
+              false,
             );
           }
         }

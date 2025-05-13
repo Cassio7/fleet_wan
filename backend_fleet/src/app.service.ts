@@ -163,6 +163,7 @@ export class AppService implements OnModuleInit {
             vehicle.veId,
             datefrom.toISOString(),
             dateto.toISOString(),
+            false,
           );
         }
       }
@@ -289,6 +290,7 @@ export class AppService implements OnModuleInit {
           vehicle.veId,
           startDate,
           endDate,
+          true,
         );
       }
     }
