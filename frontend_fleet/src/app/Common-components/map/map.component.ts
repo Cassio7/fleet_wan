@@ -134,7 +134,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
           this.mapService.removeAllRelevantLayers(this.map);
 
           this.mapService
-            .createMarkerClusterGroupByMarkers(filteredMarkers)
+            .createMarkerClusterGroupByMarkers(filteredMarkers, this.map)
             .addTo(this.map);
         },
         error: (error) => {
@@ -185,7 +185,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             //caricamento del layergroup con i marker dei veicoli
             const gruppoMarker: L.MarkerClusterGroup =
               this.mapService.createMarkerClusterGroupByRealtimeData(
-                realtimeDatas
+                realtimeDatas,
+                this.map
               );
             //chiusura del popup quando si preme sul cluster group
             gruppoMarker.on('clusterclick', () => {

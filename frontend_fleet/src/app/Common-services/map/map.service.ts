@@ -494,13 +494,18 @@ export class MapService {
 
   /**
    * Crea un marker cluster group tramite i dati realtime di veicoli
-   * @param {RealtimeData} realtimeDatas dati realtime dei veicoli
-   * @returns {L.MarkerClusterGroup} L.MarkerClusterGroup con i marker creati
+   * @param realtimeDatas dati realtime dei veicoli
+   * @param map mappa su cui viene creato il markerClusterGroup
+   * @returns L.MarkerClusterGroup con i marker creati
    */
   createMarkerClusterGroupByRealtimeData(
-    realtimeDatas: RealtimeData[]
+    realtimeDatas: RealtimeData[],
+    map: L.Map
   ): L.MarkerClusterGroup {
+    const maxZoom = map.getMaxZoom();
     let clusterGroup = L.markerClusterGroup({
+      disableClusteringAtZoom: maxZoom,
+      spiderfyOnMaxZoom:false,
       showCoverageOnHover: false,
     });
 
@@ -601,14 +606,17 @@ export class MapService {
 
   /**
    * Crea un marker cluster group tramite dei marker
-   * @param {L.Marekrs[]} markers marker creati
-   * @returns {L.MarkerClusterGroup} L.MarkerClusterGroup con i marker passati
+   * @param markers marker creati
+   * @param map mappa su cui viene creato il markerClusterGroup
+   * @returns L.MarkerClusterGroup con i marker passati
    */
-  createMarkerClusterGroupByMarkers(markers: L.Marker[]): L.MarkerClusterGroup {
+  createMarkerClusterGroupByMarkers(markers: L.Marker[], map: L.Map): L.MarkerClusterGroup {
     const plateToggle = JSON.parse(
       this.sessionStorageService.getItem('plateToggle')
     );
+    const maxZoom = map.getMaxZoom();
     let clusterGroup = L.markerClusterGroup({
+      disableClusteringAtZoom: maxZoom,
       spiderfyOnMaxZoom:false,
       showCoverageOnHover: false,
     });
