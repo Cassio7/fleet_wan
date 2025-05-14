@@ -1,19 +1,15 @@
 import {
-  Body,
   Controller,
   Get,
-  HttpException,
-  HttpStatus,
   ParseIntPipe,
-  Post,
   Query,
   Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { Role } from 'src/classes/enum/role.enum';
 import { UserFromToken } from 'src/classes/interfaces/userToken.interface';
-import { Response } from 'express';
 import { Roles } from 'src/decorators/roles.decorator';
 import { AuthGuard } from 'src/guard/auth.guard';
 import { RolesGuard } from 'src/guard/roles.guard';
@@ -21,7 +17,6 @@ import { LogContext } from 'src/log/logger.types';
 import { LoggerService } from 'src/log/service/logger.service';
 import { SessionService } from 'src/services/session/session.service';
 import { sameDate, validateDateRange } from 'src/utils/utils';
-import { isNumber } from 'class-validator';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Controller('sessions')
@@ -34,23 +29,27 @@ export class SessionController {
 
   @Get()
   async getAllSessions(
-    @Res() res: Response, 
-    @Req() req: Request & {user: UserFromToken},
+    @Res() res: Response,
+    @Req() req: Request & { user: UserFromToken },
     @Query('veId') veId: number,
     @Query('dateFrom') dateFrom: string,
     @Query('dateTo') dateTo: string,
-  ){
-    if(veId && dateFrom && dateTo){
-      return this.getAllSessionByVeIdRanged(res, {veId, dateFrom, dateTo}, 'false', req);
-    }else if(veId && !dateFrom && !dateTo){
-      return this.getAllSessionByVeId(res, {veId}, req);
+  ) {
+    if (veId && dateFrom && dateTo) {
+      return this.getAllSessionByVeIdRanged(
+        res,
+        { veId, dateFrom, dateTo },
+        'false',
+        req,
+      );
+    } else if (veId && !dateFrom && !dateTo) {
+      return this.getAllSessionByVeId(res, { veId }, req);
     }
-    
+
     return res.status(400).send({
-      message: "Parametri mancanti"
+      message: 'Parametri mancanti',
     });
   }
-
 
   /**
    * API per prendere tutte le sessioni in base all'id
@@ -280,21 +279,16 @@ export class SessionController {
   async getActiveSessions(
     @Req() req: Request & { user: UserFromToken },
     @Query('veId') veIdParam: string,
-    @Res() res: Response
+    @Res() res: Response,
   ) {
     const veId = veIdParam ? parseInt(veIdParam, 10) : undefined;
 
-    if (veIdParam && isNaN(veId)) {
-      throw new Error('Il veId non è un numero valido.');
-    }
-
-    if (veId) {
+    if (veIdParam || veId) {
       return this.getActiveSessionByVeId(req, res, { veId });
     }
 
     return this.getAllActiveSession(req, res);
   }
-
 
   /**
    * API che restituisce tutte le sessioni attive se la fine è maggiore dell'ultima sessione, quindi veicolo in movimento.
