@@ -7,6 +7,7 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
   Req,
   Res,
   UseGuards,
@@ -88,19 +89,18 @@ export class NotesController {
    * @returns
    */
   @Roles(Role.Admin, Role.Responsabile, Role.Capo)
-  @Post('veId')
+  @Get('veId')
   async getNoteByVeid(
     @Req() req: Request & { user: UserFromToken },
-    @Body() body: { veId: number },
+    @Query('veId', ParseIntPipe) veId: number,
     @Res() res: Response,
   ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
       resource: 'Notes',
-      resourceId: body.veId,
+      resourceId: veId,
     };
-    const veId = Number(body.veId); // Garantisce che veId sia un numero
 
     if (isNaN(veId)) {
       this.loggerService.logCrudError({

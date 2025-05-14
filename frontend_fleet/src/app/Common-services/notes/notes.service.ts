@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Note } from '../../Models/Note';
 import { Observable, Subject, throwError } from 'rxjs';
@@ -115,10 +115,10 @@ export class NotesService {
       'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'
     });
-    const body = {
-      veId: veId
-    }
-    return this.http.post<Note>(`${serverUrl}/${this.url}/veId`, body, {headers});
+
+    const params = new HttpParams().set('veId', veId);
+
+    return this.http.get<Note>(`${serverUrl}/${this.url}/veId`, {headers, params});
   }
 
   /**
