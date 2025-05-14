@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Get,
+  ParseIntPipe,
   Post,
   Query,
   Req,
@@ -90,11 +91,12 @@ export class AnomalyController {
    * @param body data di inizio e fine ricerca
    * @returns
    */
-  @Post()
+  @Get('/ranged')
   async getAnomalyByDate(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
-    @Body() body: { dateFrom: string; dateTo: string },
+    @Query('dateFrom') paramDateFrom: string,
+    @Query('dateTo') paramDateTo: string,
   ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
@@ -102,7 +104,7 @@ export class AnomalyController {
       resource: 'Anomaly today',
     };
 
-    if (!body.dateFrom) {
+    if (!paramDateFrom) {
       this.loggerService.logCrudError({
         context,
         operation: 'list',
@@ -110,12 +112,12 @@ export class AnomalyController {
       });
       return res.status(400).json({ message: 'Inserisci una data di inizio' });
     }
-    const dateFrom = new Date(body.dateFrom + 'Z');
+    const dateFrom = new Date(paramDateFrom + 'Z');
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    if (!body.dateTo) {
+    if (!paramDateTo) {
       this.loggerService.logCrudError({
         context,
         operation: 'list',
@@ -124,7 +126,7 @@ export class AnomalyController {
       return res.status(400).json({ message: 'Inserisci una data di fine' });
     }
 
-    const dateTo = new Date(body.dateTo + 'Z');
+    const dateTo = new Date(paramDateTo + 'Z');
     if (dateTo < dateFrom) {
       this.loggerService.logCrudError({
         context,
@@ -203,19 +205,20 @@ export class AnomalyController {
    * @param body veid del veicolo, count per identificare il numero di anomalie da recuperare
    * @returns
    */
-  @Post('veId')
+  @Get('veId')
   async getAllAnomalyVeId(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
-    @Body() body: { veId: number; count: number },
+    @Query('veId') paramVeId: number,
+    @Query('count') paramCount: number,
   ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
       resource: 'Anomaly',
-      resourceId: body.veId,
+      resourceId: paramVeId,
     };
-    const veId = Number(body.veId); // Garantisce che veId sia un numero
+    const veId = Number(paramVeId); // Garantisce che veId sia un numero
 
     if (isNaN(veId)) {
       this.loggerService.logCrudError({
@@ -227,7 +230,7 @@ export class AnomalyController {
         message: 'Il veId deve essere un numero valido',
       });
     }
-    const count: number = body.count || 0;
+    const count: number = paramCount || 0;
 
     if (isNaN(count)) {
       this.loggerService.logCrudError({
@@ -553,19 +556,20 @@ export class AnomalyController {
    * @param body veId del veicolo, date per la ricerca
    * @returns
    */
-  @Post('veId/ranged')
+  @Get('veId/ranged')
   async getAnomalyVeIdRanged(
     @Req() req: Request & { user: UserFromToken },
     @Res() res: Response,
-    @Body() body: { veId: number; dateFrom: string; dateTo: string },
+    @Query('veId', ParseIntPipe) veId: number,
+    @Query('dateFrom') paramDateFrom: string,
+    @Query('dateTo') paramDateTo: string,
   ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
       resource: 'Anomaly',
-      resourceId: body.veId,
+      resourceId: veId,
     };
-    const veId = Number(body.veId); // Garantisce che veId sia un numero
 
     if (isNaN(veId)) {
       this.loggerService.logCrudError({
@@ -577,7 +581,7 @@ export class AnomalyController {
         message: 'Il veId deve essere un numero valido',
       });
     }
-    if (!body.dateFrom) {
+    if (!paramDateFrom) {
       this.loggerService.logCrudError({
         context,
         operation: 'list',
@@ -585,9 +589,9 @@ export class AnomalyController {
       });
       return res.status(400).json({ message: 'Inserisci una data di inizio' });
     }
-    const dateFrom = new Date(body.dateFrom + 'Z');
+    const dateFrom = new Date(paramDateFrom + 'Z');
 
-    if (!body.dateTo) {
+    if (!paramDateTo) {
       this.loggerService.logCrudError({
         context,
         operation: 'list',
@@ -596,7 +600,7 @@ export class AnomalyController {
       return res.status(400).json({ message: 'Inserisci una data di fine' });
     }
 
-    const dateTo = new Date(body.dateTo + 'Z');
+    const dateTo = new Date(paramDateTo + 'Z');
     if (dateTo < dateFrom) {
       this.loggerService.logCrudError({
         context,
