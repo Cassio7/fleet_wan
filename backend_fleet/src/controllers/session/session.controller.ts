@@ -49,12 +49,14 @@ export class SessionController {
     if (veId && dateFrom && dateTo) {
       return this.getAllSessionByVeIdRanged(
         res,
-        { veId, dateFrom, dateTo },
+        veId, 
+        dateFrom, 
+        dateTo,
         'false',
         req,
       );
     } else if (veId && !dateFrom && !dateTo) {
-      return this.getAllSessionByVeId(res, { veId }, req);
+      return this.getAllSessionByVeId(res, veId, req);
     }
 
     return res.status(400).send({
@@ -71,16 +73,16 @@ export class SessionController {
    */
   private async getAllSessionByVeId(
     res: Response,
-    body: { veId: number },
+    paramVeId: number,
     req: Request & { user: UserFromToken },
   ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
       resource: 'Session',
-      resourceId: body.veId,
+      resourceId: paramVeId,
     };
-    const veId = Number(body.veId); // Garantisce che veId sia un numero
+    const veId = Number(paramVeId); // Garantisce che veId sia un numero
 
     if (isNaN(veId)) {
       this.loggerService.logCrudError({
@@ -136,7 +138,9 @@ export class SessionController {
    */
   private async getAllSessionByVeIdRanged(
     res: Response,
-    body: { veId: number; dateFrom: string; dateTo: string },
+    paramVeId: number,
+    dateFrom: string, 
+    dateTo: string,
     filter: string,
     req: Request & { user: UserFromToken },
   ): Promise<Response> {
@@ -144,9 +148,9 @@ export class SessionController {
       userId: req.user.id,
       username: req.user.username,
       resource: 'Session ranged',
-      resourceId: body.veId,
+      resourceId: paramVeId,
     };
-    const veId = Number(body.veId); // Garantisce che veId sia un numero
+    const veId = Number(paramVeId); // Garantisce che veId sia un numero
     const isFilter = filter === 'true'; // prendo il boolean del filter
 
     if (isNaN(veId)) {
@@ -159,8 +163,6 @@ export class SessionController {
         message: 'Il veId deve essere un numero valido',
       });
     }
-    const dateFrom = body.dateFrom;
-    const dateTo = body.dateTo;
 
     // controllo data valida
     const validation = validateDateRange(dateFrom, dateTo);
