@@ -27,6 +27,17 @@ export class SessionController {
     private readonly loggerService: LoggerService,
   ) {}
 
+  /**
+   * API che restituisce delle sessioni in base ai parametri Query forniti:
+   * - solo veId: tutte le sessioni del veicolo con il veId specificato
+   * - veId, dateFrom e dateTo: tutte le sessioni nell'arco di tempo e del veicolo con veId specificato
+   * @param res 
+   * @param req 
+   * @param veId veId del veicolo di cui prendere le sessioni
+   * @param dateFrom data inizio del periodo da cui ricercare
+   * @param dateTo data fine del periodo da cui ricercare
+   * @returns 
+   */
   @Get()
   async getAllSessions(
     @Res() res: Response,
@@ -52,7 +63,7 @@ export class SessionController {
   }
 
   /**
-   * API per prendere tutte le sessioni in base all'id
+   * Prende tutte le sessioni in base all'id
    * @param res
    * @param body veId del veicolo
    * @param req user data
@@ -116,7 +127,7 @@ export class SessionController {
   }
 
   /**
-   * API per prendere tutte le sessioni indicando range temporale in base all'id
+   * Prende tutte le sessioni indicando range temporale in base all'id
    * @param res
    * @param body veId del veicolo, Data inizio e data fine ricerca
    * @param filter permette di filtrare i tag recuperati al 20%
@@ -206,7 +217,7 @@ export class SessionController {
   }
 
   /**
-   * API per prendere l'ultima sessione in base all veid passato
+   * API che prende l'ultima sessione in base al veid passato
    * @param req user data
    * @param res
    * @returns
@@ -275,6 +286,15 @@ export class SessionController {
     }
   }
 
+  /**
+   * API che permette di ottenere dei dati sulle sessioni attive dei veicoli in base ai parametri passati:
+   * - nessun parametro: restituisce per ciascun veicolo se si trova in movimento o meno
+   * - veId: restituisce per il veicolo con veId specificato se si trova in movimento o meno
+   * @param req 
+   * @param veIdParam 
+   * @param res 
+   * @returns 
+   */
   @Get('active')
   async getActiveSessions(
     @Req() req: Request & { user: UserFromToken },
@@ -287,16 +307,16 @@ export class SessionController {
       return this.getActiveSessionByVeId(req, res, { veId });
     }
 
-    return this.getAllActiveSession(req, res);
+    return this.getActiveSession(req, res);
   }
 
   /**
-   * API che restituisce tutte le sessioni attive se la fine è maggiore dell'ultima sessione, quindi veicolo in movimento.
+   * Restituisce tutte le sessioni attive se la fine è maggiore dell'ultima sessione, quindi veicolo in movimento.
    * @param req user data
    * @param res
    * @returns
    */
-  private async getAllActiveSession(
+  private async getActiveSession(
     req: Request & { user: UserFromToken },
     res: Response,
   ): Promise<Response> {
@@ -337,7 +357,7 @@ export class SessionController {
   }
 
   /**
-   * API che restituisce la sessione attiva se, la fine è maggiore dell'ultima sessione, quindi veicolo in movimento.
+   * Restituisce la sessione attiva se, la fine è maggiore dell'ultima sessione, quindi veicolo in movimento.
    * @param req user data
    * @param res
    * @param body veId del veicolo
