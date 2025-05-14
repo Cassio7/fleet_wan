@@ -2,6 +2,9 @@ import {
   Body,
   Controller,
   Get,
+  HttpException,
+  HttpStatus,
+  ParseIntPipe,
   Post,
   Query,
   Req,
@@ -18,6 +21,7 @@ import { LogContext } from 'src/log/logger.types';
 import { LoggerService } from 'src/log/service/logger.service';
 import { SessionService } from 'src/services/session/session.service';
 import { sameDate, validateDateRange } from 'src/utils/utils';
+import { isNumber } from 'class-validator';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Controller('sessions')
@@ -27,6 +31,27 @@ export class SessionController {
     private readonly sessionService: SessionService,
     private readonly loggerService: LoggerService,
   ) {}
+
+  @Get()
+  async getAllSessions(
+    @Res() res: Response, 
+    @Req() req: Request & {user: UserFromToken},
+    @Query('veId') veId: number,
+    @Query('dateFrom') dateFrom: string,
+    @Query('dateTo') dateTo: string,
+  ){
+    if(veId && dateFrom && dateTo){
+      return this.getAllSessionByVeIdRanged(res, {veId, dateFrom, dateTo}, 'false', req);
+    }else if(veId && !dateFrom && !dateTo){
+      return this.getAllSessionByVeId(res, {veId}, req);
+    }
+    
+    return res.status(400).send({
+      message: "Parametri mancanti"
+    });
+  }
+
+
   /**
    * API per prendere tutte le sessioni in base all'id
    * @param res
@@ -34,11 +59,10 @@ export class SessionController {
    * @param req user data
    * @returns
    */
-  @Post('veId')
-  async getAllSessionByVeId(
-    @Res() res: Response,
-    @Body() body: { veId: number },
-    @Req() req: Request & { user: UserFromToken },
+  private async getAllSessionByVeId(
+    res: Response,
+    body: { veId: number },
+    req: Request & { user: UserFromToken },
   ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
@@ -96,15 +120,15 @@ export class SessionController {
    * API per prendere tutte le sessioni indicando range temporale in base all'id
    * @param res
    * @param body veId del veicolo, Data inizio e data fine ricerca
+   * @param filter permette di filtrare i tag recuperati al 20%
    * @param req user data
    * @returns
    */
-  @Post('veId/ranged')
-  async getAllSessionByVeIdRanged(
-    @Res() res: Response,
-    @Body() body: { veId: number; dateFrom: string; dateTo: string },
-    @Query('filter') filter: string,
-    @Req() req: Request & { user: UserFromToken },
+  private async getAllSessionByVeIdRanged(
+    res: Response,
+    body: { veId: number; dateFrom: string; dateTo: string },
+    filter: string,
+    req: Request & { user: UserFromToken },
   ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
@@ -186,22 +210,20 @@ export class SessionController {
    * API per prendere l'ultima sessione in base all veid passato
    * @param req user data
    * @param res
-   * @param body VeId veicolo
    * @returns
    */
-  @Post('veId/lastvalid')
-  async getLastSession(
-    @Req() req: Request & { user: UserFromToken },
+  @Get('last')
+  async getLastSessionByVeId(
     @Res() res: Response,
-    @Body() body: { veId: number },
+    @Query('veId', ParseIntPipe) veId: number,
+    @Req() req: Request & { user: UserFromToken },
   ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
       resource: 'Session',
-      resourceId: body.veId,
+      resourceId: veId,
     };
-    const veId = Number(body.veId); // Garantisce che veId sia un numero
 
     if (isNaN(veId)) {
       this.loggerService.logCrudError({
@@ -254,16 +276,35 @@ export class SessionController {
     }
   }
 
+  @Get('active')
+  async getActiveSessions(
+    @Req() req: Request & { user: UserFromToken },
+    @Query('veId') veIdParam: string,
+    @Res() res: Response
+  ) {
+    const veId = veIdParam ? parseInt(veIdParam, 10) : undefined;
+
+    if (veIdParam && isNaN(veId)) {
+      throw new Error('Il veId non è un numero valido.');
+    }
+
+    if (veId) {
+      return this.getActiveSessionByVeId(req, res, { veId });
+    }
+
+    return this.getAllActiveSession(req, res);
+  }
+
+
   /**
    * API che restituisce tutte le sessioni attive se la fine è maggiore dell'ultima sessione, quindi veicolo in movimento.
    * @param req user data
    * @param res
    * @returns
    */
-  @Get('active')
-  async getAllActiveSession(
-    @Req() req: Request & { user: UserFromToken },
-    @Res() res: Response,
+  private async getAllActiveSession(
+    req: Request & { user: UserFromToken },
+    res: Response,
   ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
@@ -308,11 +349,10 @@ export class SessionController {
    * @param body veId del veicolo
    * @returns
    */
-  @Post('veId/active')
-  async getActiveSessionByVeId(
-    @Req() req: Request & { user: UserFromToken },
-    @Res() res: Response,
-    @Body() body: { veId: number },
+  private async getActiveSessionByVeId(
+    req: Request & { user: UserFromToken },
+    res: Response,
+    body: { veId: number },
   ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
