@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, Observable} from 'rxjs';
 import { Session } from '../../Models/Session';
@@ -20,19 +20,6 @@ export class SessionApiService {
   ) { }
 
   /**
-   * Permette di prendere i dati di tutte le sessioni dall'api gestita nel backend
-   * @returns observable get http
-   */
-  public getAllSessions(): Observable<Session[]>{
-    const access_token = this.cookieService.get("user");
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${access_token}`,
-      'Content-Type': 'application/json'
-    });
-    return this.http.get<Session[]>(`${serverUrl}/${this.url}`, {headers});
-  }
-
-  /**
    * Permette di prendere le sessioni di un veicolo tramite un veId
    * @param veId veId del veicolo di cui prendere le sessioni
    * @param dateFrom data di inizio ricerca
@@ -46,12 +33,13 @@ export class SessionApiService {
       'Content-Type': 'application/json'
     });
     const dateFromFormat = new Date(dateFrom)
-    const body={
-      veId: veId,
-      dateFrom: dateFromFormat.toString(),
-      dateTo: dateTo.toString()
-    }
-    return this.http.post<Session[]>(`${serverUrl}/${this.url}/veId/ranged?filter=true`, body, {headers});
+    const params = new HttpParams()
+    .set('filter','true')
+    .set('veId', veId)
+    .set('dateFrom', dateFromFormat.toString())
+    .set('dateTo', dateTo.toString());
+
+    return this.http.get<Session[]>(`${serverUrl}/${this.url}`, {headers, params});
   }
 
   /**
