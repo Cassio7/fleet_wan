@@ -70,13 +70,12 @@ export class SessionApiService {
       'Content-Type': 'application/json'
     });
 
-    const body = {
-      veId: veId,
-      dateFrom: dateFrom.toString(),
-      dateTo: dateTo.toString()
-    }
+    const params = new HttpParams()
+    .set("veId", veId)
+    .set("dateFrom", dateFrom.toString())
+    .set("dateTo", dateTo.toString())
 
-    return this.http.post<VehicleAnomalies>(`${serverUrl}/anomaly/veId/ranged`, body, {headers});
+    return this.http.get<VehicleAnomalies>(`${serverUrl}/anomaly/veId/ranged`, {headers, params});
   }
 
   /**

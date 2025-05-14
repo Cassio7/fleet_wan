@@ -420,15 +420,13 @@ export class CheckErrorsService {
       'Content-Type': 'application/json',
     });
 
-    const body = {
-      veId: veId,
-      count: count,
-    };
+    const params = new HttpParams()
+    .set("veId", veId)
+    .set("count", count)
 
-    return this.http.post<VehicleAnomalies>(
+    return this.http.get<VehicleAnomalies>(
       `${serverUrl}/${this.url}/veId`,
-      body,
-      { headers }
+      { headers, params }
     );
   }
 
@@ -467,7 +465,7 @@ export class CheckErrorsService {
    * Controlla gli errori di tutti i veicoli con sessioni in un determinato arco di tempo
    * @param dateFrom data di inizio ricerca
    * @param dateTo data di fine ricerca
-   * @returns observable http
+   * @returns observable http get
    */
   public checkErrorsAllRanged(dateFrom: Date, dateTo: Date): Observable<any> {
     const access_token = this.cookieService.get('user');
@@ -476,13 +474,12 @@ export class CheckErrorsService {
       'Content-Type': 'application/json',
     });
 
-    const body = {
-      dateFrom: this.formatDate(dateFrom),
-      dateTo: this.formatDate(dateTo),
-    };
+    const params = new HttpParams()
+    .set("dateFrom", this.formatDate(dateFrom))
+    .set("dateTo", this.formatDate(dateTo))
 
     return this.http
-      .post(`${serverUrl}/anomaly`, body, { headers })
+      .get(`${serverUrl}/anomaly/ranged`, { headers, params })
       .pipe(
         catchError((error) => {
           console.error('An error occurred:', error);
@@ -493,7 +490,7 @@ export class CheckErrorsService {
 
   /**
    * Controlla gli errori di tutti i veicoli con sessioni nella giornata di oggi
-   * @returns observable http
+   * @returns observable http get
    */
   public checkErrorsAllToday(): Observable<any> {
     return this.checkErrorsAllRanged(new Date(), new Date());
