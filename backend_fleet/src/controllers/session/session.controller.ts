@@ -31,12 +31,12 @@ export class SessionController {
    * API che restituisce delle sessioni in base ai parametri Query forniti:
    * - solo veId: tutte le sessioni del veicolo con il veId specificato
    * - veId, dateFrom e dateTo: tutte le sessioni nell'arco di tempo e del veicolo con veId specificato
-   * @param res 
-   * @param req 
+   * @param res
+   * @param req
    * @param veId veId del veicolo di cui prendere le sessioni
    * @param dateFrom data inizio del periodo da cui ricercare
    * @param dateTo data fine del periodo da cui ricercare
-   * @returns 
+   * @returns
    */
   @Get()
   async getAllSessions(
@@ -49,8 +49,8 @@ export class SessionController {
     if (veId && dateFrom && dateTo) {
       return this.getAllSessionByVeIdRanged(
         res,
-        veId, 
-        dateFrom, 
+        veId,
+        dateFrom,
         dateTo,
         'false',
         req,
@@ -139,7 +139,7 @@ export class SessionController {
   private async getAllSessionByVeIdRanged(
     res: Response,
     paramVeId: number,
-    dateFrom: string, 
+    dateFrom: string,
     dateTo: string,
     filter: string,
     req: Request & { user: UserFromToken },
@@ -292,10 +292,10 @@ export class SessionController {
    * API che permette di ottenere dei dati sulle sessioni attive dei veicoli in base ai parametri passati:
    * - nessun parametro: restituisce per ciascun veicolo se si trova in movimento o meno
    * - veId: restituisce per il veicolo con veId specificato se si trova in movimento o meno
-   * @param req 
-   * @param veIdParam 
-   * @param res 
-   * @returns 
+   * @param req
+   * @param veIdParam
+   * @param res
+   * @returns
    */
   @Get('active')
   async getActiveSessions(
