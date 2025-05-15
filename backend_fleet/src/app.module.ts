@@ -269,6 +269,6 @@ import { WorkzoneService } from './services/workzone/workzone.service';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(PrometheusMiddleware).forRoutes('*'); // Applica il middleware per tutte le rotte  }
+    //consumer.apply(PrometheusMiddleware).forRoutes('*'); // Applica il middleware per tutte le rotte  }
   }
 }
