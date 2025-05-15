@@ -136,7 +136,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     //sottoscrizione al login
     this.loginService.login$.pipe(takeUntil(this.destroy$), skip(1)).subscribe({
       next: (token: string) => {
-        this.user = this.authService.decodeToken(token);
+        if(token)
+          this.user = this.authService.decodeToken(token);
         this.ngZone.run(() => {
           this.isLogged = true;
           this.isLoginPage = false;
