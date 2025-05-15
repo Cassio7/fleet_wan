@@ -20,6 +20,8 @@ $ npm install
 Per il corretto funzionamento creare il file `.env`, ed inserire i seguenti dati, cambiando con i propri:
 
 ```env
+PORT=3000
+
 # Connection DB
 DB_HOST=localhost
 DB_PORT=1234
