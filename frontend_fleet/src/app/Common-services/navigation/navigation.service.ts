@@ -44,6 +44,8 @@ export class NavigationService {
         return 'Torna alla gestione delle società';
       case '/notifications':
         return "Torna alla visualizzazione delle notifiche";
+      case '/top-speeds':
+        return "Torna alla classifica delle velocità"
       default:
         if(previous_url?.includes('/profile/')){
           const match = previous_url.match(/profile\/(\d+)/);
