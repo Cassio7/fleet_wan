@@ -258,87 +258,6 @@ export class TableComponent
     });
   }
 
-  /**
-   * Viene chiamata alla selezione di un checkbox in un menu della colonna delle targhe
-   * @param vehicle dati da cui prendere il veicolo da cui prendere la targa
-   * @param $event evento
-   */
-  selectTarga(vehicle: Vehicle, $event: any) {
-    this.selectService.updateVehiclesSelectionByPlate(
-      this.sortedVehicles,
-      vehicle
-    );
-    this.vehicleTableData.data = this.sortService.sortVehiclesByPlateAsc(
-      this.selectService.selectedVehicles
-    ) as Vehicle[]; //aggiornamento tabella con veicoli selezionati, ordinati per targa
-    this.onSelection($event);
-  }
-
-  /**
-   * Viene chiamata alla selezione di un checkbox nel menu della colonna dei modelli
-   * @param vehicle veicolo da cui prendere il modello
-   * @param $event evento
-   */
-  selectModel(vehicle: Vehicle, $event: any) {
-    this.selectService.updateVehiclesSelectionByModel(
-      this.sortedVehicles,
-      vehicle
-    );
-    this.vehicleTableData.data = this.sortService.sortVehiclesByPlateAsc(
-      this.selectService.selectedVehicles
-    ) as Vehicle[]; //aggiornamento tabella con veicoli selezionati, ordinati per targa
-    this.onSelection($event);
-  }
-
-  /**
-   * Viene chiamata alla selezione di un checkbox nel menu della colonna cantiere
-   * @param vehicle veicolo da cui prendere la cantiere
-   * @param $event evento
-   */
-  selectCantiere(vehicle: Vehicle, $event: any) {
-    this.selectService.updateVehiclesSelectionByCantiere(
-      this.sortedVehicles,
-      vehicle
-    );
-    this.vehicleTableData.data = this.sortService.sortVehiclesByPlateAsc(
-      this.selectService.selectedVehicles
-    ) as Vehicle[]; //aggiornamento tabella con veicoli selezionati, ordinati per targa
-    this.onSelection($event);
-  }
-
-  /**
-   * Viene chiamata alla selezione di un checkbox nel menu della colonna della data di installazione del fleet
-   * @param vehicle veicolo da cui prendere il firstevent
-   * @param $event evento
-   */
-  selectFirstEvent(vehicle: Vehicle, $event: any) {
-    this.selectService.updateVehiclesSelectionByFirstEvent(
-      this.sortedVehicles,
-      vehicle
-    );
-    this.vehicleTableData.data = this.sortService.sortVehiclesByPlateAsc(
-      this.selectService.selectedVehicles
-    ) as Vehicle[]; //aggiornamento tabella con veicoli selezionati, ordinati per targa
-    this.onSelection($event);
-  }
-
-  /**
-   * Viene chiamata alla selezione di un checkbox nel menu della colonna della data di installazione del fleet
-   * @param vehicle veicolo di cui controllare se ha solo la blackbox o anche l'antenna RFID
-   * @param $event evento
-   */
-  selectAllestimento(option: string, $event: any) {
-    this.selectService.updateVehiclesSelectionByAllestimento(
-      this.sortedVehicles,
-      option,
-      $event.target.checked
-    );
-    this.vehicleTableData.data = this.sortService.sortVehiclesByPlateAsc(
-      this.selectService.selectedVehicles
-    ) as Vehicle[]; //aggiornamento tabella con veicoli selezionati, ordinati per targa
-    this.onSelection($event);
-  }
-
   sortVehiclesByMatSort(vehicles: Vehicle[]): Vehicle[] {
     const column = this.sort.active;
     const sortDirection = this.sort.direction;
@@ -387,16 +306,6 @@ export class TableComponent
   }
 
   /**
-   * Richiamata ad ogni selezione di un checkbox in uno qualsiasi dei menu delle colonne
-   * @param $event evento
-   */
-  private onSelection($event: any) {
-    $event.stopPropagation(); //impedisci al menu di chiudersi
-    this.cd.detectChanges();
-    this.vehicleTable.renderRows();
-  }
-
-  /**
    * Controlla l'espansione e la contrazione della sezione commenti di un veicolo.
    * @param vehicle veicolo di cui espandere la riga.
    * @returns Il veicolo attualmente espanso, oppure null se nessun veicolo è espanso.
@@ -418,42 +327,6 @@ export class TableComponent
       $event
     );
     this.vehicleTable.renderRows();
-  }
-
-  /**
-   * richiama la funzione per rimuovere i duplicati dalla lista di modelli
-   * @returns funzione nel servizio
-   */
-  filterVehiclesModelsDuplicates() {
-    return this.sortService.sortVehiclesByModelAsc(
-      this.modelFilterService.filterVehiclesModelsDuplicates(
-        this.sortedVehicles
-      )
-    );
-  }
-
-  /**
-   * richiama la funzione per rimuovere i duplicati dalla lista di cantieri
-   * @returns funzione nel servizio
-   */
-  filterVehiclesCantieriDuplicates() {
-    return this.sortService.sortVehiclesByCantiereAsc(
-      this.cantieriFilterService.filterVehiclesCantieriDuplicates(
-        this.sortedVehicles
-      )
-    );
-  }
-
-  /**
-   * richiama la funzione per rimuovere i duplicati dalla lista di cantieri
-   * @returns funzione nel servizio
-   */
-  filterFirstEventsDuplicates() {
-    return this.sortService.sortVehiclesByFirstEventAsc(
-      this.firstEventsFilterService.filterFirstEventsDuplicates(
-        this.sortedVehicles
-      )
-    );
   }
 
   /**
