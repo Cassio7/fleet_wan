@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { TableComponent } from "../../../Mezzi/Components/table/table.component";
-import { MezziFiltersComponent } from "../mezzi-filters/mezzi-filters/mezzi-filters.component";
+import { MezziFiltersComponent } from "../mezzi-filters/mezzi-filters.component";
 
 
 
