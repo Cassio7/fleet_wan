@@ -14,6 +14,7 @@ import { openSnackbar } from '../../../../Utils/snackbar';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-notifications-home',
@@ -23,6 +24,7 @@ import { MatMenuModule } from '@angular/material/menu';
     MatIconModule,
     MatTooltipModule,
     MatButtonModule,
+    MatProgressSpinnerModule,
     MatMenuModule,
     NotificationsTableComponent,
     NotificationsFiltersComponent
@@ -40,6 +42,8 @@ export class NotificationsHomeComponent implements OnInit{
 
   isAllRead: boolean = false;
   isAllUnread: boolean = false;
+
+  loading: boolean = false; //variabile flag per impostare la visibilità del caricamento tramite lo spinner
 
   newNotifications: Notifica[] = [];
 
@@ -98,6 +102,7 @@ export class NotificationsHomeComponent implements OnInit{
    * Imposta tutte le notifiche come "lette"
    */
   readAll(){
+    this.loading = true;
     this.notificationService.toggleAllNotificationToRead(true).pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (response: {message: string}) => {
@@ -106,6 +111,7 @@ export class NotificationsHomeComponent implements OnInit{
           this.notificationService.updatedNotification$.next(notifica);
           this.isAllRead = true;
           this.isAllUnread = false;
+          this.loading = false;
         });
         openSnackbar(this.snackbar, "Tutte le notifiche sono segnate come 'lette'");
       },
@@ -117,6 +123,7 @@ export class NotificationsHomeComponent implements OnInit{
    * Imposta tutte le notifiche come "non lette"
    */
   unreadAll(){
+    this.loading = true;
     this.notificationService.toggleAllNotificationToRead(false).pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (response: {message: string}) => {
@@ -125,6 +132,7 @@ export class NotificationsHomeComponent implements OnInit{
           this.notificationService.updatedNotification$.next(notifica);
           this.isAllUnread = true;
           this.isAllRead = false;
+          this.loading = false;
         });
         openSnackbar(this.snackbar, "Tutte le notifiche sono segnate come 'non lette'");
       },

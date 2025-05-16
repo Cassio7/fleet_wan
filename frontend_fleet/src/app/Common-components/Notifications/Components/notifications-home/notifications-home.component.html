@@ -27,6 +27,7 @@
           </button>
         </span>
       </mat-menu>
+      <mat-spinner diameter="30" *ngIf="loading"></mat-spinner>
     </div>
     <div class="notifications-update">
       <span *ngIf="newNotifications.length > 0">Sono arrivate nuove notifiche: {{newNotifications.length}}</span>
