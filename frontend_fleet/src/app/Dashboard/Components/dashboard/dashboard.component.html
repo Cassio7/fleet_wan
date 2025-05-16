@@ -35,7 +35,12 @@
           <span class="title">{{ pageName }}</span>
           <div class="last-update">
             <span *ngIf="today">
-              {{ lastUpdate && checkDate(lastUpdate) ? (lastUpdate | date: 'dd/MM/yyyy HH:mm'): lastUpdate }}
+              <ng-container *ngIf="checkDate(lastUpdate);else loading">
+                {{lastUpdate | date: 'dd/MM/yyyy HH:mm'}}
+              </ng-container>
+              <ng-template #loading>
+                <mat-spinner diameter="30" *ngIf="loading"></mat-spinner>
+              </ng-template>
             </span>
             <span *ngIf="lastSession">
               Recente

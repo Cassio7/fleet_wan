@@ -30,6 +30,7 @@ import { KebabMenuComponent } from '../kebab-menu/kebab-menu.component';
 import { RowFilterComponent } from '../row-filter/row-filter.component';
 import { TableComponent } from '../table/table.component';
 import { SessionStorageService } from './../../../Common-services/sessionStorage/session-storage.service';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 
 @Component({
@@ -39,6 +40,7 @@ import { SessionStorageService } from './../../../Common-services/sessionStorage
     MatButtonModule,
     MatIconModule,
     CommonModule,
+    MatProgressSpinnerModule,
     MatButtonModule,
     MatInputModule,
     MatIconModule,
