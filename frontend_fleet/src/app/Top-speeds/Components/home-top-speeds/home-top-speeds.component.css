@@ -16,6 +16,7 @@
     .filters-container{
       width: 100%;
       justify-content: space-between;
+      box-sizing: border-box;
     }
   }
 }
