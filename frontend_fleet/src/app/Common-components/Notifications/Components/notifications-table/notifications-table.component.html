@@ -1,5 +1,5 @@
 <div class="table-container">
-  <table mat-table #notificheTable [dataSource]="notificheTableData" class="table">
+  <table mat-table #notificheTable [dataSource]="notificheTableData" matSort (matSortChange)="notificheTableData.data = sortNotificationsByMatSort(notificheTableData.data)" class="table">
     <ng-container matColumnDef="Id">
       <th mat-header-cell *matHeaderCellDef> Id </th>
       <td mat-cell *matCellDef="let notification; let i = index"> {{i + 1}} </td>
@@ -21,8 +21,8 @@
     </ng-container>
 
     <ng-container matColumnDef="Data Creazione">
-      <th mat-header-cell *matHeaderCellDef> Data di creazione </th>
-      <td mat-cell *matCellDef="let notification"> {{notification.createdAt | date: 'dd/MM/yyyy MM:ss'}} </td>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header="Data Creazione"> Data di creazione </th>
+      <td mat-cell *matCellDef="let notification"> {{notification.createdAt | date: 'dd/MM/yyyy HH:mm'}} </td>
     </ng-container>
 
     <ng-container matColumnDef="Stato lettura" >
@@ -48,8 +48,6 @@
         </div>
       </td>
     </ng-container>
-
-
 
     <ng-container matColumnDef="Azioni">
       <th mat-header-cell *matHeaderCellDef class="right-text"> Azioni </th>

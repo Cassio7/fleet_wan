@@ -1,6 +1,7 @@
 export class Notifica{
   constructor(
     public key: string,
+    public createdAt: Date,
     public author: string,
     public title: string,
     public message: string,

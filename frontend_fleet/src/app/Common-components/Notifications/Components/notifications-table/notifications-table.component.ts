@@ -10,6 +10,8 @@ import { NotificationService } from '../../../../Common-services/notification/no
 import { Notifica } from '../../../../Models/Notifica';
 import { openSnackbar } from '../../../../Utils/snackbar';
 import { NotificationsFilterService } from '../../Services/notifications-filter/notifications-filter.service';
+import { MatSort, MatSortModule } from '@angular/material/sort';
+import { SortService } from '../../../../Common-services/sort/sort.service';
 
 @Component({
   selector: 'app-notifications-table',
@@ -19,6 +21,7 @@ import { NotificationsFilterService } from '../../Services/notifications-filter/
     MatIconModule,
     MatButtonModule,
     MatMenuModule,
+    MatSortModule,
     MatTableModule
   ],
   templateUrl: './notifications-table.component.html',
@@ -31,6 +34,7 @@ export class NotificationsTableComponent implements OnChanges, OnDestroy {
   displayedColumns: string[] = ['Id', 'Autore', 'Tipologia', 'Contenuto', 'Data Creazione', 'Stato lettura', 'Azioni'];
   notificheTableData = new MatTableDataSource<Notifica>();
   snackbar: MatSnackBar = inject(MatSnackBar);
+  @ViewChild(MatSort) sort!: MatSort;
   @Input() notifiche: Notifica[] = [];
   @Output() updateNotification: EventEmitter<Notifica> = new EventEmitter<Notifica>();
 
@@ -42,7 +46,8 @@ export class NotificationsTableComponent implements OnChanges, OnDestroy {
 
   constructor(
     private notificationsFilterService: NotificationsFilterService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private sortService: SortService
   ){}
 
   ngOnDestroy(): void {
@@ -70,6 +75,22 @@ export class NotificationsTableComponent implements OnChanges, OnDestroy {
         openSnackbar(this.snackbar, "Notifica eliminata");
       },
       error: error => console.error("Errore nell'eliminazione della notifica: ", error)
+    });
+  }
+
+  sortNotificationsByMatSort(notifiche: Notifica[]): Notifica[] {
+    const { active, direction } = this.sort;
+
+    if (!active || !direction) {
+      return notifiche;
+    }
+
+    return notifiche.sort((a, b) => {
+      const isAsc = direction === 'asc';
+
+      const dateA = a.createdAt instanceof Date ? a.createdAt : new Date(a.createdAt);
+      const dateB = b.createdAt instanceof Date ? b.createdAt : new Date(b.createdAt);
+      return this.sortService.compare(dateA.getTime(), dateB.getTime(), isAsc);
     });
   }
 }
