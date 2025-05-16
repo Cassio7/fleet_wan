@@ -9,15 +9,15 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { Subject, takeUntil } from 'rxjs';
-import { CantieriFilterService } from '../../../../Common-services/cantieri-filter/cantieri-filter.service';
-import { Filters, FiltersCommonService } from '../../../../Common-services/filters-common/filters-common.service';
-import { NotesService } from '../../../../Common-services/notes/notes.service';
-import { PlateFilterService } from '../../../../Common-services/plate-filter/plate-filter.service';
-import { SessionStorageService } from '../../../../Common-services/sessionStorage/session-storage.service';
-import { Note } from '../../../../Models/Note';
-import { Vehicle } from '../../../../Models/Vehicle';
-import { VehicleData } from '../../../../Models/VehicleData';
-import { MezziFiltersService } from '../../../Services/mezzi-filters/mezzi-filters.service';
+import { CantieriFilterService } from '../../../Common-services/cantieri-filter/cantieri-filter.service';
+import { Filters, FiltersCommonService } from '../../../Common-services/filters-common/filters-common.service';
+import { NotesService } from '../../../Common-services/notes/notes.service';
+import { PlateFilterService } from '../../../Common-services/plate-filter/plate-filter.service';
+import { SessionStorageService } from '../../../Common-services/sessionStorage/session-storage.service';
+import { Note } from '../../../Models/Note';
+import { Vehicle } from '../../../Models/Vehicle';
+import { VehicleData } from '../../../Models/VehicleData';
+import { MezziFiltersService } from '../../Services/mezzi-filters/mezzi-filters.service';
 
 @Component({
   selector: 'app-mezzi-filters',
@@ -39,7 +39,7 @@ import { MezziFiltersService } from '../../../Services/mezzi-filters/mezzi-filte
 })
 export class MezziFiltersComponent implements AfterViewInit, OnDestroy{
   private readonly destroy$: Subject<void> = new Subject<void>();
-  private allSelected: boolean = false;
+  private allSelected: boolean = true;
   plate: string = "";
   cantieri = new FormControl<string[]>([]);
   listaCantieri: string[] = [];
