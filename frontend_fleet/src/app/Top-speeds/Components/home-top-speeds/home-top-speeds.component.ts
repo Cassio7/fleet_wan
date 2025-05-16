@@ -5,6 +5,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { MatChipsModule } from '@angular/material/chips';
 import { CommonModule } from '@angular/common';
 import { PodiumComponent } from "../podium/podium.component";
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-home-top-speeds',
@@ -12,6 +13,7 @@ import { PodiumComponent } from "../podium/podium.component";
   imports: [
     CommonModule,
     MatChipsModule,
+    MatButtonModule,
     TopSpeedsTableComponent,
     PodiumComponent
 ],
@@ -71,5 +73,21 @@ export class HomeTopSpeedsComponent implements OnInit, OnDestroy{
         this.selectedRange = "All Time";
         this.displayedSpeeds = this.topSpeeds.allTime;
     }
+  }
+
+  /**
+   * Aggiorna la classifica delle velocità
+   */
+  updateSpeeds(){
+    this.displayedSpeeds = [];
+    this.speedsService.updateTopSpeeds().pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (topSpeeds: TopSpeedsData) => {
+        this.topSpeeds = topSpeeds;
+        this.setSpeedTime(this.selectedRange); //reimpostazione dati nel range selezionato prima dell'aggiornamento
+        this.cd.detectChanges();
+      },
+      error: error => console.error("Errore nel recupero delle velocità aggiornate", error)
+    });
   }
 }

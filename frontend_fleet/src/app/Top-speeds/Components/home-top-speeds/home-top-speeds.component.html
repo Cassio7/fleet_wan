@@ -5,33 +5,36 @@
   </div>
 
   <div class="table-content">
-    <mat-chip-listbox class="mat-chip-listbox-inline" aria-label="Cutest dog breeds" [hideSingleSelectionIndicator]="true">
-      <mat-chip-option
-        [ngClass]="{ 'selected-chip': selectedRange === 'Yesterday' }"
-        (click)="setSpeedTime('Yesterday')">
-        Ieri
-      </mat-chip-option>
-      <mat-chip-option
-        [ngClass]="{ 'selected-chip': selectedRange === 'This Month' }"
-        (click)="setSpeedTime('This Month')">
-        Questo mese
-      </mat-chip-option>
-      <mat-chip-option
-        [ngClass]="{ 'selected-chip': selectedRange === 'Last 3 Months' }"
-        (click)="setSpeedTime('Last 3 Months')">
-        Ultimi 3 mesi
-      </mat-chip-option>
-      <mat-chip-option
-        [ngClass]="{ 'selected-chip': selectedRange === 'This Year' }"
-        (click)="setSpeedTime('This Year')">
-        Quest'anno
-      </mat-chip-option>
-      <mat-chip-option
-        [ngClass]="{ 'selected-chip': selectedRange === 'All Time' }"
-        (click)="setSpeedTime('All Time')">
-        Da sempre
-      </mat-chip-option>
-    </mat-chip-listbox>
+    <div class="filters-container">
+      <mat-chip-listbox class="mat-chip-listbox-inline" aria-label="Cutest dog breeds" [hideSingleSelectionIndicator]="true">
+        <mat-chip-option
+          [ngClass]="{ 'selected-chip': selectedRange === 'Yesterday' }"
+          (click)="setSpeedTime('Yesterday')">
+          Ieri
+        </mat-chip-option>
+        <mat-chip-option
+          [ngClass]="{ 'selected-chip': selectedRange === 'This Month' }"
+          (click)="setSpeedTime('This Month')">
+          Questo mese
+        </mat-chip-option>
+        <mat-chip-option
+          [ngClass]="{ 'selected-chip': selectedRange === 'Last 3 Months' }"
+          (click)="setSpeedTime('Last 3 Months')">
+          Ultimi 3 mesi
+        </mat-chip-option>
+        <mat-chip-option
+          [ngClass]="{ 'selected-chip': selectedRange === 'This Year' }"
+          (click)="setSpeedTime('This Year')">
+          Quest'anno
+        </mat-chip-option>
+        <mat-chip-option
+          [ngClass]="{ 'selected-chip': selectedRange === 'All Time' }"
+          (click)="setSpeedTime('All Time')">
+          Da sempre
+        </mat-chip-option>
+      </mat-chip-listbox>
+      <button mat-button class="button" (click)="updateSpeeds()">Aggiorna classifica</button>
+    </div>
     <app-top-speeds-table [speeds]="displayedSpeeds"></app-top-speeds-table>
   </div>
 <app-podium

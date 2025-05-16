@@ -39,4 +39,18 @@ export class SpeedsService {
 
     return this.http.get<TopSpeedsData>(`${serverUrl}/speed`, {headers});
   }
+
+  /**
+   * Permette di recuperare le velocità aggiornate dei veicoli
+   * @returns observable http post
+   */
+  updateTopSpeeds(): Observable<TopSpeedsData>{
+    const access_token = this.cookieService.get('user');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${access_token}`,
+      'Content-Type': 'application/json',
+    });
+
+    return this.http.post<TopSpeedsData>(`${serverUrl}/speed`, {}, {headers});
+  }
 }
