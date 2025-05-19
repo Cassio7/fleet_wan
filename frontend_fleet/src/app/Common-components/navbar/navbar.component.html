@@ -24,9 +24,9 @@
           Ultime notifiche non lette:
           <ng-container *ngFor="let notifica of notificheList.slice(0, 3)">
             <div class="notification-container">
+              <b>{{ notifica.title }}</b>
               <div class="title-container">
                 <div class="title">
-                  <b>{{ notifica.title }}</b>
                   <button mat-icon-button class="toggleRead-button" (click)="updateNotification(notifica, $event)" [matTooltip]="notifica.isRead ? 'Premi per segnare come non letta' : 'Premi per segnare come letta'">
                       <mat-icon>{{notifica.isRead ? "visibility_on" : "visibility_off"}}</mat-icon>
                   </button>
