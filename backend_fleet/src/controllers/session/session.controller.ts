@@ -466,7 +466,7 @@ export class SessionController {
    * @param res
    * @returns
    */
-  @Get('test')
+  @Get('point')
   async getVehicleRangeKm(
     @Req() req: Request & { user: UserFromToken },
     @Query('latitude') latitude: number,
