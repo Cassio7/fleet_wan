@@ -45,6 +45,7 @@ export class SessionController {
     @Query('veId') veId: number,
     @Query('dateFrom') dateFrom: string,
     @Query('dateTo') dateTo: string,
+    @Query('filter') filter: string,
   ) {
     if (veId && dateFrom && dateTo) {
       return this.getAllSessionByVeIdRanged(
@@ -52,7 +53,7 @@ export class SessionController {
         veId,
         dateFrom,
         dateTo,
-        'false',
+        filter,
         req,
       );
     } else if (veId && !dateFrom && !dateTo) {
@@ -451,5 +452,85 @@ export class SessionController {
         message: error.message || 'Errore nel recupero della sessione attiva',
       });
     }
+  }
+
+  /**
+   * API per verificare i veicoli che sono passati vicino ad un punto e distanza in km
+   * in base ad un range temporaneo
+   * @param req
+   * @param latitude latitudine
+   * @param longitude longitudine
+   * @param km km dal punto
+   * @param dateFrom data inizio ricerca
+   * @param dateTo data fine ricerca
+   * @param res
+   * @returns
+   */
+  @Get('test')
+  async getVehicleRangeKm(
+    @Req() req: Request & { user: UserFromToken },
+    @Query('latitude') latitude: number,
+    @Query('longitude') longitude: number,
+    @Query('km') km: number,
+    @Query('dateFrom') dateFrom: string,
+    @Query('dateTo') dateTo: string,
+    @Res() res: Response,
+  ) {
+    const context: LogContext = {
+      userId: req.user.id,
+      username: req.user.username,
+      resource: 'Session km range',
+    };
+    if (!Number(latitude) || !Number(longitude) || !Number(km)) {
+      this.loggerService.logCrudError({
+        error: new Error('Campi non corretti'),
+        context,
+        operation: 'list',
+      });
+      return res.status(400).json({
+        message:
+          'Campi non corretti, controlla i campi: latitudine, longitudine e km',
+      });
+    }
+    // controllo data valida
+    const validation = validateDateRange(dateFrom, dateTo);
+    if (!validation.isValid) {
+      this.loggerService.logCrudError({
+        error: new Error(validation.message),
+        context,
+        operation: 'list',
+      });
+      return res.status(400).json({ message: validation.message });
+    }
+    const dateFrom_new = new Date(dateFrom + 'Z');
+    const dateTo_new = new Date(dateTo + 'Z');
+    const equal = sameDate(dateFrom_new, dateTo_new);
+    if (equal) {
+      dateTo_new.setHours(23, 59, 59, 0);
+    }
+    const vehicles = await this.sessionService.getSessionFromPoint(
+      req.user.id,
+      latitude,
+      longitude,
+      km,
+      dateFrom_new,
+      dateTo_new,
+    );
+    if (!vehicles.length) {
+      this.loggerService.logCrudSuccess(
+        context,
+        'list',
+        'Nessuna nessun veicolo trovato nel raggio',
+      );
+      return res
+        .status(204)
+        .json({ message: 'Nessuna nessun veicolo trovato nel raggio' });
+    }
+    this.loggerService.logCrudSuccess(
+      context,
+      'list',
+      `Recuperati i veicoli vicini alla posizione: latitude = ${latitude}, longitude = ${longitude}, km = ${km}, nel range di date ${dateFrom} - ${dateTo}`,
+    );
+    return res.status(200).json(vehicles);
   }
 }

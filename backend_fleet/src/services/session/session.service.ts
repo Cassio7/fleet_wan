@@ -20,6 +20,20 @@ import {
 } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
 import { AssociationService } from '../association/association.service';
+import { getDistance } from 'geolib';
+
+interface VehicleRangeKm {
+  veId: number;
+  plate: string;
+  session: {
+    sequence_id: number;
+    history: {
+      lat: number;
+      long: number;
+      timestamp: Date;
+    }[];
+  }[];
+}
 
 @Injectable()
 export class SessionService {
@@ -713,11 +727,12 @@ export class SessionService {
   }
 
   /**
-   * Ritorna la lista completa delle sessione in base al VeId del veicolo
+   * Ritorna la lista completa delle sessioni in base al VeId del veicolo
    * @param userId Serve per controllare se utente può visualizzare il veicolo
    * @param veId Veid veicolo
    * @param dateFrom data inizio ricerca
    * @param dateTo data fine ricerca
+   * @param isFilter filtra le sessioni
    * @returns oggetto DTO
    */
   async getAllSessionsByVeIdAndRange(
@@ -774,6 +789,85 @@ export class SessionService {
       if (error instanceof HttpException) throw error;
       throw new HttpException(
         `Errore durante recupero delle sessioni veId con range temporale`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  /**
+   * Funzione che prima chiama il recupero delle sessioni e posizioni per ogni veicolo
+   * e poi controlla se sono vicini alla posizione passata in base ai km
+   * @param userId user id
+   * @param latitude latitudine
+   * @param longitude longitudine
+   * @param km km di distanza
+   * @param dateFrom data inizio ricerca
+   * @param dateTo data fine ricerca
+   * @returns
+   */
+  async getSessionFromPoint(
+    userId: number,
+    latitude: number,
+    longitude: number,
+    km: number,
+    dateFrom: Date,
+    dateTo: Date,
+  ): Promise<VehicleRangeKm[]> {
+    const vehicles =
+      await this.associationService.getVehiclesAssociateUserRedis(userId);
+    const centro = { latitude, longitude };
+
+    // Map veId -> VehicleRangeKm object
+    const vehicleMap = new Map<number, VehicleRangeKm>();
+    try {
+      for (const vehicle of vehicles) {
+        const sessions = await this.getAllSessionsByVeIdAndRange(
+          userId,
+          vehicle.veId,
+          dateFrom,
+          dateTo,
+          false,
+        );
+
+        for (const singleSession of sessions) {
+          if (Array.isArray(singleSession.history)) {
+            const accepted = singleSession.history.filter((history) => {
+              const distanza = getDistance(
+                { latitude: history.latitude, longitude: history.longitude },
+                centro,
+              );
+              return distanza <= km * 1000;
+            });
+
+            if (accepted.length > 0) {
+              if (!vehicleMap.has(vehicle.veId)) {
+                vehicleMap.set(vehicle.veId, {
+                  veId: vehicle.veId,
+                  plate: vehicle.plate,
+                  session: [],
+                });
+              }
+
+              const v = vehicleMap.get(vehicle.veId)!;
+
+              v.session.push({
+                sequence_id: singleSession.sequence_id,
+                history: accepted.map((h) => ({
+                  lat: h.latitude,
+                  long: h.longitude,
+                  timestamp: new Date(h.timestamp),
+                })),
+              });
+            }
+          }
+        }
+      }
+
+      return Array.from(vehicleMap.values());
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new HttpException(
+        `Errore durante recupero dei veicoli in base alla posizione con distanza km`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
