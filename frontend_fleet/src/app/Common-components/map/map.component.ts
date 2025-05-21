@@ -17,6 +17,7 @@ import {
 } from '../../Common-services/map/map.service';
 import { RealtimeData } from '../../Common-services/realtime-api/realtime-api.service';
 import { Point } from '../../Models/Point';
+import 'leaflet-control-geocoder';
 
 @Component({
   selector: 'app-map',
@@ -467,7 +468,16 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   private initMap(point: Point, zoom: number) {
     this.initialized = true;
     this.cd.detectChanges();
-    if (this.map) this.mapService.removeMap(this.map);
+
+    if (this.map) {
+      this.mapService.removeMap(this.map);
+    }
+
     this.map = this.mapService.initMap(this.map, point, zoom);
+
+    //aggiunta del geocoder solo sulla sezione mappa
+    if(this.router.url == "/home-mappa")
+      this.mapService.addGeocoder(false, "Ricerca un indirizzo", this.map, 2000)//Aggiunta di geocoder
   }
+
 }

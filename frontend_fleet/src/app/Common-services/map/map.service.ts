@@ -871,6 +871,38 @@ export class MapService {
   }
 
   /**
+   * Permette di aggiungere un geocoder per la ricerca di indirizzi sulla mappa passata
+   * @param collapsed indica se la barra di ricerca deve essere inizialmente compressa o già estesa
+   * @param placeholderText testo placeholder nella barra di ricerca
+   * @param map mappa su cui ricercare e zommare a ricerca completa
+   * @param markerVisibleTime tempo in cui il marker, che viene aggiunto dopo lo zoom sul punto preciso della ricerca, rimane visibile
+   */
+  addGeocoder(collapsed: boolean, placeholderText: string, map: L.Map, markerVisibleTime?: number){
+    new (L.Control as any).geocoder({
+      geocoder: (L.Control as any).Geocoder.nominatim({
+        geocodingQueryParams: {
+          countrycodes: 'it' // Per limitare la ricerca all'Italia
+        }
+      }),
+      defaultMarkGeocode: false,
+      collapsed: collapsed,
+      placeholder: placeholderText
+    })
+    .on('markgeocode', (e: any) => {
+      const center = e.geocode.center;
+
+      map.setView(center, 16); //centra la mappa sul risultato
+
+      //impostazione marker temporaneo
+      const tempMarker = L.marker(center).addTo(map);
+      setTimeout(() => {
+        map.removeLayer(tempMarker);
+      }, markerVisibleTime || 2000); //di default visibile 2 secondi
+    })
+    .addTo(map);
+  }
+
+  /**
    * Permette di ottenere la stringa svg del popup custom
    * @param msg messaggio all'interno del popup
    * @returns stringa contenente l'elemento svg
