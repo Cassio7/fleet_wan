@@ -1,10 +1,11 @@
 <div class="content">
   <div class="map-container">
-    <app-map></app-map>
+    <app-map (mapClick)="lastClickedPoint=$event" [incrementRange]="lastClickedPointRange" [switchMode]="modeSwitch"></app-map>
   </div>
   <div class="vehicleHandling-container">
     <div class="filters">
-      <app-map-filter></app-map-filter>
+      <app-map-filter *ngIf="!pointResearchMode"></app-map-filter>
+      <app-point-research *ngIf="pointResearchMode" [point]="lastClickedPoint" [(visiblePlates)]="visiblePointSearchPlates" (searchResults)="loadSearchResults($event)" (rangeChange)="lastClickedPointRange.set($event)"></app-point-research>
     </div>
     <div class="info-container" [ngClass]="{'hidden': !vehicleSelected}">
       <app-mappa-info
@@ -12,5 +13,13 @@
         (closePopup)="vehicleSelected=false">
       </app-mappa-info>
     </div>
+    <section class="slider-container">
+      <mat-slide-toggle
+      labelPosition="after"
+      [checked]="pointResearchMode"
+      (toggleChange)="switchMode()">
+      {{pointResearchMode ? "Modalità ricerca per punto" : "Passa alla modalità ricerca per punto"}}
+      </mat-slide-toggle>
+    </section>
   </div>
 </div>

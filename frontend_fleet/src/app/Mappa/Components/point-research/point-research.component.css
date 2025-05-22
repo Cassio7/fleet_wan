@@ -1,0 +1,20 @@
+.column-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.inline-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.label {
+  display: inline-block;
+  width: 40px; /* spazio riservato, uguale per tutte le label */
+}
+.inline-container mat-slider {
+  width: 100%;
+  justify-content: space-evenly;
+}

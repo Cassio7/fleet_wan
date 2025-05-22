@@ -3,13 +3,18 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
+  effect,
+  EventEmitter,
+  Input,
   OnDestroy,
+  Output,
+  Signal,
   ViewEncapsulation,
 } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { Router } from '@angular/router';
 import L from 'leaflet';
-import { skip, Subject, takeUntil } from 'rxjs';
+import { last, skip, Subject, takeUntil } from 'rxjs';
 import {
   MapService,
   pathData,
@@ -31,15 +36,54 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   private readonly destroy$: Subject<void> = new Subject<void>();
 
   private map!: L.Map;
-  private popupVisible: boolean = false;
 
   initialized: boolean = false;
+
+  @Output() mapClick: EventEmitter<Point> = new EventEmitter<Point>;
+
+  @Input() incrementRange!: Signal<number>;
+  @Input() switchMode!: Signal<boolean>;
+  currentMode: "normal" | "pointResearch" = "normal";
+
+  lastClickedPoint: Point | null = null;
+  lastMarkerGroup!: L.MarkerClusterGroup;
 
   constructor(
     private mapService: MapService,
     private router: Router,
     private cd: ChangeDetectorRef
-  ) {}
+  ) {
+    effect(() => {
+      if(this.map){
+        const trigger = this.switchMode();
+        this.currentMode = trigger ? "pointResearch" : "normal";
+        this.handleModeSwitch(trigger);
+      }
+    });
+
+    effect(() => {
+      const rangeIncrement = this.incrementRange();
+
+      if (this.map && this.lastClickedPoint) {
+        const latlng = L.latLng(this.lastClickedPoint.lat, this.lastClickedPoint.long);
+
+        const existingCircle = this.mapService.findCircleAtPoint(latlng, this.map);
+
+        if (existingCircle) {
+          this.map.removeLayer(existingCircle); //rimozione del vecchio cerchio
+        }
+
+        //creazione di un nuovo cerchio con il range preso in input
+        const newCircle = L.circle(latlng, {
+          radius: rangeIncrement,
+          color: 'green',
+        });
+
+        newCircle.addTo(this.map);
+      }
+    });
+
+  }
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -50,10 +94,12 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     this.handleInitMap();
-    this.handleLoadPosition();
-    this.handleMultipleVehiclePositionsLoading();
+    this.handleLoadLayerGroup();
+    this.handleLoadRealtimeData();
+    this.handleMultipleVehicleRealtimeDataLoading();
     this.handleLoadSessionPath();
     this.handleLoadDayPath();
+    this.handleRemovePointResearchMarkers();
     this.handleTogglePopups();
     this.handleMarkersUpdate();
     this.handleZoomIn();
@@ -152,9 +198,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
    */
   private handleTogglePopups() {
     this.mapService.togglePopups$.pipe(takeUntil(this.destroy$)).subscribe({
-      next: () => {
-        this.popupVisible = !this.popupVisible;
-        this.mapService.togglePopups(this.map, this.popupVisible);
+      next: (toggle: boolean) => {
+        console.log('toggle: ', toggle);
+        this.mapService.togglePopups(this.map, toggle);
       },
       error: (error) =>
         console.error('Errore nel toggle dei popup nei marker: ', error),
@@ -175,9 +221,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   }
 
   /**
-   * Gestisce la sottoscrizione al subject per il caricamento nella mappa di una posizione
+   * Gestisce la sottoscrizione al subject per il caricamento nella mappa di più posizioni tramite i Realtime data
    */
-  private handleMultipleVehiclePositionsLoading() {
+  private handleMultipleVehicleRealtimeDataLoading() {
     this.mapService.loadMultipleVehiclePositions$
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -204,6 +250,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             });
 
             gruppoMarker.addTo(this.map);
+
+            this.lastMarkerGroup = gruppoMarker;
           }
         },
         error: (error) =>
@@ -211,10 +259,50 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       });
   }
 
+  private handleModeSwitch(mode: boolean){
+    if(mode){
+      this.map.removeLayer(this.lastMarkerGroup);
+    }else{
+      //rimozione dei layer sull'ultimo punto cliccato
+      this.map.eachLayer(layer => {
+        if (layer instanceof L.Marker || layer instanceof L.Circle) {
+          this.map.removeLayer(layer);
+        }
+      });
+      this.lastMarkerGroup.addTo(this.map); //riaggiunta dei vecchi layer
+    }
+  }
+
+  private handleLoadLayerGroup(){
+    this.mapService.loadLayerGroup$.pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe((layerGroup: L.LayerGroup | null) => {
+      if(layerGroup){
+        const featureGroup = L.featureGroup(layerGroup.getLayers());
+
+        featureGroup.addTo(this.map);
+      }
+    });
+  }
+
+  private handleRemovePointResearchMarkers(){
+    this.mapService.removeMarkers$.pipe(takeUntil(this.destroy$), skip(1))
+    .subscribe({
+      next: (data: { type: string } | null) => {
+        this.map.eachLayer(layer => {
+          if (layer instanceof L.Marker && (layer as any).type === data?.type) {
+            layer.remove();
+          }
+        })
+      },
+      error: error => console.error("Errore nella notifica di rimozione dei marker creati dalla ricerca per punto: ", error)
+    });
+  }
+
+
   /**
-   * Gestisce la sottoscrizione al subject per il caricamento nella mappa di una posizione
+   * Gestisce la sottoscrizione al subject per il caricamento nella mappa di una posizione tramite Realtime Data
    */
-  private handleLoadPosition() {
+  private handleLoadRealtimeData() {
     this.mapService.loadPosition$
       .pipe(takeUntil(this.destroy$), skip(1))
       .subscribe({
@@ -476,8 +564,43 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.map = this.mapService.initMap(this.map, point, zoom);
 
     //aggiunta del geocoder solo sulla sezione mappa
-    if(this.router.url == "/home-mappa")
-      this.mapService.addGeocoder(false, "Ricerca un indirizzo", this.map, 2000)//Aggiunta di geocoder
+    if (this.router.url == "/home-mappa") {
+      this.mapService.addGeocoder(false, "Ricerca un indirizzo", this.map, 2000); // Aggiunta di geocoder
+
+      let lastMarker: L.Marker | null = null;
+      let lastCircle: L.Circle | null = null;
+
+      this.map.on("click", (e: L.LeafletMouseEvent) => {
+        if(this.currentMode == "pointResearch"){
+          const lat = e.latlng.lat;
+          const lng = e.latlng.lng;
+          this.lastClickedPoint = new Point(lat, lng);
+
+          console.log('atck: ', this.lastClickedPoint);
+
+          //rimozione del precedente marker
+          if (lastMarker) {
+            this.map.removeLayer(lastMarker);
+          }
+
+          //rimozione di ogni cerchio perché quando il cerchio viene ridimensionato viene sostituito con un altro, quindi rimuovere l'ultimo non rimuove quello ridimensionato
+          this.map.eachLayer(layer => {
+            if(layer instanceof L.Circle)
+              layer.remove();
+          })
+
+          lastMarker = L.marker([lat, lng]);
+          lastMarker.bindPopup(this.mapService.getCustomPopup(`${lat}, ${lng}`)); //bind del popup con le coordinate del punto come contenuto
+          lastMarker.addTo(this.map);
+
+          lastCircle = L.circle([lat, lng], {radius: 100, color: "green"}).addTo(this.map); //aggiunta di un nuovo circle
+
+          this.mapClick.emit(this.lastClickedPoint);
+        }
+      });
+    }
+
+
   }
 
 }

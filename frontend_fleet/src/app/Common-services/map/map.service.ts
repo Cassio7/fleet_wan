@@ -3,11 +3,17 @@ import L from 'leaflet';
 import 'leaflet-routing-machine';
 import 'leaflet.markercluster';
 import 'leaflet-rotatedmarker';
-import { BehaviorSubject, Subject, map } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, map, range } from 'rxjs';
 import { Anomaly } from '../../Models/Anomaly';
 import { Point } from '../../Models/Point';
 import { RealtimeData } from '../realtime-api/realtime-api.service';
 import { SessionStorageService } from '../sessionStorage/session-storage.service';
+import { CookieService } from 'ngx-cookie-service';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { Session } from '../../Models/Session';
+import { serverUrl } from '../../environment';
+import { VehicleRangeKm } from '@interfaces2/VehicleRangeKm.interface';
+
 
 export interface positionData {
   veId: number;
@@ -26,6 +32,7 @@ export interface pathData {
   firstPoints?: Point[];
   tagPoints?: Point[];
 }
+
 @Injectable({
   providedIn: 'root',
 })
@@ -38,7 +45,7 @@ export class MapService {
       point: this.defaultPoint,
       zoom: this.defaultZoom,
     });
-
+  private readonly _loadLayerGroup$: BehaviorSubject<L.LayerGroup | null> = new BehaviorSubject<L.LayerGroup | null>(null);
   private readonly _loadMultipleVehiclePositions$: BehaviorSubject<
     RealtimeData[]
   > = new BehaviorSubject<RealtimeData[]>([]);
@@ -51,9 +58,11 @@ export class MapService {
   private readonly _updateMarkers$: BehaviorSubject<any> =
     new BehaviorSubject<any>(null);
 
+  private readonly _removeMarkers$: BehaviorSubject<{ type: string; } | null> = new BehaviorSubject<{ type: string; } | null>(null); //rimuove tutti i marker se passato "null", altrimenti rimuove solo quelli con l'attributo "type" specificato
+
   private readonly _selectMarker$: BehaviorSubject<positionData | null> =
     new BehaviorSubject<positionData | null>(null);
-  private readonly _togglePopups$: Subject<void> = new Subject<void>();
+  private readonly _togglePopups$: Subject<boolean> = new Subject<boolean>();
   private readonly _zoomIn$: BehaviorSubject<{
     point: Point;
     zoom: number;
@@ -201,8 +210,16 @@ export class MapService {
         </defs>
         </svg>
 `;
+  vehiclePointResearchMarker = `<svg xmlns="http://www.w3.org/2000/svg" height="48" width="48" viewBox="0 0 48 48" fill="currentColor">
+        <path d="M4 11v26h4.3q.85 2.05 2.625 3.275Q12.7 42.5 15 42.5q2.3 0 4.075-1.225T21.7 37H26.3q.85 2.05 2.625 3.275Q31.7 41.5 34 41.5q2.3 0 4.075-1.225T40.7 37H44V22.15L37.9 14H30v-3Zm26 17V18h6.35l4.5 6.15V28Zm-15 9q-1.45 0-2.475-1.025Q11.5 34.95 11.5 33.5q0-1.45 1.025-2.475Q13.55 30 15 30q1.45 0 2.475 1.025Q18.5 32.05 18.5 33.5q0 1.45-1.025 2.475Q16.45 37 15 37Zm19 0q-1.45 0-2.475-1.025Q30.5 34.95 30.5 33.5q0-1.45 1.025-2.475Q32.55 30 34 30q1.45 0 2.475 1.025Q37.5 32.05 37.5 33.5q0 1.45-1.025 2.475Q35.45 37 34 37Z"/>
+        </svg>
+        `;
 
-  constructor(private sessionStorageService: SessionStorageService) {}
+  constructor(
+    private sessionStorageService: SessionStorageService,
+    private cookieService: CookieService,
+    private http: HttpClient
+  ) {}
 
   /**
    * Crea e ritorna una legenda
@@ -593,8 +610,8 @@ export class MapService {
       const popup = L.popup({
         autoPan: false,
       })
-        .setLatLng(event.latlng)
-        .setContent(this.getCustomPopup(popupContent));
+      .setLatLng(event.latlng)
+      .setContent(this.getCustomPopup(popupContent));
 
       event.layer.bindPopup(popup).openPopup();
     });
@@ -902,6 +919,49 @@ export class MapService {
     .addTo(map);
   }
 
+  findCircleAtPoint(latlng: L.LatLng, map: L.Map, tolerance = 0.000001): L.Circle | null {
+    let found: L.Circle | null = null;
+
+    map.eachLayer(layer => {
+      if (layer instanceof L.Circle) {
+        const center = layer.getLatLng();
+        if (Math.abs(center.lat - latlng.lat) < tolerance &&
+            Math.abs(center.lng - latlng.lng) < tolerance) {
+          found = layer;
+        }
+      }
+    });
+
+    return found;
+  }
+
+  /**
+   * Permette di trovare le sessioni in un punto tramite una chiamata API
+   * @param latitude latitudine del punto
+   * @param longitude longitudine del punto
+   * @param rangeKm range in km da quel punto in cui ricercare
+   * @param dateFrom data inizio ricerca
+   * @param dateTo data fine ricerca
+   * @returns observable http get
+   */
+  findSessionsInPoint(latitude: number, longitude: number, rangeKm: number, dateFrom: Date, dateTo: Date): Observable<VehicleRangeKm[]> {
+    const access_token = this.cookieService.get('user');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${access_token}`,
+      'Content-Type': 'application/json',
+    });
+
+    const params = new HttpParams()
+    .set("latitude", latitude)
+    .set("longitude", longitude)
+    .set("km", rangeKm)
+    .set("dateFrom", dateFrom.toString())
+    .set("dateTo", dateTo.toString());
+
+    return this.http.get<VehicleRangeKm[]>(`${serverUrl}/sessions/point`, { headers, params });
+  }
+
+
   /**
    * Permette di ottenere la stringa svg del popup custom
    * @param msg messaggio all'interno del popup
@@ -934,7 +994,7 @@ export class MapService {
   public get zoomIn$(): BehaviorSubject<{ point: Point; zoom: number } | null> {
     return this._zoomIn$;
   }
-  public get togglePopups$(): Subject<void> {
+  public get togglePopups$(): Subject<boolean> {
     return this._togglePopups$;
   }
   public get initMap$(): BehaviorSubject<any> {
@@ -957,6 +1017,12 @@ export class MapService {
   }
   public get loadMultipleVehiclePositions$(): BehaviorSubject<RealtimeData[]> {
     return this._loadMultipleVehiclePositions$;
+  }
+  public get loadLayerGroup$(): BehaviorSubject<L.LayerGroup | null> {
+    return this._loadLayerGroup$;
+  }
+  public get removeMarkers$(): BehaviorSubject<{ type: string; } | null> {
+    return this._removeMarkers$;
   }
   public get resizeMap$(): Subject<void> {
     return this._resizeMap$;
