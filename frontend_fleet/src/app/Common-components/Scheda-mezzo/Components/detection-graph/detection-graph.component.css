@@ -2,22 +2,7 @@
   font-weight: bold;
   font-size: 1em;
 }
-.mat-mdc-chip {
-  background-color: white !important;
-  color: var(--green) !important;
-  outline: 1px solid var(--green) !important;
-}
 
-.mat-mdc-chip:hover {
-  background-color: var(--green) !important;
-  color: black !important;
-}
-
-.mat-mdc-chip.selected {
-  background-color: var(--green) !important;
-  color: white !important;
-  outline: 1px solid var(--green) !important;
-}
 
 .mat-chip-listbox-inline mat-chip-option {
   width: auto;
@@ -27,6 +12,7 @@
   background-color: var(--green) !important;
   color: white !important;
 }
+
 
 
 

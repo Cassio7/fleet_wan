@@ -106,11 +106,23 @@ body {
   white-space: nowrap;
   font-weight: 600;
 }
-.inline-container{
-  display: inline-flex;
-  align-items: center;
+.column-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   gap: 5px;
-  white-space: nowrap;
+}
+
+.mat-mdc-chip {
+  background-color: white !important;
+  --mdc-chip-label-text-color: black;
+  --mdc-chip-outline-color: var(--green);
+}
+
+.mat-mdc-chip.selected {
+  background-color: var(--green) !important;
+  --mdc-chip-label-text-color: white;
+  --mdc-chip-outline-color: transparent;
 }
 
 .table {
