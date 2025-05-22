@@ -809,10 +809,11 @@ export class SessionService {
 
     // Map veId -> VehicleRangeKm object
     const vehicleMap = new Map<number, VehicleRangeKm>();
-    let closest: HistoryDTO = null;
-    let minDistance = Infinity;
+
     try {
       for (const vehicle of vehicles) {
+        let closest: HistoryDTO = null;
+        let minDistance = Infinity;
         const sessions = await this.getAllSessionsByVeIdAndRange(
           userId,
           vehicle.veId,
