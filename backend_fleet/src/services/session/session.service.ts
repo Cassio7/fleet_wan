@@ -22,8 +22,8 @@ import {
 } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
 import { AssociationService } from '../association/association.service';
-import { DriveStopTime } from './../../../../shared/interfaces/DriveStopTime.interface';
-import { VehicleRangeKm } from './../../../../shared/interfaces/VehicleRangeKm.interface';
+import { VehicleRangeKm } from '@interfaces2/VehicleRangeKm.interface';
+import { DriveStopTime } from '@interfaces2/DriveStopTime.interface';
 
 @Injectable()
 export class SessionService {

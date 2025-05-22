@@ -17,7 +17,6 @@ import { LogContext } from 'src/log/logger.types';
 import { LoggerService } from 'src/log/service/logger.service';
 import { SessionService } from 'src/services/session/session.service';
 import { sameDate, validateDateRange } from 'src/utils/utils';
-import { DriveStopTime } from '../../../../shared/interfaces/DriveStopTime.interface';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Controller('sessions')
@@ -552,7 +551,7 @@ export class SessionController {
     @Query('days') days: number,
     @Query('months') months: number,
     @Res() res: Response,
-  ): Promise<Response<DriveStopTime[]>> {
+  ): Promise<Response> {
     const context: LogContext = {
       userId: req.user.id,
       username: req.user.username,
