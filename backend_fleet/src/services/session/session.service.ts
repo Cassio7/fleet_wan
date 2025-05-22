@@ -814,14 +814,29 @@ export class SessionService {
       for (const vehicle of vehicles) {
         let closest: HistoryDTO = null;
         let minDistance = Infinity;
-        const sessions = await this.getAllSessionsByVeIdAndRange(
-          userId,
-          vehicle.veId,
-          dateFrom,
-          dateTo,
-          false,
-        );
-
+        const sessions = await this.sessionRepository.find({
+          select: {
+            sequence_id: true,
+            history: {
+              timestamp: true,
+              latitude: true,
+              longitude: true,
+            },
+          },
+          where: {
+            history: { vehicle: { veId: vehicle.veId } },
+            period_from: LessThanOrEqual(dateTo),
+            period_to: MoreThanOrEqual(dateFrom),
+          },
+          relations: {
+            history: true,
+          },
+          order: {
+            history: {
+              timestamp: 'ASC',
+            },
+          },
+        });
         for (const singleSession of sessions) {
           if (Array.isArray(singleSession.history)) {
             const accepted = singleSession.history.filter((history) => {
