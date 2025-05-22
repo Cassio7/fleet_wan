@@ -17,6 +17,7 @@ import { LogContext } from 'src/log/logger.types';
 import { LoggerService } from 'src/log/service/logger.service';
 import { SessionService } from 'src/services/session/session.service';
 import { sameDate, validateDateRange } from 'src/utils/utils';
+import { DriveStopTime } from '../../../../shared/interfaces/DriveStopTime.interface';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Controller('sessions')
@@ -532,5 +533,87 @@ export class SessionController {
       `Recuperati i veicoli vicini alla posizione: latitude = ${latitude}, longitude = ${longitude}, km = ${km}, nel range di date ${dateFrom} - ${dateTo}`,
     );
     return res.status(200).json(vehicles);
+  }
+
+  /**
+   * API per il recupero del tempo di lavoro di ogni mezzo in un intervallo di tempo,
+   * con informazioni sul tempo trascorso in folle e in viaggio.
+   * @param req Dati utente
+   * @param veId Identificativo del veicolo
+   * @param days Numero di giorni da oggi a ritroso
+   * @param months Numero di mesi da oggi a ritroso
+   * @param res Oggetto di risposta
+   * @returns Dati sul tempo di attività del veicolo, DriveStopTime[]
+   */
+  @Get('drive')
+  async getStartStopTime(
+    @Req() req: Request & { user: UserFromToken },
+    @Query('veId') veId: number,
+    @Query('days') days: number,
+    @Query('months') months: number,
+    @Res() res: Response,
+  ): Promise<Response<DriveStopTime[]>> {
+    const context: LogContext = {
+      userId: req.user.id,
+      username: req.user.username,
+      resource: 'Session drive',
+      resourceId: veId,
+    };
+    const veIdNum = Number(veId); // Garantisce che veId sia un numero
+    const daysNum = Number(days);
+    const monthsNum = Number(months);
+    if (isNaN(veIdNum)) {
+      this.loggerService.logCrudError({
+        error: new Error('Il veId deve essere un numero valido'),
+        context,
+        operation: 'list',
+      });
+      return res.status(400).json({
+        message: 'Il veId deve essere un numero valido',
+      });
+    }
+    if (!daysNum && !monthsNum) {
+      this.loggerService.logCrudError({
+        error: new Error('Inserisci almeno un giorno o un mese e diversi da 0'),
+        context,
+        operation: 'list',
+      });
+      return res.status(400).json({
+        message: 'Inserisci almeno un giorno o un mese e diversi da 0',
+      });
+    }
+    try {
+      const sessions = await this.sessionService.getDriveStopTime(
+        req.user.id,
+        veIdNum,
+        daysNum,
+        monthsNum,
+      );
+      if (!sessions?.length) {
+        this.loggerService.logCrudSuccess(
+          context,
+          'list',
+          'Nessuna sessione trovata',
+        );
+        return res.status(404).json({ message: 'Nessuna sessione trovata' });
+      }
+      this.loggerService.logCrudSuccess(
+        context,
+        'list',
+        `Tempi di sessione recuperati, con (${sessions.length}) giornate per veicolo VeId = ${veId}`,
+      );
+      return res.status(200).json(sessions);
+    } catch (error) {
+      this.loggerService.logCrudError({
+        error,
+        context,
+        operation: 'list',
+      });
+
+      return res.status(error.status || 500).json({
+        message:
+          error.message || 'Errore nel recupero delle sessioni del veicolo ',
+      });
+    }
   }
 }
