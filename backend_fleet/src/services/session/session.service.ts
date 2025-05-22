@@ -4,36 +4,26 @@ import { ConfigService } from '@nestjs/config';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import axios from 'axios';
 import { createHash } from 'crypto';
+import { getDistance } from 'geolib';
 import Redis from 'ioredis';
 import { HistoryDTO } from 'src/classes/dtos/history.dto';
 import { SessionDTO } from 'src/classes/dtos/session.dto';
 import { HistoryEntity } from 'src/classes/entities/history.entity';
 import { SessionEntity } from 'src/classes/entities/session.entity';
 import { VehicleEntity } from 'src/classes/entities/vehicle.entity';
-import { sameDay } from 'src/utils/utils';
+import { getDaysInRange, sameDay } from 'src/utils/utils';
 import {
   DataSource,
   In,
   LessThanOrEqual,
   MoreThanOrEqual,
+  Not,
   Repository,
 } from 'typeorm';
 import { parseStringPromise } from 'xml2js';
 import { AssociationService } from '../association/association.service';
-import { getDistance } from 'geolib';
-
-interface VehicleRangeKm {
-  veId: number;
-  plate: string;
-  session: {
-    sequence_id: number;
-    history: {
-      lat: number;
-      long: number;
-      timestamp: Date;
-    }[];
-  }[];
-}
+import { DriveStopTime } from './../../../../shared/interfaces/DriveStopTime.interface';
+import { VehicleRangeKm } from './../../../../shared/interfaces/VehicleRangeKm.interface';
 
 @Injectable()
 export class SessionService {
@@ -819,6 +809,8 @@ export class SessionService {
 
     // Map veId -> VehicleRangeKm object
     const vehicleMap = new Map<number, VehicleRangeKm>();
+    let closest: HistoryDTO = null;
+    let minDistance = Infinity;
     try {
       for (const vehicle of vehicles) {
         const sessions = await this.getAllSessionsByVeIdAndRange(
@@ -836,20 +828,31 @@ export class SessionService {
                 { latitude: history.latitude, longitude: history.longitude },
                 centro,
               );
+              // recupero il piu vicino
+              if (distanza < minDistance) {
+                minDistance = distanza;
+                closest = history;
+              }
               return distanza <= km * 1000;
             });
 
             if (accepted.length > 0) {
+              // imposto il contenuto principale
               if (!vehicleMap.has(vehicle.veId)) {
                 vehicleMap.set(vehicle.veId, {
                   veId: vehicle.veId,
                   plate: vehicle.plate,
+                  closest: {
+                    lat: closest.latitude,
+                    long: closest.longitude,
+                    timestamp: closest.timestamp,
+                  },
                   session: [],
                 });
               }
 
               const v = vehicleMap.get(vehicle.veId)!;
-
+              // salvo le posizioni
               v.session.push({
                 sequence_id: singleSession.sequence_id,
                 history: accepted.map((h) => ({
@@ -1190,6 +1193,104 @@ export class SessionService {
     }
   }
 
+  /**
+   * Recupera i tempi di lavoro, in base al mezzo e al range di ricerca, indicando
+   * quanto tempo hanno lavorato giornalmente, con tempo in movimento e tempo fermi
+   * @param userId id utente
+   * @param veId identificativo veicolo
+   * @param days giorni di ricerca da oggi all'indietro
+   * @param months mesi di ricerca da oggi all'indietro
+   * @returns
+   */
+  async getDriveStopTime(
+    userId: number,
+    veId: number,
+    days?: number,
+    months?: number,
+  ): Promise<DriveStopTime[]> {
+    await this.associationService.checkVehicleAssociateUserSet(userId, veId);
+
+    const dateTo = new Date();
+    dateTo.setHours(0, 0, 0, 0);
+    const dateFrom = new Date(dateTo);
+    if (months) {
+      dateFrom.setMonth(dateTo.getMonth() - months);
+    } else if (days) {
+      dateFrom.setDate(dateTo.getDate() - days);
+    }
+
+    try {
+      const daysInRange = getDaysInRange(dateFrom, dateTo);
+
+      // Elabora ogni giorno in parallelo
+      const driveStopTimePromises = daysInRange
+        .slice(0, -1)
+        .map(async (day) => {
+          const startOfDay = new Date(day);
+          const endOfDay = new Date(day);
+          endOfDay.setHours(23, 59, 59, 0);
+
+          const sessions = await this.sessionRepository.find({
+            select: {
+              distance: true,
+              period_from: true,
+              period_to: true,
+              engine_drive: true,
+              engine_stop: true,
+            },
+            where: {
+              history: {
+                vehicle: {
+                  veId: veId,
+                },
+              },
+              sequence_id: Not(0),
+              period_from: LessThanOrEqual(endOfDay),
+              period_to: MoreThanOrEqual(startOfDay),
+            },
+            order: {
+              sequence_id: 'ASC',
+            },
+          });
+
+          // Se non ci sono sessioni, restituisco null
+          if (!sessions.length) return null;
+
+          const driveStopTime: DriveStopTime = {
+            date: startOfDay,
+            distance: 0,
+            time: 0,
+            start: 0,
+            stop: 0,
+          };
+
+          for (const item of sessions) {
+            driveStopTime.time += Math.abs(
+              item.period_from.getTime() - item.period_to.getTime(),
+            );
+            driveStopTime.start += item.engine_drive * 1000;
+            driveStopTime.stop += item.engine_stop * 1000;
+            driveStopTime.distance += item.distance;
+          }
+
+          return driveStopTime;
+        });
+
+      // aspetto chiamatae filtro i null
+      const results = await Promise.all(driveStopTimePromises);
+      const driveStopTimeArray = results.filter(
+        (result): result is DriveStopTime => result !== null,
+      );
+
+      return driveStopTimeArray;
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new HttpException(
+        `Errore durante recupero delle sessioni per il calcolo drive`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
   private toDTOSession(session: SessionEntity): SessionDTO {
     const sessionDTO = new SessionDTO();
     sessionDTO.id = session.id;
